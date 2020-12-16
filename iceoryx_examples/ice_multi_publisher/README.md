@@ -3,9 +3,9 @@
 ## Introduction
 A common use case is that often we have multiple sensors sending data of the same type, e.g. LIDAR data, and a subscriber is interested in the data of all those sensors. 
 
-This example shows how you can run multiple publishers and let them pblish of the same topic. 
+This example shows how you can run multiple publishers and let them publish on the same topic. 
 Here we only cover the specifics for this use case, for basic sending and receiving see the 
- [icedelivery](../icedelivery/README.md) example. The example also demonstrates how you can change the maximum number of samples available at a subscriber when you resubscribe.
+ [icedelivery](../icedelivery/README.md) example. The example also demonstrates how you can change the maximum number of samples that can be queued up at a subscriber when you resubscribe.
 ## Run ice_multi_publisher
 
 Create four terminals and run one command in each of them. 
@@ -23,7 +23,7 @@ Create four terminals and run one command in each of them.
 
 
 This starts two publishers in the iox-multi-publisher application and 
-a subscriber in each of the other applications. The two publishers publish publish two independent counters. The data of bboth is made distinct by using an id, which has the values 1 and 2 respectively. 
+a subscriber in each of the other applications. The two publishers publish two independent counters. The data of both is made distinct by using an id, which has the values 1 and 2 respectively. 
 ## Expected output
 
 The counters can differ depending on startup of the applications.
@@ -64,7 +64,7 @@ The counters can differ depending on startup of the applications.
     Received: id 2 counter 3
     Received: id 1 counter 6
 
-The subscriber application wakes up periodically, looks for data, and if it received any displays the data. It can be seen that that the data arrives in order for any publisher, indciated by a monotonic counter per id. The order of data of different id is indeterminate since the publishers are sending concurrently.
+The subscriber application wakes up periodically, looks for data, and if it received any displays the data. It can be seen that the data arrives in order for any publisher, indicated by a monotonic counter per id. The order of data of different id is indeterminate since the publishers are sending concurrently.
 
 ### Resubscriber application
 
@@ -85,7 +85,7 @@ The subscriber application wakes up periodically, looks for data, and if it rece
     Received: id 1 counter 40
     Waiting for data ... 
 
-The resubscriber application periodically unsubscribes and then subscribes again with a different number of samples which the subscriber can hold. It can be seen that no more than this number of samples are received before unsubscribing again. During the time in which it is unsubscribed data is lost, but when it resubscribes there may already be data available which is then displayed. Due to asynchronous sending and subscribing, it cannot be guaranteed that data is available immediately on resubscribtion and the data can be new (after resubscribe) or stale (before unsubscribe).  
+The resubscriber application periodically unsubscribes and then subscribes again with a different number of samples which the subscriber can queue up. It can be seen that no more than this number of samples are received before unsubscribing again (due to the limited queue size specified upon re-subscription). During the time in which it is unsubscribed data is lost, but when it resubscribes there may already be data available which is then displayed. Due to asynchronous sending and subscribing, it cannot be guaranteed that data is available immediately on re-subscribtion and the data can be new (after resubscribe) or stale (before unsubscribe).  
 
 
 ## Code walkthrough
@@ -116,7 +116,7 @@ We also provide ``operator<<`` to be able to display the data.
 
 We create a publisher with the following calls. The three string arguments allow a fine-grained control
 to specify matching topics. The topic has a data type ``CounterTopic`` and a topic name 
-``Counter``. In addition it belongs to some ``Group`` and is a specific ``instance``. For subscription purposes all three identifiers must match on subscriber side. It is possible to only specify the topic name and leave set the others to some default string for all topics.
+``Counter``. In addition it belongs to some ``Group`` and is a specific ``instance``. For subscription purposes all three identifiers must match on subscriber side. It is possible to only specify the topic name and set the others to some default string for all topics.
 
 If some identifier is only known at runtime (e.g. it is read from some config file), you have to create an ``IdString`` first before passing it to the ``TypedPublisher`` constructor. This is done here for ``instance``, which is created from some ``instanceName``. 
 
@@ -195,7 +195,7 @@ before joining the receiver thread
 
 ### Resubscriber application
 
-We first define a bound for the maximum number of samples the subscriber can hold.
+We first define a bound for the maximum number of samples the subscriber can queue up.
 
     constexpr uint64_t MAX_NUMBER_OF_SAMPLES{4U};
 
@@ -217,7 +217,7 @@ We periodically unsubscribe for a specified time.
     std::cout << "Unsubscribed ... Subscribe in " << UNSUBSCRIBED_TIME_SECONDS << " seconds" << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(UNSUBSCRIBED_TIME_SECONDS));
 
-We resubscribe and specify the maximum number of samples the subscriber is able to hold ``maxNumSamples``. 
+We resubscribe and specify the maximum number of samples the subscriber is able to queue up ``maxNumSamples``. 
 
     maxNumSamples = maxNumSamples % MAX_NUMBER_OF_SAMPLES + 1U; 
     subscriber.subscribe(maxNumSamples);
