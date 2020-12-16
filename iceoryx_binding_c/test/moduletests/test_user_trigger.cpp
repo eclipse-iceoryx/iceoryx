@@ -88,15 +88,15 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInNotTriggered)
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectTriggerId)
+TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectEventId)
 {
     iox_user_trigger_attach_to(m_sut, &m_waitSet, 88191, NULL);
     iox_user_trigger_trigger(m_sut);
 
-    auto triggerVector = m_waitSet.wait();
+    auto eventVector = m_waitSet.wait();
 
-    ASSERT_THAT(triggerVector.size(), Eq(1));
-    EXPECT_EQ(triggerVector[0]->getTriggerId(), 88191);
+    ASSERT_THAT(eventVector.size(), Eq(1));
+    EXPECT_EQ(eventVector[0]->getEventId(), 88191);
 }
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
@@ -104,10 +104,10 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
     iox_user_trigger_attach_to(m_sut, &m_waitSet, 0, iox_user_trigger_test::triggerCallback);
     iox_user_trigger_trigger(m_sut);
 
-    auto triggerVector = m_waitSet.wait();
+    auto eventVector = m_waitSet.wait();
 
-    ASSERT_THAT(triggerVector.size(), Eq(1));
-    (*triggerVector[0])();
+    ASSERT_THAT(eventVector.size(), Eq(1));
+    (*eventVector[0])();
 
     EXPECT_TRUE(wasTriggerCallbackCalled);
 }

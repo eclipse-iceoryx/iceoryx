@@ -26,40 +26,40 @@ namespace iox
 {
 namespace popo
 {
-/// @brief TriggerInfo holds the state of a trigger like the pointer to the triggerOrigin,
+/// @brief EventInfo holds the state of a trigger like the pointer to the triggerOrigin,
 ///        the trigger id and the callback.
-class TriggerInfo
+class EventInfo
 {
   public:
-    static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
+    static constexpr uint64_t INVALID_ID = std::numeric_limits<uint64_t>::max();
     template <typename T>
     using Callback = void (*)(T* const);
 
-    /// @brief constructs an empty TriggerInfo
-    TriggerInfo() = default;
-    virtual ~TriggerInfo() = default;
+    /// @brief constructs an empty EventInfo
+    EventInfo() = default;
+    virtual ~EventInfo() = default;
 
-    /// @brief constructs a TriggerInfo object
-    /// @param[in] triggerOrigin the triggerOrigin of the TriggerInfo
-    /// @param[in] triggerId id of the trigger
-    /// @param[in] callback the callback of the trigger
+    /// @brief constructs a EventInfo object
+    /// @param[in] eventOrigin the eventOrigin of the EventInfo
+    /// @param[in] eventId id of the event
+    /// @param[in] callback the callback of the event
     template <typename T>
-    TriggerInfo(T* const triggerOrigin, const uint64_t triggerId, const Callback<T> callback) noexcept;
+    EventInfo(T* const eventOrigin, const uint64_t eventId, const Callback<T> callback) noexcept;
 
     /// @brief returns the trigger id
-    /// @return the empty TriggerInfo always returns INVALID_TRIGGER_ID, otherwise the actual triggerId is returned
-    /// which can also be INVALID_TRIGGER_ID
-    uint64_t getTriggerId() const noexcept;
+    /// @return the empty EventInfo always returns INVALID_ID, otherwise the actual eventId is returned
+    /// which can also be INVALID_ID
+    uint64_t getEventId() const noexcept;
 
-    /// @brief confirms the triggerOrigin
-    /// @param[in] triggerOrigin the possible triggerOrigin
-    /// @return true if the address is equal to the triggerOrigin, otherwise false. The empty TriggerInfo returns
+    /// @brief confirms the eventOrigin
+    /// @param[in] eventOrigin the possible eventOrigin
+    /// @return true if the address is equal to the eventOrigin, otherwise false. The empty EventInfo returns
     /// always false.
     template <typename T>
-    bool doesOriginateFrom(T* const triggerOrigin) const noexcept;
+    bool doesOriginateFrom(T* const eventOrigin) const noexcept;
 
-    /// @brief returns the pointer to the triggerOrigin.
-    /// @return If T equals the Triggerable type it returns the triggerOrigin.
+    /// @brief returns the pointer to the eventOrigin.
+    /// @return If T equals the Triggerable type it returns the eventOrigin.
     /// Otherwise it calls the errorHandler with a moderate error of
     /// kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
     template <typename T>
@@ -72,9 +72,9 @@ class TriggerInfo
     friend class Trigger;
 
   protected:
-    void* m_triggerOrigin = nullptr;
-    uint64_t m_triggerOriginTypeHash = 0U;
-    uint64_t m_triggerId = INVALID_TRIGGER_ID;
+    void* m_eventOrigin = nullptr;
+    uint64_t m_eventOriginTypeHash = 0U;
+    uint64_t m_eventId = INVALID_ID;
 
     Callback<void> m_callbackPtr = nullptr;
     cxx::function_ref<void(void* const, Callback<void>)> m_callback;
@@ -83,6 +83,6 @@ class TriggerInfo
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/trigger_info.inl"
+#include "iceoryx_posh/internal/popo/event_info.inl"
 
 #endif

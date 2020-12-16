@@ -14,7 +14,6 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_posh/popo/trigger_info.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 

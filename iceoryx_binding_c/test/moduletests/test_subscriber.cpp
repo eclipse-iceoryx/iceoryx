@@ -280,7 +280,7 @@ TEST_F(iox_sub_test, detachingFromWaitSetWorks)
     EXPECT_EQ(m_waitSet->size(), 0U);
 }
 
-TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
+TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectEventId)
 {
     iox_sub_attach_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
     this->Subscribe(&m_portPtr);
@@ -289,7 +289,7 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
     auto triggerVector = m_waitSet->wait();
 
     ASSERT_EQ(triggerVector.size(), 1U);
-    EXPECT_EQ(triggerVector[0]->getTriggerId(), 587U);
+    EXPECT_EQ(triggerVector[0]->getEventId(), 587U);
 }
 
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)

@@ -29,8 +29,8 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownTrigger.trigger();
 }
 
-// The callback of the trigger. Every callback must have an argument which is
-// a pointer to the origin of the Trigger. In our case the trigger origin is
+// The callback of the event. Every callback must have an argument which is
+// a pointer to the origin of the Trigger. In our case the event origin is
 // the untyped subscriber.
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
@@ -69,19 +69,19 @@ int main()
     // event loop
     while (true)
     {
-        auto triggerVector = waitset.wait();
+        auto eventVector = waitset.wait();
 
-        for (auto& trigger : triggerVector)
+        for (auto& event : eventVector)
         {
-            if (trigger->doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             else
             {
-                // call the callback which was assigned to the trigger
-                (*trigger)();
+                // call the callback which was assigned to the event
+                (*event)();
             }
         }
 

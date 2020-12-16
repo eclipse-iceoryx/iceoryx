@@ -179,22 +179,22 @@ void eventLoop()
 {
     while (true)
     {
-        auto triggerStateVector = waitset->wait();
-        for (auto& triggerState : triggerStateVector)
+        auto eventInfoVector = waitset->wait();
+        for (auto& eventInfo : eventInfoVector)
         {
-            if (triggerState->getTriggerId() == ACTIVATE_ID)
+            if (eventInfo->getEventId() == ACTIVATE_ID)
             {
                 // reset MyTriggerClass instance state
-                triggerState->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
+                eventInfo->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
                 // call the callback attached to the trigger
-                (*triggerState)();
+                (*eventInfo)();
             }
-            else if (triggerState->getTriggerId() == ACTION_ID)
+            else if (eventInfo->getEventId() == ACTION_ID)
             {
                 // reset MyTriggerClass instance state
-                triggerState->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
+                eventInfo->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
                 // call the callback attached to the trigger
-                (*triggerState)();
+                (*eventInfo)();
             }
         }
     }

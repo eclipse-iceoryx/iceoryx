@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/event_info.h"
 #include "iceoryx_binding_c/runtime.h"
-#include "iceoryx_binding_c/trigger_info.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
@@ -104,7 +104,7 @@ int main()
     uint64_t numberOfTriggeredConditions = 0U;
 
     // array where all trigger from iox_ws_wait will be stored
-    iox_trigger_info_t triggerArray[NUMBER_OF_TRIGGER];
+    iox_event_info_t triggerArray[NUMBER_OF_TRIGGER];
 
     // event loop
     while (keepRunning)
@@ -113,9 +113,9 @@ int main()
 
         for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
         {
-            iox_trigger_info_t trigger = triggerArray[i];
+            iox_event_info_t trigger = triggerArray[i];
 
-            if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
+            if (iox_event_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
@@ -123,7 +123,7 @@ int main()
             else
             {
                 // call myCyclicRun
-                iox_trigger_info_call(trigger);
+                iox_event_info_call(trigger);
             }
         }
     }

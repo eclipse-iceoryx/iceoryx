@@ -54,13 +54,13 @@ int main()
     constexpr uint64_t FIRST_GROUP_ID = 123;
     constexpr uint64_t SECOND_GROUP_ID = 456;
 
-    // attach the first two subscribers to waitset with a triggerid of FIRST_GROUP_ID
+    // attach the first two subscribers to waitset with a eventid of FIRST_GROUP_ID
     for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
         subscriberVector[i].attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
     }
 
-    // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
+    // attach the remaining subscribers to waitset with a eventid of SECOND_GROUP_ID
     for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         subscriberVector[i].attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
@@ -79,7 +79,7 @@ int main()
                 return (EXIT_SUCCESS);
             }
             // we print the received data for the first group
-            else if (trigger->getTriggerId() == FIRST_GROUP_ID)
+            else if (trigger->getEventId() == FIRST_GROUP_ID)
             {
                 auto subscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();
                 subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
@@ -88,7 +88,7 @@ int main()
                 });
             }
             // dismiss the received data for the second group
-            else if (trigger->getTriggerId() == SECOND_GROUP_ID)
+            else if (trigger->getEventId() == SECOND_GROUP_ID)
             {
                 std::cout << "dismiss data\n";
                 auto subscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();

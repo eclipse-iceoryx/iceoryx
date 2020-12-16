@@ -49,7 +49,7 @@ class WaitSet
   public:
     static constexpr uint64_t CAPACITY = Capacity;
     using TriggerList = cxx::list<Trigger, CAPACITY>;
-    using TriggerInfoVector = cxx::vector<const TriggerInfo*, CAPACITY>;
+    using EventInfoVector = cxx::vector<const EventInfo*, CAPACITY>;
 
     WaitSet() noexcept;
     ~WaitSet() noexcept;
@@ -89,12 +89,12 @@ class WaitSet
 
     /// @brief Blocking wait with time limit till one or more of the triggers are triggered
     /// @param[in] timeout How long shall we waite for a trigger
-    /// @return TriggerInfoVector of TriggerInfos that have been triggered
-    TriggerInfoVector timedWait(const units::Duration timeout) noexcept;
+    /// @return EventInfoVector of EventInfos that have been triggered
+    EventInfoVector timedWait(const units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the triggers are triggered
-    /// @return TriggerInfoVector of TriggerInfos that have been triggered
-    TriggerInfoVector wait() noexcept;
+    /// @return EventInfoVector of EventInfos that have been triggered
+    EventInfoVector wait() noexcept;
 
     /// @brief Returns the amount of stored Trigger inside of the WaitSet
     uint64_t size() const noexcept;
@@ -106,10 +106,10 @@ class WaitSet
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
-    TriggerInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
+    EventInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
-    TriggerInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
-    TriggerInfoVector createVectorWithTriggeredTriggers() noexcept;
+    EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
+    EventInfoVector createVectorWithTriggeredTriggers() noexcept;
 
     template <typename T>
     void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
@@ -118,7 +118,7 @@ class WaitSet
     void removeAllTriggers() noexcept;
 
   private:
-    /// needs to be a list since we return pointer to the underlying TriggerInfo class with wait
+    /// needs to be a list since we return pointer to the underlying EventInfo class with wait
     TriggerList m_triggerList;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;

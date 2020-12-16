@@ -65,14 +65,13 @@ inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::TriggerInfoVector
-WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
+inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::wait() noexcept
+inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
 {
     return waitAndReturnTriggeredTriggers([this] {
         m_conditionVariableWaiter.wait();
@@ -81,9 +80,9 @@ inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::wait() n
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
+inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
 {
-    TriggerInfoVector triggers;
+    EventInfoVector triggers;
     for (auto& currentTrigger : m_triggerList)
     {
         if (currentTrigger.hasTriggered())
@@ -92,7 +91,7 @@ inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::createVe
             // m_conditionVector and triggers are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            triggers.push_back(&currentTrigger.getTriggerInfo());
+            triggers.push_back(&currentTrigger.getEventInfo());
         }
     }
 
@@ -101,10 +100,10 @@ inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::createVe
 
 template <uint64_t Capacity>
 template <typename WaitFunction>
-inline typename WaitSet<Capacity>::TriggerInfoVector
+inline typename WaitSet<Capacity>::EventInfoVector
 WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
-    WaitSet::TriggerInfoVector triggers;
+    WaitSet::EventInfoVector triggers;
 
     /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
     m_conditionVariableWaiter.reset();

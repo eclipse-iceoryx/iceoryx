@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
-#include "iceoryx_posh/popo/trigger_info.hpp"
+#include "iceoryx_posh/popo/event_info.hpp"
 
 #include "test.hpp"
 #include <thread>
@@ -23,7 +23,7 @@ using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
 
-class TriggerInfo_test : public Test
+class EventInfo_test : public Test
 {
   public:
     class TriggerOriginTest
@@ -37,51 +37,51 @@ class TriggerInfo_test : public Test
         TriggerOriginTest* m_callbackOrigin = nullptr;
     };
 
-    TriggerInfo_test()
+    EventInfo_test()
     {
     }
 
-    ~TriggerInfo_test()
+    ~EventInfo_test()
     {
     }
 
     TriggerOriginTest m_origin;
     TriggerOriginTest m_falseOrigin;
-    TriggerInfo m_sut{&m_origin, 1478, TriggerOriginTest::callback};
+    EventInfo m_sut{&m_origin, 1478, TriggerOriginTest::callback};
 };
 
-TEST_F(TriggerInfo_test, defaultCTorConstructsEmptyTriggerInfo)
+TEST_F(EventInfo_test, defaultCTorConstructsEmptyEventInfo)
 {
     int bla;
-    TriggerInfo sut;
+    EventInfo sut;
 
-    EXPECT_EQ(sut.getTriggerId(), TriggerInfo::INVALID_TRIGGER_ID);
+    EXPECT_EQ(sut.getEventId(), EventInfo::INVALID_ID);
     EXPECT_EQ(sut.doesOriginateFrom(&bla), false);
     EXPECT_EQ(sut(), false);
 }
 
-TEST_F(TriggerInfo_test, getTriggerIdReturnsValidTriggerId)
+TEST_F(EventInfo_test, getEventIdReturnsValidEventId)
 {
-    EXPECT_EQ(m_sut.getTriggerId(), 1478);
+    EXPECT_EQ(m_sut.getEventId(), 1478);
 }
 
-TEST_F(TriggerInfo_test, doesOriginateFromStatesOriginCorrectly)
+TEST_F(EventInfo_test, doesOriginateFromStatesOriginCorrectly)
 {
     EXPECT_EQ(m_sut.doesOriginateFrom(&m_origin), true);
     EXPECT_EQ(m_sut.doesOriginateFrom(&m_falseOrigin), false);
 }
 
-TEST_F(TriggerInfo_test, getOriginReturnsCorrectOriginWhenHavingCorrectType)
+TEST_F(EventInfo_test, getOriginReturnsCorrectOriginWhenHavingCorrectType)
 {
     EXPECT_EQ(m_sut.getOrigin<TriggerOriginTest>(), &m_origin);
 }
 
-TEST_F(TriggerInfo_test, constGetOriginReturnsCorrectOriginWhenHavingCorrectType)
+TEST_F(EventInfo_test, constGetOriginReturnsCorrectOriginWhenHavingCorrectType)
 {
-    EXPECT_EQ(const_cast<const TriggerInfo&>(m_sut).getOrigin<TriggerOriginTest>(), &m_origin);
+    EXPECT_EQ(const_cast<const EventInfo&>(m_sut).getOrigin<TriggerOriginTest>(), &m_origin);
 }
 
-TEST_F(TriggerInfo_test, getOriginReturnsNullptrWithWrongType)
+TEST_F(EventInfo_test, getOriginReturnsNullptrWithWrongType)
 {
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
@@ -97,7 +97,7 @@ TEST_F(TriggerInfo_test, getOriginReturnsNullptrWithWrongType)
     EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
-TEST_F(TriggerInfo_test, constGetOriginReturnsNullptrWithWrongType)
+TEST_F(EventInfo_test, constGetOriginReturnsNullptrWithWrongType)
 {
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
@@ -107,20 +107,20 @@ TEST_F(TriggerInfo_test, constGetOriginReturnsNullptrWithWrongType)
             errorHandlerCalled = true;
         });
 
-    const_cast<TriggerInfo&>(m_sut).getOrigin<int>();
+    const_cast<EventInfo&>(m_sut).getOrigin<int>();
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
-TEST_F(TriggerInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)
+TEST_F(EventInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)
 {
     EXPECT_TRUE(m_sut());
     EXPECT_EQ(m_origin.m_callbackOrigin, &m_origin);
 }
 
-TEST_F(TriggerInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
+TEST_F(EventInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
 {
-    m_sut = TriggerInfo{&m_origin, 9, TriggerInfo::Callback<TriggerOriginTest>()};
+    m_sut = EventInfo{&m_origin, 9, EventInfo::Callback<TriggerOriginTest>()};
     EXPECT_FALSE(m_sut());
 }

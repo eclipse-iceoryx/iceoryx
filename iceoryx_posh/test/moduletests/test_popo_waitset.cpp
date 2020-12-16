@@ -269,7 +269,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 }
 
 void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
-                                         const std::function<WaitSet<>::TriggerInfoVector()>& waitCall)
+                                         const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
@@ -282,7 +282,7 @@ void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
 
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(1));
-    EXPECT_THAT(triggerVector[0]->getTriggerId(), 5);
+    EXPECT_THAT(triggerVector[0]->getEventId(), 5);
     EXPECT_TRUE(triggerVector[0]->doesOriginateFrom(test));
     EXPECT_EQ(triggerVector[0]->getOrigin<WaitSet_test>(), test);
 }
@@ -298,7 +298,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsTheOneTriggeredCondition)
 }
 
 void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
-    WaitSet_test* test, const std::function<WaitSet<>::TriggerInfoVector()>& waitCall)
+    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
@@ -314,7 +314,7 @@ void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
 
     for (uint64_t i = 0; i < 24; ++i)
     {
-        EXPECT_THAT(triggerVector[i]->getTriggerId(), 100 + i);
+        EXPECT_THAT(triggerVector[i]->getEventId(), 100 + i);
         EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(test));
         EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test>(), test);
     }
@@ -332,7 +332,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenMultipleAreTrigger
 
 
 void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
-                                                         const std::function<WaitSet<>::TriggerInfoVector()>& waitCall)
+                                                         const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
@@ -348,7 +348,7 @@ void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
 
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        EXPECT_THAT(triggerVector[i]->getTriggerId(), i * 3 + 2);
+        EXPECT_THAT(triggerVector[i]->getEventId(), i * 3 + 2);
         EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(test));
         EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test>(), test);
     }
@@ -365,7 +365,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
 }
 
 void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
-                                             const std::function<WaitSet<>::TriggerInfoVector()>& waitCall)
+                                             const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
     auto trigger1 = test->acquireTriggerHandle(test->m_sut, 1, WaitSet_test::triggerCallback1);
     auto trigger2 = test->acquireTriggerHandle(test->m_sut, 2, WaitSet_test::triggerCallback2);

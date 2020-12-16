@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/event_info.h"
 #include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/subscriber.h"
-#include "iceoryx_binding_c/trigger_info.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
@@ -84,20 +84,20 @@ int main()
     uint64_t missedElements = 0U;
     uint64_t numberOfTriggeredConditions = 0U;
 
-    // array where all trigger from iox_ws_wait will be stored
-    iox_trigger_info_t triggerArray[NUMBER_OF_TRIGGER];
+    // array where all event infos from iox_ws_wait will be stored
+    iox_event_info_t eventArray[NUMBER_OF_TRIGGER];
 
     // event loop
     bool keepRunning = true;
     while (keepRunning)
     {
-        numberOfTriggeredConditions = iox_ws_wait(waitSet, triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        numberOfTriggeredConditions = iox_ws_wait(waitSet, eventArray, NUMBER_OF_TRIGGER, &missedElements);
 
         for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
         {
-            iox_trigger_info_t trigger = triggerArray[i];
+            iox_event_info_t event = eventArray[i];
 
-            if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
+            if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
@@ -105,7 +105,7 @@ int main()
             else
             {
                 // call the callback which was assigned to the trigger
-                iox_trigger_info_call(trigger);
+                iox_event_info_call(event);
             }
         }
     }
