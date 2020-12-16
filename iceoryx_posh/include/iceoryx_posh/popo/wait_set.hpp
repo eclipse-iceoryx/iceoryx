@@ -100,7 +100,7 @@ class WaitSet
     uint64_t size() const noexcept;
 
     /// @brief returns the maximum amount of triggers which can be acquired from a waitset
-    uint64_t triggerCapacity() const noexcept;
+    uint64_t capacity() const noexcept;
 
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;

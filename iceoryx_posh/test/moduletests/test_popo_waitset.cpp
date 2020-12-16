@@ -402,7 +402,7 @@ TEST_F(WaitSet_test, InitialWaitSetHasSizeZero)
 
 TEST_F(WaitSet_test, WaitSetCapacity)
 {
-    EXPECT_EQ(m_sut.triggerCapacity(), iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
+    EXPECT_EQ(m_sut.capacity(), iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
 }
 
 TEST_F(WaitSet_test, OneAcquireTriggerIncreasesSizeByOne)

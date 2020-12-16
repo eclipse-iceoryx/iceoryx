@@ -129,7 +129,7 @@ inline uint64_t WaitSet<Capacity>::size() const noexcept
 }
 
 template <uint64_t Capacity>
-inline uint64_t WaitSet<Capacity>::triggerCapacity() const noexcept
+inline uint64_t WaitSet<Capacity>::capacity() const noexcept
 {
     return m_triggerList.capacity();
 }

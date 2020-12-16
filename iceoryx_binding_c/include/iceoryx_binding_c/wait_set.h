@@ -67,6 +67,6 @@ uint64_t iox_ws_wait(iox_ws_t const self,
 uint64_t iox_ws_size(iox_ws_t const self);
 
 /// @brief returns the maximum amount of triggers which can be acquired from the waitset
-uint64_t iox_ws_trigger_capacity(iox_ws_t const self);
+uint64_t iox_ws_capacity(iox_ws_t const self);
 
 #endif
