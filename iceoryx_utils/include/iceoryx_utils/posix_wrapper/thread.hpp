@@ -23,11 +23,6 @@ namespace iox
 {
 namespace posix
 {
-enum class ThreadErrorType : int32_t
-{
-    EXCEEDED_RANGE_LIMIT = 0
-};
-
 constexpr uint8_t MAX_THREAD_NAME_LENGTH = 15U;
 
 using ThreadName_t = cxx::string<MAX_THREAD_NAME_LENGTH>;

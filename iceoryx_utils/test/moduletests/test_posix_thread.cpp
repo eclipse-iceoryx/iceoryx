@@ -58,7 +58,7 @@ class Thread_test : public Test
     std::thread* m_thread;
 };
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(__WIN32)
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
     ThreadName_t emptyString = "";

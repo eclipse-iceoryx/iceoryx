@@ -25,17 +25,11 @@ namespace iox
 {
 namespace roudi
 {
-enum class IceOryxRouDiComponentsError
-{
-    SHARED_MEMORY_UNAVAILABLE
-};
 struct IceOryxRouDiComponents
 {
   public:
-    IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig)
-        : m_rouDiMemoryManager(roudiConfig)
-    {
-    }
+    IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig) noexcept;
+
     virtual ~IceOryxRouDiComponents() = default;
 
     /// @brief Locks the socket for preventing multiple start of RouDi
@@ -45,11 +39,7 @@ struct IceOryxRouDiComponents
     IceOryxRouDiMemoryManager m_rouDiMemoryManager;
 
     /// @brief Handles the ports in shared memory
-    PortManager m_portManager{initRouDiMemoryManager().value()};
-
-  private:
-    /// @brief Prepare the memory and clean up old ressources
-    cxx::expected<IceOryxRouDiMemoryManager*, IceOryxRouDiComponentsError> initRouDiMemoryManager() noexcept;
+    PortManager m_portManager;
 };
 } // namespace roudi
 } // namespace iox
