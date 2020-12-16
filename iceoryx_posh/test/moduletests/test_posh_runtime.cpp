@@ -118,6 +118,13 @@ TEST_F(PoshRuntime_test, NoAppName)
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
+TEST_F(PoshRuntime_test, LeadingSlashAppName)
+{
+    const iox::ProcessName_t invalidAppName = "/miau";
+
+    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
+                 "Cannot initialize runtime. Please remove leading slash from Application name /miau");
+}
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
 // when getInstance() is called without parameter, it returns existing instance
