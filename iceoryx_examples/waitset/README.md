@@ -133,8 +133,8 @@ A _Trigger_ always requires a callback which has the following signature
 has received (`take()`). When `take()` was successful we print our message to
 the console inside of the `and_then` lambda.
 
-In our `main` function we create a _WaitSet_ which can hold a capacity of 5
-triggers (`NUMBER_OF_SUBSCRIBERS + 1`) after we registered us at our central
+In our `main` function we create a _WaitSet_ which can hold a capacity of 5 triggers
+(4 subscribers and the shutdown trigger) after we registered us at our central
 broker RouDi. Then we attach our `shutdownTrigger` to it to handle `CTRL+c` events. 
 ```cpp
 iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + 1>;
@@ -191,7 +191,7 @@ In our next use case we would like to divide the subscribers into two groups
 and we do not want to attach a callback to them. Instead we perform the calls on the
 subscribers directly.
 
-We again start by creating a _WaitSet_ with a capacity of 5, 4 for our subscribers and 1 for our shutdownTrigger, 
+We again start by creating a _WaitSet_ with a capacity of 5 (4 subscribers and 1 shutdownTrigger), 
 and attach the `shutdownTrigger` to handle
 `CTRL+c`.
 ```cpp
