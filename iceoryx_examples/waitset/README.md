@@ -4,7 +4,7 @@ The WaitSet is a set where you can attach Trigger to signal a wide variety
 of events to one single notifyable. The typical approach is that one creates a
 WaitSet attaches multiple subscribers or other _Triggerables_ to it and then wait till
 one or many of the attached entities signal an event. If that happens one receives
-a list of _TriggerInfos_ which are corresponding to all the Triggers which were 
+a list of _EventInfos_ which are corresponding to all the Triggers which were 
 triggered and the program can act accordingly.
 
 The WaitSet is state based which means that it will trigger until the state which
@@ -30,7 +30,7 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
      _Trigger_ will be invalidated.
  - **Triggerable** a class which has attached a _TriggerHandle_ to itself to signal
      certain events to a _Notifyable_.
- - **TriggerCallback** a callback attached to a _TriggerInfo_. It must have the 
+ - **EventCallback** a callback attached to a _EventInfo_. It must have the 
      following signature `void ( TriggerOrigin )`. Any free function, static
      class method and non capturing lambda is allowed. You have to ensure the lifetime of that callback.
      This can become important when you would like to use lambdas.
@@ -41,17 +41,17 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
        same `ConditionVariable`)
      - they have the same _TriggerOrigin_
      - they have the same callback to verify that they were triggered 
-       (`hasTriggerCallback`)
-     - they have the same _TriggerId_
- - **TriggerId** an id which identifies the trigger. It does not need to be unique 
+       (`hasEventCallback`)
+     - they have the same _EventId_
+ - **EventId** an id which identifies the trigger. It does not need to be unique 
  -   or follow any restrictions. The user can choose any arbitrary `uint64_t`. Assigning 
- -   the same _TriggerId_ to multiple _Triggers_ can be useful when you would like to 
+ -   the same _EventId_ to multiple _Triggers_ can be useful when you would like to 
  -   group _Triggers_.
  - **TriggerOrigin** the pointer to the class where the trigger originated from, short
      pointer to the _Triggerable_.
- - **TriggerInfo** a class which corresponds with _Triggers_ and is used to inform 
-     the user which _Trigger_ were activated. You can use the _TriggerInfo_ to acquire 
-     the _TriggerId_, call the _TriggerCallback_ or acquire the _TriggerOrigin_.
+ - **EventInfo** a class which corresponds with _Triggers_ and is used to inform 
+     the user which _Trigger_ were activated. You can use the _EventInfo_ to acquire 
+     the _EventId_, call the _EventCallback_ or acquire the _TriggerOrigin_.
  - **WaitSet** a _Notifyable_ which manages a set of _Triggers_ which can be acquired by 
      the user. The _Waitset_ listens 
      to the whole set of _Triggers_ and if one or more _Trigger_ are triggered it will notify
@@ -60,9 +60,9 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
 
 ## Quick Overview
 A **Notifyable** like the **WaitSet** manages **Trigger**s and hands out **TriggerHandle**s to **Triggerable** objects 
-who can store them. When returning from `wait()` the user gets a vector of **TriggerInfos**
-associated with triggered **Trigger**s of the **WaitSet**. The **TriggerOrigin**, **TriggerId** and **TriggerCallback**
-are stored inside of the **TriggerInfo** and can be acquired by the user.
+who can store them. When returning from `wait()` the user gets a vector of **EventInfos**
+associated with triggered **Trigger**s of the **WaitSet**. The **TriggerOrigin**, **EventId** and **EventCallback**
+are stored inside of the **EventInfo** and can be acquired by the user.
 
 
 ## Reference
@@ -70,15 +70,15 @@ are stored inside of the **TriggerInfo** and can be acquired by the user.
 | task | call |
 |:-----|:-----|
 |attach subscriber to waitset (simple)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
-|attach subscriber to waitset (full)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
+|attach subscriber to waitset (full)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someEventId, myCallback);`|
 |detach subscriber event|`subscriber.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
 |attach user trigger to waitset (simple)|`userTrigger.attachTo(myWaitSet)`|
-|attach user trigger to waitset (full)|`userTrigger.attachTo(myWaitSet, someTriggerId, myCallback)`|
+|attach user trigger to waitset (full)|`userTrigger.attachTo(myWaitSet, someEventId, myCallback)`|
 |detach user trigger|`userTrigger.detach()`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
 |check if trigger originated from some object|`trigger.doesOriginateFrom(ptrToSomeObject)`|
-|get id of trigger|`trigger.getTriggerId()`|
+|get id of trigger|`trigger.getEventId()`|
 |call triggerCallback|`trigger()`|
 |acquire _TriggerOrigin|`trigger.getOrigin<OriginType>();`|
 |check if 2 triggers are logical equal|`trigger.isLogicalEqualTo(anotherTrigger)`|
@@ -247,7 +247,7 @@ The remaining part of the loop is handling the subscribers. For the first group
 we would like to print the received data to the console and for the second group
 we just dismiss the received data.
 ```cpp
-else if (trigger->getTriggerId() == FIRST_GROUP_ID)
+else if (trigger->getEventId() == FIRST_GROUP_ID)
 {
     auto subscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();
     subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
@@ -255,7 +255,7 @@ else if (trigger->getTriggerId() == FIRST_GROUP_ID)
         std::cout << "received: " << std::dec << data->counter << std::endl;
     });
 }
-else if (trigger->getTriggerId() == SECOND_GROUP_ID)
+else if (trigger->getEventId() == SECOND_GROUP_ID)
 {
     std::cout << "dismiss data\n";
     auto subscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();
@@ -414,7 +414,7 @@ is called and the
 #### MyTriggerClass
 
 At the moment the WaitSet does not support _Triggerable_ classes which are movable 
-or copyable. This is caused by the `resetCallback` and the `hasTriggerCallback`
+or copyable. This is caused by the `resetCallback` and the `hasEventCallback`
 which are pointing to the _Triggerable_. The callbacks inside of the WaitSet 
 would point to the wrong memory location. Therefore we have to delete move 
 and copy operations.
@@ -519,13 +519,13 @@ The next thing on our checklist is the `invalidateTrigger` method used by the Wa
 to reset the _Trigger_ when it goes out of scope. Therefore we look up the
 correct trigger first by calling `isLogicalEqualTo` and then `reset` it.
 ```cpp
-    void invalidateTrigger(const uint64_t uniqueTriggerId)
+    void invalidateTrigger(const uint64_t uniqueEventId)
     {
-        if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
+        if (m_actionTrigger.getUniqueId() == uniqueEventId)
         {
             m_actionTrigger.invalidate();
         }
-        else if (m_activateTrigger.getUniqueId() == uniqueTriggerId)
+        else if (m_activateTrigger.getUniqueId() == uniqueEventId)
         {
             m_activateTrigger.invalidate();
         }
@@ -546,12 +546,12 @@ void eventLoop()
         auto triggerStateVector = waitset->wait();
         for (auto& triggerState : triggerStateVector)
         {
-            if (triggerState->getTriggerId() == ACTIVATE_ID)
+            if (triggerState->getEventId() == ACTIVATE_ID)
             {
                 triggerState->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
                 (*triggerState)();
             }
-            else if (triggerState->getTriggerId() == ACTION_ID)
+            else if (triggerState->getEventId() == ACTION_ID)
             {
                 triggerState->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
                 (*triggerState)();
