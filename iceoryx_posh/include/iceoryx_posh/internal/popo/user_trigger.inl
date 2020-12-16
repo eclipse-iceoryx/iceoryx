@@ -23,7 +23,7 @@ inline cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet<WaitSetCapacity
                                                          const Trigger::Callback<UserTrigger> callback) noexcept
 {
     return waitset
-        .acquireTrigger(
+        .acquireTriggerHandle(
             this, {*this, &UserTrigger::hasTriggered}, {*this, &UserTrigger::invalidateTrigger}, triggerId, callback)
         .and_then([this](TriggerHandle& trigger) { m_trigger = std::move(trigger); });
 }

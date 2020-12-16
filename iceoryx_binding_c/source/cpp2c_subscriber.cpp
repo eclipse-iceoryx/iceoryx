@@ -34,11 +34,11 @@ iox_WaitSetResult cpp2c_Subscriber::attachEvent(iox::popo::WaitSet<>& waitset,
 
     auto result = std::move(
         waitset
-            .acquireTrigger(this,
-                            {*this, &cpp2c_Subscriber::hasNewSamples},
-                            {*this, &cpp2c_Subscriber::invalidateTrigger},
-                            triggerId,
-                            callback)
+            .acquireTriggerHandle(this,
+                                  {*this, &cpp2c_Subscriber::hasNewSamples},
+                                  {*this, &cpp2c_Subscriber::invalidateTrigger},
+                                  triggerId,
+                                  callback)
             .and_then([this](iox::popo::TriggerHandle& trigger) {
                 m_trigger = std::move(trigger);
                 iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());

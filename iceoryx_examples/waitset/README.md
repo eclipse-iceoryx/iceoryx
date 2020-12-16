@@ -467,7 +467,7 @@ The method `attachTo` attaches our class to a WaitSet but the user has
 to specify which event they would like to attach. Additionally, they can
 set a `triggerId` and a `callback`.
 
-If the parameter event was set to `PERFORMED_ACTION` we call `acquireTrigger`
+If the parameter event was set to `PERFORMED_ACTION` we call `acquireTriggerHandle`
 on the waitset which will return an `cxx::expected`. The following parameters
 have to be provided.
  
@@ -489,7 +489,7 @@ have to be provided.
         case MyTriggerClassEvents::PERFORMED_ACTION:
         {
             return waitset
-                .acquireTrigger(this,
+                .acquireTriggerHandle(this,
                                 {*this, &MyTriggerClass::hasPerformedAction},
                                 {*this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
@@ -505,7 +505,7 @@ for the trigger.
         case MyTriggerClassEvents::ACTIVATE:
         {
             return waitset
-                .acquireTrigger(this,
+                .acquireTriggerHandle(this,
                                 {*this, &MyTriggerClass::isActivated},
                                 {*this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,

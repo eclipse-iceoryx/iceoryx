@@ -81,11 +81,11 @@ class WaitSet
     /// WaitSetError::TRIGGER_VECTOR_OVERFLOW
     template <typename T>
     cxx::expected<TriggerHandle, WaitSetError>
-    acquireTrigger(T* const origin,
-                   const cxx::ConstMethodCallback<bool>& triggerCallback,
-                   const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                   const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                   const Trigger::Callback<T> callback = nullptr) noexcept;
+    acquireTriggerHandle(T* const origin,
+                         const cxx::ConstMethodCallback<bool>& triggerCallback,
+                         const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
+                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                         const Trigger::Callback<T> callback = nullptr) noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the triggers are triggered
     /// @param[in] timeout How long shall we waite for a trigger

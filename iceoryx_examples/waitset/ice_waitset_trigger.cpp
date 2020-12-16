@@ -106,26 +106,26 @@ class MyTriggerClass
         case MyTriggerClassEvents::PERFORMED_ACTION:
         {
             return waitset
-                .acquireTrigger(this,
-                                // trigger calls this method to ask if it was triggered
-                                {*this, &MyTriggerClass::hasPerformedAction},
-                                // method which will be called when the waitset goes out of scope
-                                {*this, &MyTriggerClass::invalidateTrigger},
-                                triggerId,
-                                callback)
+                .acquireTriggerHandle(this,
+                                      // trigger calls this method to ask if it was triggered
+                                      {*this, &MyTriggerClass::hasPerformedAction},
+                                      // method which will be called when the waitset goes out of scope
+                                      {*this, &MyTriggerClass::invalidateTrigger},
+                                      triggerId,
+                                      callback)
                 // assigning the acquired trigger from the waitset to m_actionTrigger
                 .and_then([this](iox::popo::TriggerHandle& trigger) { m_actionTrigger = std::move(trigger); });
         }
         case MyTriggerClassEvents::ACTIVATE:
         {
             return waitset
-                .acquireTrigger(this,
-                                // trigger calls this method to ask if it was triggered
-                                {*this, &MyTriggerClass::isActivated},
-                                // method which will be called when the waitset goes out of scope
-                                {*this, &MyTriggerClass::invalidateTrigger},
-                                triggerId,
-                                callback)
+                .acquireTriggerHandle(this,
+                                      // trigger calls this method to ask if it was triggered
+                                      {*this, &MyTriggerClass::isActivated},
+                                      // method which will be called when the waitset goes out of scope
+                                      {*this, &MyTriggerClass::invalidateTrigger},
+                                      triggerId,
+                                      callback)
                 // assigning the acquired trigger from the waitset to m_activateTrigger
                 .and_then([this](iox::popo::TriggerHandle& trigger) { m_activateTrigger = std::move(trigger); });
         }

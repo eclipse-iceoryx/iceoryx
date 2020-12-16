@@ -137,11 +137,11 @@ inline uint64_t WaitSet<Capacity>::capacity() const noexcept
 template <uint64_t Capacity>
 template <typename T>
 inline cxx::expected<TriggerHandle, WaitSetError>
-WaitSet<Capacity>::acquireTrigger(T* const origin,
-                                  const cxx::ConstMethodCallback<bool>& triggerCallback,
-                                  const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                                  const uint64_t triggerId,
-                                  const Trigger::Callback<T> callback) noexcept
+WaitSet<Capacity>::acquireTriggerHandle(T* const origin,
+                                        const cxx::ConstMethodCallback<bool>& triggerCallback,
+                                        const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
+                                        const uint64_t triggerId,
+                                        const Trigger::Callback<T> callback) noexcept
 {
     static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
                       && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
