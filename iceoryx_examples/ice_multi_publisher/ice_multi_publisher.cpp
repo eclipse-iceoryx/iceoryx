@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/popo/modern_api/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
@@ -30,7 +31,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void send(uint32_t id, const char* instanceName, std::chrono::milliseconds delay)
 {
-    iox::capro::IdString instance{iox::cxx::TruncateToCapacity, instanceName};
+    iox::capro::IdString_t instance{iox::cxx::TruncateToCapacity, instanceName};
 
     // All three of the string identifiers together uniquely identify a topic
     // and can also depend on values known only at runtime (like instance in this case).
