@@ -31,8 +31,8 @@ struct cpp2c_Subscriber
 
     iox_WaitSetResult attachEvent(iox::popo::WaitSet<>& waitset,
                                   const iox_SubscriberEvent event,
-                                  const uint64_t triggerId,
-                                  const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback = nullptr) noexcept;
+                                  const uint64_t eventId,
+                                  const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback = nullptr) noexcept;
 
     void detachEvent(const iox_SubscriberEvent event) noexcept;
 

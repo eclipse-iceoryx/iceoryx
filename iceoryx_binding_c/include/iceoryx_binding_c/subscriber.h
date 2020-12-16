@@ -85,7 +85,7 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self);
 /// @param[in] self handle to the subscriber
 /// @param[in] waitset handle to the waitset
 /// @param[in] event the type of the event which should be attached to the waitset
-/// @param[in] triggerId the user defined trigger id
+/// @param[in] eventId the user defined trigger id
 /// @param[in] callback a callback which is attached to the trigger, NULL if no
 ///            callback should be set
 /// @return if it was attached successfully it returns WaitSetResult_SUCCESS
@@ -93,7 +93,7 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self);
 ENUM iox_WaitSetResult iox_sub_attach_event(iox_sub_t const self,
                                             iox_ws_t const waitset,
                                             const ENUM iox_SubscriberEvent event,
-                                            const uint64_t triggerId,
+                                            const uint64_t eventId,
                                             void (*callback)(iox_sub_t));
 
 /// @brief detaches the subscriber from a waitset

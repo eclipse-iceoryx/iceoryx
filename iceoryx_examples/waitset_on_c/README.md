@@ -142,7 +142,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
 }
 ```
 
-To distinct our two groups we create set the triggerId of the first group to
+To distinct our two groups we create set the eventId of the first group to
 `123` and of the second group to `456`. For the first two subscribers we attach
 the `Subscriber_HAS_NEW_SAMPLES` event to our waitset with the trigger id of
 the first group. The third and forth subscriber is  attached to the same
@@ -174,7 +174,7 @@ while (keepRunning)
 
 When we iterate through the array we handle the `shutdownTrigger` first.
 We check if a trigger is from the first group by calling 
-`iox_trigger_info_get_trigger_id` and compare the result with `FIRST_GROUP_ID`.
+`iox_trigger_info_get_event_id` and compare the result with `FIRST_GROUP_ID`.
 If that is the case we acquire the subscriber handle with
 `iox_trigger_info_get_subscriber_origin`. This allows us to receive the new
 sample and to print the result to the console.
@@ -189,7 +189,7 @@ for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
     {
         keepRunning = false;
     }
-    else if (iox_trigger_info_get_trigger_id(trigger) == FIRST_GROUP_ID)
+    else if (iox_trigger_info_get_event_id(trigger) == FIRST_GROUP_ID)
     {
         iox_sub_t subscriber = iox_trigger_info_get_subscriber_origin(trigger);
         const void* chunk;
@@ -200,7 +200,7 @@ for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
             iox_sub_release_chunk(subscriber, chunk);
         }
     }
-    else if (iox_trigger_info_get_trigger_id(trigger) == SECOND_GROUP_ID)
+    else if (iox_trigger_info_get_event_id(trigger) == SECOND_GROUP_ID)
     {
         printf("dismiss data\n");
         iox_sub_t subscriber = iox_trigger_info_get_subscriber_origin(trigger);
@@ -324,7 +324,7 @@ shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
 ```
 
-Now we create our cyclic trigger and attach it to our waitset with a triggerId
+Now we create our cyclic trigger and attach it to our waitset with a eventId
 of `0` and the callback `cyclicRun`.
 ```c
 cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);

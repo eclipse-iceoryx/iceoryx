@@ -94,11 +94,11 @@ class MyTriggerClass
 
     // This method attaches an event of the class to a waitset.
     // The event is choosen by the event parameter. Additionally, you can
-    // set a triggerId to group multiple instances and a custom callback.
+    // set a eventId to group multiple instances and a custom callback.
     iox::cxx::expected<iox::popo::WaitSetError>
     attachEvent(iox::popo::WaitSet<>& waitset,
                 const MyTriggerClassEvents event,
-                const uint64_t triggerId,
+                const uint64_t eventId,
                 const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
     {
         switch (event)
@@ -111,7 +111,7 @@ class MyTriggerClass
                                       {*this, &MyTriggerClass::hasPerformedAction},
                                       // method which will be called when the waitset goes out of scope
                                       {*this, &MyTriggerClass::invalidateTrigger},
-                                      triggerId,
+                                      eventId,
                                       callback)
                 // assigning the acquired trigger from the waitset to m_actionTrigger
                 .and_then([this](iox::popo::TriggerHandle& trigger) { m_actionTrigger = std::move(trigger); });
@@ -124,7 +124,7 @@ class MyTriggerClass
                                       {*this, &MyTriggerClass::isActivated},
                                       // method which will be called when the waitset goes out of scope
                                       {*this, &MyTriggerClass::invalidateTrigger},
-                                      triggerId,
+                                      eventId,
                                       callback)
                 // assigning the acquired trigger from the waitset to m_activateTrigger
                 .and_then([this](iox::popo::TriggerHandle& trigger) { m_activateTrigger = std::move(trigger); });

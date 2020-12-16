@@ -143,14 +143,14 @@ template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
 BaseSubscriber<T, Subscriber, port_t>::attachEvent(WaitSet<WaitSetCapacity>& waitset,
                                                    [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                                   const uint64_t triggerId,
-                                                   const Trigger::Callback<Subscriber> callback) noexcept
+                                                   const uint64_t eventId,
+                                                   const EventInfo::Callback<Subscriber> callback) noexcept
 {
     Subscriber* self = reinterpret_cast<Subscriber*>(this);
 
     return waitset
         .acquireTriggerHandle(
-            self, {*this, &SelfType::hasNewSamples}, {*this, &SelfType::invalidateTrigger}, triggerId, callback)
+            self, {*this, &SelfType::hasNewSamples}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
         .and_then([this](TriggerHandle& trigger) {
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());
@@ -162,9 +162,9 @@ template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
 BaseSubscriber<T, Subscriber, port_t>::attachEvent(WaitSet<WaitSetCapacity>& waitset,
                                                    const SubscriberEvent subscriberEvent,
-                                                   const Trigger::Callback<Subscriber> callback) noexcept
+                                                   const EventInfo::Callback<Subscriber> callback) noexcept
 {
-    return attachEvent(waitset, subscriberEvent, Trigger::INVALID_TRIGGER_ID, callback);
+    return attachEvent(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
 }
 
 template <typename T, typename Subscriber, typename port_t>

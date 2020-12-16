@@ -110,10 +110,10 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self)
 iox_WaitSetResult iox_sub_attach_event(iox_sub_t const self,
                                        iox_ws_t const waitset,
                                        const iox_SubscriberEvent event,
-                                       const uint64_t triggerId,
+                                       const uint64_t eventId,
                                        void (*callback)(iox_sub_t))
 {
-    return self->attachEvent(*waitset, event, triggerId, callback);
+    return self->attachEvent(*waitset, event, eventId, callback);
 }
 
 void iox_sub_detach_event(iox_sub_t const self, const iox_SubscriberEvent event)

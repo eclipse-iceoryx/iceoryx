@@ -19,20 +19,20 @@ namespace popo
 {
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                                         const uint64_t triggerId,
-                                                         const Trigger::Callback<UserTrigger> callback) noexcept
+                                                         const uint64_t eventId,
+                                                         const EventInfo::Callback<UserTrigger> callback) noexcept
 {
     return waitset
         .acquireTriggerHandle(
-            this, {*this, &UserTrigger::hasTriggered}, {*this, &UserTrigger::invalidateTrigger}, triggerId, callback)
+            this, {*this, &UserTrigger::hasTriggered}, {*this, &UserTrigger::invalidateTrigger}, eventId, callback)
         .and_then([this](TriggerHandle& trigger) { m_trigger = std::move(trigger); });
 }
 
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                                         const Trigger::Callback<UserTrigger> callback) noexcept
+                                                         const EventInfo::Callback<UserTrigger> callback) noexcept
 {
-    return attachTo(waitset, Trigger::INVALID_TRIGGER_ID, callback);
+    return attachTo(waitset, EventInfo::INVALID_ID, callback);
 }
 } // namespace popo
 } // namespace iox

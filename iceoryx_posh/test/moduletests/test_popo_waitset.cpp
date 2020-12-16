@@ -43,14 +43,11 @@ class WaitSet_test : public Test
     mutable uint64_t m_returnTrueCounter = 0U;
 
     expected<TriggerHandle, WaitSetError>* acquireTriggerHandle(
-        WaitSetMock& waitset, const uint64_t triggerId, Trigger::Callback<WaitSet_test> callback = triggerCallback1)
+        WaitSetMock& waitset, const uint64_t eventId, Trigger::Callback<WaitSet_test> callback = triggerCallback1)
     {
-        m_triggerHandle.emplace_back(std::make_unique<expected<TriggerHandle, WaitSetError>>(
-            waitset.acquireTriggerHandle(this,
-                                         {*this, &WaitSet_test::hasTriggered},
-                                         {*this, &WaitSet_test::resetCallback},
-                                         triggerId,
-                                         callback)));
+        m_triggerHandle.emplace_back(
+            std::make_unique<expected<TriggerHandle, WaitSetError>>(waitset.acquireTriggerHandle(
+                this, {*this, &WaitSet_test::hasTriggered}, {*this, &WaitSet_test::resetCallback}, eventId, callback)));
         return m_triggerHandle.back().get();
     }
 

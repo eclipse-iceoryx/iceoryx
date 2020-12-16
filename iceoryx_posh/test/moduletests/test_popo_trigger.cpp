@@ -66,12 +66,12 @@ class Trigger_test : public Test
         }
     }
 
-    Trigger createValidTrigger(const uint64_t triggerId = 0)
+    Trigger createValidTrigger(const uint64_t eventId = 0)
     {
         return Trigger(&m_triggerClass,
                        {m_triggerClass, &TriggerClass::hasTriggered},
                        {m_triggerClass, &TriggerClass::resetCall},
-                       triggerId,
+                       eventId,
                        TriggerClass::callback);
     }
 
@@ -100,11 +100,11 @@ TEST_F(Trigger_test, TriggerWithValidOriginIsValid)
 
 TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
 {
-    uint64_t triggerId = 0U;
+    uint64_t eventId = 0U;
     Trigger sut(static_cast<TriggerClass*>(nullptr),
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
-                triggerId,
+                eventId,
                 TriggerClass::callback);
 
     EXPECT_TRUE(sut.isValid());
@@ -113,11 +113,11 @@ TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
 
 TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackIsInvalid)
 {
-    uint64_t triggerId = 0U;
+    uint64_t eventId = 0U;
     Trigger sut(&m_triggerClass,
                 cxx::ConstMethodCallback<bool>(),
                 {m_triggerClass, &TriggerClass::resetCall},
-                triggerId,
+                eventId,
                 TriggerClass::callback);
 
     EXPECT_FALSE(sut.isValid());
@@ -126,11 +126,11 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackIsInvalid)
 
 TEST_F(Trigger_test, TriggerWithEmptyResetCallIsValid)
 {
-    uint64_t triggerId = 0U;
+    uint64_t eventId = 0U;
     Trigger sut(&m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
-                triggerId,
+                eventId,
                 TriggerClass::callback);
 
     EXPECT_TRUE(sut.isValid());
@@ -165,11 +165,11 @@ TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
 
 TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
 {
-    uint64_t triggerId = 0U;
+    uint64_t eventId = 0U;
     Trigger sut(&m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
-                triggerId,
+                eventId,
                 TriggerClass::callback);
 
     sut.reset();

@@ -67,13 +67,13 @@ class WaitSet
     ///        before the object does it calls the invalidationCallback to invalidate the Trigger inside
     ///        of the object
     ///        You cannot acquire an already logically equal acquired trigger. This means if you acquire a trigger
-    ///        twice with the same: origin, triggerCallback and triggerId this method will return
+    ///        twice with the same: origin, triggerCallback and eventId this method will return
     ///        TRIGGER_ALREADY_ACQUIRED
     /// @param[in] origin the pointer to the object which will attach the trigger
     /// @param[in] triggerCallback a method from the object which will signal the Trigger that it was triggered
     /// @param[in] invalidationCallback callback which will be called in the destructor of the waitset, important when
     /// the waitset goes out of scope before the origin does.
-    /// @param[in] triggerId an arbitrary id to identify the trigger later when a list of triggers is returned via wait
+    /// @param[in] eventId an arbitrary id to identify the trigger later when a list of triggers is returned via wait
     /// or timedWait
     /// @param[in] callback a callback which is attached to the trigger and can be later called when the trigger will be
     ///            returned via wait or timedWait
@@ -84,8 +84,8 @@ class WaitSet
     acquireTriggerHandle(T* const origin,
                          const cxx::ConstMethodCallback<bool>& triggerCallback,
                          const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                         const Trigger::Callback<T> callback = nullptr) noexcept;
+                         const uint64_t eventId = EventInfo::INVALID_ID,
+                         const EventInfo::Callback<T> callback = nullptr) noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the triggers are triggered
     /// @param[in] timeout How long shall we waite for a trigger

@@ -49,13 +49,13 @@ class Trigger
     /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
     /// empty callback is set the trigger is in a defined but invalid state.
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
-    /// @param[in] triggerId id of the trigger
+    /// @param[in] eventId id of the trigger
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
     Trigger(T* const origin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
-            const uint64_t triggerId,
+            const uint64_t eventId,
             const Callback<T> callback) noexcept;
 
     Trigger(const Trigger&) = delete;
@@ -90,7 +90,7 @@ class Trigger
     /// @brief returns true if the Triggers are logical equal otherwise false. Two Triggers are logical equal when
     ///       - origin == rhs.origin
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
-    ///       - triggerId == rhs.triggerId
+    ///       - eventId == rhs.eventId
     bool isLogicalEqualTo(const Trigger& rhs) const noexcept;
 
     /// @brief sets a new origin of the trigger

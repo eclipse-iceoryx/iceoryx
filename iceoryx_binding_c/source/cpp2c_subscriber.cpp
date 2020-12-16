@@ -25,10 +25,11 @@ cpp2c_Subscriber::~cpp2c_Subscriber()
     }
 }
 
-iox_WaitSetResult cpp2c_Subscriber::attachEvent(iox::popo::WaitSet<>& waitset,
-                                                const iox_SubscriberEvent subscriberEvent,
-                                                const uint64_t triggerId,
-                                                const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback) noexcept
+iox_WaitSetResult
+cpp2c_Subscriber::attachEvent(iox::popo::WaitSet<>& waitset,
+                              const iox_SubscriberEvent subscriberEvent,
+                              const uint64_t eventId,
+                              const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback) noexcept
 {
     static_cast<void>(subscriberEvent);
 
@@ -37,7 +38,7 @@ iox_WaitSetResult cpp2c_Subscriber::attachEvent(iox::popo::WaitSet<>& waitset,
             .acquireTriggerHandle(this,
                                   {*this, &cpp2c_Subscriber::hasNewSamples},
                                   {*this, &cpp2c_Subscriber::invalidateTrigger},
-                                  triggerId,
+                                  eventId,
                                   callback)
             .and_then([this](iox::popo::TriggerHandle& trigger) {
                 m_trigger = std::move(trigger);

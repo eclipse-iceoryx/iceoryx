@@ -358,7 +358,7 @@ shutdownTrigger.attachTo(waitset);
 
 After that we require a `cyclicTrigger` to trigger our 
 `cyclicRun` every second. Therefore, we attach it to the `waitset` with 
-triggerId `0` and the callback `SomeClass::cyclicRun`
+eventId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
 cyclicTrigger.attachEvent(waitset, SomeClass::cyclicRun);
@@ -465,7 +465,7 @@ the two const methods `hasPerformedAction` and `isActivated`.
 
 The method `attachTo` attaches our class to a WaitSet but the user has
 to specify which event they would like to attach. Additionally, they can
-set a `triggerId` and a `callback`.
+set a `eventId` and a `callback`.
 
 If the parameter event was set to `PERFORMED_ACTION` we call `acquireTriggerHandle`
 on the waitset which will return an `cxx::expected`. The following parameters
@@ -481,7 +481,7 @@ have to be provided.
     iox::cxx::expected<iox::popo::WaitSetError>
     attachEvent(iox::popo::WaitSet<>& waitset,
                     const MyTriggerClassEvents event,
-                    const uint64_t triggerId,
+                    const uint64_t eventId,
                     const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
     {
         switch (event)
@@ -492,7 +492,7 @@ have to be provided.
                 .acquireTriggerHandle(this,
                                 {*this, &MyTriggerClass::hasPerformedAction},
                                 {*this, &MyTriggerClass::invalidateTrigger},
-                                triggerId,
+                                eventId,
                                 callback)
                 .and_then([this](iox::popo::TriggerHandle& trigger) { 
                     m_actionTrigger = std::move(trigger); });
@@ -508,7 +508,7 @@ for the trigger.
                 .acquireTriggerHandle(this,
                                 {*this, &MyTriggerClass::isActivated},
                                 {*this, &MyTriggerClass::invalidateTrigger},
-                                triggerId,
+                                eventId,
                                 callback)
                 .and_then([this](iox::popo::TriggerHandle& trigger) { 
                     m_activateTrigger = std::move(trigger); });

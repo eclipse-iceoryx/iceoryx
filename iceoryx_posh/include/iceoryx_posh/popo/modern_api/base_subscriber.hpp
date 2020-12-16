@@ -112,8 +112,8 @@ class BaseSubscriber
     /// @brief attaches a WaitSet to the subscriber
     /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
     /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] triggerId a custom uint64_t which can be set by the user with no restriction. could be used to either
-    ///            identify a trigger uniquely or to group multiple triggers together when they share the same triggerId
+    /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
+    ///            identify a trigger uniquely or to group multiple triggers together when they share the same eventId
     /// @param[in] callback callback which is attached to the trigger and which can be called
     ///            later by the user
     /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
@@ -121,8 +121,8 @@ class BaseSubscriber
     template <uint64_t WaitSetCapacity>
     cxx::expected<WaitSetError> attachEvent(WaitSet<WaitSetCapacity>& waitset,
                                             const SubscriberEvent subscriberEvent,
-                                            const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                                            const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
+                                            const uint64_t eventId = EventInfo::INVALID_ID,
+                                            const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
 
     /// @brief attaches a WaitSet to the subscriber
     /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
@@ -134,7 +134,7 @@ class BaseSubscriber
     template <uint64_t WaitSetCapacity>
     cxx::expected<WaitSetError> attachEvent(WaitSet<WaitSetCapacity>& waitset,
                                             const SubscriberEvent subscriberEvent,
-                                            const Trigger::Callback<Subscriber> callback) noexcept;
+                                            const EventInfo::Callback<Subscriber> callback) noexcept;
 
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached

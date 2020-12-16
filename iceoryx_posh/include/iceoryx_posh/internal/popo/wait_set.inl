@@ -139,8 +139,8 @@ inline cxx::expected<TriggerHandle, WaitSetError>
 WaitSet<Capacity>::acquireTriggerHandle(T* const origin,
                                         const cxx::ConstMethodCallback<bool>& triggerCallback,
                                         const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                                        const uint64_t triggerId,
-                                        const Trigger::Callback<T> callback) noexcept
+                                        const uint64_t eventId,
+                                        const EventInfo::Callback<T> callback) noexcept
 {
     static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
                       && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
@@ -149,7 +149,7 @@ WaitSet<Capacity>::acquireTriggerHandle(T* const origin,
                   "a callback inside of Trigger.");
 
     Trigger possibleLogicallyEqualTrigger(
-        origin, triggerCallback, cxx::MethodCallback<void, uint64_t>(), triggerId, Trigger::Callback<T>());
+        origin, triggerCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>());
 
     // it is not allowed to have to logical equal trigger in the same waitset
     // otherwise when we call removeTrigger(Trigger) we do not know which trigger
@@ -162,7 +162,7 @@ WaitSet<Capacity>::acquireTriggerHandle(T* const origin,
         }
     }
 
-    if (!m_triggerList.push_back(Trigger{origin, triggerCallback, invalidationCallback, triggerId, callback}))
+    if (!m_triggerList.push_back(Trigger{origin, triggerCallback, invalidationCallback, eventId, callback}))
     {
         return cxx::error<WaitSetError>(WaitSetError::TRIGGER_VECTOR_OVERFLOW);
     }

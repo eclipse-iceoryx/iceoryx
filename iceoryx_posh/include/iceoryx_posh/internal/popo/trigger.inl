@@ -24,9 +24,9 @@ template <typename T>
 inline Trigger::Trigger(T* const eventOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
-                        const uint64_t triggerId,
+                        const uint64_t eventId,
                         const Callback<T> callback) noexcept
-    : m_eventInfo(eventOrigin, triggerId, callback)
+    : m_eventInfo(eventOrigin, eventId, callback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
     , m_uniqueId(uniqueIdCounter.fetch_add(1U))
