@@ -18,7 +18,7 @@ You can join by using this Zoom link: https://eclipse.zoom.us/j/95918504483?pwd=
 16:00 GMT
 17:00 CET (GMT + 1)
 21:30 IST (GMT + 5.5)
-23:00 CST (GMT + 7)
+00:00 CST (GMT + 8)
 ```
 
 ### Topics
