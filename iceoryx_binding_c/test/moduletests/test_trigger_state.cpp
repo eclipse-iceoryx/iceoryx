@@ -98,7 +98,7 @@ UserTrigger* iox_event_info_test::m_lastTriggerCallbackArgument = nullptr;
 TEST_F(iox_event_info_test, triggerStateHasCorrectId)
 {
     constexpr uint64_t ARBITRARY_TRIGGER_ID = 123;
-    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
+    m_userTrigger.enableTriggerEvent(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -110,7 +110,7 @@ TEST_F(iox_event_info_test, triggerStateHasCorrectId)
 TEST_F(iox_event_info_test, triggerOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_TRIGGER_ID = 124;
-    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
+    m_userTrigger.enableTriggerEvent(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -145,7 +145,7 @@ TEST_F(iox_event_info_test, triggerOriginIsSubscriberPointerWhenItsOriginatingFr
 TEST_F(iox_event_info_test, triggerOriginIsNotSubscriberPointerWhenItsOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_TRIGGER_ID = 8921;
-    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
+    m_userTrigger.enableTriggerEvent(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -157,7 +157,7 @@ TEST_F(iox_event_info_test, triggerOriginIsNotSubscriberPointerWhenItsOriginatin
 TEST_F(iox_event_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_TRIGGER_ID = 89121;
-    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
+    m_userTrigger.enableTriggerEvent(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -193,7 +193,7 @@ TEST_F(iox_event_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFr
 TEST_F(iox_event_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_TRIGGER_ID = 891121;
-    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
+    m_userTrigger.enableTriggerEvent(m_waitSet, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -204,7 +204,7 @@ TEST_F(iox_event_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingF
 TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
 {
     constexpr uint64_t ARBITRARY_TRIGGER_ID = 80;
-    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
+    m_userTrigger.enableTriggerEvent(m_waitSet, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -216,7 +216,7 @@ TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
 TEST_F(iox_event_info_test, callbackCanBeCalledMultipleTimes)
 {
     constexpr uint64_t ARBITRARY_TRIGGER_ID = 180;
-    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
+    m_userTrigger.enableTriggerEvent(m_waitSet, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
     m_userTrigger.trigger();
     auto triggerStateVector = m_waitSet.wait();
 

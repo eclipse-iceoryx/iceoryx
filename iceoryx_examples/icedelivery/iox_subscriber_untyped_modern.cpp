@@ -75,7 +75,7 @@ int main()
     // set up waitset
     iox::popo::WaitSet<> waitSet;
     untypedSubscriber.attachEvent(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-    shutdownTrigger.attachTo(waitSet);
+    shutdownTrigger.enableTriggerEvent(waitSet);
 
     // delegate handling of received data to another thread
     std::thread untypedSubscriberThread(subscriberHandler, std::ref(waitSet));

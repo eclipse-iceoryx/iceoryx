@@ -36,28 +36,29 @@ class UserTrigger
     UserTrigger& operator=(const UserTrigger& rhs) = delete;
     UserTrigger& operator=(UserTrigger&& rhs) = delete;
 
-    /// @brief attaches the UserTrigger to a WaitSet
+    /// @brief enables the trigger event
     /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
     /// @param[in] eventId optional parameter, the id of the trigger
     /// @param[in] callback optional parameter, the callback of the trigger
     /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
     /// the expected signals success
     template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                         const uint64_t eventId = EventInfo::INVALID_ID,
-                                         const EventInfo::Callback<UserTrigger> callback = nullptr) noexcept;
+    cxx::expected<WaitSetError> enableTriggerEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                   const uint64_t eventId = EventInfo::INVALID_ID,
+                                                   const EventInfo::Callback<UserTrigger> callback = nullptr) noexcept;
 
-    /// @brief attaches the UserTrigger to a WaitSet
+    /// @brief enables the trigger event
     /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
     /// @param[in] callback optional parameter, the callback of the trigger
     /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
     /// the expected signals success
     template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                         const EventInfo::Callback<UserTrigger> callback) noexcept;
+    cxx::expected<WaitSetError> enableTriggerEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                   const EventInfo::Callback<UserTrigger> callback) noexcept;
 
-    /// @brief detaches the UserTrigger from the waitset. If it was not attached to a waitset nothing happens.
-    void detach() noexcept;
+    /// @brief disables the trigger event. If it was not enabled nothing happens
+    /// happens.
+    void disableTriggerEvent() noexcept;
 
     /// @brief If it is attached it will trigger otherwise it will do nothing
     void trigger() noexcept;

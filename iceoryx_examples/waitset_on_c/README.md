@@ -42,7 +42,7 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
+iox_user_trigger_enable_trigger_event(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 During the next step we create 4 subscribers with `iox_sub_init`, 
@@ -125,7 +125,7 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
+iox_user_trigger_enable_trigger_event(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 After that we can create a list of subscribers and subscribe them to our topic.
@@ -235,7 +235,7 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
+iox_user_trigger_enable_trigger_event(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 Now we create two subscriber, subscribe them to our topic and attach them to
@@ -321,14 +321,14 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
+iox_user_trigger_enable_trigger_event(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 Now we create our cyclic trigger and attach it to our waitset with a eventId
 of `0` and the callback `cyclicRun`.
 ```c
 cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);
-iox_user_trigger_attach_to(cyclicTrigger, waitSet, 0, cyclicRun);
+iox_user_trigger_enable_trigger_event(cyclicTrigger, waitSet, 0, cyclicRun);
 ```
 
 The thread which will trigger the `cyclicTrigger` every second is started in

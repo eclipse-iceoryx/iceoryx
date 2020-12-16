@@ -14,7 +14,7 @@ directly.
 ## Threadsafety
 The WaitSet is **not** threadsafe! 
 - It is **not** allowed to attach or detach _Triggerable_
-   classes with methods like `attachTo`, `attachEvent` or `detachEvent` when another thread is waiting
+   classes with methods like `enableTriggerEvent`, `attachEvent` or `detachEvent` when another thread is waiting
    for events with `wait`.
 
 The _TriggerHandle_ is threadsafe! Therefore you are allowed to attach/detach a _TriggerHandle_
@@ -69,12 +69,12 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 
 | task | call |
 |:-----|:-----|
-|attach subscriber to waitset (simple)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
-|attach subscriber to waitset (full)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someEventId, myCallback);`|
-|detach subscriber event|`subscriber.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
-|attach user trigger to waitset (simple)|`userTrigger.attachTo(myWaitSet)`|
-|attach user trigger to waitset (full)|`userTrigger.attachTo(myWaitSet, someEventId, myCallback)`|
-|detach user trigger|`userTrigger.detach()`|
+|enable subscriber event (simple)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|enable subscriber event (full)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someEventId, myCallback);`|
+|disable subscriber event|`subscriber.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|attach user trigger to waitset (simple)|`userTrigger.enableTriggerEvent(myWaitSet)`|
+|attach user trigger to waitset (full)|`userTrigger.enableTriggerEvent(myWaitSet, someEventId, myCallback)`|
+|disable user trigger event|`userTrigger.disableTriggerEvent()`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
 |check if trigger originated from some object|`trigger.doesOriginateFrom(ptrToSomeObject)`|
@@ -139,7 +139,7 @@ broker RouDi. Then we attach our `shutdownTrigger` to it to handle `CTRL+c` even
 ```cpp
 iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + 1>;
 
-shutdownTrigger.attachTo(waitset);
+shutdownTrigger.enableTriggerEvent(waitset);
 ```
 
 After that we create a vector of 2 subscribers, subscribe and attach them to a
@@ -197,7 +197,7 @@ and attach the `shutdownTrigger` to handle
 ```cpp
 iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + 1>;
 
-shutdownTrigger.attachTo(waitset);
+shutdownTrigger.enableTriggerEvent(waitset);
 ```
 
 Now we create a vector of 4 subscribers and subscribe them to our topic.
@@ -277,7 +277,7 @@ attaching the `shutdownTrigger` to handle `CTRL-c`.
 ```cpp
 iox::popo::WaitSet waitset<>;
 
-shutdownTrigger.attachTo(waitset);
+shutdownTrigger.enableTriggerEvent(waitset);
 ```
 
 Additionally, we create two subscribers, subscribe them to our topic and attach
@@ -347,13 +347,13 @@ us immediately again since it is state based.
 
 We begin as always, by creating a _WaitSet_ with the default capacity and 
 attaching the `shutdownTrigger` to 
-it. In this case we do not set a trigger id when calling `attachTo` which means 
+it. In this case we do not set a trigger id when calling `enableTriggerEvent` which means 
 the default trigger id  `Trigger::INVALID_TRIGGER_ID` is set.
 ```cpp
 iox::popo::WaitSet<> waitset;
 
 // attach shutdownTrigger to handle CTRL+C
-shutdownTrigger.attachTo(waitset);
+shutdownTrigger.enableTriggerEvent(waitset);
 ```
 
 After that we require a `cyclicTrigger` to trigger our 
@@ -463,7 +463,7 @@ the two const methods `hasPerformedAction` and `isActivated`.
     }
 ```
 
-The method `attachTo` attaches our class to a WaitSet but the user has
+The method `enableTriggerEvent` attaches our class to a WaitSet but the user has
 to specify which event they would like to attach. Additionally, they can
 set a `eventId` and a `callback`.
 

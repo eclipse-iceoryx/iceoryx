@@ -69,7 +69,7 @@ TEST_F(iox_user_trigger_test, canBeTriggeredWhenNotAttached)
 
 TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
 {
-    iox_user_trigger_attach_to(m_sut, &m_waitSet, 0, NULL);
+    iox_user_trigger_enable_trigger_event(m_sut, &m_waitSet, 0, NULL);
     iox_user_trigger_trigger(m_sut);
     EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
 }
@@ -82,7 +82,7 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 
 TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInNotTriggered)
 {
-    iox_user_trigger_attach_to(m_sut, &m_waitSet, 0, NULL);
+    iox_user_trigger_enable_trigger_event(m_sut, &m_waitSet, 0, NULL);
     iox_user_trigger_trigger(m_sut);
     iox_user_trigger_reset_trigger(m_sut);
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
@@ -90,7 +90,7 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInNotTriggered)
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectEventId)
 {
-    iox_user_trigger_attach_to(m_sut, &m_waitSet, 88191, NULL);
+    iox_user_trigger_enable_trigger_event(m_sut, &m_waitSet, 88191, NULL);
     iox_user_trigger_trigger(m_sut);
 
     auto eventVector = m_waitSet.wait();
@@ -101,7 +101,7 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectEventId)
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
 {
-    iox_user_trigger_attach_to(m_sut, &m_waitSet, 0, iox_user_trigger_test::triggerCallback);
+    iox_user_trigger_enable_trigger_event(m_sut, &m_waitSet, 0, iox_user_trigger_test::triggerCallback);
     iox_user_trigger_trigger(m_sut);
 
     auto eventVector = m_waitSet.wait();
@@ -115,20 +115,20 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
 TEST_F(iox_user_trigger_test, attachingToAnotherWaitSetCleansupFirstWaitset)
 {
     WaitSetMock m_waitSet2{&m_condVar};
-    iox_user_trigger_attach_to(m_sut, &m_waitSet, 0, NULL);
+    iox_user_trigger_enable_trigger_event(m_sut, &m_waitSet, 0, NULL);
 
-    iox_user_trigger_attach_to(m_sut, &m_waitSet2, 0, NULL);
+    iox_user_trigger_enable_trigger_event(m_sut, &m_waitSet2, 0, NULL);
 
     EXPECT_EQ(m_waitSet.size(), 0);
     EXPECT_EQ(m_waitSet2.size(), 1);
 }
 
-TEST_F(iox_user_trigger_test, detachingItFromWaitsetCleansup)
+TEST_F(iox_user_trigger_test, disable_trigger_eventingItFromWaitsetCleansup)
 {
     WaitSetMock m_waitSet2{&m_condVar};
-    iox_user_trigger_attach_to(m_sut, &m_waitSet, 0, NULL);
+    iox_user_trigger_enable_trigger_event(m_sut, &m_waitSet, 0, NULL);
 
-    iox_user_trigger_detach(m_sut);
+    iox_user_trigger_disable_trigger_event(m_sut);
 
     EXPECT_EQ(m_waitSet.size(), 0);
 }

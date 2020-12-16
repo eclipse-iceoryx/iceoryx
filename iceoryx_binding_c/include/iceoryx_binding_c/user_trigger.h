@@ -32,7 +32,7 @@ iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self);
 /// @param[in] self handle to user trigger
 void iox_user_trigger_deinit(iox_user_trigger_t const self);
 
-/// @brief attaches a user trigger to a wait set
+/// @brief enables the trigger event by attaching the user trigger to a waitset
 /// @param[in] self handle to the user trigger
 /// @param[in] wait_set handle to the wait set
 /// @param[in] trigger_id any arbitrary number which is used as trigger id
@@ -40,14 +40,14 @@ void iox_user_trigger_deinit(iox_user_trigger_t const self);
 ///             callback should be set
 /// @return if it was attached successfully it returns WaitSetResult_SUCCESS
 ///         otherwise an enum which is describing the error
-ENUM iox_WaitSetResult iox_user_trigger_attach_to(iox_user_trigger_t const self,
-                                                  iox_ws_t const wait_set,
-                                                  const uint64_t trigger_id,
-                                                  void (*trigger_callback)(iox_user_trigger_t));
+ENUM iox_WaitSetResult iox_user_trigger_enable_trigger_event(iox_user_trigger_t const self,
+                                                             iox_ws_t const wait_set,
+                                                             const uint64_t trigger_id,
+                                                             void (*trigger_callback)(iox_user_trigger_t));
 
-/// @brief detaches a user trigger from a wait set
+/// @brief disables the trigger event
 /// @param[in] self handle to the user trigger
-void iox_user_trigger_detach(iox_user_trigger_t const self);
+void iox_user_trigger_disable_trigger_event(iox_user_trigger_t const self);
 
 /// @brief trigger a user trigger
 /// @param[in] self handle to user trigger
