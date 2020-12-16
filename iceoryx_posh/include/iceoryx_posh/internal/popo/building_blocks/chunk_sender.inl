@@ -150,8 +150,7 @@ inline bool ChunkSender<ChunkSenderDataType>::getChunkReadyForSend(const mepoo::
 {
     if (getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
     {
-        chunk.getChunkHeader()->m_sequenceNumber = getMembers()->m_sequenceNumber;
-        getMembers()->m_sequenceNumber++;
+        chunk.getChunkHeader()->m_sequenceNumber = getMembers()->m_sequenceNumber++;
         return true;
     }
     else
