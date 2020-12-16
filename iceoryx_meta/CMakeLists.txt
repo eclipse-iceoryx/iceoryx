@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,16 +16,7 @@ cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_VERSION)
 project(iceoryx_meta VERSION ${iceoryx_VERSION})
 
-option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
-option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
-option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
-option(test "Build tests" ON)
-option(coverage "Build iceoryx with gcov" OFF)
-option(examples "build with iceoryx examples" ON)
-option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
-option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
-option(binding_c "builds the C language bindings" ON)
-option(sanitize "Build with sanitizers" OFF)
+include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -111,16 +102,6 @@ if (test)
     )
 endif(test)
 
-
-message("")
-message("       Configured Options")
-message("          BUILD_STRICT..............: " ${BUILD_STRICT})
-message("          TOML_CONFIG...............: " ${TOML_CONFIG})
-message("          binding_c.................: " ${binding_c})
-message("          dds_gateway...............: " ${dds_gateway})
-message("          examples..................: " ${examples})
-message("          introspection.............: " ${introspection})
-message("          test......................: " ${test})
 
 message("")
 message("       Build Properties")

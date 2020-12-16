@@ -34,7 +34,7 @@ Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 
 
 You will need to install the following packages:
     ```
-    sudo apt install cmake libacl1-dev libncurses5-dev pkg-config
+    sudo apt install gcc g++ cmake libacl1-dev libncurses5-dev pkg-config
     ```
 
 Additionally, there is an optional dependency to the MIT licensed cpptoml library, which is used to parse a RouDi config file for the mempool config.
@@ -65,18 +65,11 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     cmake --build build
     ```
 
-### With the following CMake switches you can add additional features
+### Build options
 
- |  switch  |  description |
- |:---------|:-------------|
- | `dds_gateway` | builds the iceoryx dds gateway using the cyclonedds dds stack, cyclonedds will be fetched and built as part of the build, see [cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds) for details |
- | `examples` | builds all examples |
- | `one-to-many` | Restricts to 1:n communication. If not set the default communication is n:m |
- | `introspection` | the console introspection client which requires an installed ncurses library with terminfo support |
- | `test` | enables module-, integration- and component-tests |
- | `TOML_CONFIG` | activates config file support by using toml, if this is deactivated the central broker `RouDi` is not being build |
+Please take a look at the cmake file [build_options.cmake](../iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
 
-### With the following CMake switches you can customize the iceoryx_posh build
+### Available CMake switches you can customize for the iceoryx_posh build
 
  |  switch  |  description |
  |:---------|:-------------|
@@ -88,7 +81,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | the maximum number of chunks a subscriber can hold at a given time |
  | `IOX_MAX_INTERFACE_NUMBER` | the maximum number for interface ports, which are used for e.g. gateways |
 
-Have a look at `iceoryx_posh/cmake/iceoryx_posh_deployment.cmake` for the default values of this constants.
+Have a look at [iceoryx_posh_deployment.cmake](../iceoryx_posh/cmake/iceoryx_posh_deployment.cmake) for the default values of this constants.
 
 ## Build with the build script
 
