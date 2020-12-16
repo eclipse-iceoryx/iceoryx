@@ -75,11 +75,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
         m_attributes.mq_recvwait = 0;
         m_attributes.mq_sendwait = 0;
 #endif
-
-        // if (this->m_errorValue != IpcChannelError::INVALID_CHANNEL_NAME)
-        // {
         auto openResult = open(m_name, mode, channelSide);
-
         if (!openResult.has_error())
         {
             this->m_isInitialized = true;
@@ -91,7 +87,6 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
             this->m_isInitialized = false;
             this->m_errorValue = openResult.get_error();
         }
-        //}
     }
 }
 
