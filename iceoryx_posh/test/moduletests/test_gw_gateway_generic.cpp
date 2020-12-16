@@ -25,7 +25,7 @@ using ::testing::_;
 
 // ======================================== Helpers ======================================== //
 
-using IdString = iox::cxx::string<100>;
+using iox::capro::IdString_t;
 
 // We do not need real channel terminals to test the base class.
 struct StubbedIceoryxTerminal
@@ -35,7 +35,7 @@ struct StubbedIceoryxTerminal
 
 struct StubbedExternalTerminal
 {
-    StubbedExternalTerminal(IdString, IdString, IdString){};
+    StubbedExternalTerminal(IdString_t, IdString_t, IdString_t){};
 };
 
 using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
@@ -135,9 +135,9 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     for (auto i = 0u; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = gw.addChannel(
-            iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i))));
+            iox::capro::ServiceDescription(iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
+                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
+                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i))));
         EXPECT_EQ(false, result.has_error());
     }
 
@@ -153,9 +153,9 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     for (auto i = 0u; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = gw.addChannel(
-            iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i))));
+            iox::capro::ServiceDescription(iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
+                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
+                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i))));
         EXPECT_EQ(false, result.has_error());
     }
 

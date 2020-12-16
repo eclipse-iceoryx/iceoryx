@@ -22,7 +22,7 @@
 class Iceoryx : public IcePerfBase
 {
   public:
-    Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::IdString& subscriberName) noexcept;
+    Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept;
     void initLeader() noexcept override;
     void initFollower() noexcept override;
     void shutdown() noexcept override;
