@@ -174,7 +174,31 @@ There are more convenience functions such as ``value_or`` which provides the val
 
 ## Using the API
 
+Armed with the terminology and functional concepts, we can start to use the API to send and receive data. This involves settting up the runtime in each application, creating publishers in applications that need to send data and subscribers in applications that want to receive said data.
+An application can have both, publishers and subscribers. It can even send data to itself, but this usually makes little sense.
+
 ### Initializing the runtime
+
+Create a runtime with a unique name among all applications for each application
+
+```
+iox::runtime::PoshRuntime::initRuntime("/some_unique_name");
+```
+
+No this application is ready to communicate with the middleware daemon Roudi.
+
+## Define a topic
+
+We need to define a data type we can send, which can be any struct or class or even a plain type, such as an int.
+
+```
+struct CounterTopic
+{
+    uint32_t counter;
+};
+```
+
+The topic type must be default- and copy-constructible when the typed API is used. Using the untyped API imposes no such restriction, it just has to be possible to construct the data type at a given memory location.
 
 
 ### Creating a publisher
