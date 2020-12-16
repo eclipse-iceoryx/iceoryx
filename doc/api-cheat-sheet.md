@@ -1,14 +1,14 @@
 # Iceoryx API Cheat Sheet
 
-This document covers the core functionality of the iceoryx middleware and is intended to get you started quickly to
-set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, 
-the basic concepts will still apply.  
+This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the basic concepts will still apply.  
 ## General
 
-To set up a collection of applications using iceoryx (an iceoryx system), the applications need to initialize a runtime and create **publishers** and **subscribers**. The publishers send data of a specific **topic** which can be received by subscribers of the same topic.
-To enable publishers to offer their topic and subscribers to subscribe to these offered topics, the middleware daemon, called **Roudi**, must be running. 
+To set up a collection of applications using iceoryx (an iceoryx system), the applications need to initialize a runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be received by subscribers of the same topic.
+To enable publishers to offer their topic and subscribers to subscribe to these offered topics, the middleware daemon, called ``Roudi``, must be running. 
 
-For further information see the [examples](). We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
+For further information see the [examples](todo) and [conceptual-guide.md](todo). We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
+
+
 
 ### Roudi
 
@@ -44,7 +44,7 @@ A topic in iceoryx specifies some kind of data and is uniquely indetified by thr
 
 A triple consisting of such strings is called a ``Service Description``.
 
-Two topics are considered matching if all these three strings are elementwise-equal, i.e. group, instance and topic names are the same for both of them.
+Two topics are considered matching if all these three strings are element-wise equal, i.e. group, instance and topic names are the same for both of them.
 
 This means the group and instance identifier can be ignored to create different topics. They will be needed for advanced filtering functionality in the future.
 
@@ -66,7 +66,7 @@ When multiple publishers have offered the same topic the subscriber will receive
 ### Waitset
 The easiest way to receie data is to periodically poll whether data is available. This is sufficient for simple use cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
 
-The ``Waitset`` can be used to relinquish control and wait for user defined conditions to become true. 
+The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user defined conditions to become true. 
 Usually these conditions correspond to the availability of data at specific subscribers. This way we can (almost) immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
 
 To do so it manages a set of triggers which can be activated and indicate that a corresponding condition became true which in turn will wake up a potentially waiting thread. In this way it extends a condition variable to a collection of conditions. Upon waking up it can be determined which conditions became true and caused
@@ -79,13 +79,56 @@ For more information on how to use the Waitset see [Waitset](todo_link).
 
 We now show how the API can be used to establish a publish-subscribe communication in an iceoryx system. Many parts of the API follow a functional programming approach and allow the user to specify functions which handle the possible cases, e.g. what should happen when data is received.
 
-This is ver flexible but requires using the monadic types ``cxx::expected`` and ``cxx::optional``, which we introduce in the following sections.
+This is very flexible but requires using the monadic types ``cxx::expected`` and ``cxx::optional``, which we introduce in the following sections.
 
 We distinguish between the ``Typed API`` and the ``Untyped API``. In the Typed API the underlying data type is made apparent by typed pointers or references to some data type T (often a template parameter). this allows working with the data in an C++ idiomatic and type-safe way and should be preferred whenever possible.
 
-The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be used sparingly. 
+The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be used sparingly.
+For further information see the respective header files.
+
+We now describe the how to use the API in iceoryx applications. We will ommit namespaces in several places to keep the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. 
 
 ### Optional
+
+The type ``cxx::optional<T>`` is used to indicate that there may or may not be a value of a specific type ``T`` available. This is essentially the maybe monad in functional programming. Assuming we have some optional (usually the result of some computation)
+```
+optional<int> result = someComputation();
+```
+we can check for its value using
+```
+if(result.has_value()) {
+    auto value = result.value();
+    //do something with the value
+} else {
+    //handle the case that there is no value
+}
+```
+A shorthand to get the value is 
+```
+auto value = *result;
+```
+
+Note that getting the value if there is no value is undefined behavior, so it must be checked beforehand.
+
+We can achieve the same with the functional approach by providing a function for both cases.
+
+```
+result.and_then([](int& value) {//do something with the value})
+      .or_else([]() {//handle the case that there is no value});
+```
+Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in th e lambda or function we pass.
+
+The optional can be be initialized from a value directly
+```
+optional<int> result = 73;
+result = 37;
+```
+If it is default initialized it is automatically set to its null value of type ``iox::cxx::nullopt_t``;
+This can be also done directly by using the constant ``iox::cxx::nullopt``
+```
+result = nullopt;
+``` 
+ 
 
 
 ### Expected
