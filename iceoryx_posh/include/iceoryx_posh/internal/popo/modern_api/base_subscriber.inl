@@ -70,7 +70,7 @@ inline void BaseSubscriber<T, Subscriber, port_t>::unsubscribe() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline bool BaseSubscriber<T, Subscriber, port_t>::hasNewSamples() const noexcept
+inline bool BaseSubscriber<T, Subscriber, port_t>::hasSamples() const noexcept
 {
     return m_port.hasNewChunks();
 }
@@ -150,7 +150,7 @@ BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& wai
 
     return waitset
         .acquireTriggerHandle(
-            self, {*this, &SelfType::hasNewSamples}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
+            self, {*this, &SelfType::hasSamples}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
         .and_then([this](TriggerHandle& trigger) {
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());

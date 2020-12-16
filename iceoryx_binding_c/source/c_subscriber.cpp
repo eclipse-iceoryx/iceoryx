@@ -97,7 +97,7 @@ void iox_sub_release_queued_chunks(iox_sub_t const self)
     SubscriberPortUser(self->m_portData).releaseQueuedChunks();
 }
 
-bool iox_sub_has_new_chunks(iox_sub_t const self)
+bool iox_sub_has_chunks(iox_sub_t const self)
 {
     return SubscriberPortUser(self->m_portData).hasNewChunks();
 }

@@ -74,7 +74,7 @@ int main()
 
     // set up waitset
     iox::popo::WaitSet<> waitSet;
-    untypedSubscriber.enableEvent(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    untypedSubscriber.enableEvent(waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
     shutdownTrigger.enableTriggerEvent(waitSet);
 
     // delegate handling of received data to another thread

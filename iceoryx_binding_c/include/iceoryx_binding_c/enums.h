@@ -18,7 +18,7 @@
 /// @brief describes events which can be triggered by a subscriber
 enum iox_SubscriberEvent
 {
-    SubscriberEvent_HAS_NEW_SAMPLES,
+    SubscriberEvent_HAS_SAMPLES,
 };
 
 /// @brief describes the current state of a subscriber

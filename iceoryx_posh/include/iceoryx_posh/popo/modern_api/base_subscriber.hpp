@@ -31,7 +31,7 @@ using uid_t = UniquePortId;
 
 enum class SubscriberEvent
 {
-    HAS_NEW_SAMPLES
+    HAS_SAMPLES
 };
 
 /// @brief base class for all types of subscriber
@@ -88,7 +88,7 @@ class BaseSubscriber
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
-    bool hasNewSamples() const noexcept;
+    bool hasSamples() const noexcept;
 
     ///
     /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.

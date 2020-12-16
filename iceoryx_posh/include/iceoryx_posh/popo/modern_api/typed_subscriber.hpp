@@ -41,7 +41,7 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
     using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::hasSamples;
     using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseQueuedSamples;
     using BaseSubscriber::subscribe;

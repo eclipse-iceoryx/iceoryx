@@ -73,8 +73,8 @@ void iox_sub_release_queued_chunks(iox_sub_t const self);
 
 /// @brief are new chunks available?
 /// @param[in] self handle to the subscriber
-/// @return true if there are new chunks otherwise false
-bool iox_sub_has_new_chunks(iox_sub_t const self);
+/// @return true if there are chunks otherwise false
+bool iox_sub_has_chunks(iox_sub_t const self);
 
 /// @brief are chunks lost?
 /// @param[in] self handle to the subscriber

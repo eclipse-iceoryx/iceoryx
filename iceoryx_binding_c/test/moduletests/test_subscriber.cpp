@@ -228,7 +228,7 @@ TEST_F(iox_sub_test, releaseChunkQueuedChunksWorks)
 
 TEST_F(iox_sub_test, initialStateHasNewChunksFalse)
 {
-    EXPECT_FALSE(iox_sub_has_new_chunks(m_sut));
+    EXPECT_FALSE(iox_sub_has_chunks(m_sut));
 }
 
 TEST_F(iox_sub_test, receivingChunkLeadsToHasNewChunksTrue)
@@ -236,7 +236,7 @@ TEST_F(iox_sub_test, receivingChunkLeadsToHasNewChunksTrue)
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
-    EXPECT_TRUE(iox_sub_has_new_chunks(m_sut));
+    EXPECT_TRUE(iox_sub_has_chunks(m_sut));
 }
 
 TEST_F(iox_sub_test, initialStateHasNoLostChunks)
@@ -257,7 +257,7 @@ TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
 
 TEST_F(iox_sub_test, attachingToWaitSetWorks)
 {
-    EXPECT_EQ(iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL),
+    EXPECT_EQ(iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_SAMPLES, 0, NULL),
               WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 1U);
 }
@@ -265,24 +265,23 @@ TEST_F(iox_sub_test, attachingToWaitSetWorks)
 TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 {
     WaitSetMock m_waitSet2{&m_condVar};
-    iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+    iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_SAMPLES, 0, NULL);
 
-    EXPECT_EQ(iox_sub_enable_event(m_sut, &m_waitSet2, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL),
-              WaitSetResult_SUCCESS);
+    EXPECT_EQ(iox_sub_enable_event(m_sut, &m_waitSet2, SubscriberEvent_HAS_SAMPLES, 0, NULL), WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 0U);
     EXPECT_EQ(m_waitSet2.size(), 1U);
 }
 
 TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 {
-    iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
-    iox_sub_disable_event(m_sut, SubscriberEvent_HAS_NEW_SAMPLES);
+    iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_SAMPLES, 0, NULL);
+    iox_sub_disable_event(m_sut, SubscriberEvent_HAS_SAMPLES);
     EXPECT_EQ(m_waitSet->size(), 0U);
 }
 
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectEventId)
 {
-    iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
+    iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_SAMPLES, 587, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
@@ -294,7 +293,7 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectEventId)
 
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
 {
-    iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+    iox_sub_enable_event(m_sut, m_waitSet.get(), SubscriberEvent_HAS_SAMPLES, 0, iox_sub_test::triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
@@ -311,8 +310,7 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     auto subscriber = new (malloc(sizeof(cpp2c_Subscriber))) cpp2c_Subscriber();
     subscriber->m_portData = &m_portPtr;
 
-    iox_sub_enable_event(
-        subscriber, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+    iox_sub_enable_event(subscriber, m_waitSet.get(), SubscriberEvent_HAS_SAMPLES, 0, iox_sub_test::triggerCallback);
 
     iox_sub_deinit(subscriber);
 

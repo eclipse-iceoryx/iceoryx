@@ -69,9 +69,9 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 
 | task | call |
 |:-----|:-----|
-|enable subscriber event (simple)|`subscriber.enableEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
-|enable subscriber event (full)|`subscriber.enableEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someEventId, myCallback);`|
-|disable subscriber event|`subscriber.disableEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|enable subscriber event (simple)|`subscriber.enableEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);`|
+|enable subscriber event (full)|`subscriber.enableEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_SAMPLES, someEventId, myCallback);`|
+|disable subscriber event|`subscriber.disableEvent(iox::popo::SubscriberEvent::HAS_SAMPLES);`|
 |attach user trigger to waitset (simple)|`userTrigger.enableTriggerEvent(myWaitSet)`|
 |attach user trigger to waitset (full)|`userTrigger.enableTriggerEvent(myWaitSet, someEventId, myCallback)`|
 |disable user trigger event|`userTrigger.disableTriggerEvent()`|
@@ -143,7 +143,7 @@ shutdownTrigger.enableTriggerEvent(waitset);
 ```
 
 After that we create a vector of 2 subscribers, subscribe and attach them to a
-_WaitSet_ with the event `HAS_NEW_SAMPLES` and the `subscriberCallback`. Everytime one 
+_WaitSet_ with the event `HAS_SAMPLES` and the `subscriberCallback`. Everytime one 
 of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 ```cpp
 iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
@@ -153,7 +153,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     auto& subscriber = subscriberVector.back();
 
     subscriber.subscribe();
-    subscriber.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, subscriberCallback);
+    subscriber.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
 }
 ```
 
@@ -218,12 +218,12 @@ to the second group.
 ```cpp
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
 {
-    subscriberVector[i].enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
+    subscriberVector[i].enableEvent(waitset, iox::popo::SubscriberEvent::HAS_SAMPLES, FIRST_GROUP_ID);
 }
 
 for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    subscriberVector[i].enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
+    subscriberVector[i].enableEvent(waitset, iox::popo::SubscriberEvent::HAS_SAMPLES, SECOND_GROUP_ID);
 }
 ```
 
@@ -289,8 +289,8 @@ iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Cou
 subscriber1.subscribe();
 subscriber2.subscribe();
 
-subscriber1.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-subscriber2.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+subscriber1.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_SAMPLES);
+subscriber2.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_SAMPLES);
 ```
 
 With that set up we enter the event loop and handle the program termination

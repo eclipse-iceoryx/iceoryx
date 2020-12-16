@@ -47,7 +47,7 @@ iox_user_trigger_enable_trigger_event(shutdownTrigger, waitSet, 0, NULL);
 
 During the next step we create 4 subscribers with `iox_sub_init`, 
 subscribe them to our topic
-and attach the event `SubscriberEvent_HAS_NEW_SAMPLES` to the WaitSet with
+and attach the event `SubscriberEvent_HAS_SAMPLES` to the WaitSet with
 the `subscriberCallback`.
 ```c
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBER];
@@ -58,7 +58,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
     iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
 
     iox_sub_subscribe(subscriber, 256);
-    iox_sub_enable_event(subscriber, waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 1, subscriberCallback);
+    iox_sub_enable_event(subscriber, waitSet, SubscriberEvent_HAS_SAMPLES, 1, subscriberCallback);
 }
 ```
 
@@ -144,7 +144,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
 
 To distinct our two groups we create set the eventId of the first group to
 `123` and of the second group to `456`. For the first two subscribers we attach
-the `Subscriber_HAS_NEW_SAMPLES` event to our waitset with the trigger id of
+the `Subscriber_HAS_SAMPLES` event to our waitset with the trigger id of
 the first group. The third and forth subscriber is  attached to the same
 waitset under the second group id.
 ```c
@@ -153,12 +153,12 @@ const uint64_t SECOND_GROUP_ID = 456;
 
 for (uint64_t i = 0U; i < 2U; ++i)
 {
-    iox_sub_enable_event(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, FIRST_GROUP_ID, NULL);
+    iox_sub_enable_event(subscriber[i], waitSet, SubscriberEvent_HAS_SAMPLES, FIRST_GROUP_ID, NULL);
 }
 
 for (uint64_t i = 2U; i < 4U; ++i)
 {
-    iox_sub_enable_event(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, SECOND_GROUP_ID, NULL);
+    iox_sub_enable_event(subscriber[i], waitSet, SubscriberEvent_HAS_SAMPLES, SECOND_GROUP_ID, NULL);
 }
 ```
 
@@ -248,8 +248,8 @@ subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Cou
 iox_sub_subscribe(subscriber[0], 256);
 iox_sub_subscribe(subscriber[1], 256);
 
-iox_sub_enable_event(subscriber[0], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
-iox_sub_enable_event(subscriber[1], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+iox_sub_enable_event(subscriber[0], waitSet, SubscriberEvent_HAS_SAMPLES, 0, NULL);
+iox_sub_enable_event(subscriber[1], waitSet, SubscriberEvent_HAS_SAMPLES, 0, NULL);
 ```
 
 We are ready to start the event loop. We begin with acquiring the array of all
