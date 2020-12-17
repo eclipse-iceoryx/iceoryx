@@ -109,6 +109,15 @@ class BaseSubscriber
     ///
     void releaseQueuedSamples() noexcept;
 
+    template <uint64_t Capacity>
+    friend class WaitSet;
+
+  protected:
+    BaseSubscriber() noexcept; // Required for testing.
+    BaseSubscriber(const capro::ServiceDescription& service) noexcept;
+
+    void invalidateTrigger(const uint64_t trigger) noexcept;
+
     /// @brief attaches a WaitSet to the subscriber
     /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
     /// @param[in] subscriberEvent the event which should be attached
@@ -127,12 +136,6 @@ class BaseSubscriber
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached
     void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
-
-  protected:
-    BaseSubscriber() noexcept; // Required for testing.
-    BaseSubscriber(const capro::ServiceDescription& service) noexcept;
-
-    void invalidateTrigger(const uint64_t trigger) noexcept;
 
   private:
     ///

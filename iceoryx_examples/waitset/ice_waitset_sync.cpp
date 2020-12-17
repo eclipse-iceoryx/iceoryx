@@ -52,12 +52,12 @@ int main()
     iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    shutdownTrigger.enableEvent(waitset);
+    waitset.attachEvent(shutdownTrigger);
 
     // create and attach the cyclicTrigger with a callback to
     // SomeClass::myCyclicRun
     iox::popo::UserTrigger cyclicTrigger;
-    cyclicTrigger.enableEvent(waitset, 0, SomeClass::cyclicRun);
+    waitset.attachEvent(cyclicTrigger, 0, SomeClass::cyclicRun);
 
     // start a thread which triggers cyclicTrigger every second
     std::thread cyclicTriggerThread([&] {

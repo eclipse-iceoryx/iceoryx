@@ -28,6 +28,14 @@ inline cxx::expected<WaitSetError> UserTrigger::enableEvent(WaitSet<WaitSetCapac
         .and_then([this](TriggerHandle& trigger) { m_trigger = std::move(trigger); });
 }
 
+template <uint64_t WaitSetCapacity>
+inline cxx::expected<WaitSetError> UserTrigger::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                            const EventInfo::Callback<UserTrigger> callback) noexcept
+{
+    return enableEvent(waitset, EventInfo::INVALID_ID, callback);
+}
+
+
 } // namespace popo
 } // namespace iox
 #endif

@@ -41,35 +41,9 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 
 template <uint64_t Capacity>
 template <typename T, typename... Targs>
-inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
-                                                                  const uint64_t eventId,
-                                                                  const EventInfo::Callback<T> callback,
-                                                                  const Targs&... args) noexcept
-{
-    return eventOrigin.enableEvent(*this, eventId, callback, args...);
-}
-
-template <uint64_t Capacity>
-template <typename T, typename... Targs>
-inline cxx::expected<WaitSetError>
-WaitSet<Capacity>::attachEvent(T& eventOrigin, const uint64_t eventId, const Targs&... args) noexcept
-{
-    return attachEvent(eventOrigin, eventId, EventInfo::Callback<T>(), args...);
-}
-
-template <uint64_t Capacity>
-template <typename T, typename... Targs>
-inline cxx::expected<WaitSetError>
-WaitSet<Capacity>::attachEvent(T& eventOrigin, const EventInfo::Callback<T> callback, const Targs&... args) noexcept
-{
-    return attachEvent(eventOrigin, EventInfo::INVALID_ID, callback, args...);
-}
-
-template <uint64_t Capacity>
-template <typename T, typename... Targs>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
-    return attachEvent(eventOrigin, EventInfo::INVALID_ID, EventInfo::Callback<T>(), args...);
+    return eventOrigin.enableEvent(*this, args...);
 }
 
 template <uint64_t Capacity>

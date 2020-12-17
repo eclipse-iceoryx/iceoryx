@@ -63,35 +63,6 @@ class WaitSet
 
     /// @brief attaches an event to the WaitSet
     /// @param[in] eventOrigin the origin of the event
-    /// @param[in] eventId the user defined id which is tagged to the event
-    /// @param[in] callback the callback which should be attached to the event
-    /// @param[in] args... additional event identifying arguments
-    /// @return when an error occurs an enum which is describing the error is returned
-    template <typename T, typename... Targs>
-    cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
-                                            const uint64_t eventId,
-                                            const EventInfo::Callback<T> callback,
-                                            const Targs&... args) noexcept;
-
-    /// @brief attaches an event to the WaitSet
-    /// @param[in] eventOrigin the origin of the event
-    /// @param[in] eventId the user defined id which is tagged to the event
-    /// @param[in] args... additional event identifying arguments
-    /// @return when an error occurs an enum which is describing the error is returned
-    template <typename T, typename... Targs>
-    cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const uint64_t eventId, const Targs&... args) noexcept;
-
-    /// @brief attaches an event to the WaitSet
-    /// @param[in] eventOrigin the origin of the event
-    /// @param[in] callback the callback which should be attached to the event
-    /// @param[in] args... additional event identifying arguments
-    /// @return when an error occurs an enum which is describing the error is returned
-    template <typename T, typename... Targs>
-    cxx::expected<WaitSetError>
-    attachEvent(T& eventOrigin, const EventInfo::Callback<T> callback, const Targs&... args) noexcept;
-
-    /// @brief attaches an event to the WaitSet
-    /// @param[in] eventOrigin the origin of the event
     /// @param[in] args... additional event identifying arguments
     /// @return when an error occurs an enum which is describing the error is returned
     template <typename T, typename... Targs>
@@ -110,7 +81,7 @@ class WaitSet
     ///        of the object
     ///        You cannot acquire an already logically equal acquired trigger. This means if you acquire a trigger
     ///        twice with the same: origin, triggerCallback and eventId this method will return
-    ///        TRIGGER_ALREADY_ACQUIRED
+    ///        EVENT_ALREADY_ATTACHED
     /// @param[in] origin the pointer to the object which will attach the trigger
     /// @param[in] triggerCallback a method from the object which will signal the Trigger that it was triggered
     /// @param[in] invalidationCallback callback which will be called in the destructor of the waitset, important when
@@ -120,7 +91,7 @@ class WaitSet
     /// @param[in] callback a callback which is attached to the trigger and can be later called when the trigger will be
     ///            returned via wait or timedWait
     /// @return returns the newly created trigger if the WaitSet has space left otherwise it returns
-    /// WaitSetError::TRIGGER_VECTOR_OVERFLOW
+    /// WaitSetError::WAIT_SET_FULL
     template <typename T>
     cxx::expected<TriggerHandle, WaitSetError>
     acquireTriggerHandle(T* const origin,
