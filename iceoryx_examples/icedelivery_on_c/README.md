@@ -31,7 +31,7 @@ Let's take a look at the `receiving` function which comes with the
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    iox_runtime_init("/iox-c-subscriber");
+    iox_runtime_init("iox-c-subscriber");
     ```
   
  2. We create a subscriber port and are subscribing to the service 
@@ -106,7 +106,7 @@ Let's take a look at the `sending` function which comes with the
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    iox_runtime_init("/iox-c-publisher");
+    iox_runtime_init("iox-c-publisher");
     ```
  2. We create a publisher with the service 
     {"Radar", "FrontLeft", "Counter"}

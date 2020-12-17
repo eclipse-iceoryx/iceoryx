@@ -40,6 +40,12 @@ cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> PortPool::getNodeDataList() noe
     return m_portPoolData->m_nodeMembers.content();
 }
 
+cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
+PortPool::getConditionVariableDataList() noexcept
+{
+    return m_portPoolData->m_conditionVariableMembers.content();
+}
+
 cxx::expected<popo::InterfacePortData*, PortPoolError>
 PortPool::addInterfacePort(const ProcessName_t& applicationName, const capro::Interfaces interface) noexcept
 {
@@ -86,11 +92,12 @@ cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const Pro
     }
 }
 
-cxx::expected<popo::ConditionVariableData*, PortPoolError> PortPool::addConditionVariableData() noexcept
+cxx::expected<popo::ConditionVariableData*, PortPoolError>
+PortPool::addConditionVariableData(const ProcessName_t& process) noexcept
 {
     if (m_portPoolData->m_conditionVariableMembers.hasFreeSpace())
     {
-        auto conditionVariableData = m_portPoolData->m_conditionVariableMembers.insert();
+        auto conditionVariableData = m_portPoolData->m_conditionVariableMembers.insert(process);
         return cxx::success<popo::ConditionVariableData*>(conditionVariableData);
     }
     else
@@ -113,6 +120,11 @@ void PortPool::removeApplicationPort(popo::ApplicationPortData* const portData) 
 void PortPool::removeNodeData(runtime::NodeData* const nodeData) noexcept
 {
     m_portPoolData->m_nodeMembers.erase(nodeData);
+}
+
+void PortPool::removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept
+{
+    m_portPoolData->m_conditionVariableMembers.erase(conditionVariableData);
 }
 
 std::atomic<uint64_t>* PortPool::serviceRegistryChangeCounter() noexcept

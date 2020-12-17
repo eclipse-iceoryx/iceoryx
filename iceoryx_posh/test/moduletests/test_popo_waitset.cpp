@@ -35,7 +35,7 @@ class WaitSet_test : public Test
 {
   public:
     std::vector<std::unique_ptr<expected<TriggerHandle, WaitSetError>>> m_triggerHandle;
-    ConditionVariableData m_condVarData;
+    ConditionVariableData m_condVarData{"Horscht"};
     WaitSetMock m_sut{&m_condVarData};
     uint64_t m_resetTriggerId = 0U;
     WaitSet_test* m_triggerCallbackArgument1 = nullptr;

@@ -57,7 +57,7 @@ class iox_ws_test : public Test
         }
     }
 
-    ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar{"Horscht"};
     WaitSetMock* m_sut = new WaitSetMock{&m_condVar};
 
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_TRIGGERS_PER_WAITSET + 1];
@@ -393,4 +393,3 @@ TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTimeout, Repeat(5), [&] {
 
     t.join();
 });
-

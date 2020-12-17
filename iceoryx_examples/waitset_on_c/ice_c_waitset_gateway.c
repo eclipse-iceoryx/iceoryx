@@ -55,7 +55,7 @@ void subscriberCallback(iox_sub_t const subscriber)
 
 int main()
 {
-    iox_runtime_init("/iox-c-ex-waitset-gateway");
+    iox_runtime_init("iox-c-ex-waitset-gateway");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);

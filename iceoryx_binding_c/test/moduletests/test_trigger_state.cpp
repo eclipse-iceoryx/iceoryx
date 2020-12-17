@@ -75,7 +75,7 @@ class iox_trigger_info_test : public Test
 
 
     static UserTrigger* m_lastTriggerCallbackArgument;
-    ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar{"myApp"};
     WaitSetMock m_waitSet{&m_condVar};
     UserTrigger m_userTrigger;
 
@@ -230,4 +230,3 @@ TEST_F(iox_trigger_info_test, callbackCanBeCalledMultipleTimes)
 
     EXPECT_EQ(m_lastTriggerCallbackArgument, &m_userTrigger);
 }
-

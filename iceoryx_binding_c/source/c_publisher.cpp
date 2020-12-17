@@ -48,7 +48,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
 
 void iox_pub_deinit(iox_pub_t const self)
 {
-    self->m_portData->m_toBeDestroyed.store(true);
+    self->m_portData->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     self->~cpp2c_Publisher();
 }
 
