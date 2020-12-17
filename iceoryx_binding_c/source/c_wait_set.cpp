@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 using namespace iox;
@@ -91,3 +93,35 @@ uint64_t iox_ws_capacity(iox_ws_t const self)
 {
     return self->capacity();
 }
+
+iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
+                                                 iox_sub_t const subscriber,
+                                                 const iox_SubscriberEvent subscriberEvent,
+                                                 const uint64_t eventId,
+                                                 void (*callback)(iox_sub_t))
+{
+    auto result = self->attachEvent(*subscriber, subscriberEvent, eventId, callback);
+    return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_user_trigger_event(iox_ws_t const self,
+                                                   iox_user_trigger_t const userTrigger,
+                                                   const uint64_t eventId,
+                                                   void (*callback)(iox_user_trigger_t))
+{
+    auto result = self->attachEvent(*userTrigger, eventId, callback);
+    return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+void iox_ws_detach_subscriber_event(iox_ws_t const self,
+                                    iox_sub_t const subscriber,
+                                    const iox_SubscriberEvent subscriberEvent)
+{
+    self->detachEvent(*subscriber, subscriberEvent);
+}
+
+void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t const userTrigger)
+{
+    self->detachEvent(*userTrigger);
+}
+

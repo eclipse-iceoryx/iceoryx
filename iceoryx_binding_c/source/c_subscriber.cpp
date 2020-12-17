@@ -106,18 +106,3 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
     return SubscriberPortUser(self->m_portData).hasLostChunksSinceLastCall();
 }
-
-iox_WaitSetResult iox_sub_enable_event(iox_sub_t const self,
-                                       iox_ws_t const waitset,
-                                       const iox_SubscriberEvent event,
-                                       const uint64_t eventId,
-                                       void (*callback)(iox_sub_t))
-{
-    return self->enableEvent(*waitset, eventId, callback, event);
-}
-
-void iox_sub_disable_event(iox_sub_t const self, const iox_SubscriberEvent event)
-{
-    return self->disableEvent(event);
-}
-

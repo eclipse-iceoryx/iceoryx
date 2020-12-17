@@ -48,7 +48,7 @@ int main()
     shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_user_trigger_enable_trigger_event(shutdownTrigger, waitSet, 0, NULL);
+    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
@@ -72,13 +72,13 @@ int main()
     // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
     for (uint64_t i = 0U; i < 2U; ++i)
     {
-        iox_sub_enable_event(subscriber[i], waitSet, SubscriberEvent_HAS_SAMPLES, FIRST_GROUP_ID, NULL);
+        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_SAMPLES, FIRST_GROUP_ID, NULL);
     }
 
     // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
     for (uint64_t i = 2U; i < 4U; ++i)
     {
-        iox_sub_enable_event(subscriber[i], waitSet, SubscriberEvent_HAS_SAMPLES, SECOND_GROUP_ID, NULL);
+        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_SAMPLES, SECOND_GROUP_ID, NULL);
     }
 
 

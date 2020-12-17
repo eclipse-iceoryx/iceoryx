@@ -69,4 +69,43 @@ uint64_t iox_ws_size(iox_ws_t const self);
 /// @brief returns the maximum amount of events which can be registered at the waitset
 uint64_t iox_ws_capacity(iox_ws_t const self);
 
+/// @brief attaches a subscriber event to a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] subscriber the subscriber of the event which should be attached
+/// @param[in] subscriberEvent the event which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
+                                                      iox_sub_t const subscriber,
+                                                      const ENUM iox_SubscriberEvent subscriberEvent,
+                                                      const uint64_t eventId,
+                                                      void (*callback)(iox_sub_t));
+
+/// @brief attaches a user trigger event to a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] userTrigger the user trigger of the event which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_user_trigger_event(iox_ws_t const self,
+                                                        iox_user_trigger_t const userTrigger,
+                                                        const uint64_t eventId,
+                                                        void (*callback)(iox_user_trigger_t));
+
+/// @brief detaches a subscriber event from a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] subscriber the subscriber from which the event should be detached
+/// @param[in] subscriberEvent the event which should be detached from the subscriber
+void iox_ws_detach_subscriber_event(iox_ws_t const self,
+                                    iox_sub_t const subscriber,
+                                    const ENUM iox_SubscriberEvent subscriberEvent);
+
+/// @brief detaches a user trigger event from a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] usertrigger the user trigger which should be detached
+void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t const userTrigger);
+
 #endif

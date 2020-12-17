@@ -50,22 +50,3 @@ void iox_user_trigger_reset_trigger(iox_user_trigger_t const self)
     self->resetTrigger();
 }
 
-iox_WaitSetResult iox_user_trigger_enable_trigger_event(iox_user_trigger_t const self,
-                                                        iox_ws_t const wait_set,
-                                                        const uint64_t trigger_id,
-                                                        void (*trigger_callback)(iox_user_trigger_t))
-{
-    auto result = self->enableEvent(*wait_set, trigger_id, trigger_callback);
-    if (!result.has_error())
-    {
-        return iox_WaitSetResult::WaitSetResult_SUCCESS;
-    }
-
-    return cpp2c::WaitSetResult(result.get_error());
-}
-
-void iox_user_trigger_disable_trigger_event(iox_user_trigger_t const self)
-{
-    self->disableEvent();
-}
-

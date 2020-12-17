@@ -32,23 +32,6 @@ iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self);
 /// @param[in] self handle to user trigger
 void iox_user_trigger_deinit(iox_user_trigger_t const self);
 
-/// @brief enables the trigger event by attaching the user trigger to a waitset
-/// @param[in] self handle to the user trigger
-/// @param[in] wait_set handle to the wait set
-/// @param[in] trigger_id any arbitrary number which is used as trigger id
-/// @param[in] trigger_callback a callback which is assigned to the trigger, NULL if no
-///             callback should be set
-/// @return if it was attached successfully it returns WaitSetResult_SUCCESS
-///         otherwise an enum which is describing the error
-ENUM iox_WaitSetResult iox_user_trigger_enable_trigger_event(iox_user_trigger_t const self,
-                                                             iox_ws_t const wait_set,
-                                                             const uint64_t trigger_id,
-                                                             void (*trigger_callback)(iox_user_trigger_t));
-
-/// @brief disables the trigger event
-/// @param[in] self handle to the user trigger
-void iox_user_trigger_disable_trigger_event(iox_user_trigger_t const self);
-
 /// @brief trigger a user trigger
 /// @param[in] self handle to user trigger
 void iox_user_trigger_trigger(iox_user_trigger_t const self);

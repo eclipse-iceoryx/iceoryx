@@ -50,7 +50,7 @@ template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
-    return eventOrigin.disableEvent(args...);
+    eventOrigin.disableEvent(args...);
 }
 
 template <uint64_t Capacity>

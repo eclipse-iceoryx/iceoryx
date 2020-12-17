@@ -25,26 +25,24 @@ cpp2c_Subscriber::~cpp2c_Subscriber()
     }
 }
 
-iox_WaitSetResult cpp2c_Subscriber::enableEvent(iox::popo::WaitSet<>& waitset,
-                                                const uint64_t eventId,
-                                                const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback,
-                                                const iox_SubscriberEvent subscriberEvent) noexcept
+iox::cxx::expected<iox::popo::WaitSetError>
+cpp2c_Subscriber::enableEvent(iox::popo::WaitSet<>& waitset,
+                              const iox_SubscriberEvent subscriberEvent,
+                              const uint64_t eventId,
+                              const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback) noexcept
 {
     static_cast<void>(subscriberEvent);
 
-    auto result = std::move(
-        waitset
-            .acquireTriggerHandle(this,
-                                  {*this, &cpp2c_Subscriber::hasNewSamples},
-                                  {*this, &cpp2c_Subscriber::invalidateTrigger},
-                                  eventId,
-                                  callback)
-            .and_then([this](iox::popo::TriggerHandle& trigger) {
-                m_trigger = std::move(trigger);
-                iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
-            }));
-
-    return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+    return waitset
+        .acquireTriggerHandle(this,
+                              {*this, &cpp2c_Subscriber::hasNewSamples},
+                              {*this, &cpp2c_Subscriber::invalidateTrigger},
+                              eventId,
+                              callback)
+        .and_then([this](iox::popo::TriggerHandle& trigger) {
+            m_trigger = std::move(trigger);
+            iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
+        });
 }
 
 void cpp2c_Subscriber::disableEvent(const iox_SubscriberEvent subscriberEvent) noexcept
