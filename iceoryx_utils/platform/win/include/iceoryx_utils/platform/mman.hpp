@@ -24,9 +24,9 @@
 #include <string>
 #include <sys/stat.h>
 
-
 #define MAP_SHARED 0
 #define MAP_FAILED 1
+#define PROT_NONE 0
 #define PROT_READ 3
 #define PROT_WRITE 4
 
