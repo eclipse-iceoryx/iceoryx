@@ -76,7 +76,7 @@ class iox_event_info_test : public Test
 
 
     static UserTrigger* m_lastEventCallbackArgument;
-    ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar{"myApp"};
     WaitSetMock m_waitSet{&m_condVar};
     UserTrigger m_userTrigger;
 
