@@ -27,8 +27,8 @@ class UserTrigger_test : public Test
 {
   public:
     UserTrigger m_sut;
-    ConditionVariableData m_condVar;
-    ConditionVariableData m_condVar2;
+    ConditionVariableData m_condVar{"Horscht"};
+    ConditionVariableData m_condVar2{"Schnuppi"};
     WaitSetMock m_waitSet{&m_condVar};
     WaitSetMock m_waitSet2{&m_condVar2};
 
@@ -212,4 +212,3 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
     triggerInfoVector[0]();
     EXPECT_THAT(m_callbackOrigin, &sut);
 }
-

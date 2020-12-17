@@ -160,7 +160,7 @@ TYPED_TEST(ChunkQueue_test, ClearWithData)
 
 TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 {
-    ConditionVariableData condVar;
+    ConditionVariableData condVar("Horscht");
 
     this->m_popper.setConditionVariable(&condVar);
 
@@ -169,7 +169,7 @@ TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 
 TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
 {
-    ConditionVariableData condVar;
+    ConditionVariableData condVar("Horscht");
     ConditionVariableWaiter condVarWaiter{&condVar};
 
     this->m_popper.setConditionVariable(&condVar);
@@ -183,8 +183,8 @@ TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
 
 TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 {
-    ConditionVariableData condVar1;
-    ConditionVariableData condVar2;
+    ConditionVariableData condVar1("Horscht");
+    ConditionVariableData condVar2("Schnuppi");
     ConditionVariableWaiter condVarWaiter1{&condVar1};
     ConditionVariableWaiter condVarWaiter2{&condVar2};
 

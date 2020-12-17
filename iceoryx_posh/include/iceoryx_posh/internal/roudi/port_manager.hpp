@@ -84,7 +84,8 @@ class PortManager
 
     runtime::NodeData* acquireNodeData(const ProcessName_t& process, const NodeName_t& node) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, PortPoolError> acquireConditionVariableData() noexcept;
+    cxx::expected<popo::ConditionVariableData*, PortPoolError>
+    acquireConditionVariableData(const ProcessName_t& process) noexcept;
 
     void deletePortsOfProcess(const ProcessName_t& processName) noexcept;
 
@@ -106,6 +107,8 @@ class PortManager
 
     void handleNodes() noexcept;
 
+    void handleConditionVariables() noexcept;
+
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
                                          SubscriberPortType& subscriberSource) noexcept;
 
@@ -118,8 +121,8 @@ class PortManager
     void removeEntryFromServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
-    cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const
-        noexcept;
+    cxx::optional<ProcessName_t>
+    doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service

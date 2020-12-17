@@ -49,7 +49,7 @@ class iox_user_trigger_test : public Test
     iox_user_trigger_storage_t m_sutStorage;
     iox_user_trigger_t m_sut;
 
-    ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar{"Horscht"};
     WaitSetMock m_waitSet{&m_condVar};
     static bool wasTriggerCallbackCalled;
 };
@@ -132,4 +132,3 @@ TEST_F(iox_user_trigger_test, detachingItFromWaitsetCleansup)
 
     EXPECT_EQ(m_waitSet.size(), 0);
 }
-

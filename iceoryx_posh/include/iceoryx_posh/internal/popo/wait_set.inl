@@ -36,7 +36,7 @@ template <uint64_t Capacity>
 inline WaitSet<Capacity>::~WaitSet() noexcept
 {
     removeAllTriggers();
-    /// @todo Notify RouDi that the condition variable data shall be destroyed
+    m_conditionVariableDataPtr->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity>
