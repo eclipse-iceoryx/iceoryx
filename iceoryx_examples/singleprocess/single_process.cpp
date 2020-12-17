@@ -62,10 +62,11 @@ void sender()
 
 void receiver()
 {
-    iox::popo::TypedSubscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"});
+    iox::popo::SubscriberOptions options;
+    options.queueCapacity = 10U;
+    iox::popo::TypedSubscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 
-    uint64_t cacheQueueSize = 10;
-    subscriber.subscribe(cacheQueueSize);
+    subscriber.subscribe();
 
     while (keepRunning.load())
     {

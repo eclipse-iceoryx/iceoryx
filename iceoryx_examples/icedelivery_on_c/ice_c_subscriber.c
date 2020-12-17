@@ -41,7 +41,7 @@ void receiving()
 
     iox_sub_t subscriber =
         iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
-    iox_sub_subscribe(subscriber, queueCapacity);
+    iox_sub_subscribe(subscriber);
 
     while (!killswitch)
     {

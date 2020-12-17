@@ -73,7 +73,8 @@ SubscriberPortData* createPortData()
 {
     return new SubscriberPortData(SERVICE_DESCRIPTION_VALID,
                                   APP_NAME_FOR_SUBSCRIBER_PORTS,
-                                  iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer);
+                                  iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                  SubscriberOptions());
 }
 template <>
 InterfacePortData* createPortData()

@@ -59,9 +59,9 @@ void iox_sub_deinit(iox_sub_t const self)
     self->~cpp2c_Subscriber();
 }
 
-void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity)
+void iox_sub_subscribe(iox_sub_t const self)
 {
-    SubscriberPortUser(self->m_portData).subscribe(queueCapacity);
+    SubscriberPortUser(self->m_portData).subscribe();
 }
 
 void iox_sub_unsubscribe(iox_sub_t const self)

@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -67,11 +68,9 @@ class BaseSubscriber
 
     ///
     /// @brief subscribe Initiate subscription.
-    /// @param queueCapacity
     /// @return
     ///
-    void
-    subscribe(const uint64_t queueCapacity = SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
+    void subscribe() noexcept;
 
     ///
     /// @brief getSubscriptionState Get current subscription state.

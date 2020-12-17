@@ -65,7 +65,7 @@ int main()
         subscriber[i] =
             iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-        iox_sub_subscribe(subscriber[i], queueCapacity);
+        iox_sub_subscribe(subscriber[i]);
     }
 
     const uint64_t FIRST_GROUP_ID = 123U;

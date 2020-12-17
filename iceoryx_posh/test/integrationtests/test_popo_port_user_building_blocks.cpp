@@ -114,14 +114,18 @@ class PortUser_IntegrationTest : public Test
     ConcurrentCaproMessageVector_t m_concurrentCaproMessageRx;
 
     // subscriber port for single producer
-    SubscriberPortData m_subscriberPortDataSingleProducer{
-        TEST_SERVICE_DESCRIPTION, TEST_SUBSCRIBER_APP_NAME, VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    SubscriberPortData m_subscriberPortDataSingleProducer{TEST_SERVICE_DESCRIPTION,
+                                                          TEST_SUBSCRIBER_APP_NAME,
+                                                          VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                                          SubscriberOptions()};
     SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
     SubscriberPortSingleProducer m_subscriberPortRouDiSingleProducer{&m_subscriberPortDataSingleProducer};
 
     // subscriber port for multi producer
-    SubscriberPortData m_subscriberPortDataMultiProducer{
-        TEST_SERVICE_DESCRIPTION, TEST_SUBSCRIBER_APP_NAME, VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+    SubscriberPortData m_subscriberPortDataMultiProducer{TEST_SERVICE_DESCRIPTION,
+                                                         TEST_SUBSCRIBER_APP_NAME,
+                                                         VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
+                                                         SubscriberOptions()};
     SubscriberPortUser m_subscriberPortUserMultiProducer{&m_subscriberPortDataMultiProducer};
     SubscriberPortMultiProducer m_subscriberPortRouDiMultiProducer{&m_subscriberPortDataMultiProducer};
 

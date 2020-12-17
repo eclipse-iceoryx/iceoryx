@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +43,8 @@ class DDS2IceoryxGateway : public gateway_t
 
   private:
     void* m_reservedChunk = nullptr;
-    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service) noexcept;
+    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service,
+                                                            const popo::PublisherOptions& publisherOptions) noexcept;
 };
 
 } // namespace dds

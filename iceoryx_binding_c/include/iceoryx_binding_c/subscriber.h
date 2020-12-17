@@ -43,8 +43,7 @@ void iox_sub_deinit(iox_sub_t const self);
 
 /// @brief subscribes to the service
 /// @param[in] self handle to the subscriber
-/// @param[in] queueCapacity size of the receiver queue
-void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity);
+void iox_sub_subscribe(iox_sub_t const self);
 
 /// @brief unsubscribes from a service
 /// @param[in] self handle to the subscriber

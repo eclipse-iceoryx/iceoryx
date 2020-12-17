@@ -343,10 +343,14 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
     // test adding of ports
     // remark: duplicate subscriber insertions are possible but will not be transmitted via send
-    iox::popo::SubscriberPortData recData1{
-        service1, processName1, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
-    iox::popo::SubscriberPortData recData2{
-        service2, processName2, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
+    iox::popo::SubscriberPortData recData1{service1,
+                                           processName1,
+                                           iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                           iox::popo::SubscriberOptions()};
+    iox::popo::SubscriberPortData recData2{service2,
+                                           processName2,
+                                           iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                           iox::popo::SubscriberOptions()};
     EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, nodeName1), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, nodeName1), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, nodeName2), Eq(true));
@@ -463,8 +467,10 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
                                            expectedPublisher.m_caproEventMethodID);
 
     // test adding of publisher or subscriber port of same service to establish a connection (requires same service id)
-    iox::popo::SubscriberPortData recData1{
-        service, nameSubscriber, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
+    iox::popo::SubscriberPortData recData1{service,
+                                           nameSubscriber,
+                                           iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                           iox::popo::SubscriberOptions()};
     EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, nameSubscriber, service, nodeName), Eq(true));
     iox::mepoo::MemoryManager memoryManager;
     iox::popo::PublisherPortData publisherPortData{service, namePublisher, &memoryManager};

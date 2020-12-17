@@ -611,7 +611,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     iox::popo::TypedSubscriber<MemPoolIntrospectionInfoContainer> memPoolSubscriber(IntrospectionMempoolService);
     if (introspectionSelection.mempool == true)
     {
-        memPoolSubscriber.subscribe(1u);
+        memPoolSubscriber.subscribe();
 
         if (waitForSubscription(memPoolSubscriber) == false)
         {
@@ -624,7 +624,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     iox::popo::TypedSubscriber<ProcessIntrospectionFieldTopic> processSubscriber(IntrospectionProcessService);
     if (introspectionSelection.process == true)
     {
-        processSubscriber.subscribe(1u);
+        processSubscriber.subscribe();
 
         if (waitForSubscription(processSubscriber) == false)
         {
@@ -642,9 +642,9 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
 
     if (introspectionSelection.port == true)
     {
-        portSubscriber.subscribe(1u);
-        portThroughputSubscriber.subscribe(1u);
-        subscriberPortChangingDataSubscriber.subscribe(1u);
+        portSubscriber.subscribe();
+        portThroughputSubscriber.subscribe();
+        subscriberPortChangingDataSubscriber.subscribe();
 
         if (waitForSubscription(portSubscriber) == false)
         {

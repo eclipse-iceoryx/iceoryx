@@ -63,7 +63,7 @@ class iox_sub_test : public Test
     void Subscribe(SubscriberPortData* ptr)
     {
         uint64_t queueCapacity = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
-        iox_sub_subscribe(m_sut, queueCapacity);
+        iox_sub_subscribe(m_sut);
 
         SubscriberPortSingleProducer(ptr).tryGetCaProMessage();
         iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK, TEST_SERVICE_DESCRIPTION);
@@ -87,8 +87,10 @@ class iox_sub_test : public Test
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-    iox::popo::SubscriberPortData m_portPtr{
-        TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    iox::popo::SubscriberPortData m_portPtr{TEST_SERVICE_DESCRIPTION,
+                                            "myApp",
+                                            iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                            iox::popo::SubscriberOptions()};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
     std::unique_ptr<cpp2c_Subscriber> m_subscriber{new cpp2c_Subscriber};
     iox_sub_t m_sut = m_subscriber.get();
@@ -107,7 +109,7 @@ TEST_F(iox_sub_test, initialStateNotSubscribed)
 TEST_F(iox_sub_test, offerLeadsToSubscibeRequestedState)
 {
     uint64_t queueCapacity = 1U;
-    iox_sub_subscribe(m_sut, queueCapacity);
+    iox_sub_subscribe(m_sut);
 
     SubscriberPortSingleProducer(&m_portPtr).tryGetCaProMessage();
 
@@ -117,7 +119,7 @@ TEST_F(iox_sub_test, offerLeadsToSubscibeRequestedState)
 TEST_F(iox_sub_test, NACKResponseLeadsToSubscribeWaitForOfferState)
 {
     uint64_t queueCapacity = 1U;
-    iox_sub_subscribe(m_sut, queueCapacity);
+    iox_sub_subscribe(m_sut);
 
     SubscriberPortSingleProducer(&m_portPtr).tryGetCaProMessage();
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK, TEST_SERVICE_DESCRIPTION);
@@ -129,7 +131,7 @@ TEST_F(iox_sub_test, NACKResponseLeadsToSubscribeWaitForOfferState)
 TEST_F(iox_sub_test, ACKResponseLeadsToSubscribedState)
 {
     uint64_t queueCapacity = 1U;
-    iox_sub_subscribe(m_sut, queueCapacity);
+    iox_sub_subscribe(m_sut);
 
     SubscriberPortSingleProducer(&m_portPtr).tryGetCaProMessage();
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK, TEST_SERVICE_DESCRIPTION);
@@ -141,7 +143,7 @@ TEST_F(iox_sub_test, ACKResponseLeadsToSubscribedState)
 TEST_F(iox_sub_test, UnsubscribeLeadsToUnscribeRequestedState)
 {
     uint64_t queueCapacity = 1U;
-    iox_sub_subscribe(m_sut, queueCapacity);
+    iox_sub_subscribe(m_sut);
 
     SubscriberPortSingleProducer(&m_portPtr).tryGetCaProMessage();
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK, TEST_SERVICE_DESCRIPTION);

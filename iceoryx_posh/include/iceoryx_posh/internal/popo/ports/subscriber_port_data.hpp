@@ -20,7 +20,6 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
-#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 
 #include <atomic>
@@ -29,12 +28,14 @@ namespace iox
 {
 namespace popo
 {
+struct SubscriberOptions;
+
 struct SubscriberPortData : public BasePortData
 {
     SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                        const ProcessName_t& processName,
                        cxx::VariantQueueTypes queueType,
-                       const SubscriberOptions& subscriberOptions = SubscriberOptions(),
+                       const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig, ThreadSafePolicy>;

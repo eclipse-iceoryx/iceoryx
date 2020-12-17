@@ -40,7 +40,7 @@ class MockSubscriberPortUser
         return getServiceDescription();
     }
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
-    MOCK_METHOD1(subscribe, void(const uint64_t));
+    MOCK_METHOD0(subscribe, void());
     MOCK_METHOD0(unsubscribe, void());
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
     MOCK_METHOD0(
@@ -67,7 +67,7 @@ template <typename T, typename Child, typename Port>
 class MockBaseSubscriber
 {
   public:
-    MockBaseSubscriber(const iox::capro::ServiceDescription&){};
+    MockBaseSubscriber(const iox::capro::ServiceDescription&, const iox::popo::SubscriberOptions&){};
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1(subscribe, void(uint64_t));

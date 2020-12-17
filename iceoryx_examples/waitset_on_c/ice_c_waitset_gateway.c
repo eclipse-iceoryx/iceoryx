@@ -78,7 +78,7 @@ int main()
         iox_sub_t subscriber =
             iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-        iox_sub_subscribe(subscriber, queueCapacity);
+        iox_sub_subscribe(subscriber);
         iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);
     }
 
