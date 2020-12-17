@@ -120,7 +120,7 @@ TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader) + PAYLOAD_SIZE));
 }
 
-TEST_F(ChunkHeader_test, usedChunkSizeTerminatesWhenPayloadSizeHasSillyValue)
+TEST_F(ChunkHeader_test, usedChunkSizeTerminatesWhenPayloadSizeExceedsChunkSize)
 {
     ChunkHeader sut;
     sut.m_chunkSize = 2 * sizeof(ChunkHeader);

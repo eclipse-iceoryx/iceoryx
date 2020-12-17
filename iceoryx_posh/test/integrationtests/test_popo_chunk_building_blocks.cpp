@@ -54,7 +54,7 @@ struct ChunkDistributorConfig
 
 struct ChunkQueueConfig
 {
-    static constexpr uint64_t MAX_QUEUE_CAPACITY = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
+    static constexpr uint64_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
 };
 
 using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig, ThreadSafePolicy>;
