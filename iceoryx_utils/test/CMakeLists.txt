@@ -4,10 +4,6 @@ project(test_iceoryx_utils VERSION ${test_iceoryx_utils_VERSION})
 
 find_package(Threads REQUIRED)
 
-if(test AND NOT GTest_FOUND)
-    find_package(GTest CONFIG REQUIRED)
-endif(test AND NOT GTest_FOUND)
-
 set(PROJECT_PREFIX "utils")
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")

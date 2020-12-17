@@ -4,9 +4,9 @@ project(test_iceoryx_posh VERSION ${test_iceoryx_posh_VERSION})
 
 find_package(iceoryx_utils_testing REQUIRED)
 
-if(test AND NOT GTest_FOUND)
+if(BUILD_TEST AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
-endif(test AND NOT GTest_FOUND)
+endif(BUILD_TEST AND NOT GTest_FOUND)
 
 set(PROJECT_PREFIX "posh")
 

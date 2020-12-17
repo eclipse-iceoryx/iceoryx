@@ -29,41 +29,17 @@ jobs:
        - name: Build sources
          run: |
             export NUM_CORES=`nproc`
-            cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build -j$NUM_CORES
+            cmake -Bbuild -Hiceoryx_meta -DBUILD_ALL=ON && cmake --build build -j$NUM_CORES
 
        - name: Run timeless tests
          run: |
            cd $GITHUB_WORKSPACE/build
-           make tests
+           make all_tests
 
        - name: Run timing tests
          run: |
            cd $GITHUB_WORKSPACE/build
            make timing_tests
-
-  ubuntu-build-script:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-18.04
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      - name: Install iceoryx dependencies
-        # Softwares installed in ubuntu-18.04 instance
-        # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
-        run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
-
-      - name : Checkout
-        uses: actions/checkout@v2
-
-      - name: Build sources
-        run: |
-          export NUM_CORES=`nproc`
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway clean strict -j $NUM_CORES
-
-      - name: Run tests
-        run: |
-          cd $GITHUB_WORKSPACE/build
-          ../tools/run_all_tests.sh
 
  # This job builds & runs iceoryx tests in macos-10.15
   macos-build-script:
@@ -95,7 +71,7 @@ jobs:
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
-          ../tools/run_all_tests.sh disable-timing-tests
+          make all_tests
 
  # This job builds & runs iceoryx tests in Windows 2019
   windows-iceoryx-meta:
@@ -110,4 +86,4 @@ jobs:
 
       - name: Build sources
         run: |
-          cmake -Bbuild -Hiceoryx_meta -Ddds_gateway=OFF -Dtest=ON -Dbinding_c=ON -Dexamples=ON && cmake --build build
+          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=ON -DBINDING_C =ON -DEXAMPLES=ON && cmake --build build

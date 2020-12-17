@@ -14,19 +14,19 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-if (test)
+if (BUILD_TEST)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/dependencies/googletest/prebuild)
 
     ### create component list
     set(COMPONENTS "posh" "utils")
 
     ### possible place for more extensions
-    if (dds_gateway)
+    if (DDS_GATEWAY)
         list(APPEND COMPONENTS "dds_gateway")
-    endif(dds_gateway)
-    if (binding_c)
+    endif(DDS_GATEWAY)
+    if (BINDING_C)
         list(APPEND COMPONENTS "binding_c")
-    endif(binding_c)
+    endif(BINDING_C)
 
     ### create test targets without Timing tests
     foreach(cmp IN ITEMS ${COMPONENTS})
@@ -72,4 +72,4 @@ if (test)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )
-endif(test)
+endif(BUILD_TEST)

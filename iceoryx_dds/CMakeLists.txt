@@ -17,8 +17,6 @@ cmake_minimum_required(VERSION 3.7)
 file (STRINGS "../VERSION" iceoryx_dds_VERSION)
 project(iceoryx_dds VERSION ${iceoryx_dds_VERSION})
 
-option(test "build test binaries")
-
 find_package(cpptoml REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
@@ -38,13 +36,13 @@ setup_package_name_and_create_files(
 #
 ########## feature flags ##########
 #
-option(USE_CYCLONE_DDS "Bind to CycloneDDS implementation" on)
+option(USE_CYCLONE_DDS "Bind to CycloneDDS implementation" ON)
 
 if(USE_CYCLONE_DDS)
     message(INFO " Using CycloneDDS stack")
     find_package(CycloneDDS CONFIG REQUIRED)
     find_package(CycloneDDS-CXX CONFIG REQUIRED)
-endif()
+endif(USE_CYCLONE_DDS)
 
 #
 ########## build building-block library ##########
@@ -139,9 +137,9 @@ target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
 #
 ########## build test executables ##########
 #
-if(test)
+if(BUILD_TEST)
     add_subdirectory(test)
-endif(test)
+endif(BUILD_TEST)
 
 #
 ########## export library ##########

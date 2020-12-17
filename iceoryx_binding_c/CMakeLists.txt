@@ -17,8 +17,6 @@ cmake_minimum_required(VERSION 3.7)
 file (STRINGS "../VERSION" iceoryx_binding_c_VERSION)
 project(iceoryx_binding_c VERSION ${iceoryx_binding_c_VERSION})
 
-option(test "build test binaries")
-
 find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
@@ -83,9 +81,9 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS})
 #
 ########## build test executables ##########
 #
-if(test)
+if(BUILD_TEST)
     add_subdirectory(test)
-endif(test)
+endif(BUILD_TEST)
 
 #
 ########## export library ##########

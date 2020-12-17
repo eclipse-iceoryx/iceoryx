@@ -117,7 +117,7 @@ execute_test() {
         ;;
     "integration")
         echo "Executing integrationtests"
-        make module_tests
+        make integration_tests
         ;;
     "timingtest")
         echo "Executing timingtests"

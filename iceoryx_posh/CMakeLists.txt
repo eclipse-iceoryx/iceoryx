@@ -336,7 +336,7 @@ if(TOML_CONFIG)
 
 endif(TOML_CONFIG)
 
-if(roudi_environment OR test)
+if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     #
     ######### posh roudi environment ##########
     #
@@ -366,7 +366,7 @@ if(roudi_environment OR test)
 
     target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS})
 
-endif(roudi_environment OR test)
+endif(ROUDI_ENVIRONMENT OR BUILD_TEST)
 
 #
 ########## exporting library ##########
@@ -386,6 +386,6 @@ install(
     COMPONENT dev
 )
 
-if(test)
+if(BUILD_TEST)
     add_subdirectory(test)
-endif(test)
+endif(BUILD_TEST)

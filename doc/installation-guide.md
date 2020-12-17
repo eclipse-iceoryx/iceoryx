@@ -42,26 +42,27 @@ Additionally, there is an optional dependency to the MIT licensed cpptoml librar
 
 ## Build with CMake
 
-**NOTE:** Requires CMake version 3.5 or higher.
+**NOTE:** Requires CMake version 3.5 or higher. Building from CMake is the preferred way, for more complex actions like a coverage scan
+is a script available (see chapter below).
 
 The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx with an IDE.
 
  1. Clone the repository
-    ```
+    ```bash
     git clone https://github.com/eclipse/iceoryx.git
     ```
 
  2. Generate the necessary build files
     ```bash
     cd iceoryx
-    cmake -Bbuild -Hiceoryx_meta -DTOML_CONFIG=ON
+    cmake -Bbuild -Hiceoryx_meta  #tip: to build all iceoryx components add -DBUILD_ALL to the cmake command
     # when you have installed external dependencies like ncurses you have to add them
     # to your prefix path
-    cmake -Bbuild -Hiceoryx_meta -DTOML_CONFIG=ON -DCMAKE_PREFIX_PATH=$(PWD)/build/dependencies/
+    cmake -Bbuild -Hiceoryx_meta -DCMAKE_PREFIX_PATH=$(PWD)/build/dependencies/
     ```
 
  3. Compile the source code
-    ```
+    ```bash
     cmake --build build
     ```
 
@@ -86,7 +87,8 @@ Have a look at [iceoryx_posh_deployment.cmake](../iceoryx_posh/cmake/iceoryx_pos
 ## Build with the build script
 
 As an alternative we provide our build-test script which we use to integrate iceoryx into our infrastructure.
-This currently only works for Linux and QNX.
+The intention of the script is to more thanjust building with iceoryx. This is for doing a code coverage scan or for using the adress-sanitizer.
+The script currently only works for Linux and QNX, it is planned to offer a multi-platform solution.
 
  1. Clone the repository
     ```
@@ -99,12 +101,11 @@ This currently only works for Linux and QNX.
     ./tools/iceoryx_build_test.sh
     ```
 
-With the following arguments you can add additional features:
+You can use the help for getting an overview over the available options:
+    ```
+    ./tools/iceoryx_build_test.sh help
+    ```
 
- |  switch  |  description |
- |:---------|:-------------|
- | `clean`  | Removes the build directory and performs a clean build. If you have installed ncurses locally into your build directory you have to reinstall it first. |
- | `test`   | Build and execute all tests except Timing-tests. The Googletest-Framework will be automatically fetched from github and the test will be executed and the end of the script. |
 
 ## Build with colcon
 

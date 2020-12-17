@@ -31,15 +31,16 @@ CLEAN_BUILD=false
 BUILD_TYPE=""
 STRICT_FLAG="OFF"
 TEST_FLAG="OFF"
+EXAMPLE_FLAG="OFF"
 COV_FLAG="OFF"
 GCOV_SCOPE="all" #possible values for gcov test scope: 'all', 'unit', 'integration', 'component'
-COV_OUTPUT="$WORKSPACE/tools/gcov/gcovr_html.conf"
 QACPP_JSON="OFF"
 RUN_TEST=false
 INTROSPECTION_FLAG="ON"
 DDS_GATEWAY_FLAG="OFF"
 ONE_TO_MANY_ONLY_FLAG="OFF"
 SANITIZE_FLAG="OFF"
+ROUDI_ENV_FLAG="OFF" 
 
 while (( "$#" )); do
   case "$1" in
@@ -92,13 +93,14 @@ while (( "$#" )); do
         TEST_FLAG="ON"
         shift 1
         ;;
-    "gcov-sonarqube")
-        COV_OUTPUT="$WORKSPACE/tools/gcov/gcovr_sonarqube.conf"
-        shift 1
-        ;;
-    "with-dds-gateway")
+    "dds-gateway")
         echo " [i] Including DDS gateway in build"
         DDS_GATEWAY_FLAG="ON"
+        shift 1
+        ;;
+    "binding-c")
+        echo " [i] Including DDS gateway in build"
+        BINDING_C_FLAG="ON"
         shift 1
         ;;
     "build-test")
@@ -106,9 +108,22 @@ while (( "$#" )); do
         TEST_FLAG="ON"
         shift 1
         ;;
-    "skip-introspection")
-        echo " [i] Not including introspection client in build."
-        INTROSPECTION_FLAG="OFF"
+    "roudi_env")
+        echo " [i] Building RouDi Environment"
+        ROUDI_ENV_FLAG="ON"
+        shift 1
+        ;;
+    "buildall")
+        echo " [i] Build complete iceoryx with all extensions"
+        DDS_GATEWAY_FLAG="ON"
+        BINDING_C_FLAG="ON"
+        TEST_FLAG="ON"
+        EXAMPLE_FLAG="ON"
+        shift 1
+        ;;
+    "examples")
+        echo " [i] Building examples."
+        EXAMPLE_FLAG="ON"
         shift 1
         ;;
     "one-to-many")
@@ -140,15 +155,17 @@ while (( "$#" )); do
         echo "    -j --jobs             Specify the number of jobs to run simultaneously"
         echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration', 'component'"
         echo "Args:"
-        echo "    clean                 Cleans the build directory"
+        echo "    clean                 Deletes the directory build/ before build"
         echo "    release               Build release configuration"
         echo "    debug                 Build debug configuration"
+        echo "    buildall              Build all extensions"
+        echo "    build-test            Builds all tests (doesn't run)"
+        echo "    examples              Build all examples"
         echo "    strict                Build is performed with '-Werror'"
         echo "    qacpp                 JSON is generated for QACPP"
-        echo "    test                  Builds and runs the tests"
-        echo "    with-dds-gateway      Builds the iceoryx dds gateway"
-        echo "    build-test            Builds the tests (doesn't run)"
-        echo "    skip-introspection    Skips building iceoryx introspection"
+        echo "    test                  Builds and runs all tests in all iceoryx components"
+        echo "    dds-gateway           Builds the iceoryx dds gateway"
+        echo "    binding-c             Builds the iceoryx dds gateway"
         echo "    one-to-many           Restricts to 1:n communication only"
         echo "    clang                 Build with clang compiler (should be installed already)"
         echo "    sanitize              Build with sanitizers"
@@ -197,7 +214,7 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=ON -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dbinding_c=ON -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -Dsanitize=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DINTROSPECTION=$INTROSPECTION_FLAG -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
@@ -243,12 +260,12 @@ mkdir -p tools
 cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
 
 echo " [i] Running all tests"
-if [ "$DDS_GATEWAY_FLAG" == "ON" ]
-then
-    $BUILD_DIR/tools/run_all_tests.sh $GCOV_SCOPE with-dds-gateway-tests
-else
-    $BUILD_DIR/tools/run_all_tests.sh $GCOV_SCOPE
-fi
+# if [ "$DDS_GATEWAY_FLAG" == "ON" ]
+# then
+#     $BUILD_DIR/tools/run_all_tests.sh $GCOV_SCOPE with-dds-gateway-tests
+# else
+$BUILD_DIR/tools/run_all_tests.sh $GCOV_SCOPE
+#fi
 
 for COMPONENT in $COMPONENTS; do
 

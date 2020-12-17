@@ -37,9 +37,9 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 # TODO: we need something like internal public for internal build dependencies
 # instead of making the whole source folder public for internal dependency resolution
 
-if(test AND NOT GTest_FOUND)
+if(BUILD_TEST AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
-endif(test AND NOT GTest_FOUND)
+endif(BUILD_TEST AND NOT GTest_FOUND)
 
 if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_utils_testing without also building the tests
 
@@ -255,6 +255,6 @@ install(
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
-if(test)
+if(BUILD_TEST)
     add_subdirectory(test)
-endif(test)
+endif(BUILD_TEST)

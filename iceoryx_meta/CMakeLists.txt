@@ -24,7 +24,7 @@ if(TOML_CONFIG)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/cpptoml/prebuild)
 endif(TOML_CONFIG)
 
-if(coverage)
+if(COVERAGE)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         set(test ON)
         set(examples OFF)
@@ -34,41 +34,41 @@ if(coverage)
     else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         message( FATAL_ERROR "You need to run gcov with gcc compiler." )
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-endif(coverage)
+endif(COVERAGE)
 
 # ===== Core
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
 
 # ===== Extras
-if(introspection)
+if(INTROSPECTION)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/iceoryx_introspection)
-endif(introspection)
+endif(INTROSPECTION)
 
 # ===== Gateways
-if(dds_gateway)
+if(DDS_GATEWAY)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cyclonedds ${CMAKE_BINARY_DIR}/dependencies/cyclonedds/prebuild)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds ${CMAKE_BINARY_DIR}/iceoryx_dds)
-endif(dds_gateway)
+endif(DDS_GATEWAY)
 
 # ===== Language binding for C
-if(binding_c)
+if(BINDING_C)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_binding_c ${CMAKE_BINARY_DIR}/iceoryx_binding_c)
-endif(binding_c)
+endif(BINDING_C)
 
 # ===== Examples
-if(examples)
+if(EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
-    if(binding_c)
+    if(BINDING_C)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_on_c)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/waitset_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/waitset_on_c)
-    endif(binding_c)
+    endif(BINDING_C)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/waitset ${CMAKE_BINARY_DIR}/iceoryx_examples/waitset)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
-endif(examples)
+endif(EXAMPLES)
 
 message("")
 message("       Build Properties")
