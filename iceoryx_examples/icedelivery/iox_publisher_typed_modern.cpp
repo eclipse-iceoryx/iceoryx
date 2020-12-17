@@ -14,7 +14,7 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/modern_api/publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <chrono>
@@ -39,7 +39,7 @@ int main()
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-typed-modern");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed-modern");
 
     iox::popo::TypedPublisher<Position> typedPublisher({"Odometry", "Position", "Vehicle"});
     typedPublisher.offer();

@@ -186,8 +186,7 @@ class PoshRuntime
     cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
     requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
 
-    /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
-    /// @todo replace length check with fixedstring when its integrated
+    /// @brief checks the given application name for certain constraints like length or if is empty
     const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
 
     const ProcessName_t m_appName;
@@ -200,7 +199,7 @@ class PoshRuntime
     popo::ApplicationPort m_applicationPort;
 
     void sendKeepAlive() noexcept;
-    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > DISCOVERY_INTERVAL, "Keep alive interval too small");
+    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
 
     /// @note the m_keepAliveTimer should always be the last member, so that it will be the first member to be detroyed
     iox::posix::Timer m_keepAliveTimer{PROCESS_KEEP_ALIVE_INTERVAL, [&]() { this->sendKeepAlive(); }};

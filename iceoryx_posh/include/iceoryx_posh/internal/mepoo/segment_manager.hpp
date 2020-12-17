@@ -50,9 +50,7 @@ class SegmentManager
     struct SegmentMapping
     {
       public:
-        using string_t = cxx::string<128>;
-
-        SegmentMapping(const string_t& sharedMemoryName,
+        SegmentMapping(const ShmName_t& sharedMemoryName,
                        void* startAddress,
                        uint64_t size,
                        bool isWritable,
@@ -68,7 +66,7 @@ class SegmentManager
         {
         }
 
-        string_t m_sharedMemoryName{""};
+        ShmName_t m_sharedMemoryName{""};
         void* m_startAddress{nullptr};
         uint64_t m_size{0};
         bool m_isWritable{false};

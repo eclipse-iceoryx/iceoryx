@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
@@ -29,7 +29,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void sending()
 {
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-waitset");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-waitset");
 
     iox::popo::TypedPublisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
     myPublisher.offer();

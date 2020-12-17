@@ -91,6 +91,7 @@ See [error-handling.md](./doc/error-handling.md) for additional information abou
 * Compile time constants, also enum values in `UPPER_SNAKE_CASE`: `static constexpr uint16_t MY_CONSTANT`
 * Class members start with `m_`: `m_myMember`
 * Namespaces in `lower_snake_case` : `my_namespace`
+* Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
 
 ### Doxygen
 

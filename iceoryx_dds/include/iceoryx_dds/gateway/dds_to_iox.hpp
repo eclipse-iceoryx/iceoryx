@@ -19,7 +19,7 @@
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
 
 namespace iox
 {

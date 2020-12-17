@@ -34,21 +34,21 @@ UnixDomainSocket::UnixDomainSocket() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-UnixDomainSocket::UnixDomainSocket(const std::string& name,
+UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
     : UnixDomainSocket(
         NoPathPrefix,
-        [&]() -> std::string {
+        [&]() -> UdsName_t {
             /// invalid names will be forwarded and handled by the other constructor
             /// separately
             if (!isNameValid(name))
             {
                 return name;
             }
-            return std::string(PATH_PREFIX) + name;
+            return UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
         }(),
         mode,
         channelSide,
@@ -57,9 +57,8 @@ UnixDomainSocket::UnixDomainSocket(const std::string& name,
 {
 }
 
-
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
-                                   const std::string& name,
+                                   const UdsName_t& name,
                                    const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
@@ -129,13 +128,13 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const std::string& name) noexcept
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
-    return unlinkIfExists(NoPathPrefix, std::string(PATH_PREFIX) + name);
+    return unlinkIfExists(NoPathPrefix, UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
 }
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
-                                                                      const std::string& name) noexcept
+                                                                      const UdsName_t& name) noexcept
 {
     if (!isNameValid(name))
     {
@@ -330,7 +329,7 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
     m_sockAddr.sun_family = AF_LOCAL;
     const uint64_t maxDestinationSize = sizeof(sockaddr_un::sun_path) - 1;
-    if (m_name.length() > maxDestinationSize)
+    if (m_name.size() > maxDestinationSize)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -534,10 +533,9 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_
     }
 }
 
-bool UnixDomainSocket::isNameValid(const std::string& name) noexcept
+bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
 {
-    return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME
-             || name.at(0) != '/');
+    return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME);
 }
 
 

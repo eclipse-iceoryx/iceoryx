@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,14 +32,20 @@ MessageQueue::MessageQueue()
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-MessageQueue::MessageQueue(const std::string& name,
+MessageQueue::MessageQueue(const IpcChannelName_t& name,
                            const IpcChannelMode mode,
                            const IpcChannelSide channelSide,
                            const size_t maxMsgSize,
                            const uint64_t maxMsgNumber)
-    : m_name{name}
-    , m_channelSide(channelSide)
+    : m_channelSide(channelSide)
 {
+    sanitizeIpcChannelName(name)
+        .and_then([this](IpcChannelName_t& name) { m_name = std::move(name); })
+        .or_else([this](IpcChannelError) {
+            this->m_isInitialized = false;
+            this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
+        });
+
     if (maxMsgSize > MAX_MESSAGE_SIZE)
     {
         this->m_isInitialized = false;
@@ -55,7 +61,7 @@ MessageQueue::MessageQueue(const std::string& name,
             {
                 if (mqCall.getErrNum() != ENOENT)
                 {
-                    std::cout << "MQ still there, doing an unlink of " << name << std::endl;
+                    std::cout << "MQ still there, doing an unlink of " << m_name << std::endl;
                 }
             }
         }
@@ -69,8 +75,7 @@ MessageQueue::MessageQueue(const std::string& name,
         m_attributes.mq_recvwait = 0;
         m_attributes.mq_sendwait = 0;
 #endif
-        auto openResult = open(name, mode, channelSide);
-
+        auto openResult = open(m_name, mode, channelSide);
         if (!openResult.has_error())
         {
             this->m_isInitialized = true;
@@ -119,15 +124,16 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const std::string& name)
+cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelName_t& name)
 {
-    if (name.size() < SHORTEST_VALID_QUEUE_NAME || name.at(0) != '/')
+    IpcChannelName_t l_name;
+    if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     auto mqCall =
-        cxx::makeSmartC(mq_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, name.c_str());
+        cxx::makeSmartC(mq_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, l_name.c_str());
 
     if (!mqCall.hasErrors())
     {
@@ -136,7 +142,7 @@ cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const std::str
     }
     else
     {
-        return createErrorFromErrnum(name, mqCall.getErrNum());
+        return createErrorFromErrnum(l_name, mqCall.getErrNum());
     }
 }
 
@@ -209,12 +215,14 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 }
 
 cxx::expected<int32_t, IpcChannelError>
-MessageQueue::open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
 {
-    if (name.size() < SHORTEST_VALID_QUEUE_NAME || name.at(0) != '/')
+    IpcChannelName_t l_name;
+    if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
+
 
     int32_t openFlags = O_RDWR;
     openFlags |= (mode == IpcChannelMode::NON_BLOCKING) ? O_NONBLOCK : 0;
@@ -230,7 +238,7 @@ MessageQueue::open(const std::string& name, const IpcChannelMode mode, const Ipc
                                   cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                   {ERROR_CODE},
                                   {ENOENT},
-                                  name.c_str(),
+                                  l_name.c_str(),
                                   openFlags,
                                   m_filemode,
                                   &m_attributes);
@@ -366,7 +374,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t er
     return createErrorFromErrnum(m_name, errnum);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const std::string& name, const int32_t errnum)
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum)
 {
     switch (errnum)
     {
@@ -411,6 +419,27 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const std::strin
                   << strerror(errnum) << "]" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
+    }
+}
+
+cxx::expected<IpcChannelName_t, IpcChannelError>
+MessageQueue::sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept
+{
+    /// @todo the check for the longest valid queue name is missing
+    /// the name for the mqeue is limited by MAX_PATH
+    /// The mq_open call is wrapped by smartC to throw then an ENAMETOOLONG error
+    /// See: https://pubs.opengroup.org/onlinepubs/9699919799/functions/mq_open.html
+    if (name.empty() || name.size() < SHORTEST_VALID_QUEUE_NAME)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+    else if (name.c_str()[0] != '/')
+    {
+        return cxx::success<IpcChannelName_t>(IpcChannelName_t("/").append(iox::cxx::TruncateToCapacity, name));
+    }
+    else
+    {
+        return cxx::success<IpcChannelName_t>(name);
     }
 }
 

@@ -15,7 +15,7 @@
 #ifndef IOX_POSH_POPO_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 
 #endif // IOX_POSH_POPO_SUBSCRIBER_HPP

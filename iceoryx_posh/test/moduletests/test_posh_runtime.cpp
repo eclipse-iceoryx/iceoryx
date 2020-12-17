@@ -81,7 +81,7 @@ class PoshRuntime_test : public Test
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    const iox::ProcessName_t m_runtimeName{"/publisher"};
+    const iox::ProcessName_t m_runtimeName{"publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
     MqMessage m_sendBuffer;
@@ -96,7 +96,7 @@ bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
-    iox::ProcessName_t appName("/valid_name");
+    iox::ProcessName_t appName("valid_name");
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntime::initRuntime(appName); });
 }
@@ -104,13 +104,11 @@ TEST_F(PoshRuntime_test, ValidAppName)
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
     std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH, 's');
-    maxValidName.front() = '/';
 
     auto& runtime = PoshRuntime::initRuntime(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
 
     EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
-
 
 TEST_F(PoshRuntime_test, NoAppName)
 {
@@ -120,16 +118,13 @@ TEST_F(PoshRuntime_test, NoAppName)
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
-
-TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
+TEST_F(PoshRuntime_test, LeadingSlashAppName)
 {
-    const iox::ProcessName_t invalidAppName = "invalidname";
+    const iox::ProcessName_t invalidAppName = "/miau";
 
-    EXPECT_DEATH(
-        { PoshRuntime::initRuntime(invalidAppName); },
-        "Cannot initialize runtime. Application name invalidname does not have the required leading slash '/'");
+    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
+                 "Cannot initialize runtime. Please remove leading slash from Application name /miau");
 }
-
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
 // when getInstance() is called without parameter, it returns existing instance
@@ -143,7 +138,7 @@ TEST(PoshRuntime, AppNameEmpty)
 
 TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 {
-    const iox::ProcessName_t appname = "/app";
+    const iox::ProcessName_t appname = "app";
 
     auto& sut = PoshRuntime::initRuntime(appname);
 
@@ -425,7 +420,7 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
 TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
 {
     PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
-    PoshRuntimeTestAccess::initRuntime("/instance");
+    PoshRuntimeTestAccess::initRuntime("instance");
 
     EXPECT_TRUE(callbackWasCalled);
 }

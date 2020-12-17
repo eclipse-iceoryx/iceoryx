@@ -33,7 +33,7 @@ static void sigHandler(int signalValue)
 
 void receiving()
 {
-    iox_runtime_init("/iox-c-subscriber");
+    iox_runtime_init("iox-c-subscriber");
 
     uint64_t historyRequest = 0U;
     iox_sub_storage_t subscriberStorage;

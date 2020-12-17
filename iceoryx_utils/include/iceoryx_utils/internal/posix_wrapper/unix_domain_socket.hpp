@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,12 +39,14 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
     ///  the same behavior on every platform we use 2048.
-    static constexpr size_t MAX_MESSAGE_SIZE = 2048u;
-    static constexpr size_t SHORTEST_VALID_NAME = 2u;
+    static constexpr size_t MAX_MESSAGE_SIZE = 2048U;
+    static constexpr size_t SHORTEST_VALID_NAME = 2U;
     /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
+
+    using UdsName_t = cxx::string<LONGEST_VALID_NAME>; 
 
     /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
@@ -64,13 +66,14 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief unlink the provided unix domain socket
     /// @param name of the unix domain socket to unlink
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const std::string& name) noexcept;
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const UdsName_t& name) noexcept;
 
     /// @brief unlink the provided unix domain socket
     /// @param NoPathPrefix signalling that this method does not add a path prefix
     /// @param name of the unix domain socket to unlink
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t, const std::string& name) noexcept;
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t,
+                                                               const UdsName_t& name) noexcept;
 
     /// @brief close the unix domain socket.
     cxx::expected<IpcChannelError> destroy() noexcept;
@@ -106,11 +109,11 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @param channel side client or server
     /// @param maxMsgSize max message size that can be transmitted
     /// @param maxMsgNumber max messages that can be queued
-    UnixDomainSocket(const std::string& name,
+    UnixDomainSocket(const IpcChannelName_t& name,
                      const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
-                     const uint64_t maxMsgNumber = 10u) noexcept;
+                     const uint64_t maxMsgNumber = 10U) noexcept;
 
     /// @brief c'tor
     /// @param NoPathPrefix signalling that this constructor does not add a path prefix
@@ -120,11 +123,11 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @param maxMsgSize max message size that can be transmitted
     /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const NoPathPrefix_t,
-                     const std::string& name,
+                     const UdsName_t& name,
                      const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
-                     const uint64_t maxMsgNumber = 10u) noexcept;
+                     const uint64_t maxMsgNumber = 10U) noexcept;
 
 
     /// @brief creates the unix domain socket
@@ -136,12 +139,12 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @return IpcChannelError if error occured
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
 
-    static bool isNameValid(const std::string& name) noexcept;
+    static bool isNameValid(const UdsName_t& name) noexcept;
 
   private:
-    std::string m_name;
+    UdsName_t m_name;
     IpcChannelSide m_channelSide;
-    int m_sockfd{INVALID_FD};
+    int32_t m_sockfd{INVALID_FD};
     struct sockaddr_un m_sockAddr;
     size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 };

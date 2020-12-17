@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <csignal>
@@ -211,20 +212,28 @@ class ProcessManager : public ProcessManagerInterface
         SIG_KILL
     };
 
-    enum class ShutdownLog
-    {
-        NONE,
-        FULL
-    };
-
     /// @brief Shuts down the given process in m_processList with the given signal.
     /// @param [in] process The process to shut down.
     /// @param [in] shutdownPolicy Signal passed to the system to shut down the process
     /// @param [in] shutdownLog Defines the logging detail.
     /// @return Returns true if the sent signal was successful.
-    bool requestShutdownOfProcess(const RouDiProcess& process,
-                                  ShutdownPolicy shutdownPolicy,
-                                  ShutdownLog shutdownLog) noexcept;
+    bool requestShutdownOfProcess(const RouDiProcess& process, ShutdownPolicy shutdownPolicy) noexcept;
+
+    /// @brief Evaluates with a kill SIGTERM signal to a process if he is still alive.
+    /// @param [in] process The process to check.
+    /// @return Returns true if the process is still alive, otherwise false.
+    bool isProcessAlive(const RouDiProcess& process) noexcept;
+
+    /// @brief Evaluates eventual upcoming errors from kill() command in requestShutdownOfProcess and isProcessAlive.
+    /// Calls the errorhandler.
+    /// @param [in] process process where the kill command was run on
+    /// @param [in] errnum errorcode of the killcommand
+    /// @param [in] errorString errorstring of the killcommand
+    /// @param [in] shutdownPolicy enum which tells what termination command was used (e.g. SIGTERM)
+    void evaluateKillError(const RouDiProcess& process,
+                           const int32_t& errnum,
+                           const char* errorString,
+                           ShutdownPolicy shutdownPolicy) noexcept;
 
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;
