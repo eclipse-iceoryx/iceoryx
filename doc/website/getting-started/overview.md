@@ -1,16 +1,19 @@
 # Getting started with iceoryx
-
-This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the basic concepts presented here will still apply.  
+This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to
+set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the
+basic concepts presented here will still apply.
 ## General
+To set up a collection of applications using iceoryx (an ``iceoryx system``), the applications need to initialize a
+runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be
+received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
+these offered topics, the middleware daemon, called ``Roudi``, must be running.
 
-To set up a collection of applications using iceoryx (an ``iceoryx system``), the applications need to initialize a runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be received by subscribers of the same topic.
-To enable publishers to offer their topic and subscribers to subscribe to these offered topics, the middleware daemon, called ``Roudi``, must be running. 
+For further information how iceoryx can be used see the [examples](../iceoryx_examples/README.md). The
+[conceptual-guide.md](../../conceptual-guide.md) provides additional information about the ``Shared Memory
+communication`` that lies at the heart of iceoryx.
 
-For further information how iceoryx can be used see the [examples](../iceoryx_examples/README.md).
-The [conceptual-guide.md](../../conceptual-guide.md) provides additional information about the ``Shared Memory communication`` that lies at the heart of iceoryx. 
- 
-We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
-
+We now briefly define the main entities of an iceoryx system before showing how they are created and used by the
+iceoryx API.
 ### Roudi
 
 Roudi is an abbrevation for **Rou**ting and **Di**scovery. Roudi takes care of the
@@ -22,7 +25,8 @@ subscribers. To view the available command line options call `iox-roudi --help`.
 
 ### Runtime
 
-Each application which wants to use iceoryx has to instantiate its runtime, which essentially enables communication with Roudi.
+Each application which wants to use iceoryx has to instantiate its runtime, which essentially enables communication
+with Roudi.
 
 To do so, the following lines of code are required
  
@@ -41,57 +45,82 @@ A topic in iceoryx defines the data to be transmitted and is uniquely identified
 2. ``Instance`` name
 3. ``Topic`` name
 
-A triple consisting of such strings is called a ``service description``.
-In Autosar terminology these three identifiers are called ``Service``, ``Instance`` and ``Event`` respectively.
+A triple consisting of such strings is called a ``service description``. In Autosar terminology these three
+identifiers are called ``Service``, ``Instance`` and ``Event`` respectively.
 
-Two topics are considered matching if all these three strings are element-wise equal, i.e. group, instance and topic names are the same for both of them.
+Two topics are considered matching if all these three strings are element-wise equal, i.e. group, instance and topic
+names are the same for both of them.
 
-This means the group and instance identifier can be ignored to create different topics. They will be needed for advanced filtering functionality in the future.
+This means the group and instance identifier can be ignored to create different topics. They will be needed for
+advanced filtering functionality in the future.
 
 The data type of the topic can be an arbitrary C++ class, struct or plain old data type.
 
 ### Publisher
-A publisher is tied to a topic and needs a service description to be constructed. If it is typed one needs to additionally specify the data type
-as a template parameter. Otherwise publisher is only aware of raw memory and the user has to take care that it is interpreted correctly.
+A publisher is tied to a topic and needs a service description to be constructed. If it is typed one needs to
+additionally specify the data type as a template parameter. Otherwise publisher is only aware of raw memory and the
+user has to take care that it is interpreted correctly.
 
-Once it has offered its topic, it is able to publish (send) data of the specific type. Note that it is possible to have multiple publishers for the same topic.
+Once it has offered its topic, it is able to publish (send) data of the specific type. Note that it is possible to
+have multiple publishers for the same topic.
 
 ### Subscriber
-Symmetrically a subscriber also corresponds to a topic and thus needs a Service Description to be constructed. As for publishers we distinguish between typed and untyped subscribers.
+Symmetrically a subscriber also corresponds to a topic and thus needs a Service Description to be constructed. As for
+publishers we distinguish between typed and untyped subscribers.
 
-Once a subscriber is subscribed to some topic, it is able to receive data of the type tied to this topic. In the untyped case this is raw memory and the user must take care that it is interpreted in a way that is compatible to the data that was actually send.
+Once a subscriber is subscribed to some topic, it is able to receive data of the type tied to this topic. In the
+untyped case this is raw memory and the user must take care that it is interpreted in a way that is compatible to the
+data that was actually send.
 
-When multiple publishers have offered the same topic the subscriber will receive the data of all of them (but in indeterminate order between different publishers).
+When multiple publishers have offered the same topic the subscriber will receive the data of all of them (but in
+indeterminate order between different publishers).
 
 ### Waitset
-The easiest way to receie data is to periodically poll whether data is available. This is sufficient for simple use cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
+The easiest way to receie data is to periodically poll whether data is available. This is sufficient for simple use
+cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
 
-The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user defined conditions to become true. 
-Usually these conditions correspond to the availability of data at specific subscribers. This way we can (almost) immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
+The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user defined conditions
+to become true. Usually these conditions correspond to the availability of data at specific subscribers. This way we
+can (almost) immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
 
-To do so it manages a set of triggers which can be activated and indicate that a corresponding condition became true which in turn will wake up a potentially waiting thread. In this way it extends a condition variable to a collection of conditions. Upon waking up it can be determined which conditions became true and caused
-the wake up. In the case that the wake up event was the availability of new data, this data can now be collected at the subscriber.
+To do so it manages a set of triggers which can be activated and indicate that a corresponding condition became true
+which in turn will wake up a potentially waiting thread. In this way it extends a condition variable to a collection
+of conditions. Upon waking up it can be determined which conditions became true and caused the wake up. In the case
+that the wake up event was the availability of new data, this data can now be collected at the subscriber.
 
 For more information on how to use the Waitset see [Waitset](../../../iceoryx_examples/waitset/README.md).
 
 ## API
 
-We now show how the API can be used to establish a publish-subscribe communication in an iceoryx system. Many parts of the API follow a functional programming approach and allow the user to specify functions which handle the possible cases, e.g. what should happen when data is received.
+We now show how the API can be used to establish a publish-subscribe communication in an iceoryx system. Many parts
+of the API follow a functional programming approach and allow the user to specify functions which handle the possible
+cases, e.g. what should happen when data is received.
 
-This is very flexible but requires using the monadic types ``cxx::expected`` and ``cxx::optional``, which we introduce in the following sections.
+This is very flexible but requires using the monadic types ``cxx::expected`` and ``cxx::optional``, which we
+introduce in the following sections.
 
-We distinguish between the ``typed API`` and the ``untyped API``. In the Typed API the underlying data type is made apparent by typed pointers or references to some data type T (often a template parameter). this allows working with the data in an C++ idiomatic and type-safe way and should be preferred whenever possible.
+We distinguish between the ``typed API`` and the ``untyped API``. In the Typed API the underlying data type is made
+apparent by typed pointers or references to some data type T (often a template parameter). this allows working with
+the data in an C++ idiomatic and type-safe way and should be preferred whenever possible.
 
-The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be used sparingly.
-For further information see the respective header files.
+The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that
+the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This
+is required for interaction with other lower level APIs and should be used sparingly. For further information see the
+respective header files.
 
-There also is a plain [C API](../../../iceoryx_examples/icedelivery_on_c/README.md), which can be used if C++ is not an option.
+There also is a plain [C API](../../../iceoryx_examples/icedelivery_on_c/README.md), which can be used if C++ is not
+an option.
 
-We now describe the how to use the API in iceoryx applications. We will ommit namespaces in several places to keep the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. We also will use ``auto`` sparingly to clearly show which types are involved, but in many cases automatic type deduction is possible and can shorten the code.
+We now describe the how to use the API in iceoryx applications. We will ommit namespaces in several places to keep
+the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. We also will use ``auto``
+sparingly to clearly show which types are involved, but in many cases automatic type deduction is possible and can
+shorten the code.
 
 ### Optional
 
-The type ``cxx::optional<T>`` is used to indicate that there may or may not be a value of a specific type ``T`` available. This is essentially the maybe monad in functional programming. Assuming we have some optional (usually the result of some computation)
+The type ``cxx::optional<T>`` is used to indicate that there may or may not be a value of a specific type ``T``
+available. This is essentially the maybe monad in functional programming. Assuming we have some optional (usually the
+result of some computation)
 ```
 optional<int> result = someComputation();
 ```
@@ -118,7 +147,8 @@ We can achieve the same with the functional approach by providing a function for
 result.and_then([](int& value) { /*do something with the value*/ })
       .or_else([]() { /*handle the case that there is no value*/ });
 ```
-Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the lambda or function we pass.
+Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the lambda or
+function we pass.
 
 The optional can be be initialized from a value directly
 ```
@@ -133,7 +163,11 @@ result = iox::cxx::nullopt;
 ```
 
 ### Expected
-``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of no value at all, i.e. it contains either a value of type ``T`` or ``E`` (and roughly corresponds to the either monad). This is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the error type. For more information on how it is used for error handling see [error-handling.md](../../design/error-handling.md).
+``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of
+no value at all, i.e. it contains either a value of type ``T`` or ``E`` (and roughly corresponds to the either
+monad). This is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the
+error type. For more information on how it is used for error handling see
+[error-handling.md](../../design/error-handling.md).
 
 Assume we have ``E`` as an error type, then we can create a value
 ```
@@ -167,13 +201,16 @@ auto handleError = [](E& value) { /*handle the error*/ };
 result.and_then(handleValue).or_else(handleError);
 ```
 
-There are more convenience functions such as ``value_or`` which provides the value or an alternative specified by the user. These can be found in ``expected.hpp``.
+There are more convenience functions such as ``value_or`` which provides the value or an alternative specified by the
+user. These can be found in ``expected.hpp``.
 
 
 ## Using the API
 
-Armed with the terminology and functional concepts, we can start to use the API to send and receive data. This involves settting up the runtime in each application, creating publishers in applications that need to send data and subscribers in applications that want to receive said data.
-An application can have both, publishers and subscribers. It can even send data to itself, but this usually makes little sense.
+Armed with the terminology and functional concepts, we can start to use the API to send and receive data. This
+involves settting up the runtime in each application, creating publishers in applications that need to send data and
+subscribers in applications that want to receive said data. An application can have both, publishers and subscribers.
+It can even send data to itself, but this usually makes little sense.
 
 ### Initialize the runtime
 
@@ -198,7 +235,8 @@ struct CounterTopic
 };
 ```
 
-The topic type must be default- and copy-constructible when the typed API is used. Using the untyped API imposes no such restriction, it just has to be possible to construct the data type at a given memory location.
+The topic type must be default- and copy-constructible when the typed API is used. Using the untyped API imposes no
+such restriction, it just has to be possible to construct the data type at a given memory location.
 
 ### Typed API
 
@@ -234,13 +272,15 @@ Now we can use the publisher to send the data in various ways.
     }
     ```
 
-    Here result is an ``expected`` and hence we may get an error which we have to handle.
-    This can happen if we try to loan to many samples and exhaust memory.
-
-    If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value we want to send.
-    It is important to note that in the untyped case we get a default constructed topic and such an access is legal.
-
-    Once we are done constructing and preparing the data we publish it, causing it to be delivered to any subscriber which is currently subscribed to the topic.
+    Here result is an ``expected`` and hence we may get an error which we have to handle. This can happen if we try
+    to loan to many samples and exhaust memory.
+    
+    If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value
+    we want to send. It is important to note that in the untyped case we get a default constructed topic and such an
+    access is legal.
+    
+    Once we are done constructing and preparing the data we publish it, causing it to be delivered to any subscriber
+    which is currently subscribed to the topic.
 
 
 2. Functional approach with loaning
@@ -257,9 +297,12 @@ Now we can use the publisher to send the data in various ways.
             });
     ```
 
-    We try to loan a sample from the publisher and if successful get the underlying pointer ``ptr`` to our topic and if successful assign it a new value. Note that ``ptr`` points to an already default constructed sample, so we cannot treat it as uninitialized memory and therefore must assign the data to send.
-
-    If you are only using a simple data type which does not rely on RAII, you can also use the pointer to construct the data via emplacement new instead.
+    We try to loan a sample from the publisher and if successful get the underlying pointer ``ptr`` to our topic and
+    if successful assign it a new value. Note that ``ptr`` points to an already default constructed sample, so we
+    cannot treat it as uninitialized memory and therefore must assign the data to send.
+    
+    If you are only using a simple data type which does not rely on RAII, you can also use the pointer to construct
+    the data via emplacement new instead.
 
     ```
     new (ptr) CounterTopic(73);
@@ -283,25 +326,27 @@ Now we can use the publisher to send the data in various ways.
     }
     ```
 
-    This can be used if we want to set the data by some callable (i.e. lambda, function or functor). As with all the other ways, it can fail when there is no memory for the sample availabe and this failure must be handled.
+    This can be used if we want to set the data by some callable (i.e. lambda, function or functor). As with all the
+    other ways, it can fail when there is no memory for the sample availabe and this failure must be handled.
 
 #### Creating a subscriber
 
-We now create a corresponding subscriber, usually in another application (it will work in the same application as well but there is no need sending it via the middleware in such a case).
+We now create a corresponding subscriber, usually in another application (it will work in the same application as
+well but there is no need sending it via the middleware in such a case).
 
 ```
 iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
 subscriber.subscribe();
 ```
-
-The template data type and the three string identifiers have to match those of the publisher, in other words the service descriptions have to be the same (otherwise we will not receive data from our publisher).
+The template data type and the three string identifiers have to match those of the publisher, in other words the
+service descriptions have to be the same (otherwise we will not receive data from our publisher).
 
 We immediately subscribe here, but this can be postponed to the point were we actually want to receive data.
 
 #### Receiving data
-
-For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data using the [Waitset](../../../iceoryx_examples/waitset/README.md). The code to recieve the data is the same, the only difference is the way we wake up before checking for data.
-
+For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data
+using the [Waitset](../../../iceoryx_examples/waitset/README.md). The code to recieve the data is the same, the only
+difference is the way we wake up before checking for data.
 ```
 while(keepRunning) {
     //wait for new data (either sleep and wake up periodically or by notification from the waitset)
@@ -319,13 +364,20 @@ while(keepRunning) {
 }
 ```
 
-By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>``. Since this may fail, we handle a potential error in the ``or_else`` branch. If we wake up periodically, it is also possible that no data is received and if we want to handle this we can optionally do so in the ``if_empty`` branch. 
+By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>``. Since this
+may fail, we handle a potential error in the ``or_else`` branch. If we wake up periodically, it is also possible that
+no data is received and if we want to handle this we can optionally do so in the ``if_empty`` branch.
 
-The usual case is that we actually receive data, and we process it in the ``and_then``. Notice that in the lambda we do not pass a ``CounterTopic`` directly but a reference to a ``iox::popo::Sample<const CounterTopic>&``. We can access the underlying ``CounterTopic`` either by getting a pointer to it via ``get`` or by using ``operator->``. 
-In any case, we now can process or copy the received data and once the ``sample`` goes out of scope, the underlying ``CounterTopic`` object is deleted as well (this happens when the temporary object returned by ``take`` is destroyed).
-This means it is only safe to hold references to the data as long as the ``sample`` exists. Should we need a longer lifetime, we have to copy or move the data from the ``sample``.
+The usual case is that we actually receive data, and we process it in the ``and_then``. Notice that in the lambda we
+do not pass a ``CounterTopic`` directly but a reference to a ``iox::popo::Sample<const CounterTopic>&``. We can
+access the underlying ``CounterTopic`` either by getting a pointer to it via ``get`` or by using ``operator->``. In
+any case, we now can process or copy the received data and once the ``sample`` goes out of scope, the underlying
+``CounterTopic`` object is deleted as well (this happens when the temporary object returned by ``take`` is
+destroyed). This means it is only safe to hold references to the data as long as the ``sample`` exists. Should we
+need a longer lifetime, we have to copy or move the data from the ``sample``.
 
-This only allows us to get one sample at a time. Should we want to get all currently available samples we can do so by using an additional loop.
+This only allows us to get one sample at a time. Should we want to get all currently available samples we can do so
+by using an additional loop.
 
 ```
 while(keepRunning) {
@@ -343,11 +395,15 @@ while(keepRunning) {
     // wait for new samples (either sleep or use the waitset)
 }
 ```
-Here we do not check whether we actually have data since we already know there is data available by calling ``hasNewSamples``.
+Here we do not check whether we actually have data since we already know there is data available by calling
+``hasNewSamples``.
 
 ### Untyped API
 
-The untyped API offeres similar capabilities and is hence usable in a similar way. The major difference is that neither publisher nor subscriber have any knowledge about the underlying type they send or receive. This means that the user is responsible to ensure the data is read correctly, i.e. there is no type safety guaranteed by the API itself.
+The untyped API offeres similar capabilities and is hence usable in a similar way. The major difference is that
+neither publisher nor subscriber have any knowledge about the underlying type they send or receive. This means that
+the user is responsible to ensure the data is read correctly, i.e. there is no type safety guaranteed by the API
+itself.
 
 #### Creating a publisher
 
@@ -365,8 +421,9 @@ publisher.offer();
     ```
     auto result = publisher.loan(sizeof(CounterTopic));
     ```
-    Since the data type is not known to the publisher, we have to provide the size in bytes of the payload data we intend to send.
-
+    Since the data type is not known to the publisher, we have to provide the size in bytes of the payload data we
+    intend to send.
+    
     If we successfully acquired a chunk, we can construct the data to be send using emplacement new and publish it.
 
     ```
@@ -395,13 +452,16 @@ publisher.offer();
                 /* handle the error */
             });
     ```
-    Notice that we get an untyped sample, ``iox::popo::Sample<void>`` (we could also use ``auto& sample`` in the lambda arguments to shorten it). Again we access the pointer to the underlying raw memory of the sample and construct the data we want to send.
+    Notice that we get an untyped sample, ``iox::popo::Sample<void>`` (we could also use ``auto& sample`` in the
+    lambda arguments to shorten it). Again we access the pointer to the underlying raw memory of the sample and
+    construct the data we want to send.
 
 
 
 #### Creating a subscriber
 
-While the string identifiers still have to match those in the publisher, as in the untyped publisher there is no template type argument.
+While the string identifiers still have to match those in the publisher, as in the untyped publisher there is no
+template type argument.
 
 ```
 iox::popo::UntypedSubscriber subscriber({"Group", "Instance", "CounterTopic"});
@@ -409,7 +469,8 @@ subscriber.subscribe();
 ```
 #### Receiving data
 
-Receiving the data works in the same way as in the typed API, the main difference is the ``reinterpret_cast`` needed before accessing the data (since the subscriber has no knowledge of the underlying type).
+Receiving the data works in the same way as in the typed API, the main difference is the ``reinterpret_cast`` needed
+before accessing the data (since the subscriber has no knowledge of the underlying type).
 
 
 ```
@@ -427,7 +488,9 @@ while(keepRunning)
 }
 ```
 
-Note that since the received sample received is untyped (``iox::popo::Sample<const void>``), we cannot use ``operator->`` to access the members of the underlying type but have to cast it to the correct type ``CounterTopic`` manually. 
+Note that since the received sample received is untyped (``iox::popo::Sample<const void>``), we cannot use
+``operator->`` to access the members of the underlying type but have to cast it to the correct type ``CounterTopic``
+manually.
 
 As in the untyped case we also could use a loop to get all samples as long as they are available.
 
@@ -446,7 +509,8 @@ Similarly the subscriber can ``unsubscribe`` to stop receiving any data.
 subscriber.unsubscribe();
 ```
 
-Both will also be called in the respective destructor if needed (i.e. if the publisher is still offering or the subscriber is still subscribed).
+Both will also be called in the respective destructor if needed (i.e. if the publisher is still offering or the
+subscriber is still subscribed).
 
 ### Running an iceoryx system
 
@@ -461,13 +525,15 @@ First we need to start Roudi.
 
 Afterwards we can start the applications which immediately connect to the Roudi via their runtime.
 
-When the applications terminates the runtime cleans up all resources needed for communication with Roudi. This includes all memory chunks used for the data transmission which may still be hold by the application.
+When the applications terminates the runtime cleans up all resources needed for communication with Roudi. This
+includes all memory chunks used for the data transmission which may still be hold by the application.
 
 ## Examples
 
 This covers the main use cases and should enable the user to quickly develop iceroyx applications.
 
-Full examples and instructions on how to build and run them can be found in [examples](../iceoryx_examples/README.md).
+Full examples and instructions on how to build and run them can be found in
+[examples](../iceoryx_examples/README.md).
 
 
 ## C API
