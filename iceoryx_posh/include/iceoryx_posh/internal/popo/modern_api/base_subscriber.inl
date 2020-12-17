@@ -142,9 +142,9 @@ template <typename T, typename Subscriber, typename port_t>
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
 BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
                                                    const uint64_t eventId,
-                                                   const EventInfo::Callback<Subscriber> callback,
-                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
+                                                   const EventInfo::Callback<Subscriber> callback) noexcept
 {
     Subscriber* self = reinterpret_cast<Subscriber*>(this);
 
@@ -155,6 +155,16 @@ BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& wai
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());
         });
+}
+
+template <typename T, typename Subscriber, typename port_t>
+template <uint64_t WaitSetCapacity>
+inline cxx::expected<WaitSetError>
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
+                                                   const EventInfo::Callback<Subscriber> callback) noexcept
+{
+    return enableEvent(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
 }
 
 template <typename T, typename Subscriber, typename port_t>

@@ -57,13 +57,13 @@ int main()
     // attach the first two subscribers to waitset with a eventid of FIRST_GROUP_ID
     for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
-        waitset.attachEvent(subscriberVector[i], FIRST_GROUP_ID, nullptr, iox::popo::SubscriberEvent::HAS_SAMPLES);
+        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_SAMPLES, FIRST_GROUP_ID);
     }
 
     // attach the remaining subscribers to waitset with a eventid of SECOND_GROUP_ID
     for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        waitset.attachEvent(subscriberVector[i], SECOND_GROUP_ID, nullptr, iox::popo::SubscriberEvent::HAS_SAMPLES);
+        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_SAMPLES, SECOND_GROUP_ID);
     }
 
     // event loop
