@@ -113,8 +113,6 @@ class GatewayGeneric : public gateway_t
     template <typename IceoryxPubSubOptions>
     cxx::expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service,
                                                       const IceoryxPubSubOptions& options) noexcept;
-    cxx::expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service,
-                                                      const popo::SubscriberOptions& subscriberOptions) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns
