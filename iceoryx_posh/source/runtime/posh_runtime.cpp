@@ -142,13 +142,14 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
 }
 
 PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
-                                                                         const uint64_t& historyCapacity,
+                                                                         const popo::PublisherOptions& publisherOptions,
                                                                          const NodeName_t& nodeName,
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyCapacity) << nodeName
+               << static_cast<cxx::Serialization>(service).toString()
+               << std::to_string(publisherOptions.historyCapacity) << nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
@@ -225,14 +226,15 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
 
 SubscriberPortUserType::MemberType_t*
 PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
-                                     const uint64_t& historyRequest,
+                                     const popo::SubscriberOptions& subscriberOptions,
                                      const NodeName_t& nodeName,
                                      const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyRequest) << nodeName
-               << static_cast<cxx::Serialization>(portConfigInfo).toString();
+               << static_cast<cxx::Serialization>(service).toString()
+               << std::to_string(subscriberOptions.historyRequest) << std::to_string(subscriberOptions.queueCapacity)
+               << nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
 

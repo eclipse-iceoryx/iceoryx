@@ -72,20 +72,20 @@ class PortPool
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     addSubscriberPort(const capro::ServiceDescription& serviceDescription,
-                      const uint64_t& historyRequest,
                       const ProcessName_t& applicationName,
+                      const popo::SubscriberOptions& subscriberOptions,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                       const uint64_t& historyRequest,
                                                        const ProcessName_t& applicationName,
+                                                       const popo::SubscriberOptions& subscriberOptions,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                       const uint64_t& historyRequest,
                                                        const ProcessName_t& applicationName,
+                                                       const popo::SubscriberOptions& subscriberOptions,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
     cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const ProcessName_t& applicationName,
