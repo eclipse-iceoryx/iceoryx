@@ -13,7 +13,12 @@ We now briefly define the main entities of an iceoryx system before showing how 
 
 ### Roudi
 
-The middleware daemon manages the shared memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use publishers or subscribers.
+Roudi is an abbrevation for **Rou**ting and **Di**scovery. Roudi takes care of the
+communication setup but does not actually participate in the communication between the publisher and the subscriber. RouDi can be thought of as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
+which the applications are using to talk to each other. Sometimes referred to as daemon, RouDi manages the shared
+memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers.
+It also keeps track of all applications which have initialized a runtime and are hence able to use publishers or
+subscribers. To view the available command line options call `iox-roudi --help`.
 
 ### Runtime
 
