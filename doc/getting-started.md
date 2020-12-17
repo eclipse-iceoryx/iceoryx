@@ -209,7 +209,10 @@ The topic type must be default- and copy-constructible when the typed API is use
 ### Creating a subscriber
 
 
-### receiving data
+### Receiving data
+
+
+### Putting everything together
 
 
 ## Examples

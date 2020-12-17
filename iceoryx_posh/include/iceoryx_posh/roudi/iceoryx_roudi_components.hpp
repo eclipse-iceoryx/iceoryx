@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 
 namespace iox
@@ -27,10 +28,8 @@ namespace roudi
 struct IceOryxRouDiComponents
 {
   public:
-    IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig)
-        : m_rouDiMemoryManager(roudiConfig)
-    {
-    }
+    IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig) noexcept;
+
     virtual ~IceOryxRouDiComponents() = default;
 
     /// @brief Locks the socket for preventing multiple start of RouDi
@@ -39,25 +38,8 @@ struct IceOryxRouDiComponents
     /// @brief Handles MemoryProvider and MemoryBlocks
     IceOryxRouDiMemoryManager m_rouDiMemoryManager;
 
-    /// @todo Make this an object
-    /// @brief Cleanup resources and initalize memory
-    cxx::GenericRAII m_initalizer{
-        [this]() {
-            // this temporary object will create a roudi mqueue and close it immediatelly
-            // if there was an outdated roudi message queue, it will be cleaned up
-            // if there is an outdated mqueue, the start of the apps will be terminated
-            runtime::MqBase::cleanupOutdatedMessageQueue(MQ_ROUDI_NAME);
-
-            m_rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
-                LogFatal() << "Could not create SharedMemory! Error: " << static_cast<uint64_t>(error);
-                errorHandler(Error::kROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
-            });
-            return true;
-        },
-        []() {}};
-
     /// @brief Handles the ports in shared memory
-    PortManager m_portManager{&m_rouDiMemoryManager};
+    PortManager m_portManager;
 };
 } // namespace roudi
 } // namespace iox

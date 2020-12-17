@@ -19,7 +19,9 @@
 #include <Mempool_DCPS.hpp>
 #include <string>
 
-iox::dds::CycloneDataWriter::CycloneDataWriter(IdString serviceId, IdString instanceId, IdString eventId)
+iox::dds::CycloneDataWriter::CycloneDataWriter(const capro::IdString_t serviceId,
+                                               const capro::IdString_t instanceId,
+                                               const capro::IdString_t eventId) noexcept
     : m_serviceId(serviceId)
     , m_instanceId(instanceId)
     , m_eventId(eventId)
@@ -51,17 +53,17 @@ void iox::dds::CycloneDataWriter::write(const uint8_t* const bytes, const uint64
     m_writer.write(chunk);
 }
 
-iox::dds::IdString iox::dds::CycloneDataWriter::getServiceId() const noexcept
+iox::capro::IdString_t iox::dds::CycloneDataWriter::getServiceId() const noexcept
 {
     return m_serviceId;
 }
 
-iox::dds::IdString iox::dds::CycloneDataWriter::getInstanceId() const noexcept
+iox::capro::IdString_t iox::dds::CycloneDataWriter::getInstanceId() const noexcept
 {
     return m_instanceId;
 }
 
-iox::dds::IdString iox::dds::CycloneDataWriter::getEventId() const noexcept
+iox::capro::IdString_t iox::dds::CycloneDataWriter::getEventId() const noexcept
 {
     return m_eventId;
 }

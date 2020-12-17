@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_INL
 
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 #include "mempool_introspection.hpp"
 
 namespace iox
@@ -30,9 +31,7 @@ MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::MemPoolIntro
 {
     m_publisherPort.offer();
 
-    /// @todo create a wrapper function which takes care of the 16 character limitation of the thread name
-    // set thread name
-    pthread_setname_np(m_thread.native_handle(), "MemPoolIntr");
+    posix::setThreadName(m_thread.native_handle(), "MemPoolIntr");
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
+#include "mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"
@@ -38,17 +39,16 @@ class UntypedPublisherTest : public Test
     }
 
   protected:
+    ChunkMock<uint64_t> chunkMock;
     TestUntypedPublisher sut{{"", "", ""}};
 };
 
 TEST_F(UntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
 {
     // ===== Setup ===== //
-    void* chunk = iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader));
     EXPECT_CALL(sut.m_port, sendChunk).Times(1); // m_port is mocked.
     // ===== Test ===== //
-    sut.publish(chunk);
+    sut.publish(chunkMock.chunkHeader()->payload());
     // ===== Verify ===== //
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }

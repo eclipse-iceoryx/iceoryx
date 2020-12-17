@@ -17,7 +17,7 @@
 #include <chrono>
 #include <thread>
 
-Iceoryx::Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::IdString& subscriberName) noexcept
+Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
     : m_publisher({"Comedians", publisherName, "Duo"})
     , m_subscriber({"Comedians", subscriberName, "Duo"})
 {

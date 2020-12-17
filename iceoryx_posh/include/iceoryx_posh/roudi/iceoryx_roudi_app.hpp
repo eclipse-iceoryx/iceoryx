@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ class IceOryxRouDiApp : public RouDiApp
     IceOryxRouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig) noexcept;
 
     /// @brief starts the execution of the RouDi daemon
-    void run() noexcept override;
+    /// @return Return code for programm execution
+    uint8_t run() noexcept override;
 };
 
 } // namespace roudi

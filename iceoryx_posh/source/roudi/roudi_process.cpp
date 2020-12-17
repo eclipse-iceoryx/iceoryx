@@ -779,9 +779,10 @@ void ProcessManager::monitorProcesses() noexcept
                                                                                      - processIterator->getTimestamp())
                                    .count();
 
-            static_assert(PROCESS_KEEP_ALIVE_TIMEOUT > PROCESS_KEEP_ALIVE_INTERVAL, "keep alive timeout too small");
+            static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
+                          "keep alive timeout too small");
             if (std::chrono::milliseconds(timediff_ms)
-                > std::chrono::milliseconds(PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
+                > std::chrono::milliseconds(runtime::PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
             {
                 LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
                           << timediff_ms << " milliseconds ago) --> removing it";

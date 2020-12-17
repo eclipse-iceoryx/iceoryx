@@ -52,11 +52,11 @@ class RouDi
     struct RoudiStartupParameters
     {
         RoudiStartupParameters(
-            const config::MonitoringMode monitoringMode = config::MonitoringMode::ON,
+            const roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::ON,
             const bool killProcessesInDestructor = true,
             const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE,
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
-            const units::Duration processKillDelay = PROCESS_DEFAULT_KILL_DELAY) noexcept
+            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY) noexcept
             : m_monitoringMode(monitoringMode)
             , m_killProcessesInDestructor(killProcessesInDestructor)
             , m_mqThreadStart(mqThreadStart)
@@ -65,7 +65,7 @@ class RouDi
         {
         }
 
-        const config::MonitoringMode m_monitoringMode;
+        const roudi::MonitoringMode m_monitoringMode;
         const bool m_killProcessesInDestructor;
         const MQThreadStart m_mqThreadStart;
         const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
@@ -148,7 +148,7 @@ class RouDi
     MemPoolIntrospectionType m_mempoolIntrospection;
 
   private:
-    config::MonitoringMode m_monitoringMode{config::MonitoringMode::ON};
+    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
     units::Duration m_processKillDelay;
 };
 
