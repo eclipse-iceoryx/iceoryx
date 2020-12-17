@@ -24,7 +24,7 @@
 #include <iostream>
 
 constexpr int64_t NUMBER_OF_ROUNDTRIPS{10000};
-constexpr char APP_NAME[] = "/laurel";
+constexpr char APP_NAME[] = "laurel";
 constexpr char PUBLISHER[] = "Laurel";
 constexpr char SUBSCRIBER[] = "Hardy";
 

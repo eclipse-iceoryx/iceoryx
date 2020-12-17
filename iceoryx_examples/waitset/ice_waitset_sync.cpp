@@ -46,7 +46,7 @@ class SomeClass
 int main()
 {
     signal(SIGINT, sigHandler);
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-sync");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-sync");
     std::atomic_bool keepRunning{true};
 
     iox::popo::WaitSet<> waitset;

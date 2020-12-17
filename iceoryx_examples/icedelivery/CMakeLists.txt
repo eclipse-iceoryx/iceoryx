@@ -53,7 +53,6 @@ set_target_properties(iox-ex-subscriber-untyped-modern PROPERTIES
 
 # ========================================================== //
 
-install(
-    TARGETS iox-ex-publisher-untyped-modern iox-ex-publisher-typed-modern
-    RUNTIME DESTINATION bin
-)
+install(TARGETS iox-ex-publisher-untyped-modern iox-ex-publisher-typed-modern
+                iox-ex-subscriber-untyped-modern iox-ex-subscriber-typed-modern
+        RUNTIME DESTINATION bin)

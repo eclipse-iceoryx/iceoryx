@@ -21,7 +21,7 @@
 #include <chrono>
 #include <iostream>
 
-constexpr char APP_NAME[] = "/hardy";
+constexpr char APP_NAME[] = "hardy";
 constexpr char PUBLISHER[] = "Hardy";
 constexpr char SUBSCRIBER[] = "Laurel";
 

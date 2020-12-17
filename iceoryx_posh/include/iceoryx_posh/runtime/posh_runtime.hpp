@@ -186,8 +186,7 @@ class PoshRuntime
     cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
     requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
 
-    /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
-    /// @todo replace length check with fixedstring when its integrated
+    /// @brief checks the given application name for certain constraints like length or if is empty
     const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
 
     const ProcessName_t m_appName;
