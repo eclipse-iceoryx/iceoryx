@@ -104,7 +104,7 @@ With the following arguments you can add additional features:
  |  switch  |  description |
  |:---------|:-------------|
  | `clean`  | Removes the build directory and performs a clean build. If you have installed ncurses locally into your build directory you have to reinstall it first. |
- | `test`   | Enables module-, integration- and component-tests. The Googletest-Framework will be automatically fetched from github and the test will be executed and the end of the script. |
+ | `test`   | Build and execute all tests except Timing-tests. The Googletest-Framework will be automatically fetched from github and the test will be executed and the end of the script. |
 
 ## Build with colcon
 

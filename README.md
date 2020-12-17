@@ -70,7 +70,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 * [Concepts](doc/conceptual-guide.md)
 * [Usage Guide](doc/usage-guide.md)
-* [Ice0ryx Utils Hacker Guide](iceoryx_utils/README.md)
+* [Iceoryx Utils Hacker Guide](iceoryx_utils/README.md)
 
 ### Targeted quality levels & platforms
 
