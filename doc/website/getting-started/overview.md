@@ -6,11 +6,17 @@ This document covers the core functionality of the ``iceoryx`` middleware and is
 To set up a collection of applications using iceoryx (an iceoryx system), the applications need to initialize a runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be received by subscribers of the same topic.
 To enable publishers to offer their topic and subscribers to subscribe to these offered topics, the middleware daemon, called ``Roudi``, must be running. 
 
-For further information see the [examples](../iceoryx_examples/README.md) and [conceptual-guide.md](todo). We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
+For further information see the [examples](todo) and [conceptual-guide.md](todo). We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
 
 ### Roudi
 
-The middleware daemon manages the shared memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use publishers or subscribers.
+RouDi is an abbrevation for **Rou**ting and **Di**scovery. This perfectly describes RouDi's tasks. He takes care of the
+communication setup but does not actually participate in the communication between the publisher and the subscriber.
+Think of RouDi as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
+which the applications are using to talk to each other. Sometimes referred to as daemon, RouDi manages the shared
+memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers.
+It also keeps track of all applications which have initialized a runtime and are hence able to use publishers or
+subscribers. To view the available command line options call `iox-roudi --help`.
 
 ### Runtime
 

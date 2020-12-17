@@ -5,16 +5,6 @@
 This example showcases a one-way data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
 It provides publisher and subscriber applications. They come in two API flavours (Bare-metal and simplified).
 
-### RouDi, the daemon
-
-RouDi is an abbrevation for **Rou**ting and **Di**scovery. This perfectly describes RouDi's tasks. He takes care of the
-communication setup but does not actually participate in the communication between the publisher and the subscriber.
-Think of RouDi as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
-which the applications are using to talk to each other. We currently use memory pools with different chunk sizes,
-called in literature a segregated free-list approach. RouDi is delivered with a built-in default memory config. You can
-change the memory configration using a [TOML config file](../../doc/usage-guide.md). To view the available command
-line options call `iox-roudi --help`.
-
 ## Run icedelivery
 
 Create three terminals and run one command in each of them. Either choose to run the normal or simplified version.
