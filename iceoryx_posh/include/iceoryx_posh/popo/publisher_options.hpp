@@ -25,7 +25,7 @@ namespace popo
 {
 struct PublisherOptions
 {
-    uint64_t historyCapacity{0};
+    uint64_t historyCapacity{0U};
 };
 
 } // namespace popo
