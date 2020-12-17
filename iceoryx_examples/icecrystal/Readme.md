@@ -24,6 +24,8 @@ We reuse the binaries from [icedelivery](../icedelivery/). Create four terminals
 
 ## Expected output
 
+<!-- @todo Replace this with asciinema recording before v1.0-->
+
 The counter can differ depending on startup of the applications.
 
 ### RouDi application

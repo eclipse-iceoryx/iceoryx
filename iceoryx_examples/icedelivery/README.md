@@ -15,16 +15,18 @@ Create three terminals and run one command in each of them. Either choose to run
     $ICEORYX_ROOT/build/posh/iox-roudi
 
 
-    ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal
-    # The simplified publisher is an alternative
-    ./build/iceoryx_examples/icedelivery/ice-publisher-simple
+    ./build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
+    # The untyped publisher is an alternative
+    ./build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
 
 
-    ./build/iceoryx_examples/icedelivery/ice-subscriber-bare-metal
-    # The simplified subscriber is an alternative
-    ./build/iceoryx_examples/icedelivery/ice-subscriber-simple
+    ./build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
+    # The untyped subscriber is an alternative
+    ./build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
 
 ## Expected output
+
+<!-- @todo Replace this with asciinema recording before v1.0-->
 
 The counter can differ depending on startup of the applications.
 
@@ -44,14 +46,14 @@ The counter can differ depending on startup of the applications.
     Sending: 4
     Sending: 5
 
-### Subscriber application (bare-metal)
+### Subscriber application (untyped)
 
     Not subscribed
     Receiving: 3
     Receiving: 4
     Receiving: 5
 
-### Subscriber application (simple)
+### Subscriber application (typed)
 
     Callback: 4
     Callback: 5
@@ -60,12 +62,12 @@ The counter can differ depending on startup of the applications.
 
 ## Code walkthrough
 
-This example makes use of two kind of API flavours. With the bare-metal API you have the most flexibility. It enables us
+This example makes use of two kind of API flavours. With the untyped API you have the most flexibility. It enables you
 to put higher level APIs with different look and feel on top of iceoryx. E.g. the ara::com API of AUTOSAR Adaptive or the ROS2 API.
-It is not meant to be used by developers in daily life, we assume there will always be a higher abstraction. A simple example
-how such an abstraction could look like is given in the second step with the simplified example.
+It is not meant to be used by developers in daily life, the assumption is that there will always be a higher abstraction. A simple example
+how such an abstraction could look like is given in the second step with the typed example.
 
-### Publisher application (bare-metal)
+### Publisher application (untyped)
 
 First off let's include the publisher and the runtime:
 
@@ -122,7 +124,7 @@ captured with the signal handler and stops the loop. At the very end
 
 is called to say goodbye to all subscribers who have subscribed so far.
 
-### Subscriber application (bare-metal)
+### Subscriber application (untyped)
 
 How can the subscriber application get the data the publisher application just transmitted?
 
@@ -184,7 +186,7 @@ by:
 
     mySubscriber.unsubscribe();
 
-### Publisher application (simple)
+### Publisher application (typed)
 
 The simplified publisher application is an example for a high-level user API and does the same thing as the publisher
 described before. In this summary just the differences to the prior publisher application are described.
@@ -232,7 +234,7 @@ Now `allocate()` returns a `std::unique_ptr<TopicType, SampleDeleter<TopicType>>
 automatically frees the memory when going out of scope. For sening the sample the ownership must be transferred
 to the middleware with a move operation.
 
-### Subscriber application (simple)
+### Subscriber application (typed)
 
 As with the simplified publisher application there is an additional include:
 

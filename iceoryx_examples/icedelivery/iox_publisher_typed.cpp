@@ -70,7 +70,7 @@ int main()
             .and_then([&](auto& sample) {
                 auto allocation = sample.get();
                 // Do some stuff leading to eventually generating the data in the samples loaned memory...
-                new (allocation) Position(ct, ct, ct);
+                *allocation = Position(ct, ct, ct);
                 // ...then publish the sample
                 sample.publish();
             })

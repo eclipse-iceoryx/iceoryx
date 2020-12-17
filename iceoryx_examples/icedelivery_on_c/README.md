@@ -8,8 +8,8 @@ You can find a more detailled description of the C API in the [iceoryx_binding_c
 
 ## The icedelivery example
 
-The behavior and structure is identical to the [icedelivery C++ example](../icedelivery/) 
-so that we explain here only the C API differences and not the 
+The behavior and structure is identical to the [icedelivery C++ example](../icedelivery/)
+so that we explain here only the C API differences and not the
 underlying mechanisms.
 
 ### Subscriber
@@ -23,7 +23,7 @@ we again follow the steps like:
  3. Subscribe to the offered service 
  4. Receive data 
  5. Unsubscribe.
- 6. **C API: Additionally, we have to remove the previously allocated Subscriber 
+ 6. **C API: Additionally, we have to remove the previously allocated Subscriber
         port!** 
 
 Let's take a look at the `receiving` function which comes with the
@@ -34,13 +34,13 @@ Let's take a look at the `receiving` function which comes with the
     iox_runtime_init("/iox-c-subscriber");
     ```
   
- 2. We create a subscriber port and are subscribing to the service 
-    {"Radar", "FrontLeft", "Counter" }. Hereby the `historyRequest` 
-    tells the subscriber how many previously send samples it should receive 
+ 2. We create a subscriber port and are subscribing to the service
+    {"Radar", "FrontLeft", "Counter" }. Hereby the `historyRequest`
+    tells the subscriber how many previously send samples it should receive
     right after the connection is established. These are
-    samples which the publisher has send before the subscriber was 
+    samples which the publisher has send before the subscriber was
     connected.
-    The `subscriberStorage` is the place where the subscriber is stored in 
+    The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c
     uint64_t historyRequest = 0u;
@@ -54,7 +54,7 @@ Let's take a look at the `receiving` function which comes with the
      ```
 
   4. In this loop we receive samples as long the `killswitch` is not
-     set to `true` by an external signal and then print the counter 
+     set to `true` by an external signal and then print the counter
      value to the console.
      ```c
      while (!killswitch)
@@ -83,7 +83,7 @@ Let's take a look at the `receiving` function which comes with the
      iox_sub_unsubscribe(subscriber);
      ```
 
-  6. When using the C API we have to cleanup the subscriber after 
+  6. When using the C API we have to cleanup the subscriber after
      its usage.
      ```c
      iox_sub_deinit(subscriber);
@@ -95,11 +95,11 @@ The publisher is implemented in a way like in the
 
  1. Create runtime instance.
  2. Create publisher port.
- 3. Offer the service 
- 4. Send data 
+ 3. Offer the service
+ 4. Send data
  5. Stop offering the service
- 6. **C API: Additionally, we have to remove the previously allocated Publisher 
-        port!** 
+ 6. **C API: Additionally, we have to remove the previously allocated Publisher
+        port!**
 
 Let's take a look at the `sending` function which comes with the
 `ice_c_publisher.c` example.
@@ -108,7 +108,7 @@ Let's take a look at the `sending` function which comes with the
     ```c
     iox_runtime_init("/iox-c-publisher");
     ```
- 2. We create a publisher with the service 
+ 2. We create a publisher with the service
     {"Radar", "FrontLeft", "Counter"}
     ```c
     uint64_t historyRequest = 0u;

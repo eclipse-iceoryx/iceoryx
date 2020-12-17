@@ -22,43 +22,14 @@
 #include <csignal>
 #include <iostream>
 
-bool killswitch = false;
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
-    killswitch = true;
     shutdownTrigger.trigger(); // unblock waitsets
 }
 
-void subscriberHandler(iox::popo::WaitSet<>& waitSet)
-{
-    // run until interrupted
-    while (!killswitch)
-    {
-        auto triggerVector = waitSet.wait();
-        for (auto& trigger : triggerVector)
-        {
-            if (trigger.doesOriginateFrom(&shutdownTrigger))
-            {
-                return;
-            }
-            else
-            {
-                auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
-                untypedSubscriber->take()
-                    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
-                        auto position = reinterpret_cast<const Position*>(allocation->get());
-                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
-                                  << std::endl;
-                    })
-                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
-            }
-        }
-    }
-}
 
 int main()
 {
@@ -77,9 +48,31 @@ int main()
     untypedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     shutdownTrigger.attachTo(waitSet);
 
-    // delegate handling of received data to another thread
-    std::thread untypedSubscriberThread(subscriberHandler, std::ref(waitSet));
-    untypedSubscriberThread.join();
+    // run until interrupted by CTRL+C
+    while (true)
+    {
+        auto triggerVector = waitSet.wait();
+        for (auto& trigger : triggerVector)
+        {
+            if (trigger.doesOriginateFrom(&shutdownTrigger))
+            {
+                return (EXIT_SUCCESS);
+            }
+            else
+            {
+                auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+                untypedSubscriber->take()
+                    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
+                        auto position = reinterpret_cast<const Position*>(allocation->get());
+                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+                                  << std::endl;
+                    })
+                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+            }
+        }
+    }
+
 
     return (EXIT_SUCCESS);
 }

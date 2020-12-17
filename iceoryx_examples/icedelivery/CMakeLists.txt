@@ -11,7 +11,7 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
-add_executable(iox-ex-publisher-typed-modern ./iox_publisher_typed_modern.cpp)
+add_executable(iox-ex-publisher-typed-modern ./iox_publisher_typed.cpp)
 target_link_libraries(iox-ex-publisher-typed-modern
     iceoryx_posh::iceoryx_posh
 )
@@ -21,7 +21,7 @@ set_target_properties(iox-ex-publisher-typed-modern PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-ex-publisher-untyped-modern ./iox_publisher_untyped_modern.cpp)
+add_executable(iox-ex-publisher-untyped-modern ./iox_publisher_untyped.cpp)
 target_link_libraries(iox-ex-publisher-untyped-modern
     iceoryx_posh::iceoryx_posh
 )
@@ -31,7 +31,7 @@ set_target_properties(iox-ex-publisher-untyped-modern PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-ex-subscriber-typed-modern ./iox_subscriber_typed_modern.cpp)
+add_executable(iox-ex-subscriber-typed-modern ./iox_subscriber_typed.cpp)
 target_link_libraries(iox-ex-subscriber-typed-modern
     iceoryx_posh::iceoryx_posh
 )
@@ -41,7 +41,7 @@ set_target_properties(iox-ex-subscriber-typed-modern PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-ex-subscriber-untyped-modern ./iox_subscriber_untyped_modern.cpp)
+add_executable(iox-ex-subscriber-untyped-modern ./iox_subscriber_untyped.cpp)
 target_link_libraries(iox-ex-subscriber-untyped-modern
     iceoryx_posh::iceoryx_posh
 )
@@ -54,6 +54,6 @@ set_target_properties(iox-ex-subscriber-untyped-modern PROPERTIES
 # ========================================================== //
 
 install(
-    TARGETS iox-ex-publisher-untyped-modern iox-ex-publisher-typed-modern
+    TARGETS iox-ex-publisher-typed-modern iox-ex-publisher-untyped-modern iox-ex-publisher-typed-modern iox-ex-subscriber-typed-modern
     RUNTIME DESTINATION bin
 )
