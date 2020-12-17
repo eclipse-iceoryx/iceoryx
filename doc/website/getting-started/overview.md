@@ -1,12 +1,15 @@
 # Getting started with iceoryx
 
-This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the basic concepts will still apply.  
+This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the basic concepts presented here will still apply.  
 ## General
 
-To set up a collection of applications using iceoryx (an iceoryx system), the applications need to initialize a runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be received by subscribers of the same topic.
+To set up a collection of applications using iceoryx (an ``iceoryx system``), the applications need to initialize a runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be received by subscribers of the same topic.
 To enable publishers to offer their topic and subscribers to subscribe to these offered topics, the middleware daemon, called ``Roudi``, must be running. 
 
-For further information see the [examples](../iceoryx_examples/README.md) and [conceptual-guide.md](todo). We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
+For further information how iceoryx can be used see the [examples](../iceoryx_examples/README.md).
+The [conceptual-guide.md](../../conceptual-guide.md) provides additional information about the ``Shared Memory communication`` that lies at the heart of iceoryx. 
+ 
+We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
 
 ### Roudi
 
@@ -64,8 +67,7 @@ Usually these conditions correspond to the availability of data at specific subs
 To do so it manages a set of triggers which can be activated and indicate that a corresponding condition became true which in turn will wake up a potentially waiting thread. In this way it extends a condition variable to a collection of conditions. Upon waking up it can be determined which conditions became true and caused
 the wake up. In the case that the wake up event was the availability of new data, this data can now be collected at the subscriber.
 
-For more information on how to use the Waitset see [Waitset](todo_link).
-
+For more information on how to use the Waitset see [Waitset](../../../iceoryx_examples/waitset/README.md).
 
 ## API
 
@@ -78,7 +80,7 @@ We distinguish between the ``typed API`` and the ``untyped API``. In the Typed A
 The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be used sparingly.
 For further information see the respective header files.
 
-There also is a plain [C API](todo), which can be used if C++ is not an option.
+There also is a plain [C API](../../../iceoryx_examples/icedelivery_on_c/README.md), which can be used if C++ is not an option.
 
 We now describe the how to use the API in iceoryx applications. We will ommit namespaces in several places to keep the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. We also will use ``auto`` sparingly to clearly show which types are involved, but in many cases automatic type deduction is possible and can shorten the code.
 
@@ -90,7 +92,8 @@ optional<int> result = someComputation();
 ```
 we can check for its value using
 ```
-if(result.has_value()) {
+if(result.has_value())
+{
     auto value = result.value();
     //do something with the value
 } else {
@@ -125,7 +128,7 @@ result = iox::cxx::nullopt;
 ```
 
 ### Expected
-``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of no value at all, i.e. it contains either a value of type ``T`` or ``E`` (and roughly corresponds to the either monad). This is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the error type. For more information on how it is used for error handling see [error-handling.md](todo).
+``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of no value at all, i.e. it contains either a value of type ``T`` or ``E`` (and roughly corresponds to the either monad). This is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the error type. For more information on how it is used for error handling see [error-handling.md](../../design/error-handling.md).
 
 Assume we have ``E`` as an error type, then we can create a value
 ```
@@ -177,7 +180,7 @@ iox::runtime::PoshRuntime::initRuntime("/some_unique_name");
 
 Now this application is ready to communicate with the middleware daemon Roudi.
 
-## Defining a topic
+### Defining a topic
 
 We need to define a data type we can send, which can be any struct or class or even a plain type, such as an int.
 
@@ -279,7 +282,7 @@ Now we can use the publisher to send the data in various ways.
 
 #### Creating a subscriber
 
-We now create a corrsponding subscriber, usually in another application (it will work in the same application as well but there is no need sending it via the middleware in such a case).
+We now create a corresponding subscriber, usually in another application (it will work in the same application as well but there is no need sending it via the middleware in such a case).
 
 ```
 iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
@@ -292,7 +295,7 @@ We immediately subscribe here, but this can be postponed to the point were we ac
 
 #### Receiving data
 
-For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data using the [Waitset](todo). The code to recieve the data is the same, the only difference is the way we wake up before checking for data.
+For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data using the [Waitset](../../../iceoryx_examples/waitset/README.md). The code to recieve the data is the same, the only difference is the way we wake up before checking for data.
 
 ```
 while(keepRunning) {
@@ -432,13 +435,13 @@ Once we are done sending, we call ``stopOffer`` at the publisher.
 publisher.stopOffer();
 ```
 
-Similarly the subscriber can unsubscribe to stop receiving any data.
+Similarly the subscriber can ``unsubscribe`` to stop receiving any data.
 
 ```
 subscriber.unsubscribe();
 ```
 
-Both will also be called in the respective destructor if needed.
+Both will also be called in the respective destructor if needed (i.e. if the publisher is still offering or the subscriber is still subscribed).
 
 ### Running an iceoryx system
 
@@ -464,6 +467,6 @@ Full examples and instructions on how to build and run them can be found in [exa
 
 ## C API
 
-There also is a [C API]() which can be used when C++ is not available.
+The C API usage is outlined in [icedelivery_on_c](../../../iceoryx_examples/icedelivery_on_c/README.md).
 
 This API is still under much development and not fully supported yet.
