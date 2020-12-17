@@ -24,6 +24,7 @@
 
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 
 #undef private
 #undef protected
@@ -70,7 +71,7 @@ class CMqInterface_test : public Test
     }
 };
 
-const std::string ifName = "/ifName";
+const iox::ProcessName_t ifName = "ifName";
 constexpr long maxMessages = 10;
 constexpr long messageSize = 512;
 
@@ -226,6 +227,7 @@ void CMqInterface_StringCTor()
     T base(ifName, maxMessages, messageSize);
     EXPECT_THAT(base.getInterfaceName(), Eq(ifName));
 }
+
 
 ////////////////////////////////
 // UnitTests: MqBase

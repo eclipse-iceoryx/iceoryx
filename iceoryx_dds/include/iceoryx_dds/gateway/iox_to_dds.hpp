@@ -18,7 +18,7 @@
 #include "iceoryx_dds/dds/dds_types.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 
 namespace iox
 {

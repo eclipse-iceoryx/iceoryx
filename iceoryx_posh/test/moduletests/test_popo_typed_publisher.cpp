@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/typed_publisher.hpp"
+#include "iceoryx_posh/popo/typed_publisher.hpp"
 #include "mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 

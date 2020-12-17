@@ -126,6 +126,8 @@ void PortManager::doDiscovery() noexcept
     handleInterfaces();
 
     handleNodes();
+
+    handleConditionVariables();
 }
 
 void PortManager::handlePublisherPorts() noexcept
@@ -223,7 +225,7 @@ void PortManager::handleInterfaces() noexcept
         }
 
         // check if we have to destroy this interface port
-        if (interfacePortData->m_toBeDestroyed)
+        if (interfacePortData->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
             m_portPool->removeInterfacePort(interfacePortData);
             LogDebug() << "Destroyed InterfacePortData";
@@ -330,10 +332,22 @@ void PortManager::handleNodes() noexcept
 
     for (auto nodeData : m_portPool->getNodeDataList())
     {
-        if (nodeData->m_toBeDestroyed)
+        if (nodeData->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
             m_portPool->removeNodeData(nodeData);
             LogDebug() << "Destroyed NodeData";
+        }
+    }
+}
+
+void PortManager::handleConditionVariables() noexcept
+{
+    for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
+    {
+        if (conditionVariableData->m_toBeDestroyed.load(std::memory_order_relaxed))
+        {
+            m_portPool->removeConditionVariableData(conditionVariableData);
+            LogDebug() << "Destroyed ConditionVariableData";
         }
     }
 }
@@ -464,6 +478,15 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
         {
             m_portPool->removeNodeData(nodeData);
             LogDebug() << "Deleted node of application " << processName;
+        }
+    }
+
+    for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
+    {
+        if (processName == conditionVariableData->m_process)
+        {
+            m_portPool->removeConditionVariableData(conditionVariableData);
+            LogDebug() << "Deleted condition variable of application" << processName;
         }
     }
 }
@@ -657,9 +680,10 @@ runtime::NodeData* PortManager::acquireNodeData(const ProcessName_t& process, co
     }
 }
 
-cxx::expected<popo::ConditionVariableData*, PortPoolError> PortManager::acquireConditionVariableData() noexcept
+cxx::expected<popo::ConditionVariableData*, PortPoolError>
+PortManager::acquireConditionVariableData(const ProcessName_t& process) noexcept
 {
-    return m_portPool->addConditionVariableData();
+    return m_portPool->addConditionVariableData(process);
 }
 
 } // namespace roudi

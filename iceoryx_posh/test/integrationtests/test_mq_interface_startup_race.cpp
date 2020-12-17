@@ -39,7 +39,7 @@ using iox::runtime::MqRuntimeInterface;
 constexpr char DeleteRouDiMessageQueue[] = "rm /dev/mqueue/roudi";
 #endif
 
-constexpr char MqAppName[] = "/racer";
+constexpr char MqAppName[] = "racer";
 
 class StringToMessage : public MqBase
 {

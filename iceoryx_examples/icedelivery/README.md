@@ -88,7 +88,7 @@ It is included by:
 For the communication with RouDi a runtime object is created. The parameter of the method `initRuntime()` contains a
 unique string identifier for this publisher.
 
-    iox::runtime::PoshRuntime::initRuntime("/publisher-bare-metal");
+    iox::runtime::PoshRuntime::initRuntime("publisher-bare-metal");
 
 Now that RouDi knows our publisher application is exisiting, let's create a publisher instance and offer our charming struct
 to everyone:
@@ -136,7 +136,7 @@ Similar to the publisher we need to include the runtime and the subscriber as we
 
 To make RouDi aware of the subscriber an runtime object is created, once again with a unique identifier string:
 
-    iox::runtime::PoshRuntime::initRuntime("/subscriber-bare-metal");
+    iox::runtime::PoshRuntime::initRuntime("subscriber-bare-metal");
 
 In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the publisher
 offered:

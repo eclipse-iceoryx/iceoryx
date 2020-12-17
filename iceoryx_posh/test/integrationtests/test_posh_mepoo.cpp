@@ -144,10 +144,10 @@ class Mepoo_IntegrationTest : public Test
 
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
-        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("/sender");
+        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("sender");
         publisherPort.emplace(senderRuntime.getMiddlewarePublisher(m_service_description));
 
-        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("/receiver");
+        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("receiver");
         subscriberPort.emplace(receiverRuntime.getMiddlewareSubscriber(m_service_description));
     }
 

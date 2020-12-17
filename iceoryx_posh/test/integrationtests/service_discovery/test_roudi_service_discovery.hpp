@@ -15,7 +15,6 @@
 #ifndef IOX_POSH_SERVICE_DISCOVERY_TEST_ROUDI_SERVICE_DISCOVERY_HPP
 #define IOX_POSH_SERVICE_DISCOVERY_TEST_ROUDI_SERVICE_DISCOVERY_HPP
 
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "testutils/roudi_gtest.hpp"
 
 using iox::capro::IdString_t;

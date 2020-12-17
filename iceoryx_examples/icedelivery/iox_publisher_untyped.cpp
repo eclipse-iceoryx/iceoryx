@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/modern_api/publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <chrono>
@@ -35,7 +35,7 @@ int main()
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-untyped-modern");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped-modern");
 
     iox::popo::UntypedPublisher untypedPublisher({"Odometry", "Position", "Vehicle"});
     untypedPublisher.offer();

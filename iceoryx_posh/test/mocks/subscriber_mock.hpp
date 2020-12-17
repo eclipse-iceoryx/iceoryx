@@ -14,8 +14,8 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/base_subscriber.hpp"
+#include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"

@@ -16,8 +16,8 @@
 
 #include "base.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 
 class Iceoryx : public IcePerfBase
 {
