@@ -40,6 +40,23 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 }
 
 template <uint64_t Capacity>
+template <typename T, typename... Targs>
+cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                           const uint64_t eventId,
+                                                           const EventInfo::Callback<T> callback,
+                                                           const Targs&... args) noexcept
+{
+    return eventOrigin.enableEvent(*this, eventId, callback, args...);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename... Targs>
+void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
+{
+    return eventOrigin.disableEvent(args...);
+}
+
+template <uint64_t Capacity>
 inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noexcept
 {
     for (auto currentTrigger = m_triggerList.begin(); currentTrigger != m_triggerList.end(); ++currentTrigger)

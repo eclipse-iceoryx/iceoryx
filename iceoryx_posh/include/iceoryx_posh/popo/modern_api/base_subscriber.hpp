@@ -120,21 +120,9 @@ class BaseSubscriber
     ///            the error
     template <uint64_t WaitSetCapacity>
     cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const SubscriberEvent subscriberEvent,
-                                            const uint64_t eventId = EventInfo::INVALID_ID,
-                                            const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
-
-    /// @brief attaches a WaitSet to the subscriber
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
-    /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const SubscriberEvent subscriberEvent,
-                                            const EventInfo::Callback<Subscriber> callback) noexcept;
+                                            const uint64_t eventId,
+                                            const EventInfo::Callback<Subscriber> callback,
+                                            const SubscriberEvent subscriberEvent) noexcept;
 
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached

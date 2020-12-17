@@ -61,6 +61,15 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
+    template <typename T, typename... Targs>
+    cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
+                                            const uint64_t eventId,
+                                            const EventInfo::Callback<T> callback,
+                                            const Targs&... args) noexcept;
+
+    template <typename T, typename... Targs>
+    void detachEvent(T& eventOrigin, const Targs&... args) noexcept;
+
     /// @brief Acquires a trigger from the waitset  The trigger is then attached to an object, the origin,
     ///        which triggers the Trigger if a specific event happens. The object must then signal the
     ///        trigger that it was triggered via the triggerCallback. If the WaitSet goes out of scope

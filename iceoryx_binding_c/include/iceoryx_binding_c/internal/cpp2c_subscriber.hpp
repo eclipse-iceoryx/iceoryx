@@ -30,9 +30,9 @@ struct cpp2c_Subscriber
     cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) = delete;
 
     iox_WaitSetResult enableEvent(iox::popo::WaitSet<>& waitset,
-                                  const iox_SubscriberEvent event,
                                   const uint64_t eventId,
-                                  const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback = nullptr) noexcept;
+                                  const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback,
+                                  const iox_SubscriberEvent event) noexcept;
 
     void disableEvent(const iox_SubscriberEvent event) noexcept;
 

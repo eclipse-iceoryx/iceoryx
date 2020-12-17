@@ -113,7 +113,7 @@ iox_WaitSetResult iox_sub_enable_event(iox_sub_t const self,
                                        const uint64_t eventId,
                                        void (*callback)(iox_sub_t))
 {
-    return self->enableEvent(*waitset, event, eventId, callback);
+    return self->enableEvent(*waitset, eventId, callback, event);
 }
 
 void iox_sub_disable_event(iox_sub_t const self, const iox_SubscriberEvent event)
