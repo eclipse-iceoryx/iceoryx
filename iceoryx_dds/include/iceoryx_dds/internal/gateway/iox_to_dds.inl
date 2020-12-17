@@ -103,7 +103,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
     {
         subscriber->take().and_then([&channel](popo::Sample<const void>& sample) {
             auto dataWriter = channel.getExternalTerminal();
-            dataWriter->write(static_cast<const uint8_t*>(sample.get()), sample.getHeader()->m_info.m_payloadSize);
+            dataWriter->write(static_cast<const uint8_t*>(sample.get()), sample.getHeader()->m_payloadSize);
         });
     }
 }

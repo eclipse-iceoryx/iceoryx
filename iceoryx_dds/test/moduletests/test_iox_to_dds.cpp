@@ -202,7 +202,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
     // Verify expected write to the data writer
     auto mockWriter = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockWriter,
-                write(SafeMatcherCast<uint8_t*>(Pointee(Eq(42))), mockChunk.chunkHeader()->m_info.m_payloadSize))
+                write(SafeMatcherCast<uint8_t*>(Pointee(Eq(42))), mockChunk.chunkHeader()->m_payloadSize))
         .Times(1);
     stageMockDDSTerminal(std::move(mockWriter));
 

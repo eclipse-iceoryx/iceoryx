@@ -36,7 +36,7 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
     subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
         std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
-                  << sample.getHeader()->m_info.m_payloadSize << " ptr: " << std::hex << sample.getHeader()->payload()
+                  << sample.getHeader()->m_payloadSize << " ptr: " << std::hex << sample.getHeader()->payload()
                   << std::endl;
     });
 }
