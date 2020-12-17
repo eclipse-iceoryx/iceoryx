@@ -25,7 +25,7 @@ extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
 }
 
-static uint64_t trigger_vector_to_c_array(const WaitSet<>::EventInfoVector& triggerVector,
+static uint64_t event_info_vector_to_c_array(const WaitSet<>::EventInfoVector& triggerVector,
                                           iox_event_info_t* eventInfoArray,
                                           const uint64_t eventInfoArrayCapacity,
                                           uint64_t* missedElements)
@@ -43,7 +43,7 @@ static uint64_t trigger_vector_to_c_array(const WaitSet<>::EventInfoVector& trig
         eventInfoArraySize = triggerVectorSize;
     }
 
-    for (uint64_t i = 0; i < eventInfoArraySize; ++i)
+    for (uint64_t i = 0U; i < eventInfoArraySize; ++i)
     {
         eventInfoArray[i] = triggerVector[i];
     }
@@ -68,7 +68,7 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            const uint64_t eventInfoArrayCapacity,
                            uint64_t* missedElements)
 {
-    return trigger_vector_to_c_array(
+    return event_info_vector_to_c_array(
         self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
                         + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
         eventInfoArray,
@@ -81,7 +81,7 @@ uint64_t iox_ws_wait(iox_ws_t const self,
                      const uint64_t eventInfoArrayCapacity,
                      uint64_t* missedElements)
 {
-    return trigger_vector_to_c_array(self->wait(), eventInfoArray, eventInfoArrayCapacity, missedElements);
+    return event_info_vector_to_c_array(self->wait(), eventInfoArray, eventInfoArrayCapacity, missedElements);
 }
 
 uint64_t iox_ws_size(iox_ws_t const self)

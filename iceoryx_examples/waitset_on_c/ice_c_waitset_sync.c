@@ -104,18 +104,18 @@ int main()
     uint64_t numberOfTriggeredConditions = 0U;
 
     // array where all trigger from iox_ws_wait will be stored
-    iox_event_info_t triggerArray[NUMBER_OF_TRIGGER];
+    iox_event_info_t eventArray[NUMBER_OF_TRIGGER];
 
     // event loop
     while (keepRunning)
     {
-        numberOfTriggeredConditions = iox_ws_wait(waitSet, triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        numberOfTriggeredConditions = iox_ws_wait(waitSet, eventArray, NUMBER_OF_TRIGGER, &missedElements);
 
         for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
         {
-            iox_event_info_t trigger = triggerArray[i];
+            iox_event_info_t event = eventArray[i];
 
-            if (iox_event_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
+            if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
@@ -123,7 +123,7 @@ int main()
             else
             {
                 // call myCyclicRun
-                iox_event_info_call(trigger);
+                iox_event_info_call(event);
             }
         }
     }

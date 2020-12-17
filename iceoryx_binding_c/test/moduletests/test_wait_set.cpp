@@ -76,21 +76,21 @@ TEST_F(iox_ws_test, CapacityIsCorrect)
 
 TEST_F(iox_ws_test, SizeIsZeroWhenConstructed)
 {
-    EXPECT_EQ(iox_ws_size(m_sut), 0);
+    EXPECT_EQ(iox_ws_size(m_sut), 0U);
 }
 
 TEST_F(iox_ws_test, SizeIsOneWhenOneClassIsAttached)
 {
-    EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 0, NULL),
+    EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL),
               iox_WaitSetResult::WaitSetResult_SUCCESS);
-    EXPECT_EQ(iox_ws_size(m_sut), 1);
+    EXPECT_EQ(iox_ws_size(m_sut), 1U);
 }
 
 TEST_F(iox_ws_test, SizeEqualsCapacityWhenMaximumIsAttached)
 {
-    for (uint64_t i = 0; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0, NULL),
+        EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL),
                   iox_WaitSetResult::WaitSetResult_SUCCESS);
     }
     EXPECT_EQ(iox_ws_size(m_sut), iox_ws_capacity(m_sut));
@@ -98,35 +98,35 @@ TEST_F(iox_ws_test, SizeEqualsCapacityWhenMaximumIsAttached)
 
 TEST_F(iox_ws_test, SizeDecreasesWhenAttachedObjectIsDeinitialized)
 {
-    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 0, NULL);
-    iox_ws_detach_user_trigger_event(m_sut, m_userTrigger[0]);
-    EXPECT_EQ(iox_ws_size(m_sut), 0);
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
+    iox_ws_detach_user_trigger_event(m_sut, m_userTrigger[0U]);
+    EXPECT_EQ(iox_ws_size(m_sut), 0U);
 }
 
 TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsOneWhenOneWasTriggered)
 {
-    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 0, NULL);
-    iox_user_trigger_trigger(m_userTrigger[0]);
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
+    iox_user_trigger_trigger(m_userTrigger[0U]);
 
-    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements), 1);
+    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements), 1U);
 }
 
 TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsCorrectWhenMultipleWereTriggered)
 {
-    for (uint64_t i = 0; i < 10; ++i)
+    for (uint64_t i = 0U; i < 10U; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements), 10);
+    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements), 10U);
 }
 
 TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsCorrectWhenAllWereTriggered)
 {
-    for (uint64_t i = 0; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
@@ -136,22 +136,22 @@ TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsCorrectWhenAllWereTriggered)
 
 TEST_F(iox_ws_test, SingleTriggerCaseWaitReturnsCorrectTrigger)
 {
-    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 5678, NULL);
-    iox_user_trigger_trigger(m_userTrigger[0]);
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 5678U, NULL);
+    iox_user_trigger_trigger(m_userTrigger[0U]);
 
     iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
 
-    iox_event_info_t eventInfo = m_eventInfoStorage[0];
+    iox_event_info_t eventInfo = m_eventInfoStorage[0U];
 
-    EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 5678);
-    EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[0]));
+    EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 5678U);
+    EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[0U]));
 }
 
 TEST_F(iox_ws_test, MultiTriggerCaseWaitReturnsCorrectTrigger)
 {
     for (uint64_t i = 0U; i < 8; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 1337 + i, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 1337U + i, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
@@ -160,7 +160,7 @@ TEST_F(iox_ws_test, MultiTriggerCaseWaitReturnsCorrectTrigger)
     for (uint64_t i = 0U; i < 8; ++i)
     {
         iox_event_info_t eventInfo = m_eventInfoStorage[i];
-        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 1337 + i);
+        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 1337U + i);
         EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
     }
 }
@@ -169,7 +169,7 @@ TEST_F(iox_ws_test, MaxTriggerCaseWaitReturnsCorrectTrigger)
 {
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 42 * i + 1, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 42U * i + 1U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
@@ -178,39 +178,39 @@ TEST_F(iox_ws_test, MaxTriggerCaseWaitReturnsCorrectTrigger)
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
         iox_event_info_t eventInfo = m_eventInfoStorage[i];
-        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 42 * i + 1);
+        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 42U * i + 1U);
         EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
     }
 }
 
 TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsOneWhenOneWasTriggered)
 {
-    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 0, NULL);
-    iox_user_trigger_trigger(m_userTrigger[0]);
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
+    iox_user_trigger_trigger(m_userTrigger[0U]);
 
     EXPECT_EQ(
         iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements),
-        1);
+        1U);
 }
 
 TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsCorrectWhenMultipleWereTriggered)
 {
-    for (uint64_t i = 0; i < 10; ++i)
+    for (uint64_t i = 0U; i < 10U; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
     EXPECT_EQ(
         iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements),
-        10);
+        10U);
 }
 
 TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsCorrectWhenAllWereTriggered)
 {
-    for (uint64_t i = 0; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
@@ -221,31 +221,31 @@ TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsCorrectWhenAllWereTrig
 
 TEST_F(iox_ws_test, SingleTriggerCaseTimedWaitReturnsCorrectTrigger)
 {
-    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 5678, NULL);
-    iox_user_trigger_trigger(m_userTrigger[0]);
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 5678U, NULL);
+    iox_user_trigger_trigger(m_userTrigger[0U]);
 
     iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
 
-    iox_event_info_t eventInfo = m_eventInfoStorage[0];
+    iox_event_info_t eventInfo = m_eventInfoStorage[0U];
 
-    EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 5678);
-    EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[0]));
+    EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 5678U);
+    EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[0U]));
 }
 
 TEST_F(iox_ws_test, MultiTriggerCaseTimedWaitReturnsCorrectTrigger)
 {
-    for (uint64_t i = 0U; i < 8; ++i)
+    for (uint64_t i = 0U; i < 8U; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 1337 + i, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 1337U + i, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
     iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
 
-    for (uint64_t i = 0U; i < 8; ++i)
+    for (uint64_t i = 0U; i < 8U; ++i)
     {
         iox_event_info_t eventInfo = m_eventInfoStorage[i];
-        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 1337 + i);
+        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 1337U + i);
         EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
     }
 }
@@ -254,7 +254,7 @@ TEST_F(iox_ws_test, MaxTriggerCaseTimedWaitReturnsCorrectTrigger)
 {
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 42 * i + 1, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 42U * i + 1U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
@@ -263,16 +263,16 @@ TEST_F(iox_ws_test, MaxTriggerCaseTimedWaitReturnsCorrectTrigger)
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
         iox_event_info_t eventInfo = m_eventInfoStorage[i];
-        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 42 * i + 1);
+        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 42U * i + 1U);
         EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
     }
 }
 
 TEST_F(iox_ws_test, MissedElementsIsZeroWhenNothingWasMissed)
 {
-    for (uint64_t i = 0; i < 12; ++i)
+    for (uint64_t i = 0U; i < 12U; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
@@ -283,73 +283,73 @@ TEST_F(iox_ws_test, MissedElementsIsZeroWhenNothingWasMissed)
 
 TEST_F(iox_ws_test, MissedElementsIsCorrectWhenSomethingWasMissed)
 {
-    for (uint64_t i = 0; i < 12; ++i)
+    for (uint64_t i = 0U; i < 12U; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_wait(m_sut, m_eventInfoStorage, 8, &m_missedElements);
+    iox_ws_wait(m_sut, m_eventInfoStorage, 8U, &m_missedElements);
 
     EXPECT_EQ(m_missedElements, 4U);
 }
 
 TEST_F(iox_ws_test, MissedElementsIsCorrectWhenAllWereMissed)
 {
-    for (uint64_t i = 0; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0, NULL);
+        iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_wait(m_sut, m_eventInfoStorage, 0, &m_missedElements);
+    iox_ws_wait(m_sut, m_eventInfoStorage, 0U, &m_missedElements);
 
     EXPECT_EQ(m_missedElements, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
 }
 
 TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
-    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 0, NULL);
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
 
     std::atomic_bool waitWasCalled{false};
     std::thread t([&] {
-        iox_ws_wait(m_sut, NULL, 0, &m_missedElements);
+        iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     TIMING_TEST_EXPECT_FALSE(waitWasCalled.load());
 
-    iox_user_trigger_trigger(m_userTrigger[0]);
+    iox_user_trigger_trigger(m_userTrigger[0U]);
 
     t.join();
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
 });
 
 TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
-    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 0, NULL);
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
 
     std::atomic_bool waitWasCalled{false};
     std::thread t([&] {
-        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0, &m_missedElements);
+        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     TIMING_TEST_EXPECT_FALSE(waitWasCalled.load());
 
-    iox_user_trigger_trigger(m_userTrigger[0]);
+    iox_user_trigger_trigger(m_userTrigger[0U]);
 
     t.join();
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
 });
 
 TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTimeout, Repeat(5), [&] {
-    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 0, NULL);
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
 
     std::atomic_bool waitWasCalled{false};
     std::thread t([&] {
-        constexpr long hundredMsInNanoSeconds = 100000000;
-        iox_ws_timed_wait(m_sut, {0, hundredMsInNanoSeconds}, NULL, 0, &m_missedElements);
+        constexpr long hundredMsInNanoSeconds = 100000000L;
+        iox_ws_timed_wait(m_sut, {0, hundredMsInNanoSeconds}, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
     });
 

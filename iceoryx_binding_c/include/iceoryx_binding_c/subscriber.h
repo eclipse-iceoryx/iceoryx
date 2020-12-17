@@ -21,7 +21,6 @@
 
 /// @brief Subscriber handle
 typedef struct cpp2c_Subscriber* iox_sub_t;
-typedef CLASS cpp2c_WaitSet* iox_ws_t;
 
 /// @brief initialize subscriber handle in the default runtime node
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)

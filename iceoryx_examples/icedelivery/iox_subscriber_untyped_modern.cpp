@@ -37,16 +37,16 @@ void subscriberHandler(iox::popo::WaitSet<>& waitSet)
     // run until interrupted
     while (!killswitch)
     {
-        auto triggerVector = waitSet.wait();
-        for (auto& trigger : triggerVector)
+        auto eventVector = waitSet.wait();
+        for (auto& event : eventVector)
         {
-            if (trigger->doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 return;
             }
             else
             {
-                auto untypedSubscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();
+                auto untypedSubscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
                 untypedSubscriber->take()
                     .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
                         auto position = reinterpret_cast<const Position*>(allocation->get());

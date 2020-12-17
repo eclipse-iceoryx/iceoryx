@@ -53,24 +53,24 @@ int main()
     // event loop
     while (true)
     {
-        auto triggerVector = waitset.wait();
+        auto eventVector = waitset.wait();
 
-        for (auto& trigger : triggerVector)
+        for (auto& event : eventVector)
         {
-            if (trigger->doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             // process sample received by subscriber1
-            else if (trigger->doesOriginateFrom(&subscriber1))
+            else if (event->doesOriginateFrom(&subscriber1))
             {
                 subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << " subscriber 1 received: " << sample->counter << std::endl;
                 });
             }
             // dismiss sample received by subscriber2
-            if (trigger->doesOriginateFrom(&subscriber2))
+            if (event->doesOriginateFrom(&subscriber2))
             {
                 // We need to release the samples to reset the trigger hasNewSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again

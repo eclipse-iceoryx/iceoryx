@@ -49,7 +49,7 @@ class iox_event_info_test : public Test
 
     void SetUp()
     {
-        m_lastTriggerCallbackArgument = nullptr;
+        m_lastEventCallbackArgument = nullptr;
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
         m_subscriber.m_portData = &m_portPtr;
@@ -69,19 +69,19 @@ class iox_event_info_test : public Test
         SubscriberPortSingleProducer(ptr).dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     }
 
-    static void triggerCallback(UserTrigger* arg)
+    static void eventCallback(UserTrigger* arg)
     {
-        m_lastTriggerCallbackArgument = arg;
+        m_lastEventCallbackArgument = arg;
     }
 
 
-    static UserTrigger* m_lastTriggerCallbackArgument;
+    static UserTrigger* m_lastEventCallbackArgument;
     ConditionVariableData m_condVar;
     WaitSetMock m_waitSet{&m_condVar};
     UserTrigger m_userTrigger;
 
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2;
-    static constexpr uint32_t CHUNK_SIZE = 128;
+    static constexpr uint32_t CHUNK_SIZE = 128U;
     static constexpr size_t MEMORY_SIZE = 1024 * 1024 * 100;
     uint8_t m_memory[MEMORY_SIZE];
     Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
@@ -94,141 +94,141 @@ class iox_event_info_test : public Test
     iox_sub_t m_subscriberHandle = &m_subscriber;
 };
 
-UserTrigger* iox_event_info_test::m_lastTriggerCallbackArgument = nullptr;
+UserTrigger* iox_event_info_test::m_lastEventCallbackArgument = nullptr;
 
-TEST_F(iox_event_info_test, triggerStateHasCorrectId)
+TEST_F(iox_event_info_test, eventInfoHasCorrectId)
 {
-    constexpr uint64_t ARBITRARY_TRIGGER_ID = 123;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_TRIGGER_ID, nullptr);
+    constexpr uint64_t ARBITRARY_EVENT_ID = 123U;
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, nullptr);
     m_userTrigger.trigger();
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    ASSERT_THAT(triggerStateVector.size(), Eq(1));
-    EXPECT_EQ(iox_event_info_get_event_id(triggerStateVector[0]), 123);
+    ASSERT_THAT(eventInfoVector.size(), Eq(1));
+    EXPECT_EQ(iox_event_info_get_event_id(eventInfoVector[0]), 123U);
 }
 
-TEST_F(iox_event_info_test, triggerOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
+TEST_F(iox_event_info_test, eventOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
 {
-    constexpr uint64_t ARBITRARY_TRIGGER_ID = 124;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_TRIGGER_ID, nullptr);
+    constexpr uint64_t ARBITRARY_EVENT_ID = 124U;
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, nullptr);
     m_userTrigger.trigger();
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_does_originate_from_user_trigger(triggerStateVector[0], &m_userTrigger), true);
+    EXPECT_EQ(iox_event_info_does_originate_from_user_trigger(eventInfoVector[0U], &m_userTrigger), true);
 }
 
-TEST_F(iox_event_info_test, triggerOriginIsNotUserTriggerPointerWhenItsNotOriginatingFromThem)
+TEST_F(iox_event_info_test, eventOriginIsNotUserTriggerPointerWhenItsNotOriginatingFromThem)
 {
-    constexpr uint64_t CHUNK_SIZE = 100;
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587, NULL);
+    constexpr uint64_t CHUNK_SIZE = 100U;
+    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(CHUNK_SIZE));
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_does_originate_from_user_trigger(triggerStateVector[0], &m_userTrigger), false);
+    EXPECT_EQ(iox_event_info_does_originate_from_user_trigger(eventInfoVector[0U], &m_userTrigger), false);
 }
 
-TEST_F(iox_event_info_test, triggerOriginIsSubscriberPointerWhenItsOriginatingFromThem)
+TEST_F(iox_event_info_test, eventOriginIsSubscriberPointerWhenItsOriginatingFromThem)
 {
-    constexpr uint64_t CHUNK_SIZE = 100;
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587, NULL);
+    constexpr uint64_t CHUNK_SIZE = 100U;
+    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(CHUNK_SIZE));
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_does_originate_from_subscriber(triggerStateVector[0], m_subscriberHandle), true);
+    EXPECT_EQ(iox_event_info_does_originate_from_subscriber(eventInfoVector[0U], m_subscriberHandle), true);
 }
 
-TEST_F(iox_event_info_test, triggerOriginIsNotSubscriberPointerWhenItsOriginatingFromThem)
+TEST_F(iox_event_info_test, eventOriginIsNotSubscriberPointerWhenItsOriginatingFromThem)
 {
-    constexpr uint64_t ARBITRARY_TRIGGER_ID = 8921;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_TRIGGER_ID, nullptr);
+    constexpr uint64_t ARBITRARY_EVENT_ID = 8921U;
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, nullptr);
     m_userTrigger.trigger();
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_does_originate_from_subscriber(triggerStateVector[0], m_subscriberHandle), false);
+    EXPECT_EQ(iox_event_info_does_originate_from_subscriber(eventInfoVector[0U], m_subscriberHandle), false);
 }
 
 
 TEST_F(iox_event_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingFromThem)
 {
-    constexpr uint64_t ARBITRARY_TRIGGER_ID = 89121;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_TRIGGER_ID, nullptr);
+    constexpr uint64_t ARBITRARY_EVENT_ID = 89121U;
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, nullptr);
     m_userTrigger.trigger();
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_get_user_trigger_origin(triggerStateVector[0]), &m_userTrigger);
+    EXPECT_EQ(iox_event_info_get_user_trigger_origin(eventInfoVector[0U]), &m_userTrigger);
 }
 
 TEST_F(iox_event_info_test, getOriginReturnsNullptrUserTriggerWhenNotOriginatingFromThem)
 {
-    constexpr uint64_t CHUNK_SIZE = 100;
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587, NULL);
+    constexpr uint64_t CHUNK_SIZE = 100U;
+    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(CHUNK_SIZE));
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_get_user_trigger_origin(triggerStateVector[0]), nullptr);
+    EXPECT_EQ(iox_event_info_get_user_trigger_origin(eventInfoVector[0U]), nullptr);
 }
 
 
 TEST_F(iox_event_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThem)
 {
-    constexpr uint64_t CHUNK_SIZE = 100;
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587, NULL);
+    constexpr uint64_t CHUNK_SIZE = 100U;
+    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(CHUNK_SIZE));
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_get_subscriber_origin(triggerStateVector[0]), m_subscriberHandle);
+    EXPECT_EQ(iox_event_info_get_subscriber_origin(eventInfoVector[0U]), m_subscriberHandle);
 }
 
 TEST_F(iox_event_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingFromThem)
 {
-    constexpr uint64_t ARBITRARY_TRIGGER_ID = 891121;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
+    constexpr uint64_t ARBITRARY_EVENT_ID = 891121U;
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, iox_event_info_test::eventCallback);
     m_userTrigger.trigger();
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_get_subscriber_origin(triggerStateVector[0]), nullptr);
+    EXPECT_EQ(iox_event_info_get_subscriber_origin(eventInfoVector[0U]), nullptr);
 }
 
 TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
 {
-    constexpr uint64_t ARBITRARY_TRIGGER_ID = 80;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
+    constexpr uint64_t ARBITRARY_EVENT_ID = 80U;
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, iox_event_info_test::eventCallback);
     m_userTrigger.trigger();
 
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    iox_event_info_call(triggerStateVector[0]);
-    EXPECT_EQ(m_lastTriggerCallbackArgument, &m_userTrigger);
+    iox_event_info_call(eventInfoVector[0U]);
+    EXPECT_EQ(m_lastEventCallbackArgument, &m_userTrigger);
 }
 
 TEST_F(iox_event_info_test, callbackCanBeCalledMultipleTimes)
 {
-    constexpr uint64_t ARBITRARY_TRIGGER_ID = 180;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_TRIGGER_ID, iox_event_info_test::triggerCallback);
+    constexpr uint64_t ARBITRARY_EVENT_ID = 180U;
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, iox_event_info_test::eventCallback);
     m_userTrigger.trigger();
-    auto triggerStateVector = m_waitSet.wait();
+    auto eventInfoVector = m_waitSet.wait();
 
-    iox_event_info_call(triggerStateVector[0]);
-    m_lastTriggerCallbackArgument = nullptr;
-    iox_event_info_call(triggerStateVector[0]);
-    m_lastTriggerCallbackArgument = nullptr;
-    iox_event_info_call(triggerStateVector[0]);
-    m_lastTriggerCallbackArgument = nullptr;
-    iox_event_info_call(triggerStateVector[0]);
+    iox_event_info_call(eventInfoVector[0U]);
+    m_lastEventCallbackArgument = nullptr;
+    iox_event_info_call(eventInfoVector[0U]);
+    m_lastEventCallbackArgument = nullptr;
+    iox_event_info_call(eventInfoVector[0U]);
+    m_lastEventCallbackArgument = nullptr;
+    iox_event_info_call(eventInfoVector[0U]);
 
-    EXPECT_EQ(m_lastTriggerCallbackArgument, &m_userTrigger);
+    EXPECT_EQ(m_lastEventCallbackArgument, &m_userTrigger);
 }
 

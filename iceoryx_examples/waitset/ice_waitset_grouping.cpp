@@ -70,29 +70,29 @@ int main()
     // event loop
     while (true)
     {
-        auto triggerVector = waitset.wait();
+        auto eventVector = waitset.wait();
 
-        for (auto& trigger : triggerVector)
+        for (auto& event : eventVector)
         {
-            if (trigger->doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             // we print the received data for the first group
-            else if (trigger->getEventId() == FIRST_GROUP_ID)
+            else if (event->getEventId() == FIRST_GROUP_ID)
             {
-                auto subscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();
+                auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
                 subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
                     const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
                     std::cout << "received: " << std::dec << data->counter << std::endl;
                 });
             }
             // dismiss the received data for the second group
-            else if (trigger->getEventId() == SECOND_GROUP_ID)
+            else if (event->getEventId() == SECOND_GROUP_ID)
             {
                 std::cout << "dismiss data\n";
-                auto subscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();
+                auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
                 // We need to release the samples to reset the trigger hasNewSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.

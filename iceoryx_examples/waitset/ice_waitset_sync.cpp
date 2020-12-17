@@ -57,7 +57,7 @@ int main()
     // create and attach the cyclicTrigger with a callback to
     // SomeClass::myCyclicRun
     iox::popo::UserTrigger cyclicTrigger;
-    waitset.attachEvent(cyclicTrigger, 0, SomeClass::cyclicRun);
+    waitset.attachEvent(cyclicTrigger, 0U, SomeClass::cyclicRun);
 
     // start a thread which triggers cyclicTrigger every second
     std::thread cyclicTriggerThread([&] {
@@ -71,11 +71,11 @@ int main()
     // event loop
     while (keepRunning.load())
     {
-        auto triggerVector = waitset.wait();
+        auto eventVector = waitset.wait();
 
-        for (auto& trigger : triggerVector)
+        for (auto& event : eventVector)
         {
-            if (trigger->doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning.store(false);
@@ -83,7 +83,7 @@ int main()
             else
             {
                 // call SomeClass::myCyclicRun
-                (*trigger)();
+                (*event)();
             }
         }
 
