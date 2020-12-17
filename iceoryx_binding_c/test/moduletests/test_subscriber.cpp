@@ -93,7 +93,7 @@ class iox_sub_test : public Test
     std::unique_ptr<cpp2c_Subscriber> m_subscriber{new cpp2c_Subscriber};
     iox_sub_t m_sut = m_subscriber.get();
 
-    ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar{"myApp"};
     std::unique_ptr<WaitSetMock> m_waitSet{new WaitSetMock(&m_condVar)};
 };
 

@@ -191,7 +191,7 @@ TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriber
 
 TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
 {
-    iox::popo::ConditionVariableData condVar;
+    iox::popo::ConditionVariableData condVar("Horscht");
     WaitSetMock waitSet(&condVar);
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
@@ -204,7 +204,7 @@ TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
 TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
 {
     // ===== Setup ===== //
-    iox::popo::ConditionVariableData condVar;
+    iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     sut.enableEvent(*waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
@@ -217,7 +217,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
 TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFromOriginalWaitset)
 {
     // ===== Setup ===== //
-    iox::popo::ConditionVariableData condVar;
+    iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     std::unique_ptr<WaitSetMock> waitSet2{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
@@ -234,7 +234,7 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
 TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
 {
     // ===== Setup ===== //
-    iox::popo::ConditionVariableData condVar;
+    iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     sut.enableEvent(*waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);

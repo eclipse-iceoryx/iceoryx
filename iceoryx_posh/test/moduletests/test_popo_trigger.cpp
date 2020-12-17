@@ -75,7 +75,7 @@ class Trigger_test : public Test
                        TriggerClass::callback);
     }
 
-    ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar{"Horscht"};
     TriggerClass m_triggerClass;
 };
 

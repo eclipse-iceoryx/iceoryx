@@ -36,7 +36,7 @@ void subscriberCallback(iox_sub_t const subscriber)
 After we registered our runtime we create some stack storage for our WaitSet,
 initialize it and attach a `shutdownTrigger` to handle `CTRL-c`.
 ```c
-iox_runtime_init("/iox-c-ex-waitset-gateway");
+iox_runtime_init("iox-c-ex-waitset-gateway");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -119,7 +119,7 @@ date of the second group should be discarded.
 We start like in every example with creating the WaitSet and attaching the
 `shutdownTrigger`.
 ```c
-iox_runtime_init("/iox-c-ex-waitset-grouping");
+iox_runtime_init("iox-c-ex-waitset-grouping");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -229,7 +229,7 @@ at a different approach.
 
 We start as usual, by creating a WaitSet and attach the `shutdownTrigger` to it.
 ```c
-iox_runtime_init("/iox-c-ex-waitset-individual");
+iox_runtime_init("iox-c-ex-waitset-individual");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -315,7 +315,7 @@ so that the trigger can directly call the cyclic call.
 
 We begin by creating the waitset and attach the `shutdownTrigger`.
 ```c
-iox_runtime_init("/iox-c-ex-waitset-sync");
+iox_runtime_init("iox-c-ex-waitset-sync");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
