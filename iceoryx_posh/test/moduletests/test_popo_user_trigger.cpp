@@ -124,7 +124,7 @@ TEST_F(UserTrigger_test, UserTriggerGoesOutOfScopeCleansupAtWaitSet)
 {
     {
         UserTrigger sut;
-        m_waitSet.attachEvent(m_sut);
+        m_waitSet.attachEvent(sut);
     }
 
     EXPECT_EQ(m_waitSet.size(), 0);
@@ -135,8 +135,8 @@ TEST_F(UserTrigger_test, ReattachedUserTriggerCleansUpWhenOutOfScope)
     {
         UserTrigger sut;
 
-        m_waitSet.attachEvent(m_sut);
-        m_waitSet2.attachEvent(m_sut);
+        m_waitSet.attachEvent(sut);
+        m_waitSet2.attachEvent(sut);
     }
 
     EXPECT_EQ(m_waitSet.size(), 0);
@@ -169,7 +169,7 @@ TEST_F(UserTrigger_test, TriggersWaitSet)
     using namespace iox::units::duration_literals;
     UserTrigger sut;
 
-    m_waitSet.attachEvent(m_sut, 4412);
+    m_waitSet.attachEvent(sut, 4412);
     sut.trigger();
 
     auto result = m_waitSet.timedWait(1_s);
@@ -180,7 +180,7 @@ TEST_F(UserTrigger_test, TriggersWaitSet)
 TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
 {
     UserTrigger sut;
-    m_waitSet.attachEvent(m_sut);
+    m_waitSet.attachEvent(sut);
 
     m_waitSet.detachEvent(sut);
 

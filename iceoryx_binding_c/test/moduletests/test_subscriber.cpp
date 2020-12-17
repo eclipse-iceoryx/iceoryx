@@ -314,7 +314,7 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     subscriber->m_portData = &m_portPtr;
 
     iox_ws_attach_subscriber_event(
-        m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES, 0, iox_sub_test::triggerCallback);
+        m_waitSet.get(), subscriber, SubscriberEvent_HAS_SAMPLES, 0, iox_sub_test::triggerCallback);
 
     iox_sub_deinit(subscriber);
 
