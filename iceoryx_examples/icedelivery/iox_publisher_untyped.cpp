@@ -66,7 +66,8 @@ int main()
         // * Loan sample and provide logic to use it immediately via a lambda
         untypedPublisher.loan(sizeof(Position))
             .and_then([&](auto& sample) {
-                new (sample.get()) Position(ct, ct, ct);
+                auto position = static_cast<Position*>(sample.get());
+                *position = Position(ct, ct, ct);
                 sample.publish();
             })
             .or_else([&](iox::popo::AllocationError error) {

@@ -251,7 +251,7 @@ else if (trigger.getTriggerId() == FIRST_GROUP_ID)
 {
     auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
     subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
-        const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
+        const CounterTopic* data = static_cast<const CounterTopic*>(sample.get());
         std::cout << "received: " << std::dec << data->counter << std::endl;
     });
 }

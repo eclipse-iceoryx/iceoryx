@@ -62,6 +62,11 @@ int main()
             sample->z = ct;
             sample.publish();
         }
+        else
+        {
+            auto error = result.get_error();
+            // Do something with error
+        }
 
         // API Usage #2
         //  * Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
@@ -91,7 +96,7 @@ int main()
         //      write its result to.
         //
         typedPublisher.publishResultOf(getVehiclePosition, ct);
-        typedPublisher.publishResultOf([&ct](Position* position) { new (position) Position(ct, ct, ct); });
+        typedPublisher.publishResultOf([&ct](Position* position) { *position = Position(ct, ct, ct); });
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
