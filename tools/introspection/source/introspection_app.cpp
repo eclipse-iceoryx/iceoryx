@@ -607,8 +607,13 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     initTerminal();
     prettyPrint("### Iceoryx Introspection Client ###\n\n", PrettyOptions::title);
 
+    popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 1U;
+    subscriberOptions.historyRequest = 1U;
+
     // mempool
-    iox::popo::TypedSubscriber<MemPoolIntrospectionInfoContainer> memPoolSubscriber(IntrospectionMempoolService);
+    iox::popo::TypedSubscriber<MemPoolIntrospectionInfoContainer> memPoolSubscriber(IntrospectionMempoolService,
+                                                                                    subscriberOptions);
     if (introspectionSelection.mempool == true)
     {
         memPoolSubscriber.subscribe();
@@ -621,7 +626,8 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     }
 
     // process
-    iox::popo::TypedSubscriber<ProcessIntrospectionFieldTopic> processSubscriber(IntrospectionProcessService);
+    iox::popo::TypedSubscriber<ProcessIntrospectionFieldTopic> processSubscriber(IntrospectionProcessService,
+                                                                                 subscriberOptions);
     if (introspectionSelection.process == true)
     {
         processSubscriber.subscribe();
@@ -634,11 +640,11 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     }
 
     // port
-    iox::popo::TypedSubscriber<PortIntrospectionFieldTopic> portSubscriber(IntrospectionPortService);
+    iox::popo::TypedSubscriber<PortIntrospectionFieldTopic> portSubscriber(IntrospectionPortService, subscriberOptions);
     iox::popo::TypedSubscriber<PortThroughputIntrospectionFieldTopic> portThroughputSubscriber(
-        IntrospectionPortThroughputService);
+        IntrospectionPortThroughputService, subscriberOptions);
     iox::popo::TypedSubscriber<SubscriberPortChangingIntrospectionFieldTopic> subscriberPortChangingDataSubscriber(
-        IntrospectionSubscriberPortChangingDataService);
+        IntrospectionSubscriberPortChangingDataService, subscriberOptions);
 
     if (introspectionSelection.port == true)
     {
