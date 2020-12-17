@@ -127,7 +127,7 @@ TEST_F(UserTrigger_test, UserTriggerGoesOutOfScopeCleansupAtWaitSet)
         m_waitSet.attachEvent(sut);
     }
 
-    EXPECT_EQ(m_waitSet.size(), 0);
+    EXPECT_EQ(m_waitSet.size(), 0U);
 }
 
 TEST_F(UserTrigger_test, ReattachedUserTriggerCleansUpWhenOutOfScope)
@@ -139,8 +139,8 @@ TEST_F(UserTrigger_test, ReattachedUserTriggerCleansUpWhenOutOfScope)
         m_waitSet2.attachEvent(sut);
     }
 
-    EXPECT_EQ(m_waitSet.size(), 0);
-    EXPECT_EQ(m_waitSet2.size(), 0);
+    EXPECT_EQ(m_waitSet.size(), 0U);
+    EXPECT_EQ(m_waitSet2.size(), 0U);
 }
 
 TEST_F(UserTrigger_test, AttachingToAnotherWaitSetCleansupFirstWaitset)
@@ -150,8 +150,8 @@ TEST_F(UserTrigger_test, AttachingToAnotherWaitSetCleansupFirstWaitset)
     m_waitSet.attachEvent(m_sut);
     m_waitSet2.attachEvent(m_sut);
 
-    EXPECT_EQ(m_waitSet.size(), 0);
-    EXPECT_EQ(m_waitSet2.size(), 1);
+    EXPECT_EQ(m_waitSet.size(), 0U);
+    EXPECT_EQ(m_waitSet2.size(), 1U);
 }
 
 TEST_F(UserTrigger_test, AttachingToSameWaitsetTwiceLeadsToOneAttachment)
@@ -161,7 +161,7 @@ TEST_F(UserTrigger_test, AttachingToSameWaitsetTwiceLeadsToOneAttachment)
     m_waitSet.attachEvent(m_sut);
     m_waitSet.attachEvent(m_sut);
 
-    EXPECT_EQ(m_waitSet.size(), 1);
+    EXPECT_EQ(m_waitSet.size(), 1U);
 }
 
 TEST_F(UserTrigger_test, TriggersWaitSet)
@@ -169,12 +169,12 @@ TEST_F(UserTrigger_test, TriggersWaitSet)
     using namespace iox::units::duration_literals;
     UserTrigger sut;
 
-    m_waitSet.attachEvent(sut, 4412);
+    m_waitSet.attachEvent(sut, 4412U);
     sut.trigger();
 
     auto result = m_waitSet.timedWait(1_s);
-    ASSERT_THAT(result.size(), Eq(1));
-    EXPECT_THAT(result[0]->getEventId(), 4412);
+    ASSERT_THAT(result.size(), Eq(1U));
+    EXPECT_THAT(result[0U]->getEventId(), 4412U);
 }
 
 TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
@@ -184,32 +184,32 @@ TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
 
     m_waitSet.detachEvent(sut);
 
-    EXPECT_EQ(m_waitSet.size(), 0);
+    EXPECT_EQ(m_waitSet.size(), 0U);
 }
 
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 {
     UserTrigger sut;
-    m_waitSet.attachEvent(sut, 123, UserTrigger_test::callback);
+    m_waitSet.attachEvent(sut, 123U, UserTrigger_test::callback);
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();
 
     ASSERT_THAT(triggerInfoVector.size(), Eq(1));
-    (*triggerInfoVector[0])();
+    (*triggerInfoVector[0U])();
     EXPECT_THAT(m_callbackOrigin, &sut);
 }
 
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
 {
     UserTrigger sut;
-    m_waitSet.attachEvent(sut, 0, UserTrigger_test::callback);
+    m_waitSet.attachEvent(sut, 0U, UserTrigger_test::callback);
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();
 
-    ASSERT_THAT(triggerInfoVector.size(), Eq(1));
-    (*triggerInfoVector[0])();
+    ASSERT_THAT(triggerInfoVector.size(), Eq(1U));
+    (*triggerInfoVector[0U])();
     EXPECT_THAT(m_callbackOrigin, &sut);
 }
 

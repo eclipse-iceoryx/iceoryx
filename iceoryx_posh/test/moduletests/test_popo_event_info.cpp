@@ -26,15 +26,15 @@ using namespace ::testing;
 class EventInfo_test : public Test
 {
   public:
-    class TriggerOriginTest
+    class EventOriginTest
     {
       public:
-        static void callback(TriggerOriginTest* const origin)
+        static void callback(EventOriginTest* const origin)
         {
             origin->m_callbackOrigin = origin;
         }
 
-        TriggerOriginTest* m_callbackOrigin = nullptr;
+        EventOriginTest* m_callbackOrigin = nullptr;
     };
 
     EventInfo_test()
@@ -45,9 +45,9 @@ class EventInfo_test : public Test
     {
     }
 
-    TriggerOriginTest m_origin;
-    TriggerOriginTest m_falseOrigin;
-    EventInfo m_sut{&m_origin, 1478, TriggerOriginTest::callback};
+    EventOriginTest m_origin;
+    EventOriginTest m_falseOrigin;
+    EventInfo m_sut{&m_origin, 1478U, EventOriginTest::callback};
 };
 
 TEST_F(EventInfo_test, defaultCTorConstructsEmptyEventInfo)
@@ -62,7 +62,7 @@ TEST_F(EventInfo_test, defaultCTorConstructsEmptyEventInfo)
 
 TEST_F(EventInfo_test, getEventIdReturnsValidEventId)
 {
-    EXPECT_EQ(m_sut.getEventId(), 1478);
+    EXPECT_EQ(m_sut.getEventId(), 1478U);
 }
 
 TEST_F(EventInfo_test, doesOriginateFromStatesOriginCorrectly)
@@ -73,12 +73,12 @@ TEST_F(EventInfo_test, doesOriginateFromStatesOriginCorrectly)
 
 TEST_F(EventInfo_test, getOriginReturnsCorrectOriginWhenHavingCorrectType)
 {
-    EXPECT_EQ(m_sut.getOrigin<TriggerOriginTest>(), &m_origin);
+    EXPECT_EQ(m_sut.getOrigin<EventOriginTest>(), &m_origin);
 }
 
 TEST_F(EventInfo_test, constGetOriginReturnsCorrectOriginWhenHavingCorrectType)
 {
-    EXPECT_EQ(const_cast<const EventInfo&>(m_sut).getOrigin<TriggerOriginTest>(), &m_origin);
+    EXPECT_EQ(const_cast<const EventInfo&>(m_sut).getOrigin<EventOriginTest>(), &m_origin);
 }
 
 TEST_F(EventInfo_test, getOriginReturnsNullptrWithWrongType)
@@ -121,6 +121,6 @@ TEST_F(EventInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallb
 
 TEST_F(EventInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
 {
-    m_sut = EventInfo{&m_origin, 9, EventInfo::Callback<TriggerOriginTest>()};
+    m_sut = EventInfo{&m_origin, 9U, EventInfo::Callback<EventOriginTest>()};
     EXPECT_FALSE(m_sut());
 }
