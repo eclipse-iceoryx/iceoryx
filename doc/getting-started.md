@@ -43,14 +43,13 @@ A topic in iceoryx specifies some kind of data and is uniquely indetified by thr
 3. ``Topic`` name
 
 A triple consisting of such strings is called a ``Service Description``.
+In Autosar terminology these three identifiers are called ``Service``, ``Instance`` and ``Event`` respectively.
 
 Two topics are considered matching if all these three strings are element-wise equal, i.e. group, instance and topic names are the same for both of them.
 
 This means the group and instance identifier can be ignored to create different topics. They will be needed for advanced filtering functionality in the future.
 
-The data type of the topic can be an arbitrary C++ class or struct (which supports copy behavior).
-
-TODO: Add Autosar terminology mapping.
+The data type of the topic can be an arbitrary C++ class, struct or plain old data type.
 
 ### Publisher
 A publisher is tied to a topic and needs a Service Description to be constructed. If it is typed one needs to additionally specify the data type
@@ -177,7 +176,7 @@ There are more convenience functions such as ``value_or`` which provides the val
 Armed with the terminology and functional concepts, we can start to use the API to send and receive data. This involves settting up the runtime in each application, creating publishers in applications that need to send data and subscribers in applications that want to receive said data.
 An application can have both, publishers and subscribers. It can even send data to itself, but this usually makes little sense.
 
-### Initializing the runtime
+### Initialize the runtime
 
 Create a runtime with a unique name among all applications for each application
 
@@ -185,7 +184,7 @@ Create a runtime with a unique name among all applications for each application
 iox::runtime::PoshRuntime::initRuntime("/some_unique_name");
 ```
 
-No this application is ready to communicate with the middleware daemon Roudi.
+Now this application is ready to communicate with the middleware daemon Roudi.
 
 ## Define a topic
 
@@ -194,23 +193,173 @@ We need to define a data type we can send, which can be any struct or class or e
 ```
 struct CounterTopic
 {
+    CounterTopic(uint32_t counter = 0U) : counter(counter) {}
+
     uint32_t counter;
 };
 ```
 
 The topic type must be default- and copy-constructible when the typed API is used. Using the untyped API imposes no such restriction, it just has to be possible to construct the data type at a given memory location.
 
+### Typed API
 
-### Creating a publisher
-
-
-### Sending data
-
-### Creating a subscriber
+We now demonstrate how to send and receive data with the typed API. 
 
 
-### receiving data
+#### Creating a publisher
 
+We create a publisher that offers our CounterTopic.
+
+```
+iox::popo::TypedPublisher<CounterTopic> publisher({"Group", "Instance", "CounterTopic"});
+typedPublisher.offer();
+```
+
+Note that it suffices to set the first two identifiers (Group and Instance) to some default values for all topics.
+#### Sending data
+
+Now we can use the publisher to send the data in various ways.
+
+1. Loan and assign
+
+    ```
+    auto result = publisher.loan();
+    if (!result.has_error())
+    {
+        auto& sample = result.value();
+        sample->counter = 73;
+        sample.publish();
+    } else 
+    {
+        //handle the error
+    }
+    ```
+
+    Here result is an ``expected`` and hence we may get an error which we may have to handle.
+    This can happen if we try to loan to many samples and exhaust memory.
+
+    If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value we want to send.
+    It is important to note that in the untyped case we get a default constructed topic and such an access is legal.
+
+    Once we are done constructing and preparing the data we publish it, causing it to be delivered to any subscriber which is currently subscribed to the topic.
+
+
+2. Functional approach with loaning
+
+    ```
+    publisher.loan()
+            .and_then([&](auto& sample) { 
+                auto ptr = sample.get();
+                *ptr = CounterTopic(73);
+                sample.publish();
+            })
+            .or_else([](iox::popo::AllocationError) {
+                /* handle the error */
+            });
+    ```
+
+    We try to loan a sample from the publisher and if successful get the underlying pointer ``ptr`` to our topic and if successful assign it a new value. Note that ``ptr`` points to an already default constructed sample, so we cannot treat it as uninitialized memory and therefore must assign the data to send.
+
+    If you are only using a simple data type which does not rely on RAII, you can also use the pointer to construct the data via emplacement new instead.
+
+    ```
+    new (ptr) CounterTopic(73);
+    ```
+
+3. Publish by copy
+
+    ```
+    CounterTopic counter(73);
+    publisher.publishCopyOf(counter);
+    ```
+    This copies the constructed ``counter`` object and hence should mostly be used for small data.
+
+4. Publish the result of a computation
+
+    ```
+    auto myComputation = [](CounterTopic *data) { *data = CounterTopic(73); };
+    auto result = publisher.publishResultOf(myComputation);
+    if(result.has_error()) {
+        //handle the error
+    }
+    ```
+
+    This can be used if we want to set the data by some callable (i.e. lambda, function or functor). As with all the other ways, it can fail when there is no memory for the sample availabe and this failure must be handled.
+
+#### Creating a subscriber
+
+We now create a corrsponding subscriber, usually in another application (it will work in the same application as well but there is no need sending it via the middleware in such a case).
+
+```
+iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
+subscriber.subscribe();
+```
+
+The template data type and the three string identifiers have to match those of the publisher, in other words the service descriptions have to be the same (otherwise we will not receive data from our publisher).
+
+We immediately subscribe here, but this can be postponed to the point were we actually want to receive data.
+
+#### Receiving data
+
+For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data using the [Waitset](todo). The code to recieve the data is the same, the only difference is the way we wake up before checking for data.
+
+```
+while(keepRunning) {
+    //wait for new data (either sleep and wake up periodically or by notification from the waitset)
+
+    subscriber->take()
+        .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+            CounterTopic* ptr = sample.get();
+            /* process the received data using the ptr */
+
+            /* alternatively use operator-> */
+            uint32_t counter = sample->counter;           
+        })
+        .if_empty([] { /* no data received but also no error */ })
+        .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
+}
+```
+
+By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>``. Since this may fail, we handle a potential error in the ``or_else`` branch. If we wake up periodically, it is also possible that no data is received and if we want to handle this we can optionally do so in the ``if_empty`` branch. 
+
+The usual case is that we actually receive data, and we process it in the ``and_then``. Notice that in the lambda we do not pass a ``CounterTopic`` directly but a reference to a ``iox::popo::Sample<const CounterTopic>&``. We can access the underlying ``CounterTopic`` either by getting a pointer to it via ``get`` or by using ``operator->``. 
+In any case, we now can process or copy the received data and once the ``sample`` goes out of scope, the underlying ``CounterTopic`` object is deleted as well (this happens when the temporary object returned by ``take`` is destroyed).
+This means it is only safe to hold references to the data as long as the ``sample`` exists. Should we need a longer lifetime, we have to copy or move the data from the ``sample``.
+
+This only allows us to get one sample at a time. Should we want to get all currently available samples we can do so by using an additional loop.
+
+```
+while(keepRunning) {
+    while(subscriber.hasNewSamples()) {
+        subscriber->take()
+            .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                CounterTopic* ptr = sample.get();
+                /* process the received data using the ptr */
+
+                /* alternatively use operator-> */
+                uint32_t counter = sample->counter;           
+            })
+            .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
+    }
+    // wait for new samples (either sleep or use the waitset)
+}
+```
+Here we do not check whether we actually have data since we already know there is data available by calling ``hasNewSamples``.
+
+### Untyped API
+
+#### Creating a publisher
+
+
+#### Sending data
+
+#### Creating a subscriber
+
+
+#### Receiving data
+
+
+### Shutdown
 
 ## Examples
 
