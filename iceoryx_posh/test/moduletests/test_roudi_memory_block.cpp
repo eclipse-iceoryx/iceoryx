@@ -15,6 +15,7 @@
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 #include "mocks/roudi_memory_provider_mock.hpp"
+#include "mocks/roudi_memory_block_mock.hpp"
 
 #include "test.hpp"
 
@@ -22,7 +23,7 @@ using namespace ::testing;
 
 using namespace iox::roudi;
 
-class MemoryBlockTestImpl final : public MemoryBlock
+/*class MemoryBlockTestImpl final : public MemoryBlock
 {
   public:
     uint64_t size() const noexcept override
@@ -41,20 +42,27 @@ class MemoryBlockTestImpl final : public MemoryBlock
 
     static constexpr uint64_t MEMORY_SIZE = 1;
     static constexpr uint64_t MEMORY_ALIGNMENT = 1;
-};
+
+};*/
 
 class MemoryBlock_Test : public Test
 {
   public:
     void SetUp() override
     {
+        EXPECT_CALL(sut, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
+        EXPECT_CALL(sut, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
+        //EXPECT_CALL(sut, destroyMock());
     }
 
     void TearDown() override
     {
     }
 
-    MemoryBlockTestImpl sut;
+    static constexpr uint64_t MEMORY_SIZE = 1;
+    static constexpr uint64_t MEMORY_ALIGNMENT = 1;
+
+    MemoryBlockMock sut;
     MemoryProviderTestImpl memoryProvider;
 };
 
