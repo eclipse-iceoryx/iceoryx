@@ -15,7 +15,7 @@
 #ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
+#include "iceoryx_posh/popo/base_subscriber.hpp"
 
 namespace iox
 {
@@ -52,6 +52,6 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/modern_api/typed_subscriber.inl"
+#include "iceoryx_posh/internal/popo/typed_subscriber.inl"
 
 #endif // IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
