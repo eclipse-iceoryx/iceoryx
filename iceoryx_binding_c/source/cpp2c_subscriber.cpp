@@ -35,7 +35,7 @@ cpp2c_Subscriber::enableEvent(iox::popo::WaitSet<>& waitset,
 
     return waitset
         .acquireTriggerHandle(this,
-                              {*this, &cpp2c_Subscriber::hasNewSamples},
+                              {*this, &cpp2c_Subscriber::hasSamples},
                               {*this, &cpp2c_Subscriber::invalidateTrigger},
                               eventId,
                               callback)
@@ -61,7 +61,7 @@ void cpp2c_Subscriber::invalidateTrigger(const uint64_t uniqueTriggerId) noexcep
     }
 }
 
-bool cpp2c_Subscriber::hasNewSamples() const noexcept
+bool cpp2c_Subscriber::hasSamples() const noexcept
 {
     return iox::popo::SubscriberPortUser(m_portData).hasNewChunks();
 }

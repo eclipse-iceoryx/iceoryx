@@ -39,7 +39,7 @@ struct cpp2c_Subscriber
 
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
-    bool hasNewSamples() const noexcept;
+    bool hasSamples() const noexcept;
 
 
     iox::popo::SubscriberPortData* m_portData{nullptr};

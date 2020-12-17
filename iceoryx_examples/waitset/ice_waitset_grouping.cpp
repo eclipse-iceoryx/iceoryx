@@ -93,7 +93,7 @@ int main()
             {
                 std::cout << "dismiss data\n";
                 auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
-                // We need to release the samples to reset the trigger hasNewSamples
+                // We need to release the samples to reset the trigger hasSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.
                 subscriber->releaseQueuedSamples();

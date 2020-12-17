@@ -104,7 +104,7 @@ int main()
             // dismiss sample received by subscriber2
             else if (iox_event_info_does_originate_from_subscriber(event, subscriber[1]))
             {
-                // We need to release the samples to reset the event hasNewSamples
+                // We need to release the samples to reset the event hasSamples
                 // otherwise the WaitSet would notify us in `iox_ws_wait()` again
                 // instantly.
                 iox_sub_release_queued_chunks(subscriber[1U]);
