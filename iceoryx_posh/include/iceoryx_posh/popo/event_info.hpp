@@ -27,7 +27,7 @@ namespace iox
 namespace popo
 {
 /// @brief EventInfo holds the state of a trigger like the pointer to the triggerOrigin,
-///        the trigger id and the callback.
+///        the event id and the callback.
 class EventInfo
 {
   public:
@@ -40,13 +40,13 @@ class EventInfo
     virtual ~EventInfo() = default;
 
     /// @brief constructs a EventInfo object
-    /// @param[in] eventOrigin the eventOrigin of the EventInfo
+    /// @param[in] eventOrigin the origin of the event
     /// @param[in] eventId id of the event
     /// @param[in] callback the callback of the event
     template <typename T>
     EventInfo(T* const eventOrigin, const uint64_t eventId, const Callback<T> callback) noexcept;
 
-    /// @brief returns the trigger id
+    /// @brief returns the event id
     /// @return the empty EventInfo always returns INVALID_ID, otherwise the actual eventId is returned
     /// which can also be INVALID_ID
     uint64_t getEventId() const noexcept;
@@ -61,7 +61,7 @@ class EventInfo
     /// @brief returns the pointer to the eventOrigin.
     /// @return If T equals the Triggerable type it returns the eventOrigin.
     /// Otherwise it calls the errorHandler with a moderate error of
-    /// kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
+    /// kPOPO__EVENT_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
     template <typename T>
     T* getOrigin() const noexcept;
 

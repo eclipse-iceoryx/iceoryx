@@ -49,7 +49,7 @@ class Trigger
     /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
     /// empty callback is set the trigger is in a defined but invalid state.
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
-    /// @param[in] eventId id of the trigger
+    /// @param[in] eventId id of the corresponding event
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
     Trigger(T* const origin,

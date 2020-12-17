@@ -122,7 +122,7 @@ class BaseSubscriber
     /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
     /// @param[in] subscriberEvent the event which should be attached
     /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
-    ///            identify a trigger uniquely or to group multiple triggers together when they share the same eventId
+    ///            identify an event uniquely or to group multiple events together when they share the same eventId
     /// @param[in] callback callback which is attached to the trigger and which can be called
     ///            later by the user
     /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes

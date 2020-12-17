@@ -50,7 +50,7 @@ inline T* EventInfo::getOrigin() const noexcept
 {
     if (m_eventOriginTypeHash != typeid(T).hash_code())
     {
-        errorHandler(Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
+        errorHandler(Error::kPOPO__EVENT_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
         return nullptr;
     }
 

@@ -54,9 +54,9 @@ class UserTrigger
 
     /// @brief enables the trigger event
     /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] eventId optional parameter, the id of the trigger
-    /// @param[in] callback optional parameter, the callback of the trigger
-    /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
+    /// @param[in] eventId optional parameter, the id of the corresponding event
+    /// @param[in] callback optional parameter, the callback of the event
+    /// @return if the event could not be attached to the given waitset the expected contains the error, otherwise
     /// the expected signals success
     template <uint64_t WaitSetCapacity>
     cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
@@ -65,8 +65,8 @@ class UserTrigger
 
     /// @brief enables the trigger event
     /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] callback optional parameter, the callback of the trigger
-    /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
+    /// @param[in] callback optional parameter, the callback of the event
+    /// @return if the event could not be attached to the given waitset the expected contains the error, otherwise
     /// the expected signals success
     template <uint64_t WaitSetCapacity>
     cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,

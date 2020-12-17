@@ -94,7 +94,7 @@ TEST_F(EventInfo_test, getOriginReturnsNullptrWithWrongType)
     m_sut.getOrigin<int>();
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+    EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__EVENT_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(EventInfo_test, constGetOriginReturnsNullptrWithWrongType)
@@ -110,7 +110,7 @@ TEST_F(EventInfo_test, constGetOriginReturnsNullptrWithWrongType)
     const_cast<EventInfo&>(m_sut).getOrigin<int>();
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+    EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__EVENT_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(EventInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)

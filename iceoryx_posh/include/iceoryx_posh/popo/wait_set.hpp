@@ -42,8 +42,8 @@ enum class WaitSetError : uint8_t
 /// The WaitSet stores Triggers and allows the user to wait till one or more of those Triggers are triggered. It works
 /// over process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it
 /// with the destructor. Hence the lifetime of the condition variable is bound to the lifetime of the WaitSet.
-/// @param[in] Capacity the trigger capacity of the wait set
-template <uint64_t Capacity = MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>
+/// @param[in] Capacity the amount of events which can be attached to the waitset
+template <uint64_t Capacity = MAX_NUMBER_OF_EVENTS_PER_WAITSET>
 class WaitSet
 {
   public:

@@ -123,8 +123,8 @@ TEST_F(WaitSet_test, AcquireMultipleTriggerIsSuccessful)
 
 TEST_F(WaitSet_test, AcquireMaximumAllowedTriggersIsSuccessful)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         trigger.emplace_back(acquireTriggerHandle(m_sut, 1 + i));
         EXPECT_FALSE(trigger.back()->has_error());
@@ -133,8 +133,8 @@ TEST_F(WaitSet_test, AcquireMaximumAllowedTriggersIsSuccessful)
 
 TEST_F(WaitSet_test, AcquireMaximumAllowedPlusOneTriggerFails)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         trigger.emplace_back(acquireTriggerHandle(m_sut, 5 + i));
     }
@@ -174,8 +174,8 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
 
 TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET - 1; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET - 1; ++i)
     {
         trigger.emplace_back(acquireTriggerHandle(m_sut, 100 + i));
     }
@@ -194,8 +194,8 @@ TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
 
 TEST_F(WaitSet_test, MultipleTimerRemovingThemselfFromWaitsetWhenGoingOutOfScope)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET - 3; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET - 3; ++i)
     {
         trigger.emplace_back(acquireTriggerHandle(m_sut, 100 + i));
     }
@@ -220,8 +220,8 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 {
     std::atomic_bool doStartWaiting{false};
     std::atomic_bool isThreadFinished{false};
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         trigger.emplace_back(acquireTriggerHandle(m_sut, i + 5));
     }
@@ -252,8 +252,8 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 
 TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         trigger.emplace_back(acquireTriggerHandle(m_sut, i + 5));
     }
@@ -268,8 +268,8 @@ TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
                                          const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         trigger.emplace_back(test->acquireTriggerHandle(test->m_sut, i + 5));
     }
@@ -297,8 +297,8 @@ TEST_F(WaitSet_test, TimedWaitReturnsTheOneTriggeredCondition)
 void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
     WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         trigger.emplace_back(test->acquireTriggerHandle(test->m_sut, 100 + i));
     }
@@ -331,19 +331,19 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenMultipleAreTrigger
 void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
                                                          const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         trigger.emplace_back(test->acquireTriggerHandle(test->m_sut, i * 3 + 2));
     }
 
-    test->m_returnTrueCounter = iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET;
+    test->m_returnTrueCounter = iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET;
     trigger.front()->value().trigger();
 
     auto triggerVector = waitCall();
-    ASSERT_THAT(triggerVector.size(), Eq(iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET));
+    ASSERT_THAT(triggerVector.size(), Eq(iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET));
 
-    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         EXPECT_THAT(triggerVector[i]->getEventId(), i * 3 + 2);
         EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(test));
@@ -402,7 +402,7 @@ TEST_F(WaitSet_test, InitialWaitSetHasSizeZero)
 
 TEST_F(WaitSet_test, WaitSetCapacity)
 {
-    EXPECT_EQ(m_sut.capacity(), iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
+    EXPECT_EQ(m_sut.capacity(), iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET);
 }
 
 TEST_F(WaitSet_test, OneAcquireTriggerIncreasesSizeByOne)

@@ -62,7 +62,7 @@ int main()
     shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
+    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
@@ -77,7 +77,7 @@ int main()
         iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
 
         iox_sub_subscribe(subscriber, 256);
-        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1, subscriberCallback);
+        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);
     }
 
 

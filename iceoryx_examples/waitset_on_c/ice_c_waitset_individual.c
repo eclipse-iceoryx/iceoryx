@@ -48,7 +48,7 @@ int main()
     shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
+    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
@@ -59,14 +59,14 @@ int main()
 
     // create two subscribers, subscribe to the service and attach them to the waitset
     uint64_t historyRequest = 1U;
-    subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", historyRequest);
-    subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", historyRequest);
+    subscriber[0] = iox_sub_init(&(subscriberStorage[0U]), "Radar", "FrontLeft", "Counter", historyRequest);
+    subscriber[1] = iox_sub_init(&(subscriberStorage[1U]), "Radar", "FrontLeft", "Counter", historyRequest);
 
     iox_sub_subscribe(subscriber[0], 256);
     iox_sub_subscribe(subscriber[1], 256);
 
-    iox_ws_attach_subscriber_event(waitSet, subscriber[0], SubscriberEvent_HAS_SAMPLES, 0, NULL);
-    iox_ws_attach_subscriber_event(waitSet, subscriber[1], SubscriberEvent_HAS_SAMPLES, 0, NULL);
+    iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
+    iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
 
 
     uint64_t missedElements = 0U;
@@ -91,14 +91,14 @@ int main()
                 keepRunning = false;
             }
             // process sample received by subscriber1
-            else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0]))
+            else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0U]))
             {
                 const void* chunk;
-                if (iox_sub_get_chunk(subscriber[0], &chunk))
+                if (iox_sub_get_chunk(subscriber[0U], &chunk))
                 {
                     printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
 
-                    iox_sub_release_chunk(subscriber[0], chunk);
+                    iox_sub_release_chunk(subscriber[0U], chunk);
                 }
             }
             // dismiss sample received by subscriber2
@@ -107,7 +107,7 @@ int main()
                 // We need to release the samples to reset the event hasNewSamples
                 // otherwise the WaitSet would notify us in `iox_ws_wait()` again
                 // instantly.
-                iox_sub_release_queued_chunks(subscriber[1]);
+                iox_sub_release_queued_chunks(subscriber[1U]);
                 printf("subscriber 2 received something - dont care\n");
             }
         }
