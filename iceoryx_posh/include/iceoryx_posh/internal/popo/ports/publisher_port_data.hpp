@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 
 #include <atomic>
@@ -36,7 +37,8 @@ struct PublisherPortData : public BasePortData
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
                       const ProcessName_t& processName,
                       mepoo::MemoryManager* const memoryManager,
-                      const PublisherOptions& publisherOptions = PublisherOptions()) noexcept;
+                      const PublisherOptions& publisherOptions = PublisherOptions(),
+                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     using ChunkQueueData_t = SubscriberPortData::ChunkQueueData_t;
     using ChunkDistributorData_t =

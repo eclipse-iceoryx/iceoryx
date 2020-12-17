@@ -107,7 +107,7 @@ class iox_pub_test : public Test
     PublisherPortData m_publisherPortData{ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager};
 
     // publisher port w/ history
-    PublisherOptions m_publisherOptions{MAX_PUBLISHER_HISTORY, mepoo::MemoryInfo()};
+    PublisherOptions m_publisherOptions{MAX_PUBLISHER_HISTORY};
     PublisherPortData m_publisherPortDataHistory{
         capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_publisherOptions};
     cpp2c_Publisher m_sut;

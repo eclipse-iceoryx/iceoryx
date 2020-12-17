@@ -78,7 +78,7 @@ class PublisherPort_test : public Test
     iox::popo::PublisherPortUser m_sutUserSide{&m_publisherPortData};
 
     // publisher port w/ history
-    iox::popo::PublisherOptions m_publisherPortOptions{iox::MAX_PUBLISHER_HISTORY, iox::mepoo::MemoryInfo()};
+    iox::popo::PublisherOptions m_publisherPortOptions{iox::MAX_PUBLISHER_HISTORY};
     iox::popo::PublisherPortData m_publisherPortDataHistory{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_publisherPortOptions};
     iox::popo::PublisherPortUser m_sutWithHistoryUseriSide{&m_publisherPortDataHistory};

@@ -596,8 +596,9 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
     }
 
     // we can create a new port
-    auto options = popo::PublisherOptions{historyCapacity, portConfigInfo.memoryInfo};
-    auto maybePublisherPortData = m_portPool->addPublisherPort(service, payloadMemoryManager, processName, options);
+    auto options = popo::PublisherOptions{historyCapacity};
+    auto maybePublisherPortData =
+        m_portPool->addPublisherPort(service, payloadMemoryManager, processName, options, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
         m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, node);

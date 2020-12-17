@@ -146,12 +146,13 @@ cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
                            mepoo::MemoryManager* const memoryManager,
                            const ProcessName_t& applicationName,
-                           const popo::PublisherOptions& publisherOptions) noexcept
+                           const popo::PublisherOptions& publisherOptions,
+                           const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     if (m_portPoolData->m_publisherPortMembers.hasFreeSpace())
     {
         auto publisherPortData = m_portPoolData->m_publisherPortMembers.insert(
-            serviceDescription, applicationName, memoryManager, publisherOptions);
+            serviceDescription, applicationName, memoryManager, publisherOptions, memoryInfo);
         return cxx::success<PublisherPortRouDiType::MemberType_t*>(publisherPortData);
     }
     else

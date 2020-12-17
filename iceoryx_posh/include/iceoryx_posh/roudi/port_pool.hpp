@@ -67,7 +67,8 @@ class PortPool
     addPublisherPort(const capro::ServiceDescription& serviceDescription,
                      mepoo::MemoryManager* const memoryManager,
                      const ProcessName_t& applicationName,
-                     const popo::PublisherOptions& publisherOptions = popo::PublisherOptions()) noexcept;
+                     const popo::PublisherOptions& publisherOptions = popo::PublisherOptions(),
+                     const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     addSubscriberPort(const capro::ServiceDescription& serviceDescription,

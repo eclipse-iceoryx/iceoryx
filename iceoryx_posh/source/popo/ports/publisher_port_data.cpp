@@ -21,9 +21,10 @@ namespace popo
 PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
                                      const ProcessName_t& processName,
                                      mepoo::MemoryManager* const memoryManager,
-                                     const PublisherOptions& publisherOptions) noexcept
+                                     const PublisherOptions& publisherOptions,
+                                     const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, processName)
-    , m_chunkSenderData(memoryManager, publisherOptions.historyCapacity, publisherOptions.memoryInfo)
+    , m_chunkSenderData(memoryManager, publisherOptions.historyCapacity, memoryInfo)
 {
 }
 

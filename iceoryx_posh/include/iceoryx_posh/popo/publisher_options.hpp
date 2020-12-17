@@ -26,7 +26,6 @@ namespace popo
 struct PublisherOptions
 {
     uint64_t historyCapacity{0};
-    mepoo::MemoryInfo memoryInfo;
 };
 
 } // namespace popo
