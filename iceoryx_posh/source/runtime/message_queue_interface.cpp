@@ -60,7 +60,7 @@ std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<MqMessageErrorType>::type>(msg));
 }
 
-MqBase::MqBase(const std::string& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
+MqBase::MqBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -143,7 +143,7 @@ bool MqBase::timedSend(const MqMessage& msg, units::Duration timeout) const noex
     return !m_mq.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
-const std::string& MqBase::getInterfaceName() const noexcept
+const ProcessName_t& MqBase::getInterfaceName() const noexcept
 {
     return m_interfaceName;
 }
@@ -185,7 +185,7 @@ bool MqBase::hasClosableMessageQueue() const noexcept
     return m_mq.isInitialized();
 }
 
-void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
+void MqBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
 {
     if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
     {
@@ -193,13 +193,15 @@ void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
     }
 }
 
-MqInterfaceUser::MqInterfaceUser(const std::string& name, const int64_t maxMessages, const int64_t messageSize) noexcept
+MqInterfaceUser::MqInterfaceUser(const ProcessName_t& name,
+                                 const int64_t maxMessages,
+                                 const int64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     openMessageQueue(posix::IpcChannelSide::CLIENT);
 }
 
-MqInterfaceCreator::MqInterfaceCreator(const std::string& name,
+MqInterfaceCreator::MqInterfaceCreator(const ProcessName_t& name,
                                        const int64_t maxMessages,
                                        const int64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
@@ -216,8 +218,8 @@ void MqInterfaceCreator::cleanupResource()
     m_mq.destroy();
 }
 
-MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
-                                       const std::string& appName,
+MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
+                                       const ProcessName_t& appName,
                                        const units::Duration roudiWaitingTimeout) noexcept
     : m_appName(appName)
     , m_AppMqInterface(appName)

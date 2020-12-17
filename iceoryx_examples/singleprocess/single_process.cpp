@@ -15,8 +15,8 @@
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/popo/modern_api/typed_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_publisher.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
@@ -101,7 +101,7 @@ int main()
                             iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
     // create a single process runtime for inter thread communication
-    iox::runtime::PoshRuntimeSingleProcess runtime("/singleProcessDemo");
+    iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
 
     std::thread receiverThread(receiver), senderThread(sender);
 

@@ -16,7 +16,7 @@
 #define IOX_POSH_POPO_BASE_PUBLISHER_HPP
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
@@ -148,6 +148,6 @@ class BasePublisher : public PublisherInterface<T>
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/modern_api/base_publisher.inl"
+#include "iceoryx_posh/internal/popo/base_publisher.inl"
 
 #endif // IOX_POSH_POPO_BASE_PUBLISHER_HPP

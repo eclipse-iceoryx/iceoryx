@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/base_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -38,7 +38,7 @@ int main()
     signal(SIGINT, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-subscriber-typed-modern");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed-modern");
 
     // initialized subscribers
     iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"});

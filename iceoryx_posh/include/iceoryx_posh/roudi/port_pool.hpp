@@ -59,6 +59,8 @@ class PortPool
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
     cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> getApplicationPortDataList() noexcept;
     cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
+    cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
+    getConditionVariableDataList() noexcept;
 
     cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,
@@ -94,7 +96,8 @@ class PortPool
     cxx::expected<runtime::NodeData*, PortPoolError>
     addNodeData(const ProcessName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, PortPoolError> addConditionVariableData() noexcept;
+    cxx::expected<popo::ConditionVariableData*, PortPoolError>
+    addConditionVariableData(const ProcessName_t& process) noexcept;
 
     void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept;
     void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;
