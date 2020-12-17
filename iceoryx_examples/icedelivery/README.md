@@ -3,7 +3,7 @@
 ## Introduction
 
 This example showcases a one-way data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
-It provides publisher and subscriber applications. They come in two API flavours (Bare-metal and simplified).
+It provides publisher and subscriber applications. They come in two API flavours (untyped and typed).
 
 ## Run icedelivery
 
