@@ -117,7 +117,7 @@ The folder structure boils down to:
   * source: implementation files
   * test: unit and integrations tests
   * CMakeLists.txt: Build the component separately
-* examples_iceoryx: Examples described in the main [Readme.md](./README.md#user-content-examples)
+* examples_iceoryx: Examples described in [iceoryx_examples](./iceoryx_examples/README.md)
 
 All new code should follow the folder structure.
 

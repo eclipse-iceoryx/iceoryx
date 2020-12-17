@@ -15,4 +15,4 @@ To avoid that you need to check how much shared memory your system offers. For e
 To avoid undefined behaviour of iceoryx posh it is recommended to terminate RouDi and the corresponding middleware
 processes with SIGINT or SIGTERM. In RouDi, we have integrated a sighandler that catches the signals and gives RouDi
 the chance to exit and clean-up everything. This also applies for processes. Therefore, we recommend adding a signalhandler
-to your process (see example: https://github.com/eclipse/iceoryx/blob/master/iceoryx_examples/icedelivery/ice_publisher_simple.cpp)
+to your process (see example: https://github.com/eclipse/iceoryx/blob/master/iceoryx_examples/icedelivery/iox_publisher_untyped_modern.cpp)
