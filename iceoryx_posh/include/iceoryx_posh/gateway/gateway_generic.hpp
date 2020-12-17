@@ -26,6 +26,7 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 
 #include <atomic>
 #include <thread>
@@ -34,6 +35,8 @@ namespace iox
 {
 namespace gw
 {
+using namespace iox::units::duration_literals;
+
 enum class GatewayError : uint8_t
 {
     UNSUPPORTED_SERVICE_TYPE,

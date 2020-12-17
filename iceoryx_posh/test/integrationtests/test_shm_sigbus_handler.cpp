@@ -28,7 +28,7 @@ using namespace ::testing;
 
 TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
 {
-    const iox::roudi::ShmNameString TEST_SHM_NAME{"/test_name"};
+    const iox::ShmName_t TEST_SHM_NAME{"/test_name"};
     // try a config with high memory requirements, expect failure
     iox::mepoo::MePooConfig badconfig;
     badconfig.addMemPool({1 << 30, 100});

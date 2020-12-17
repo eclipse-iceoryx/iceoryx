@@ -47,7 +47,7 @@ int main()
 
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-gateway");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-gateway");
 
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + 1> waitset;
 

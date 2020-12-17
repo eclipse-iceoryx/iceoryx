@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
 {
     std::lock_guard<std::mutex> lockGuard(m_mutex);
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
-    uint64_t i{0};
+    uint64_t i{0U};
     bool haveAllProcessesFinished{false};
     posix::Timer finalKillTimer(processKillDelay);
 
@@ -157,8 +157,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
 
             for (auto& process : m_processList)
             {
-                if (processStillRunning[i]
-                    && !requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShutdownLog::NONE))
+                if (processStillRunning[i] && !isProcessAlive(process))
                 {
                     processStillRunning[i] = false;
                     shouldCheckProcessState = true;
@@ -185,7 +184,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     {
         // if it was killed we need to check if it really has terminated, if we can't kill it, we consider it
         // terminated
-        processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShutdownLog::FULL);
+        processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
         ++i;
     }
 
@@ -203,7 +202,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
                           << "' is still running after SIGTERM was sent " << processKillDelay.seconds<int>()
                           << " seconds ago. RouDi is sending SIGKILL now.";
-                processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL, ShutdownLog::FULL);
+                processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL);
             }
             ++i;
         }
@@ -235,9 +234,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     }
 }
 
-bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
-                                              ShutdownPolicy shutdownPolicy,
-                                              ShutdownLog shutdownLog) noexcept
+bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process, ShutdownPolicy shutdownPolicy) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
     auto killC = iox::cxx::makeSmartC(kill,
@@ -246,40 +243,63 @@ bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
                                       {},
                                       static_cast<pid_t>(process.getPid()),
                                       (shutdownPolicy == ShutdownPolicy::SIG_KILL ? SIGKILL : SIGTERM));
+
     if (killC.hasErrors())
     {
-        if (shutdownLog == ShutdownLog::FULL)
-        {
-            switch (killC.getErrNum())
-            {
-            case EINVAL:
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with "
-                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                          << ", because the signal sent was invalid.";
-                break;
-            case EPERM:
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with "
-                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                          << ", because RouDi doesn't have the permission to send the signal to the target processes.";
-                break;
-            case ESRCH:
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with "
-                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                          << ", because the target process or process group does not exist.";
-                break;
-            default:
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with"
-                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                          << " for unknown reason: ’" << killC.getErrorString() << "'";
-            }
-        }
+        evaluateKillError(process, killC.getErrNum(), killC.getErrorString(), shutdownPolicy);
         return false;
     }
     return true;
+}
+
+bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
+{
+    static constexpr int32_t ERROR_CODE = -1;
+    auto checkCommand = iox::cxx::makeSmartC(kill,
+                                             iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                             {ERROR_CODE},
+                                             {ESRCH},
+                                             static_cast<pid_t>(process.getPid()),
+                                             SIGTERM);
+
+    if (checkCommand.getErrNum() == ESRCH)
+    {
+        return false;
+    }
+    else
+    {
+        if (checkCommand.hasErrors())
+        {
+            evaluateKillError(
+                process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
+        }
+        return true;
+    }
+    return true;
+}
+
+void ProcessManager::evaluateKillError(const RouDiProcess& process,
+                                       const int32_t& errnum,
+                                       const char* errorString,
+                                       ShutdownPolicy shutdownPolicy) noexcept
+{
+    if ((errnum == EINVAL) || (errnum == EPERM) || (errnum == ESRCH))
+    {
+        LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                  << "' could not be killed with "
+                  << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                  << ", because the command failed with the following error: " << errorString
+                  << " See manpage for kill(2) or type 'man 2 kill' in console for more information";
+        errorHandler(Error::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
+    }
+    else
+    {
+        LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                  << "' could not be killed with"
+                  << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM") << " for unknown reason: ’"
+                  << errorString << "'";
+        errorHandler(Error::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
+    }
 }
 
 bool ProcessManager::registerProcess(const ProcessName_t& name,
@@ -779,9 +799,10 @@ void ProcessManager::monitorProcesses() noexcept
                                                                                      - processIterator->getTimestamp())
                                    .count();
 
-            static_assert(PROCESS_KEEP_ALIVE_TIMEOUT > PROCESS_KEEP_ALIVE_INTERVAL, "keep alive timeout too small");
+            static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
+                          "keep alive timeout too small");
             if (std::chrono::milliseconds(timediff_ms)
-                > std::chrono::milliseconds(PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
+                > std::chrono::milliseconds(runtime::PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
             {
                 LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
                           << timediff_ms << " milliseconds ago) --> removing it";
