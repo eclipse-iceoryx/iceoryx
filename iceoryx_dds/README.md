@@ -24,6 +24,9 @@ The DDS stack used by the gateway is abstracted and needs to made explicit at co
 * Maven is installed
 * CMake is installed
 
+```bash
+sudo apt install cmake maven openjdk-14-jdk-headless
+```
 ## Scripted Build
 The easiest way to build the gateway is via the script `iceoryx/tools/iceoryx_build_test.sh`.
 
