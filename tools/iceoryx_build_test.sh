@@ -56,6 +56,7 @@ while (( "$#" )); do
         GCOV_SCOPE="$2"
         BUILD_TYPE="Debug"
         RUN_TEST=true
+        TEST_FLAG="ON"
         COV_FLAG="ON"
 
         if [ -z "$2" ]
@@ -255,12 +256,6 @@ for COMPONENT in $COMPONENTS; do
         "unit" | "all")
             if [ ! -f testresults/"$COMPONENT"_ModuleTestResults.xml ]; then
                 echo "xml:"$COMPONENT"_ModuletestTestResults.xml not found!"
-                exit 1
-            fi
-            ;;
-        "component" | "all")
-            if [ ! -f testresults/"$COMPONENT"_ComponenttestTestResults.xml ]; then
-                echo "xml:"$COMPONENT"_ComponenttestTestResults.xml not found!"
                 exit 1
             fi
             ;;

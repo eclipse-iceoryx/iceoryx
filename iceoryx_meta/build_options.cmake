@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+cmake_minimum_required(VERSION 3.5)
 
 option(TOML_CONFIG      "Activates or deactivates TOML support - without TOML RouDi will not be build" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)

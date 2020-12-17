@@ -67,14 +67,3 @@ set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
-
-# component tests
-add_executable( ${PROJECT_PREFIX}_componenttests ${COMPONENTTESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
-target_compile_options(${PROJECT_PREFIX}_componenttests PRIVATE ${TEST_CXX_FLAGS})
-target_include_directories(${PROJECT_PREFIX}_componenttests PRIVATE .)
-target_link_libraries(${PROJECT_PREFIX}_componenttests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_componenttests PROPERTIES 
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)

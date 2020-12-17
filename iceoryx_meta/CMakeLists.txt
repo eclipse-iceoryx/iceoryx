@@ -17,6 +17,7 @@ file (STRINGS "../VERSION" iceoryx_VERSION)
 project(iceoryx_meta VERSION ${iceoryx_VERSION})
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -34,10 +35,6 @@ if(coverage)
         message( FATAL_ERROR "You need to run gcov with gcc compiler." )
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif(coverage)
-
-if(test)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/dependencies/googletest/prebuild)
-endif(test)
 
 # ===== Core
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
@@ -72,37 +69,6 @@ if(examples)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
 endif(examples)
-
-if (test)
-    add_custom_target( tests
-        COMMAND ./posh/test/posh_moduletests --gtest_filter=-*.TimingTest_*
-        COMMAND ./posh/test/posh_integrationtests --gtest_filter=-*.TimingTest_*
-        COMMAND ./posh/test/posh_componenttests --gtest_filter=-*.TimingTest_*
-        COMMAND ./utils/test/utils_moduletests --gtest_filter=-*.TimingTest_*
-        COMMAND ./utils/test/utils_integrationtests --gtest_filter=-*.TimingTest_*
-        COMMAND ./utils/test/utils_componenttests --gtest_filter=-*.TimingTest_*
-        if (binding_c)
-            COMMAND ./binding_c/test/binding_c_moduletests --gtest_filter=-*.TimingTest_*
-        endif(binding_c)
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        VERBATIM
-    )
-
-    add_custom_target( timing_tests
-        COMMAND ./posh/test/posh_moduletests --gtest_filter=*.TimingTest_*
-        COMMAND ./posh/test/posh_integrationtests --gtest_filter=*.TimingTest_*
-        COMMAND ./posh/test/posh_componenttests --gtest_filter=*.TimingTest_*
-        COMMAND ./utils/test/utils_moduletests --gtest_filter=*.TimingTest_*
-        COMMAND ./utils/test/utils_integrationtests --gtest_filter=*.TimingTest_*
-        COMMAND ./utils/test/utils_componenttests --gtest_filter=*.TimingTest_*
-        if (binding_c)
-            COMMAND ./binding_c/test/binding_c_moduletests --gtest_filter=*.TimingTest_*
-        endif(binding_c)
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        VERBATIM
-    )
-endif(test)
-
 
 message("")
 message("       Build Properties")

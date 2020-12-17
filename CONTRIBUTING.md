@@ -115,7 +115,7 @@ The folder structure boils down to:
   * include: public headers with stable API
     * internal: public headers with unstable API, which might change quite frequently
   * source: implementation files
-  * test: unit and integrations tests
+  * test: unit and integration tests
   * CMakeLists.txt: Build the component separately
 * examples_iceoryx: Examples described in the main [Readme.md](./README.md#user-content-examples)
 
