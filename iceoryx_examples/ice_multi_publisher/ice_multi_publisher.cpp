@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/popo/modern_api/publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
