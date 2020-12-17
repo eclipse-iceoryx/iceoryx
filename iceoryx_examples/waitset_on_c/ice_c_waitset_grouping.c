@@ -66,8 +66,8 @@ int main()
         iox_sub_subscribe(subscriber[i], 256);
     }
 
-    const uint64_t FIRST_GROUP_ID = 123;
-    const uint64_t SECOND_GROUP_ID = 456;
+    const uint64_t FIRST_GROUP_ID = 123U;
+    const uint64_t SECOND_GROUP_ID = 456U;
 
     // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
     for (uint64_t i = 0U; i < 2U; ++i)

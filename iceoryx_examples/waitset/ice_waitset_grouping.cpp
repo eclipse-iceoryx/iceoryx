@@ -32,11 +32,12 @@ static void sigHandler(int f_sig [[gnu::unused]])
 int main()
 {
     constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
+    constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
 
     signal(SIGINT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-grouping");
-    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + 1> waitset;
+    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
     waitset.attachEvent(shutdownTrigger);
@@ -51,8 +52,8 @@ int main()
         subscriber.subscribe();
     }
 
-    constexpr uint64_t FIRST_GROUP_ID = 123;
-    constexpr uint64_t SECOND_GROUP_ID = 456;
+    constexpr uint64_t FIRST_GROUP_ID = 123U;
+    constexpr uint64_t SECOND_GROUP_ID = 456U;
 
     // attach the first two subscribers to waitset with a eventid of FIRST_GROUP_ID
     for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)

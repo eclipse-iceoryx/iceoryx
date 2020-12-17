@@ -34,6 +34,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 // the untyped subscriber.
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
+    std::cout << "callback\n";
     subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
         std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
                   << sample.getHeader()->m_info.m_payloadSize << " ptr: " << std::hex << sample.getHeader()->payload()
@@ -44,17 +45,16 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 int main()
 {
     constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
+    constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
 
     signal(SIGINT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-gateway");
 
-    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + 1> waitset;
+    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
     waitset.attachEvent(shutdownTrigger);
-    waitset.attachEvent(shutdownTrigger);
-
 
     // create subscriber and subscribe them to our service
     iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
@@ -64,7 +64,7 @@ int main()
         auto& subscriber = subscriberVector.back();
 
         subscriber.subscribe();
-        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
+        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
     }
 
     // event loop
