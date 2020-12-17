@@ -16,19 +16,17 @@
 
 #include <cstdint>
 
-struct CounterTopic
-{
-    uint32_t counter;
-};
-
 struct Position
 {
     Position() noexcept
-    {}
+    {
+    }
     Position(double x, double y, double z) noexcept
         : x(x)
         , y(y)
-        , z(z){};
+        , z(z)
+    {
+    }
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;

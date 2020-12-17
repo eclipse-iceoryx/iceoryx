@@ -1,1 +1,1 @@
-<!-- Landing page for the website -->
+<!-- @todo Landing page for the website -->

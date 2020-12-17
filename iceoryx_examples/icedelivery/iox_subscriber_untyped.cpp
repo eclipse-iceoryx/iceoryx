@@ -18,7 +18,6 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-#include <chrono>
 #include <csignal>
 #include <iostream>
 
@@ -30,25 +29,24 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownTrigger.trigger(); // unblock waitsets
 }
 
-
 int main()
 {
     // register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped-modern");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
 
     // initialized subscribers
     iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"});
-    untypedSubscriber.subscribe();
+    untypedSubscriber.subscribe(10);
 
     // set up waitset
     iox::popo::WaitSet<> waitSet;
     untypedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     shutdownTrigger.attachTo(waitSet);
 
-    // run until interrupted by CTRL+C
+    // run until interrupted by Ctrl-C
     while (true)
     {
         auto triggerVector = waitSet.wait();
@@ -62,8 +60,8 @@ int main()
             {
                 auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
                 untypedSubscriber->take()
-                    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
-                        auto position = reinterpret_cast<const Position*>(allocation->get());
+                    .and_then([](iox::popo::Sample<const void>& sample) {
+                        auto position = static_cast<const Position*>(sample.get());
                         std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
                                   << std::endl;
                     })

@@ -14,7 +14,7 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/publisher.hpp"
+#include "iceoryx_posh/popo/typed_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <chrono>
@@ -39,7 +39,7 @@ int main()
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed-modern");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
 
     iox::popo::TypedPublisher<Position> typedPublisher({"Odometry", "Position", "Vehicle"});
     typedPublisher.offer();
@@ -68,9 +68,9 @@ int main()
         //
         typedPublisher.loan()
             .and_then([&](auto& sample) {
-                auto allocation = sample.get();
+                auto position = sample.get();
                 // Do some stuff leading to eventually generating the data in the samples loaned memory...
-                *allocation = Position(ct, ct, ct);
+                *position = Position(ct, ct, ct);
                 // ...then publish the sample
                 sample.publish();
             })
@@ -91,7 +91,7 @@ int main()
         //      write its result to.
         //
         typedPublisher.publishResultOf(getVehiclePosition, ct);
-        typedPublisher.publishResultOf([&ct](Position* allocation) { new (allocation) Position(ct, ct, ct); });
+        typedPublisher.publishResultOf([&ct](Position* position) { new (position) Position(ct, ct, ct); });
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

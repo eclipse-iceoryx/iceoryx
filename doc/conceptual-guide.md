@@ -1,4 +1,4 @@
-<!-- Move the content of this file to website/getting-started/overview.md or website/for-developers/+ -->
+<!-- @todo Move the content of this file to website/getting-started/overview.md or website/for-developers/* -->
 
 
 # Contents

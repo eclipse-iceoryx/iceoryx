@@ -12,15 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_posh/popo/typed_subscriber.hpp"
-#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-#include <chrono>
 #include <csignal>
 #include <iostream>
 
@@ -38,18 +35,18 @@ int main()
     signal(SIGINT, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed-modern");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed");
 
     // initialized subscribers
     iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"});
-    typedSubscriber.subscribe();
+    typedSubscriber.subscribe(10);
 
     // set up waitset
     iox::popo::WaitSet<> waitSet{};
     typedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     shutdownTrigger.attachTo(waitSet);
 
-    // run until interrupted by CTRL+C
+    // run until interrupted by Ctrl-C
     while (true)
     {
         auto triggerVector = waitSet.wait();
