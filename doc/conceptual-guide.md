@@ -1,3 +1,5 @@
+<!-- Move the content of this file to website/getting-started/overview.md or website/for-developers/+ -->
+
 
 # Contents
 1. [Structure of an Iceoryx System](#Structure-of-an-iceoryx-System)

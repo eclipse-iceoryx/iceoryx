@@ -137,34 +137,3 @@ TEST_F(TypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, SetsConditionVariableViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    auto conditionVariable = new iox::popo::ConditionVariableData();
-    // EXPECT_CALL(sut, setConditionVariable).Times(1);
-    // // ===== Test ===== //
-    // sut.setConditionVariable(conditionVariable);
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-    delete conditionVariable;
-}
-
-TEST_F(TypedSubscriberTest, UnsetsConditionVariableViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    // EXPECT_CALL(sut, unsetConditionVariable).Times(1);
-    //// ===== Test ===== //
-    // sut.unsetConditionVariable();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(TypedSubscriberTest, ChecksIfConditionIsTriggeredViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    // EXPECT_CALL(sut, hasTriggered).Times(1);
-    //// ===== Test ===== //
-    // sut.hasTriggered();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}

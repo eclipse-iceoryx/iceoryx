@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 using namespace iox;
@@ -22,7 +23,7 @@ extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
 }
 
-static uint64_t trigger_vector_to_c_array(const WaitSet::TriggerInfoVector& triggerVector,
+static uint64_t trigger_vector_to_c_array(const WaitSet<>::TriggerInfoVector& triggerVector,
                                           iox_trigger_info_t const triggerArray,
                                           const uint64_t triggerArrayCapacity,
                                           uint64_t* missedElements)
@@ -50,13 +51,13 @@ static uint64_t trigger_vector_to_c_array(const WaitSet::TriggerInfoVector& trig
 
 iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
-    new (self) WaitSet();
+    new (self) cpp2c_WaitSet();
     return reinterpret_cast<iox_ws_t>(self);
 }
 
 void iox_ws_deinit(iox_ws_t const self)
 {
-    self->~WaitSet();
+    self->~cpp2c_WaitSet();
 }
 
 uint64_t iox_ws_timed_wait(iox_ws_t const self,

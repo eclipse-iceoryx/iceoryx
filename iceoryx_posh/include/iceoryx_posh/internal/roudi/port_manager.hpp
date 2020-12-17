@@ -46,7 +46,7 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToCaProInterface(const capro::IdString& str) noexcept;
+capro::Interfaces StringToCaProInterface(const capro::IdString_t& str) noexcept;
 
 class PortManager
 {
@@ -114,8 +114,8 @@ class PortManager
 
     void sendToAllMatchingInterfacePorts(const capro::CaproMessage& message) noexcept;
 
-    void addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
-    void removeEntryFromServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
+    void addEntryToServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
+    void removeEntryFromServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const

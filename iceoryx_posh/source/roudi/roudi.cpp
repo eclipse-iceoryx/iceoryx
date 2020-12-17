@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 namespace iox
 {
@@ -52,7 +53,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
 
     // run the threads
     m_processManagementThread = std::thread(&RouDi::processThread, this);
-    pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
+    posix::setThreadName(m_processManagementThread.native_handle(), "ProcessMgmt");
 
     if (roudiStartupParameters.m_mqThreadStart == MQThreadStart::IMMEDIATE)
     {
@@ -68,7 +69,7 @@ RouDi::~RouDi()
 void RouDi::startMQThread()
 {
     m_processMQThread = std::thread(&RouDi::mqThread, this);
-    pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
+    posix::setThreadName(m_processMQThread.native_handle(), "MQ-processing");
 }
 
 void RouDi::shutdown()
@@ -123,13 +124,7 @@ void RouDi::mqThread()
     {
         // read RouDi message queue
         runtime::MqMessage message;
-        /// @todo do we really need timedReceive? an alternative solution would be to close the message queue,
-        /// which also results in a return from mq_receive, and check the relevant errno and shutdown RouDi
-        if (!roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
-        {
-            // TODO: errorHandling
-        }
-        else
+        if (roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
         {
             auto cmd = runtime::stringToMqMessageType(message.getElementAtIndex(0).c_str());
             std::string processName = message.getElementAtIndex(1);
@@ -245,7 +240,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         else
         {
             capro::Interfaces interface =
-                StringToCaProInterface(capro::IdString(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
+                StringToCaProInterface(capro::IdString_t(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
 
             m_prcMgr.addInterfaceForProcess(
                 processName, interface, NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
@@ -316,7 +311,7 @@ bool RouDi::registerProcess(const ProcessName_t& name,
                             const uint64_t sessionId,
                             const version::VersionInfo& versionInfo)
 {
-    bool monitorProcess = (m_monitoringMode == config::MonitoringMode::ON);
+    bool monitorProcess = (m_monitoringMode == roudi::MonitoringMode::ON);
     return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo);
 }
 

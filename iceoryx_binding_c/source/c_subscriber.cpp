@@ -16,6 +16,7 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -41,9 +42,9 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
     me->m_portData =
-        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString(TruncateToCapacity, service),
-                                                                              IdString(TruncateToCapacity, instance),
-                                                                              IdString(TruncateToCapacity, event)},
+        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
+                                                                              IdString_t(TruncateToCapacity, instance),
+                                                                              IdString_t(TruncateToCapacity, event)},
                                                            historyRequest);
 
     return me;
@@ -88,7 +89,7 @@ iox_ChunkReceiveResult iox_sub_get_chunk(iox_sub_t const self, const void** cons
 
 void iox_sub_release_chunk(iox_sub_t const self, const void* const chunk)
 {
-    SubscriberPortUser(self->m_portData).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
+    SubscriberPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
 }
 
 void iox_sub_release_queued_chunks(iox_sub_t const self)
