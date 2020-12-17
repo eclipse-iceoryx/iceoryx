@@ -6,20 +6,11 @@ This document covers the core functionality of the ``iceoryx`` middleware and is
 To set up a collection of applications using iceoryx (an iceoryx system), the applications need to initialize a runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be received by subscribers of the same topic.
 To enable publishers to offer their topic and subscribers to subscribe to these offered topics, the middleware daemon, called ``Roudi``, must be running. 
 
-For further information see the [examples](todo) and [conceptual-guide.md](todo). We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
-
-
+For further information see the [examples](../iceoryx_examples/README.md) and [conceptual-guide.md](todo). We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
 
 ### Roudi
 
 The middleware daemon manages the shared memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use publishers or subscribers.
-
-It can be started like this
-
-    # If installed and available in PATH environment variable
-    iox-roudi
-    # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/posh/iox-roudi
 
 ### Runtime
 
@@ -36,13 +27,13 @@ The application name must be unique among all other applications and have a lead
 
 ### Topics
 
-A topic in iceoryx specifies some kind of data and is uniquely indetified by three string identifiers.
+A topic in iceoryx defines the data to be transmitted and is uniquely identified by three string identifiers.
 
 1. ``Group`` name
 2. ``Instance`` name
 3. ``Topic`` name
 
-A triple consisting of such strings is called a ``Service Description``.
+A triple consisting of such strings is called a ``service description``.
 In Autosar terminology these three identifiers are called ``Service``, ``Instance`` and ``Event`` respectively.
 
 Two topics are considered matching if all these three strings are element-wise equal, i.e. group, instance and topic names are the same for both of them.
@@ -52,7 +43,7 @@ This means the group and instance identifier can be ignored to create different 
 The data type of the topic can be an arbitrary C++ class, struct or plain old data type.
 
 ### Publisher
-A publisher is tied to a topic and needs a Service Description to be constructed. If it is typed one needs to additionally specify the data type
+A publisher is tied to a topic and needs a service description to be constructed. If it is typed one needs to additionally specify the data type
 as a template parameter. Otherwise publisher is only aware of raw memory and the user has to take care that it is interpreted correctly.
 
 Once it has offered its topic, it is able to publish (send) data of the specific type. Note that it is possible to have multiple publishers for the same topic.
@@ -82,7 +73,7 @@ We now show how the API can be used to establish a publish-subscribe communicati
 
 This is very flexible but requires using the monadic types ``cxx::expected`` and ``cxx::optional``, which we introduce in the following sections.
 
-We distinguish between the ``Typed API`` and the ``Untyped API``. In the Typed API the underlying data type is made apparent by typed pointers or references to some data type T (often a template parameter). this allows working with the data in an C++ idiomatic and type-safe way and should be preferred whenever possible.
+We distinguish between the ``typed API`` and the ``untyped API``. In the Typed API the underlying data type is made apparent by typed pointers or references to some data type T (often a template parameter). this allows working with the data in an C++ idiomatic and type-safe way and should be preferred whenever possible.
 
 The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be used sparingly.
 For further information see the respective header files.
@@ -119,7 +110,7 @@ We can achieve the same with the functional approach by providing a function for
 result.and_then([](int& value) { /*do something with the value*/ })
       .or_else([]() { /*handle the case that there is no value*/ });
 ```
-Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in th e lambda or function we pass.
+Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the lambda or function we pass.
 
 The optional can be be initialized from a value directly
 ```
@@ -130,15 +121,15 @@ If it is default initialized it is automatically set to its null value of type `
 This can be also done directly by using the constant ``iox::cxx::nullopt``
 
 ```
-result = nullopt;
+result = iox::cxx::nullopt;
 ```
 
 ### Expected
-``cxx::expected<T, E>`` generalizes ``cxx::optional`` by admitting a value of another type ``T`` instead of no value at all, i.e. it contains either a value of type ``T`` or ``E`` (roughly the either monad). This is usually used to pass a value of type or an error that may have occurred, i.e. ``E`` is the error type. For more information on how it is used for error handling see [error-handling.md](todo).
+``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of no value at all, i.e. it contains either a value of type ``T`` or ``E`` (and roughly corresponds to the either monad). This is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the error type. For more information on how it is used for error handling see [error-handling.md](todo).
 
 Assume we have ``E`` as an error type, then we can create a value
 ```
-cxx::expected<int, E> result(iox::cxx::success<int>(73));
+iox::cxx::expected<int, E> result(iox::cxx::success<int>(73));
 ```
 
 and use the value or handle a potential error
@@ -186,7 +177,7 @@ iox::runtime::PoshRuntime::initRuntime("/some_unique_name");
 
 Now this application is ready to communicate with the middleware daemon Roudi.
 
-## Define a topic
+## Defining a topic
 
 We need to define a data type we can send, which can be any struct or class or even a plain type, such as an int.
 
@@ -212,7 +203,7 @@ We create a publisher that offers our CounterTopic.
 
 ```
 iox::popo::TypedPublisher<CounterTopic> publisher({"Group", "Instance", "CounterTopic"});
-typedPublisher.offer();
+publisher.offer();
 ```
 
 Note that it suffices to set the first two identifiers (Group and Instance) to some default values for all topics.
@@ -235,7 +226,7 @@ Now we can use the publisher to send the data in various ways.
     }
     ```
 
-    Here result is an ``expected`` and hence we may get an error which we may have to handle.
+    Here result is an ``expected`` and hence we may get an error which we have to handle.
     This can happen if we try to loan to many samples and exhaust memory.
 
     If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value we want to send.
@@ -348,19 +339,131 @@ Here we do not check whether we actually have data since we already know there i
 
 ### Untyped API
 
+The untyped API offeres similar capabilities and is hence usable in a similar way. The major difference is that neither publisher nor subscriber have any knowledge about the underlying type they send or receive. This means that the user is responsible to ensure the data is read correctly, i.e. there is no type safety guaranteed by the API itself.
+
 #### Creating a publisher
 
+When creating an untyped publisher we do not need to specify a data type as template paraemter.
 
+```
+iox::popo::UntypedPublisher publisher({"Group", "Instance", "CounterTopic"});
+publisher.offer();
+```
 #### Sending data
+
+1. Loan and emplace
+
+    Before sending, we have to loan a chunk of memory to emplace our data.
+    ```
+    auto result = publisher.loan(sizeof(CounterTopic));
+    ```
+    Since the data type is not known to the publisher, we have to provide the size in bytes of the payload data we intend to send.
+
+    If we successfully acquired a chunk, we can construct the data to be send using emplacement new and publish it.
+
+    ```
+    if (!result.has_error())
+    {
+        auto& sample = result.value();
+        new (sample.get()) CounterTopic(73);
+        sample.publish();
+    } else 
+    {
+        //could not acquire chunk, handle the error
+    }
+    ```
+
+    Here emplacement new is required, there is no preconstructed object at ``sample.get()``.
+
+2. Functional approach with loaning
+
+    ```
+    publisher.loan(sizeof(CounterTopic))
+            .and_then([&](iox::popo::Sample<void>& sample) { 
+                new (sample.get()) CounterTopic(73);
+                sample.publish();
+            })
+            .or_else([](iox::popo::AllocationError) {
+                /* handle the error */
+            });
+    ```
+    Notice that we get an untyped sample, ``iox::popo::Sample<void>`` (we could also use ``auto& sample`` in the lambda arguments to shorten it). Again we access the pointer to the underlying raw memory of the sample and construct the data we want to send.
+
+
 
 #### Creating a subscriber
 
+While the string identifiers still have to match those in the publisher, as in the untyped publisher there is no template type argument.
 
+```
+iox::popo::UntypedSubscriber subscriber({"Group", "Instance", "CounterTopic"});
+subscriber.subscribe();
+```
 #### Receiving data
+
+Receiving the data works in the same way as in the typed API, the main difference is the ``reinterpret_cast`` needed before accessing the data (since the subscriber has no knowledge of the underlying type).
+
+
+```
+while(keepRunning) 
+{
+    //wait for new data (either sleep and wake up periodically or by notification from the waitset)
+
+    subscriber->take()
+        .and_then([](iox::popo::Sample<const void>& sample) {
+            CounterTopic* ptr = reinterpret_cast<CounterTopic*>(sample.get());
+            /* process the received data using the ptr */         
+        })
+        .if_empty([] { /* no data received but also no error */ })
+        .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
+}
+```
+
+Note that since the received sample received is untyped (``iox::popo::Sample<const void>``), we cannot use ``operator->`` to access the members of the underlying type but have to cast it to the correct type ``CounterTopic`` manually. 
+
+As in the untyped case we also could use a loop to get all samples as long as they are available.
 
 
 ### Shutdown
 
+Once we are done sending, we call ``stopOffer`` at the publisher.
+
+```
+publisher.stopOffer();
+```
+
+Similarly the subscriber can unsubscribe to stop receiving any data.
+
+```
+subscriber.unsubscribe();
+```
+
+Both will also be called in the respective destructor if needed.
+
+### Running an iceoryx system
+
+Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
+
+First we need to start Roudi.
+
+    # If installed and available in PATH environment variable
+    iox-roudi
+    # If build from scratch with script in tools
+    $ICEORYX_ROOT/build/posh/iox-roudi
+
+Afterwards we can start the applications which immediately connect to the Roudi via their runtime.
+
+When the applications terminates the runtime cleans up all resources needed for communication with Roudi. This includes all memory chunks used for the data transmission which may still be hold by the application.
+
 ## Examples
 
-Examples of the main use cases and instructions on how to build and run them can be found in [examples](../iceoryx_examples/README.md).
+This covers the main use cases and should enable the user to quickly develop iceroyx applications.
+
+Full examples and instructions on how to build and run them can be found in [examples](../iceoryx_examples/README.md).
+
+
+## C API
+
+There also is a [C API]() which can be used when C++ is not available.
+
+This API is still under much development and not fully supported yet.
