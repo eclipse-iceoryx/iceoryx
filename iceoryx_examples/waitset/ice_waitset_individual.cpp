@@ -38,7 +38,7 @@ int main()
     iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    shutdownTrigger.enableTriggerEvent(waitset);
+    shutdownTrigger.enableEvent(waitset);
 
     // create two subscribers, subscribe to the service and attach them to the waitset
     iox::popo::TypedSubscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});

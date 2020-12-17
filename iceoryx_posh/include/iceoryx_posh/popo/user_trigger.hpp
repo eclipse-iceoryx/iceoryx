@@ -43,22 +43,13 @@ class UserTrigger
     /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
     /// the expected signals success
     template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableTriggerEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                   const uint64_t eventId = EventInfo::INVALID_ID,
-                                                   const EventInfo::Callback<UserTrigger> callback = nullptr) noexcept;
-
-    /// @brief enables the trigger event
-    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] callback optional parameter, the callback of the trigger
-    /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
-    /// the expected signals success
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableTriggerEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                   const EventInfo::Callback<UserTrigger> callback) noexcept;
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const uint64_t eventId = EventInfo::INVALID_ID,
+                                            const EventInfo::Callback<UserTrigger> callback = nullptr) noexcept;
 
     /// @brief disables the trigger event. If it was not enabled nothing happens
     /// happens.
-    void disableTriggerEvent() noexcept;
+    void disableEvent() noexcept;
 
     /// @brief If it is attached it will trigger otherwise it will do nothing
     void trigger() noexcept;

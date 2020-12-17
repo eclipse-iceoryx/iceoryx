@@ -18,8 +18,9 @@ namespace iox
 namespace popo
 {
 template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError> UserTrigger::enableTriggerEvent(
-    WaitSet<WaitSetCapacity>& waitset, const uint64_t eventId, const EventInfo::Callback<UserTrigger> callback) noexcept
+inline cxx::expected<WaitSetError> UserTrigger::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                            const uint64_t eventId,
+                                                            const EventInfo::Callback<UserTrigger> callback) noexcept
 {
     return waitset
         .acquireTriggerHandle(
@@ -27,13 +28,6 @@ inline cxx::expected<WaitSetError> UserTrigger::enableTriggerEvent(
         .and_then([this](TriggerHandle& trigger) { m_trigger = std::move(trigger); });
 }
 
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-UserTrigger::enableTriggerEvent(WaitSet<WaitSetCapacity>& waitset,
-                                const EventInfo::Callback<UserTrigger> callback) noexcept
-{
-    return enableTriggerEvent(waitset, EventInfo::INVALID_ID, callback);
-}
 } // namespace popo
 } // namespace iox
 #endif

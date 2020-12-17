@@ -140,7 +140,7 @@ TEST_F(WaitSet_test, AcquireMaximumAllowedPlusOneTriggerFails)
     }
     auto result = acquireTriggerHandle(m_sut, 0);
     ASSERT_TRUE(result->has_error());
-    EXPECT_THAT(result->get_error(), Eq(WaitSetError::TRIGGER_VECTOR_OVERFLOW));
+    EXPECT_THAT(result->get_error(), Eq(WaitSetError::WAIT_SET_FULL));
 }
 
 TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
@@ -149,7 +149,7 @@ TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
     auto trigger2 = acquireTriggerHandle(m_sut, 0);
 
     ASSERT_TRUE(trigger2->has_error());
-    EXPECT_THAT(trigger2->get_error(), Eq(WaitSetError::TRIGGER_ALREADY_ACQUIRED));
+    EXPECT_THAT(trigger2->get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
 }
 
 TEST_F(WaitSet_test, AcquireSameTriggerWithNonNullIdTwiceResultsInError)
@@ -158,7 +158,7 @@ TEST_F(WaitSet_test, AcquireSameTriggerWithNonNullIdTwiceResultsInError)
     auto trigger2 = acquireTriggerHandle(m_sut, 121);
 
     ASSERT_TRUE(trigger2->has_error());
-    EXPECT_THAT(trigger2->get_error(), Eq(WaitSetError::TRIGGER_ALREADY_ACQUIRED));
+    EXPECT_THAT(trigger2->get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
 }
 
 TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)

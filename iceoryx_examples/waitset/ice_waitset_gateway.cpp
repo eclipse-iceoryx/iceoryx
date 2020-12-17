@@ -52,7 +52,8 @@ int main()
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + 1> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    shutdownTrigger.enableTriggerEvent(waitset);
+    shutdownTrigger.enableEvent(waitset);
+    waitset.attachEvent(shutdownTrigger);
 
 
     // create subscriber and subscribe them to our service

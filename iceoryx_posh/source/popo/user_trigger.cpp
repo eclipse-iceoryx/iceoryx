@@ -19,7 +19,7 @@ namespace iox
 {
 namespace popo
 {
-void UserTrigger::disableTriggerEvent() noexcept
+void UserTrigger::disableEvent() noexcept
 {
     m_trigger.reset();
 }

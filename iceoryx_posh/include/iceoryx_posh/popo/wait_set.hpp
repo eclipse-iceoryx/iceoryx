@@ -33,8 +33,8 @@ class Condition;
 
 enum class WaitSetError : uint8_t
 {
-    TRIGGER_VECTOR_OVERFLOW,
-    TRIGGER_ALREADY_ACQUIRED,
+    WAIT_SET_FULL,
+    EVENT_ALREADY_ATTACHED,
 };
 
 /// @brief Logical disjunction of a certain number of Triggers
@@ -61,12 +61,45 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
+    /// @brief attaches an event to the WaitSet
+    /// @param[in] eventOrigin the origin of the event
+    /// @param[in] eventId the user defined id which is tagged to the event
+    /// @param[in] callback the callback which should be attached to the event
+    /// @param[in] args... additional event identifying arguments
+    /// @return when an error occurs an enum which is describing the error is returned
     template <typename T, typename... Targs>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
                                             const uint64_t eventId,
                                             const EventInfo::Callback<T> callback,
                                             const Targs&... args) noexcept;
 
+    /// @brief attaches an event to the WaitSet
+    /// @param[in] eventOrigin the origin of the event
+    /// @param[in] eventId the user defined id which is tagged to the event
+    /// @param[in] args... additional event identifying arguments
+    /// @return when an error occurs an enum which is describing the error is returned
+    template <typename T, typename... Targs>
+    cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const uint64_t eventId, const Targs&... args) noexcept;
+
+    /// @brief attaches an event to the WaitSet
+    /// @param[in] eventOrigin the origin of the event
+    /// @param[in] callback the callback which should be attached to the event
+    /// @param[in] args... additional event identifying arguments
+    /// @return when an error occurs an enum which is describing the error is returned
+    template <typename T, typename... Targs>
+    cxx::expected<WaitSetError>
+    attachEvent(T& eventOrigin, const EventInfo::Callback<T> callback, const Targs&... args) noexcept;
+
+    /// @brief attaches an event to the WaitSet
+    /// @param[in] eventOrigin the origin of the event
+    /// @param[in] args... additional event identifying arguments
+    /// @return when an error occurs an enum which is describing the error is returned
+    template <typename T, typename... Targs>
+    cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const Targs&... args) noexcept;
+
+    /// @brief detaches an event from the WaitSet
+    /// @param[in] eventOrigin the origin of the event that should be detached
+    /// @param[in] args... additional event identifying arguments
     template <typename T, typename... Targs>
     void detachEvent(T& eventOrigin, const Targs&... args) noexcept;
 

@@ -41,17 +41,40 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 
 template <uint64_t Capacity>
 template <typename T, typename... Targs>
-cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
-                                                           const uint64_t eventId,
-                                                           const EventInfo::Callback<T> callback,
-                                                           const Targs&... args) noexcept
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const uint64_t eventId,
+                                                                  const EventInfo::Callback<T> callback,
+                                                                  const Targs&... args) noexcept
 {
     return eventOrigin.enableEvent(*this, eventId, callback, args...);
 }
 
 template <uint64_t Capacity>
 template <typename T, typename... Targs>
-void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
+inline cxx::expected<WaitSetError>
+WaitSet<Capacity>::attachEvent(T& eventOrigin, const uint64_t eventId, const Targs&... args) noexcept
+{
+    return attachEvent(eventOrigin, eventId, EventInfo::Callback<T>(), args...);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename... Targs>
+inline cxx::expected<WaitSetError>
+WaitSet<Capacity>::attachEvent(T& eventOrigin, const EventInfo::Callback<T> callback, const Targs&... args) noexcept
+{
+    return attachEvent(eventOrigin, EventInfo::INVALID_ID, callback, args...);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename... Targs>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin, const Targs&... args) noexcept
+{
+    return attachEvent(eventOrigin, EventInfo::INVALID_ID, EventInfo::Callback<T>(), args...);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename... Targs>
+inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
     return eventOrigin.disableEvent(args...);
 }
@@ -175,13 +198,13 @@ WaitSet<Capacity>::acquireTriggerHandle(T* const origin,
     {
         if (currentTrigger.isLogicalEqualTo(possibleLogicallyEqualTrigger))
         {
-            return cxx::error<WaitSetError>(WaitSetError::TRIGGER_ALREADY_ACQUIRED);
+            return cxx::error<WaitSetError>(WaitSetError::EVENT_ALREADY_ATTACHED);
         }
     }
 
     if (!m_triggerList.push_back(Trigger{origin, triggerCallback, invalidationCallback, eventId, callback}))
     {
-        return cxx::error<WaitSetError>(WaitSetError::TRIGGER_VECTOR_OVERFLOW);
+        return cxx::error<WaitSetError>(WaitSetError::WAIT_SET_FULL);
     }
 
     return iox::cxx::success<TriggerHandle>(TriggerHandle(
