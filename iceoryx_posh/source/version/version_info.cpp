@@ -105,10 +105,8 @@ bool VersionInfo::isValid() noexcept
 
 VersionInfo VersionInfo::getCurrentVersion() noexcept
 {
-    static constexpr char ICEORYX_COMMIT_ID[] = ICEORYX_SHA1;
-
-    BuildDateString_t buildDateStringCxx(cxx::TruncateToCapacity, ICEORYX_BUILDDATE);
-    CommitIdString_t shortCommitIdString(cxx::TruncateToCapacity, ICEORYX_COMMIT_ID, COMMIT_ID_STRING_SIZE);
+    BuildDateString_t buildDateStringCxx(ICEORYX_BUILDDATE);
+    CommitIdString_t shortCommitIdString(cxx::TruncateToCapacity, ICEORYX_SHA1, COMMIT_ID_STRING_SIZE);
 
     return VersionInfo(static_cast<uint16_t>(ICEORYX_VERSION_MAJOR),
                        static_cast<uint16_t>(ICEORYX_VERSION_MINOR),
@@ -117,7 +115,6 @@ VersionInfo VersionInfo::getCurrentVersion() noexcept
                        buildDateStringCxx,
                        shortCommitIdString);
 }
-
 
 } // namespace version
 } // namespace iox
