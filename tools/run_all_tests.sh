@@ -19,6 +19,7 @@
 BASE_DIR=$PWD
 TEST_SCOPE="all"
 CONTINUE_ON_ERROR=false
+ASAN_ONLY=false
 
 set_sanitizer_options() {
     # This script runs from build folder
@@ -39,16 +40,16 @@ set_sanitizer_options() {
     #     #3 0x55c8284c15ed in ReceiverPort_test_newdata_Test::~ReceiverPort_test_newdata_Test() /home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/iceoryx_posh/test/moduletests/test_posh_receiverport.cpp:137
     #     #4 0x55c82857b2fb in testing::Test::DeleteSelf_() (/home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/build/posh/test/posh_moduletests+0x3432fb)
     echo "OSTYPE is $OSTYPE"
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$ASAN_ONLY" == false ]]; then
         ASAN_OPTIONS=detect_leaks=1
     else
         # other OS (Mac here)
         # ==23449==AddressSanitizer: detect_leaks is not supported on this platform.
         ASAN_OPTIONS=detect_leaks=0
     fi
-    ASAN_OPTIONS=$ASAN_OPTIONS:verbosity=1:log_threads=1:detect_stack_use_after_return=1:detect_stack_use_after_scope=1:check_initialization_order=true:strict_init_order=true:new_delete_type_mismatch=0:suppressions=$BASE_DIR/sanitizer_blacklist/asan_runtime.txt
+    ASAN_OPTIONS=$ASAN_OPTIONS:detect_stack_use_after_return=1:detect_stack_use_after_scope=1:check_initialization_order=true:strict_init_order=true:new_delete_type_mismatch=0:suppressions=$BASE_DIR/sanitizer_blacklist/asan_runtime.txt
     export ASAN_OPTIONS
-    export LSAN_OPTIONS=suppressions=$BASE_DIR/sanitizer_blacklist/lsan_runtime.txt
+    export LSAN_OPTIONS=verbosity=1:log_threads=1:suppressions=$BASE_DIR/sanitizer_blacklist/lsan_runtime.txt
 
     echo "ASAN_OPTIONS : $ASAN_OPTIONS"
     echo "LSAN_OPTIONS : $LSAN_OPTIONS"
@@ -58,6 +59,9 @@ for arg in "$@"; do
     case "$arg" in
     "only-timing-tests")
         TEST_SCOPE="timingtest"
+        ;;
+    "asan-only")
+        ASAN_ONLY=true
         ;;
     "continue-on-error")
         CONTINUE_ON_ERROR=true
@@ -72,9 +76,10 @@ for arg in "$@"; do
         echo ""
         echo "Usage: $0 [OPTIONS]"
         echo "Options:"
-        echo "      disable-timing-tests        Disables all timing tests"
+        echo "      [all, unit, integration]    Testlevel where the test shall run"
         echo "      only-timing-tests           Runs only timing tests"
         echo "      continue-on-error           Continue execution upon error"
+        echo "      asan-only                   Execute Adress-Sanitizer only"
         echo ""
         exit -1
         ;;

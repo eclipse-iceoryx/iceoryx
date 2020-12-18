@@ -34,7 +34,6 @@ TEST_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 COV_FLAG="OFF"
 TEST_SCOPE="all" #possible values for gcov test scope: 'all', 'unit', 'integration'
-QACPP_JSON="OFF"
 RUN_TEST=false
 INTROSPECTION_FLAG="OFF"
 DDS_GATEWAY_FLAG="OFF"
@@ -84,11 +83,6 @@ while (( "$#" )); do
         STRICT_FLAG="ON"
         shift 1
         ;;
-    "qacpp")
-        BUILD_TYPE="Release"
-        QACPP_JSON="ON"
-        shift 1
-        ;;
     "test")
         RUN_TEST=true
         TEST_FLAG="ON"
@@ -120,11 +114,13 @@ while (( "$#" )); do
         shift 1
         ;;
     "buildall")
-        echo " [i] Build complete iceoryx with all extensions"
+        echo " [i] Build complete iceoryx with all extensions and all examples"
         DDS_GATEWAY_FLAG="ON"
         BINDING_C_FLAG="ON"
         TEST_FLAG="ON"
         STRICT_FLAG="ON"
+        INTROSPECTION_FLAG="ON"
+        EXAMPLE_FLAG="ON"
         shift 1
         ;;
     "out-of-tree")
@@ -220,7 +216,7 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DINTROSPECTION=$INTROSPECTION_FLAG -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DINTROSPECTION=$INTROSPECTION_FLAG -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
