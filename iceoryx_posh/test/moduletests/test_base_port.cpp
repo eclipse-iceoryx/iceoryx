@@ -74,8 +74,7 @@ SubscriberPortData* createPortData()
     return new SubscriberPortData(SERVICE_DESCRIPTION_VALID,
                                   APP_NAME_FOR_SUBSCRIBER_PORTS,
                                   iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
-                                  1,
-                                  iox::mepoo::MemoryInfo());
+                                  SubscriberOptions());
 }
 template <>
 InterfacePortData* createPortData()

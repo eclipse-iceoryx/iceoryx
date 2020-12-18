@@ -28,12 +28,14 @@ namespace iox
 {
 namespace popo
 {
+struct SubscriberOptions;
+
 struct SubscriberPortData : public BasePortData
 {
     SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                        const ProcessName_t& processName,
                        cxx::VariantQueueTypes queueType,
-                       const uint64_t& historyRequest = 0u,
+                       const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig, ThreadSafePolicy>;

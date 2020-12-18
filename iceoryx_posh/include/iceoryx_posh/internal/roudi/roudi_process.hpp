@@ -146,13 +146,13 @@ class ProcessManager : public ProcessManagerInterface
 
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,
-                                 const uint64_t& historyRequest,
+                                 const popo::SubscriberOptions& subscriberOptions,
                                  const NodeName_t& node,
                                  const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addPublisherForProcess(const ProcessName_t& name,
                                 const capro::ServiceDescription& service,
-                                const uint64_t& historyCapacity,
+                                const popo::PublisherOptions& publisherOptions,
                                 const NodeName_t& node,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 

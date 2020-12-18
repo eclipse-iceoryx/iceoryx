@@ -43,7 +43,7 @@ class TypedSubscriberTest : public Test
     }
 
   protected:
-    TestTypedSubscriber sut{{"", "", ""}};
+    TestTypedSubscriber sut{{"", "", ""}, iox::popo::SubscriberOptions()};
 };
 
 TEST_F(TypedSubscriberTest, GetsUIDViaBaseSubscriber)
@@ -136,4 +136,3 @@ TEST_F(TypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-

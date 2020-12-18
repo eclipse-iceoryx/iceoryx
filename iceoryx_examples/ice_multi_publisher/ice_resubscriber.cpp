@@ -27,18 +27,17 @@ static void sigHandler(int sig [[gnu::unused]])
     killswitch = true;
 }
 
-// the maximum number of samples the subscriber can hold before discarding the least
-// recent sample (i.e. the capacity of the sample queue on subscriber side)
-constexpr uint64_t MAX_NUMBER_OF_SAMPLES{4U};
-
 constexpr uint64_t UNSUBSCRIBED_TIME_SECONDS{3U};
 
 void receive()
 {
-    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
+    iox::popo::SubscriberOptions options;
+    // the maximum number of samples the subscriber can hold before discarding the least
+    // recent sample (i.e. the capacity of the sample queue on subscriber side)
+    options.queueCapacity = 4U;
+    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"}, options);
 
     subscriber.subscribe();
-    uint64_t maxNumSamples = MAX_NUMBER_OF_SAMPLES - 2U;
     while (!killswitch)
     {
         // unsubscribe and resubscribe
@@ -48,13 +47,8 @@ void receive()
         // we will probably miss some data while unsubscribed
         std::this_thread::sleep_for(std::chrono::seconds(UNSUBSCRIBED_TIME_SECONDS));
 
-        // we (re)subscribe with differing maximum number of samples
-        // and should see at most the latest last maxNumSamples
-        maxNumSamples =
-            maxNumSamples % MAX_NUMBER_OF_SAMPLES + 1U; // cycles between last 1 to MAX_NUMBER_OF_SAMPLES samples
-        subscriber.subscribe(maxNumSamples);
-
-        std::cout << "Subscribe with max number of samples " << maxNumSamples << std::endl;
+        // we (re)subscribe and should see at most the latest options.queueCapacity
+        subscriber.subscribe();
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
 

@@ -16,6 +16,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
@@ -187,9 +188,12 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(5));
 
+            popo::PublisherOptions options;
+            options.historyCapacity = std::stoull(message.getElementAtIndex(3));
+
             m_prcMgr.addPublisherForProcess(processName,
                                             service,
-                                            std::stoull(message.getElementAtIndex(3)),
+                                            options,
                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
                                             iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
@@ -197,7 +201,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     }
     case runtime::MqMessageType::CREATE_SUBSCRIBER:
     {
-        if (message.getNumberOfElements() != 6)
+        if (message.getNumberOfElements() != 7)
         {
             LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_SUBSCRIBER\" from \"" << processName
                        << "\"received!";
@@ -205,12 +209,17 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(5));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(6));
+
+
+            popo::SubscriberOptions options;
+            options.historyRequest = std::stoull(message.getElementAtIndex(3));
+            options.queueCapacity = std::stoull(message.getElementAtIndex(4));
 
             m_prcMgr.addSubscriberForProcess(processName,
                                              service,
-                                             std::stoull(message.getElementAtIndex(3)),
-                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
+                                             options,
+                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5)),
                                              iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;

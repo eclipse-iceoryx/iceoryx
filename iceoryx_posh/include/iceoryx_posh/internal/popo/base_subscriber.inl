@@ -27,8 +27,9 @@ inline BaseSubscriber<T, Subscriber, port_t>::BaseSubscriber() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline BaseSubscriber<T, Subscriber, port_t>::BaseSubscriber(const capro::ServiceDescription& service) noexcept
-    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
+inline BaseSubscriber<T, Subscriber, port_t>::BaseSubscriber(const capro::ServiceDescription& service,
+                                                             const SubscriberOptions& subscriberOptions) noexcept
+    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service, subscriberOptions))
 {
 }
 
@@ -52,9 +53,9 @@ BaseSubscriber<T, Subscriber, port_t>::getServiceDescription() const noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::subscribe(const uint64_t queueCapacity) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::subscribe() noexcept
 {
-    m_port.subscribe(queueCapacity);
+    m_port.subscribe();
 }
 
 template <typename T, typename Subscriber, typename port_t>

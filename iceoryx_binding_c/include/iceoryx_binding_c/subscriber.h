@@ -27,13 +27,15 @@ typedef struct cpp2c_Subscriber* iox_sub_t;
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] historyCapacity size of the history chunk queue
+/// @param[in] queueCapacity size of the receiver queue
+/// @param[in] historyRequest of chunks received after subscription if chunks are available
 /// @return handle of the subscriber
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       uint64_t historyRequest);
+                       const uint64_t queueCapacity,
+                       const uint64_t historyRequest);
 
 /// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed
@@ -41,8 +43,7 @@ void iox_sub_deinit(iox_sub_t const self);
 
 /// @brief subscribes to the service
 /// @param[in] self handle to the subscriber
-/// @param[in] queueCapacity size of the receiver queue
-void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity);
+void iox_sub_subscribe(iox_sub_t const self);
 
 /// @brief unsubscribes from a service
 /// @param[in] self handle to the subscriber

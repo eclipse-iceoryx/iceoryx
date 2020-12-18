@@ -37,7 +37,8 @@ class UntypedSubscriberImpl
     using BaseSubscriber =
         base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>;
 
-    UntypedSubscriberImpl(const capro::ServiceDescription& service);
+    UntypedSubscriberImpl(const capro::ServiceDescription& service,
+                          const SubscriberOptions& subscriberOptions = SubscriberOptions());
     UntypedSubscriberImpl(const UntypedSubscriberImpl& other) = delete;
     UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
     UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
