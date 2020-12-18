@@ -7,7 +7,7 @@ We compare the latency of iceoryx with message queues and unix domain sockets.
 
 The measurement is carried out with several payload sizes. Round trips are performed
 for each payload size, using either the default setting or the provided command line parameter
-for the number of round trips to do. 
+for the number of round trips to do.
 The measured time is just allocating/releasing memory and the time to send the data.
 The construction and writing of the payload is not part of the measurement.
 
@@ -15,7 +15,7 @@ At the end of the benchmark, the average latency for each payload size is printe
 
 ## Run iceperf
 
-Create three terminals and run one command in each of them. 
+Create three terminals and run one command in each of them.
 The order is first the RouDi daemon, then iceperf-laurel which is the leader in this setup
 and then iceperf-laurel for doing the ping pong measurements with iceperf-laurel. 
 You can set the number of measurement iterations (number of roundtrips) with a command line paramter
@@ -188,7 +188,7 @@ Besides includes for the different IPC technologies, the topic_data.hpp file is 
 
 With `payloadSize` as the payload size used for the current measurement. In case it is not possible to transfer the `payloadSize` with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided in several sub-packets. This is indicated with `subPackets`. The `run` flag is used to shutdown iceperf-hardy at the end of the benchmark.
 
-Let's set some constants to prevent magic values. The default number of round trips is set and names for the communication resources that are used. 
+Let's set some constants to prevent magic values. The default number of round trips is set and names for the communication resources that are used.
 ```cpp
     constexpr int64_t NUMBER_OF_ROUNDTRIPS{10000};
     constexpr char APP_NAME[] = "/laurel";
