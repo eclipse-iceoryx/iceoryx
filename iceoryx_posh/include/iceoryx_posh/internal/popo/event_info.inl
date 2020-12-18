@@ -20,48 +20,43 @@ namespace iox
 namespace popo
 {
 template <typename T>
-inline void myCallback(void* const triggerOrigin, TriggerInfo::Callback<void> callbackPtr) noexcept
+inline void myCallback(void* const triggerOrigin, EventInfo::Callback<void> callbackPtr) noexcept
 {
-    (*reinterpret_cast<TriggerInfo::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(triggerOrigin));
+    (*reinterpret_cast<EventInfo::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(triggerOrigin));
 }
 
 template <typename T>
-inline TriggerInfo::TriggerInfo(T* const triggerOrigin, const uint64_t triggerId, const Callback<T> callback) noexcept
-    : m_triggerOrigin(triggerOrigin)
-    , m_triggerOriginTypeHash(typeid(T).hash_code())
-    , m_triggerId(triggerId)
+inline EventInfo::EventInfo(T* const eventOrigin, const uint64_t eventId, const Callback<T> callback) noexcept
+    : m_eventOrigin(eventOrigin)
+    , m_eventOriginTypeHash(typeid(T).hash_code())
+    , m_eventId(eventId)
     , m_callbackPtr(reinterpret_cast<Callback<void>>(callback))
     , m_callback(myCallback<T>)
 {
 }
 
 template <typename T>
-inline bool TriggerInfo::doesOriginateFrom(T* const triggerOrigin) const noexcept
+inline bool EventInfo::doesOriginateFrom(T* const eventOrigin) const noexcept
 {
-    if (m_triggerOrigin == nullptr)
+    if (m_eventOrigin == nullptr)
     {
         return false;
     }
-    return m_triggerOrigin == triggerOrigin;
+    return m_eventOrigin == eventOrigin;
 }
 
 template <typename T>
-inline T* TriggerInfo::getOrigin() noexcept
+inline T* EventInfo::getOrigin() const noexcept
 {
-    if (m_triggerOriginTypeHash != typeid(T).hash_code())
+    if (m_eventOriginTypeHash != typeid(T).hash_code())
     {
-        errorHandler(Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
+        errorHandler(Error::kPOPO__EVENT_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
         return nullptr;
     }
 
-    return static_cast<T*>(m_triggerOrigin);
+    return static_cast<T*>(m_eventOrigin);
 }
 
-template <typename T>
-inline const T* TriggerInfo::getOrigin() const noexcept
-{
-    return const_cast<const T*>(const_cast<TriggerInfo*>(this)->getOrigin<T>());
-}
 } // namespace popo
 } // namespace iox
 

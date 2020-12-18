@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ namespace popo
 PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
                                      const ProcessName_t& processName,
                                      mepoo::MemoryManager* const memoryManager,
-                                     const uint64_t historyCapacity,
+                                     const PublisherOptions& publisherOptions,
                                      const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, processName)
-    , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
+    , m_chunkSenderData(memoryManager, publisherOptions.historyCapacity, memoryInfo)
 {
 }
 

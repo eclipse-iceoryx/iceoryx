@@ -32,14 +32,15 @@ static void sigHandler(int f_sig [[gnu::unused]])
 int main()
 {
     constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
+    constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
 
     signal(SIGINT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-grouping");
-    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + 1> waitset;
+    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    shutdownTrigger.attachTo(waitset);
+    waitset.attachEvent(shutdownTrigger);
 
     // create subscriber and subscribe them to our service
     iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
@@ -51,48 +52,48 @@ int main()
         subscriber.subscribe();
     }
 
-    constexpr uint64_t FIRST_GROUP_ID = 123;
-    constexpr uint64_t SECOND_GROUP_ID = 456;
+    constexpr uint64_t FIRST_GROUP_ID = 123U;
+    constexpr uint64_t SECOND_GROUP_ID = 456U;
 
-    // attach the first two subscribers to waitset with a triggerid of FIRST_GROUP_ID
+    // attach the first two subscribers to waitset with a eventid of FIRST_GROUP_ID
     for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
-        subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
+        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_SAMPLES, FIRST_GROUP_ID);
     }
 
-    // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
+    // attach the remaining subscribers to waitset with a eventid of SECOND_GROUP_ID
     for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
+        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_SAMPLES, SECOND_GROUP_ID);
     }
 
     // event loop
     while (true)
     {
-        auto triggerVector = waitset.wait();
+        auto eventVector = waitset.wait();
 
-        for (auto& trigger : triggerVector)
+        for (auto& event : eventVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             // we print the received data for the first group
-            else if (trigger.getTriggerId() == FIRST_GROUP_ID)
+            else if (event->getEventId() == FIRST_GROUP_ID)
             {
-                auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+                auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
                 subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
                     const CounterTopic* data = static_cast<const CounterTopic*>(sample.get());
                     std::cout << "received: " << std::dec << data->counter << std::endl;
                 });
             }
             // dismiss the received data for the second group
-            else if (trigger.getTriggerId() == SECOND_GROUP_ID)
+            else if (event->getEventId() == SECOND_GROUP_ID)
             {
                 std::cout << "dismiss data\n";
-                auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
-                // We need to release the samples to reset the trigger hasNewSamples
+                auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
+                // We need to release the samples to reset the trigger hasSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.
                 subscriber->releaseQueuedSamples();

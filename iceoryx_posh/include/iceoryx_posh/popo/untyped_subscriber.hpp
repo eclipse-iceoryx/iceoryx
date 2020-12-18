@@ -44,13 +44,11 @@ class UntypedSubscriberImpl
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
     virtual ~UntypedSubscriberImpl() = default;
 
-    using BaseSubscriber::attachTo;
-    using BaseSubscriber::detachEvent;
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
     using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::hasSamples;
     using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseQueuedSamples;
     using BaseSubscriber::subscribe;

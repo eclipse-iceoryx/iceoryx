@@ -244,8 +244,10 @@ void CmdLineParser::printParameters() const noexcept
     LogVerbose() << "Log level: " << m_logLevel;
     LogVerbose() << "Monitoring mode: " << m_monitoringMode;
     LogVerbose() << "Compatibility check level: " << m_compatibilityCheckLevel;
-    LogVerbose() << "Unique RouDi ID: " << m_uniqueRouDiId.value();
-    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds<uint64_t>() << " ms" ;
+    m_uniqueRouDiId.and_then([](auto& id) { LogVerbose() << "Unique RouDi ID: " << id; }).or_else([] {
+        LogVerbose() << "Unique RouDi ID: < unset >";
+    });
+    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds<uint64_t>() << " ms";
 }
 
 } // namespace config

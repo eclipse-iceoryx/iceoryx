@@ -99,9 +99,9 @@ TEST_F(TypedSubscriberTest, UnsubscribesViaBaseSubscriber)
 TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasNewSamples).Times(1);
+    EXPECT_CALL(sut, hasSamples).Times(1);
     // ===== Test ===== //
-    sut.hasNewSamples();
+    sut.hasSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

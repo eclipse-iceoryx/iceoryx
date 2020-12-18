@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
+#include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox
@@ -64,9 +65,9 @@ class PortPool
 
     cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,
-                     const uint64_t& historyCapacity,
                      mepoo::MemoryManager* const memoryManager,
                      const ProcessName_t& applicationName,
+                     const popo::PublisherOptions& publisherOptions = popo::PublisherOptions(),
                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>

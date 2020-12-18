@@ -18,22 +18,24 @@ namespace iox
 namespace popo
 {
 template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                                         const uint64_t triggerId,
-                                                         const Trigger::Callback<UserTrigger> callback) noexcept
+inline cxx::expected<WaitSetError> UserTrigger::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                            const uint64_t eventId,
+                                                            const EventInfo::Callback<UserTrigger> callback) noexcept
 {
     return waitset
-        .acquireTrigger(
-            this, {*this, &UserTrigger::hasTriggered}, {*this, &UserTrigger::invalidateTrigger}, triggerId, callback)
+        .acquireTriggerHandle(
+            this, {*this, &UserTrigger::hasTriggered}, {*this, &UserTrigger::invalidateTrigger}, eventId, callback)
         .and_then([this](TriggerHandle& trigger) { m_trigger = std::move(trigger); });
 }
 
 template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                                         const Trigger::Callback<UserTrigger> callback) noexcept
+inline cxx::expected<WaitSetError> UserTrigger::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                            const EventInfo::Callback<UserTrigger> callback) noexcept
 {
-    return attachTo(waitset, Trigger::INVALID_TRIGGER_ID, callback);
+    return enableEvent(waitset, EventInfo::INVALID_ID, callback);
 }
+
+
 } // namespace popo
 } // namespace iox
 #endif

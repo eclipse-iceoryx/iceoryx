@@ -197,8 +197,8 @@ If the FiFo has an overflow, we release the oldest sample and store the newest o
 The next step is the instantiation and setup of the `WaitSet`
 
     iox::popo::WaitSet<> waitSet;
-    untypedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-    shutdownTrigger.attachTo(waitSet);
+    waitSet.attachEvent(untypedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitSet.attachEvent(shutdownTrigger);
 
 Here our subscriber object `untypedSubscriber` got attached to the WaitSet, as well as the `shutdownTrigger`.
 It will be used to stop the programm execution.
@@ -296,7 +296,7 @@ Compare this line from the `UntypedSubscriber`
     .and_then([](iox::popo::Sample<const Position>& position)
     {
         // ...
-    }
+    })
 
 with
 

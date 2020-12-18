@@ -213,6 +213,22 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
+        iox::relative_ptr<TypeParam> rp;
+        rp = memMap.getMappedAddress();
+        iox::RelativePointer basePointer(rp);
+        iox::relative_ptr<TypeParam> recovered(basePointer);
+
+        EXPECT_EQ(rp, recovered);
+        EXPECT_EQ(rp.getOffset(), recovered.getOffset());
+        EXPECT_EQ(rp.getId(), recovered.getId());
+
+        recovered = basePointer;
+        EXPECT_EQ(rp, recovered);
+        EXPECT_EQ(rp.getOffset(), recovered.getOffset());
+        EXPECT_EQ(rp.getId(), recovered.getId());
+    }
+
+    {
         auto offset = ShmSize / 2;
         void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
         iox::relative_ptr<TypeParam> rp;
@@ -525,4 +541,12 @@ TEST_F(RelativePointer_test, MemoryReMapping_SharedMemory)
     }
     EXPECT_EQ(iox::RelativePointer::unregisterPtr(1), true);
 }
+
+TEST_F(RelativePointer_test, compileTest)
+{
+    // No functional test. Tests if code compiles
+    iox::relative_ptr<void> p1;
+    iox::relative_ptr<const void> p2;
+}
+
 } // namespace

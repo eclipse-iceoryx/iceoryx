@@ -59,7 +59,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getExternalTerminal();
 
-    while (reader->hasNewSamples())
+    while (reader->hasSamples())
     {
         reader->peekNextSize().and_then([&](auto size) {
             publisher->loan(size).and_then([&](auto& sample) {

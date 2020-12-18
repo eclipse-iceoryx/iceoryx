@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include "test.hpp"
 
@@ -21,13 +21,15 @@ using namespace ::testing;
 using namespace iox::mepoo;
 
 template <uint32_t N>
-struct alignas(32) ChunkWithPayload {
+struct alignas(32) ChunkWithPayload
+{
     ChunkHeader m_chunkHeader;
     uint8_t m_payload[N];
 };
 
 template <uint32_t N>
-struct alignas(32) ChunkWithCustomHeaderAndPayload {
+struct alignas(32) ChunkWithCustomHeaderAndPayload
+{
     ChunkHeader m_chunkHeader;
     uint64_t m_customHeader;
     uint8_t m_payload[N];
@@ -63,7 +65,7 @@ TEST_F(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 
 TEST_F(ChunkHeader_test, ChunkHeaderPayloadSizeIsLargeEnoughForMempoolChunk)
 {
-    using ChunkSize_t = std::result_of<decltype(&MemPool::getChunkSize)(MemPool)>::type;
+    using ChunkSize_t = std::result_of<decltype (&MemPool::getChunkSize)(MemPool)>::type;
 
     auto maxChunkSize = std::numeric_limits<ChunkSize_t>::max();
     auto maxPayloadSize = std::numeric_limits<decltype(ChunkHeader::m_payloadSize)>::max();
@@ -75,7 +77,7 @@ TEST_F(ChunkHeader_test, ChunkHeaderPayloadSizeIsLargeEnoughForMempoolChunk)
 
 TEST_F(ChunkHeader_test, CustomHeaderMethodReturnsCorrectCustomHeaderPointer)
 {
-    constexpr int32_t PAYLOAD_SIZE {128};
+    constexpr int32_t PAYLOAD_SIZE{128};
     ChunkWithCustomHeaderAndPayload<PAYLOAD_SIZE> chunk;
 
     EXPECT_THAT(chunk.m_chunkHeader.customHeader<uint64_t>(), Eq(&chunk.m_customHeader));
@@ -83,7 +85,7 @@ TEST_F(ChunkHeader_test, CustomHeaderMethodReturnsCorrectCustomHeaderPointer)
 
 TEST_F(ChunkHeader_test, PayloadMethodReturnsCorrectPayloadPointer)
 {
-    constexpr int32_t PAYLOAD_SIZE {128};
+    constexpr int32_t PAYLOAD_SIZE{128};
     ChunkWithPayload<PAYLOAD_SIZE> chunk;
 
     EXPECT_THAT(chunk.m_chunkHeader.payload(), Eq(chunk.m_payload));
@@ -91,7 +93,7 @@ TEST_F(ChunkHeader_test, PayloadMethodReturnsCorrectPayloadPointer)
 
 TEST_F(ChunkHeader_test, FromPayloadFunctionReturnsCorrectChunkHeaderPointer)
 {
-    constexpr int32_t PAYLOAD_SIZE {128};
+    constexpr int32_t PAYLOAD_SIZE{128};
     ChunkWithPayload<PAYLOAD_SIZE> chunk;
 
     EXPECT_THAT(ChunkHeader::fromPayload(chunk.m_payload), Eq(&chunk.m_chunkHeader));
@@ -100,4 +102,30 @@ TEST_F(ChunkHeader_test, FromPayloadFunctionReturnsCorrectChunkHeaderPointer)
 TEST_F(ChunkHeader_test, FromPayloadFunctionCalledWithNullptrReturnsNullptr)
 {
     EXPECT_THAT(ChunkHeader::fromPayload(nullptr), Eq(nullptr));
+}
+
+TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
+{
+    ChunkHeader sut;
+    sut.m_chunkSize = 2 * sizeof(ChunkHeader);
+    EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader)));
+}
+
+TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne)
+{
+    ChunkHeader sut;
+    sut.m_chunkSize = 2 * sizeof(ChunkHeader);
+    constexpr uint32_t PAYLOAD_SIZE{1U};
+    sut.m_payloadSize = PAYLOAD_SIZE;
+    EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader) + PAYLOAD_SIZE));
+}
+
+TEST_F(ChunkHeader_test, usedChunkSizeTerminatesWhenPayloadSizeExceedsChunkSize)
+{
+    ChunkHeader sut;
+    sut.m_chunkSize = 2 * sizeof(ChunkHeader);
+    constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
+    sut.m_payloadSize = PAYLOAD_SIZE;
+
+    EXPECT_DEATH(sut.usedSizeOfChunk(), ".*");
 }
