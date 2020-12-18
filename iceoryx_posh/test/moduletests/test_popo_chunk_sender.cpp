@@ -326,10 +326,12 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
         EXPECT_TRUE(popRet.has_value());
         auto dummySample = *reinterpret_cast<DummySample*>(popRet->getPayload());
         EXPECT_THAT(dummySample.dummy, Eq(i));
-        EXPECT_THAT(popRet->getChunkHeader()->m_info.m_sequenceNumber, Eq(i));
+        EXPECT_THAT(popRet->getChunkHeader()->m_sequenceNumber, Eq(i));
     }
 }
 
+/// @todo iox-#14: this needs to be ported to the ChunkHeaderHooks once available
+#if 0
 TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 {
     m_chunkSender.tryAddQueue(&m_chunkQueueData);
@@ -358,7 +360,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
         EXPECT_THAT(popRet->getChunkHeader()->m_info.m_sequenceNumber, Eq(i));
     }
 }
-
+#endif
 
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
@@ -373,8 +375,6 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 
         if (!maybeChunkHeader.has_error())
         {
-            (*maybeChunkHeader)->m_info.m_externalSequenceNumber_bl = true;
-            (*maybeChunkHeader)->m_info.m_sequenceNumber = i;
             auto sample = (*maybeChunkHeader)->payload();
             new (sample) DummySample();
             static_cast<DummySample*>(sample)->dummy = i;

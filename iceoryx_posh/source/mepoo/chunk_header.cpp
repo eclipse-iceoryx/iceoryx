@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -41,6 +41,15 @@ ChunkHeader* ChunkHeader::fromPayload(const void* const payload) noexcept
     using PayloadOffsetType = decltype(ChunkHeader::m_payloadOffset);
     auto payloadOffset = reinterpret_cast<PayloadOffsetType*>(payloadAddress - sizeof(PayloadOffsetType));
     return reinterpret_cast<ChunkHeader*>(payloadAddress - *payloadOffset);
+}
+
+uint32_t ChunkHeader::usedSizeOfChunk()
+{
+    auto usedSizeOfChunk = static_cast<uint64_t>(m_payloadOffset) + static_cast<uint64_t>(m_payloadSize);
+
+    cxx::Expects(usedSizeOfChunk <= m_chunkSize);
+
+    return static_cast<uint32_t>(usedSizeOfChunk);
 }
 
 } // namespace mepoo
