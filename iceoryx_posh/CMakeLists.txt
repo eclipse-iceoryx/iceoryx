@@ -29,7 +29,7 @@ include(IceoryxPlatform)
 
 include(cmake/iceoryx_posh_deployment.cmake)
 
-if( clang-tidy )
+if(CLANG_TIDY)
     find_program(
         CLANG_TIDY_EXE
         NAMES "clang-tidy"
@@ -40,7 +40,7 @@ if( clang-tidy )
     else(CLANG_TIDY_EXE)
         message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
     endif(CLANG_TIDY_EXE)
-endif( clang-tidy )
+endif(CLANG_TIDY)
 
 #
 ########## set variables for library export ##########

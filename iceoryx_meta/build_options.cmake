@@ -25,6 +25,7 @@ option(INTROSPECTION    "Builds the introspection client which requires the ncur
 option(DDS_GATEWAY      "Builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 option(BINDING_C        "Builds the C language bindings" OFF)
 option(SANITIZE         "Build with sanitizers" OFF)
+option(CLANG_TIDY         "Build with sanitizers" OFF)
 option(ROUDI_ENVIRONMENT"Build RouDi Environment for testing, is enabled when building tests" OFF)
 
 if(BUILD_ALL)

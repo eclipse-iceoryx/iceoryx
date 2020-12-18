@@ -5,7 +5,7 @@ project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
-if( clang-tidy )
+if(CLANG_TIDY)
     find_program(
         CLANG_TIDY_EXE
         NAMES "clang-tidy"
@@ -16,7 +16,7 @@ if( clang-tidy )
     else(CLANG_TIDY_EXE)
         message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
     endif(CLANG_TIDY_EXE)
-endif( clang-tidy )
+endif(CLANG_TIDY)
 
 ########## find_package in source tree ##########
 #
@@ -25,11 +25,6 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
     FORCE
 )
-
-#
-########## set variables for library export ##########
-#
-
 
 #
 ########## set util internal target, needed by tests in components ##########
@@ -95,11 +90,6 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     if(LINUX)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
     endif()
-
-    # install_target_directories_and_header(
-    # TARGETS iceoryx_utils_testing
-    # INCLUDE_DIRECTORY testutils/
-    # )
 
     setup_install_directories_and_export_package(
     TARGETS iceoryx_utils_testing
