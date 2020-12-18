@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 #ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP
 #define IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP
 
-#include "iceoryx_posh/popo/modern_api/base_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/base_publisher.hpp"
+#include "iceoryx_posh/popo/sample.hpp"
 
 namespace iox
 {
@@ -26,7 +26,8 @@ template <typename base_publisher_t = BasePublisher<void>>
 class UntypedPublisherImpl : public base_publisher_t
 {
   public:
-    UntypedPublisherImpl(const capro::ServiceDescription& service);
+    UntypedPublisherImpl(const capro::ServiceDescription& service,
+                         const PublisherOptions& publisherOptions = PublisherOptions());
     UntypedPublisherImpl(const UntypedPublisherImpl& other) = delete;
     UntypedPublisherImpl& operator=(const UntypedPublisherImpl&) = delete;
     UntypedPublisherImpl(UntypedPublisherImpl&& rhs) = default;
@@ -56,6 +57,6 @@ using UntypedPublisher = UntypedPublisherImpl<>;
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/modern_api/untyped_publisher.inl"
+#include "iceoryx_posh/internal/popo/untyped_publisher.inl"
 
 #endif // IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP

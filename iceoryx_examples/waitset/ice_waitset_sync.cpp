@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -52,12 +52,12 @@ int main()
     iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    shutdownTrigger.attachTo(waitset);
+    waitset.attachEvent(shutdownTrigger);
 
     // create and attach the cyclicTrigger with a callback to
     // SomeClass::myCyclicRun
     iox::popo::UserTrigger cyclicTrigger;
-    cyclicTrigger.attachTo(waitset, SomeClass::cyclicRun);
+    waitset.attachEvent(cyclicTrigger, 0U, SomeClass::cyclicRun);
 
     // start a thread which triggers cyclicTrigger every second
     std::thread cyclicTriggerThread([&] {
@@ -71,11 +71,11 @@ int main()
     // event loop
     while (keepRunning.load())
     {
-        auto triggerVector = waitset.wait();
+        auto eventVector = waitset.wait();
 
-        for (auto& trigger : triggerVector)
+        for (auto& event : eventVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning.store(false);
@@ -83,7 +83,7 @@ int main()
             else
             {
                 // call SomeClass::myCyclicRun
-                trigger();
+                (*event)();
             }
         }
 

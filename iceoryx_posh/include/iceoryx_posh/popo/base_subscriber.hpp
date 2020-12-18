@@ -16,7 +16,7 @@
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -31,7 +31,7 @@ using uid_t = UniquePortId;
 
 enum class SubscriberEvent
 {
-    HAS_NEW_SAMPLES
+    HAS_SAMPLES
 };
 
 /// @brief base class for all types of subscriber
@@ -88,7 +88,7 @@ class BaseSubscriber
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
-    bool hasNewSamples() const noexcept;
+    bool hasSamples() const noexcept;
 
     ///
     /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
@@ -109,42 +109,45 @@ class BaseSubscriber
     ///
     void releaseQueuedSamples() noexcept;
 
-    /// @brief attaches a WaitSet to the subscriber
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
-    /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] triggerId a custom uint64_t which can be set by the user with no restriction. could be used to either
-    ///            identify a trigger uniquely or to group multiple triggers together when they share the same triggerId
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                         const SubscriberEvent subscriberEvent,
-                                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                                         const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
-
-    /// @brief attaches a WaitSet to the subscriber
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
-    /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                         const SubscriberEvent subscriberEvent,
-                                         const Trigger::Callback<Subscriber> callback) noexcept;
-
-    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
-    /// @param[in] subscriberEvent the event which should be detached
-    void detachEvent(const SubscriberEvent subscriberEvent) noexcept;
+    template <uint64_t Capacity>
+    friend class WaitSet;
 
   protected:
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service) noexcept;
 
     void invalidateTrigger(const uint64_t trigger) noexcept;
+
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
+    ///            identify an event uniquely or to group multiple events together when they share the same eventId
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const SubscriberEvent subscriberEvent,
+                                            const uint64_t eventId = EventInfo::INVALID_ID,
+                                            const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
+
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const SubscriberEvent subscriberEvent,
+                                            const EventInfo::Callback<Subscriber> callback) noexcept;
+
+    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
+    /// @param[in] subscriberEvent the event which should be detached
+    void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
 
   private:
     ///
@@ -174,6 +177,6 @@ class BaseSubscriber
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/modern_api/base_subscriber.inl"
+#include "iceoryx_posh/internal/popo/base_subscriber.inl"
 
 #endif // IOX_POSH_POPO_BASE_SUBSCRIBER_HPP

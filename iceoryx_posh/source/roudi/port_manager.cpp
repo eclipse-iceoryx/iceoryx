@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -126,6 +127,8 @@ void PortManager::doDiscovery() noexcept
     handleInterfaces();
 
     handleNodes();
+
+    handleConditionVariables();
 }
 
 void PortManager::handlePublisherPorts() noexcept
@@ -223,7 +226,7 @@ void PortManager::handleInterfaces() noexcept
         }
 
         // check if we have to destroy this interface port
-        if (interfacePortData->m_toBeDestroyed)
+        if (interfacePortData->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
             m_portPool->removeInterfacePort(interfacePortData);
             LogDebug() << "Destroyed InterfacePortData";
@@ -330,10 +333,22 @@ void PortManager::handleNodes() noexcept
 
     for (auto nodeData : m_portPool->getNodeDataList())
     {
-        if (nodeData->m_toBeDestroyed)
+        if (nodeData->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
             m_portPool->removeNodeData(nodeData);
             LogDebug() << "Destroyed NodeData";
+        }
+    }
+}
+
+void PortManager::handleConditionVariables() noexcept
+{
+    for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
+    {
+        if (conditionVariableData->m_toBeDestroyed.load(std::memory_order_relaxed))
+        {
+            m_portPool->removeConditionVariableData(conditionVariableData);
+            LogDebug() << "Destroyed ConditionVariableData";
         }
     }
 }
@@ -466,6 +481,15 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
             LogDebug() << "Deleted node of application " << processName;
         }
     }
+
+    for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
+    {
+        if (processName == conditionVariableData->m_process)
+        {
+            m_portPool->removeConditionVariableData(conditionVariableData);
+            LogDebug() << "Deleted condition variable of application" << processName;
+        }
+    }
 }
 
 void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept
@@ -572,8 +596,9 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
     }
 
     // we can create a new port
-    auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, historyCapacity, payloadMemoryManager, processName, portConfigInfo.memoryInfo);
+    auto options = popo::PublisherOptions{historyCapacity};
+    auto maybePublisherPortData =
+        m_portPool->addPublisherPort(service, payloadMemoryManager, processName, options, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
         m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, node);
@@ -630,7 +655,8 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const Process
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service,
+                                            const capro::IdString_t& instance) noexcept
 {
     m_serviceRegistry.add(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
@@ -657,9 +683,10 @@ runtime::NodeData* PortManager::acquireNodeData(const ProcessName_t& process, co
     }
 }
 
-cxx::expected<popo::ConditionVariableData*, PortPoolError> PortManager::acquireConditionVariableData() noexcept
+cxx::expected<popo::ConditionVariableData*, PortPoolError>
+PortManager::acquireConditionVariableData(const ProcessName_t& process) noexcept
 {
-    return m_portPool->addConditionVariableData();
+    return m_portPool->addConditionVariableData(process);
 }
 
 } // namespace roudi

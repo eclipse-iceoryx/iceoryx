@@ -97,7 +97,7 @@ void iox_sub_release_queued_chunks(iox_sub_t const self)
     SubscriberPortUser(self->m_portData).releaseQueuedChunks();
 }
 
-bool iox_sub_has_new_chunks(iox_sub_t const self)
+bool iox_sub_has_chunks(iox_sub_t const self)
 {
     return SubscriberPortUser(self->m_portData).hasNewChunks();
 }
@@ -106,18 +106,3 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
     return SubscriberPortUser(self->m_portData).hasLostChunksSinceLastCall();
 }
-
-iox_WaitSetResult iox_sub_attach_to_waitset(iox_sub_t const self,
-                                            iox_ws_t const waitset,
-                                            const iox_SubscriberEvent event,
-                                            const uint64_t triggerId,
-                                            void (*callback)(iox_sub_t))
-{
-    return self->attachTo(*waitset, event, triggerId, callback);
-}
-
-void iox_sub_detach_event(iox_sub_t const self, const iox_SubscriberEvent event)
-{
-    return self->detachEvent(event);
-}
-

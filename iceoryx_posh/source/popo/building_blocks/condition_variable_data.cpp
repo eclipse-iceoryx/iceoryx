@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,27 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
-#define IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename base_publisher_t>
-inline UntypedPublisherImpl<base_publisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service)
-    : base_publisher_t(service)
+ConditionVariableData::ConditionVariableData(const ProcessName_t& process) noexcept
+    : m_process(process)
 {
 }
-
-template <typename base_publisher_t>
-inline void UntypedPublisherImpl<base_publisher_t>::publish(void* allocatedMemory) noexcept
-{
-    auto header = mepoo::ChunkHeader::fromPayload(allocatedMemory);
-    base_publisher_t::m_port.sendChunk(header);
-}
-
 } // namespace popo
 } // namespace iox
-
-#endif // IOX_POSH_POPO_UNTYPED_PUBLISHER_INL

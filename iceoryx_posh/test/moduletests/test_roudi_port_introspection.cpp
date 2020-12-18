@@ -24,9 +24,6 @@ using ::testing::Return;
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
-using iox::mepoo::DurationNs;
-using iox::mepoo::TimePointNs;
-
 #include <cstdint>
 
 template <typename PublisherPort, typename SubscriberPort>

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
@@ -58,7 +58,7 @@ void receive()
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        while (subscriber.hasNewSamples())
+        while (subscriber.hasSamples())
         {
             subscriber.take()
                 .and_then([](iox::popo::Sample<const CounterTopic>& sample) {

@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
+#include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
@@ -44,13 +44,11 @@ class UntypedSubscriberImpl
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
     virtual ~UntypedSubscriberImpl() = default;
 
-    using BaseSubscriber::attachTo;
-    using BaseSubscriber::detachEvent;
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
     using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::hasSamples;
     using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseQueuedSamples;
     using BaseSubscriber::subscribe;
@@ -63,6 +61,6 @@ using UntypedSubscriber = UntypedSubscriberImpl<>;
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/modern_api/untyped_subscriber.inl"
+#include "iceoryx_posh/internal/popo/untyped_subscriber.inl"
 
 #endif // IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP

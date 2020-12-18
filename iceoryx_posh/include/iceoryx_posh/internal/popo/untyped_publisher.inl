@@ -12,41 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
+#ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
+#define IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
 
 namespace iox
 {
 namespace popo
 {
-void UserTrigger::disableEvent() noexcept
+template <typename base_publisher_t>
+inline UntypedPublisherImpl<base_publisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service,
+                                                                    const PublisherOptions& publisherOptions)
+    : base_publisher_t(service, publisherOptions)
 {
-    m_trigger.reset();
 }
 
-void UserTrigger::trigger() noexcept
+template <typename base_publisher_t>
+inline void UntypedPublisherImpl<base_publisher_t>::publish(void* allocatedMemory) noexcept
 {
-    m_wasTriggered.store(true, std::memory_order_relaxed);
-    m_trigger.trigger();
-}
-
-bool UserTrigger::hasTriggered() const noexcept
-{
-    return m_wasTriggered.load(std::memory_order_relaxed);
-}
-
-void UserTrigger::resetTrigger() noexcept
-{
-    m_wasTriggered.store(false, std::memory_order_relaxed);
-}
-
-void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
-{
-    if (uniqueTriggerId == m_trigger.getUniqueId())
-    {
-        m_trigger.invalidate();
-    }
+    auto header = mepoo::ChunkHeader::fromPayload(allocatedMemory);
+    base_publisher_t::m_port.sendChunk(header);
 }
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_UNTYPED_PUBLISHER_INL

@@ -72,7 +72,7 @@ iox::cxx::optional<uint32_t> iox::dds::CycloneDataReader::peekNextSize()
     return iox::cxx::nullopt_t();
 }
 
-bool iox::dds::CycloneDataReader::hasNewSamples()
+bool iox::dds::CycloneDataReader::hasSamples()
 {
     auto samples = m_impl.select().max_samples(1u).state(::dds::sub::status::SampleState::any()).read();
     return samples.length() > 0;

@@ -70,7 +70,7 @@ inline void BaseSubscriber<T, Subscriber, port_t>::unsubscribe() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline bool BaseSubscriber<T, Subscriber, port_t>::hasNewSamples() const noexcept
+inline bool BaseSubscriber<T, Subscriber, port_t>::hasSamples() const noexcept
 {
     return m_port.hasNewChunks();
 }
@@ -141,16 +141,16 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
 template <typename T, typename Subscriber, typename port_t>
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                                [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                                const uint64_t triggerId,
-                                                const Trigger::Callback<Subscriber> callback) noexcept
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
+                                                   const uint64_t eventId,
+                                                   const EventInfo::Callback<Subscriber> callback) noexcept
 {
     Subscriber* self = reinterpret_cast<Subscriber*>(this);
 
     return waitset
-        .acquireTrigger(
-            self, {*this, &SelfType::hasNewSamples}, {*this, &SelfType::invalidateTrigger}, triggerId, callback)
+        .acquireTriggerHandle(
+            self, {*this, &SelfType::hasSamples}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
         .and_then([this](TriggerHandle& trigger) {
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());
@@ -160,15 +160,15 @@ BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet<WaitSetCapacity>& waitse
 template <typename T, typename Subscriber, typename port_t>
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                                const SubscriberEvent subscriberEvent,
-                                                const Trigger::Callback<Subscriber> callback) noexcept
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
+                                                   const EventInfo::Callback<Subscriber> callback) noexcept
 {
-    return attachTo(waitset, subscriberEvent, Trigger::INVALID_TRIGGER_ID, callback);
+    return enableEvent(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::detachEvent(const SubscriberEvent subscriberEvent) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);
 

@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/trigger_info.hpp"
+#include "iceoryx_posh/popo/event_info.hpp"
 
 namespace iox
 {
 namespace popo
 {
-constexpr uint64_t TriggerInfo::INVALID_TRIGGER_ID;
+constexpr uint64_t EventInfo::INVALID_ID;
 
-uint64_t TriggerInfo::getTriggerId() const noexcept
+uint64_t EventInfo::getEventId() const noexcept
 {
-    return m_triggerId;
+    return m_eventId;
 }
 
-bool TriggerInfo::operator()() const noexcept
+bool EventInfo::operator()() const noexcept
 {
-    if (m_triggerOrigin != nullptr && m_callbackPtr != nullptr)
+    if (m_eventOrigin != nullptr && m_callbackPtr != nullptr)
     {
-        m_callback(m_triggerOrigin, m_callbackPtr);
+        m_callback(m_eventOrigin, m_callbackPtr);
         return true;
     }
     return false;

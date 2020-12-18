@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_PUBLISHER_HPP
-#define IOX_POSH_POPO_PUBLISHER_HPP
+#ifndef IOX_POSH_POPO_SUBSCRIBER_HPP
+#define IOX_POSH_POPO_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/popo/modern_api/typed_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 
-#endif // IOX_POSH_POPO_PUBLISHER_HPP
+#endif // IOX_POSH_POPO_SUBSCRIBER_HPP

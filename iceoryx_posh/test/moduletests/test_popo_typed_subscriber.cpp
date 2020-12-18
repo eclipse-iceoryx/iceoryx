@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
@@ -99,9 +99,9 @@ TEST_F(TypedSubscriberTest, UnsubscribesViaBaseSubscriber)
 TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasNewSamples).Times(1);
+    EXPECT_CALL(sut, hasSamples).Times(1);
     // ===== Test ===== //
-    sut.hasNewSamples();
+    sut.hasSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

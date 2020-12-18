@@ -20,8 +20,8 @@
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/popo/modern_api/base_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
+#include "iceoryx_posh/popo/base_publisher.hpp"
+#include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -60,7 +60,7 @@ class MockSubscriber
     MOCK_METHOD1(subscribe, void(uint64_t));
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
     MOCK_METHOD0(unsubscribe, void());
-    MOCK_CONST_METHOD0(hasNewSamples, bool());
+    MOCK_CONST_METHOD0(hasSamples, bool());
     MOCK_METHOD0(hasMissedSamples, bool());
     MOCK_METHOD0_T(take,
                    iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError>());

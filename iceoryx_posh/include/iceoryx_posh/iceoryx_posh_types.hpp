@@ -103,7 +103,7 @@ constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESS
 constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
-constexpr uint32_t MAX_NUMBER_OF_TRIGGERS_PER_WAITSET = 128U;
+constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
 //--------- Communication Resources End---------------------
 
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
@@ -210,6 +210,18 @@ enum class MonitoringMode
 
 iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode);
 } // namespace roudi
+
+namespace mepoo
+{
+using SequenceNumber_t = std::uint64_t;
+using BaseClock_t = std::chrono::steady_clock;
+
+// use signed integer for duration;
+// there is a bug in gcc 4.8 which leads to a wrong calcutated time
+// when sleep_until() is used with a timepoint in the past
+using DurationNs_t = std::chrono::duration<std::int64_t, std::nano>;
+using TimePointNs_t = std::chrono::time_point<BaseClock_t, DurationNs_t>;
+}
 
 namespace runtime
 {

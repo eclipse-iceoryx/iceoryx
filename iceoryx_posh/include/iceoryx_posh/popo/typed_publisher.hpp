@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 #ifndef IOX_POSH_POPO_TYPED_PUBLISHER_HPP
 #define IOX_POSH_POPO_TYPED_PUBLISHER_HPP
 
-#include "iceoryx_posh/popo/modern_api/base_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/base_publisher.hpp"
+#include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox
@@ -30,7 +30,8 @@ class TypedPublisher : public base_publisher_t
     static_assert(std::is_default_constructible<T>::value, "The TypedPublisher requires default-constructable types.");
 
   public:
-    TypedPublisher(const capro::ServiceDescription& service);
+    TypedPublisher(const capro::ServiceDescription& service,
+                   const PublisherOptions& publisherOptions = PublisherOptions());
     TypedPublisher(const TypedPublisher& other) = delete;
     TypedPublisher& operator=(const TypedPublisher&) = delete;
     TypedPublisher(TypedPublisher&& rhs) = default;
@@ -66,6 +67,6 @@ class TypedPublisher : public base_publisher_t
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/modern_api/typed_publisher.inl"
+#include "iceoryx_posh/internal/popo/typed_publisher.inl"
 
 #endif // IOX_POSH_POPO_TYPED_PUBLISHER_HPP
