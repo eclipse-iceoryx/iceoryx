@@ -12,7 +12,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This job builds & runs iceoryx tests in ubuntu-18.04
-  ubuntu-iceoryx-meta:
+  ubuntu-iceoryx:
      # The type of runner that the job will run on
      runs-on: ubuntu-18.04
 
@@ -29,7 +29,7 @@ jobs:
        - name: Build sources
          run: |
             export NUM_CORES=`nproc`
-            cmake -Bbuild -Hiceoryx_meta -DBUILD_ALL=ON && cmake --build build -j$NUM_CORES
+            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh buildall out-of-tree -j$NUM_CORES
 
        - name: Run timeless tests
          run: |
@@ -66,7 +66,9 @@ jobs:
           make install
 
       - name: Build sources
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test clean strict
+        run: |
+          export NUM_CORES=`nproc`
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh buildall out-of-tree -j$NUM_CORES
 
       - name: Run tests
         run: |
@@ -86,4 +88,5 @@ jobs:
 
       - name: Build sources
         run: |
-          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=ON -DBINDING_C =ON -DEXAMPLES=ON && cmake --build build
+          export NUM_CORES=`nproc`
+          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=ON -DBINDING_C =ON -DEXAMPLES=ON && cmake --build build -j$NUM_CORES

@@ -40,7 +40,8 @@ INTROSPECTION_FLAG="ON"
 DDS_GATEWAY_FLAG="OFF"
 ONE_TO_MANY_ONLY_FLAG="OFF"
 SANITIZE_FLAG="OFF"
-ROUDI_ENV_FLAG="OFF" 
+ROUDI_ENV_FLAG="OFF"
+EXAMPLES="benchmark_optional_and_expected ice_multi_publisher icedelivery iceperf" 
 
 while (( "$#" )); do
   case "$1" in
@@ -118,12 +119,12 @@ while (( "$#" )); do
         DDS_GATEWAY_FLAG="ON"
         BINDING_C_FLAG="ON"
         TEST_FLAG="ON"
-        EXAMPLE_FLAG="ON"
+        STRICT_FLAG="ON"
         shift 1
         ;;
-    "examples")
-        echo " [i] Building examples."
-        EXAMPLE_FLAG="ON"
+    "out-of-tree")
+        echo " [i] Out-of-tree build"
+        OUT_OF_TREE_FLAG="ON"
         shift 1
         ;;
     "one-to-many")
@@ -158,14 +159,14 @@ while (( "$#" )); do
         echo "    clean                 Deletes the directory build/ before build"
         echo "    release               Build release configuration"
         echo "    debug                 Build debug configuration"
-        echo "    buildall              Build all extensions"
+        echo "    buildall              Build all extensions and all examples"
+        echo "    out-of-tree           Out-of-tree build for CI build"
         echo "    build-test            Builds all tests (doesn't run)"
-        echo "    examples              Build all examples"
         echo "    strict                Build is performed with '-Werror'"
         echo "    qacpp                 JSON is generated for QACPP"
         echo "    test                  Builds and runs all tests in all iceoryx components"
         echo "    dds-gateway           Builds the iceoryx dds gateway"
-        echo "    binding-c             Builds the iceoryx dds gateway"
+        echo "    binding-c             Builds the iceoryx C-Binding"
         echo "    one-to-many           Restricts to 1:n communication only"
         echo "    clang                 Build with clang compiler (should be installed already)"
         echo "    sanitize              Build with sanitizers"
@@ -219,27 +220,25 @@ cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 # Dont build examples when coverage or sanitization is enabled
-if [ "$COV_FLAG" == "ON" ] || [ "$SANITIZE_FLAG" == "ON" ]
+if [ "$COV_FLAG" == "OFF" ] || [ "$SANITIZE_FLAG" == "OFF" ] || [ "$OUT_OF_TREE_FLAG" == "ON" ]
 then
-    echo ">>>>>> Skip building iceoryx examples <<<<<<"
-else
-    echo ">>>>>> Start building iceoryx examples <<<<<<"
-    cd $BUILD_DIR
-    mkdir -p iceoryx_examples
-    echo ">>>>>>>> icedelivery"
-    cd $BUILD_DIR/iceoryx_examples
-    mkdir -p icedelivery
-    cd icedelivery
-    cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-    cmake --build . --target install -- -j$NUM_JOBS
-    
-    echo ">>>>>>>> iceperf"
-    cd $BUILD_DIR/iceoryx_examples
-    mkdir -p iceperf
-    cd iceperf
-    cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-    cmake --build . --target install -- -j$NUM_JOBS
-
+    if [ "$BINDING_C_FLAG" == "ON" ]; then
+        EXAMPLES="${EXAMPLES} icedelivery_on_c waitset_on_c"
+    fi
+    echo ">>>>>> Start Out-of-tree build <<<<<<"
+    echo ${EXAMPLES} 
+    cd $WORKSPACE/iceoryx_examples
+        for ex in ${EXAMPLES}  ; do
+            cd $ex && mkdir -p build && cd build
+            cmake .. -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX
+            cmake --build . --target install -- -j$NUM_JOBS
+            if [ $? -ne 0 ]; then
+                echo "Out of tree build failed"
+                exit 1
+            fi
+            cd ../..
+        done
+        echo ">>>>>> Finished Out-of-tree build<<<<<<"
 fi
 
 if [ "$COV_FLAG" == "ON" ]
