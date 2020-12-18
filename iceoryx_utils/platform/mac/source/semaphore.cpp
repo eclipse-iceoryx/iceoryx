@@ -41,7 +41,6 @@ iox_sem_t& iox_sem_t::operator=(iox_sem_t&& rhs) noexcept
         m_value.store(rhs.m_value.load());
         m_handle = rhs.m_handle;
         m_hasPosixHandle = rhs.m_hasPosixHandle;
-        m_value = rhs.m_value;
 
         rhs.m_value.store(0);
     }
