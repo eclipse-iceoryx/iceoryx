@@ -63,7 +63,7 @@ class PortManager
 
     cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     acquirePublisherPortData(const capro::ServiceDescription& service,
-                             const uint64_t& historyCapacity,
+                             const popo::PublisherOptions& publisherOptions,
                              const ProcessName_t& processName,
                              mepoo::MemoryManager* payloadMemoryManager,
                              const NodeName_t& node,
@@ -71,7 +71,7 @@ class PortManager
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     acquireSubscriberPortData(const capro::ServiceDescription& service,
-                              const uint64_t& historyRequest,
+                              const popo::SubscriberOptions& subscriberOptions,
                               const ProcessName_t& processName,
                               const NodeName_t& node,
                               const PortConfigInfo& portConfigInfo) noexcept;

@@ -90,6 +90,7 @@ See [error-handling.md](./doc/error-handling.md) for additional information abou
 * Methods and variables in `lowerCamelCase`: `uint16_t myVariable`
 * Compile time constants, also enum values in `UPPER_SNAKE_CASE`: `static constexpr uint16_t MY_CONSTANT`
 * Class members start with `m_`: `m_myMember`
+    * Public members of structs and classes do not have the `m_` prefix
 * Namespaces in `lower_snake_case` : `my_namespace`
 * Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
 

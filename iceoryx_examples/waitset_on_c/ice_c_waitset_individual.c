@@ -58,12 +58,15 @@ int main()
     iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
     // create two subscribers, subscribe to the service and attach them to the waitset
-    uint64_t historyRequest = 1U;
-    subscriber[0] = iox_sub_init(&(subscriberStorage[0U]), "Radar", "FrontLeft", "Counter", historyRequest);
-    subscriber[1] = iox_sub_init(&(subscriberStorage[1U]), "Radar", "FrontLeft", "Counter", historyRequest);
+    const uint64_t historyRequest = 1U;
+    const uint64_t queueCapacity = 256U;
+    subscriber[0] =
+        iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+    subscriber[1] =
+        iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-    iox_sub_subscribe(subscriber[0], 256);
-    iox_sub_subscribe(subscriber[1], 256);
+    iox_sub_subscribe(subscriber[0]);
+    iox_sub_subscribe(subscriber[1]);
 
     iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
     iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);

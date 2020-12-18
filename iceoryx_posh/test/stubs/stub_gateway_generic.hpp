@@ -54,10 +54,11 @@ class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
         // Stubbed.
     }
 
-    iox::cxx::expected<channel_t, iox::gw::GatewayError>
-    addChannel(const iox::capro::ServiceDescription& service) noexcept
+    template <typename IceoryxPubSubOptions>
+    iox::cxx::expected<channel_t, iox::gw::GatewayError> addChannel(const iox::capro::ServiceDescription& service,
+                                                                    const IceoryxPubSubOptions& options) noexcept
     {
-        return TestGatewayGeneric<channel_t>::addChannel(service);
+        return TestGatewayGeneric<channel_t>::addChannel(service, options);
     }
 
     iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) noexcept

@@ -70,10 +70,11 @@ class PublisherPort_test : public Test
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
+    iox::popo::PublisherOptions m_publisherOptions;
 
     // publisher port w/o history
     iox::popo::PublisherPortData m_publisherPortData{
-        iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager};
+        iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, m_publisherOptions};
     iox::popo::PublisherPortRouDi m_sutRouDiSide{&m_publisherPortData};
     iox::popo::PublisherPortUser m_sutUserSide{&m_publisherPortData};
 

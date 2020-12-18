@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,9 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const co
             LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
                        << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
                        << ", " << serviceDescription.getEventIDString() << "}";
-            setupChannel(serviceDescription);
+            popo::SubscriberOptions options;
+            options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
+            setupChannel(serviceDescription, options);
         }
     }
 }
@@ -76,7 +78,9 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
     {
         if (!this->findChannel(msg.m_serviceDescription).has_value())
         {
-            setupChannel(msg.m_serviceDescription);
+            popo::SubscriberOptions options;
+            options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
+            setupChannel(msg.m_serviceDescription, options);
         }
         break;
     }
@@ -112,12 +116,13 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
 
 template <typename channel_t, typename gateway_t>
 cxx::expected<channel_t, gw::GatewayError>
-Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service) noexcept
+Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service,
+                                                       const popo::SubscriberOptions& subscriberOptions) noexcept
 {
-    return this->addChannel(service).and_then([](auto channel) {
+    return this->addChannel(service, subscriberOptions).and_then([](auto channel) {
         auto subscriber = channel.getIceoryxTerminal();
         auto dataWriter = channel.getExternalTerminal();
-        subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
+        subscriber->subscribe();
         dataWriter->connect();
     });
 }

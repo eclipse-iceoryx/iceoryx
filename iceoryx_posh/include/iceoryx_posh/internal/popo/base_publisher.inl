@@ -24,7 +24,7 @@ namespace popo
 template <typename T, typename port_t>
 inline BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service,
                                                const PublisherOptions& publisherOptions)
-    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service, publisherOptions.historyCapacity))
+    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service, publisherOptions))
 {
 }
 

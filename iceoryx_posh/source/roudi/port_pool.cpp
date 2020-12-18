@@ -164,14 +164,14 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
 
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
-                            const uint64_t& historyRequest,
                             const ProcessName_t& applicationName,
+                            const popo::SubscriberOptions& subscriberOptions,
                             const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     if (m_portPoolData->m_subscriberPortMembers.hasFreeSpace())
     {
         auto subscriberPortData = constructSubscriber<iox::build::CommunicationPolicy>(
-            serviceDescription, historyRequest, applicationName, memoryInfo);
+            serviceDescription, applicationName, subscriberOptions, memoryInfo);
 
         return cxx::success<SubscriberPortType::MemberType_t*>(subscriberPortData);
     }
