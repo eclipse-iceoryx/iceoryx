@@ -149,7 +149,7 @@ If choosing #1, please mind the additional step to unwrap the `cxx::expected` wi
         // ...
     }
 
-Whichever way you choose, the untyped API will be bare-metal! A `void*` is contained inside the `cxx::expected`. Hence, it needs to be casted to `Position`
+Whichever way you choose, the untyped API will be bare-metal! A `void*` is contained inside the `iox::popo::sample`. Hence, the pointer needs to be casted to `Position`
 
     auto position = static_cast<Position*>(sample.get());
 
@@ -240,7 +240,7 @@ to get a handle to the `untypedSubscriber` and receive the data
         });
 
 Well, that's a bit of a [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Let's translate
-it into a story again: "Take the data and then if this succeeds work with the sample, if the sample is empty do
+it into a story again: "Take the data and then if this succeeds, work with the sample, if the sample is empty do
 something different, or else if an error occured, print the string 'Error receiving chunk.'" Of course you don't
 need to take care about all cases, but it is advised to do so.
 
@@ -253,7 +253,7 @@ In the `and_case` the content of the sample is printed to the command line:
 ### Publisher application (typed)
 
 The typed publisher application is an example for a high-level user API and does the same thing as the publisher
-described before. In this summary just the differences to the prior publisher application are described.
+described before. In this summary, just the differences to the prior publisher application are described.
 
 Starting again with the includes, there is now a different one:
 
@@ -271,13 +271,13 @@ offers two additional possibilities
     auto position = Position(ct, ct, ct);
     typedPublisher.publishCopyOf(position);
 
-#3 should be only used for small data types, as otherwise copies can become expensive runtime-wise.
+\#3 should be only used for small data types, as otherwise copies can become expensive runtime-wise.
 
     // #4
     typedPublisher.publishResultOf(getVehiclePosition, ct);
     typedPublisher.publishResultOf([&ct](Position* allocation) { new (allocation) Position(ct, ct, ct); });
 
-If you have a callable e.g. a function should be always called, #4 could be interesting for you.
+If you have a callable e.g. a function should be always called, #4 could be a good solution for you.
 
 ### Subscriber application (typed)
 
@@ -289,7 +289,7 @@ An instance of `TypedSubscriber` is created:
 
     iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"});
 
-Everything else is nearly the same. There is one crucial difference which makes the `TypedSubscriber` typed.
+Everything else is nearly the same. However, there is one crucial difference which makes the `TypedSubscriber` typed.
 
 Compare this line from the `UntypedSubscriber`
 
@@ -305,4 +305,4 @@ with
         // ...
     })
 
-The difference is the type that is contained in `Sample`. In case of the `TypedSubscriber` it is a `const Position` instead of `const void`.
+The difference is the type that is contained in `iox::popo::Sample`. In case of the `TypedSubscriber` it is a `const Position` instead of `const void`.
