@@ -31,7 +31,12 @@ struct iox_sem_t
     union
     {
         sem_t* posix;
-        dispatch_semaphore_t dispatch;
+
+        struct
+        {
+            pthread_mutex_t mtx;
+            pthread_cond_t variable;
+        } condition;
     } m_handle;
 
     bool m_hasPosixHandle{true};
