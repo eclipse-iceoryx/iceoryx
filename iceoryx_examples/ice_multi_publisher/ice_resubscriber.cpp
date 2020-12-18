@@ -27,16 +27,14 @@ static void sigHandler(int sig [[gnu::unused]])
     killswitch = true;
 }
 
-// the maximum number of samples the subscriber can hold before discarding the least
-// recent sample (i.e. the capacity of the sample queue on subscriber side)
-constexpr uint64_t MAX_NUMBER_OF_SAMPLES{4U};
-
 constexpr uint64_t UNSUBSCRIBED_TIME_SECONDS{3U};
 
 void receive()
 {
     iox::popo::SubscriberOptions options;
-    options.queueCapacity = MAX_NUMBER_OF_SAMPLES - 2U;
+    // the maximum number of samples the subscriber can hold before discarding the least
+    // recent sample (i.e. the capacity of the sample queue on subscriber side)
+    options.queueCapacity = 4U;
     iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"}, options);
 
     subscriber.subscribe();
