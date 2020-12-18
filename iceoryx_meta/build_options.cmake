@@ -29,6 +29,7 @@ option(ROUDI_ENVIRONMENT"Build RouDi Environment for testing, is enabled when bu
 
 if(BUILD_ALL)
     set(EXAMPLES ON)
+    set(INTROSPECTION ON)
     set(BUILD_TEST ON)
     set(INTROSPECTION ON)
     set(BINDING_C ON)

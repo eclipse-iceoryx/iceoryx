@@ -61,7 +61,7 @@ if (BUILD_TEST)
 
     ### create test target with Timing tests
     foreach(cmp IN ITEMS ${COMPONENTS})
-        list(APPEND TIMINGTEST_CMD COMMAND ./${cmp}/test/${cmp}_componenttests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_ComponentResults.xml)
+        list(APPEND TIMINGTEST_CMD COMMAND ./${cmp}/test/${cmp}_moduletests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_ModuleTestResults.xml)
         if(NOT (cmp STREQUAL "dds_gateway" OR cmp STREQUAL "binding_c"))
             list(APPEND TIMINGTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_IntegrationTestResults.xml)
         endif()    

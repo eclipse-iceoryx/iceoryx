@@ -111,6 +111,10 @@ execute_test() {
     local test_binary=""
 
     case $test_scope in
+    "all")
+        echo "Executing all tests"
+        make all_tests
+        ;;
     "unit")
         echo "Executing unittests"
         make module_tests
@@ -132,11 +136,12 @@ execute_test() {
 echo ""
 echo "######################## executing tests for $COMPONENT ########################"
 
-if [ $TEST_SCOPE == "unit" ] || [ $TEST_SCOPE == "all" ]; then
+if [ $TEST_SCOPE == "unit" ]; then
     execute_test unit
-fi
-if [ $TEST_SCOPE == "integration" ] || [ $TEST_SCOPE == "all" ]; then
+elif [ $TEST_SCOPE == "integration" ]; then
     execute_test integration
+elif [ $TEST_SCOPE == "all" ]; then
+    execute_test all
 fi
 
 # do not start RouDi while the module and componenttests are running;

@@ -33,10 +33,10 @@ STRICT_FLAG="OFF"
 TEST_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 COV_FLAG="OFF"
-GCOV_SCOPE="all" #possible values for gcov test scope: 'all', 'unit', 'integration', 'component'
+TEST_SCOPE="all" #possible values for gcov test scope: 'all', 'unit', 'integration'
 QACPP_JSON="OFF"
 RUN_TEST=false
-INTROSPECTION_FLAG="ON"
+INTROSPECTION_FLAG="OFF"
 DDS_GATEWAY_FLAG="OFF"
 ONE_TO_MANY_ONLY_FLAG="OFF"
 SANITIZE_FLAG="OFF"
@@ -55,7 +55,7 @@ while (( "$#" )); do
         ;;
     -c|--coverage)
         echo "$2"
-        GCOV_SCOPE="$2"
+        TEST_SCOPE="$2"
         BUILD_TYPE="Debug"
         RUN_TEST=true
         TEST_FLAG="ON"
@@ -114,6 +114,11 @@ while (( "$#" )); do
         ROUDI_ENV_FLAG="ON"
         shift 1
         ;;
+    "introspection")
+        echo " [i] Building Introspection"
+        INTROSPECTION_FLAG="ON"
+        shift 1
+        ;;
     "buildall")
         echo " [i] Build complete iceoryx with all extensions"
         DDS_GATEWAY_FLAG="ON"
@@ -133,14 +138,14 @@ while (( "$#" )); do
         shift 1
         ;;
     "sanitize")
-        echo "Build with sanitizers"
+        echo " [i] Build with sanitizers"
         BUILD_TYPE="Debug"
         TEST_FLAG="ON"
         SANITIZE_FLAG="ON"
         shift 1
     ;;
     "clang")
-        echo "Build with clang compiler"
+        echo " [i] Build with clang compiler"
         export CC=$(which clang)
         export CXX=$(which clang++)
         shift 1
@@ -154,7 +159,7 @@ while (( "$#" )); do
         echo "Options:"
         echo "    -b --builddir         Specify a non-default build directory"
         echo "    -j --jobs             Specify the number of jobs to run simultaneously"
-        echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration', 'component'"
+        echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration'"
         echo "Args:"
         echo "    clean                 Deletes the directory build/ before build"
         echo "    release               Build release configuration"
@@ -220,7 +225,7 @@ cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 # Dont build examples when coverage or sanitization is enabled
-if [ "$COV_FLAG" == "OFF" ] || [ "$SANITIZE_FLAG" == "OFF" ] || [ "$OUT_OF_TREE_FLAG" == "ON" ]
+if [ "$OUT_OF_TREE_FLAG" == "ON" ]
 then
     if [ "$BINDING_C_FLAG" == "ON" ]; then
         EXAMPLES="${EXAMPLES} icedelivery_on_c waitset_on_c"
@@ -249,22 +254,15 @@ fi
 #====================================================================================================
 #==== Step 2 : Run all Tests  =======================================================================
 #====================================================================================================
-
-if [ $RUN_TEST == true ]
-then
-
 # the absolute path of the directory assigned to the build
 cd $BUILD_DIR
 mkdir -p tools
 cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
 
-echo " [i] Running all tests"
-# if [ "$DDS_GATEWAY_FLAG" == "ON" ]
-# then
-#     $BUILD_DIR/tools/run_all_tests.sh $GCOV_SCOPE with-dds-gateway-tests
-# else
-$BUILD_DIR/tools/run_all_tests.sh $GCOV_SCOPE
-#fi
+if [ $RUN_TEST == true ]; then
+    echo " [i] Running all tests"
+    $BUILD_DIR/tools/run_all_tests.sh $TEST_SCOPE
+fi
 
 for COMPONENT in $COMPONENTS; do
 
@@ -284,9 +282,6 @@ for COMPONENT in $COMPONENTS; do
     esac
 done
 
-fi
-
-
 if [ "$COV_FLAG" == "ON" ]
 then
     echo ">>>>>> Generate Gcov Report <<<<<<"
@@ -296,7 +291,4 @@ then
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE remove #exclude all unnecessary files
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE genhtml #generate html
     echo ">>>>>> Report Generation complete <<<<<<"
-    #alternative with gcov currently disabled
-    #mkdir -p $BUILD_DIR/gcov
-    #gcovr -r $WORKSPACE --config $COV_OUTPUT
 fi

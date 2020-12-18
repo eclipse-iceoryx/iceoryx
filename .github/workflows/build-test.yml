@@ -29,7 +29,7 @@ jobs:
        - name: Build sources
          run: |
             export NUM_CORES=`nproc`
-            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh buildall out-of-tree -j$NUM_CORES
+            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict buildall out-of-tree -j $NUM_CORES
 
        - name: Run timeless tests
          run: |
@@ -67,8 +67,8 @@ jobs:
 
       - name: Build sources
         run: |
-          export NUM_CORES=`nproc`
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh buildall out-of-tree -j$NUM_CORES
+          export NUM_CORES=`sysctl -n hw.ncpu`
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict build-test binding-c out-of-tree introspection -j $NUM_CORES
 
       - name: Run tests
         run: |
@@ -88,5 +88,4 @@ jobs:
 
       - name: Build sources
         run: |
-          export NUM_CORES=`nproc`
-          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=ON -DBINDING_C =ON -DEXAMPLES=ON && cmake --build build -j$NUM_CORES
+          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON && cmake --build build
