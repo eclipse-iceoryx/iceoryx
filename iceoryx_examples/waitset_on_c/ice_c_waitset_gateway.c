@@ -26,8 +26,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_TRIGGER 3
-#define NUMBER_OF_SUBSCRIBER 2
+#define NUMBER_OF_EVENTS 3
+#define NUMBER_OF_SUBSCRIBERS 2
 
 iox_user_trigger_storage_t shutdownTriggerStorage;
 iox_user_trigger_t shutdownTrigger;
@@ -68,11 +68,11 @@ int main()
     signal(SIGINT, sigHandler);
 
     // array where the subscriber are stored
-    iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBER];
+    iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
     // create subscriber and subscribe them to our service
     uint64_t historyRequest = 1U;
-    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
+    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
 
@@ -82,18 +82,18 @@ int main()
 
 
     uint64_t missedElements = 0U;
-    uint64_t numberOfTriggeredConditions = 0U;
+    uint64_t numberOfEvents = 0U;
 
     // array where all event infos from iox_ws_wait will be stored
-    iox_event_info_t eventArray[NUMBER_OF_TRIGGER];
+    iox_event_info_t eventArray[NUMBER_OF_EVENTS];
 
     // event loop
     bool keepRunning = true;
     while (keepRunning)
     {
-        numberOfTriggeredConditions = iox_ws_wait(waitSet, eventArray, NUMBER_OF_TRIGGER, &missedElements);
+        numberOfEvents = iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
 
-        for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
+        for (uint64_t i = 0U; i < numberOfEvents; ++i)
         {
             iox_event_info_t event = eventArray[i];
 
@@ -104,14 +104,14 @@ int main()
             }
             else
             {
-                // call the callback which was assigned to the trigger
+                // call the callback which was assigned to the event
                 iox_event_info_call(event);
             }
         }
     }
 
     // cleanup all resources
-    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
+    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));

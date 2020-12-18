@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_TRIGGER 2
+#define NUMBER_OF_EVENTS 2
 
 iox_user_trigger_storage_t shutdownTriggerStorage;
 iox_user_trigger_t shutdownTrigger;
@@ -101,17 +101,17 @@ int main()
 #endif
 
     uint64_t missedElements = 0U;
-    uint64_t numberOfTriggeredConditions = 0U;
+    uint64_t numberOfEvents = 0U;
 
     // array where all trigger from iox_ws_wait will be stored
-    iox_event_info_t eventArray[NUMBER_OF_TRIGGER];
+    iox_event_info_t eventArray[NUMBER_OF_EVENTS];
 
     // event loop
     while (keepRunning)
     {
-        numberOfTriggeredConditions = iox_ws_wait(waitSet, eventArray, NUMBER_OF_TRIGGER, &missedElements);
+        numberOfEvents = iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
 
-        for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
+        for (uint64_t i = 0U; i < numberOfEvents; ++i)
         {
             iox_event_info_t event = eventArray[i];
 
