@@ -33,9 +33,9 @@ If you would like to use our Cyclone DDS Gateway you have to install Cyclone DDS
 Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 and at least GCC 7.5.0 for development.
 
 You will need to install the following packages:
-    ```
-    sudo apt install gcc g++ cmake libacl1-dev libncurses5-dev pkg-config
-    ```
+```
+sudo apt install gcc g++ cmake libacl1-dev libncurses5-dev pkg-config
+```
 
 Additionally, there is an optional dependency to the MIT licensed cpptoml library, which is used to parse a RouDi config file for the mempool config.
 [cpptoml](https://github.com/skystrife/cpptoml)
@@ -65,6 +65,8 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     ```bash
     cmake --build build
     ```
+    Tip: You can fasten up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
+    You can choose more or less depending on your available CPU cores on your machine.
 
 ### Build options
 
@@ -84,10 +86,10 @@ Please take a look at the cmake file [build_options.cmake](../iceoryx_meta/build
 
 Have a look at [iceoryx_posh_deployment.cmake](../iceoryx_posh/cmake/iceoryx_posh_deployment.cmake) for the default values of this constants.
 
-## Build with the build script
+## Build with script
 
 As an alternative we provide our build-test script which we use to integrate iceoryx into our infrastructure.
-The intention of the script is to more thanjust building with iceoryx. This is for doing a code coverage scan or for using the adress-sanitizer.
+The intention of the script is to more than just building with iceoryx. This is for doing a code coverage scan or for using the adress-sanitizer.
 The script currently only works for Linux and QNX, it is planned to offer a multi-platform solution.
 
  1. Clone the repository
@@ -98,7 +100,7 @@ The script currently only works for Linux and QNX, it is planned to offer a mult
  2. Build everything
     ```
     cd iceoryx
-    ./tools/iceoryx_build_test.sh
+    ./tools/iceoryx_build_test.sh buildall
     ```
 
 You can use the help for getting an overview over the available options:
@@ -120,3 +122,35 @@ colcon build
 ```
 
 This build method makes the most sense in combination with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git)
+
+## Build and run tests
+
+While developing on iceoryx you want to know if your changes are breaking existing functions or if your newly written googletests are passing.
+For that purpose we are generating cmake targets which are executing the tests. But first we need to build them:
+```
+cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON
+cmake --build build
+```
+Cmake is automatically installing googletest as dependency and build the tests against it. Please note that if you want to build tests for extensions like the C-Binding you need to enable that in the cmake build. To build all tests simply add `-DBUILD_ALL` to the cmake command
+
+Now lets execute the all tests:
+```
+cd iceoryx/build
+make all_tests
+```
+Some of the tests are timing critical and needs a stable environment. We call them timing tests and have them in a separate target available:
+```
+make timing_tests
+```
+In iceoryx we distinguish between different testlevels. The most important are: Moduletests and Integrationtests.
+Moduletests are basically Unit-tests where the focus is on class level with black-box testing.
+In Integrationtests are multiple classes within one component (e.g. iceoryx_posh) tested together.
+The sourcecode of the tests is placed into the folder `test` within the different iceoryx components. You can find there at least a folder `moduletests` and sometimes ``integrationtests`.
+
+when you now want to create a new test you can place the sourcefile directly into the right folder. Cmake will automatically detect the new file when doing a clean build and will add it to a executable. There is no need to add a gtest main function because we already provide it.
+In every are then the executables for every test level created, for example `posh_moduletests`. They are placed into the corresponding build folder (e.g. `iceoryx/build/posh/test/posh_moduletests`).
+
+If you want to execute only individual testcases then you can use these executables and a gtest filter. Let's assume you want to execute only the `ServiceDescription_test` from the posh_moduletests, then you can do the following:
+```
+./build/posh/test/posh_moduletests --gtest_filter=ServiceDescription_test*
+```

@@ -40,7 +40,7 @@ set_sanitizer_options() {
     #     #3 0x55c8284c15ed in ReceiverPort_test_newdata_Test::~ReceiverPort_test_newdata_Test() /home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/iceoryx_posh/test/moduletests/test_posh_receiverport.cpp:137
     #     #4 0x55c82857b2fb in testing::Test::DeleteSelf_() (/home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/build/posh/test/posh_moduletests+0x3432fb)
     echo "OSTYPE is $OSTYPE"
-    if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$ASAN_ONLY" == false ]]; then
+    if [[ "$OSTYPE" == "linux-gnu"* ]] && [[ $ASAN_ONLY == false ]]; then
         ASAN_OPTIONS=detect_leaks=1
     else
         # other OS (Mac here)
