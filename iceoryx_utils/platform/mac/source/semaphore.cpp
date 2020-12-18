@@ -188,12 +188,12 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
                 != 0)
             {
                 pthread_mutex_unlock(&sem->m_handle.condition.mtx);
-                errno = ETIMEDOUT;
                 return -1;
             }
         }
         sem->m_value.fetch_sub(1, std::memory_order_relaxed);
         pthread_mutex_unlock(&sem->m_handle.condition.mtx);
+        return 0;
     }
 
     return -1;
