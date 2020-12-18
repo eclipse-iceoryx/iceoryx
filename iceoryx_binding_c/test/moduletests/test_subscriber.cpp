@@ -62,7 +62,6 @@ class iox_sub_test : public Test
 
     void Subscribe(SubscriberPortData* ptr)
     {
-        uint64_t queueCapacity = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
         iox_sub_subscribe(m_sut);
 
         SubscriberPortSingleProducer(ptr).tryGetCaProMessage();
@@ -87,10 +86,11 @@ class iox_sub_test : public Test
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
+    iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
     iox::popo::SubscriberPortData m_portPtr{TEST_SERVICE_DESCRIPTION,
                                             "myApp",
                                             iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                            iox::popo::SubscriberOptions{1U, 0U}};
+                                            subscriberOptions};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
     std::unique_ptr<cpp2c_Subscriber> m_subscriber{new cpp2c_Subscriber};
     iox_sub_t m_sut = m_subscriber.get();
