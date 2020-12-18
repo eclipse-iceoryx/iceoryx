@@ -8,21 +8,22 @@ It provides publisher and subscriber applications. They come in two API flavours
 ## Run icedelivery
 
 Create three terminals and run one command in each of them. Either choose to run the normal or simplified version.
-
-    # If installed and available in PATH environment variable
-    iox-roudi
-    # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/iox-roudi
-
-
-    ./build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
-    # The untyped publisher is an alternative
-    ./build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
+```sh
+# If installed and available in PATH environment variable
+iox-roudi
+# If build from scratch with script in tools
+$ICEORYX_ROOT/build/iox-roudi
 
 
-    ./build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
-    # The untyped subscriber is an alternative
-    ./build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
+./build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
+# The untyped publisher is an alternative
+./build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
+
+
+./build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
+# The untyped subscriber is an alternative
+./build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
+```
 
 ## Expected output
 
@@ -31,34 +32,38 @@ Create three terminals and run one command in each of them. Either choose to run
 The counter can differ depending on startup of the applications.
 
 ### RouDi application
-
-    Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
-    [ Reserving shared memory successful ]
-    Reserving 410709312 bytes in the shared memory [/username]
-    [ Reserving shared memory successful ]
+```
+Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
+[ Reserving shared memory successful ]
+Reserving 410709312 bytes in the shared memory [/username]
+[ Reserving shared memory successful ]
+```
 
 ### Publisher application
-
-    Sending: 0
-    Sending: 1
-    Sending: 2
-    Sending: 3
-    Sending: 4
-    Sending: 5
+```
+Sending: 0
+Sending: 1
+Sending: 2
+Sending: 3
+Sending: 4
+Sending: 5
+```
 
 ### Subscriber application (untyped)
-
-    Not subscribed
-    Receiving: 3
-    Receiving: 4
-    Receiving: 5
+```
+Not subscribed
+Receiving: 3
+Receiving: 4
+Receiving: 5
+```
 
 ### Subscriber application (typed)
-
-    Callback: 4
-    Callback: 5
-    Callback: 6
-    Callback: 7
+```
+Callback: 4
+Callback: 5
+Callback: 6
+Callback: 7
+```
 
 ## Code walkthrough
 
@@ -70,42 +75,47 @@ abstraction. A simple example how such an abstraction could look like is given i
 ### Publisher application (untyped)
 
 First off, let's include the publisher and the runtime:
-
-    #include "iceoryx_posh/popo/untyped_publisher.hpp"
-    #include "iceoryx_posh/runtime/posh_runtime.hpp"
+```cpp
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+```
 
 You might be wondering what the publisher application is sending? It's this struct.
-
-    struct Position
+```cpp
+struct Position
+{
+    Position() noexcept
     {
-        Position() noexcept
-        {
-        }
-        Position(double x, double y, double z) noexcept
-            : x(x)
-            , y(y)
-            , z(z)
-        {
-        }
-        double x = 0.0;
-        double y = 0.0;
-        double z = 0.0;
-    };
+    }
+    Position(double x, double y, double z) noexcept
+        : x(x)
+        , y(y)
+        , z(z)
+    {
+    }
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+};
+```
 
 It is included by:
-
-    #include "topic_data.hpp"
+```cpp
+#include "topic_data.hpp"
+```
 
 For the communication with RouDi a runtime object is created. The parameter of the method `initRuntime()` contains a
 unique string identifier for this publisher.
-
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
+```cpp
+iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
+```
 
 Now that RouDi knows our publisher application is existing, let's create a publisher instance and offer our charming struct
 to everyone:
-
-    iox::popo::UntypedPublisher untypedPublisher({"Odometry", "Position", "Vehicle"});
-    untypedPublisher.offer();
+```cpp
+iox::popo::UntypedPublisher untypedPublisher({"Odometry", "Position", "Vehicle"});
+untypedPublisher.offer();
+```
 
 The strings inside the first parameter of the constructor of `iox::popo::Publisher` are of the type
 `capro::ServiceDescription`. `capro` stands for **ca**nionical **pro**tocol and is used to abstract different
@@ -114,52 +124,59 @@ an instance of the service `Odometry` and the third string the specific event `V
 In iceoryx a publisher and a subscriber only match if all the three IDs match.
 
 Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk which fits our Position struct
-
-    auto result = untypedPublisher.loan(sizeof(Position));
+```cpp
+auto result = untypedPublisher.loan(sizeof(Position));
+```
 
 Two different ways of handling the returned `cxx::expected` are possible. Either you save the result in a variable and do the error check with an if-condition (#1):
-
-    auto result = untypedPublisher.loan(sizeof(Position));
-    if (!result.has_error())
-    {
-        // ...
-    }
-    else
-    {
-        // ...
-    }
+```cpp
+auto result = untypedPublisher.loan(sizeof(Position));
+if (!result.has_error())
+{
+    // ...
+}
+else
+{
+    // ...
+}
+```
 
 Or try the functional way (#2) by concatenate `and_then` and `or_else`. Read it like a story in a book: "Loan memory and then if it succeeds, fill it with some data or else if it fails, handle the error"
-
-    untypedPublisher.loan(sizeof(Position))
-        .and_then([&](auto& sample)
-        {
-            // ...
-        }
-        .or_else([&](iox::popo::AllocationError error)
-        {
-            // ...
-        });
-
-If choosing #1, please mind the additional step to unwrap the `cxx::expected` with `value()`
-
-    if (!result.has_error())
+```cpp
+untypedPublisher.loan(sizeof(Position))
+    .and_then([&](auto& sample)
     {
-        auto& sample = result.value();
         // ...
     }
+    .or_else([&](iox::popo::AllocationError error)
+    {
+        // ...
+    });
+```
+
+If choosing #1, please mind the additional step to unwrap the `cxx::expected` with `value()`
+```cpp
+if (!result.has_error())
+{
+    auto& sample = result.value();
+    // ...
+}
+```
 
 Whichever way you choose, the untyped API will be bare-metal! A `void*` is contained inside the `iox::popo::sample`. Hence, the pointer needs to be casted to `Position`
-
-    auto position = static_cast<Position*>(sample.get());
+```cpp
+auto position = static_cast<Position*>(sample.get());
+```
 
 Then we can write a new Position value with an incremented counter in the shared memory
-
-    *position = Position(ct, ct, ct);
+```cpp
+*position = Position(ct, ct, ct);
+```
 
 Finanlly, in both ways, the value is made available to other subscribers with
-
-    sample.publish();
+```cpp
+sample.publish();
+```
 
 The incrementation and sending of the data is done in a loop every second till the user pressed `Ctrl-C`. It is
 captured with the signal handler and stops the loop.
@@ -169,81 +186,92 @@ captured with the signal handler and stops the loop.
 How can the subscriber application receive the data the publisher application just transmitted?
 
 Similar to the publisher we need to include the runtime and the subscriber as well as the topic data header:
-
-    #include "iceoryx_posh/popo/subscriber.hpp"
-    #include "iceoryx_posh/runtime/posh_runtime.hpp"
-    #include "topic_data.hpp"
+```cpp
+#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "topic_data.hpp"
+```
 
 What is different compare to the publisher are the `WaitSet` related includes
-
-    #include "iceoryx_posh/popo/user_trigger.hpp"
-    #include "iceoryx_posh/popo/wait_set.hpp"
+```cpp
+#include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
+```
 
 To make RouDi aware of the subscriber an runtime object is created, once again with a unique identifier string:
-
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
+```cpp
+iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
+```
 
 For quality of service a `popo::SubscriberOptions` object is created and the `queueCapacity` is set. This parameter
 specifies how many samples the queue of the subscriber object can hold. If the queue would encounter an overflow,
 the oldest sample is released to create space for the newest one, which is then stored.
-
-    iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = 10U;
+```cpp
+iox::popo::SubscriberOptions subscriberOptions;
+subscriberOptions.queueCapacity = 10U;
+```
 
 In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the publisher
 offered. Additionally, the previously created subscriber options are passed to the constructor. If no subscriber options
 are created, a default value will be used which sets the queueCapacity to the maximum value:
-
-    iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
+```cpp
+iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
+```
 
 After the creation, the subscriber object subscribes to the offered data
-
-    mySubscriber.subscribe();
+```cpp
+mySubscriber.subscribe();
+```
 
 The next step is the instantiation and setup of the `WaitSet`
-
-    iox::popo::WaitSet<> waitSet;
-    waitSet.attachEvent(untypedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
-    waitSet.attachEvent(shutdownTrigger);
+```cpp
+iox::popo::WaitSet<> waitSet;
+waitSet.attachEvent(untypedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
+waitSet.attachEvent(shutdownTrigger);
+```
 
 Here our subscriber object `untypedSubscriber` got attached to the WaitSet, as well as the `shutdownTrigger`.
 It will be used to stop the programm execution.
 
 Again in a while-loop we do the following: First wait till a `Trigger` has been sent to the `WaitSet` by calling
-
-    auto triggerVector = waitSet.wait();
+```cpp
+auto triggerVector = waitSet.wait();
+```
 
 Then loop over all the trigger that got fired
-
-    for (auto& trigger : triggerVector)
-    {
-        // ...
-    }
+```cpp
+for (auto& trigger : triggerVector)
+{
+    // ...
+}
+```
 
 Inside the loop, the source of the Trigger can be checked with `doesOriginateFrom()`. Let's check if we need to exit
-
-    if (trigger.doesOriginateFrom(&shutdownTrigger))
-    {
-        return (EXIT_SUCCESS);
-    }
+```cpp
+if (trigger.doesOriginateFrom(&shutdownTrigger))
+{
+    return (EXIT_SUCCESS);
+}
+```
 
 Ok, that wasn't the trigger which got fired. It must have been our `untypedSubscriber`. Call `getOrigin()`
 to get a handle to the `untypedSubscriber` and receive the data
-
-    auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
-    untypedSubscriber->take()
-        .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation)
-        {
-            // ...
-        })
-        .if_empty([]
-        {
-            // ...
-        })
-        .or_else([](iox::popo::ChunkReceiveError error)
-        {
-            std::cout << "Error receiving chunk." << std::endl;
-        });
+```cpp
+auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+untypedSubscriber->take()
+    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation)
+    {
+        // ...
+    })
+    .if_empty([]
+    {
+        // ...
+    })
+    .or_else([](iox::popo::ChunkReceiveError error)
+    {
+        std::cout << "Error receiving chunk." << std::endl;
+    });
+```
 
 Well, that's a bit of a [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Let's translate
 it into a story again: "Take the data and then if this succeeds, work with the sample, if the sample is empty do
@@ -251,10 +279,11 @@ something different, or else if an error occured, print the string 'Error receiv
 need to take care about all cases, but it is advised to do so.
 
 In the `and_case` the content of the sample is printed to the command line:
-
-        auto position = static_cast<const Position*>(sample->get());
-        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
-                    << std::endl;
+```cpp
+auto position = static_cast<const Position*>(sample->get());
+std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+            << std::endl;
+```
 
 ### Publisher application (typed)
 
@@ -262,53 +291,62 @@ The typed publisher application is an example for a high-level user API and does
 described before. In this summary, just the differences to the prior publisher application are described.
 
 Starting again with the includes, there is now a different one:
-
+```cpp
     #include "iceoryx_posh/popo/typed_publisher.hpp"
+```
 
 When it comes to the runtime, things are the same as in the untyped publisher. However, a typed publisher object is
 created
-
-    iox::popo::TypedPublisher<Position> typedPublisher({"Odometry", "Position", "Vehicle"});
+```cpp
+iox::popo::TypedPublisher<Position> typedPublisher({"Odometry", "Position", "Vehicle"});
+```
 
 A similar while-loop is used to send the data to the subscriber. In contrast to the untyped publisher the typed one
 offers two additional possibilities
-
-    // #3
-    auto position = Position(ct, ct, ct);
-    typedPublisher.publishCopyOf(position);
+```cpp
+// #3
+auto position = Position(ct, ct, ct);
+typedPublisher.publishCopyOf(position);
+```
 
 \#3 should be only used for small data types, as otherwise copies can become expensive runtime-wise.
 
-    // #4
-    typedPublisher.publishResultOf(getVehiclePosition, ct);
-    typedPublisher.publishResultOf([&ct](Position* allocation) { new (allocation) Position(ct, ct, ct); });
+```cpp
+// #4
+typedPublisher.publishResultOf(getVehiclePosition, ct);
+typedPublisher.publishResultOf([&ct](Position* allocation) { new (allocation) Position(ct, ct, ct); });
+```
 
 If you have a callable e.g. a function should be always called, #4 could be a good solution for you.
 
 ### Subscriber application (typed)
 
 As with the typed publisher application there is an different include compared to the untyped subscriber:
-
-    #include "iceoryx_posh/popo/typed_subscriber.hpp"
+```cpp
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
+```
 
 An instance of `TypedSubscriber` is created:
-
-    iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
+```cpp
+iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
+```
 
 Everything else is nearly the same. However, there is one crucial difference which makes the `TypedSubscriber` typed.
 
 Compare this line from the `UntypedSubscriber`
-
-    .and_then([](iox::popo::Sample<const Position>& position)
-    {
-        // ...
-    })
+```cpp
+.and_then([](iox::popo::Sample<const Position>& position)
+{
+    // ...
+})
+```
 
 with
-
-    .and_then([](iox::popo::Sample<const void>& sample)
-    {
-        // ...
-    })
+```cpp
+.and_then([](iox::popo::Sample<const void>& sample)
+{
+    // ...
+})
+```
 
 The difference is the type that is contained in `iox::popo::Sample`. In case of the `TypedSubscriber` it is a `const Position` instead of `const void`.
