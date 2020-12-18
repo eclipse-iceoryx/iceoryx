@@ -76,7 +76,8 @@ class PortUser_IntegrationTest : public Test
 
             iox::ProcessName_t processName(TruncateToCapacity, publisherAppName.str().c_str());
 
-            m_publisherPortDataVector.emplace_back(TEST_SERVICE_DESCRIPTION, processName, &m_memoryManager);
+            m_publisherPortDataVector.emplace_back(
+                TEST_SERVICE_DESCRIPTION, processName, &m_memoryManager, PublisherOptions());
             m_publisherPortUserVector.emplace_back(&m_publisherPortDataVector.back());
             m_publisherPortRouDiVector.emplace_back(&m_publisherPortDataVector.back());
         }

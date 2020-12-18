@@ -220,8 +220,9 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         expected2.m_caproServiceID, expected2.m_caproInstanceID, expected2.m_caproEventMethodID);
 
     iox::mepoo::MemoryManager memoryManager;
-    iox::popo::PublisherPortData portData1(service1, processName1, &memoryManager);
-    iox::popo::PublisherPortData portData2(service2, processName2, &memoryManager);
+    iox::popo::PublisherOptions publisherOptions;
+    iox::popo::PublisherPortData portData1(service1, processName1, &memoryManager, publisherOptions);
+    iox::popo::PublisherPortData portData2(service2, processName2, &memoryManager, publisherOptions);
     // test adding of ports
     // remark: duplicate publisher port insertions are not possible
     EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, nodeName1), Eq(true));
@@ -473,7 +474,8 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
                                            iox::popo::SubscriberOptions()};
     EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, nameSubscriber, service, nodeName), Eq(true));
     iox::mepoo::MemoryManager memoryManager;
-    iox::popo::PublisherPortData publisherPortData{service, namePublisher, &memoryManager};
+    iox::popo::PublisherOptions publisherOptions;
+    iox::popo::PublisherPortData publisherPortData{service, namePublisher, &memoryManager, publisherOptions};
     EXPECT_THAT(m_introspectionAccess.addPublisher(&publisherPortData, namePublisher, service, nodeName), Eq(true));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
