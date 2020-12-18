@@ -1,2 +1,21 @@
 site_name: iceoryx.io
+site_url: https://iceoryx.io
+repo_url: https://github.com/eclipse/iceoryx
 docs_dir: doc/website/
+nav:
+  - introduction.md
+  - Getting started:
+    - getting-started/overview.md
+    - getting-started/installation.md
+    - getting-started/examples.md
+  - API-References.md
+  - API-Cheatsheet.md
+  - FAQ.md
+  - Advanced:
+    - for-developers/iceoryx_utils.md
+    - for-developers/usage-guide.md
+markdown_extensions:
+  - markdown_include.include:
+      base_path: doc
+
+#theme: readthedocs

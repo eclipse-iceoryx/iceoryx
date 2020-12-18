@@ -1,4 +1,4 @@
-# Getting started with iceoryx
+# Overview
 This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to
 set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the
 basic concepts presented here will still apply.

@@ -1,4 +1,4 @@
-# FAQ for iceoryx
+# FAQ
 
 In this document are tips and hints documented which can help for troubleshooting on RouDi.
 From time to time, we will extend it.

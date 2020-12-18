@@ -1,4 +1,4 @@
-# Contents
+# Installation
 1. [Prerequisites](#prerequisites)
 2. [Building with CMake](#build-with-cmake)
 3. [Building with the build script](#build-with-the-build-script)
