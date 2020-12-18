@@ -183,16 +183,22 @@ To make RouDi aware of the subscriber an runtime object is created, once again w
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
 
+For quality of service a `popo::SubscriberOptions` object is created and the `queueCapacity` is set. This parameter
+specifies how many samples the queue of the subscriber object can hold. If the queue would encounter an overflow,
+the oldest sample is released to create space for the newest one, which is then stored.
+
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 10U;
+
 In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the publisher
-offered:
+offered. Additionally, the previously created subscriber options are passed to the constructor. If no subscriber options
+are created, a default value will be used which sets the queueCapacity to the maximum value:
 
-    iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"});
+    iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
 
-After the creation, the subscriber object subscribes to the offered data. The cache size is given as a parameter.
-Cache size in this case means, how many samples the FiFo can hold which is present in the subscriber object.
-If the FiFo has an overflow, we release the oldest sample and store the newest one.
+After the creation, the subscriber object subscribes to the offered data
 
-    mySubscriber.subscribe(10);
+    mySubscriber.subscribe();
 
 The next step is the instantiation and setup of the `WaitSet`
 
@@ -287,7 +293,7 @@ As with the typed publisher application there is an different include compared t
 
 An instance of `TypedSubscriber` is created:
 
-    iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"});
+    iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
 
 Everything else is nearly the same. However, there is one crucial difference which makes the `TypedSubscriber` typed.
 
