@@ -30,7 +30,7 @@ struct SubscriberOptions
     /// @attention Depending on the underlying queue there can be a different overflow behavior
     uint64_t queueCapacity{SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY};
 
-    /// @brief The max number of chunks received as history after subscription
+    /// @brief The max number of chunks received after subscription if chunks are available
     uint64_t historyRequest{0U};
 };
 
