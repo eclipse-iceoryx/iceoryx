@@ -38,8 +38,10 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
 
     // initialized subscribers
-    iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"});
-    untypedSubscriber.subscribe(10);
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 10U;
+    iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
+    untypedSubscriber.subscribe();
 
     // set up waitset
     iox::popo::WaitSet<> waitSet;
