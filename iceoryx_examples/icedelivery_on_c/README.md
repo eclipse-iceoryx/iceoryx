@@ -1,9 +1,5 @@
 # icedelivery in C - Transfer data between POSIX applications
 
-**Hint** This example shows a work in progress. The API for the `publisher` and 
-`subscriber` is finished but we still have to integrate the new building blocks
-into RouDi. Till then whis C API will not work.
-
 You can find a more detailled description of the C API in the [iceoryx_binding_c README.md](../../iceoryx_binding_c)
 
 ## The icedelivery example
@@ -16,17 +12,17 @@ underlying mechanisms.
 
 ### Subscriber
 
-Like in the 
+Like in the
 [icedelivery C++ example](../icedelivery/)
 we again follow the steps like:
- 
+
  1. Create runtime instance.
  2. Create subscriber port.
- 3. Subscribe to the offered service 
- 4. Receive data 
+ 3. Subscribe to the offered service
+ 4. Receive data
  5. Unsubscribe.
  6. **C API: Additionally, we have to remove the previously allocated Subscriber
-        port!** 
+        port!**
 
 Let's take a look at the `receiving` function which comes with the
 `ice_c_subscriber.c` example.
@@ -49,7 +45,7 @@ Let's take a look at the `receiving` function which comes with the
     iox_sub_storage_t subscriberStorage;
     iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
     ```
- 
+
   3. We subscribe to the service with a queue capacity of 10.
      ```c
      iox_sub_subscribe(subscriber, 10);
@@ -127,22 +123,22 @@ Let's take a look at the `sending` function which comes with the
     value of this number to the console.
     ```c
     uint32_t ct = 0u;
-    
+
     while (!killswitch)
     {
         void* chunk = NULL;
         if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
-    
+
             sample->counter = ct;
-    
+
             printf("Sending: %u\n", ct);
-    
+
             iox_pub_send_chunk(publisher, chunk);
-    
+
             ++ct;
-    
+
             sleep_for(1000);
         }
         else

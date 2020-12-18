@@ -2,6 +2,8 @@
 
 ## Introduction
 
+> This Readme.md is slightly outdated and not all functionality of the introspection is available with v1.0 
+
 This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can
 look into the machine room of RouDi. The introspection shows live information about the memory usage and all
 registered processes. Additionally, it shows the publisher and subscriber ports that are created inside the shared
@@ -14,11 +16,11 @@ We reuse the binaries from [icedelivery](../icedelivery/). Create four terminals
     # If installed and available in PATH environment variable
     iox-roudi
     # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/posh/iox-roudi
+    $ICEORYX_ROOT/build/iox-roudi
 
-    ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal
+    ./build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 
-    ./build/iceoryx_examples/icedelivery/ice-subscriber-bare-metal
+    ./build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 
     ./build/iceoryx_introspection/iceoryx_introspection_client --all
 
