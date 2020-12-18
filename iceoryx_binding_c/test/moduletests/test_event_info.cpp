@@ -86,11 +86,11 @@ class iox_event_info_test : public Test
     Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
-    SubscriberOptions m_subscriberOPtions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
+    SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
     iox::popo::SubscriberPortData m_portPtr{TEST_SERVICE_DESCRIPTION,
                                             "myApp",
                                             iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                            m_subscriberOPtions};
+                                            m_subscriberOptions};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
     cpp2c_Subscriber m_subscriber;
     iox_sub_t m_subscriberHandle = &m_subscriber;
