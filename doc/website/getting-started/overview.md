@@ -42,7 +42,7 @@ A topic in iceoryx defines the data to be transmitted and is uniquely identified
 2. ``Instance`` name
 3. ``Topic`` name
 
-A triple consisting of such strings is called a ``service description``. In Autosar terminology these three
+A triple consisting of such strings is called a ``ServiceDescription``. In Autosar terminology these three
 identifiers are called ``Service``, ``Instance`` and ``Event`` respectively.
 
 Two topics are considered matching if all these three strings are element-wise equal, i.e. group, instance and topic
@@ -78,11 +78,10 @@ cases but inefficient in general, as it often leads to unnecessary latency and w
 
 The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user defined conditions
 to become true. Usually these conditions correspond to the availability of data at specific subscribers. This way we
-can (almost) immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
+can immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
 
 To do so it manages a set of triggers which can be activated and indicate that a corresponding condition became true
-which in turn will wake up a potentially waiting thread. In this way it extends a condition variable to a collection
-of conditions. Upon waking up it can be determined which conditions became true and caused the wake up. In the case
+which in turn will wake up a potentially waiting thread. Upon waking up it can be determined which conditions became true and caused the wake up. In the case
 that the wake up event was the availability of new data, this data can now be collected at the subscriber.
 
 For more information on how to use the Waitset see [Waitset](../../../iceoryx_examples/waitset/README.md).
@@ -97,7 +96,7 @@ This is very flexible but requires using the monadic types ``cxx::expected`` and
 introduce in the following sections.
 
 We distinguish between the ``typed API`` and the ``untyped API``. In the Typed API the underlying data type is made
-apparent by typed pointers or references to some data type T (often a template parameter). this allows working with
+apparent by typed pointers or references to some data type T (often a template parameter). This allows working with
 the data in an C++ idiomatic and type-safe way and should be preferred whenever possible.
 
 The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that
@@ -108,7 +107,7 @@ respective header files.
 There also is a plain [C API](../../../iceoryx_examples/icedelivery_on_c/README.md), which can be used if C++ is not
 an option.
 
-We now describe the how to use the API in iceoryx applications. We will omit namespaces in several places to keep
+In the following sections we describe how to use the API in iceoryx applications. We will omit namespaces in several places to keep
 the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. We also will use ``auto``
 sparingly to clearly show which types are involved, but in many cases automatic type deduction is possible and can
 shorten the code.
@@ -116,7 +115,7 @@ shorten the code.
 ### Optional
 
 The type ``cxx::optional<T>`` is used to indicate that there may or may not be a value of a specific type ``T``
-available. This is essentially the maybe monad in functional programming. Assuming we have some optional (usually the
+available. This is essentially the maybe [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)) in functional programming. Assuming we have some optional (usually the
 result of some computation)
 ```
 optional<int> result = someComputation();
@@ -144,7 +143,7 @@ We can achieve the same with the functional approach by providing a function for
 result.and_then([](int& value) { /*do something with the value*/ })
       .or_else([]() { /*handle the case that there is no value*/ });
 ```
-Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the lambda or
+Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) or
 function we pass.
 
 The optional can be be initialized from a value directly
@@ -161,8 +160,7 @@ result = iox::cxx::nullopt;
 
 ### Expected
 ``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of
-no value at all, i.e. it contains either a value of type ``T`` or ``E`` (and roughly corresponds to the either
-monad). This is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the
+no value at all, i.e. it contains either a value of type ``T`` or ``E``. In this way, ``expected`` is a special case of the either monad. It is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the
 error type. For more information on how it is used for error handling see
 [error-handling.md](../../design/error-handling.md).
 
@@ -273,7 +271,7 @@ Now we can use the publisher to send the data in various ways.
     to loan to many samples and exhaust memory.
     
     If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value
-    we want to send. It is important to note that in the untyped case we get a default constructed topic and such an
+    we want to send. It is important to note that in the typed case we get a default constructed topic and such an
     access is legal.
     
     Once we are done constructing and preparing the data we publish it, causing it to be delivered to any subscriber
@@ -323,13 +321,13 @@ Now we can use the publisher to send the data in various ways.
     }
     ```
 
-    This can be used if we want to set the data by some callable (i.e. lambda, function or functor). As with all the
+    This can be used if we want to set the data by some callable (i.e. lambda, function or [functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++)). As with all the
     other ways, it can fail when there is no memory for the sample availabe and this failure must be handled.
 
 #### Creating a subscriber
 
-We now create a corresponding subscriber, usually in another application (it will work in the same application as
-well but there is no need sending it via the middleware in such a case).
+We now create a corresponding subscriber, usually in another application. While it will work in the same application as
+well, there usually is no need sending it via the middleware in such a case.
 
 ```
 iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
@@ -342,7 +340,7 @@ We immediately subscribe here, but this can be postponed to the point were we ac
 
 #### Receiving data
 For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data
-using the [Waitset](../../../iceoryx_examples/waitset/README.md). The code to recieve the data is the same, the only
+using the [Waitset](../../../iceoryx_examples/waitset/README.md). The code to receive the data is the same, the only
 difference is the way we wake up before checking for data.
 ```
 while(keepRunning) {
@@ -449,8 +447,8 @@ publisher.offer();
                 /* handle the error */
             });
     ```
-    Notice that we get an untyped sample, ``iox::popo::Sample<void>`` (we could also use ``auto& sample`` in the
-    lambda arguments to shorten it). Again we access the pointer to the underlying raw memory of the sample and
+    Notice that we get an untyped sample, ``iox::popo::Sample<const void>``. We could also use ``auto& sample`` in the
+    lambda arguments to shorten it. Again we access the pointer to the underlying raw memory of the sample and
     construct the data we want to send.
 
 
@@ -530,7 +528,7 @@ includes all memory chunks used for the data transmission which may still be hol
 This covers the main use cases and should enable the user to quickly develop iceroyx applications.
 
 Full examples and instructions on how to build and run them can be found in
-[examples](../iceoryx_examples/README.md).
+[examples](../../../iceoryx_examples/README.md). The [icedelivery](../../../iceoryx_examples/icedelivery/README.md) example can be a starting point to further explore how iceoryx is used.
 
 
 ## C API
