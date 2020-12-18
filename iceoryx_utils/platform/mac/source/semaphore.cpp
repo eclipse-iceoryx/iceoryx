@@ -180,7 +180,6 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
     }
     else
     {
-        int returnValue = 0;
         pthread_mutex_lock(&sem->m_handle.condition.mtx);
         if (sem->m_value.load(std::memory_order_relaxed) == 0)
         {
