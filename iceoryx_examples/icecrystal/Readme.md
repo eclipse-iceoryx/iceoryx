@@ -12,17 +12,18 @@ memory.
 ## Run icecrystal
 
 We reuse the binaries from [icedelivery](../icedelivery/). Create four terminals and run one command in each of them.
+```sh
+# If installed and available in PATH environment variable
+iox-roudi
+# If build from scratch with script in tools
+$ICEORYX_ROOT/build/iox-roudi
 
-    # If installed and available in PATH environment variable
-    iox-roudi
-    # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/iox-roudi
+build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 
-    ./build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
+build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 
-    ./build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
-
-    ./build/iceoryx_introspection/iceoryx_introspection_client --all
+build/iceoryx_introspection/iceoryx_introspection_client --all
+```
 
 ## Expected output
 
