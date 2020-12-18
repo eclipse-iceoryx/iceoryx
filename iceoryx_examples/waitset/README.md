@@ -328,9 +328,8 @@ corresponding subscriber. If so we act.
 ```
 
 ### Sync
-Let's say we have `SomeClass` and would like to execute a cyclic static call 
-`cyclicRun`
-in that class every second. We could execute any arbitrary algorithm in there
+Let's say we have `SomeClass` and would like to execute a cyclic static method `cyclicRun`
+every second. We could execute any arbitrary algorithm in there
 but for now we just print `activation callback`. The class could look like
 ```cpp
 class SomeClass
@@ -343,18 +342,18 @@ class SomeClass
     }
 };
 ```
-**Important** We need to reset the trigger otherwise the WaitSet would notify
-us immediately again since it is state based.
+**Important** We need to reset the user trigger otherwise the _WaitSet_ would notify
+us immediately again since the user trigger is state based.
 
-We begin as always, by creating a _WaitSet_ with the default capacity and 
+We begin as always, by creating a _WaitSet_ with the default capacity and by
 attaching the `shutdownTrigger` to 
-it. In this case we do not set a trigger id when calling `enableTriggerEvent` which means 
-the default trigger id  `Trigger::INVALID_TRIGGER_ID` is set.
+it. In this case we do not set an event id when calling `attachEvent` which means 
+the default event id  `EventInfo::INVALID_ID` is set.
 ```cpp
 iox::popo::WaitSet<> waitset;
 
 // attach shutdownTrigger to handle CTRL+C
-shutdownTrigger.enableTriggerEvent(waitset);
+waitset.attachEvent(shutdownTrigger);
 ```
 
 After that we require a `cyclicTrigger` to trigger our 
@@ -362,7 +361,7 @@ After that we require a `cyclicTrigger` to trigger our
 eventId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-cyclicTrigger.enableEvent(waitset, SomeClass::cyclicRun);
+waitset.attachEvent(cyclicTrigger, 0U, SomeClass::cyclicRun);
 ```
 
 The next thing we need is something which will trigger our `cyclicTrigger`
@@ -382,16 +381,13 @@ Everything is set up and we can implement the event loop. As usual we handle
 ```cpp
 while (true)
 {
-    auto triggerVector = waitset.wait();
-
-    for (auto& trigger : triggerVector)
+    auto eventVector = waitset.wait();
+    
+    for (auto& event : eventVector)
     {
-        if (trigger->doesOriginateFrom(&shutdownTrigger))
+        if (event->doesOriginateFrom(&shutdownTrigger))
         {
-            // CTRL+c was pressed -> exit
             keepRunning.store(false);
-            cyclicTriggerThread.join();
-            return (EXIT_SUCCESS);
         }
 ```
 
@@ -399,8 +395,7 @@ The `cyclicTrigger` callback is called in the else part.
 ```cpp
         else
         {
-            // call SomeClass::myCyclicRun
-            (*trigger)();
+            (*event)();
         }
 ```
 
@@ -414,11 +409,12 @@ is called and the
 
 #### MyTriggerClass
 
-At the moment the WaitSet does not support _Triggerable_ classes which are movable 
+At the moment the _WaitSet_ does not support _Triggerable_ classes which are movable 
 or copyable. This is caused by the `resetCallback` and the `hasEventCallback`
-which are pointing to the _Triggerable_. The callbacks inside of the WaitSet 
-would point to the wrong memory location. Therefore we have to delete move 
-and copy operations.
+which are pointing to the _Triggerable_. After a move the callbacks inside of the _WaitSet_
+would point to the wrong memory location and a copy could lead to an unattached object 
+if there is no more space left in the _WaitSet_. Therefore we have to delete the move 
+and copy operations for now.
 ```cpp
     MyTriggerClass(const MyTriggerClass&) = delete;
     MyTriggerClass(MyTriggerClass&&) = delete;
@@ -446,7 +442,7 @@ class MyTriggerClass
 ```
 
 As you can see we perform some internal action and when they are finished we
-signal the corresponding _Trigger_ that we performed the task. Internally we
+signal the corresponding _Trigger_ via our stored _TriggerHandle_ that we performed the task. Internally we
 just set a boolean to signal that the method was called.
 
 Every _Trigger_ requires a corresponding class method which returns a boolean
@@ -464,18 +460,18 @@ the two const methods `hasPerformedAction` and `isActivated`.
     }
 ```
 
-The method `enableTriggerEvent` attaches our class to a WaitSet but the user has
+The method `enableEvent` attaches our class to a WaitSet but the user has
 to specify which event they would like to attach. Additionally, they can
 set a `eventId` and a `callback`.
 
 If the parameter event was set to `PERFORMED_ACTION` we call `acquireTriggerHandle`
-on the waitset which will return an `cxx::expected`. The following parameters
+and the waitset which will return an `cxx::expected`. The following parameters
 have to be provided.
  
  1. The origin of the trigger, e.g. `this`
- 2. A method of which can be called by the trigger to ask if it was triggered.
+ 2. A method which can be called by the trigger to ask if it was triggered.
  3. A method which resets the trigger. Used when the WaitSet goes out of scope. 
- 4. The id of the trigger.
+ 4. The id of the event.
  5. A callback with the signature `void (MyTriggerClass * )`.
  
 ```cpp
@@ -492,7 +488,7 @@ have to be provided.
             return waitset
                 .acquireTriggerHandle(this,
                                 {*this, &MyTriggerClass::hasPerformedAction},
-                                {*this, &MyTriggerClass::invalidateTrigger},
+                                {*this, &MyTriggerClass::disableEvent},
                                 eventId,
                                 callback)
                 .and_then([this](iox::popo::TriggerHandle& trigger) { 
@@ -508,7 +504,7 @@ for the trigger.
             return waitset
                 .acquireTriggerHandle(this,
                                 {*this, &MyTriggerClass::isActivated},
-                                {*this, &MyTriggerClass::invalidateTrigger},
+                                {*this, &MyTriggerClass::disableEvent},
                                 eventId,
                                 callback)
                 .and_then([this](iox::popo::TriggerHandle& trigger) { 
@@ -516,11 +512,11 @@ for the trigger.
         }
 ```
 
-The next thing on our checklist is the `invalidateTrigger` method used by the WaitSet
+The next thing on our checklist is the `disableEvent` method used by the WaitSet
 to reset the _Trigger_ when it goes out of scope. Therefore we look up the
-correct trigger first by calling `isLogicalEqualTo` and then `reset` it.
+correct unique trigger id first and then `invalidate` it.
 ```cpp
-    void invalidateTrigger(const uint64_t uniqueEventId)
+    void disableEvent(const uint64_t uniqueEventId)
     {
         if (m_actionTrigger.getUniqueId() == uniqueEventId)
         {
@@ -537,7 +533,7 @@ correct trigger first by calling `isLogicalEqualTo` and then `reset` it.
 
 The next thing we define is a free function, our `eventLoop`, which will handle
 all events of our waitset. The action is for every trigger the same, resetting
-the `MyTriggerClass` instance and call the callback which is attached to the
+the `MyTriggerClass` event and then call the callback which is attached to the
 trigger.
 ```cpp
 void eventLoop()
@@ -573,9 +569,9 @@ triggerClass.emplace();
 After that we can attach both `triggerClass` events to the waitset and provide
 also a callback for them.
 ```cpp
-    triggerClass->enableEvent(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
-    triggerClass->enableEvent(
-        *waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
+    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    waitset->attachEvent(
+        *triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
 ```
 
 Now that everything is set up we can start our `eventLoop` in a new thread.
