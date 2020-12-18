@@ -12,6 +12,8 @@ The behavior and structure is identical to the [icedelivery C++ example](../iced
 so that we explain here only the C API differences and not the
 underlying mechanisms.
 
+<!-- @todo Add expected output with asciinema recording before v1.0-->
+
 ### Subscriber
 
 Like in the 

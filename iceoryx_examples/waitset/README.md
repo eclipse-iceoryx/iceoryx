@@ -108,6 +108,8 @@ All our examples require a running `iox-roudi` and a running `iox-ex-waitset-pub
 which is sending the data. The publisher does not contain any _WaitSet_ specific
 logic and is explained in detail in the [icedelivery example](../icedelivery/).
 
+<!-- @todo Add expected output with asciinema recording before v1.0-->
+
 ### Gateway
 
 We have a list of subscribers which can be subscribed to any arbitrary topic

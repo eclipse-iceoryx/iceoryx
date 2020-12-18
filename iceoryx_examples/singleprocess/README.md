@@ -14,6 +14,8 @@ The example can be started with
 ./build/iceoryx_examples/singleprocess/single_process
 ```
 
+<!-- @todo Replace this with asciinema recording before v1.0-->
+
 After you have started the example you should see an output like
 ```
 Log level set to: [ Error ]

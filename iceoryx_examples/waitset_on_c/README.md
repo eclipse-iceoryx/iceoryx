@@ -8,6 +8,8 @@ in the same way as the C++ ones.
 
 ## Examples
 
+<!-- @todo Add expected output with asciinema recording before v1.0-->
+
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced
 in the [icedelivery C example](../icedelivery_on_c).
