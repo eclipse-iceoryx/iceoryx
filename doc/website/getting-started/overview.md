@@ -1,19 +1,23 @@
 # Getting started with iceoryx
+
 This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to
 set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the
 basic concepts presented here will still apply.
+
 ## General
+
 To set up a collection of applications using iceoryx (an ``iceoryx system``), the applications need to initialize a
 runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be
 received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
 these offered topics, the middleware daemon, called ``Roudi``, must be running.
 
 For further information how iceoryx can be used see the [examples](../iceoryx_examples/README.md). The
-[conceptual-guide.md](../../conceptual-guide.md) provides additional information about the ``Shared Memory
+[conceptual-guide](../../conceptual-guide.md) provides additional information about the ``Shared Memory
 communication`` that lies at the heart of iceoryx.
 
 We now briefly define the main entities of an iceoryx system before showing how they are created and used by the
 iceoryx API.
+
 ### Roudi
 
 Roudi is an abbreviation for **Rou**ting and **Di**scovery. Roudi takes care of the
@@ -54,6 +58,7 @@ advanced filtering functionality in the future.
 The data type of the topic can be an arbitrary C++ class, struct or plain old data type.
 
 ### Publisher
+
 A publisher is tied to a topic and needs a service description to be constructed. If it is typed one needs to
 additionally specify the data type as a template parameter. Otherwise publisher is only aware of raw memory and the
 user has to take care that it is interpreted correctly.
@@ -62,6 +67,7 @@ Once it has offered its topic, it is able to publish (send) data of the specific
 have multiple publishers for the same topic.
 
 ### Subscriber
+
 Symmetrically a subscriber also corresponds to a topic and thus needs a Service Description to be constructed. As for
 publishers we distinguish between typed and untyped subscribers.
 
@@ -73,6 +79,7 @@ When multiple publishers have offered the same topic the subscriber will receive
 indeterminate order between different publishers).
 
 ### Waitset
+
 The easiest way to receive data is to periodically poll whether data is available. This is sufficient for simple use
 cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
 
@@ -114,49 +121,55 @@ shorten the code.
 
 ### Optional
 
-The type ``cxx::optional<T>`` is used to indicate that there may or may not be a value of a specific type ``T``
+The type ``iox::cxx::optional<T>`` is used to indicate that there may or may not be a value of a specific type ``T``
 available. This is essentially the maybe [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)) in functional programming. Assuming we have some optional (usually the
 result of some computation)
-```
+
+```cpp
 optional<int> result = someComputation();
 ```
+
 we can check for its value using
-```
+```cpp
 if(result.has_value())
 {
     auto value = result.value();
-    //do something with the value
-} else {
-    //handle the case that there is no value
+    // do something with the value
+}
+else
+{
+    // handle the case that there is no value
 }
 ```
 A shorthand to get the value is 
-```
+```cpp
 auto value = *result;
 ```
 
-Note that getting the value if there is no value is undefined behavior, so it must be checked beforehand.
+Note that accessing the value if there is no value is undefined behavior, so it must be checked beforehand.
 
 We can achieve the same with the functional approach by providing a function for both cases.
 
-```
+```cpp
 result.and_then([](int& value) { /*do something with the value*/ })
-      .or_else([]() { /*handle the case that there is no value*/ });
+    .or_else([]() { /*handle the case that there is no value*/ });
 ```
 Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) or
 function we pass.
 
 The optional can be be initialized from a value directly
-```
+```cpp
 optional<int> result = 73;
 result = 37;
 ```
 If it is default initialized it is automatically set to its null value of type ``iox::cxx::nullopt_t``;
 This can be also done directly by using the constant ``iox::cxx::nullopt``
 
-```
+```cpp
 result = iox::cxx::nullopt;
 ```
+
+For a complete list of available functions see ``optional.hpp``.
 
 ### Expected
 ``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of
@@ -165,12 +178,12 @@ error type. For more information on how it is used for error handling see
 [error-handling.md](../../design/error-handling.md).
 
 Assume we have ``E`` as an error type, then we can create a value
-```
+```cpp
 iox::cxx::expected<int, E> result(iox::cxx::success<int>(73));
 ```
 
 and use the value or handle a potential error
-```
+```cpp
 if (!result.has_error())
 {
     auto value = result.value();
@@ -184,13 +197,13 @@ else
 ```
 
 Should we need an error value we set
-```
+```cpp
 result = iox::cxx::error<E>(errorCode);
 ```
 which assumes that E can be constructed from an ``errorCode``.
 
 We again can employ a functional approach like this
-```
+```cpp
 auto handleValue = [](int& value) { /*do something with the value*/ };
 auto handleError = [](E& value) { /*handle the error*/ };
 result.and_then(handleValue).or_else(handleError);
@@ -211,7 +224,7 @@ It can even send data to itself, but this usually makes little sense.
 
 Create a runtime with a unique name among all applications for each application
 
-```
+```cpp
 iox::runtime::PoshRuntime::initRuntime("some_unique_name");
 ```
 
@@ -221,10 +234,13 @@ Now this application is ready to communicate with the middleware daemon Roudi.
 
 We need to define a data type we can send, which can be any struct or class or even a plain type, such as an int.
 
-```
+```cpp
 struct CounterTopic
 {
-    CounterTopic(uint32_t counter = 0U) : counter(counter) {}
+    CounterTopic(uint32_t counter = 0U)
+        : counter(counter)
+    {
+    }
 
     uint32_t counter;
 };
@@ -237,12 +253,11 @@ such restriction, it just has to be possible to construct the data type at a giv
 
 We now demonstrate how to send and receive data with the typed API. 
 
-
 #### Creating a publisher
 
 We create a publisher that offers our CounterTopic.
 
-```
+```cpp
 iox::popo::TypedPublisher<CounterTopic> publisher({"Group", "Instance", "CounterTopic"});
 publisher.offer();
 ```
@@ -254,21 +269,22 @@ Now we can use the publisher to send the data in various ways.
 
 1. Loan and assign
 
-    ```
+    ```cpp
     auto result = publisher.loan();
     if (!result.has_error())
     {
         auto& sample = result.value();
         sample->counter = 73;
         sample.publish();
-    } else 
+    }
+    else
     {
-        //handle the error
+        // handle the error
     }
     ```
 
     Here result is an ``expected`` and hence we may get an error which we have to handle. This can happen if we try
-    to loan to many samples and exhaust memory.
+    to loan too many samples and exhaust memory.
     
     If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value
     we want to send. It is important to note that in the typed case we get a default constructed topic and such an
@@ -280,16 +296,17 @@ Now we can use the publisher to send the data in various ways.
 
 2. Functional approach with loaning
 
-    ```
+    ```cpp
     publisher.loan()
-            .and_then([&](auto& sample) { 
-                auto ptr = sample.get();
-                *ptr = CounterTopic(73);
-                sample.publish();
-            })
-            .or_else([](iox::popo::AllocationError) {
-                /* handle the error */
-            });
+        .and_then([&](auto& sample) {
+            auto ptr = sample.get();
+            *ptr = CounterTopic(73);
+            sample.publish();
+        })
+        .or_else([](iox::popo::AllocationError) {
+            /* handle the error */
+        });   
+    
     ```
 
     We try to loan a sample from the publisher and if successful get the underlying pointer ``ptr`` to our topic and
@@ -297,15 +314,15 @@ Now we can use the publisher to send the data in various ways.
     cannot treat it as uninitialized memory and therefore must assign the data to send.
     
     If you are only using a simple data type which does not rely on RAII, you can also use the pointer to construct
-    the data via emplacement new instead.
+    the data via placement new instead.
 
-    ```
+    ```cpp
     new (ptr) CounterTopic(73);
     ```
 
 3. Publish by copy
 
-    ```
+    ```cpp
     CounterTopic counter(73);
     publisher.publishCopyOf(counter);
     ```
@@ -313,12 +330,13 @@ Now we can use the publisher to send the data in various ways.
 
 4. Publish the result of a computation
 
-    ```
-    auto myComputation = [](CounterTopic *data) { *data = CounterTopic(73); };
+    ```cpp
+    auto myComputation = [](CounterTopic* data) { *data = CounterTopic(73); };
     auto result = publisher.publishResultOf(myComputation);
-    if(result.has_error()) {
-        //handle the error
-    }
+    if (result.has_error())
+    {
+        // handle the error
+    }    
     ```
 
     This can be used if we want to set the data by some callable (i.e. lambda, function or [functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++)). As with all the
@@ -329,7 +347,7 @@ Now we can use the publisher to send the data in various ways.
 We now create a corresponding subscriber, usually in another application. While it will work in the same application as
 well, there usually is no need sending it via the middleware in such a case.
 
-```
+```cpp
 iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
 subscriber.subscribe();
 ```
@@ -342,9 +360,10 @@ We immediately subscribe here, but this can be postponed to the point were we ac
 For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data
 using the [Waitset](../../../iceoryx_examples/waitset/README.md). The code to receive the data is the same, the only
 difference is the way we wake up before checking for data.
-```
-while(keepRunning) {
-    //wait for new data (either sleep and wake up periodically or by notification from the waitset)
+```cpp
+while (keepRunning)
+{
+    // wait for new data (either sleep and wake up periodically or by notification from the waitset)
 
     subscriber->take()
         .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
@@ -352,11 +371,12 @@ while(keepRunning) {
             /* process the received data using the ptr */
 
             /* alternatively use operator-> */
-            uint32_t counter = sample->counter;           
+            uint32_t counter = sample->counter;
         })
         .if_empty([] { /* no data received but also no error */ })
         .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
 }
+
 ```
 
 By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>``. Since this
@@ -374,22 +394,25 @@ need a longer lifetime, we have to copy or move the data from the ``sample``.
 This only allows us to get one sample at a time. Should we want to get all currently available samples we can do so
 by using an additional loop.
 
-```
-while(keepRunning) {
-    while(subscriber.hasNewSamples()) {
+```cpp
+while (keepRunning)
+{
+    while (subscriber.hasNewSamples())
+    {
         subscriber->take()
             .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                 CounterTopic* ptr = sample.get();
                 /* process the received data using the ptr */
 
                 /* alternatively use operator-> */
-                uint32_t counter = sample->counter;           
+                uint32_t counter = sample->counter;
             })
             .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
     }
     // wait for new samples (either sleep or use the waitset)
 }
 ```
+
 Here we do not check whether we actually have data since we already know there is data available by calling
 ``hasNewSamples``.
 
@@ -404,48 +427,52 @@ itself.
 
 When creating an untyped publisher we do not need to specify a data type as template paraemter.
 
-```
+```cpp
 iox::popo::UntypedPublisher publisher({"Group", "Instance", "CounterTopic"});
 publisher.offer();
 ```
+
 #### Sending data
 
 1. Loan and emplace
 
     Before sending, we have to loan a chunk of memory to emplace our data.
-    ```
+
+    ```cpp
     auto result = publisher.loan(sizeof(CounterTopic));
     ```
+
     Since the data type is not known to the publisher, we have to provide the size in bytes of the payload data we
     intend to send.
-    
-    If we successfully acquired a chunk, we can construct the data to be send using emplacement new and publish it.
 
-    ```
+    If we successfully acquired a chunk, we can construct the data to be send using placement new and publish it.
+
+    ```cpp
     if (!result.has_error())
     {
         auto& sample = result.value();
         new (sample.get()) CounterTopic(73);
         sample.publish();
-    } else 
-    {
-        //could not acquire chunk, handle the error
     }
+    else
+    {
+        // could not acquire chunk, handle the error
+    }    
     ```
 
-    Here emplacement new is required, there is no preconstructed object at ``sample.get()``.
+    Here placement new is required, there is no preconstructed object at ``sample.get()``.
 
 2. Functional approach with loaning
 
-    ```
+    ```cpp
     publisher.loan(sizeof(CounterTopic))
-            .and_then([&](iox::popo::Sample<void>& sample) { 
-                new (sample.get()) CounterTopic(73);
-                sample.publish();
-            })
-            .or_else([](iox::popo::AllocationError) {
-                /* handle the error */
-            });
+        .and_then([&](iox::popo::Sample<void>& sample) {
+            new (sample.get()) CounterTopic(73);
+            sample.publish();
+        })
+        .or_else([](iox::popo::AllocationError) {
+            /* handle the error */
+        });   
     ```
     Notice that we get an untyped sample, ``iox::popo::Sample<const void>``. We could also use ``auto& sample`` in the
     lambda arguments to shorten it. Again we access the pointer to the underlying raw memory of the sample and
@@ -458,7 +485,7 @@ publisher.offer();
 While the string identifiers still have to match those in the publisher, as in the untyped publisher there is no
 template type argument.
 
-```
+```cpp
 iox::popo::UntypedSubscriber subscriber({"Group", "Instance", "CounterTopic"});
 subscriber.subscribe();
 ```
@@ -468,15 +495,15 @@ Receiving the data works in the same way as in the typed API, the main differenc
 before accessing the data (since the subscriber has no knowledge of the underlying type).
 
 
-```
-while(keepRunning) 
+```cpp
+while (keepRunning)
 {
-    //wait for new data (either sleep and wake up periodically or by notification from the waitset)
+    // wait for new data (either sleep and wake up periodically or by notification from the waitset)
 
     subscriber->take()
         .and_then([](iox::popo::Sample<const void>& sample) {
             CounterTopic* ptr = reinterpret_cast<CounterTopic*>(sample.get());
-            /* process the received data using the ptr */         
+            /* process the received data using the ptr */
         })
         .if_empty([] { /* no data received but also no error */ })
         .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
@@ -489,18 +516,17 @@ manually.
 
 As in the untyped case we also could use a loop to get all samples as long as they are available.
 
-
 ### Shutdown
 
 Once we are done sending, we call ``stopOffer`` at the publisher.
 
-```
+```cpp
 publisher.stopOffer();
 ```
 
 Similarly the subscriber can ``unsubscribe`` to stop receiving any data.
 
-```
+```cpp
 subscriber.unsubscribe();
 ```
 
@@ -529,7 +555,6 @@ This covers the main use cases and should enable the user to quickly develop ice
 
 Full examples and instructions on how to build and run them can be found in
 [examples](../../../iceoryx_examples/README.md). The [icedelivery](../../../iceoryx_examples/icedelivery/README.md) example can be a starting point to further explore how iceoryx is used.
-
 
 ## C API
 
