@@ -16,26 +16,23 @@ We now briefly define the main entities of an iceoryx system before showing how 
 iceoryx API.
 ### Roudi
 
-Roudi is an abbrevation for **Rou**ting and **Di**scovery. Roudi takes care of the
-communication setup but does not actually participate in the communication between the publisher and the subscriber. RouDi can be thought of as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
-which the applications are using to talk to each other. Sometimes referred to as daemon, RouDi manages the shared
-memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers.
-It also keeps track of all applications which have initialized a runtime and are hence able to use publishers or
-subscribers. To view the available command line options call `iox-roudi --help`.
+Roudi is an abbreviation for **Rou**ting and **Di**scovery. Roudi takes care of the
+communication setup but does not actually participate in the communication between the publisher and the subscriber.
+RouDi can be thought of as the switchboard operator of iceoryx. One of his other major tasks is the setup of the
+shared memory, which the applications use for exchanging payload data. Sometimes referred to as daemon, RouDi manages
+the shared memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use
+publishers or subscribers. To view the available command line options call `iox-roudi --help`.
 
 ### Runtime
 
 Each application which wants to use iceoryx has to instantiate its runtime, which essentially enables communication
-with Roudi.
+with Roudi. Only one runtime object per user process is allowed.
 
 To do so, the following lines of code are required
- 
+
     #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-    iox::runtime::PoshRuntime::initRuntime("/some_unique_application_name");
-
-The application name must be unique among all other applications and have a leading `\`.
-
+    iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
 
 ### Topics
 
@@ -76,7 +73,7 @@ When multiple publishers have offered the same topic the subscriber will receive
 indeterminate order between different publishers).
 
 ### Waitset
-The easiest way to receie data is to periodically poll whether data is available. This is sufficient for simple use
+The easiest way to receive data is to periodically poll whether data is available. This is sufficient for simple use
 cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
 
 The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user defined conditions
@@ -92,7 +89,7 @@ For more information on how to use the Waitset see [Waitset](../../../iceoryx_ex
 
 ## API
 
-We now show how the API can be used to establish a publish-subscribe communication in an iceoryx system. Many parts
+Now, we show how the API can be used to establish a publish-subscribe communication in an iceoryx system. Many parts
 of the API follow a functional programming approach and allow the user to specify functions which handle the possible
 cases, e.g. what should happen when data is received.
 
@@ -111,7 +108,7 @@ respective header files.
 There also is a plain [C API](../../../iceoryx_examples/icedelivery_on_c/README.md), which can be used if C++ is not
 an option.
 
-We now describe the how to use the API in iceoryx applications. We will ommit namespaces in several places to keep
+We now describe the how to use the API in iceoryx applications. We will omit namespaces in several places to keep
 the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. We also will use ``auto``
 sparingly to clearly show which types are involved, but in many cases automatic type deduction is possible and can
 shorten the code.
@@ -217,7 +214,7 @@ It can even send data to itself, but this usually makes little sense.
 Create a runtime with a unique name among all applications for each application
 
 ```
-iox::runtime::PoshRuntime::initRuntime("/some_unique_name");
+iox::runtime::PoshRuntime::initRuntime("some_unique_name");
 ```
 
 Now this application is ready to communicate with the middleware daemon Roudi.
