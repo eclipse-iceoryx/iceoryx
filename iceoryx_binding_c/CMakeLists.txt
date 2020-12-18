@@ -76,7 +76,7 @@ target_link_libraries(${PROJECT_NAME}
     iceoryx_utils::iceoryx_utils
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
 ########## build test executables ##########
