@@ -7,7 +7,7 @@ It provides publisher and subscriber applications. They come in two API flavours
 
 ## Run icedelivery
 
-Create three terminals and run one command in each of them. Either choose to run the normal or simplified version.
+Create three terminals and run one command in each of them. Choose one publisher and one subscriber and mix the typed and untyped versions.
 ```sh
 # If installed and available in PATH environment variable
 iox-roudi
@@ -15,14 +15,14 @@ iox-roudi
 $ICEORYX_ROOT/build/iox-roudi
 
 
-./build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
+build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 # The untyped publisher is an alternative
-./build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
+build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
 
 
-./build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
+build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 # The untyped subscriber is an alternative
-./build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
+build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
 ```
 
 ## Expected output

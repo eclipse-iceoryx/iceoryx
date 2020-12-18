@@ -15,9 +15,9 @@ iox-roudi
 # If build from scratch with script in tools
 $ICEORYX_ROOT/build/posh/iox-roudi
 
-./build/iceoryx_examples/ice_multi_publisher/iox-multi-publisher
+build/iceoryx_examples/ice_multi_publisher/iox-multi-publisher
 
-./build/iceoryx_examples/ice_multi_publisher/iox-subscriber
+build/iceoryx_examples/ice_multi_publisher/iox-subscriber
 ```
 
 This starts two publishers in the iox-multi-publisher application and 

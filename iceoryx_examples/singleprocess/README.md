@@ -11,7 +11,7 @@ threads which are interacting without starting separately RouDi everytime.
 
 The example can be started with
 ```sh
-./build/iceoryx_examples/singleprocess/single_process
+build/iceoryx_examples/singleprocess/single_process
 ```
 
 <!-- @todo Replace this with asciinema recording before v1.0-->

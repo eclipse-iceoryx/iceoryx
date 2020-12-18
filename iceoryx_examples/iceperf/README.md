@@ -20,15 +20,16 @@ The order is first the RouDi daemon, then iceperf-laurel which is the leader in 
 and then iceperf-laurel for doing the ping pong measurements with iceperf-laurel. 
 You can set the number of measurement iterations (number of roundtrips) with a command line paramter
 of iceperf-laurel (e.g. ./iceperf-laurel 100000)
+```sh
+# If installed and available in PATH environment variable
+iox-roudi
+# If build from scratch with script in tools
+$ICEORYX_ROOT/build/install/prefix/bin/iox-roudi
 
-    # If installed and available in PATH environment variable
-    iox-roudi
-    # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/install/prefix/bin/iox-roudi
+build/iceoryx_examples/iceperf/iceperf-laurel
 
-    build/iceoryx_examples/iceperf/iceperf-laurel
-
-    build/iceoryx_examples/iceperf/iceperf-hardy
+build/iceoryx_examples/iceperf/iceperf-hardy
+```
 
 ## Expected output
 
