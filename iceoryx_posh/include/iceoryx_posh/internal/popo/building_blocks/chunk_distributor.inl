@@ -61,6 +61,13 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
 
+            if (requestedHistory > getMembers()->m_historyCapacity)
+            {
+                LogWarn() << "Chunk history request exceeds history capacity! Request is "
+                          << requestedHistory
+                          << ". Capacity is " << getMembers()->m_historyCapacity << ".";
+            }
+
             // if the current history is large enough we send the requested number of chunks, else we send the
             // total history
             const auto startIndex =
