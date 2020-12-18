@@ -35,7 +35,7 @@ struct iox_sem_t
     } m_handle;
 
     bool m_hasPosixHandle{true};
-    std::atomic<int>* m_value{nullptr};
+    std::atomic<int> m_value{0};
 };
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);

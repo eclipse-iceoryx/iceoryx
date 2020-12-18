@@ -21,17 +21,7 @@
 #include <iostream>
 #include <thread>
 
-static void deleteValue(std::atomic<int>*& value) noexcept
-{
-    if (value != nullptr)
-    {
-        delete value;
-        value = nullptr;
-    }
-}
-
 iox_sem_t::iox_sem_t() noexcept
-    : m_value{new std::atomic<int>}
 {
 }
 
@@ -42,25 +32,25 @@ iox_sem_t::iox_sem_t(iox_sem_t&& rhs) noexcept
 
 iox_sem_t::~iox_sem_t()
 {
-    deleteValue(m_value);
 }
 
 iox_sem_t& iox_sem_t::operator=(iox_sem_t&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        deleteValue(m_value);
+        m_value.store(rhs.m_value.load());
         m_handle = rhs.m_handle;
         m_hasPosixHandle = rhs.m_hasPosixHandle;
         m_value = rhs.m_value;
-        rhs.m_value = nullptr;
+
+        rhs.m_value.store(0);
     }
     return *this;
 }
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
-    *sval = sem->m_value->load(std::memory_order_relaxed);
+    *sval = sem->m_value.load(std::memory_order_relaxed);
     return 0;
 }
 
@@ -72,14 +62,14 @@ int iox_sem_post(iox_sem_t* sem)
         retVal = sem_post(sem->m_handle.posix);
         if (retVal == 0)
         {
-            sem->m_value->fetch_add(1, std::memory_order_relaxed);
+            sem->m_value.fetch_add(1, std::memory_order_relaxed);
         }
     }
     else
     {
         // dispatch semaphore always succeed
         dispatch_semaphore_signal(sem->m_handle.dispatch);
-        sem->m_value->fetch_add(1, std::memory_order_relaxed);
+        sem->m_value.fetch_add(1, std::memory_order_relaxed);
     }
     return retVal;
 }
@@ -92,14 +82,14 @@ int iox_sem_wait(iox_sem_t* sem)
         retVal = sem_wait(sem->m_handle.posix);
         if (retVal == 0)
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
         }
     }
     else
     {
         // dispatch semaphore always succeed
         dispatch_semaphore_wait(sem->m_handle.dispatch, DISPATCH_TIME_FOREVER);
-        sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+        sem->m_value.fetch_sub(1, std::memory_order_relaxed);
     }
 
     return retVal;
@@ -113,7 +103,7 @@ int iox_sem_trywait(iox_sem_t* sem)
         retVal = sem_trywait(sem->m_handle.posix);
         if (retVal == 0)
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
         }
     }
     else
@@ -125,7 +115,7 @@ int iox_sem_trywait(iox_sem_t* sem)
         }
         else
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
         }
     }
 
@@ -158,7 +148,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else if (tryWaitCall == 0)
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
 
@@ -176,7 +166,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else if (tryWaitCall == 0)
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
     }
@@ -190,7 +180,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
     }
@@ -202,6 +192,8 @@ int iox_sem_close(iox_sem_t* sem)
 {
     // will only be called by named semaphores which are in our case
     // posix semaphores
+    // therefor we have to call delete since we created the iox_sem_t object
+    // with new in iox_sem_open
     int retVal = sem_close(sem->m_handle.posix);
     delete sem;
     return retVal;
@@ -212,18 +204,19 @@ int iox_sem_destroy(iox_sem_t* sem)
     // will only be called by unnamed semaphores which are in our
     // case dispatch semaphores
     dispatch_release(sem->m_handle.dispatch);
+    // no delete necessary since the user is providing memory here
     return 0;
 }
 
 int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
 {
+    // no new necessary since the user is providing memory here
     sem->m_hasPosixHandle = false;
     sem->m_handle.dispatch = dispatch_semaphore_create(value);
-    sem->m_value->store(value, std::memory_order_relaxed);
+    sem->m_value.store(value, std::memory_order_relaxed);
 
     if (sem->m_handle.dispatch == nullptr)
     {
-        delete sem;
         return -1;
     }
     return 0;
@@ -241,6 +234,12 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
         return reinterpret_cast<iox_sem_t*>(SEM_FAILED);
     }
 
+    // sem_open creates a named semaphore which is corresponding to a file.
+    // the posix version creates also something on the heap and if you would
+    // like to share this semaphore you should open the named semaphore with
+    // sem_open in another process. Sharing this semaphore via shared memory
+    // is always wrong!
+    // Hence, it is allowed to use new/delete in this case.
     iox_sem_t* sem = new iox_sem_t;
 
     if (oflag & (O_CREAT | O_EXCL))
@@ -255,7 +254,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
         va_end(va);
 
         sem->m_handle.posix = sem_open(name, oflag, mode, value);
-        sem->m_value->store(value, std::memory_order_relaxed);
+        sem->m_value.store(value, std::memory_order_relaxed);
     }
     else
     {
