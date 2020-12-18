@@ -58,7 +58,7 @@ void receive()
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        while (subscriber.hasNewSamples())
+        while (subscriber.hasSamples())
         {
             subscriber.take()
                 .and_then([](iox::popo::Sample<const CounterTopic>& sample) {

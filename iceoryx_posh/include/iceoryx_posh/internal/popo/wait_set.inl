@@ -40,14 +40,28 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 }
 
 template <uint64_t Capacity>
+template <typename T, typename... Targs>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin, const Targs&... args) noexcept
+{
+    return eventOrigin.enableEvent(*this, args...);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename... Targs>
+inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
+{
+    eventOrigin.disableEvent(args...);
+}
+
+template <uint64_t Capacity>
 inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    for (auto& currentTrigger : m_triggerVector)
+    for (auto currentTrigger = m_triggerList.begin(); currentTrigger != m_triggerList.end(); ++currentTrigger)
     {
-        if (currentTrigger.getUniqueId() == uniqueTriggerId)
+        if (currentTrigger->getUniqueId() == uniqueTriggerId)
         {
-            currentTrigger.invalidate();
-            m_triggerVector.erase(&currentTrigger);
+            currentTrigger->invalidate();
+            m_triggerList.erase(currentTrigger);
             return;
         }
     }
@@ -56,23 +70,22 @@ inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noe
 template <uint64_t Capacity>
 inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 {
-    for (auto& trigger : m_triggerVector)
+    for (auto& trigger : m_triggerList)
     {
         trigger.reset();
     }
 
-    m_triggerVector.clear();
+    m_triggerList.clear();
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::TriggerInfoVector
-WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
+inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::wait() noexcept
+inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
 {
     return waitAndReturnTriggeredTriggers([this] {
         m_conditionVariableWaiter.wait();
@@ -81,10 +94,10 @@ inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::wait() n
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
+inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
 {
-    TriggerInfoVector triggers;
-    for (auto& currentTrigger : m_triggerVector)
+    EventInfoVector triggers;
+    for (auto& currentTrigger : m_triggerList)
     {
         if (currentTrigger.hasTriggered())
         {
@@ -92,7 +105,7 @@ inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::createVe
             // m_conditionVector and triggers are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            triggers.push_back(currentTrigger.getTriggerInfo());
+            triggers.push_back(&currentTrigger.getEventInfo());
         }
     }
 
@@ -101,10 +114,10 @@ inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::createVe
 
 template <uint64_t Capacity>
 template <typename WaitFunction>
-inline typename WaitSet<Capacity>::TriggerInfoVector
+inline typename WaitSet<Capacity>::EventInfoVector
 WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
-    WaitSet::TriggerInfoVector triggers;
+    WaitSet::EventInfoVector triggers;
 
     /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
     m_conditionVariableWaiter.reset();
@@ -125,23 +138,23 @@ WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noex
 template <uint64_t Capacity>
 inline uint64_t WaitSet<Capacity>::size() const noexcept
 {
-    return m_triggerVector.size();
+    return m_triggerList.size();
 }
 
 template <uint64_t Capacity>
-inline uint64_t WaitSet<Capacity>::triggerCapacity() const noexcept
+inline uint64_t WaitSet<Capacity>::capacity() const noexcept
 {
-    return m_triggerVector.capacity();
+    return m_triggerList.capacity();
 }
 
 template <uint64_t Capacity>
 template <typename T>
 inline cxx::expected<TriggerHandle, WaitSetError>
-WaitSet<Capacity>::acquireTrigger(T* const origin,
-                                  const cxx::ConstMethodCallback<bool>& triggerCallback,
-                                  const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                                  const uint64_t triggerId,
-                                  const Trigger::Callback<T> callback) noexcept
+WaitSet<Capacity>::acquireTriggerHandle(T* const origin,
+                                        const cxx::ConstMethodCallback<bool>& triggerCallback,
+                                        const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
+                                        const uint64_t eventId,
+                                        const EventInfo::Callback<T> callback) noexcept
 {
     static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
                       && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
@@ -150,33 +163,33 @@ WaitSet<Capacity>::acquireTrigger(T* const origin,
                   "a callback inside of Trigger.");
 
     Trigger possibleLogicallyEqualTrigger(
-        origin, triggerCallback, cxx::MethodCallback<void, uint64_t>(), triggerId, Trigger::Callback<T>());
+        origin, triggerCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>());
 
     // it is not allowed to have to logical equal trigger in the same waitset
     // otherwise when we call removeTrigger(Trigger) we do not know which trigger
     // we should remove if the trigger is attached multiple times.
-    for (auto& currentTrigger : m_triggerVector)
+    for (auto& currentTrigger : m_triggerList)
     {
         if (currentTrigger.isLogicalEqualTo(possibleLogicallyEqualTrigger))
         {
-            return cxx::error<WaitSetError>(WaitSetError::TRIGGER_ALREADY_ACQUIRED);
+            return cxx::error<WaitSetError>(WaitSetError::EVENT_ALREADY_ATTACHED);
         }
     }
 
-    if (!m_triggerVector.emplace_back(origin, triggerCallback, invalidationCallback, triggerId, callback))
+    if (!m_triggerList.push_back(Trigger{origin, triggerCallback, invalidationCallback, eventId, callback}))
     {
-        return cxx::error<WaitSetError>(WaitSetError::TRIGGER_VECTOR_OVERFLOW);
+        return cxx::error<WaitSetError>(WaitSetError::WAIT_SET_FULL);
     }
 
     return iox::cxx::success<TriggerHandle>(TriggerHandle(
-        m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, m_triggerVector.back().getUniqueId()));
+        m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, m_triggerList.back().getUniqueId()));
 }
 
 template <uint64_t Capacity>
 template <typename T>
 inline void WaitSet<Capacity>::moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept
 {
-    for (auto& currentTrigger : m_triggerVector)
+    for (auto& currentTrigger : m_triggerList)
     {
         if (currentTrigger.isLogicalEqualTo(trigger))
         {

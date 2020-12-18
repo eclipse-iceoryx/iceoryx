@@ -38,16 +38,16 @@ void subscriberHandler(iox::popo::WaitSet<>& waitSet)
     // run until interrupted
     while (true)
     {
-        auto triggerVector = waitSet.wait();
-        for (auto& trigger : triggerVector)
+        auto eventVector = waitSet.wait();
+        for (auto& event : eventVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 return;
             }
             else
             {
-                auto subscriber = trigger.getOrigin<iox::popo::TypedSubscriber<Position>>();
+                auto subscriber = event->getOrigin<iox::popo::TypedSubscriber<Position>>();
                 subscriber->take()
                     .and_then([](iox::popo::Sample<const Position>& position) {
                         std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
@@ -73,9 +73,9 @@ int main()
     typedSubscriber.subscribe();
 
     // set up waitset
-    iox::popo::WaitSet<> waitSet{};
-    typedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-    shutdownTrigger.attachTo(waitSet);
+    iox::popo::WaitSet<> waitSet;
+    waitSet.attachEvent(typedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitSet.attachEvent(shutdownTrigger);
 
     // delegate handling of received data to another thread
     std::thread subscriberHandlerThread(subscriberHandler, std::ref(waitSet));

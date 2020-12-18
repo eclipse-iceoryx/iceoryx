@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/event_info.h"
 #include "iceoryx_binding_c/runtime.h"
-#include "iceoryx_binding_c/trigger_info.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_TRIGGER 2
+#define NUMBER_OF_EVENTS 2
 
 iox_user_trigger_storage_t shutdownTriggerStorage;
 iox_user_trigger_t shutdownTrigger;
@@ -79,7 +79,7 @@ int main()
     shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
+    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
@@ -88,7 +88,7 @@ int main()
     // create and attach the cyclicTrigger with a callback to
     // myCyclicRun
     cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);
-    iox_user_trigger_attach_to_waitset(cyclicTrigger, waitSet, 0, cyclicRun);
+    iox_ws_attach_user_trigger_event(waitSet, cyclicTrigger, 0, cyclicRun);
 
     // start a thread which triggers cyclicTrigger every second
 #if !defined(_WIN32)
@@ -101,22 +101,21 @@ int main()
 #endif
 
     uint64_t missedElements = 0U;
-    uint64_t numberOfTriggeredConditions = 0U;
+    uint64_t numberOfEvents = 0U;
 
     // array where all trigger from iox_ws_wait will be stored
-    iox_trigger_info_storage_t triggerArray[NUMBER_OF_TRIGGER];
+    iox_event_info_t eventArray[NUMBER_OF_EVENTS];
 
     // event loop
     while (keepRunning)
     {
-        numberOfTriggeredConditions =
-            iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        numberOfEvents = iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
 
-        for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
+        for (uint64_t i = 0U; i < numberOfEvents; ++i)
         {
-            iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
+            iox_event_info_t event = eventArray[i];
 
-            if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
+            if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
@@ -124,7 +123,7 @@ int main()
             else
             {
                 // call myCyclicRun
-                iox_trigger_info_call(trigger);
+                iox_event_info_call(event);
             }
         }
     }

@@ -35,13 +35,11 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
     virtual ~TypedSubscriber() = default;
 
-    using BaseSubscriber::attachTo;
-    using BaseSubscriber::detachEvent;
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
     using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::hasSamples;
     using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseQueuedSamples;
     using BaseSubscriber::subscribe;

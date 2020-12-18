@@ -167,7 +167,7 @@ Notice that all identifiers match the ones provided by the two publishers.
 We periodically wake up
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    while (subscriber.hasNewSamples())
+    while (subscriber.hasSamples())
 
 When there are new samples we display them on the console.
 
@@ -232,7 +232,7 @@ We wait for some time, check for data, and if there is any display it on the con
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    while (subscriber.hasNewSamples())
+    while (subscriber.hasSamples())
     {
         subscriber.take()
             .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
