@@ -39,7 +39,7 @@ void iox_ws_deinit(iox_ws_t const self);
 /// @param[in] self handle to the wait set
 /// @param[in] timeout duration how long this method should wait
 /// @param[in] eventArray preallocated memory to an array of iox_event_info_t in which
-///             the event infos which describe the occurred evebt can be written to
+///             the event infos, which are describing the occurred event, can be written to
 /// @param[in] eventInfoArrayCapacity the capacity of the preallocated eventInfoArray
 /// @param[in] missedElements if the eventInfoArray has insufficient size the number of missed elements
 ///             which could not be written into the array are stored here
@@ -53,7 +53,7 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
 /// @brief waits until an event occurred
 /// @param[in] self handle to the wait set
 /// @param[in] eventInfoArray preallocated memory to an array of iox_event_info_t in which
-///             the event infos which describe the occurred evebt can be written to
+///             the event infos, which are describing the occurred event, can be written to
 /// @param[in] eventInfoArrayCapacity the capacity of the preallocated eventInfoArray
 /// @param[in] missedElements if the eventInfoArray has insufficient size the number of missed elements
 ///             which could not be written into the array are stored here
