@@ -203,7 +203,7 @@ then
 fi
 echo " [i] Building with $NUM_JOBS jobs"
 
-# clean build folder
+# clean build folders
 if [ $CLEAN_BUILD == true ]
 then
     echo " [i] Cleaning build directory"
@@ -223,24 +223,28 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
-# Dont build examples when coverage or sanitization is enabled
-if [ "$OUT_OF_TREE_FLAG" == "ON" ]
-then
+
+#====================================================================================================
+#==== Step : Out-of-tree build  =====================================================================
+#====================================================================================================
+
+if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
+    rm -rf $WORKSPACE/build_out_of_tree
     if [ "$BINDING_C_FLAG" == "ON" ]; then
         EXAMPLES="${EXAMPLES} icedelivery_on_c waitset_on_c"
     fi
     echo ">>>>>> Start Out-of-tree build <<<<<<"
-    echo ${EXAMPLES} 
-    cd $WORKSPACE/iceoryx_examples
+    echo ${EXAMPLES}
+    cd $WORKSPACE && mkdir -p build_out_of_tree && cd build_out_of_tree
         for ex in ${EXAMPLES}  ; do
-            cd $ex && mkdir -p build && cd build
-            cmake .. -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX
+            mkdir -p $ex && cd $ex
+            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/$ex
             cmake --build . --target install -- -j$NUM_JOBS
             if [ $? -ne 0 ]; then
                 echo "Out of tree build failed"
                 exit 1
             fi
-            cd ../..
+            cd ..
         done
         echo ">>>>>> Finished Out-of-tree build<<<<<<"
 fi

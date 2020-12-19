@@ -1,4 +1,5 @@
 build/
+out_of_tree_build/
 install/
 /CMakeLists.txt
 .vscode
