@@ -37,7 +37,7 @@ struct PublisherPortData : public BasePortData
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
                       const ProcessName_t& processName,
                       mepoo::MemoryManager* const memoryManager,
-                      const PublisherOptions& publisherOptions = PublisherOptions(),
+                      const PublisherOptions& publisherOptions,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     using ChunkQueueData_t = SubscriberPortData::ChunkQueueData_t;

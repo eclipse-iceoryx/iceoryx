@@ -28,7 +28,8 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
   public:
-    TypedSubscriber(const capro::ServiceDescription& service);
+    TypedSubscriber(const capro::ServiceDescription& service,
+                    const SubscriberOptions& subscriberOptions = SubscriberOptions());
     TypedSubscriber(const TypedSubscriber& other) = delete;
     TypedSubscriber& operator=(const TypedSubscriber&) = delete;
     TypedSubscriber(TypedSubscriber&& rhs) = delete;

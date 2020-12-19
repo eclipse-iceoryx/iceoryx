@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,8 +70,10 @@ inline GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(capro::Interfaces in
 }
 
 template <typename channel_t, typename gateway_t>
+template <typename IceoryxPubSubOptions>
 inline cxx::expected<channel_t, GatewayError>
-GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription& service) noexcept
+GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription& service,
+                                                 const IceoryxPubSubOptions& options) noexcept
 {
     // Filter out wildcard services
     if (service.getServiceID() == capro::AnyService || service.getInstanceID() == capro::AnyInstance
@@ -88,7 +90,7 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
     }
     else
     {
-        auto result = channel_t::create(service);
+        auto result = channel_t::create(service, options);
         if (result.has_error())
         {
             return cxx::error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
@@ -121,8 +123,8 @@ GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescr
 }
 
 template <typename channel_t, typename gateway_t>
-inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<void(channel_t&)> f) const
-    noexcept
+inline void
+GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<void(channel_t&)> f) const noexcept
 {
     auto guardedVector = m_channels.GetScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)

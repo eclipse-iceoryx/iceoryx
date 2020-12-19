@@ -37,15 +37,19 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       uint64_t historyRequest)
+                       const uint64_t queueCapacity,
+                       const uint64_t historyRequest)
 {
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
+    SubscriberOptions options;
+    options.queueCapacity = queueCapacity;
+    options.historyRequest = historyRequest;
     me->m_portData =
         PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
                                                                               IdString_t(TruncateToCapacity, instance),
                                                                               IdString_t(TruncateToCapacity, event)},
-                                                           historyRequest);
+                                                           options);
 
     return me;
 }
@@ -55,9 +59,9 @@ void iox_sub_deinit(iox_sub_t const self)
     self->~cpp2c_Subscriber();
 }
 
-void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity)
+void iox_sub_subscribe(iox_sub_t const self)
 {
-    SubscriberPortUser(self->m_portData).subscribe(queueCapacity);
+    SubscriberPortUser(self->m_portData).subscribe();
 }
 
 void iox_sub_unsubscribe(iox_sub_t const self)

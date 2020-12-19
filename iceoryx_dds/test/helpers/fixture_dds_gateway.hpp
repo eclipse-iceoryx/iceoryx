@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,9 +55,11 @@ class DDSGatewayTestFixture : public Test
         m_stagedMockDDSTerminal.emplace_back(std::move(mock));
     };
     // Create a new iceoryx mock
-    std::shared_ptr<IceoryxTerminal> createMockIceoryxTerminal(const iox::capro::ServiceDescription& sd)
+    template <typename IceoryxPubSubOptions>
+    std::shared_ptr<IceoryxTerminal> createMockIceoryxTerminal(const iox::capro::ServiceDescription& sd,
+                                                               const IceoryxPubSubOptions& options)
     {
-        return std::shared_ptr<IceoryxTerminal>(new IceoryxTerminal(sd));
+        return std::shared_ptr<IceoryxTerminal>(new IceoryxTerminal(sd, options));
     }
     // Stage the given mock to be used in the channel factory
     void stageMockIceoryxTerminal(std::shared_ptr<IceoryxTerminal>&& mock)
@@ -68,8 +70,9 @@ class DDSGatewayTestFixture : public Test
     // Creates channels to be used in tests.
     // Channels will contain staged mocks, or empty mocks if none are staged.
     // The factory method can be passed to test gateways, allowing injection of mocks.
+    template <typename IceoryxPubSubOptions>
     iox::cxx::expected<iox::gw::Channel<IceoryxTerminal, DDSTerminal>, iox::gw::GatewayError>
-    channelFactory(iox::capro::ServiceDescription sd) noexcept
+    channelFactory(iox::capro::ServiceDescription sd, const IceoryxPubSubOptions& options) noexcept
     {
         // Get or create a mock iceoryx terminal
         std::shared_ptr<IceoryxTerminal> mockIceoryxTerminal;
@@ -80,7 +83,7 @@ class DDSGatewayTestFixture : public Test
         }
         else
         {
-            mockIceoryxTerminal = createMockIceoryxTerminal(sd);
+            mockIceoryxTerminal = createMockIceoryxTerminal(sd, options);
         }
 
         // Get or create a mock dds terminal

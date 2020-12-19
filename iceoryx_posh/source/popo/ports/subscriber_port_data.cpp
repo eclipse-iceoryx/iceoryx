@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 
 namespace iox
 {
@@ -21,12 +22,13 @@ namespace popo
 SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                                        const ProcessName_t& processName,
                                        cxx::VariantQueueTypes queueType,
-                                       const uint64_t& historyRequest,
+                                       const SubscriberOptions& subscriberOptions,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, processName)
     , m_chunkReceiverData(queueType, memoryInfo)
-    , m_historyRequest(historyRequest)
+    , m_historyRequest(subscriberOptions.historyRequest)
 {
+    m_chunkReceiverData.m_queue.setCapacity(subscriberOptions.queueCapacity);
 }
 
 } // namespace popo

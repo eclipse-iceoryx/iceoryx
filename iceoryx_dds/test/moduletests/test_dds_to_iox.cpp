@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ using ::testing::_;
 
 // ======================================== Helpers ======================================== //
 using TestChannel = iox::gw::Channel<MockPublisher<void>, MockDataReader>;
-using TestGateway = iox::dds::DDS2IceoryxGateway<TestChannel, MockGenericGateway<TestChannel>>;
+using TestGateway =
+    iox::dds::DDS2IceoryxGateway<TestChannel, MockGenericGateway<TestChannel, iox::popo::PublisherOptions>>;
 
 // ======================================== Fixture ======================================== //
 class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher<void>, MockDataReader>
@@ -44,7 +45,8 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel(testService)).WillOnce(Return(channelFactory(testService)));
+    EXPECT_CALL(gw, addChannel(testService, _))
+        .WillOnce(Return(channelFactory(testService, iox::popo::PublisherOptions())));
 
     // === Test
     gw.loadConfiguration(config);
@@ -58,13 +60,14 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
     iox::config::GatewayConfig config{};
     config.m_configuredServices.push_back(iox::config::GatewayConfig::ServiceEntry{testService});
 
-    auto mockPublisher = createMockIceoryxTerminal(testService);
+    auto mockPublisher = createMockIceoryxTerminal(testService, iox::popo::PublisherOptions());
     EXPECT_CALL(*mockPublisher, offer).Times(1);
     stageMockIceoryxTerminal(std::move(mockPublisher));
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(testService)).WillByDefault(Return(channelFactory(testService)));
+    ON_CALL(gw, addChannel(testService, _))
+        .WillByDefault(Return(channelFactory(testService, iox::popo::PublisherOptions())));
 
     // === Test
     gw.loadConfiguration(config);
@@ -84,7 +87,8 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(testService)).WillByDefault(Return(channelFactory(testService)));
+    ON_CALL(gw, addChannel(testService, _))
+        .WillByDefault(Return(channelFactory(testService, iox::popo::PublisherOptions())));
 
     // === Test
     gw.loadConfiguration(config);
@@ -112,7 +116,7 @@ TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
     TestGateway gw{};
 
     // === Test
-    auto testChannel = channelFactory(testService).value();
+    auto testChannel = channelFactory(testService, iox::popo::PublisherOptions()).value();
     gw.forward(testChannel);
 }
 #endif

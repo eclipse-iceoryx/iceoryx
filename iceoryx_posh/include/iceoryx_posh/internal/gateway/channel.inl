@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,19 +47,21 @@ inline constexpr Channel<IceoryxTerminal, ExternalTerminal>::Channel(
 }
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
-constexpr inline bool
-Channel<IceoryxTerminal, ExternalTerminal>::operator==(const Channel<IceoryxTerminal, ExternalTerminal>& rhs) const
-    noexcept
+constexpr inline bool Channel<IceoryxTerminal, ExternalTerminal>::operator==(
+    const Channel<IceoryxTerminal, ExternalTerminal>& rhs) const noexcept
 {
     return m_service == rhs.getService();
 }
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
+template <typename IceoryxPubSubOptions>
 inline cxx::expected<Channel<IceoryxTerminal, ExternalTerminal>, ChannelError>
-Channel<IceoryxTerminal, ExternalTerminal>::create(const capro::ServiceDescription& service) noexcept
+Channel<IceoryxTerminal, ExternalTerminal>::create(const capro::ServiceDescription& service,
+                                                   const IceoryxPubSubOptions& options) noexcept
 {
     // Create objects in the pool.
-    auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const capro::ServiceDescription>(service));
+    auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const capro::ServiceDescription&>(service),
+                                                           std::forward<const IceoryxPubSubOptions&>(options));
     if (rawIceoryxTerminalPtr == nullptr)
     {
         return cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
@@ -93,8 +95,8 @@ inline std::shared_ptr<IceoryxTerminal> Channel<IceoryxTerminal, ExternalTermina
 }
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
-inline std::shared_ptr<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::getExternalTerminal() const
-    noexcept
+inline std::shared_ptr<ExternalTerminal>
+Channel<IceoryxTerminal, ExternalTerminal>::getExternalTerminal() const noexcept
 {
     return m_externalTerminal;
 }

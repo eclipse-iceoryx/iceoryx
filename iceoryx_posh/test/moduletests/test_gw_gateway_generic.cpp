@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,10 @@ using iox::capro::IdString_t;
 // We do not need real channel terminals to test the base class.
 struct StubbedIceoryxTerminal
 {
-    StubbedIceoryxTerminal(iox::capro::ServiceDescription){};
+    struct Options
+    {
+    };
+    StubbedIceoryxTerminal(const iox::capro::ServiceDescription&, const Options&){};
 };
 
 struct StubbedExternalTerminal
@@ -60,9 +63,9 @@ TEST_F(GatewayGenericTest, AddedChannelsAreStored)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testService);
+    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
 
-    EXPECT_EQ(1, gw.getNumberOfChannels());
+    EXPECT_EQ(1U, gw.getNumberOfChannels());
 }
 
 TEST_F(GatewayGenericTest, DoesNotAddDuplicateChannels)
@@ -73,10 +76,10 @@ TEST_F(GatewayGenericTest, DoesNotAddDuplicateChannels)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testService);
-    gw.addChannel(testService);
+    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
+    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
 
-    EXPECT_EQ(1, gw.getNumberOfChannels());
+    EXPECT_EQ(1U, gw.getNumberOfChannels());
 }
 
 TEST_F(GatewayGenericTest, IgnoresWildcardServices)
@@ -91,17 +94,17 @@ TEST_F(GatewayGenericTest, IgnoresWildcardServices)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    auto resultOne = gw.addChannel(completeWildcardService);
-    auto resultTwo = gw.addChannel(wildcardServiceService);
-    auto resultThree = gw.addChannel(wildcardInstanceService);
-    auto resultFour = gw.addChannel(wildcardEventService);
+    auto resultOne = gw.addChannel(completeWildcardService, StubbedIceoryxTerminal::Options());
+    auto resultTwo = gw.addChannel(wildcardServiceService, StubbedIceoryxTerminal::Options());
+    auto resultThree = gw.addChannel(wildcardInstanceService, StubbedIceoryxTerminal::Options());
+    auto resultFour = gw.addChannel(wildcardEventService, StubbedIceoryxTerminal::Options());
 
     EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultOne.get_error());
     EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultTwo.get_error());
     EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultThree.get_error());
     EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultFour.get_error());
 
-    EXPECT_EQ(0, gw.getNumberOfChannels());
+    EXPECT_EQ(0U, gw.getNumberOfChannels());
 }
 
 TEST_F(GatewayGenericTest, ProperlyManagesMultipleChannels)
@@ -115,13 +118,13 @@ TEST_F(GatewayGenericTest, ProperlyManagesMultipleChannels)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(serviceOne);
-    gw.addChannel(serviceTwo);
-    gw.addChannel(serviceThree);
-    gw.addChannel(serviceFour);
+    gw.addChannel(serviceOne, StubbedIceoryxTerminal::Options());
+    gw.addChannel(serviceTwo, StubbedIceoryxTerminal::Options());
+    gw.addChannel(serviceThree, StubbedIceoryxTerminal::Options());
+    gw.addChannel(serviceFour, StubbedIceoryxTerminal::Options());
 
 
-    EXPECT_EQ(4, gw.getNumberOfChannels());
+    EXPECT_EQ(4U, gw.getNumberOfChannels());
     EXPECT_EQ(true, gw.findChannel(serviceOne).has_value());
     EXPECT_EQ(true, gw.findChannel(serviceTwo).has_value());
     EXPECT_EQ(true, gw.findChannel(serviceThree).has_value());
@@ -134,12 +137,13 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    for (auto i = 0u; i < iox::MAX_CHANNEL_NUMBER; i++)
+    for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = gw.addChannel(
             iox::capro::ServiceDescription(iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
                                            iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i))));
+                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i))),
+            StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 
@@ -152,16 +156,17 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    for (auto i = 0u; i < iox::MAX_CHANNEL_NUMBER; i++)
+    for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = gw.addChannel(
             iox::capro::ServiceDescription(iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
                                            iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i))));
+                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, std::to_string(i))),
+            StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 
-    auto result = gw.addChannel({"oneTooMany", "oneTooMany", "oneTooMany"});
+    auto result = gw.addChannel({"oneTooMany", "oneTooMany", "oneTooMany"}, StubbedIceoryxTerminal::Options());
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::gw::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.get_error());
 }
@@ -176,13 +181,13 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testServiceA);
-    gw.addChannel(testServiceB);
-    EXPECT_EQ(2, gw.getNumberOfChannels());
+    gw.addChannel(testServiceA, StubbedIceoryxTerminal::Options());
+    gw.addChannel(testServiceB, StubbedIceoryxTerminal::Options());
+    EXPECT_EQ(2U, gw.getNumberOfChannels());
 
     auto result = gw.discardChannel(testServiceC);
     EXPECT_EQ(true, result.has_error());
-    EXPECT_EQ(2, gw.getNumberOfChannels());
+    EXPECT_EQ(2U, gw.getNumberOfChannels());
 }
 
 TEST_F(GatewayGenericTest, DiscardedChannelsAreNotStored)
@@ -193,11 +198,11 @@ TEST_F(GatewayGenericTest, DiscardedChannelsAreNotStored)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testService);
-    EXPECT_EQ(1, gw.getNumberOfChannels());
+    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
+    EXPECT_EQ(1U, gw.getNumberOfChannels());
     auto result = gw.discardChannel(testService);
     EXPECT_EQ(false, result.has_error());
-    EXPECT_EQ(0, gw.getNumberOfChannels());
+    EXPECT_EQ(0U, gw.getNumberOfChannels());
 }
 
 TEST_F(GatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
@@ -208,7 +213,7 @@ TEST_F(GatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testService);
+    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
     auto foundChannel = gw.findChannel(testService);
     EXPECT_EQ(true, foundChannel.has_value());
     if (foundChannel.has_value())
@@ -226,7 +231,7 @@ TEST_F(GatewayGenericTest, FindChannelGivesEmptyOptionalIfNoneFound)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(storedChannelService);
+    gw.addChannel(storedChannelService, StubbedIceoryxTerminal::Options());
     auto foundChannel = gw.findChannel(notStoredChannelService);
     EXPECT_EQ(false, foundChannel.has_value());
 }
@@ -238,16 +243,16 @@ TEST_F(GatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChanne
     auto testServiceB = iox::capro::ServiceDescription("serviceB", "instanceB", "eventB");
     auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
 
-    auto count = 0u;
+    auto count = 0U;
     auto f = [&count](TestChannel&) { count++; };
 
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testServiceA);
-    gw.addChannel(testServiceB);
-    gw.addChannel(testServiceC);
+    gw.addChannel(testServiceA, StubbedIceoryxTerminal::Options());
+    gw.addChannel(testServiceB, StubbedIceoryxTerminal::Options());
+    gw.addChannel(testServiceC, StubbedIceoryxTerminal::Options());
     gw.forEachChannel(f);
 
-    EXPECT_EQ(3, count);
+    EXPECT_EQ(3U, count);
 }

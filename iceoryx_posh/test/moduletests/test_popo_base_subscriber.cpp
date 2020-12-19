@@ -84,7 +84,7 @@ class BaseSubscriberTest : public Test
 TEST_F(BaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), subscribe(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY)).Times(1);
+    EXPECT_CALL(sut.getMockedPort(), subscribe()).Times(1);
     // ===== Test ===== //
     sut.subscribe();
     // ===== Verify ===== //

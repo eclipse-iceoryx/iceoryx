@@ -58,12 +58,14 @@ int main()
     iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
     // create subscriber and subscribe them to our service
-    uint64_t historyRequest = 1U;
+    const uint64_t historyRequest = 1U;
+    const uint64_t queueCapacity = 256U;
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
+        subscriber[i] =
+            iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-        iox_sub_subscribe(subscriber[i], 256);
+        iox_sub_subscribe(subscriber[i]);
     }
 
     const uint64_t FIRST_GROUP_ID = 123U;

@@ -142,14 +142,25 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
 }
 
 PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
-                                                                         const uint64_t& historyCapacity,
+                                                                         const popo::PublisherOptions& publisherOptions,
                                                                          const NodeName_t& nodeName,
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
+    constexpr uint64_t MAX_HISTORY_CAPACITY =
+        PublisherPortUserType::MemberType_t::ChunkSenderData_t::ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
+
+    auto options = publisherOptions;
+    if (options.historyCapacity > MAX_HISTORY_CAPACITY)
+    {
+        LogWarn() << "Requested history capacity " << options.historyCapacity
+                  << " exceeds the maximum possible one for this publisher"
+                  << ", limiting from " << publisherOptions.historyCapacity << " to " << MAX_HISTORY_CAPACITY;
+        options.historyCapacity = MAX_HISTORY_CAPACITY;
+    }
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyCapacity) << nodeName
-               << static_cast<cxx::Serialization>(portConfigInfo).toString();
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
+               << nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
     if (maybePublisher.has_error())
@@ -225,13 +236,25 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
 
 SubscriberPortUserType::MemberType_t*
 PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
-                                     const uint64_t& historyRequest,
+                                     const popo::SubscriberOptions& subscriberOptions,
                                      const NodeName_t& nodeName,
                                      const PortConfigInfo& portConfigInfo) noexcept
 {
+    constexpr uint64_t MAX_QUEUE_CAPACITY = SubscriberPortUserType::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
+
+    auto options = subscriberOptions;
+    if (options.queueCapacity > MAX_QUEUE_CAPACITY)
+    {
+        LogWarn() << "Requested queue capacity " << options.queueCapacity
+                  << " exceeds the maximum possible one for this subscriber"
+                  << ", limiting from " << subscriberOptions.queueCapacity << " to " << MAX_QUEUE_CAPACITY;
+        options.queueCapacity = MAX_QUEUE_CAPACITY;
+    }
+
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyRequest) << nodeName
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
+               << std::to_string(options.queueCapacity) << nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);

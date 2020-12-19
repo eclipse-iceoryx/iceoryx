@@ -61,8 +61,7 @@ class iox_event_info_test : public Test
 
     void Subscribe(SubscriberPortData* ptr)
     {
-        uint64_t queueCapacity = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
-        iox_sub_subscribe(m_subscriberHandle, queueCapacity);
+        iox_sub_subscribe(m_subscriberHandle);
 
         SubscriberPortSingleProducer(ptr).tryGetCaProMessage();
         iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK, TEST_SERVICE_DESCRIPTION);
@@ -87,8 +86,11 @@ class iox_event_info_test : public Test
     Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
-    iox::popo::SubscriberPortData m_portPtr{
-        TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
+    iox::popo::SubscriberPortData m_portPtr{TEST_SERVICE_DESCRIPTION,
+                                            "myApp",
+                                            iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                            m_subscriberOptions};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
     cpp2c_Subscriber m_subscriber;
     iox_sub_t m_subscriberHandle = &m_subscriber;
@@ -231,4 +233,3 @@ TEST_F(iox_event_info_test, callbackCanBeCalledMultipleTimes)
 
     EXPECT_EQ(m_lastEventCallbackArgument, &m_userTrigger);
 }
-
