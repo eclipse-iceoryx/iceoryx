@@ -41,15 +41,18 @@ set_sanitizer_options() {
     #     #4 0x55c82857b2fb in testing::Test::DeleteSelf_() (/home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/build/posh/test/posh_moduletests+0x3432fb)
     echo "OSTYPE is $OSTYPE"
     if [[ "$OSTYPE" == "linux-gnu"* ]] && [[ $ASAN_ONLY == false ]]; then
+        echo " [i] Leaksanitizer enabled"
         ASAN_OPTIONS=detect_leaks=1
     else
         # other OS (Mac here)
         # ==23449==AddressSanitizer: detect_leaks is not supported on this platform.
+        echo " [i] Leaksanitizer disabled"
         ASAN_OPTIONS=detect_leaks=0
     fi
     ASAN_OPTIONS=$ASAN_OPTIONS:detect_stack_use_after_return=1:detect_stack_use_after_scope=1:check_initialization_order=true:strict_init_order=true:new_delete_type_mismatch=0:suppressions=$BASE_DIR/sanitizer_blacklist/asan_runtime.txt
     export ASAN_OPTIONS
-    export LSAN_OPTIONS=verbosity=1:log_threads=1:suppressions=$BASE_DIR/sanitizer_blacklist/lsan_runtime.txt
+    LSAN_OPTIONS=suppressions=$BASE_DIR/sanitizer_blacklist/lsan_runtime.txt
+    export LSAN_OPTIONS
 
     echo "ASAN_OPTIONS : $ASAN_OPTIONS"
     echo "LSAN_OPTIONS : $LSAN_OPTIONS"
@@ -62,6 +65,7 @@ for arg in "$@"; do
         ;;
     "asan-only")
         ASAN_ONLY=true
+        TEST_SCOPE="all"
         ;;
     "continue-on-error")
         CONTINUE_ON_ERROR=true
@@ -107,8 +111,6 @@ else
     set -e
 fi
 
-failed_tests=0
-
 set_sanitizer_options
 
 execute_test() {
@@ -137,21 +139,8 @@ execute_test() {
     esac
 }
 
-if [ $TEST_SCOPE == "unit" ]; then
-    execute_test unit
-elif [ $TEST_SCOPE == "integration" ]; then
-    execute_test integration
-elif [ $TEST_SCOPE == "all" ]; then
-    execute_test all
-fi
+execute_test $TEST_SCOPE
 
 # do not start RouDi while the module and componenttests are running;
 # they might do things which hurts RouDi, like in the roudi_shm test where named semaphores are opened and closed
 
-if [ $failed_tests != 0 ]; then
-    echo "$failed_tests tests failed!"
-fi
-echo ">>>>>> Finished Running Iceoryx Tests <<<<<<"
-# set return code to indicate test execution status (code = number of failed tests)
-# this return code should not be interpreted as standard unix return code
-exit $failed_tests

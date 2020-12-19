@@ -61,6 +61,7 @@ function(iox_create_asan_compile_time_blacklist BLACKLIST_FILE_PATH)
         file(APPEND ${BLACKLIST_FILE_PATH} "# src:*file_name.cpp*\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "# fun:*Test_Name*\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "# End of file\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "fun:*Trigger_test*\n")
     endif()
 endfunction()
 
@@ -114,9 +115,9 @@ if(SANITIZE)
     iox_create_lsan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/lsan_runtime.txt)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls)
+        set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -O1)
         set(OPTIMIZE_OPTIONS -g -O1)
-
+        
         # For using LeakSanitizer in standalone mode
         # https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#stand-alone-mode
         # Using this mode was a bit unstable
