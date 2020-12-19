@@ -37,7 +37,6 @@ if(BUILD_ALL)
     set(INTROSPECTION ON)
     set(BINDING_C ON)
     set(DDS_GATEWAY ON)
-    set(BUILD_STRICT ON)
 endif(BUILD_ALL)
 
 if(BUILD_TEST)

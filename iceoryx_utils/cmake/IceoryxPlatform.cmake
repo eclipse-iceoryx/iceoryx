@@ -35,10 +35,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} /W1)
     # todo: '/O2' and '/RTC1' (set by default) options are incompatible, 
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion -Wno-unknown-warning-option)
+    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
     set(OPTIMIZE_OPTIONS -O2)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wno-unknown-warning-option)
+    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type)
     set(OPTIMIZE_OPTIONS -O2)
 endif()
 
