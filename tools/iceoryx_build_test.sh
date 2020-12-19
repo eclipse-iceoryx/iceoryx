@@ -31,9 +31,8 @@ CLEAN_BUILD=false
 BUILD_TYPE=""
 STRICT_FLAG="OFF"
 TEST_FLAG="OFF"
-EXAMPLE_FLAG="OFF"
 COV_FLAG="OFF"
-TEST_SCOPE="all" #possible values for gcov test scope: 'all', 'unit', 'integration'
+TEST_SCOPE="all" #possible values for test scope: 'all', 'unit', 'integration'
 RUN_TEST=false
 INTROSPECTION_FLAG="OFF"
 DDS_GATEWAY_FLAG="OFF"
@@ -41,6 +40,8 @@ BINDING_C_FLAG="OFF"
 ONE_TO_MANY_ONLY_FLAG="OFF"
 SANITIZE_FLAG="OFF"
 ROUDI_ENV_FLAG="OFF"
+OUT_OF_TREE_FLAG="OFF"
+EXAMPLE_FLAG="OFF"
 EXAMPLES="benchmark_optional_and_expected ice_multi_publisher icedelivery iceperf" 
 
 while (( "$#" )); do
@@ -60,6 +61,7 @@ while (( "$#" )); do
         RUN_TEST=true
         TEST_FLAG="ON"
         COV_FLAG="ON"
+        OUT_OF_TREE_FLAG="OFF"
 
         if [ -z "$2" ]
         then

@@ -115,21 +115,20 @@ execute_test() {
     local test_scope=$1
     local test_binary=""
 
+    echo ">>>>>> executing tests for $test_scope <<<<<<"
+    echo ""
+
     case $test_scope in
     "all")
-        echo "Executing all tests"
         make all_tests
         ;;
     "unit")
-        echo "Executing unittests"
         make module_tests
         ;;
     "integration")
-        echo "Executing integrationtests"
         make integration_tests
         ;;
     "timingtest")
-        echo "Executing timingtests"
         make timing_tests
         ;;
     *)
@@ -137,9 +136,6 @@ execute_test() {
         ;;
     esac
 }
-
-echo ""
-echo "######################## executing tests for $COMPONENT ########################"
 
 if [ $TEST_SCOPE == "unit" ]; then
     execute_test unit

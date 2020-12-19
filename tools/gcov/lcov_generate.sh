@@ -19,7 +19,7 @@ COMMAND=${2:-$capture}
 OUTPUT_FOLDER=$BUILD_FOLDER/build/lcov
 
 mkdir -p $OUTPUT_FOLDER
-
+#  --initial 
 case "$2" in    
     "initial")
         lcov -c -i -d $BUILD_FOLDER -o $OUTPUT_FOLDER/iceoryx_init.info --no-external --rc lcov_branch_coverage=1
@@ -31,9 +31,9 @@ case "$2" in
         lcov -a $OUTPUT_FOLDER/iceoryx_init.info --add-tracefile $OUTPUT_FOLDER/iceoryx_test.info -o $OUTPUT_FOLDER/iceoryx_full.info --rc lcov_branch_coverage=1
         ;;
     "remove") 
-        lcov -o $OUTPUT_FOLDER/iceoryx_filter.info --rc lcov_branch_coverage=1 -r $OUTPUT_FOLDER/iceoryx_full.info "*/build/*" "*/test/*" "*/testutils/*" "*/roudi_environment/*"
+        lcov -o $OUTPUT_FOLDER/iceoryx_filter.info --rc lcov_branch_coverage=1 -r $OUTPUT_FOLDER/iceoryx_full.info "*/build/*" "*/test/*" "*/iceoryx_examples/*" "*/testutils/*" "*/roudi_environment/*"
         ;;
     "genhtml") 
-        genhtml $OUTPUT_FOLDER/iceoryx_filter.info -o $OUTPUT_FOLDER --config-file $BUILD_FOLDER/tools/gcov/lcovr_html.conf --legend --show-details --branch-coverage
+        genhtml $OUTPUT_FOLDER/iceoryx_filter.info -o $OUTPUT_FOLDER --config-file --legend --show-details --branch-coverage
         ;;
 esac

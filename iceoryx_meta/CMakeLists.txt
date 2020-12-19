@@ -28,18 +28,6 @@ if(TOML_CONFIG)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/cpptoml/prebuild)
 endif(TOML_CONFIG)
 
-if(COVERAGE)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        set(test ON)
-        set(examples OFF)
-        set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage" CACHE INTERNAL "")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_FLAGS}")
-    else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        message( FATAL_ERROR "You need to run gcov with gcc compiler." )
-    endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-endif(COVERAGE)
-
 # ===== Core
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
