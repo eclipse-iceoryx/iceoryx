@@ -160,7 +160,7 @@ while (( "$#" )); do
         echo "    -j --jobs             Specify the number of jobs to run simultaneously"
         echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration'"
         echo "Args:"
-        echo "    clean                 Deletes the directory build/ before build"
+        echo "    clean                 Deletes the build/ directory before"
         echo "    release               Build release configuration"
         echo "    debug                 Build debug configuration"
         echo "    buildall              Build all extensions and all examples"
