@@ -73,7 +73,12 @@ SharedMemory::SharedMemory(const char* f_name,
                   << NAME_SIZE - 1u << "!" << std::endl;
     }
 
+/// @note GCC drops here a warning that the destination char buffer length is equal to the max length to copy.
+/// This can potentially lead to a char array without null-terminator. We add the null-terminator afterwards.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
     strncpy(m_name, f_name, NAME_SIZE);
+#pragma GCC diagnostic pop
     m_name[NAME_SIZE - 1u] = '\0';
     m_oflags |= (f_accessMode == AccessMode::readOnly) ? O_RDONLY : O_RDWR;
     m_oflags |= (f_ownerShip == OwnerShip::mine) ? O_CREAT | O_EXCL : 0;

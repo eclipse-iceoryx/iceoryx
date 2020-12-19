@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
@@ -62,14 +63,41 @@ class RelativePointer_test : public Test
   public:
     void SetUp() override
     {
-        m_fileDescriptor = shm_open("TestShm", OFlags, ShmMode);
-        ftruncate(m_fileDescriptor, ShmSize);
+        auto shmOpenC = iox::cxx::makeSmartC(
+            shm_open, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, "TestShm", OFlags, ShmMode);
+
+        if (shmOpenC.hasErrors())
+        {
+            std::cerr << "ftruncate failed with error: " << shmOpenC.getErrorString();
+            exit(EXIT_FAILURE);
+        }
+
+        m_fileDescriptor = shmOpenC.getReturnValue();
+
+        auto trunC = iox::cxx::makeSmartC(
+            ftruncate, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_fileDescriptor, ShmSize);
+
+        if (trunC.hasErrors())
+        {
+            std::cerr << "ftruncate failed with error: " << trunC.getErrorString();
+            exit(EXIT_FAILURE);
+        }
+
+
         internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        shm_unlink("TestShm");
+        auto shmUnlinkC =
+            iox::cxx::makeSmartC(shm_unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, "TestShm");
+
+        if (shmUnlinkC.hasErrors())
+        {
+            std::cerr << "ftruncate failed with error: " << shmUnlinkC.getErrorString();
+            exit(EXIT_FAILURE);
+        }
+
         iox::RelativePointer::unregisterAll();
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -77,7 +105,7 @@ class RelativePointer_test : public Test
             std::cout << output << std::endl;
         }
     }
-    int m_fileDescriptor;
+    uint32_t m_fileDescriptor{0U};
 };
 
 template <typename T>
