@@ -23,11 +23,11 @@ set(TEST_LINK_LIBS
 
 if(LINUX)
     set(TEST_LINK_LIBS ${TEST_LINK_LIBS} acl dl pthread rt)
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS} -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
 elseif(QNX)
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS} -Wno-pedantic -Wno-conversion)
 elseif(APPLE)
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS} -Wno-pedantic -Wno-conversion)
 elseif(WIN32)
     set(TEST_CXX_FLAGS PRIVATE /bigobj)
 endif()
