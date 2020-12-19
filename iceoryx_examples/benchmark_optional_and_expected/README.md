@@ -12,8 +12,7 @@ done
 ```
 
 If you compile it with our default cmake settings you would only compile it in 
-debug mode which is naturally slower since it is optimized for debugging and not 
-performance.
+release mode which is naturally faster than debug mode since it does not inject debug symbols.
 
 This shell command on the other hand does compile the benchmark for all 4 optimization
 levels from `-O0` to `-O3` and prints the result for every level.

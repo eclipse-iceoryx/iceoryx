@@ -37,6 +37,7 @@ TEST_SCOPE="all" #possible values for gcov test scope: 'all', 'unit', 'integrati
 RUN_TEST=false
 INTROSPECTION_FLAG="OFF"
 DDS_GATEWAY_FLAG="OFF"
+BINDING_C_FLAG="OFF"
 ONE_TO_MANY_ONLY_FLAG="OFF"
 SANITIZE_FLAG="OFF"
 ROUDI_ENV_FLAG="OFF"

@@ -47,6 +47,7 @@ endif(BUILD_TEST)
 
 message("")
 message("       Configured Options")
+message("          Build Mode........................: " ${CMAKE_BUILD_TYPE})
 message("          TOML support......................: " ${TOML_CONFIG})
 message("          1:n communication only ...........: " ${ONE_TO_MANY_ONLY})
 message("          Strict build......................: " ${BUILD_STRICT})
@@ -57,7 +58,3 @@ message("          Introspection build...............: " ${INTROSPECTION})
 message("          DDS-gateway.......................: " ${DDS_GATEWAY})
 message("          C-binding.........................: " ${BINDING_C})
 message("          Sanitizer.........................: " ${SANITIZE})
-
-
-
-

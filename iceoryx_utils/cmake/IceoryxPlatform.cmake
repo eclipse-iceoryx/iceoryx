@@ -33,10 +33,13 @@ endif(LINUX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} /W1)
+    set(OPTIMIZE_OPTIONS /O2)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
+    set(OPTIMIZE_OPTIONS -O2)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type)
+    set(OPTIMIZE_OPTIONS -O2)
 endif()
 
 if(BUILD_STRICT)
@@ -111,7 +114,8 @@ if(SANITIZE)
     iox_create_lsan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/lsan_runtime.txt)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -O1)
+        set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls)
+        set(OPTIMIZE_OPTIONS -g -O2)
 
         # For using LeakSanitizer in standalone mode
         # https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#stand-alone-mode
