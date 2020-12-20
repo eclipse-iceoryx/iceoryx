@@ -45,9 +45,9 @@ RouDi is ready for clients
 ### Publisher application
 ```
 2020-12-20 16:05:01.837 [ Debug ]: Application registered management segment 0x7fd6d39e3000 with size 64244064 to id 1
-Send {five,two} times value: (1, 1, 1)
-Send {five,two} times value: (2, 2, 2)
-Send {five,two} times value: (3, 3, 3)
+Sent {five,two} times value: (1, 1, 1)
+Sent {five,two} times value: (2, 2, 2)
+Sent {five,two} times value: (3, 3, 3)
 ```
 
 ### Subscriber application (typed)

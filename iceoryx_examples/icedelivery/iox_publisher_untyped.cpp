@@ -74,7 +74,7 @@ int main()
                 // Do something with error
             });
 
-        std::cout << "Send two times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
+        std::cout << "Sent two times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
