@@ -29,9 +29,9 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void getVehiclePosition(Position* const allocation, const uint64_t& val) noexcept
+void getVehiclePosition(Position* const position, const uint64_t& val) noexcept
 {
-    new (allocation) Position(val, val, val);
+    *position = Position(val, val, val);
 }
 
 int main()
@@ -97,6 +97,8 @@ int main()
         //
         typedPublisher.publishResultOf(getVehiclePosition, ct);
         typedPublisher.publishResultOf([&ct](Position* position) { *position = Position(ct, ct, ct); });
+
+        std::cout << "Send five times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

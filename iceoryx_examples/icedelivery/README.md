@@ -33,36 +33,50 @@ The counter can differ depending on startup of the applications.
 
 ### RouDi application
 ```
-Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
+2020-12-20 15:55:18.616 [ Info  ]: No config file provided and also not found at '/etc/iceoryx/roudi_config.toml'. Falling back to built-in config.
+Log level set to: [Warning]
+Reserving 64244064 bytes in the shared memory [/iceoryx_mgmt]
 [ Reserving shared memory successful ]
-Reserving 410709312 bytes in the shared memory [/username]
+Reserving 149134400 bytes in the shared memory [/group]
 [ Reserving shared memory successful ]
+RouDi is ready for clients
 ```
 
 ### Publisher application
 ```
-Sending: 0
-Sending: 1
-Sending: 2
-Sending: 3
-Sending: 4
-Sending: 5
-```
-
-### Subscriber application (untyped)
-```
-Not subscribed
-Receiving: 3
-Receiving: 4
-Receiving: 5
+2020-12-20 16:05:01.837 [ Debug ]: Application registered management segment 0x7fd6d39e3000 with size 64244064 to id 1
+Send {five,two} times value: (1, 1, 1)
+Send {five,two} times value: (2, 2, 2)
+Send {five,two} times value: (3, 3, 3)
 ```
 
 ### Subscriber application (typed)
 ```
-Callback: 4
-Callback: 5
-Callback: 6
-Callback: 7
+Got value: (1, 1, 1)
+Got value: (1, 1, 1)
+Got value: (1, 1, 1)
+Got value: (1, 1, 1)
+Got value: (1, 1, 1)
+Got value: (2, 2, 2)
+Got value: (2, 2, 2)
+Got value: (2, 2, 2)
+Got value: (2, 2, 2)
+Got value: (2, 2, 2)
+Got value: (3, 3, 3)
+Got value: (3, 3, 3)
+Got value: (3, 3, 3)
+Got value: (3, 3, 3)
+Got value: (3, 3, 3)
+```
+
+### Subscriber application (untyped)
+```
+Got value: (1, 1, 1)
+Got value: (1, 1, 1)
+Got value: (2, 2, 2)
+Got value: (2, 2, 2)
+Got value: (3, 3, 3)
+Got value: (3, 3, 3)
 ```
 
 ## Code walkthrough
