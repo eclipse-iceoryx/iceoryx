@@ -98,7 +98,7 @@ int main()
         typedPublisher.publishResultOf(getVehiclePosition, ct);
         typedPublisher.publishResultOf([&ct](Position* position) { *position = Position(ct, ct, ct); });
 
-        std::cout << "Send five times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
+        std::cout << "Sent five times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
