@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "example_common.hpp"
 #include "iceoryx.hpp"
 #include "iceoryx_c.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -35,27 +36,42 @@ void followerDo(IcePerfBase& ipcTechnology)
     ipcTechnology.shutdown();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    // #ifndef __APPLE__
-    //     MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
-    //     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-    //     followerDo(mq);
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // ensure leader first
-    // #endif
-    //
-    //     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-    //     UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
-    //     followerDo(uds);
+    Benchmarks benchmark = Benchmarks::ALL;
+    if (argc > 1)
+    {
+        benchmark = getBenchmarkFromString(argv[1]);
+    }
 
-    std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
+    if (benchmark == Benchmarks::ALL)
+    {
+#ifndef __APPLE__
+        MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+        std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+        followerDo(mq);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // ensure leader first
+#endif
+
+        std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+        UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+        followerDo(uds);
+    }
+
     iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon
-    Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
-    followerDo(iceoryx);
+    if (benchmark == Benchmarks::ALL || benchmark == Benchmarks::CPP_API)
+    {
+        std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
+        Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
+        followerDo(iceoryx);
+    }
 
-    std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
-    IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
-    followerDo(iceoryxc);
+    if (benchmark == Benchmarks::ALL || benchmark == Benchmarks::C_API)
+    {
+        std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
+        IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
+        followerDo(iceoryxc);
+    }
 
     return (EXIT_SUCCESS);
 }

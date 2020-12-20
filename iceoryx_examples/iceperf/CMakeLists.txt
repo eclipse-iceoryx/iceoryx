@@ -23,7 +23,7 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
-add_executable(iceperf-laurel iceperf_laurel.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
+add_executable(iceperf-laurel iceperf_laurel.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 set_target_properties(iceperf-laurel PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -39,7 +39,7 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-laurel socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
-add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
+add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 set_target_properties(iceperf-hardy PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}

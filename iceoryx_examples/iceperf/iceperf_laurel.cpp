@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "example_common.hpp"
 #include "iceoryx.hpp"
 #include "iceoryx_c.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -74,33 +75,47 @@ void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
 int main(int argc, char* argv[])
 {
     uint64_t numRoundtrips = NUMBER_OF_ROUNDTRIPS;
+    Benchmarks benchmark = Benchmarks::ALL;
     if (argc > 1)
     {
         if (!iox::cxx::convert::fromString(argv[1], numRoundtrips))
         {
-            std::cout << "error command line parameter" << std::endl;
+            std::cout << "first parameter must be the number of roundtrips" << std::endl;
             exit(1);
         }
     }
+    if (argc > 2)
+    {
+        benchmark = getBenchmarkFromString(argv[2]);
+    }
 
-    // #ifndef __APPLE__
-    //     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-    //     MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
-    //     leaderDo(mq, numRoundtrips);
-    // #endif
-    //
-    //     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-    //     UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
-    //     leaderDo(uds, numRoundtrips);
+    if (benchmark == Benchmarks::ALL)
+    {
+#ifndef __APPLE__
+        std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+        MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+        leaderDo(mq, numRoundtrips);
+#endif
 
-    std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
+        std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+        UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+        leaderDo(uds, numRoundtrips);
+    }
+
     iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon
-    Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
-    leaderDo(iceoryx, numRoundtrips);
+    if (benchmark == Benchmarks::ALL || benchmark == Benchmarks::CPP_API)
+    {
+        std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
+        Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
+        leaderDo(iceoryx, numRoundtrips);
+    }
 
-    std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
-    IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
-    leaderDo(iceoryxc, numRoundtrips);
+    if (benchmark == Benchmarks::ALL || benchmark == Benchmarks::C_API)
+    {
+        std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
+        IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
+        leaderDo(iceoryxc, numRoundtrips);
+    }
 
 
     return (EXIT_SUCCESS);
