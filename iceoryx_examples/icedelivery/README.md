@@ -37,7 +37,7 @@ The counter can differ depending on startup of the applications.
 Log level set to: [Warning]
 Reserving 64244064 bytes in the shared memory [/iceoryx_mgmt]
 [ Reserving shared memory successful ]
-Reserving 149134400 bytes in the shared memory [/group]
+Reserving 149134400 bytes in the shared memory [/user]
 [ Reserving shared memory successful ]
 RouDi is ready for clients
 ```

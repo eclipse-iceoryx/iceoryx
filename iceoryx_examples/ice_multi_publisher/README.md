@@ -28,15 +28,19 @@ The counters can differ depending on startup of the applications.
 
 ### RouDi application
 ```
-Reserving 84783040 bytes in the shared memory [/iceoryx_mgmt]
+2020-12-20 15:55:18.616 [ Info  ]: No config file provided and also not found at '/etc/iceoryx/roudi_config.toml'. Falling back to built-in config.
+Log level set to: [Warning]
+Reserving 64244064 bytes in the shared memory [/iceoryx_mgmt]
 [ Reserving shared memory successful ]
-Reserving 149655680 bytes in the shared memory [/user]
+Reserving 149134400 bytes in the shared memory [/user]
 [ Reserving shared memory successful ]
 RouDi is ready for clients
 ```
 
 ### Publisher application
 ```
+2020-12-20 16:26:42.790 [ Debug ]: Application registered management segment 0x7f378555e000 with size 64244064 to id 1
+2020-12-20 16:26:42.790 [ Info  ]: Application registered payload segment 0x7f377c4e6000 with size 149134400 to id 2
 Counter Instance sending: id 1 counter 0
 Counter Instance sending: id 2 counter 0
 Counter Instance sending: id 1 counter 1
@@ -52,6 +56,8 @@ Counter Instance sending: id 1 counter 6
 
 ### Subscriber application
 ```
+2020-12-20 16:26:58.839 [ Debug ]: Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
+2020-12-20 16:26:58.839 [ Info  ]: Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
 Waiting for data ...
 Received: id 1 counter 1
 Received: id 2 counter 1
@@ -70,7 +76,7 @@ The subscriber application wakes up periodically, looks for data, and if it rece
 
 ## Code walkthrough
 
-We focus on the aspects in which this example extends the icedelivery example and uses features not showcased there. More details on how to setup the publish subscribe communication can be found in [icedelivery](../icedelivery/README.md). 
+We focus on the aspects in which this example extends the icedelivery example and uses features not showcased there. More details on how to setup the publish subscribe communication can be found in [icedelivery](../icedelivery/README.md).
 
 ### The topic
 

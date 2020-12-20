@@ -58,7 +58,7 @@ int main()
 {
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("/iox-publisher");
+    iox::runtime::PoshRuntime::initRuntime("iox-publisher");
 
     // generates multiple publishers which send the same topic
     // at different sending frequencies independently of each other

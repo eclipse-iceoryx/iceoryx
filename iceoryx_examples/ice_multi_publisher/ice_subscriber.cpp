@@ -53,7 +53,7 @@ void receive()
 int main()
 {
     signal(SIGINT, sigHandler);
-    iox::runtime::PoshRuntime::initRuntime("/iox-subscriber");
+    iox::runtime::PoshRuntime::initRuntime("iox-subscriber");
 
     std::thread receiver(receive);
     receiver.join();
