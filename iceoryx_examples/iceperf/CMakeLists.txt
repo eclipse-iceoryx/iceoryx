@@ -1,3 +1,17 @@
+# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Build iceperf example
 cmake_minimum_required(VERSION 3.5)
 project(example_iceperf)
@@ -9,7 +23,7 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
-add_executable(iceperf-laurel iceperf_laurel.cpp base.cpp iceoryx.cpp uds.cpp mq.cpp)
+add_executable(iceperf-laurel iceperf_laurel.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 set_target_properties(iceperf-laurel PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -18,13 +32,14 @@ set_target_properties(iceperf-laurel PROPERTIES
 
 target_link_libraries(iceperf-laurel
     iceoryx_posh::iceoryx_posh
+    iceoryx_binding_c::iceoryx_binding_c
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-laurel socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
-add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp iceoryx.cpp uds.cpp mq.cpp)
+add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 set_target_properties(iceperf-hardy PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -32,6 +47,7 @@ set_target_properties(iceperf-hardy PROPERTIES
 )
 target_link_libraries(iceperf-hardy
     iceoryx_posh::iceoryx_posh
+    iceoryx_binding_c::iceoryx_binding_c
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)

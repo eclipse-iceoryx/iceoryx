@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx.hpp"
+#include "iceoryx_c.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "mq.hpp"
@@ -35,9 +36,10 @@ void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
 
     std::vector<double> latencyInMicroSeconds;
     const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
+    std::cout << "Measurement for: ";
     for (const auto payloadSizeInKB : payloadSizesInKB)
     {
-        std::cout << "Measurement for " << payloadSizeInKB << " kB payload ... " << std::flush;
+        std::cout << payloadSizeInKB << " kB, " << std::flush;
         auto payloadSizeInBytes = payloadSizeInKB * IcePerfBase::ONE_KILOBYTE;
 
         ipcTechnology.prePingPongLeader(payloadSizeInBytes);
@@ -81,20 +83,25 @@ int main(int argc, char* argv[])
         }
     }
 
-#ifndef __APPLE__
-    std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
-    leaderDo(mq, numRoundtrips);
-#endif
-
-    std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-    UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
-    leaderDo(uds, numRoundtrips);
+    // #ifndef __APPLE__
+    //     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+    //     MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+    //     leaderDo(mq, numRoundtrips);
+    // #endif
+    //
+    //     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+    //     UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+    //     leaderDo(uds, numRoundtrips);
 
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
     iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     leaderDo(iceoryx, numRoundtrips);
+
+    std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
+    IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
+    leaderDo(iceoryxc, numRoundtrips);
+
 
     return (EXIT_SUCCESS);
 }
