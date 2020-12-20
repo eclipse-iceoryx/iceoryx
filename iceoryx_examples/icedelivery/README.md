@@ -45,6 +45,7 @@ RouDi is ready for clients
 ### Publisher application
 ```
 2020-12-20 16:05:01.837 [ Debug ]: Application registered management segment 0x7fd6d39e3000 with size 64244064 to id 1
+2020-12-20 16:26:42.791 [ Info  ]: Application registered payload segment 0x7f377c4e6000 with size 149134400 to id 2
 Sent {five,two} times value: (1, 1, 1)
 Sent {five,two} times value: (2, 2, 2)
 Sent {five,two} times value: (3, 3, 3)
@@ -52,6 +53,8 @@ Sent {five,two} times value: (3, 3, 3)
 
 ### Subscriber application (typed)
 ```
+2020-12-20 16:26:58.839 [ Debug ] Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
+2020-12-20 16:26:58.839 [ Info  ] Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
 Got value: (1, 1, 1)
 Got value: (1, 1, 1)
 Got value: (1, 1, 1)
@@ -71,6 +74,8 @@ Got value: (3, 3, 3)
 
 ### Subscriber application (untyped)
 ```
+2020-12-20 16:26:58.839 [ Debug ] Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
+2020-12-20 16:26:58.839 [ Info  ] Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
 Got value: (1, 1, 1)
 Got value: (1, 1, 1)
 Got value: (2, 2, 2)
@@ -137,12 +142,14 @@ The strings inside the first parameter of the constructor of `iox::popo::Publish
 an instance of the service `Odometry` and the third string the specific event `Vehicle` of the instance.
 In iceoryx a publisher and a subscriber only match if all the three IDs match.
 
-Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk which fits our Position struct
+Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk
+which fits our Position struct
 ```cpp
 auto result = untypedPublisher.loan(sizeof(Position));
 ```
 
-Two different ways of handling the returned `cxx::expected` are possible. Either you save the result in a variable and do the error check with an if-condition (#1):
+Two different ways of handling the returned `cxx::expected` are possible. Either you save the result in a variable and
+do the error check with an if-condition (#1):
 ```cpp
 auto result = untypedPublisher.loan(sizeof(Position));
 if (!result.has_error())
@@ -155,7 +162,8 @@ else
 }
 ```
 
-Or try the functional way (#2) by concatenate `and_then` and `or_else`. Read it like a story in a book: "Loan memory and then if it succeeds, fill it with some data or else if it fails, handle the error"
+Or try the functional way (#2) by concatenating `and_then` and `or_else`. Read it like a story in a book: "Loan memory
+and then if it succeeds, fill it with some data or else if it fails, handle the error"
 ```cpp
 untypedPublisher.loan(sizeof(Position))
     .and_then([&](auto& sample)
@@ -177,7 +185,13 @@ if (!result.has_error())
 }
 ```
 
-Whichever way you choose, the untyped API will be bare-metal! A `void*` is contained inside the `iox::popo::sample`. Hence, the pointer needs to be casted to `Position`
+One might wonder what the type of the variable `sample` is? It is `iox::popo::Sample<void>`. This class behaves
+similar to a [`std::unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) and makes sure that the ownership
+handling is done automatically and memory is freed when going out of scope on subscriber side. One slight difference
+is, if you want to take the ownership of the pointer, `Sample::release()` does not return the pointer.
+
+Whichever way you choose, the untyped API will be bare-metal! A `void*` is contained inside the `iox::popo::Sample`.
+Hence, the pointer needs to be casted to `Position`
 ```cpp
 auto position = static_cast<Position*>(sample.get());
 ```
@@ -287,17 +301,20 @@ untypedSubscriber->take()
     });
 ```
 
-Well, that's a bit of a [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Let's translate
-it into a story again: "Take the data and then if this succeeds, work with the sample, if the sample is empty do
-something different, or else if an error occured, print the string 'Error receiving chunk.'" Of course you don't
+Well, that's a bit of a [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Let's
+translate it into a story again: "Take the data and then if this succeeds, work with the sample, if the sample is empty
+do something different, or else if an error occured, print the string 'Error receiving chunk.'" Of course you don't
 need to take care about all cases, but it is advised to do so.
 
-In the `and_case` the content of the sample is printed to the command line:
+In the `and_then` case the content of the sample is printed to the command line:
 ```cpp
 auto position = static_cast<const Position*>(sample->get());
 std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
             << std::endl;
 ```
+
+Please note the `static_cast` before reading out the data. It is necessary, because the untyped subscriber is unaware of
+the type of the transmitted data.
 
 ### Publisher application (typed)
 
@@ -306,7 +323,7 @@ described before. In this summary, just the differences to the prior publisher a
 
 Starting again with the includes, there is now a different one:
 ```cpp
-    #include "iceoryx_posh/popo/typed_publisher.hpp"
+#include "iceoryx_posh/popo/typed_publisher.hpp"
 ```
 
 When it comes to the runtime, things are the same as in the untyped publisher. However, a typed publisher object is
@@ -323,15 +340,20 @@ auto position = Position(ct, ct, ct);
 typedPublisher.publishCopyOf(position);
 ```
 
-\#3 should be only used for small data types, as otherwise copies can become expensive runtime-wise.
+\#3 should only be used for small data types, as otherwise copies can lead to a larger runtime.
 
 ```cpp
 // #4
 typedPublisher.publishResultOf(getVehiclePosition, ct);
+// OR
 typedPublisher.publishResultOf([&ct](Position* allocation) { new (allocation) Position(ct, ct, ct); });
 ```
 
 If you have a callable e.g. a function should be always called, #4 could be a good solution for you.
+
+Another difference compared to the untyped publisher, is the easier handling of `iox::popo::Sample`. There is no need
+for any casts with the typed publisher, as the type of the stored data is know. One can directly access the data with
+the `operator->()`.
 
 ### Subscriber application (typed)
 
@@ -363,4 +385,5 @@ with
 })
 ```
 
-The difference is the type that is contained in `iox::popo::Sample`. In case of the `TypedSubscriber` it is a `const Position` instead of `const void`.
+The difference is the type that is contained in `iox::popo::Sample`. In case of the `TypedSubscriber` it is a
+`const Position` instead of `const void`.
