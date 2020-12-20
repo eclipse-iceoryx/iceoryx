@@ -25,34 +25,9 @@ build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 build/iceoryx_introspection/iceoryx_introspection_client --all
 ```
 
-## Expected output
+<!-- ## Expected output -->
 
-<!-- @todo Replace this with asciinema recording before v1.0-->
-
-The counter can differ depending on startup of the applications.
-
-### RouDi application
-
-    Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
-    [ Reserving shared memory successful ]
-    Reserving 410709312 bytes in the shared memory [/username]
-    [ Reserving shared memory successful ]
-
-### Publisher application
-
-    Sending: 0
-    Sending: 1
-    Sending: 2
-    Sending: 3
-    Sending: 4
-    Sending: 5
-
-### Subscriber application
-
-    Receiving: 4
-    Receiving: 5
-    Receiving: 6
-    Receiving: 7
+<!-- @todo Add expected output of RouDi, publisher, subscriber and introspection with asciinema recording before v1.0-->
 
 ### Iceoryx introspection application
 

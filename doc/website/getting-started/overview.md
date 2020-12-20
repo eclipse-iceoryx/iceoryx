@@ -9,18 +9,18 @@ basic concepts presented here will still apply.
 To set up a collection of applications using iceoryx (an ``iceoryx system``), the applications need to initialize a
 runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be
 received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
-these offered topics, the middleware daemon, called ``Roudi``, must be running.
+these offered topics, the middleware daemon, called ``RouDi``, must be running.
 
-For further information how iceoryx can be used see the [examples](../iceoryx_examples/README.md). The
+For further information how iceoryx can be used see the [examples](../../../iceoryx_examples/README.md). The
 [conceptual-guide](../../conceptual-guide.md) provides additional information about the ``Shared Memory
 communication`` that lies at the heart of iceoryx.
 
 We now briefly define the main entities of an iceoryx system before showing how they are created and used by the
 iceoryx API.
 
-### Roudi
+### RouDi
 
-Roudi is an abbreviation for **Rou**ting and **Di**scovery. Roudi takes care of the
+RouDi is an abbreviation for **Rou**ting and **Di**scovery. RouDi takes care of the
 communication setup but does not actually participate in the communication between the publisher and the subscriber.
 RouDi can be thought of as the switchboard operator of iceoryx. One of his other major tasks is the setup of the
 shared memory, which the applications use for exchanging payload data. Sometimes referred to as daemon, RouDi manages
@@ -30,7 +30,7 @@ publishers or subscribers. To view the available command line options call `iox-
 ### Runtime
 
 Each application which wants to use iceoryx has to instantiate its runtime, which essentially enables communication
-with Roudi. Only one runtime object per user process is allowed.
+with RouDi. Only one runtime object per user process is allowed.
 
 To do so, the following lines of code are required
 
@@ -38,9 +38,9 @@ To do so, the following lines of code are required
 
     iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
 
-### Topics
+### Service description
 
-A topic in iceoryx defines the data to be transmitted and is uniquely identified by three string identifiers.
+A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is uniquely identified by three string identifiers.
 
 1. ``Group`` name
 2. ``Instance`` name
@@ -49,13 +49,13 @@ A topic in iceoryx defines the data to be transmitted and is uniquely identified
 A triple consisting of such strings is called a ``ServiceDescription``. In Autosar terminology these three
 identifiers are called ``Service``, ``Instance`` and ``Event`` respectively.
 
-Two topics are considered matching if all these three strings are element-wise equal, i.e. group, instance and topic
-names are the same for both of them.
+Two ``ServiceDescription`` are considered matching if all these three strings are element-wise equal, i.e. group,
+instance and topic names are the same for both of them.
 
-This means the group and instance identifier can be ignored to create different topics. They will be needed for
-advanced filtering functionality in the future.
+This means the group and instance identifier can be ignored to create different ``ServiceDescription``s. They will be
+needed for advanced filtering functionality in the future.
 
-The data type of the topic can be an arbitrary C++ class, struct or plain old data type.
+The data type of the transmitted data can be an arbitrary C++ class, struct or plain old data type.
 
 ### Publisher
 
@@ -63,8 +63,9 @@ A publisher is tied to a topic and needs a service description to be constructed
 additionally specify the data type as a template parameter. Otherwise publisher is only aware of raw memory and the
 user has to take care that it is interpreted correctly.
 
-Once it has offered its topic, it is able to publish (send) data of the specific type. Note that it is possible to
-have multiple publishers for the same topic.
+Once it has offered its topic, it is able to publish (send) data of the specific type. Note that the default is to
+have multiple publishers for the same topic (n:m communication). A compile-time option to restrict iceoryx to
+1:n communication is available.
 
 ### Subscriber
 
@@ -87,9 +88,10 @@ The ``Waitset`` can be used to relinquish control (putting the thread to sleep) 
 to become true. Usually these conditions correspond to the availability of data at specific subscribers. This way we
 can immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
 
-To do so it manages a set of triggers which can be activated and indicate that a corresponding condition became true
-which in turn will wake up a potentially waiting thread. Upon waking up it can be determined which conditions became true and caused the wake up. In the case
-that the wake up event was the availability of new data, this data can now be collected at the subscriber.
+It manages a set of triggers which can be activated to indicate that a corresponding condition became true which wakes
+up a potentially waiting thread. Upon waking up it can be determined which conditions became true and caused the
+wake-up. In the case that the wake up event was the availability of new data, this data can now be collected at
+the subscriber.
 
 For more information on how to use the Waitset see [Waitset](../../../iceoryx_examples/waitset/README.md).
 
@@ -106,10 +108,10 @@ We distinguish between the ``typed API`` and the ``untyped API``. In the Typed A
 apparent by typed pointers or references to some data type T (often a template parameter). This allows working with
 the data in an C++ idiomatic and type-safe way and should be preferred whenever possible.
 
-The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that
-the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This
-is required for interaction with other lower level APIs and should be used sparingly. For further information see the
-respective header files.
+The Untyped API provides [opaque](https://en.wikipedia.org/wiki/Opaque_pointer) (i.e. void) pointers to data, which
+is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a
+type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be
+used sparingly. For further information see the respective header files.
 
 There also is a plain [C API](../../../iceoryx_examples/icedelivery_on_c/README.md), which can be used if C++ is not
 an option.
@@ -169,7 +171,7 @@ This can be also done directly by using the constant ``iox::cxx::nullopt``
 result = iox::cxx::nullopt;
 ```
 
-For a complete list of available functions see ``optional.hpp``.
+For a complete list of available functions see [``optional.hpp``](../../../iceoryx_utils/include/iceoryx_utils/cxx/optional.hpp).
 
 ### Expected
 ``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of
@@ -210,7 +212,7 @@ result.and_then(handleValue).or_else(handleError);
 ```
 
 There are more convenience functions such as ``value_or`` which provides the value or an alternative specified by the
-user. These can be found in ``expected.hpp``.
+user. These can be found in [``expected.hpp``](../../../iceoryx_utils/include/iceoryx_utils/cxx/expected.hpp).
 
 
 ## Using the API
@@ -228,7 +230,7 @@ Create a runtime with a unique name among all applications for each application
 iox::runtime::PoshRuntime::initRuntime("some_unique_name");
 ```
 
-Now this application is ready to communicate with the middleware daemon Roudi.
+Now this application is ready to communicate with the middleware daemon RouDi.
 
 ### Defining a topic
 
@@ -354,7 +356,7 @@ subscriber.subscribe();
 The template data type and the three string identifiers have to match those of the publisher, in other words the
 service descriptions have to be the same (otherwise we will not receive data from our publisher).
 
-We immediately subscribe here, but this can be postponed to the point were we actually want to receive data.
+We immediately subscribe here, but this can be postponed to the point where we actually want to receive data.
 
 #### Receiving data
 For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data
@@ -537,21 +539,21 @@ subscriber is still subscribed).
 
 Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
 
-First we need to start Roudi.
+First we need to start RouDi.
 
     # If installed and available in PATH environment variable
     iox-roudi
     # If build from scratch with script in tools
     $ICEORYX_ROOT/build/posh/iox-roudi
 
-Afterwards we can start the applications which immediately connect to the Roudi via their runtime.
+Afterwards we can start the applications which immediately connect to the RouDi via their runtime.
 
-When the applications terminates the runtime cleans up all resources needed for communication with Roudi. This
+When the application terminates, the runtime cleans up all resources needed for communication with RouDi. This
 includes all memory chunks used for the data transmission which may still be hold by the application.
 
 ## Examples
 
-This covers the main use cases and should enable the user to quickly develop iceroyx applications.
+This covers the main use cases and should enable the user to quickly develop iceoryx applications.
 
 Full examples and instructions on how to build and run them can be found in
 [examples](../../../iceoryx_examples/README.md). The [icedelivery](../../../iceoryx_examples/icedelivery/README.md) example can be a starting point to further explore how iceoryx is used.
