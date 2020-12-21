@@ -136,6 +136,12 @@ target_link_libraries(iox-gw-dds2iceoryx
 
 target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
 
+set_target_properties(iox-gw-iceoryx2dds iox-gw-dds2iceoryx iceoryx_dds 
+  PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+)
+
 #
 ########## build test executables ##########
 #

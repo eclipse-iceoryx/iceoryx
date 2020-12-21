@@ -31,11 +31,16 @@ struct iox_sem_t
     union
     {
         sem_t* posix;
-        dispatch_semaphore_t dispatch;
+
+        struct
+        {
+            pthread_mutex_t mtx;
+            pthread_cond_t variable;
+        } condition;
     } m_handle;
 
     bool m_hasPosixHandle{true};
-    std::atomic<int>* m_value{nullptr};
+    std::atomic<int> m_value{0};
 };
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);
