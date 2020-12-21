@@ -15,8 +15,8 @@
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/popo/modern_api/typed_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_publisher.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
@@ -43,16 +43,20 @@ void consoleOutput(const std::string& output)
     std::cout << output << std::endl;
 }
 
-void sender()
+void publisher()
 {
-    iox::popo::TypedPublisher<TransmissionData_t> publisher({"Single", "Process", "Demo"});
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.historyCapacity = 10U;
+    iox::popo::TypedPublisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
     publisher.offer();
 
     uint64_t counter{0};
+    std::string greenRightArrow("\033[32m->\033[m ");
     while (keepRunning.load())
     {
         publisher.loan().and_then([&](auto& sample) {
-            consoleOutput(std::string("Sending: " + std::to_string(++sample->counter)));
+            sample->counter = counter++;
+            consoleOutput(std::string("Sending   " + greenRightArrow + std::to_string(sample->counter)));
             sample.publish();
         });
 
@@ -60,13 +64,16 @@ void sender()
     }
 }
 
-void receiver()
+void subscriber()
 {
-    iox::popo::TypedSubscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"});
+    iox::popo::SubscriberOptions options;
+    options.queueCapacity = 10U;
+    options.historyRequest = 5U;
+    iox::popo::TypedSubscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 
-    uint64_t cacheQueueSize = 10;
-    subscriber.subscribe(cacheQueueSize);
+    subscriber.subscribe();
 
+    std::string orangeLeftArrow("\033[33m<-\033[m ");
     while (keepRunning.load())
     {
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
@@ -77,7 +84,7 @@ void receiver()
             {
                 subscriber.take()
                     .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
-                        consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
+                        consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
                     })
                     .if_empty([&] { hasMoreSamples = false; })
                     .or_else([](auto) { std::cout << "Error receiving sample: " << std::endl; });
@@ -98,17 +105,19 @@ int main()
 
     iox::roudi::RouDi roudi(roudiComponents.m_rouDiMemoryManager,
                             roudiComponents.m_portManager,
-                            iox::roudi::RouDi::RoudiStartupParameters{iox::config::MonitoringMode::OFF, false});
+                            iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
     // create a single process runtime for inter thread communication
-    iox::runtime::PoshRuntimeSingleProcess runtime("/singleProcessDemo");
+    iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
 
-    std::thread receiverThread(receiver), senderThread(sender);
+    std::thread publisherThread(publisher), subscriberThread(subscriber);
 
     // communicate for 2 seconds and then stop the example
     std::this_thread::sleep_for(std::chrono::seconds(2));
     keepRunning.store(false);
 
-    senderThread.join();
-    receiverThread.join();
+    publisherThread.join();
+    subscriberThread.join();
+
+    std::cout << "Finished" << std::endl;
 }

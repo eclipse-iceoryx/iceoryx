@@ -1,29 +1,29 @@
-# Ice0ryx C Language binding
+# Iceoryx C Language binding
 
 If you are looking for an example take a look at the
 [icedelivery on c example](../iceoryx_examples/icedelivery_on_c).
 
 ## C API structure
 
-The idea of the C API is to be as close to the C++ API as possible. The idea is 
-that the C API looks and feels the same like the C++ API so that you do not have 
+The idea of the C API is to be as close to the C++ API as possible. The idea is
+that the C API looks and feels the same like the C++ API so that you do not have
 to learn Ice0ryx from scratch if you would like to use the C API.
 
 Therefore, we have the following coding conventions exclusively in the C API.
 
- - C functions are using an abbreviation of the class name. For instance `Subscriber` 
+ - C functions are using an abbreviation of the class name. For instance `Subscriber`
       would use `sub` and the methods 
-      are named like `iox_sub_method_name` where the camelCase is converted into 
+      are named like `iox_sub_method_name` where the camelCase is converted into
       snake_case.
- - A typedef for the handle is created with the abbreviation as name, a `iox` 
+ - A typedef for the handle is created with the abbreviation as name, a `iox`
      prefix and a `_t` suffix, like `iox_sub_t`
- - If the constructor allocates an element it has the suffix `_create` and is 
-     called for instance `iox_sub_create`. Analog to the constructor the destructor 
+ - If the constructor allocates an element it has the suffix `_create` and is
+     called for instance `iox_sub_create`. Analog to the constructor the destructor
      has the suffix `_destroy` and is named like `iox_sub_destroy`.
  - If the constructor requires preallocated memory it has the suffix `_init`
-     and is called for instance `iox_sub_init`. The corresponding destructor would 
+     and is called for instance `iox_sub_init`. The corresponding destructor would
      then have the suffix `_deinit` and is named like `iox_sub_deinit`.
-     - We provide structs to preallocate memory on the stack easily. They are 
+     - We provide structs to preallocate memory on the stack easily. They are
          having the suffix `_storage_t` and are named like `iox_sub_storage_t`. This
          allows you to use them like.
          ```c
@@ -91,4 +91,3 @@ void iox_other_class_deinit(iox_other_class_t * self);
 void iox_other_class_you_spin_me_round_like_a_record(iox_other_class_t * self);
 
 ```
-

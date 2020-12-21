@@ -74,16 +74,11 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 ### Targeted quality levels & platforms
 
-> [Quality level](./CONTRIBUTING.md#quality-levels) are 5..1, where 1 is highest
+> [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 1, where 1 is highest level.
 
 |CMake project/target                     | QNX  | Linux, Windows, MacOS | Comment                             |
 |-----------------------------------------|:----:|:---------------------:|:-----------------------------------:|
-| example_benchmark_optional_and_expected | 5    | 5                     |                                     |
-| example_icecallback_on_c                | 5    | 5                     |                                     |
-| example_icedelivery                     | 5    | 5                     |                                     |
-| example_icedelivery_on_c                | 5    | 5                     |                                     |
-| example_iceperf                         | 5    | 5                     |                                     |
-| example_singleprocess                   | 5    | 5                     |                                     |
+| iceoryx_examples                        | 5    | 5                     | All example code in this folder           |
 | iceoryx_binding_c                       | 4    | 4                     | Not final and can change in the near future |
 | iceoryx_dds                             | 4    | 4                     |                                     |
 | iceoryx_meta                            | 5    | 5                     |                                     |
@@ -107,7 +102,7 @@ Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md]
 |---|---|---|
 | [Larry.Robotics](https://gitlab.com/larry.robotics) | An iceoryx demonstrator for tinker, thinker and toddler | Demonstrator |
 | [iceoryx-rs](https://github.com/elBoberido/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
-| [IceRay](https://github.com/elBoberido/iceray) | An iceoryx instrospection client written in Rust | Rust |
+| [IceRay](https://github.com/elBoberido/iceray) | An iceoryx introspection client written in Rust | Rust |
 
 ## Governance & maintainers
 

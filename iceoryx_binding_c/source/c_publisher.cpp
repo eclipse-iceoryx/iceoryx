@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,19 +36,21 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
 {
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
+    iox::popo::PublisherOptions options;
+    options.historyCapacity = historyCapacity;
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
         ServiceDescription{
-            IdString(TruncateToCapacity, service),
-            IdString(TruncateToCapacity, instance),
-            IdString(TruncateToCapacity, event),
+            IdString_t(TruncateToCapacity, service),
+            IdString_t(TruncateToCapacity, instance),
+            IdString_t(TruncateToCapacity, event),
         },
-        historyCapacity);
+        options);
     return me;
 }
 
 void iox_pub_deinit(iox_pub_t const self)
 {
-    self->m_portData->m_toBeDestroyed.store(true);
+    self->m_portData->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     self->~cpp2c_Publisher();
 }
 

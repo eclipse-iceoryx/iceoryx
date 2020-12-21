@@ -36,29 +36,6 @@ class UserTrigger
     UserTrigger& operator=(const UserTrigger& rhs) = delete;
     UserTrigger& operator=(UserTrigger&& rhs) = delete;
 
-    /// @brief attaches the UserTrigger to a WaitSet
-    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] triggerId optional parameter, the id of the trigger
-    /// @param[in] callback optional parameter, the callback of the trigger
-    /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
-    /// the expected signals success
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                                         const Trigger::Callback<UserTrigger> callback = nullptr) noexcept;
-
-    /// @brief attaches the UserTrigger to a WaitSet
-    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] callback optional parameter, the callback of the trigger
-    /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
-    /// the expected signals success
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                         const Trigger::Callback<UserTrigger> callback) noexcept;
-
-    /// @brief detaches the UserTrigger from the waitset. If it was not attached to a waitset nothing happens.
-    void detach() noexcept;
-
     /// @brief If it is attached it will trigger otherwise it will do nothing
     void trigger() noexcept;
 
@@ -69,8 +46,35 @@ class UserTrigger
     /// @brief Resets the UserTrigger state to not triggered
     void resetTrigger() noexcept;
 
+    template <uint64_t>
+    friend class WaitSet;
+
   private:
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
+
+    /// @brief enables the trigger event
+    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
+    /// @param[in] eventId optional parameter, the id of the corresponding event
+    /// @param[in] callback optional parameter, the callback of the event
+    /// @return if the event could not be attached to the given waitset the expected contains the error, otherwise
+    /// the expected signals success
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const uint64_t eventId = EventInfo::INVALID_ID,
+                                            const EventInfo::Callback<UserTrigger> callback = nullptr) noexcept;
+
+    /// @brief enables the trigger event
+    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
+    /// @param[in] callback optional parameter, the callback of the event
+    /// @return if the event could not be attached to the given waitset the expected contains the error, otherwise
+    /// the expected signals success
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const EventInfo::Callback<UserTrigger> callback) noexcept;
+
+    /// @brief disables the trigger event. If it was not enabled nothing happens
+    /// happens.
+    void disableEvent() noexcept;
 
   private:
     TriggerHandle m_trigger;

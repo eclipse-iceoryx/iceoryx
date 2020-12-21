@@ -35,7 +35,9 @@
 using namespace ::testing;
 using ::testing::Return;
 
+using iox::popo::PublisherOptions;
 using iox::popo::PublisherPortUser;
+using iox::popo::SubscriberOptions;
 using iox::popo::SubscriberPortUser;
 using iox::roudi::IceOryxRouDiMemoryManager;
 using iox::roudi::PortManager;
@@ -81,7 +83,7 @@ class PortManager_test : public Test
 
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
         m_portManager->stopPortIntrospection();
-        m_portManager->deletePortsOfProcess(iox::MQ_ROUDI_NAME);
+        m_portManager->deletePortsOfProcess(iox::roudi::MQ_ROUDI_NAME);
     }
 
     void TearDown() override
@@ -126,16 +128,21 @@ class PortManager_test : public Test
 
 TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
 {
+    PublisherOptions publisherOptions{1};
+    SubscriberOptions subscriberOptions{1, 1};
+
     PublisherPortUser publisher(
         m_portManager
-            ->acquirePublisherPortData({1, 1, 1}, 1, "/guiseppe", m_payloadMemoryManager, "runnable", PortConfigInfo())
+            ->acquirePublisherPortData(
+                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, "node", PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
     // no doDiscovery() at this position is intentional
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", "node", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
 
@@ -147,15 +154,20 @@ TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
 
 TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
 {
+    PublisherOptions publisherOptions{1};
+    SubscriberOptions subscriberOptions{1, 1};
+
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", "node", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
     // no doDiscovery() at this position is intentional
 
     PublisherPortUser publisher(
         m_portManager
-            ->acquirePublisherPortData({1, 1, 1}, 1, "/guiseppe", m_payloadMemoryManager, "runnable", PortConfigInfo())
+            ->acquirePublisherPortData(
+                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, "node", PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -168,15 +180,20 @@ TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
 
 TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
 {
+    PublisherOptions publisherOptions{1};
+    SubscriberOptions subscriberOptions{1, 1};
+
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", "node", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
     m_portManager->doDiscovery();
 
     PublisherPortUser publisher(
         m_portManager
-            ->acquirePublisherPortData({1, 1, 1}, 1, "/guiseppe", m_payloadMemoryManager, "runnable", PortConfigInfo())
+            ->acquirePublisherPortData(
+                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, "node", PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -189,8 +206,12 @@ TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
 
 TEST_F(PortManager_test, doDiscovery_rightOrdering)
 {
+    PublisherOptions publisherOptions{1};
+    SubscriberOptions subscriberOptions{1, 1};
+
     SubscriberPortUser subscriber1(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", "node", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber1);
     subscriber1.subscribe();
 
@@ -198,13 +219,15 @@ TEST_F(PortManager_test, doDiscovery_rightOrdering)
 
     PublisherPortUser publisher(
         m_portManager
-            ->acquirePublisherPortData({1, 1, 1}, 1, "/guiseppe", m_payloadMemoryManager, "runnable", PortConfigInfo())
+            ->acquirePublisherPortData(
+                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, "node", PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
 
     SubscriberPortUser subscriber2(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/ingnatz", "runnable", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "ingnatz", "node", PortConfigInfo())
+            .value());
     ASSERT_TRUE(subscriber2);
     subscriber2.subscribe();
 
@@ -215,30 +238,21 @@ TEST_F(PortManager_test, doDiscovery_rightOrdering)
     EXPECT_THAT(subscriber2.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, PublisherSubscriberOverflow)
+TEST_F(PortManager_test, PublisherOverflow)
 {
-    iox::ProcessName_t p1 = "/test1";
+    iox::ProcessName_t p1 = "test1";
     iox::NodeName_t r1 = "run1";
     decltype(iox::MAX_PUBLISHERS) pubForP1 = iox::MAX_PUBLISHERS;
-    decltype(iox::MAX_SUBSCRIBERS) subForP1 = iox::MAX_SUBSCRIBERS;
     std::vector<iox::popo::PublisherPortData*> avaPublisher1(pubForP1);
-    std::vector<iox::popo::SubscriberPortData*> avaSubscriber1(subForP1);
-
+    PublisherOptions publisherOptions{1};
 
     for (unsigned int i = 0; i < pubForP1; i++)
     {
-        auto sen =
-            m_portManager->acquirePublisherPortData(getUniqueSD(), 1, p1, m_payloadMemoryManager, r1, PortConfigInfo());
+        auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
+            getUniqueSD(), publisherOptions, p1, m_payloadMemoryManager, r1, PortConfigInfo());
 
-        ASSERT_FALSE(sen.has_error());
-        avaPublisher1[i] = sen.value();
-    }
-
-    for (unsigned int i = 0; i < subForP1; i++)
-    {
-        auto rec = m_portManager->acquireSubscriberPortData(getUniqueSD(), 1, p1, r1, PortConfigInfo());
-        ASSERT_THAT(rec.has_error(), Eq(false));
-        avaSubscriber1[i] = rec.value();
+        ASSERT_FALSE(publisherPortDataResult.has_error());
+        avaPublisher1[i] = publisherPortDataResult.value();
     }
 
     { // test if overflow errors get hit
@@ -248,24 +262,49 @@ TEST_F(PortManager_test, PublisherSubscriberOverflow)
             [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
-        auto rec = m_portManager->acquireSubscriberPortData(getUniqueSD(), 1, p1, r1, PortConfigInfo());
-        EXPECT_TRUE(errorHandlerCalled);
-        EXPECT_THAT(rec.get_error(), Eq(PortPoolError::SUBSCRIBER_PORT_LIST_FULL));
 
-        errorHandlerCalled = false;
-        auto sen =
-            m_portManager->acquirePublisherPortData(getUniqueSD(), 1, p1, m_payloadMemoryManager, r1, PortConfigInfo());
+        auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
+            getUniqueSD(), publisherOptions, p1, m_payloadMemoryManager, r1, PortConfigInfo());
         EXPECT_TRUE(errorHandlerCalled);
-        ASSERT_TRUE(sen.has_error());
-        EXPECT_THAT(sen.get_error(), Eq(PortPoolError::PUBLISHER_PORT_LIST_FULL));
+        ASSERT_TRUE(publisherPortDataResult.has_error());
+        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::PUBLISHER_PORT_LIST_FULL));
     }
 }
 
-TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
+TEST_F(PortManager_test, SubscriberOverflow)
 {
-    // overflow of interface and applications
-    std::string itf = "/itf";
-    std::string app = "/app";
+    iox::ProcessName_t p1 = "test1";
+    iox::NodeName_t r1 = "run1";
+
+    decltype(iox::MAX_SUBSCRIBERS) subForP1 = iox::MAX_SUBSCRIBERS;
+    std::vector<iox::popo::SubscriberPortData*> avaSubscriber1(subForP1);
+    SubscriberOptions subscriberOptions{1, 1};
+
+    for (unsigned int i = 0; i < subForP1; i++)
+    {
+        auto subscriberPortDataResult =
+            m_portManager->acquireSubscriberPortData(getUniqueSD(), subscriberOptions, p1, r1, PortConfigInfo());
+        ASSERT_THAT(subscriberPortDataResult.has_error(), Eq(false));
+        avaSubscriber1[i] = subscriberPortDataResult.value();
+    }
+
+    { // test if overflow errors get hit
+
+        bool errorHandlerCalled = false;
+        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+            [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+                                  const std::function<void()>,
+                                  const iox::ErrorLevel) { errorHandlerCalled = true; });
+        auto subscriberPortDataResult =
+            m_portManager->acquireSubscriberPortData(getUniqueSD(), subscriberOptions, p1, r1, PortConfigInfo());
+        EXPECT_TRUE(errorHandlerCalled);
+        EXPECT_THAT(subscriberPortDataResult.get_error(), Eq(PortPoolError::SUBSCRIBER_PORT_LIST_FULL));
+    }
+}
+
+TEST_F(PortManager_test, InterfacesOverflow)
+{
+    std::string itf = "itf";
 
     for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
     {
@@ -274,6 +313,36 @@ TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
             iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
         EXPECT_THAT(interp, Ne(nullptr));
     }
+
+    // test if overflow errors get hit
+    {
+        auto errorHandlerCalled{false};
+        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+            [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+                errorHandlerCalled = true;
+            });
+
+        auto interfacePointer = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "itfPenguin");
+        EXPECT_THAT(interfacePointer, Eq(nullptr));
+        EXPECT_TRUE(errorHandlerCalled);
+    }
+
+    // delete one and add one should be possible now
+    {
+        unsigned int testi = 0;
+        auto newItfName = itf + std::to_string(testi);
+        m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
+
+        auto interfacePointer = m_portManager->acquireInterfacePortData(
+            iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
+        EXPECT_THAT(interfacePointer, Ne(nullptr));
+    }
+}
+
+TEST_F(PortManager_test, ApplicationsOverflow)
+{
+    std::string app = "app";
+
     for (unsigned int i = 0; i < iox::MAX_PROCESS_NUMBER; i++)
     {
         auto newAppName = app + std::to_string(i);
@@ -290,14 +359,7 @@ TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
                 errorHandlerCalled = true;
             });
 
-        errorHandlerCalled = false;
-        auto interfacePointer =
-            m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "/itfPenguin");
-        EXPECT_THAT(interfacePointer, Eq(nullptr));
-        EXPECT_TRUE(errorHandlerCalled);
-
-        errorHandlerCalled = false;
-        auto appPointer = m_portManager->acquireApplicationPortData("/appPenguin");
+        auto appPointer = m_portManager->acquireApplicationPortData("appPenguin");
         EXPECT_THAT(appPointer, Eq(nullptr));
         EXPECT_TRUE(errorHandlerCalled);
     }
@@ -305,14 +367,8 @@ TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
     // delete one and add one should be possible now
     {
         unsigned int testi = 0;
-        auto newItfName = itf + std::to_string(testi);
         auto newAppName = app + std::to_string(testi);
-        m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
         m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newAppName));
-
-        auto interfacePointer = m_portManager->acquireInterfacePortData(
-            iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
-        EXPECT_THAT(interfacePointer, Ne(nullptr));
 
         auto appPointer =
             m_portManager->acquireApplicationPortData(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newAppName));
@@ -320,23 +376,103 @@ TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
     }
 }
 
+TEST_F(PortManager_test, ConditionVariablesOverflow)
+{
+    std::string process = "HypnoToadForEver";
+
+    for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
+    {
+        auto newProcessName = process + std::to_string(i);
+        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData(
+            iox::ProcessName_t(iox::cxx::TruncateToCapacity, newProcessName));
+        EXPECT_FALSE(conditionVariableDataResult.has_error());
+    }
+
+    // test if overflow errors get hit
+    {
+        auto errorHandlerCalled{false};
+        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+            [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+                errorHandlerCalled = true;
+            });
+
+        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData("AnotherToad");
+        EXPECT_TRUE(conditionVariableDataResult.has_error());
+        EXPECT_TRUE(errorHandlerCalled);
+        EXPECT_THAT(conditionVariableDataResult.get_error(), Eq(PortPoolError::CONDITION_VARIABLE_LIST_FULL));
+    }
+
+    // delete one and add one should be possible now
+    {
+        unsigned int testi = 0;
+        auto newProcessName = process + std::to_string(testi);
+        m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newProcessName));
+
+        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData(
+            iox::ProcessName_t(iox::cxx::TruncateToCapacity, newProcessName));
+        EXPECT_FALSE(conditionVariableDataResult.has_error());
+    }
+}
+
+TEST_F(PortManager_test, ConditionVariablesDestroy)
+{
+    std::vector<iox::popo::ConditionVariableData*> condVarContainer;
+
+    std::string process = "HypnoToadForEver";
+
+    // first aquire all possible condition variables
+    for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
+    {
+        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData("JustFollowTheHypnoToad");
+        EXPECT_FALSE(conditionVariableDataResult.has_error());
+        condVarContainer.push_back(conditionVariableDataResult.value());
+    }
+
+    // so now no one should be available
+    {
+        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData("JustFollowTheHypnoToad");
+        EXPECT_TRUE(conditionVariableDataResult.has_error());
+    }
+
+    // set the destroy flag and let the discovery loop take care
+    for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
+    {
+        condVarContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    }
+    m_portManager->doDiscovery();
+    condVarContainer.clear(); // These pointers are dangling now
+
+    // so we should able to get some more now
+    for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
+    {
+        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData("JustFollowTheHypnoToad");
+        EXPECT_FALSE(conditionVariableDataResult.has_error());
+    }
+}
+
 TEST_F(PortManager_test, PortDestroy)
 {
-    iox::ProcessName_t p1 = "/myProcess1";
-    iox::ProcessName_t p2 = "/myProcess2";
+    iox::ProcessName_t p1 = "myProcess1";
+    iox::ProcessName_t p2 = "myProcess2";
     iox::capro::ServiceDescription cap1(1, 1, 1);
     iox::capro::ServiceDescription cap2(2, 2, 2);
+    PublisherOptions publisherOptions{1};
+    SubscriberOptions subscriberOptions{1, 1};
 
     // two processes p1 and p2 each with a publisher and subscriber that match to the other process
     auto publisherData1 =
-        m_portManager->acquirePublisherPortData(cap1, 1, p1, m_payloadMemoryManager, "runnable", PortConfigInfo())
+        m_portManager
+            ->acquirePublisherPortData(cap1, publisherOptions, p1, m_payloadMemoryManager, "node", PortConfigInfo())
             .value();
-    auto subscriberData1 = m_portManager->acquireSubscriberPortData(cap2, 1, p1, "runnable", PortConfigInfo()).value();
+    auto subscriberData1 =
+        m_portManager->acquireSubscriberPortData(cap2, subscriberOptions, p1, "node", PortConfigInfo()).value();
 
     auto publisherData2 =
-        m_portManager->acquirePublisherPortData(cap2, 1, p2, m_payloadMemoryManager, "runnable", PortConfigInfo())
+        m_portManager
+            ->acquirePublisherPortData(cap2, publisherOptions, p2, m_payloadMemoryManager, "node", PortConfigInfo())
             .value();
-    auto subscriberData2 = m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).value();
+    auto subscriberData2 =
+        m_portManager->acquireSubscriberPortData(cap1, subscriberOptions, p2, "node", PortConfigInfo()).value();
 
     // let them connect
     {
@@ -387,9 +523,11 @@ TEST_F(PortManager_test, PortDestroy)
 
     // re-create the ports of process p2
     publisherData2 =
-        m_portManager->acquirePublisherPortData(cap2, 1, p2, m_payloadMemoryManager, "runnable", PortConfigInfo())
+        m_portManager
+            ->acquirePublisherPortData(cap2, publisherOptions, p2, m_payloadMemoryManager, "node", PortConfigInfo())
             .value();
-    subscriberData2 = m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).value();
+    subscriberData2 =
+        m_portManager->acquireSubscriberPortData(cap1, subscriberOptions, p2, "node", PortConfigInfo()).value();
 
     // let them connect
     {

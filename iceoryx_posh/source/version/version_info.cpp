@@ -24,8 +24,8 @@ VersionInfo::VersionInfo(const uint16_t versionMajor,
                          const uint16_t versionMinor,
                          const uint16_t versionPatch,
                          const uint16_t versionTweak,
-                         const BuildDateStringType& buildDateString,
-                         const CommitIdStringType& commitIdString) noexcept
+                         const BuildDateString_t& buildDateString,
+                         const CommitIdString_t& commitIdString) noexcept
     : m_versionMajor(versionMajor)
     , m_versionMinor(versionMinor)
     , m_versionPatch(versionPatch)
@@ -37,19 +37,19 @@ VersionInfo::VersionInfo(const uint16_t versionMajor,
 
 VersionInfo::VersionInfo(const cxx::Serialization& serial) noexcept
 {
-    SerializationStringType tmp_m_buildDateString;
-    SerializationStringType tmp_commitIdString;
+    SerializationString_t tmp_m_buildDateString;
+    SerializationString_t tmp_commitIdString;
     m_valid = serial.extract(
         m_versionMajor, m_versionMinor, m_versionPatch, m_versionTweak, tmp_m_buildDateString, tmp_commitIdString);
-    m_buildDateString = BuildDateStringType(cxx::TruncateToCapacity, tmp_m_buildDateString.c_str());
-    m_commitIdString = CommitIdStringType(cxx::TruncateToCapacity, tmp_commitIdString.c_str());
+    m_buildDateString = BuildDateString_t(cxx::TruncateToCapacity, tmp_m_buildDateString.c_str());
+    m_commitIdString = CommitIdString_t(cxx::TruncateToCapacity, tmp_commitIdString.c_str());
 }
 
 /// @brief Serialization of the VersionInfo.
 VersionInfo::operator cxx::Serialization() const noexcept
 {
-    SerializationStringType tmp_m_buildDateString(cxx::TruncateToCapacity, m_buildDateString.c_str());
-    SerializationStringType tmp_commitIdString(cxx::TruncateToCapacity, m_commitIdString.c_str());
+    SerializationString_t tmp_m_buildDateString(cxx::TruncateToCapacity, m_buildDateString.c_str());
+    SerializationString_t tmp_commitIdString(cxx::TruncateToCapacity, m_commitIdString.c_str());
     return cxx::Serialization::create(
         m_versionMajor, m_versionMinor, m_versionPatch, m_versionTweak, tmp_m_buildDateString, tmp_commitIdString);
 }
@@ -105,10 +105,8 @@ bool VersionInfo::isValid() noexcept
 
 VersionInfo VersionInfo::getCurrentVersion() noexcept
 {
-    static constexpr char ICEORYX_COMMIT_ID[] = ICEORYX_SHA1;
-
-    BuildDateStringType buildDateStringCxx(cxx::TruncateToCapacity, ICEORYX_BUILDDATE);
-    CommitIdStringType shortCommitIdString(cxx::TruncateToCapacity, ICEORYX_COMMIT_ID, COMMIT_ID_STRING_SIZE);
+    BuildDateString_t buildDateStringCxx(ICEORYX_BUILDDATE);
+    CommitIdString_t shortCommitIdString(cxx::TruncateToCapacity, ICEORYX_SHA1, COMMIT_ID_STRING_SIZE);
 
     return VersionInfo(static_cast<uint16_t>(ICEORYX_VERSION_MAJOR),
                        static_cast<uint16_t>(ICEORYX_VERSION_MINOR),
@@ -117,7 +115,6 @@ VersionInfo VersionInfo::getCurrentVersion() noexcept
                        buildDateStringCxx,
                        shortCommitIdString);
 }
-
 
 } // namespace version
 } // namespace iox

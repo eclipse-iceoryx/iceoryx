@@ -97,6 +97,7 @@ add_library(iceoryx_posh
     source/popo/ports/server_port_roudi.cpp
     source/popo/ports/server_port_user.cpp
     source/popo/building_blocks/chunk_queue_types.cpp
+    source/popo/building_blocks/condition_variable_data.cpp    
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
     source/popo/building_blocks/locking_policy.cpp
@@ -104,7 +105,7 @@ add_library(iceoryx_posh
     source/popo/user_trigger.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
-    source/popo/trigger_info.cpp
+    source/popo/event_info.cpp
     source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
@@ -218,6 +219,7 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
     source/roudi/service_registry.cpp
+    source/roudi/iceoryx_roudi_components.cpp
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)

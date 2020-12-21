@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@
 #include "iceoryx_utils/platform/mqueue.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 
-
 #include <iostream>
 
 namespace iox
 {
 namespace posix
 {
+
 /// @brief Wrapper class for posix message queue
 ///
 /// @tparam NON_BLOCKING specifies the type of message queue. A non-blocking message queue will immediately return from
@@ -67,7 +67,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     ~MessageQueue();
 
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const std::string& name);
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name);
 
     /// close and remove message queue.
     cxx::expected<IpcChannelError> destroy();
@@ -93,21 +93,24 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     cxx::expected<bool, IpcChannelError> isOutdated();
 
   private:
-    MessageQueue(const std::string& name,
+    MessageQueue(const IpcChannelName_t& name,
                  const IpcChannelMode mode,
                  const IpcChannelSide channelSide,
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                  const uint64_t maxMsgNumber = 10u);
+
     cxx::expected<int32_t, IpcChannelError>
-    open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
+    open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
 
     cxx::expected<IpcChannelError> close();
     cxx::expected<IpcChannelError> unlink();
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const std::string& name, const int32_t errnum);
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum);
+    static cxx::expected<IpcChannelName_t, IpcChannelError>
+    sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
 
   private:
-    std::string m_name;
+    IpcChannelName_t m_name;
     struct mq_attr m_attributes;
     mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
     IpcChannelSide m_channelSide;

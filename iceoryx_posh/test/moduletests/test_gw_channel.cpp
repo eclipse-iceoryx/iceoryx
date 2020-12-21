@@ -22,17 +22,20 @@ using ::testing::_;
 
 // ======================================== Helpers ======================================== //
 
-using IdString = iox::cxx::string<100>;
+using iox::capro::IdString_t;
 
 // We do not need real channel terminals to test the base class.
 struct StubbedIceoryxTerminal
 {
-    StubbedIceoryxTerminal(iox::capro::ServiceDescription){};
+    struct Options
+    {
+    };
+    StubbedIceoryxTerminal(const iox::capro::ServiceDescription&, const Options&){};
 };
 
 struct StubbedExternalTerminal
 {
-    StubbedExternalTerminal(IdString, IdString, IdString){};
+    StubbedExternalTerminal(IdString_t, IdString_t, IdString_t){};
 };
 
 using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
@@ -48,5 +51,6 @@ class ChannelTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(ChannelTest, ReturnsEmptyOptionalIfObjectPoolExhausted)
 {
-    auto channel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create({"", "", ""});
+    auto channel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create(
+        {"", "", ""}, StubbedIceoryxTerminal::Options());
 }

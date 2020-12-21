@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
+#include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -39,13 +39,13 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
   public:
     using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
 
-    using SubscriberParent::attachTo;
-    using SubscriberParent::detachEvent;
+    using SubscriberParent::disableEvent;
+    using SubscriberParent::enableEvent;
     using SubscriberParent::getServiceDescription;
     using SubscriberParent::getSubscriptionState;
     using SubscriberParent::getUid;
     using SubscriberParent::hasMissedSamples;
-    using SubscriberParent::hasNewSamples;
+    using SubscriberParent::hasSamples;
     using SubscriberParent::invalidateTrigger;
     using SubscriberParent::releaseQueuedSamples;
     using SubscriberParent::subscribe;
@@ -84,7 +84,7 @@ class BaseSubscriberTest : public Test
 TEST_F(BaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), subscribe(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY)).Times(1);
+    EXPECT_CALL(sut.getMockedPort(), subscribe()).Times(1);
     // ===== Test ===== //
     sut.subscribe();
     // ===== Verify ===== //
@@ -116,7 +116,7 @@ TEST_F(BaseSubscriberTest, HasNewSamplesCallForwardedToUnderlyingSubscriberPort)
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasNewChunks).Times(1);
     // ===== Test ===== //
-    sut.hasNewSamples();
+    sut.hasSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -191,12 +191,12 @@ TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriber
 
 TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
 {
-    iox::popo::ConditionVariableData condVar;
+    iox::popo::ConditionVariableData condVar("Horscht");
     WaitSetMock waitSet(&condVar);
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     // ===== Test ===== //
-    sut.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.enableEvent(waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -204,10 +204,10 @@ TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
 TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
 {
     // ===== Setup ===== //
-    iox::popo::ConditionVariableData condVar;
+    iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.enableEvent(*waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     // ===== Verify ===== //
@@ -217,14 +217,14 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
 TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFromOriginalWaitset)
 {
     // ===== Setup ===== //
-    iox::popo::ConditionVariableData condVar;
+    iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     std::unique_ptr<WaitSetMock> waitSet2{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.enableEvent(*waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachTo(*waitSet2, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.enableEvent(*waitSet2, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     EXPECT_EQ(waitSet2->size(), 1U);
@@ -234,13 +234,13 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
 TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
 {
     // ===== Setup ===== //
-    iox::popo::ConditionVariableData condVar;
+    iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.enableEvent(*waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
-    sut.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.disableEvent(iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     // ===== Cleanup ===== //
@@ -251,7 +251,7 @@ TEST_F(BaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasNewChunks).Times(1);
     // ===== Test ===== //
-    sut.hasNewSamples();
+    sut.hasSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

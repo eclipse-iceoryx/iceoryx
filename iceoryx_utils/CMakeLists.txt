@@ -153,6 +153,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/shared_memory_object/shared_memory.cpp
     source/posix_wrapper/system_configuration.cpp
     source/posix_wrapper/posix_access_rights.cpp
+    source/posix_wrapper/thread.cpp
     source/units/duration.cpp
     source/relocatable_pointer/relative_ptr.cpp
 )
@@ -167,7 +168,7 @@ set_target_properties(iceoryx_utils PROPERTIES
 
 if(LINUX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/)
-    target_link_libraries(iceoryx_utils PRIVATE rt acl atomic ${CODE_COVERAGE_LIBS})
+    target_link_libraries(iceoryx_utils PRIVATE acl atomic ${CODE_COVERAGE_LIBS})
 elseif(QNX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/)
 elseif(APPLE)
@@ -198,6 +199,14 @@ set_target_properties(iceoryx_platform PROPERTIES
 target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
 
 target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+if(LINUX)
+    target_link_libraries(iceoryx_platform 
+        PUBLIC 
+        rt 
+        pthread
+    )
+endif(LINUX)
 
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
@@ -248,4 +257,5 @@ install(
 
 if(test)
     add_subdirectory(test)
+    add_subdirectory(test/stresstests/benchmark_optional_and_expected)
 endif(test)

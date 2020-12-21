@@ -36,7 +36,7 @@ class BindingC_Runtime_test : public RouDi_GTest
 
 TEST_F(BindingC_Runtime_test, SuccessfulRegistration)
 {
-    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "/chucky";
+    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chucky";
     iox_runtime_init(EXPECTED_APP_NAME);
 
     char actualAppName[iox::MAX_PROCESS_NAME_LENGTH + 1];
@@ -49,7 +49,6 @@ TEST_F(BindingC_Runtime_test, SuccessfulRegistration)
 TEST_F(BindingC_Runtime_test, AppNameLengthIsMax)
 {
     std::string maxName(iox::MAX_PROCESS_NAME_LENGTH, 's');
-    maxName.front() = '/';
 
     iox_runtime_init(maxName.c_str());
 
@@ -62,7 +61,6 @@ TEST_F(BindingC_Runtime_test, AppNameLengthIsMax)
 TEST_F(BindingC_Runtime_test, AppNameLengthIsOutOfLimit)
 {
     std::string tooLongName(iox::MAX_PROCESS_NAME_LENGTH + 1, 's');
-    tooLongName.insert(0, 1, '/');
 
     EXPECT_DEATH({ iox_runtime_init(tooLongName.c_str()); }, "Application name has more than 100 characters!");
 }
@@ -74,7 +72,7 @@ TEST_F(BindingC_Runtime_test, AppNameIsNullptr)
 
 TEST_F(BindingC_Runtime_test, GetInstanceNameIsNullptr)
 {
-    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "/chucky";
+    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chucky";
     iox_runtime_init(EXPECTED_APP_NAME);
 
     char actualAppName[iox::MAX_PROCESS_NAME_LENGTH + 1];
@@ -85,11 +83,11 @@ TEST_F(BindingC_Runtime_test, GetInstanceNameIsNullptr)
 
 TEST_F(BindingC_Runtime_test, GetInstanceNameLengthIsLessThanAppNameLength)
 {
-    constexpr char ACTUAL_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "/chucky";
-    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "/chuck";
+    constexpr char ACTUAL_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chucky";
+    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chuck";
     iox_runtime_init(ACTUAL_APP_NAME);
 
-    constexpr uint64_t APP_NAME_BUFFER_LENGTH{7};
+    constexpr uint64_t APP_NAME_BUFFER_LENGTH{6};
     char truncatedAppName[APP_NAME_BUFFER_LENGTH];
     for (auto& c : truncatedAppName)
     {

@@ -26,7 +26,7 @@ namespace popo
 {
 struct ConditionVariableData
 {
-    ConditionVariableData() noexcept = default;
+    ConditionVariableData(const ProcessName_t& process) noexcept;
     ConditionVariableData(const ConditionVariableData& rhs) = delete;
     ConditionVariableData(ConditionVariableData&& rhs) = delete;
     ConditionVariableData& operator=(const ConditionVariableData& rhs) = delete;
@@ -40,6 +40,9 @@ struct ConditionVariableData
                                        ErrorLevel::FATAL);
                       })
                       .value());
+
+    ProcessName_t m_process;
+    std::atomic_bool m_toBeDestroyed{false};
 };
 
 } // namespace popo

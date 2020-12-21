@@ -21,6 +21,7 @@ namespace iox
 {
 namespace dds
 {
+using namespace units::duration_literals;
 static constexpr units::Duration DISCOVERY_PERIOD = 1000_ms;
 static constexpr units::Duration FORWARDING_PERIOD = 50_ms;
 static constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128u;

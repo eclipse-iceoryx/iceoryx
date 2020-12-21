@@ -42,10 +42,7 @@ using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
 using ::testing::Return;
 
-
-using TimePointNs = iox::mepoo::TimePointNs;
-using BaseClock = iox::mepoo::BaseClock;
-using Timer = iox::posix::Timer;
+using iox::posix::Timer;
 
 class Mepoo_IntegrationTest : public Test
 {
@@ -144,10 +141,10 @@ class Mepoo_IntegrationTest : public Test
 
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
-        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("/sender");
+        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("sender");
         publisherPort.emplace(senderRuntime.getMiddlewarePublisher(m_service_description));
 
-        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("/receiver");
+        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("receiver");
         subscriberPort.emplace(receiverRuntime.getMiddlewareSubscriber(m_service_description));
     }
 
@@ -300,7 +297,7 @@ class Mepoo_IntegrationTest : public Test
         {
             publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
                 new (sample->payload()) Topic;
-                sample->m_info.m_payloadSize = topicSize;
+                sample->m_payloadSize = topicSize;
                 publisherPort->sendChunk(sample);
                 m_roudiEnv->InterOpWait();
             });

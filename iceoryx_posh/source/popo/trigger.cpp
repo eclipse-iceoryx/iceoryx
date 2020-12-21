@@ -46,9 +46,9 @@ void Trigger::reset() noexcept
     invalidate();
 }
 
-const TriggerInfo& Trigger::getTriggerInfo() const noexcept
+const EventInfo& Trigger::getEventInfo() const noexcept
 {
-    return m_triggerInfo;
+    return m_eventInfo;
 }
 
 void Trigger::invalidate() noexcept
@@ -68,9 +68,9 @@ bool Trigger::isValid() const noexcept
 
 bool Trigger::isLogicalEqualTo(const Trigger& rhs) const noexcept
 {
-    return (isValid() && rhs.isValid() && m_triggerInfo.m_triggerOrigin == rhs.m_triggerInfo.m_triggerOrigin
+    return (isValid() && rhs.isValid() && m_eventInfo.m_eventOrigin == rhs.m_eventInfo.m_eventOrigin
             && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback
-            && m_triggerInfo.m_triggerId == rhs.m_triggerInfo.m_triggerId);
+            && m_eventInfo.m_eventId == rhs.m_eventInfo.m_eventId);
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept
@@ -84,8 +84,8 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
     {
         reset();
 
-        // TriggerInfo
-        m_triggerInfo = std::move(rhs.m_triggerInfo);
+        // EventInfo
+        m_eventInfo = std::move(rhs.m_eventInfo);
 
         // Trigger
         m_resetCallback = rhs.m_resetCallback;

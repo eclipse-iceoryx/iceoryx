@@ -92,40 +92,50 @@ class MyTriggerClass
         }
     }
 
+    static void callOnAction(MyTriggerClass* const triggerClassPtr)
+    {
+        std::cout << "action performed" << std::endl;
+    }
+
+
+    template <uint64_t>
+    friend class iox::popo::WaitSet;
+
+  private:
     // This method attaches an event of the class to a waitset.
     // The event is choosen by the event parameter. Additionally, you can
-    // set a triggerId to group multiple instances and a custom callback.
+    // set a eventId to group multiple instances and a custom callback.
     iox::cxx::expected<iox::popo::WaitSetError>
-    attachTo(iox::popo::WaitSet<>& waitset,
-             const MyTriggerClassEvents event,
-             const uint64_t triggerId,
-             const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
+    enableEvent(iox::popo::WaitSet<>& waitset,
+                const MyTriggerClassEvents event,
+                const uint64_t eventId,
+                const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
     {
         switch (event)
         {
         case MyTriggerClassEvents::PERFORMED_ACTION:
         {
             return waitset
-                .acquireTrigger(this,
-                                // trigger calls this method to ask if it was triggered
-                                {*this, &MyTriggerClass::hasPerformedAction},
-                                // method which will be called when the waitset goes out of scope
-                                {*this, &MyTriggerClass::invalidateTrigger},
-                                triggerId,
-                                callback)
+                .acquireTriggerHandle(this,
+                                      // trigger calls this method to ask if it was triggered
+                                      {*this, &MyTriggerClass::hasPerformedAction},
+                                      // method which will be called when the waitset goes out of scope
+                                      {*this, &MyTriggerClass::disableEvent},
+                                      eventId,
+                                      callback)
                 // assigning the acquired trigger from the waitset to m_actionTrigger
                 .and_then([this](iox::popo::TriggerHandle& trigger) { m_actionTrigger = std::move(trigger); });
         }
         case MyTriggerClassEvents::ACTIVATE:
         {
             return waitset
-                .acquireTrigger(this,
-                                // trigger calls this method to ask if it was triggered
-                                {*this, &MyTriggerClass::isActivated},
-                                // method which will be called when the waitset goes out of scope
-                                {*this, &MyTriggerClass::invalidateTrigger},
-                                triggerId,
-                                callback)
+                .acquireTriggerHandle(this,
+                                      // trigger calls this method to ask if it was triggered
+                                      {*this, &MyTriggerClass::isActivated},
+                                      // method which will be called when the waitset goes out of scope
+                                      {*this, &MyTriggerClass::disableEvent},
+                                      eventId,
+                                      callback)
                 // assigning the acquired trigger from the waitset to m_activateTrigger
                 .and_then([this](iox::popo::TriggerHandle& trigger) { m_activateTrigger = std::move(trigger); });
         }
@@ -136,7 +146,7 @@ class MyTriggerClass
 
     // we offer the waitset a method to invalidate trigger if it goes
     // out of scope
-    void invalidateTrigger(const uint64_t uniqueTriggerId)
+    void disableEvent(const uint64_t uniqueTriggerId)
     {
         if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
         {
@@ -146,11 +156,6 @@ class MyTriggerClass
         {
             m_activateTrigger.invalidate();
         }
-    }
-
-    static void callOnAction(MyTriggerClass* const triggerClassPtr)
-    {
-        std::cout << "action performed" << std::endl;
     }
 
   private:
@@ -179,22 +184,22 @@ void eventLoop()
 {
     while (true)
     {
-        auto triggerStateVector = waitset->wait();
-        for (auto& triggerState : triggerStateVector)
+        auto eventVector = waitset->wait();
+        for (auto& event: eventVector)
         {
-            if (triggerState.getTriggerId() == ACTIVATE_ID)
+            if (event->getEventId() == ACTIVATE_ID)
             {
                 // reset MyTriggerClass instance state
-                triggerState.getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
+                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
                 // call the callback attached to the trigger
-                triggerState();
+                (*event)();
             }
-            else if (triggerState.getTriggerId() == ACTION_ID)
+            else if (event->getEventId() == ACTION_ID)
             {
                 // reset MyTriggerClass instance state
-                triggerState.getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
+                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
                 // call the callback attached to the trigger
-                triggerState();
+                (*event)();
             }
         }
     }
@@ -202,7 +207,7 @@ void eventLoop()
 
 int main()
 {
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-trigger");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-trigger");
 
     // we create a waitset and a triggerClass instance inside of the two
     // global optional's
@@ -210,8 +215,9 @@ int main()
     triggerClass.emplace();
 
     // attach both events to a waitset and assign a callback
-    triggerClass->attachTo(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
-    triggerClass->attachTo(*waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
+    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    waitset->attachEvent(
+        *triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
 
     // start the event loop which is handling the events
     std::thread eventLoopThread(eventLoop);
