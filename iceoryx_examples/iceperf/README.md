@@ -17,19 +17,26 @@ At the end of the benchmark, the average latency for each payload size is printe
 
 Create three terminals and run one command in each of them.
 The order is first the RouDi daemon, then iceperf-laurel which is the leader in this setup
-and then iceperf-laurel for doing the ping pong measurements with iceperf-laurel. 
-You can set the number of measurement iterations (number of roundtrips) with a command line parameter
-of iceperf-laurel (e.g. ./iceperf-laurel 100000)
+and then iceperf-hardy for doing the ping pong measurements with iceperf-laurel. 
+You can set the number of measurement iterations (number of roundtrips) with a command line paramter
+of iceperf-laurel (e.g. `./iceperf-laurel 100000`)
 ```sh
-# If installed and available in PATH environment variable
-iox-roudi
-# If build from scratch with script in tools
-$ICEORYX_ROOT/build/install/prefix/bin/iox-roudi
+    # If installed and available in PATH environment variable
+    iox-roudi
+    # If build from scratch with script in tools
+    $ICEORYX_ROOT/build/install/prefix/bin/iox-roudi
 
-build/iceoryx_examples/iceperf/iceperf-laurel
+    build/iceoryx_examples/iceperf/iceperf-laurel
 
-build/iceoryx_examples/iceperf/iceperf-hardy
+    build/iceoryx_examples/iceperf/iceperf-hardy
 ```
+
+If you would like to test only the C++ API or the C API you can start iceperf-laurel and 
+iceperf-hardy with the parameter `cpp-api` or `c-api`.
+```sh
+    build/iceoryx_examples/iceperf/iceperf-laurel 100000 cpp-api
+
+    build/iceoryx_examples/iceperf/iceperf-hardy cpp-api
 
 ## Expected output
 
@@ -42,20 +49,10 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 ### iceperf-laurel application
 
     ******   MESSAGE QUEUE    ********
-    waiting for follower
-    Measurement for 1 kB payload ... done
-    Measurement for 2 kB payload ... done
-    Measurement for 4 kB payload ... done
-    Measurement for 8 kB payload ... done
-    Measurement for 16 kB payload ... done
-    Measurement for 32 kB payload ... done
-    Measurement for 64 kB payload ... done
-    Measurement for 128 kB payload ... done
-    Measurement for 256 kB payload ... done
-    Measurement for 512 kB payload ... done
-    Measurement for 1024 kB payload ... done
-    Measurement for 2048 kB payload ... done
-    Measurement for 4096 kB payload ... done
+    Waiting for: subscription, subscriber [ success ]
+    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB, 
+    512 kB, 1024 kB, 2048 kB, 4096 kB, 
+    Waiting for: unsubscribe  [ finished ]
 
     #### Measurement Result ####
     100000 round trips for each payload.
@@ -79,20 +76,10 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
     Finished!
 
     ****** UNIX DOMAIN SOCKET ********
-    waiting for follower
-    Measurement for 1 kB payload ... done
-    Measurement for 2 kB payload ... done
-    Measurement for 4 kB payload ... done
-    Measurement for 8 kB payload ... done
-    Measurement for 16 kB payload ... done
-    Measurement for 32 kB payload ... done
-    Measurement for 64 kB payload ... done
-    Measurement for 128 kB payload ... done
-    Measurement for 256 kB payload ... done
-    Measurement for 512 kB payload ... done
-    Measurement for 1024 kB payload ... done
-    Measurement for 2048 kB payload ... done
-    Measurement for 4096 kB payload ... done
+    Waiting for: subscription, subscriber [ success ]
+    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB, 
+    512 kB, 1024 kB, 2048 kB, 4096 kB, 
+    Waiting for: unsubscribe  [ finished ]
 
     #### Measurement Result ####
     100000 round trips for each payload.
@@ -116,23 +103,37 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
     Finished!
 
     ******      ICEORYX       ********
-    Waiting till subscribed ...
-    Waiting for subscriber ...
-    Measurement for 1 kB payload ... done
-    Measurement for 2 kB payload ... done
-    Measurement for 4 kB payload ... done
-    Measurement for 8 kB payload ... done
-    Measurement for 16 kB payload ... done
-    Measurement for 32 kB payload ... done
-    Measurement for 64 kB payload ... done
-    Measurement for 128 kB payload ... done
-    Measurement for 256 kB payload ... done
-    Measurement for 512 kB payload ... done
-    Measurement for 1024 kB payload ... done
-    Measurement for 2048 kB payload ... done
-    Measurement for 4096 kB payload ... done
-    Waiting for subscriber to unsubscribe ...
+    Waiting for: subscription, subscriber [ success ]
+    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB, 
+    512 kB, 1024 kB, 2048 kB, 4096 kB, 
+    Waiting for: unsubscribe  [ finished ]
+
+    #### Measurement Result ####
+    100000 round trips for each payload.
+
+    | Payload Size [kB] | Average Latency [µs] |
+    |------------------:|---------------------:|
+    |                 1 |                 0.73 |
+    |                 2 |                 0.58 |
+    |                 4 |                 0.61 |
+    |                 8 |                 0.61 |
+    |                16 |                 0.59 |
+    |                32 |                 0.62 |
+    |                64 |                  0.6 |
+    |               128 |                 0.58 |
+    |               256 |                 0.61 |
+    |               512 |                 0.61 |
+    |              1024 |                 0.58 |
+    |              2048 |                 0.61 |
+    |              4096 |                 0.61 |
+
     Finished!
+
+    ******   ICEORYX C API    ********
+    Waiting for: subscription, subscriber [ success ]
+    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB, 
+    512 kB, 1024 kB, 2048 kB, 4096 kB, 
+    Waiting for: unsubscribe  [ finished ]
 
     #### Measurement Result ####
     100000 round trips for each payload.
@@ -164,19 +165,21 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
     registering with the leader, if no leader this will crash with a socket error now
 
     ******      ICEORYX       ********
-    Waiting till subscribed ... 
-    Waiting for subscriber ... 
-    Waiting for subscriber to unsubscribe ... 
-    Finished!
+    Waiting for: subscription, subscriber [ success ]
+    Waiting for: unsubscribe  [ finished ]
+
+    ******   ICEORYX C API    ********
+    Waiting for: subscription, subscriber [ success ]
+    Waiting for: unsubscribe  [ finished ]
 
 ## Code walkthrough
 
 Here we roughly describe the setup for performing the measurements. Things like initialization, sending and receiving of data are technology specific and can be found in the respective files (e.g. uds.cpp for 
-unix domain socket). Our focus here is on the abstraction layer on top which allows us to add new IPC technologies or you to extend and compare with whatever.
+unix domain socket). Our focus here is on the abstraction layer on top which allows us or you to add new IPC technologies to extend and compare them.
 
 ### iceperf-laurel application
 
-Besides includes for the different IPC technologies, the topic_data.hpp file is included that contains the PerTopic struct which is used to transfer some information between the applications. Independent of the real payload size, this struct is used as some kind of header in each transferred sample. 
+Besides includes for the different IPC technologies, the topic_data.hpp file is included which contains the PerTopic struct that is used to transfer some information between the applications. Independent of the real payload size, this struct is used as some kind of header in each transferred sample. 
 
 ```cpp
     struct PerfTopic
@@ -187,7 +190,7 @@ Besides includes for the different IPC technologies, the topic_data.hpp file is 
     };
 ```
 
-With `payloadSize` as the payload size used for the current measurement. In case it is not possible to transfer the `payloadSize` with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided in several sub-packets. This is indicated with `subPackets`. The `run` flag is used to shutdown iceperf-hardy at the end of the benchmark.
+With `payloadSize` as the payload size used for the current measurement. In case it is not possible to transfer the `payloadSize` with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided into several sub-packets. This is indicated with `subPackets`. The `run` flag is used to shutdown iceperf-hardy at the end of the benchmark.
 
 Let's set some constants to prevent magic values. The default number of round trips is set and names for the communication resources that are used.
 ```cpp
@@ -197,7 +200,7 @@ Let's set some constants to prevent magic values. The default number of round tr
     constexpr char SUBSCRIBER[] = "Hardy";
 ```
 
-The `leaderDo()` function executes a measurement for the provided IPC technology and number of round trips. For being able to always perform the same steps and avoiding code duplications, we use a base class with the interface to implement for each technology and the technology independent functionality. 
+The `leaderDo()` function executes a measurement for the provided IPC technology and number of round trips. For being able to always perform the same steps and avoiding code duplications, we use a base class with technology independent functionality and the technology has to implement the technology dependent part.
 
 ```cpp
     void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
@@ -206,11 +209,10 @@ The `leaderDo()` function executes a measurement for the provided IPC technology
 
         std::vector<double> latencyInMicroSeconds;
         const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
+        std::cout << "Measurement for: ";
         for (const auto payloadSizeInKB : payloadSizesInKB)
         {
-            std::cout << "Measurement for " << payloadSizeInKB << " kB payload ... " << std::flush;
-            auto payloadSizeInBytes = payloadSizeInKB * IcePerfBase::ONE_KILOBYTE;
-
+            std::cout << payloadSizeInKB << " kB, " << std::flush;
             ipcTechnology.prePingPongLeader(payloadSizeInBytes);
 
             auto latency = ipcTechnology.pingPongLeader(numRoundtrips);
@@ -219,6 +221,8 @@ The `leaderDo()` function executes a measurement for the provided IPC technology
 
             ipcTechnology.postPingPongLeader();
         }
+        std::cout << std::endl;
+
         ipcTechnology.releaseFollower();
 
         ipcTechnology.shutdown();
@@ -237,7 +241,7 @@ The `leaderDo()` function executes a measurement for the provided IPC technology
 
         std::cout << std::endl;
         std::cout << "Finished!" << std::endl;
-}
+    }
 ```
 
 Initialization is different for each IPC technology. Here we have to create sockets, message queues or iceoryx publisher and subscriber. With `ipcTechnology.initLeader()` we are setting up these resources on the leader side. After the definition of the different payload sizes to use, we execute a single round trip measurement for each individual payload size. The leader has to orchestrate the whole process and has a pre and post step for each ping pong round trip measurement. `ipcTechnology.prePingPongLeader()` sets the payload size for the upcoming measurement. `ipcTechnology.pingPongLeader(numRoundtrips)` then does the ping pong between leader and follower and returns the time it took to do the provided number of round trips. After the measurements were done for all the different payload sizes, `ipcTechnology.releaseFollower()` releases the follower that is not aware of things like how many payload sizes are considered. After cleaning up the communication resources with `ipcTechnology.shutdown()` the results are printed. 
@@ -252,7 +256,7 @@ iceperf-laurel, the leader in this setup, takes the number of round trips to per
         {
             if (!iox::cxx::convert::fromString(argv[1], numRoundtrips))
             {
-                std::cout << "error command line parameter" << std::endl;
+                std::cout << "first parameter must be the number of roundtrips" << std::endl;
                 exit(1);
             }
         }
@@ -261,15 +265,18 @@ iceperf-laurel, the leader in this setup, takes the number of round trips to per
 Now we can create an object for each IPC technology that we want to evaluate and call the `leaderDo()` function. The naming conventions for the different technologies differ, therefore we do some prefixing if necessary
 
 ```cpp
-    #ifndef __APPLE__
-        std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-        MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
-        leaderDo(mq, numRoundtrips);
-    #endif
+        if (benchmark == Benchmarks::ALL)
+        {
+        #ifndef __APPLE__
+            std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+            MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+            leaderDo(mq, numRoundtrips);
+        #endif
 
-        std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-        UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
-        leaderDo(uds, numRoundtrips);
+            std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+            UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+            leaderDo(uds, numRoundtrips);
+        }
 
         std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
         iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon
