@@ -121,6 +121,13 @@ while (( "$#" )); do
         EXAMPLE_FLAG="ON"
         shift 1
         ;;
+    "examples")
+        echo " [i] Build iceoryx with all examples"
+        BINDING_C_FLAG="ON"
+        INTROSPECTION_FLAG="ON"
+        EXAMPLE_FLAG="ON"
+        shift 1
+        ;;
     "out-of-tree")
         echo " [i] Out-of-tree build"
         OUT_OF_TREE_FLAG="ON"
@@ -157,6 +164,7 @@ while (( "$#" )); do
         echo "    clean                 Deletes the build/ directory before"
         echo "    release               Build release configuration"
         echo "    debug                 Build debug configuration"
+        echo "    examples              Build all examples"
         echo "    buildall              Build all extensions and all examples"
         echo "    out-of-tree           Out-of-tree build for CI build"
         echo "    build-test            Builds all tests (doesn't run)"
