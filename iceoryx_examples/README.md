@@ -22,7 +22,7 @@ cd someExample
 
 | example                                                | description |
 |:-------------------------------------------------------|:------------|
-|[icecrystal](./icecrystal/)                             | Demostrates the usage of the iceoryx introspection client. |
+|[icecrystal](./icecrystal/)                             | Demonstrates the usage of the iceoryx introspection client. |
 |[icedelivery](./icedelivery/)                           | You are new to iceoryx then take a look at this example which demonstrates the basics of iceoryx by sending data from one process to another process. |
 |[icedelivery_on_c](./icedelivery_on_c/)                 | Shows the same use case as the ice delivery example but with the iceoryx C API  |
 |[iceperf](./iceperf/)                                   | A benchmark application which measures the latency of an IPC transmission between two applications. |
