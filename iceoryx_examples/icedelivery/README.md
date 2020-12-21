@@ -55,31 +55,40 @@ Sent {five,two} times value: (3, 3, 3)
 ```
 2020-12-20 16:26:58.839 [ Debug ] Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
 2020-12-20 16:26:58.839 [ Info  ] Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
-Got value: (1, 1, 1)
-Got value: (1, 1, 1)
-Got value: (1, 1, 1)
-Got value: (1, 1, 1)
-Got value: (1, 1, 1)
+Not subscribed!
 Got value: (2, 2, 2)
 Got value: (2, 2, 2)
 Got value: (2, 2, 2)
 Got value: (2, 2, 2)
 Got value: (2, 2, 2)
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
 Got value: (3, 3, 3)
 Got value: (3, 3, 3)
 Got value: (3, 3, 3)
 Got value: (3, 3, 3)
 Got value: (3, 3, 3)
+
 ```
 
 ### Subscriber application (untyped)
 ```
 2020-12-20 16:26:58.839 [ Debug ] Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
 2020-12-20 16:26:58.839 [ Info  ] Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
-Got value: (1, 1, 1)
-Got value: (1, 1, 1)
+Not subscribed!
 Got value: (2, 2, 2)
 Got value: (2, 2, 2)
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
+Didn't get a value, but do something anyway.
 Got value: (3, 3, 3)
 Got value: (3, 3, 3)
 ```
@@ -251,10 +260,6 @@ After the creation, the subscriber object subscribes to the offered data
 mySubscriber.subscribe();
 ```
 
-The next step is the check for the `SubscriptionState`
-
-
-
 Again in a while-loop we do the following: First check for the `SubscriptionState`
 ```cpp
 while (!killswitch)
@@ -269,7 +274,7 @@ The `killswitch` will be used to stop the programm execution.
 Once the publisher has sent data, we can receive the data
 ```cpp
 untypedSubscriber.take()
-    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation)
+    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& sample)
     {
         // ...
     })
@@ -304,7 +309,7 @@ std::cout << "Not subscribed!" << std::endl;
 ```
 is printed.
 
-The subscriber runs twice times faster than the publisher, to make sure that all data samples are received.
+The subscriber runs 10x times faster than the publisher, to make sure that all data samples are received.
 
 ### Publisher application (typed)
 
