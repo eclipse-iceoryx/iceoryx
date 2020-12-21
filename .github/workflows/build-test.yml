@@ -23,7 +23,7 @@ jobs:
          # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
          run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 
-       - name : Checkout
+       - name: Checkout
          uses: actions/checkout@v2
 
        - name: Build sources
@@ -48,7 +48,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name : Checkout
+      - name: Checkout
         uses: actions/checkout@v2
 
       - name: Build ncurses from source
