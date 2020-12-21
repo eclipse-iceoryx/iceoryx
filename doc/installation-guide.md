@@ -148,9 +148,9 @@ In Integrationtests are multiple classes within one component (e.g. iceoryx_posh
 The sourcecode of the tests is placed into the folder `test` within the different iceoryx components. You can find there at least a folder `moduletests` and sometimes ``integrationtests`.
 
 when you now want to create a new test you can place the sourcefile directly into the right folder. Cmake will automatically detect the new file when doing a clean build and will add it to a executable. There is no need to add a gtest main function because we already provide it.
-In every are then the executables for every test level created, for example `posh_moduletests`. They are placed into the corresponding build folder (e.g. `iceoryx/build/posh/test/posh_moduletests`).
+For every test level are executables created, for example `posh_moduletests`. They are placed into the corresponding build folder (e.g. `iceoryx/build/posh/test/posh_moduletests`).
 
 If you want to execute only individual testcases then you can use these executables and a gtest filter. Let's assume you want to execute only the `ServiceDescription_test` from the posh_moduletests, then you can do the following:
 ```
-./build/posh/test/posh_moduletests --gtest_filter=ServiceDescription_test*
+./build/posh/test/posh_moduletests --gtest_filter="ServiceDescription_test*"
 ```

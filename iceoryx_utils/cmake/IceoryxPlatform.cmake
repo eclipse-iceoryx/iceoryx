@@ -115,8 +115,8 @@ if(SANITIZE)
     iox_create_lsan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/lsan_runtime.txt)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -O1)
-        set(OPTIMIZE_OPTIONS -g -O1)
+        set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls)
+        set(OPTIMIZE_OPTIONS -g -O0)
         
         # For using LeakSanitizer in standalone mode
         # https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#stand-alone-mode
