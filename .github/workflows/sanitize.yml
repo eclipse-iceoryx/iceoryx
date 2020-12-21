@@ -60,7 +60,7 @@ jobs:
 
       - name: Build
         run: |
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test binding-c out-of-tree introspection strict sanitize clean
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict buildall out-of-tree
 
       - name: Run tests
         run: |
