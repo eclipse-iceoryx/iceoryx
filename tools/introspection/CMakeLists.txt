@@ -14,7 +14,7 @@
 #
 
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_introspection_VERSION 0.16.1)
+file (STRINGS "../../VERSION" iceoryx_introspection_VERSION)
 project(iceoryx_introspection VERSION ${iceoryx_introspection_VERSION})
 
 find_package(iceoryx_posh REQUIRED)
