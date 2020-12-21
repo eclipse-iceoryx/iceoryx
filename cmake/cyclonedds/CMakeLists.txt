@@ -70,10 +70,6 @@ function(fetch_and_install name)
     endforeach()
     string( REPLACE ";" " " ADDITIONAL_CMAKE_FLAGS "${ADDITIONAL_CMAKE_FLAGS}")
 
-    if(APPLE)
-        set(ADDITIONAL_CMAKE_FLAGS ${ADDITIONAL_CMAKE_FLAGS} -DCMAKE_CXX_STANDARD=11)
-    endif()
-
     execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${ADDITIONAL_CMAKE_FLAGS}" "${SOURCE_DIR}"
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${BUILD_DIR} )
@@ -93,4 +89,9 @@ endfunction()
 
 fetch_and_install(idlpp-cxx)
 fetch_and_install(cyclonedds)
-fetch_and_install(cyclonedds-cxx -DBUILD_TESTING=OFF)
+
+if(APPLE)
+    fetch_and_install(cyclonedds-cxx -DBUILD_TESTING=OFF -DCMAKE_CXX_STANDARD=11)    
+else()
+    fetch_and_install(cyclonedds-cxx -DBUILD_TESTING=OFF)    
+endif()
