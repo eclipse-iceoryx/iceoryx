@@ -297,7 +297,7 @@ class Mepoo_IntegrationTest : public Test
         {
             publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
                 new (sample->payload()) Topic;
-                sample->m_payloadSize = topicSize;
+                sample->payloadSize = topicSize;
                 publisherPort->sendChunk(sample);
                 m_roudiEnv->InterOpWait();
             });

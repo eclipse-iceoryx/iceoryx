@@ -45,22 +45,22 @@ TEST_F(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 {
     ChunkHeader sut;
 
-    EXPECT_THAT(sut.m_chunkSize, Eq(0U));
+    EXPECT_THAT(sut.chunkSize, Eq(0U));
 
     // deliberately used a magic number to make the test fail when CHUNK_HEADER_VERSION changes
-    EXPECT_THAT(sut.m_chunkHeaderVersion, Eq(1U));
+    EXPECT_THAT(sut.chunkHeaderVersion, Eq(1U));
 
-    EXPECT_THAT(sut.m_reserved1, Eq(0U));
-    EXPECT_THAT(sut.m_reserved2, Eq(0U));
-    EXPECT_THAT(sut.m_reserved3, Eq(0U));
+    EXPECT_THAT(sut.reserved1, Eq(0U));
+    EXPECT_THAT(sut.reserved2, Eq(0U));
+    EXPECT_THAT(sut.reserved3, Eq(0U));
 
-    EXPECT_THAT(sut.m_originId, Eq(iox::UniquePortId(iox::popo::InvalidId)));
+    EXPECT_THAT(sut.originId, Eq(iox::UniquePortId(iox::popo::InvalidId)));
 
-    EXPECT_THAT(sut.m_sequenceNumber, Eq(0U));
+    EXPECT_THAT(sut.sequenceNumber, Eq(0U));
 
-    EXPECT_THAT(sut.m_payloadSize, Eq(0U));
+    EXPECT_THAT(sut.payloadSize, Eq(0U));
     // a default created ChunkHeader has always an adjacent payload
-    EXPECT_THAT(sut.m_payloadOffset, Eq(sizeof(ChunkHeader)));
+    EXPECT_THAT(sut.payloadOffset, Eq(sizeof(ChunkHeader)));
 }
 
 TEST_F(ChunkHeader_test, ChunkHeaderPayloadSizeIsLargeEnoughForMempoolChunk)
@@ -68,7 +68,7 @@ TEST_F(ChunkHeader_test, ChunkHeaderPayloadSizeIsLargeEnoughForMempoolChunk)
     using ChunkSize_t = std::result_of<decltype (&MemPool::getChunkSize)(MemPool)>::type;
 
     auto maxChunkSize = std::numeric_limits<ChunkSize_t>::max();
-    auto maxPayloadSize = std::numeric_limits<decltype(ChunkHeader::m_payloadSize)>::max();
+    auto maxPayloadSize = std::numeric_limits<decltype(ChunkHeader::payloadSize)>::max();
 
     // the payload will never be larger than the chunk
     // if the payload can hold at least the maximum chunk size there will never be an overflow
@@ -107,25 +107,25 @@ TEST_F(ChunkHeader_test, FromPayloadFunctionCalledWithNullptrReturnsNullptr)
 TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
 {
     ChunkHeader sut;
-    sut.m_chunkSize = 2 * sizeof(ChunkHeader);
+    sut.chunkSize = 2 * sizeof(ChunkHeader);
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader)));
 }
 
 TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne)
 {
     ChunkHeader sut;
-    sut.m_chunkSize = 2 * sizeof(ChunkHeader);
+    sut.chunkSize = 2 * sizeof(ChunkHeader);
     constexpr uint32_t PAYLOAD_SIZE{1U};
-    sut.m_payloadSize = PAYLOAD_SIZE;
+    sut.payloadSize = PAYLOAD_SIZE;
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader) + PAYLOAD_SIZE));
 }
 
 TEST_F(ChunkHeader_test, usedChunkSizeTerminatesWhenPayloadSizeExceedsChunkSize)
 {
     ChunkHeader sut;
-    sut.m_chunkSize = 2 * sizeof(ChunkHeader);
+    sut.chunkSize = 2 * sizeof(ChunkHeader);
     constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
-    sut.m_payloadSize = PAYLOAD_SIZE;
+    sut.payloadSize = PAYLOAD_SIZE;
 
     EXPECT_DEATH(sut.usedSizeOfChunk(), ".*");
 }
