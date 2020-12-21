@@ -1,8 +1,10 @@
-# Summary
+# Chunk Header
+
+## Summary
 
 Chunks are the transport capsules in iceoryx. They store data from a publisher as payload and are sent to one or more subscriber. Furthermore, there is some meta information which is stored alongside the payload, e.g. the size and the origin of the chunk. This data is composed in the `ChunkHeader` and located at the front of the chunk. Custom meta information can be added to extend the data from the `ChunkHeader` and tailor the chunk to specific use cases. While this makes the chunk layout more complex, this complexity would otherwise be distributed at different locations all over the code base, e.g. in the request/response feature. Additionally, the adjustments for the custom header makes arbitrary alignments of the payload trivial to implement.
 
-# Terminology
+## Terminology
 
 | Name              | Description                                              |
 | :---------------- | :------------------------------------------------------- |
@@ -12,9 +14,9 @@ Chunks are the transport capsules in iceoryx. They store data from a publisher a
 | Payload           | the user data                                            |
 | Back-Offset       | offset stored in front of the payload to calculate back to the chunk header |
 
-# Design
+## Design
 
-## Considerations
+### Considerations
 
 - it's not uncommon to record chunks for a later replay -> detect incompatibilities on replay
 - iceoryx runs on multiple platforms -> endianness of recorded chunks might differ
@@ -23,9 +25,9 @@ Chunks are the transport capsules in iceoryx. They store data from a publisher a
 - aligning the `ChunkHeader` to 32 bytes will ensure that all member are on the same cache line and will improve performance
 - in order to reduce complexity, the alignment of the custom header must not exceed the alignment of the `ChunkHeader`
 
-## Solution
+### Solution
 
-### ChunkHeader Definition
+#### ChunkHeader Definition
 ```
 struct alignas(32) ChunkHeader
 {
@@ -49,7 +51,7 @@ struct alignas(32) ChunkHeader
 - **m_payloadSize** is the size of the chunk occupied by the payload
 - **m_payloadOffset** is the offset of the payload relative to the begin of the chunk
 
-### Framing
+#### Framing
 
 For back calculation from the payload pointer to the `ChunkHeader` pointer, the payload offset must be accessible from a defined position relative to the payload. Lets call this `back-offset`. This is solved by storing the offset in the 4 bytes in front of the payload. In case of a simple layout where the `ChunkHeader` is adjacent to the payload, this nicely overlaps with the position of `m_payloadOffset` and no memory is wasted. In more complex cases, the offset has to be stored a second time. If the payload alignment requires some padding from the header extension, this memory is used to store the offset.
 
@@ -105,7 +107,7 @@ Depending on the address of the chunk there is the chance that `ChunkHeader` is 
 |---------------------------------------------------------------------------->|
 ```
 
-### Payload Offset Calculation
+#### Payload Offset Calculation
 
 1. No custom header and payload alignment doesn't exceed the `ChunkHeader` alignment
 
@@ -131,7 +133,7 @@ payloadAddress = align(potentialPayloadAddress, payloadAlignment);
 payloadOffset = payloadAddress - addressof(chunkHeader);
 ```
 
-### Required Chunk Size Calculation
+#### Required Chunk Size Calculation
 
 In order to fit the custom header and the payload into he chunk, a worst case calculation has to be done. We can assume that a chunk is aligned to 32 bytes, which is also the alignment of the `ChunkHeader`.
 
@@ -194,7 +196,7 @@ maxAlignment = max(alignof(payloadOffset), payloadAlignment);
 chunkSize = prePayloadAlignmentOverhang + maxAlignment + payloadSize;
 ```
 
-### Accessing Chunk Header Extension
+#### Accessing Chunk Header Extension
 
 The `ChunkHeader` has a template method to get custom header. There is a risk to use this wrong by accident, but there is currently no better solution for this.
 
@@ -203,13 +205,13 @@ Since the custom header is always adjacent to the `ChunkHeader`, the formula to 
 customHeader = addressOf(chunkHeader) + sizeof(chunkHeader);
 ```
 
-### ChunkHeader Methods
+#### ChunkHeader Methods
 
 - `void* payload()` returns a pointer to the payload
 - `template <typename T> T* customHeader()` returns a pointer to the custom header
 - `static ChunkHeader* fromPayload(const void* const payload)` returns a pointer to the `ChunkHeader` associated to the payload
 
-### Integration Into Publisher/Subscriber API
+#### Integration Into Publisher/Subscriber API
 
 The `Publisher` has additional template parameters for the custom header and payload alignment. Alternatively this could also be done with the `allocate` method, but that increases the risk of using it wrong by accident.
 
@@ -221,12 +223,12 @@ The `ChunkHeaderHook` is not in the shared memory and has the following virtual 
 
 Furthermore, the `Publisher` and `Subscriber` have access to the `ChunkHeader` and can use the `customHeader()` method to gain access to the custom header.
 
-### Pitfalls & Testing
+#### Pitfalls & Testing
 
 - when the payload is adjacent to the `ChunkHeader`, it must be ensured that `m_payloadOffset` overlaps with the `back-offset`, which is `sizeof(m_payloadOffset)` in front of the payload
 - to simplify calculation, it is assumed that the alignment of the custom header doesn't exceed the alignment of the `ChunkHeader`. This has to be enforced with an `assert`
 
-# Open Issues
+## Open Issues
 
 - the design was done with the intention to have a custom header of arbitrary size, if the size is limited to e.g. 32 bytes, some things could be simplified
 - typed publisher/subscriber API proposal

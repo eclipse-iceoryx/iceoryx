@@ -42,7 +42,7 @@ or
 
 If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
 Please have a quick search upfront if a similar issue already exists. An
-[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritise the issues for a specific release.
+[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritize the issues for a specific release.
 This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please
 contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
 
@@ -118,7 +118,7 @@ The folder structure boils down to:
   * source: implementation files
   * test: unit and integration tests
   * CMakeLists.txt: Build the component separately
-* examples_iceoryx: Examples described in the main [Readme.md](./README.md#user-content-examples)
+* examples_iceoryx: Examples described in [iceoryx_examples](./iceoryx_examples/README.md)
 
 All new code should follow the folder structure.
 

@@ -82,3 +82,5 @@ set_target_properties(test_stress_sofi PROPERTIES
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
+
+add_subdirectory(stresstests/benchmark_optional_and_expected)
