@@ -254,8 +254,8 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
         this->m_pusher.push(chunk);
         EXPECT_TRUE(this->m_popper.hasOverflown());
     }
-    
-    // get al the chunks in the queue
+
+    // get all the chunks in the queue
     while (this->m_popper.tryPop().has_value())
     {
     }

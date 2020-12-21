@@ -50,7 +50,7 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
     auto pushRet = getMembers()->m_queue.push(chunkTupleIn);
 
 
-    // drop the chunk if one is returned by on overflow
+    // drop the chunk if one is returned by an overflow
     if (pushRet.has_value())
     {
         auto chunkTupleOut = pushRet.value();
