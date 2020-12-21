@@ -251,8 +251,11 @@ iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"},
 
 After the creation, the subscriber object subscribes to the offered data
 ```cpp
-mySubscriber.subscribe();
+untypedSubscriber.subscribe();
 ```
+
+When using the default n:m communication philosophy, the `SubscriptionState` is immediately `SUBSCRIBED`.
+However, when restricting iceoryx to the 1:n communication philosophy before being in the state `SUBSCRIBED`, the state is change to `SUBSCRIBE_REQUESTED`.
 
 Again in a while-loop we do the following: First check for the `SubscriptionState`
 ```cpp
