@@ -59,7 +59,7 @@ class PeriodicTask
     units::Duration m_interval;
     /// @todo use a refactored posix::Timer object once available
     posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
-    std::thread m_taskExecutor{[this]() { this->run(); }};
+    std::thread m_taskExecutor{&PeriodicTask::run, this};
 };
 
 } // namespace concurrent
