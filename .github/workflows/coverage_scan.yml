@@ -30,7 +30,7 @@ jobs:
         run: |
           export NUM_CORES=`nproc`
           # add flag to include coverage
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh buildall clean strict -j $NUM_CORES -c unit
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh buildall clean strict -c unit
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:

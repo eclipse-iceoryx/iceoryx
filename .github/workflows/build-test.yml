@@ -28,8 +28,8 @@ jobs:
 
        - name: Build sources
          run: |
-            export NUM_CORES=`nproc`
-            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict buildall out-of-tree -j $NUM_CORES
+
+            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict buildall out-of-tree
 
        - name: Run timeless tests
          run: |
@@ -67,8 +67,7 @@ jobs:
 
       - name: Build sources
         run: |
-          export NUM_CORES=`sysctl -n hw.ncpu`
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict build-test binding-c out-of-tree introspection -j $NUM_CORES
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict build-test binding-c out-of-tree introspection
 
       - name: Run tests
         run: |

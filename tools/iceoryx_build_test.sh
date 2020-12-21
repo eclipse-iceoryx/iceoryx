@@ -50,10 +50,6 @@ while (( "$#" )); do
         BUILD_DIR=$(realpath $2)
         shift 2
         ;;
-    -j|--jobs)
-        NUM_JOBS=$2
-        shift 2
-        ;;
     -c|--coverage)
         echo "$2"
         TEST_SCOPE="$2"
@@ -121,7 +117,6 @@ while (( "$#" )); do
         DDS_GATEWAY_FLAG="ON"
         BINDING_C_FLAG="ON"
         TEST_FLAG="ON"
-        STRICT_FLAG="ON"
         INTROSPECTION_FLAG="ON"
         EXAMPLE_FLAG="ON"
         shift 1
@@ -157,7 +152,6 @@ while (( "$#" )); do
         echo "    iceoryx_build_test.sh [--builddir <dir>] [<args>]"
         echo "Options:"
         echo "    -b --builddir         Specify a non-default build directory"
-        echo "    -j --jobs             Specify the number of jobs to run simultaneously"
         echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration'"
         echo "Args:"
         echo "    clean                 Deletes the build/ directory before"
@@ -196,12 +190,16 @@ echo " [i] Building in $BUILD_DIR"
 #==== Step 1 : Build  ===============================================================================
 #====================================================================================================
 
-# run number of jobs equal to number of available cores unless manually specified
-if [ -z $NUM_JOBS ]
-then
+# set number of cores for building
+if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
+    NUM_JOBS=$(nproc)
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    NUM_JOBS=$(sysctl -n hw.ncpu)
+else
     NUM_JOBS=1
 fi
 echo " [i] Building with $NUM_JOBS jobs"
+
 
 # clean build folders
 if [ $CLEAN_BUILD == true ]
