@@ -89,9 +89,4 @@ endfunction()
 
 fetch_and_install(idlpp-cxx)
 fetch_and_install(cyclonedds)
-
-if(APPLE)
-    fetch_and_install(cyclonedds-cxx -DBUILD_TESTING=OFF -DCMAKE_CXX_STANDARD=11)    
-else()
-    fetch_and_install(cyclonedds-cxx -DBUILD_TESTING=OFF)    
-endif()
+fetch_and_install(cyclonedds-cxx -DBUILD_TESTING=OFF)    
