@@ -147,9 +147,7 @@ template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
-    // PRQA S 3803 2 # We intentionally do not return anything here as from a ChunkDistributor
-    // point of view it doesn't matter if the push succeeds or fails
-    ChunkQueuePusher_t(queue).tryPush(chunk);
+    ChunkQueuePusher_t(queue).push(chunk);
 }
 
 template <typename ChunkDistributorDataType>

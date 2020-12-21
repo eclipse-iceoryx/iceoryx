@@ -161,7 +161,7 @@ TEST_F(iox_sub_test, initialStateNoChunksAvailable)
 TEST_F(iox_sub_test, receiveChunkWhenThereIsOne)
 {
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+    m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
     const void* chunk = nullptr;
     EXPECT_EQ(iox_sub_get_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
@@ -177,7 +177,7 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
 
     auto sharedChunk = m_memoryManager.getChunk(100U);
     static_cast<data_t*>(sharedChunk.getPayload())->value = 1234;
-    m_chunkPusher.tryPush(sharedChunk);
+    m_chunkPusher.push(sharedChunk);
 
     const void* chunk = nullptr;
 
@@ -191,18 +191,18 @@ TEST_F(iox_sub_test, receiveChunkWhenToManyChunksAreHold)
     const void* chunk = nullptr;
     for (uint64_t i = 0U; i < MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 1U; ++i)
     {
-        m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+        m_chunkPusher.push(m_memoryManager.getChunk(100U));
         iox_sub_get_chunk(m_sut, &chunk);
     }
 
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+    m_chunkPusher.push(m_memoryManager.getChunk(100U));
     EXPECT_EQ(iox_sub_get_chunk(m_sut, &chunk), ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 }
 
 TEST_F(iox_sub_test, releaseChunkWorks)
 {
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+    m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
     const void* chunk = nullptr;
     iox_sub_get_chunk(m_sut, &chunk);
@@ -217,7 +217,7 @@ TEST_F(iox_sub_test, releaseChunkQueuedChunksWorks)
     this->Subscribe(&m_portPtr);
     for (uint64_t i = 0U; i < MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY; ++i)
     {
-        m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+        m_chunkPusher.push(m_memoryManager.getChunk(100U));
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY));
@@ -233,7 +233,7 @@ TEST_F(iox_sub_test, initialStateHasNewChunksFalse)
 TEST_F(iox_sub_test, receivingChunkLeadsToHasNewChunksTrue)
 {
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+    m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
     EXPECT_TRUE(iox_sub_has_chunks(m_sut));
 }
@@ -248,7 +248,7 @@ TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
     this->Subscribe(&m_portPtr);
     for (uint64_t i = 0U; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY + 1U; ++i)
     {
-        m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+        m_chunkPusher.push(m_memoryManager.getChunk(100U));
     }
 
     EXPECT_TRUE(iox_sub_has_lost_chunks(m_sut));
@@ -283,7 +283,7 @@ TEST_F(iox_sub_test, hasSamplesTriggersWaitSetWithCorrectEventId)
 {
     iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+    m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
     auto triggerVector = m_waitSet->wait();
 
@@ -296,7 +296,7 @@ TEST_F(iox_sub_test, hasSamplesTriggersWaitSetWithCorrectCallback)
     iox_ws_attach_subscriber_event(
         m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES, 0U, iox_sub_test::triggerCallback);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100U));
+    m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
     auto triggerVector = m_waitSet->wait();
 

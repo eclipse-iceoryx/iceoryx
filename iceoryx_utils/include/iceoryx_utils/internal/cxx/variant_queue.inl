@@ -50,57 +50,48 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
 }
 
 template <typename ValueType, uint64_t Capacity>
-inline expected<optional<ValueType>, VariantQueueError>
-VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
+optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
 {
-    expected<optional<ValueType>, VariantQueueError> ret = error<VariantQueueError>(VariantQueueError::InternalError);
+    optional<ValueType> ret = cxx::nullopt_t();
 
     switch (m_type)
     {
     case VariantQueueTypes::FiFo_SingleProducerSingleConsumer:
     {
-        auto hasSuccess =
+        auto hadSpace =
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>()
                 ->push(value);
 
-        if (hasSuccess)
+        if (!hadSpace)
         {
-            ret = success<optional<ValueType>>(nullopt_t());
-        }
-        else
-        {
-            ret = error<VariantQueueError>(VariantQueueError::QueueIsFull);
+            ValueType droppedValue = value;
+            ret = cxx::make_optional<ValueType>(std::move(droppedValue));
         }
         break;
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
         ValueType overriddenValue;
-        auto notskipped =
+        auto hadSpace =
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
                 ->push(value, overriddenValue);
-        if (notskipped)
+
+        if (!hadSpace)
         {
-            ret = success<optional<ValueType>>(nullopt_t());
-        }
-        else
-        {
-            ret = success<optional<ValueType>>(optional<ValueType>(std::move(overriddenValue)));
+            ret = cxx::make_optional<ValueType>(std::move(overriddenValue));
         }
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     {
-        auto hasSuccess =
+        auto hadSpace =
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
                 ->tryPush(value);
-        if (hasSuccess)
+
+        if (!hadSpace)
         {
-            ret = success<optional<ValueType>>(nullopt_t());
-        }
-        else
-        {
-            ret = error<VariantQueueError>(VariantQueueError::QueueIsFull);
+            ValueType droppedValue = value;
+            ret = cxx::make_optional<ValueType>(std::move(droppedValue));
         }
         break;
     }
@@ -111,11 +102,7 @@ VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
                 ->push(value);
         if (overriddenValue)
         {
-            ret = success<optional<ValueType>>(optional<ValueType>(std::move(overriddenValue.value())));
-        }
-        else
-        {
-            ret = success<optional<ValueType>>(nullopt_t());
+            ret = cxx::make_optional<ValueType>(std::move(overriddenValue.value()));
         }
         break;
     }
