@@ -51,6 +51,7 @@ void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
 
         ipcTechnology.postPingPongLeader();
     }
+    std::cout << std::endl;
 
     ipcTechnology.releaseFollower();
 
@@ -74,8 +75,8 @@ void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
 
 int main(int argc, char* argv[])
 {
-    uint64_t numRoundtrips = NUMBER_OF_ROUNDTRIPS;
     Benchmarks benchmark = Benchmarks::ALL;
+    uint64_t numRoundtrips = NUMBER_OF_ROUNDTRIPS;
     if (argc > 1)
     {
         if (!iox::cxx::convert::fromString(argv[1], numRoundtrips))
