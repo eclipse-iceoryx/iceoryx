@@ -38,13 +38,13 @@ endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
 add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 
-set_target_properties(iceperf-hardy PROPERTIES
+set_target_properties(iceperf-laurel iceperf-hardy PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(iceperf-laurel iceperf-hardy
+target_link_libraries(iceperf-hardy
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
