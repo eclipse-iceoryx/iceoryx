@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/base_subscriber.hpp"
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
-#include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-#include <chrono>
 #include <csignal>
 #include <iostream>
 
-bool killswitch = false;
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig [[gnu::unused]])
@@ -33,9 +29,26 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownTrigger.trigger(); // unblock waitsets
 }
 
-void subscriberHandler(iox::popo::WaitSet<>& waitSet)
+int main()
 {
-    // run until interrupted
+    // register sigHandler for SIGINT
+    signal(SIGINT, sigHandler);
+
+    // initialize runtime
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
+
+    // initialized subscribers
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 10U;
+    iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    untypedSubscriber.subscribe();
+
+    // set up waitset
+    iox::popo::WaitSet<> waitSet;
+    waitSet.attachEvent(untypedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitSet.attachEvent(shutdownTrigger);
+
+    // run until interrupted by Ctrl-C
     while (true)
     {
         auto eventVector = waitSet.wait();
@@ -43,14 +56,15 @@ void subscriberHandler(iox::popo::WaitSet<>& waitSet)
         {
             if (event->doesOriginateFrom(&shutdownTrigger))
             {
-                return;
+                return (EXIT_SUCCESS);
             }
             else
             {
-                auto subscriber = event->getOrigin<iox::popo::TypedSubscriber<Position>>();
-                subscriber->take()
-                    .and_then([](iox::popo::Sample<const Position>& position) {
-                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+                auto untypedSubscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
+                untypedSubscriber->take()
+                    .and_then([](iox::popo::Sample<const void>& sample) {
+                        auto object = static_cast<const RadarObject*>(sample.get());
+                        std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
                                   << std::endl;
                     })
                     .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
@@ -58,28 +72,6 @@ void subscriberHandler(iox::popo::WaitSet<>& waitSet)
             }
         }
     }
-}
-
-int main()
-{
-    // register sigHandler for SIGINT
-    signal(SIGINT, sigHandler);
-
-    // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed-modern");
-
-    // initialized subscribers
-    iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"});
-    typedSubscriber.subscribe();
-
-    // set up waitset
-    iox::popo::WaitSet<> waitSet;
-    waitSet.attachEvent(typedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
-    waitSet.attachEvent(shutdownTrigger);
-
-    // delegate handling of received data to another thread
-    std::thread subscriberHandlerThread(subscriberHandler, std::ref(waitSet));
-    subscriberHandlerThread.join();
 
     return (EXIT_SUCCESS);
 }

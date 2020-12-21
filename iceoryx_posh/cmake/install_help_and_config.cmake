@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/FAQ.md
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../doc/website/FAQ.md
 	DESTINATION share/doc/iceoryx
 	COMPONENT dev)
 

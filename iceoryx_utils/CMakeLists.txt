@@ -257,4 +257,5 @@ install(
 
 if(test)
     add_subdirectory(test)
+    add_subdirectory(test/stresstests/benchmark_optional_and_expected)
 endif(test)

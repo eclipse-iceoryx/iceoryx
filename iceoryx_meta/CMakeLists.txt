@@ -78,7 +78,6 @@ if(examples)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/waitset ${CMAKE_BINARY_DIR}/iceoryx_examples/waitset)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
 endif(examples)
 
