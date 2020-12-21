@@ -149,6 +149,8 @@ class ServiceDescription
     Scope getScope() noexcept;
 
     ///@brief Returns true for valid ServiceDescription
+    /// false for ServiceDescription that contains either of InvalidID/InvalidIDString  AnyService/AnyServiceString,
+    /// AnyInstance/AnyInstanceString, AnyEvent/AnyEventString.
     bool isValid() const noexcept;
 
     ///@{
