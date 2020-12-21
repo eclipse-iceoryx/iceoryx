@@ -251,42 +251,24 @@ After the creation, the subscriber object subscribes to the offered data
 mySubscriber.subscribe();
 ```
 
-The next step is the instantiation and setup of the `WaitSet`
-```cpp
-iox::popo::WaitSet<> waitSet;
-waitSet.attachEvent(untypedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
-waitSet.attachEvent(shutdownTrigger);
-```
+The next step is the check for the `SubscriptionState`
 
-Here our subscriber object `untypedSubscriber` got attached to the WaitSet, as well as the `shutdownTrigger`.
-It will be used to stop the programm execution.
 
-Again in a while-loop we do the following: First wait till a `Trigger` has been sent to the `WaitSet` by calling
-```cpp
-auto triggerVector = waitSet.wait();
-```
 
-Then loop over all the trigger that got fired
+Again in a while-loop we do the following: First check for the `SubscriptionState`
 ```cpp
-for (auto& trigger : triggerVector)
+while (!killswitch)
 {
-    // ...
-}
+    if (untypedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
+    {
+
 ```
 
-Inside the loop, the source of the Trigger can be checked with `doesOriginateFrom()`. Let's check if we need to exit
-```cpp
-if (trigger.doesOriginateFrom(&shutdownTrigger))
-{
-    return (EXIT_SUCCESS);
-}
-```
+The `killswitch` will be used to stop the programm execution.
 
-Ok, that wasn't the trigger which got fired. It must have been our `untypedSubscriber`. Call `getOrigin()`
-to get a handle to the `untypedSubscriber` and receive the data
+Once the publisher has sent data, we can receive the data
 ```cpp
-auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
-untypedSubscriber->take()
+untypedSubscriber.take()
     .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation)
     {
         // ...
@@ -313,8 +295,16 @@ std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object-
             << std::endl;
 ```
 
-Please note the `static_cast` before reading out the data. It is necessary, because the untyped subscriber is unaware of
-the type of the transmitted data.
+Please note the `static_cast` before reading out the data. It is necessary, because the untyped subscriber is unaware
+of the type of the transmitted data.
+
+If the `untypedSubscriber` was not yet subscribed
+```cpp
+std::cout << "Not subscribed!" << std::endl;
+```
+is printed.
+
+The subscriber runs twice times faster than the publisher, to make sure that all data samples are received.
 
 ### Publisher application (typed)
 
