@@ -47,7 +47,9 @@ A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is
 3. ``Topic`` name
 
 A triple consisting of such strings is called a ``ServiceDescription``. In Autosar terminology these three
-identifiers are called ``Service``, ``Instance`` and ``Event`` respectively.
+identifiers are called ``Service``, ``Instance`` and ``Event`` respectively. Note that in the API they are still
+named in this way in the ``capro::ServiceDescription`` class and hence ``Group`` corresponds to and Autosar 
+``Service`` and ``Topic`` to an Autosar ``Èvent``.
 
 Two ``ServiceDescription`` are considered matching if all these three strings are element-wise equal, i.e. group,
 instance and topic names are the same for both of them.
@@ -65,7 +67,7 @@ user has to take care that it is interpreted correctly.
 
 Once it has offered its topic, it is able to publish (send) data of the specific type. Note that the default is to
 have multiple publishers for the same topic (n:m communication). A compile-time option to restrict iceoryx to
-1:n communication is available.
+1:n communication is available. Should 1:n communication be used RouDi checks for multiple publishers on the same topics and raises an error is more than one publisher for a topic.
 
 ### Subscriber
 
@@ -84,11 +86,12 @@ indeterminate order between different publishers).
 The easiest way to receive data is to periodically poll whether data is available. This is sufficient for simple use
 cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
 
-The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user defined conditions
-to become true. Usually these conditions correspond to the availability of data at specific subscribers. This way we
+The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user defined ``events``
+to occur. Here an event is associated with a condition and occurs when this condition becomes true.
+Usually these events correspond to the availability of data at specific subscribers. This way we
 can immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
 
-It manages a set of triggers which can be activated to indicate that a corresponding condition became true which wakes
+It manages a set of triggers which can be activated to indicate that a corresponding event occurred which wakes
 up a potentially waiting thread. Upon waking up it can be determined which conditions became true and caused the
 wake-up. In the case that the wake up event was the availability of new data, this data can now be collected at
 the subscriber.
@@ -110,8 +113,8 @@ the data in an C++ idiomatic and type-safe way and should be preferred whenever 
 
 The Untyped API provides [opaque](https://en.wikipedia.org/wiki/Opaque_pointer) (i.e. void) pointers to data, which
 is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a
-type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be
-used sparingly. For further information see the respective header files.
+type compatible to what was actually sent. This is required for interaction with other lower level APIs and integration 
+into third party frameworks such as [ROS](https://www.ros.org/). For further information see the respective header files.
 
 There also is a plain [C API](../../../iceoryx_examples/icedelivery_on_c/README.md), which can be used if C++ is not
 an option.
@@ -253,7 +256,9 @@ such restriction, it just has to be possible to construct the data type at a giv
 
 ### Typed API
 
-We now demonstrate how to send and receive data with the typed API. 
+We now demonstrate how to send and receive data with the typed API. This API is mainly used when iceroryx is used
+stand-alone, i.e. not integrated into a third party framework, and provides a high level of type safety combined
+with [RAII](https://en.cppreference.com/w/cpp/language/raii).
 
 #### Creating a publisher
 
@@ -346,8 +351,9 @@ Now we can use the publisher to send the data in various ways.
 
 #### Creating a subscriber
 
-We now create a corresponding subscriber, usually in another application. While it will work in the same application as
-well, there usually is no need sending it via the middleware in such a case.
+We now create a corresponding subscriber, usually in another application. Note that this will work in the same application as
+well, were it will provide the benefit of zero-copy communication, uniform usage (i.e. same syntax for inter- and 
+intraprocess communication) and lifetime management of the samples.
 
 ```cpp
 iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
@@ -362,45 +368,54 @@ We immediately subscribe here, but this can be postponed to the point where we a
 For simplicity we assume that we periodically check for new data. It is also possible to explicitly wait for data
 using the [Waitset](../../../iceoryx_examples/waitset/README.md). The code to receive the data is the same, the only
 difference is the way we wake up before checking for data.
-```cpp
-while (keepRunning)
-{
-    // wait for new data (either sleep and wake up periodically or by notification from the waitset)
 
-    subscriber->take()
-        .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-            CounterTopic* ptr = sample.get();
-            /* process the received data using the ptr */
+1. Take and process a sample
 
-            /* alternatively use operator-> */
-            uint32_t counter = sample->counter;
-        })
-        .if_empty([] { /* no data received but also no error */ })
-        .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
-}
-
-```
-
-By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>``. Since this
-may fail, we handle a potential error in the ``or_else`` branch. If we wake up periodically, it is also possible that
-no data is received and if we want to handle this we can optionally do so in the ``if_empty`` branch.
-
-The usual case is that we actually receive data, and we process it in the ``and_then``. Notice that in the lambda we
-do not pass a ``CounterTopic`` directly but a reference to a ``iox::popo::Sample<const CounterTopic>&``. We can
-access the underlying ``CounterTopic`` either by getting a pointer to it via ``get`` or by using ``operator->``. In
-any case, we now can process or copy the received data and once the ``sample`` goes out of scope, the underlying
-``CounterTopic`` object is deleted as well (this happens when the temporary object returned by ``take`` is
-destroyed). This means it is only safe to hold references to the data as long as the ``sample`` exists. Should we
-need a longer lifetime, we have to copy or move the data from the ``sample``.
-
-This only allows us to get one sample at a time. Should we want to get all currently available samples we can do so
-by using an additional loop.
-
-```cpp
-while (keepRunning)
-{
-    while (subscriber.hasNewSamples())
+    ```cpp
+    while (keepRunning)
     {
+        // wait for new data (either sleep and wake up periodically or by notification from the waitset)
+
+        auto result = subscriber->take();
+
+        if(!result.has_error()) 
+        {
+            auto& maybeSample = result.value();
+            if (maybeSample.has_value())
+            {
+                auto& sample = maybeSample.value();
+                const CounterTopic* counter = sample.get();
+                //process the data
+
+                //alternatively use operator->
+                uint32_t counter = sample->counter;
+            }
+            else
+            {
+                // we received no data
+            }
+        } else {
+            iox::popo::ChunkReceiveError& error = result.get_error();
+            //handle the error
+        }
+            
+    }
+
+    ```
+
+    By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>``. Since this
+    may fail, we have to handle a potential error. If there is no error, we may still have not recived a sample, indicated by
+    a ``nullopt``. Otherwise we can get the pointer of our data from the sample and process the received data.
+
+    We can shorten this somewhat by using a functional approach.
+
+2. Functional approach
+
+    ```cpp
+    while (keepRunning)
+    {
+        // wait for new data (either sleep and wake up periodically or by notification from the waitset)
+
         subscriber->take()
             .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                 CounterTopic* ptr = sample.get();
@@ -409,14 +424,47 @@ while (keepRunning)
                 /* alternatively use operator-> */
                 uint32_t counter = sample->counter;
             })
+            .if_empty([] { /* no data received but also no error */ })
             .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
     }
-    // wait for new samples (either sleep or use the waitset)
-}
-```
 
-Here we do not check whether we actually have data since we already know there is data available by calling
-``hasNewSamples``.
+    ```
+    By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>`` and 
+    handle a potential error in the ``or_else`` branch. If we wake up periodically, it is also possible that
+    no data is received and if we want to handle this we can optionally do so in the ``if_empty`` branch.
+
+    The usual case is that we actually receive data, and we process it in the ``and_then``. Notice that in the lambda we
+    do not pass a ``CounterTopic`` directly but a reference to a ``iox::popo::Sample<const CounterTopic>&``. We can
+    access the underlying ``CounterTopic`` either by getting a pointer to it via ``get`` or by using ``operator->``. In
+    any case, we now can process or copy the received data and once the ``sample`` goes out of scope, the underlying
+    ``CounterTopic`` object is deleted as well (this happens when the temporary object returned by ``take`` is
+    destroyed). This means it is only safe to hold references to the data as long as the ``sample`` exists. Should we
+    need a longer lifetime, we have to copy or move the data from the ``sample``.
+
+    This only allows us to get one sample at a time. Should we want to get all currently available samples we can do so
+    by using an additional loop.
+
+    ```cpp
+    while (keepRunning)
+    {
+        while (subscriber.hasSamples())
+        {
+            subscriber->take()
+                .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                    CounterTopic* ptr = sample.get();
+                    /* process the received data using the ptr */
+
+                    /* alternatively use operator-> */
+                    uint32_t counter = sample->counter;
+                })
+                .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
+        }
+        // wait for new samples (either sleep or use the waitset)
+    }
+    ```
+
+    Here we do not check whether we actually have data since we already know there is data available by calling
+    ``hasSamples``.
 
 ### Untyped API
 
@@ -556,7 +604,10 @@ includes all memory chunks used for the data transmission which may still be hol
 This covers the main use cases and should enable the user to quickly develop iceoryx applications.
 
 Full examples and instructions on how to build and run them can be found in
-[examples](../../../iceoryx_examples/README.md). The [icedelivery](../../../iceoryx_examples/icedelivery/README.md) example can be a starting point to further explore how iceoryx is used.
+[examples](../../../iceoryx_examples/README.md). The [singleprocess](../../../iceoryx_examples/singleprocess/README.md) 
+example illustrates the basic interaction of publishers and subscribers.
+The [icedelivery](../../../iceoryx_examples/icedelivery/README.md) example can be a starting point to further
+explore how iceoryx is used in an interprocess communication setting with multiple applications.
 
 ## C API
 
