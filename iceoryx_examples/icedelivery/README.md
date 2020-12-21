@@ -229,12 +229,6 @@ Similar to the publisher we need to include the runtime and the subscriber as we
 #include "topic_data.hpp"
 ```
 
-What is different compare to the publisher are the `WaitSet` related includes
-```cpp
-#include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
-```
-
 To make RouDi aware of the subscriber an runtime object is created, once again with a unique identifier string:
 ```cpp
 iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
