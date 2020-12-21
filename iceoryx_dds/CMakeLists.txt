@@ -109,7 +109,7 @@ if(USE_CYCLONE_DDS)
     )
 endif()
 
-target_compile_options(iceoryx_dds PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceoryx_dds PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
 ########## build gateway apps ##########
@@ -122,7 +122,7 @@ target_link_libraries(iox-gw-iceoryx2dds
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
 
-target_compile_options(iox-gw-iceoryx2dds PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iox-gw-iceoryx2dds PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-gw-dds2iceoryx 
     source/dds2iceoryx_app/main.cpp
@@ -132,7 +132,7 @@ target_link_libraries(iox-gw-dds2iceoryx
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
 
-target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
 ########## build test executables ##########

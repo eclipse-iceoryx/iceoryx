@@ -28,7 +28,7 @@ add_executable(iceperf-laurel iceperf_laurel.cpp base.cpp iceoryx.cpp uds.cpp mq
 target_link_libraries(iceperf-laurel
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iceperf-laurel PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceperf-laurel PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-laurel socket)
@@ -44,7 +44,7 @@ set_target_properties(iceperf-laurel iceperf-hardy PROPERTIES
 target_link_libraries(iceperf-hardy
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iceperf-hardy PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceperf-hardy PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-hardy socket)

@@ -154,7 +154,7 @@ target_link_libraries(iceoryx_posh
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
-target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
     target_link_libraries(iceoryx_posh PRIVATE rt )
@@ -196,7 +196,7 @@ target_link_libraries(iceoryx_posh_gateway
     ${ICEORYX_SANITIZER_FLAGS}    
 )
 
-target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
 ########## posh roudi lib ##########
@@ -257,7 +257,7 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
-target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
@@ -300,7 +300,7 @@ if(TOML_CONFIG)
         ${ICEORYX_SANITIZER_FLAGS}
     )
 
-    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
     #
     ######### posh roudi daemon ##########
@@ -328,7 +328,7 @@ if(TOML_CONFIG)
         $<INSTALL_INTERFACE:include/${PREFIX}>
     )
 
-    target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS} ${OPTIMIZE_OPTIONS})
+    target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
             iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
@@ -365,7 +365,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
     )
 
-    target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS} ${OPTIMIZE_OPTIONS})
+    target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS})
 
 endif(ROUDI_ENVIRONMENT OR BUILD_TEST)
 

@@ -36,10 +36,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # todo: '/O2' and '/RTC1' (set by default) options are incompatible, 
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
-    set(OPTIMIZE_OPTIONS -O2)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type)
-    set(OPTIMIZE_OPTIONS -O2)
 endif()
 
 if(BUILD_STRICT)
@@ -116,7 +114,6 @@ if(SANITIZE)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls)
-        set(OPTIMIZE_OPTIONS -g -O0)
         
         # For using LeakSanitizer in standalone mode
         # https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#stand-alone-mode

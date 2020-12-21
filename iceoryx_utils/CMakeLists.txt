@@ -100,7 +100,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
         ${CMAKE_DL_LIBS}
     )
 
-    target_compile_options(iceoryx_utils_testing PRIVATE ${ICEORYX_WARNINGS} ${OPTIMIZE_OPTIONS})
+    target_compile_options(iceoryx_utils_testing PRIVATE ${ICEORYX_WARNINGS})
 
     if(LINUX)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
@@ -203,7 +203,7 @@ set_target_properties(iceoryx_platform PROPERTIES
 
 target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
 
-target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
     target_link_libraries(iceoryx_platform 
@@ -226,7 +226,7 @@ target_link_libraries(iceoryx_utils
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS})
 
-target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils

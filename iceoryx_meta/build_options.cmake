@@ -25,7 +25,7 @@ option(INTROSPECTION                    "Builds the introspection client which r
 option(DDS_GATEWAY                      "Builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 option(BINDING_C                        "Builds the C language bindings" ON)
 option(SANITIZE                         "Build with sanitizers" OFF)
-option(CLANG_TIDY                       "Build with sanitizers" OFF)
+option(CLANG_TIDY                       "Execute Clang-Tidy" OFF)
 option(ROUDI_ENVIRONMENT                "Build RouDi Environment for testing, is enabled when building tests" OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)   #"Create compile_commands.json file"
 

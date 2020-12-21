@@ -18,7 +18,7 @@ project(iceoryx_meta VERSION ${iceoryx_VERSION})
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
-endif()
+endif(NOT CMAKE_BUILD_TYPE)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)

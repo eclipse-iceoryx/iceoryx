@@ -78,7 +78,7 @@ target_link_libraries(iceoryx_introspection
     ncurses
 )
 
-target_compile_options(iceoryx_introspection PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iceoryx_introspection PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
     set(LIB_TINFO tinfo)
@@ -104,7 +104,7 @@ target_link_libraries(iox-introspection-client
     ${PROJECT_NAMESPACE}::iceoryx_introspection
 )
 
-target_compile_options(iox-introspection-client PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${OPTIMIZE_OPTIONS})
+target_compile_options(iox-introspection-client PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
 ########## exporting library ##########
