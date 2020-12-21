@@ -29,7 +29,8 @@ jobs:
           required-ros-distributions: foxy
       - name: Install Iceoryx Dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y cmake libacl1-dev libncurses5-dev pkg-config
+          sudo apt install -y apt-transport-https
+          sudo apt update && sudo apt install -y cmake libacl1-dev libncurses5-dev pkg-config
           mkdir -p src/iceoryx
           cd $GITHUB_WORKSPACE/src/iceoryx
 

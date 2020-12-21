@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI. All rights reserved.
+// Copyright (c) 2020 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,11 +34,15 @@ int main()
     signal(SIGINT, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-with-history");
 
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
+    // When starting the subscriber late it will miss the first samples which the
+    // publisher has send. The history ensures that we at least get the last 10
+    // samples send by the publisher when we subscribe.
+    subscriberOptions.historyRequest = 5U;
     iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     typedSubscriber.subscribe();
 
@@ -47,20 +51,22 @@ int main()
     {
         if (typedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            typedSubscriber.take()
-                .and_then([](iox::popo::Sample<const RadarObject>& object) {
-                    std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
-                              << std::endl;
-                })
-                .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+            bool hasMoreSamples = true;
+            // Since we are checking only every second but the publisher is sending every
+            // 400ms a new sample we will receive here more then one sample.
+            do
+            {
+                typedSubscriber.take()
+                    .and_then([](iox::popo::Sample<const RadarObject>& object) {
+                        std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
+                                  << std::endl;
+                    })
+                    .if_empty([&] { hasMoreSamples = false; });
+            } while (hasMoreSamples);
         }
-        else
-        {
-            std::cout << "Not subscribed!" << std::endl;
-        }
+        std::cout << std::endl;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
     typedSubscriber.unsubscribe();
