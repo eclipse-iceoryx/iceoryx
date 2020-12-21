@@ -45,11 +45,11 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize, const 
     const uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
 
     if (getMembers()->m_lastChunk && getMembers()->m_lastChunk.hasNoOtherOwners()
-        && (getMembers()->m_lastChunk.getChunkHeader()->m_chunkSize >= neededChunkSize))
+        && (getMembers()->m_lastChunk.getChunkHeader()->chunkSize >= neededChunkSize))
     {
         if (getMembers()->m_chunksInUse.insert(getMembers()->m_lastChunk))
         {
-            getMembers()->m_lastChunk.getChunkHeader()->m_payloadSize = payloadSize;
+            getMembers()->m_lastChunk.getChunkHeader()->payloadSize = payloadSize;
             return cxx::success<mepoo::ChunkHeader*>(getMembers()->m_lastChunk.getChunkHeader());
         }
         else
@@ -69,7 +69,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize, const 
             if (getMembers()->m_chunksInUse.insert(chunk))
             {
                 // END of critical section, chunk will be lost if process gets hard terminated in between
-                chunk.getChunkHeader()->m_originId = originId;
+                chunk.getChunkHeader()->originId = originId;
                 return cxx::success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
             }
             else
@@ -150,7 +150,7 @@ inline bool ChunkSender<ChunkSenderDataType>::getChunkReadyForSend(const mepoo::
 {
     if (getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
     {
-        chunk.getChunkHeader()->m_sequenceNumber = getMembers()->m_sequenceNumber++;
+        chunk.getChunkHeader()->sequenceNumber = getMembers()->m_sequenceNumber++;
         return true;
     }
     else
