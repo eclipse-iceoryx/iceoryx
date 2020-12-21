@@ -42,7 +42,7 @@ SANITIZE_FLAG="OFF"
 ROUDI_ENV_FLAG="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
-EXAMPLES="ice_multi_publisher icedelivery iceperf singleprocess waitset" 
+EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
 
 while (( "$#" )); do
   case "$1" in
@@ -229,7 +229,7 @@ echo ">>>>>> Finished building iceoryx package <<<<<<"
 if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     rm -rf $WORKSPACE/build_out_of_tree
     if [ "$BINDING_C_FLAG" == "ON" ]; then
-        EXAMPLES="${EXAMPLES} icedelivery_on_c waitset_on_c"
+        EXAMPLES="${EXAMPLES} icedelivery_on_c waitset_on_c iceperf"
     fi
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo ${EXAMPLES}
