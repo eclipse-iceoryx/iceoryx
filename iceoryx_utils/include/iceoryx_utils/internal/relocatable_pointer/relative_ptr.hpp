@@ -234,13 +234,13 @@ class relative_ptr : public RelativePointer
 
 
     relative_ptr(const RelativePointer& other)
+        : RelativePointer(other)
     {
-        m_offset = computeOffset(other.computeRawPtr());
     }
 
     relative_ptr& operator=(const RelativePointer& other)
     {
-        m_offset = computeOffset(other.computeRawPtr());
+        RelativePointer::operator=(other);
 
         return *this;
     }
@@ -253,34 +253,36 @@ class relative_ptr : public RelativePointer
         return *this;
     }
 
-    T& operator*()
+    template <typename U = T>
+    typename std::enable_if<!std::is_void<U>::value, U&>::type operator*()
     {
-        return *(static_cast<T*>(computeRawPtr()));
+        return *get();
     }
 
     T* operator->()
     {
-        return static_cast<T*>(computeRawPtr());
+        return get();
     }
 
-    const T& operator*() const
+    template <typename U = T>
+    typename std::enable_if<!std::is_void<U>::value, const U&>::type operator*() const
     {
-        return *(static_cast<T*>(computeRawPtr()));
+        return *get();
     }
 
     T* operator->() const
     {
-        return static_cast<T*>(computeRawPtr());
+        return get();
     }
 
     T* get() const
     {
-        return reinterpret_cast<T*>(RelativePointer::get());
+        return static_cast<T*>(computeRawPtr());
     }
 
     operator T*() const
     {
-        return reinterpret_cast<T*>(RelativePointer::get());
+        return get();
     }
 
     bool operator==(T* const ptr) const
@@ -289,60 +291,6 @@ class relative_ptr : public RelativePointer
     }
 
     bool operator!=(T* const ptr) const
-    {
-        return ptr != get();
-    }
-};
-
-template <>
-class relative_ptr<void> : public RelativePointer
-{
-  public:
-    relative_ptr(ptr_t ptr, id_t id)
-        : RelativePointer(ptr, id)
-    {
-    }
-
-    relative_ptr(ptr_t ptr = nullptr)
-        : RelativePointer(ptr)
-    {
-    }
-
-    relative_ptr(const RelativePointer& other)
-    {
-        m_offset = computeOffset(other.computeRawPtr());
-    }
-
-    relative_ptr& operator=(const RelativePointer& other)
-    {
-        m_offset = computeOffset(other.computeRawPtr());
-
-        return *this;
-    }
-
-    relative_ptr& operator=(ptr_t ptr)
-    {
-        m_id = searchId(ptr);
-        m_offset = computeOffset(ptr);
-        return *this;
-    }
-
-    void* get() const
-    {
-        return RelativePointer::get();
-    }
-
-    operator void*() const
-    {
-        return RelativePointer::get();
-    }
-
-    bool operator==(void* const ptr) const
-    {
-        return ptr == get();
-    }
-
-    bool operator!=(void* const ptr) const
     {
         return ptr != get();
     }

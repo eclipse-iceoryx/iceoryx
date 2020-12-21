@@ -1,24 +1,29 @@
 
-# Contents
+# Goals and non-goals
+
+## Contents
+
 - [Goals](#goals)
 - [Non-Goals](#non-goals)
 - [User personas](#user-personas)
 
-# Goals
+## Goals
+
 * High-performance inter-process-communication for various operating systems
 * Service discovery functionality with dynamic connections
 * Data agnostic, there are no restrictions on payload data
 * Compatibility with AUTOSAR Adaptive and ROS2 communication patterns 
 * Providing the building blocks for being able to build gateways to network protocols 
 * Automotive-grade SW quality
-* Modern C++ 
+* Modern C++
 
-# Non-Goals
+## Non-Goals
+
 * Providing a data model and things like IDL or code generators
 * Shrinking it down for being able to run on µControllers (e.g. with < 1MB of memory)
 * Full compliance with the DDS standard
 
-# User personas
+## User personas
 
 **Andrew, the HAD developer**
 Andrew is a software developer at a startup working on autonomous cars. Currently their project is using ROS, because

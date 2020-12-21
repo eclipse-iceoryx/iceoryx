@@ -31,14 +31,11 @@ target_link_libraries(iox-multi-publisher iceoryx_posh::iceoryx_posh)
 add_executable(iox-subscriber ./ice_subscriber.cpp)
 target_link_libraries(iox-subscriber iceoryx_posh::iceoryx_posh)
 
-add_executable(iox-resubscriber ./ice_resubscriber.cpp)
-target_link_libraries(iox-resubscriber iceoryx_posh::iceoryx_posh)
-
 set_target_properties(
-  iox-resubscriber iox-subscriber iox-multi-publisher
+  iox-subscriber iox-multi-publisher
   PROPERTIES CXX_STANDARD_REQUIRED ON
              CXX_STANDARD ${ICEORYX_CXX_STANDARD}
              POSITION_INDEPENDENT_CODE ON)
 
-install(TARGETS iox-multi-publisher iox-subscriber iox-resubscriber
+install(TARGETS iox-multi-publisher iox-subscriber
         RUNTIME DESTINATION bin)

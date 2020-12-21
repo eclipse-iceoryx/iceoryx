@@ -15,16 +15,16 @@
 #ifndef IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
 #define IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
 
-#include "iceoryx_posh/mepoo/memory_info.hpp"
-
 #include <cstdint>
 
 namespace iox
 {
 namespace popo
 {
+/// @brief This struct is used to configure the publisher
 struct PublisherOptions
 {
+    /// @brief The size of the history chunk queue
     uint64_t historyCapacity{0U};
 };
 

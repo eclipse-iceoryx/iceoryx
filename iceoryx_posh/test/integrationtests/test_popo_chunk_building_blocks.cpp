@@ -38,7 +38,7 @@ struct DummySample
     uint64_t m_dummy{42};
 };
 
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
+static constexpr uint32_t NUM_CHUNKS_IN_POOL = 9 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
 static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t CHUNK_META_INFO_SIZE = 256;
 static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
@@ -54,7 +54,7 @@ struct ChunkDistributorConfig
 
 struct ChunkQueueConfig
 {
-    static constexpr uint64_t MAX_QUEUE_CAPACITY = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
+    static constexpr uint64_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL / 3;
 };
 
 using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig, ThreadSafePolicy>;

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const co
             LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
                        << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
                        << ", " << serviceDescription.getEventIDString() << "}";
-            setupChannel(serviceDescription);
+            setupChannel(serviceDescription, popo::PublisherOptions());
         }
     }
 }
@@ -77,9 +77,10 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 // ======================================== Private ======================================== //
 template <typename channel_t, typename gateway_t>
 cxx::expected<channel_t, gw::GatewayError>
-DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service) noexcept
+DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service,
+                                                       const popo::PublisherOptions& publisherOptions) noexcept
 {
-    return this->addChannel(service).and_then([&service](auto channel) {
+    return this->addChannel(service, publisherOptions).and_then([&service](auto channel) {
         auto publisher = channel.getIceoryxTerminal();
         auto reader = channel.getExternalTerminal();
         publisher->offer();

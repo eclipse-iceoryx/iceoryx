@@ -35,11 +35,13 @@ void receiving()
 {
     iox_runtime_init("iox-c-subscriber");
 
-    uint64_t historyRequest = 0U;
+    const uint64_t historyRequest = 0U;
+    const uint64_t queueCapacity = 10U;
     iox_sub_storage_t subscriberStorage;
 
-    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
-    iox_sub_subscribe(subscriber, 10);
+    iox_sub_t subscriber =
+        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+    iox_sub_subscribe(subscriber);
 
     while (!killswitch)
     {
