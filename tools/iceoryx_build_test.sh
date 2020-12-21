@@ -42,7 +42,7 @@ SANITIZE_FLAG="OFF"
 ROUDI_ENV_FLAG="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
-EXAMPLES="benchmark_optional_and_expected ice_multi_publisher icedelivery iceperf" 
+EXAMPLES="ice_multi_publisher icedelivery iceperf singleprocess waitset" 
 
 while (( "$#" )); do
   case "$1" in
@@ -171,7 +171,7 @@ while (( "$#" )); do
         echo "    help                  Prints this help"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
-        echo "for gcov report: iceoryx_build_test.sh clean -c unit -j 4"
+        echo "for gcov report: iceoryx_build_test.sh clean -c unit"
         exit 0
         ;;
     *)
