@@ -28,7 +28,7 @@ jobs:
 
        - name: Build sources
          run: |
-            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict buildall out-of-tree
+            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree
 
        - name: Run timeless tests
          run: |
@@ -67,7 +67,7 @@ jobs:
 
       - name: Build sources
         run: |
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict buildall out-of-tree
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree
 
       - name: Run tests
         run: |

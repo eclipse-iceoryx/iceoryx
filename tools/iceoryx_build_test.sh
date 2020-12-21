@@ -34,19 +34,20 @@ TEST_FLAG="OFF"
 COV_FLAG="OFF"
 TEST_SCOPE="all" #possible values for test scope: 'all', 'unit', 'integration'
 RUN_TEST=false
-INTROSPECTION_FLAG="OFF"
+INTROSPECTION_FLAG="ON"
 DDS_GATEWAY_FLAG="OFF"
-BINDING_C_FLAG="OFF"
+BINDING_C_FLAG="ON"
 ONE_TO_MANY_ONLY_FLAG="OFF"
 SANITIZE_FLAG="OFF"
 ROUDI_ENV_FLAG="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
+BUILD_ALL_FLAG="OFF"
 EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
 
 while (( "$#" )); do
   case "$1" in
-    -b|--builddir)
+    -b|--build-dir)
         BUILD_DIR=$(realpath $2)
         shift 2
         ;;
@@ -55,7 +56,6 @@ while (( "$#" )); do
         TEST_SCOPE="$2"
         BUILD_TYPE="Debug"
         RUN_TEST=true
-        TEST_FLAG="ON"
         COV_FLAG="ON"
         OUT_OF_TREE_FLAG="OFF"
 
@@ -70,15 +70,15 @@ while (( "$#" )); do
         CLEAN_BUILD=true
         shift 1
         ;;
-    "release")
-        BUILD_TYPE="Release"
+    "relwithdebinfo")
+        BUILD_TYPE="RelWithDebInfo"
         shift 1
         ;;
     "debug")
         BUILD_TYPE="Debug"
         shift 1
         ;;
-    "strict")
+    "build-strict")
         STRICT_FLAG="ON"
         shift 1
         ;;
@@ -102,7 +102,7 @@ while (( "$#" )); do
         TEST_FLAG="ON"
         shift 1
         ;;
-    "roudi_env")
+    "roudi-env")
         echo " [i] Building RouDi Environment"
         ROUDI_ENV_FLAG="ON"
         shift 1
@@ -112,19 +112,13 @@ while (( "$#" )); do
         INTROSPECTION_FLAG="ON"
         shift 1
         ;;
-    "buildall")
+    "build-all")
         echo " [i] Build complete iceoryx with all extensions and all examples"
-        DDS_GATEWAY_FLAG="ON"
-        BINDING_C_FLAG="ON"
-        TEST_FLAG="ON"
-        INTROSPECTION_FLAG="ON"
-        EXAMPLE_FLAG="ON"
+        BUILD_ALL_FLAG="ON"
         shift 1
         ;;
     "examples")
         echo " [i] Build iceoryx with all examples"
-        BINDING_C_FLAG="ON"
-        INTROSPECTION_FLAG="ON"
         EXAMPLE_FLAG="ON"
         shift 1
         ;;
@@ -133,7 +127,7 @@ while (( "$#" )); do
         OUT_OF_TREE_FLAG="ON"
         shift 1
         ;;
-    "one-to-many")
+    "one-to-many-only")
         echo " [i] Using 1:n communication only"
         ONE_TO_MANY_ONLY_FLAG="ON"
         shift 1
@@ -141,7 +135,6 @@ while (( "$#" )); do
     "sanitize")
         echo " [i] Build with sanitizers"
         BUILD_TYPE="Debug"
-        TEST_FLAG="ON"
         SANITIZE_FLAG="ON"
         shift 1
     ;;
@@ -156,29 +149,29 @@ while (( "$#" )); do
         echo "By default, iceoryx, the dds gateway and the examples are built."
         echo ""
         echo "Usage:"
-        echo "    iceoryx_build_test.sh [--builddir <dir>] [<args>]"
+        echo "    iceoryx_build_test.sh [--build-dir <dir>] [<args>]"
         echo "Options:"
-        echo "    -b --builddir         Specify a non-default build directory"
+        echo "    -b --build-dir         Specify a non-default build directory"
         echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration'"
         echo "Args:"
         echo "    clean                 Deletes the build/ directory before"
-        echo "    release               Build release configuration"
+        echo "    relwithdebinfo        Build with -O2 -DNDEBUG"
         echo "    debug                 Build debug configuration"
         echo "    examples              Build all examples"
         echo "    buildall              Build all extensions and all examples"
         echo "    out-of-tree           Out-of-tree build for CI build"
+        echo "    build-strict          Build is performed with '-Werror'"
         echo "    build-test            Builds all tests (doesn't run)"
-        echo "    strict                Build is performed with '-Werror'"
-        echo "    qacpp                 JSON is generated for QACPP"
         echo "    test                  Builds and runs all tests in all iceoryx components"
         echo "    dds-gateway           Builds the iceoryx dds gateway"
         echo "    binding-c             Builds the iceoryx C-Binding"
-        echo "    one-to-many           Restricts to 1:n communication only"
+        echo "    one-to-many-only      Restricts to 1:n communication only"
         echo "    clang                 Build with clang compiler (should be installed already)"
         echo "    sanitize              Build with sanitizers"
+        echo "    roudi-env             Build the roudi environment"
         echo "    help                  Prints this help"
         echo ""
-        echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
+        echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test"
         echo "for gcov report: iceoryx_build_test.sh clean -c unit"
         exit 0
         ;;
@@ -225,7 +218,7 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DINTROSPECTION=$INTROSPECTION_FLAG -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DINTROSPECTION=$INTROSPECTION_FLAG -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 

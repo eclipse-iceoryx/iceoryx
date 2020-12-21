@@ -73,7 +73,7 @@ ENV PATH="/root/cmake-3.16.3-Linux-x86_64/bin:${PATH}"
 ADD . /iceoryx
 WORKDIR /iceoryx
 
-RUN ./tools/iceoryx_build_test.sh release with-dds-gateway
+RUN ./tools/iceoryx_build_test.sh build-all
 
 # ======================================================================================================================== #
 
