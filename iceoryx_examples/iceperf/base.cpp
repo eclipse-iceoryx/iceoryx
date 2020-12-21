@@ -23,8 +23,6 @@ void IcePerfBase::postPingPongLeader() noexcept
 {
     // Wait for the last response
     receivePerfTopic();
-
-    std::cout << "done" << std::endl;
 }
 
 void IcePerfBase::releaseFollower() noexcept

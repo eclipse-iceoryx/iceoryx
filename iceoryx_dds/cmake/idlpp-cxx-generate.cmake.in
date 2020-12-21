@@ -18,3 +18,10 @@ target_link_libraries(iceoryx_dds_messages
     CycloneDDS-CXX::ddscxx
     mempool_messages
 )
+
+if(APPLE)
+    target_include_directories(iceoryx_dds_messages 
+      PUBLIC 
+        /usr/local/include/  
+    )
+endif(APPLE)
