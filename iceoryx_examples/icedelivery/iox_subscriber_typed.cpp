@@ -40,7 +40,7 @@ int main()
     // initialized subscribers
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
+    iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     typedSubscriber.subscribe();
 
     // set up waitset
@@ -60,10 +60,10 @@ int main()
             }
             else
             {
-                auto subscriber = event->getOrigin<iox::popo::TypedSubscriber<Position>>();
+                auto subscriber = event->getOrigin<iox::popo::TypedSubscriber<RadarObject>>();
                 subscriber->take()
-                    .and_then([](iox::popo::Sample<const Position>& position) {
-                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+                    .and_then([](iox::popo::Sample<const RadarObject>& object) {
+                        std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
                                   << std::endl;
                     })
                     .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })

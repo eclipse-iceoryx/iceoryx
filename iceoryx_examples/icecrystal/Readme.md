@@ -2,7 +2,7 @@
 
 ## Introduction
 
-> This Readme.md is slightly outdated and not all functionality of the introspection is available with v1.0 
+> This Readme.md is slightly outdated and not all functionality of the introspection is available with v1.0
 
 This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can
 look into the machine room of RouDi. The introspection shows live information about the memory usage and all
@@ -22,7 +22,7 @@ build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 
 build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 
-build/iceoryx_introspection/iceoryx_introspection_client --all
+build/iox-introspection-client --all
 ```
 
 <!-- ## Expected output -->

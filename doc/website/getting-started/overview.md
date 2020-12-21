@@ -48,7 +48,7 @@ A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is
 
 A triple consisting of such strings is called a ``ServiceDescription``. In Autosar terminology these three
 identifiers are called ``Service``, ``Instance`` and ``Event`` respectively. Note that in the API they are still
-named in this way in the ``capro::ServiceDescription`` class and hence ``Group`` corresponds to and Autosar 
+named in this way in the ``capro::ServiceDescription`` class and hence ``Group`` corresponds to and Autosar
 ``Service`` and ``Topic`` to an Autosar ``Èvent``.
 
 Two ``ServiceDescription`` are considered matching if all these three strings are element-wise equal, i.e. group,

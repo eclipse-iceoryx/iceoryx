@@ -101,12 +101,12 @@ First off, let's include the publisher and the runtime:
 
 You might be wondering what the publisher application is sending? It's this struct.
 ```cpp
-struct Position
+struct RadarObject
 {
-    Position() noexcept
+    RadarObject() noexcept
     {
     }
-    Position(double x, double y, double z) noexcept
+    RadarObject(double x, double y, double z) noexcept
         : x(x)
         , y(y)
         , z(z)
@@ -132,26 +132,26 @@ iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
 Now that RouDi knows our publisher application is existing, let's create a publisher instance and offer our charming struct
 to everyone:
 ```cpp
-iox::popo::UntypedPublisher untypedPublisher({"Odometry", "Position", "Vehicle"});
+iox::popo::UntypedPublisher untypedPublisher({"Radar", "FrontLeft", "Object"});
 untypedPublisher.offer();
 ```
 
 The strings inside the first parameter of the constructor of `iox::popo::Publisher` are of the type
 `capro::ServiceDescription`. `capro` stands for **ca**nionical **pro**tocol and is used to abstract different
-[SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture) protocols. `Odometry` is the service name, `Position`
-an instance of the service `Odometry` and the third string the specific event `Vehicle` of the instance.
+[SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture) protocols. `Radar` is the service name, `FrontLeft`
+an instance of the service `Radar` and the third string the specific event `Object` of the instance.
 In iceoryx a publisher and a subscriber only match if all the three IDs match.
 
 Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk
-which fits our Position struct
+which fits our RadarObject struct
 ```cpp
-auto result = untypedPublisher.loan(sizeof(Position));
+auto result = untypedPublisher.loan(sizeof(RadarObject));
 ```
 
 Two different ways of handling the returned `cxx::expected` are possible. Either you save the result in a variable and
 do the error check with an if-condition (#1):
 ```cpp
-auto result = untypedPublisher.loan(sizeof(Position));
+auto result = untypedPublisher.loan(sizeof(RadarObject));
 if (!result.has_error())
 {
     // ...
@@ -165,7 +165,7 @@ else
 Or try the functional way (#2) by concatenating `and_then` and `or_else`. Read it like a story in a book: "Loan memory
 and then if it succeeds, fill it with some data or else if it fails, handle the error"
 ```cpp
-untypedPublisher.loan(sizeof(Position))
+untypedPublisher.loan(sizeof(RadarObject))
     .and_then([&](auto& sample)
     {
         // ...
@@ -191,14 +191,14 @@ handling is done automatically and memory is freed when going out of scope on su
 is, if you want to take the ownership of the pointer, `Sample::release()` does not return the pointer.
 
 Whichever way you choose, the untyped API will be bare-metal! A `void*` is contained inside the `iox::popo::Sample`.
-Hence, the pointer needs to be casted to `Position`
+Hence, the pointer needs to be casted to `RadarObject*`
 ```cpp
-auto position = static_cast<Position*>(sample.get());
+auto object = static_cast<RadarObject*>(sample.get());
 ```
 
-Then we can write a new Position value with an incremented counter in the shared memory
+Then we can write a new RadarObject value with an incremented counter in the shared memory
 ```cpp
-*position = Position(ct, ct, ct);
+*object = RadarObject(ct, ct, ct);
 ```
 
 Finanlly, in both ways, the value is made available to other subscribers with
@@ -243,7 +243,7 @@ In the next step a subscriber object is created, matching exactly the `capro::Se
 offered. Additionally, the previously created subscriber options are passed to the constructor. If no subscriber options
 are created, a default value will be used which sets the queueCapacity to the maximum value:
 ```cpp
-iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
+iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 ```
 
 After the creation, the subscriber object subscribes to the offered data
@@ -308,8 +308,8 @@ need to take care about all cases, but it is advised to do so.
 
 In the `and_then` case the content of the sample is printed to the command line:
 ```cpp
-auto position = static_cast<const Position*>(sample->get());
-std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+auto object = static_cast<const RadarObject*>(sample->get());
+std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
             << std::endl;
 ```
 
@@ -329,24 +329,24 @@ Starting again with the includes, there is now a different one:
 When it comes to the runtime, things are the same as in the untyped publisher. However, a typed publisher object is
 created
 ```cpp
-iox::popo::TypedPublisher<Position> typedPublisher({"Odometry", "Position", "Vehicle"});
+iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"});
 ```
 
 A similar while-loop is used to send the data to the subscriber. In contrast to the untyped publisher the typed one
 offers two additional possibilities
 ```cpp
 // #3
-auto position = Position(ct, ct, ct);
-typedPublisher.publishCopyOf(position);
+auto object = RadarObject(ct, ct, ct);
+typedPublisher.publishCopyOf(object);
 ```
 
 \#3 should only be used for small data types, as otherwise copies can lead to a larger runtime.
 
 ```cpp
 // #4
-typedPublisher.publishResultOf(getVehiclePosition, ct);
+typedPublisher.publishResultOf(getRadarObject, ct);
 // OR
-typedPublisher.publishResultOf([&ct](Position* allocation) { new (allocation) Position(ct, ct, ct); });
+typedPublisher.publishResultOf([&ct](RadarObject* object) { new (object) RadarObject(ct, ct, ct); });
 ```
 
 If you have a callable e.g. a function should be always called, #4 could be a good solution for you.
@@ -364,14 +364,14 @@ As with the typed publisher application there is an different include compared t
 
 An instance of `TypedSubscriber` is created:
 ```cpp
-iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"}, subscriberOptions);
+iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 ```
 
 Everything else is nearly the same. However, there is one crucial difference which makes the `TypedSubscriber` typed.
 
 Compare this line from the `UntypedSubscriber`
 ```cpp
-.and_then([](iox::popo::Sample<const Position>& position)
+.and_then([](iox::popo::Sample<const RadarObject>& object)
 {
     // ...
 })
@@ -386,4 +386,4 @@ with
 ```
 
 The difference is the type that is contained in `iox::popo::Sample`. In case of the `TypedSubscriber` it is a
-`const Position` instead of `const void`.
+`const RadarObject` instead of `const void`.
