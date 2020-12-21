@@ -40,6 +40,9 @@ int main()
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
+    // The publisher is sending faster then we receive since we are waiting
+    // for one second in every loop cycle. Therefore we require a little bit of
+    // space for our samples in the history.
     subscriberOptions.historyRequest = 5U;
     iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     typedSubscriber.subscribe();
@@ -50,6 +53,8 @@ int main()
         if (typedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
             bool hasMoreSamples = true;
+            // Since we are checking only every second but the publisher is sending every
+            // 400ms a new sample we will receive here more then one sample.
             do
             {
                 typedSubscriber.take()

@@ -34,7 +34,7 @@ void sending()
 {
     iox_runtime_init("iox-c-publisher");
 
-    const uint64_t historyRequest = 0U;
+    const uint64_t historyRequest = 10U;
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
 
@@ -57,7 +57,7 @@ void sending()
 
             ++ct;
 
-            sleep_for(1000);
+            sleep_for(400);
         }
         else
         {

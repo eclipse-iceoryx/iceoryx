@@ -41,8 +41,8 @@ Let's take a look at the `receiving` function which comes with the
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c
-    const uint64_t historyRequest = 0U;
-    const uint64_t queueCapacity = 10U;
+    const uint64_t historyRequest = 10U;
+    const uint64_t queueCapacity = 5U;
     iox_sub_storage_t subscriberStorage;
     iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
     ```
@@ -110,7 +110,7 @@ Let's take a look at the `sending` function which comes with the
  2. We create a publisher with the service
     {"Radar", "FrontLeft", "Counter"}
     ```c
-    const uint64_t historyRequest = 0U;
+    const uint64_t historyRequest = 10U;
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
     ```
@@ -140,7 +140,7 @@ Let's take a look at the `sending` function which comes with the
 
             ++ct;
 
-            sleep_for(1000);
+            sleep_for(400);
         }
         else
         {

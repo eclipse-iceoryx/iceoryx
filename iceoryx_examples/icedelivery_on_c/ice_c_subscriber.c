@@ -35,8 +35,10 @@ void receiving()
 {
     iox_runtime_init("iox-c-subscriber");
 
-    const uint64_t historyRequest = 0U;
-    const uint64_t queueCapacity = 10U;
+    // The publisher sends a new sample every 400ms but we check only every second for new
+    // samples. Therefore we need some space for the samples in the history.
+    const uint64_t historyRequest = 10U;
+    const uint64_t queueCapacity = 5U;
     iox_sub_storage_t subscriberStorage;
 
     iox_sub_t subscriber =
@@ -48,12 +50,15 @@ void receiving()
         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {
             const void* chunk = NULL;
+            // we will receive here more then one sample since the publisher is sending a
+            // new sample every 400ms and we check for new samples only every second
             while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
             {
                 const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
                 printf("Receiving: %u\n", sample->counter);
                 iox_sub_release_chunk(subscriber, chunk);
             }
+            printf("\n");
         }
         else
         {
