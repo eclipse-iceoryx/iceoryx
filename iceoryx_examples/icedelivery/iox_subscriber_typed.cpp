@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,52 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-#include <chrono>
 #include <csignal>
 #include <iostream>
 
-bool killswitch = false;
 iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
-    killswitch = true;
     shutdownTrigger.trigger(); // unblock waitsets
-}
-
-void subscriberHandler(iox::popo::WaitSet<>& waitSet)
-{
-    // run until interrupted
-    while (!killswitch)
-    {
-        auto eventVector = waitSet.wait();
-        for (auto& event : eventVector)
-        {
-            if (event->doesOriginateFrom(&shutdownTrigger))
-            {
-                return;
-            }
-            else
-            {
-                auto untypedSubscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
-                untypedSubscriber->take()
-                    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
-                        auto position = reinterpret_cast<const Position*>(allocation->get());
-                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
-                                  << std::endl;
-                    })
-                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
-            }
-        }
-    }
 }
 
 int main()
@@ -66,20 +35,42 @@ int main()
     signal(SIGINT, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped-modern");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed");
 
     // initialized subscribers
-    iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"});
-    untypedSubscriber.subscribe();
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 10U;
+    iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    typedSubscriber.subscribe();
 
     // set up waitset
-    iox::popo::WaitSet<> waitSet;
-    waitSet.attachEvent(untypedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    iox::popo::WaitSet<> waitSet{};
+    waitSet.attachEvent(typedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
     waitSet.attachEvent(shutdownTrigger);
 
-    // delegate handling of received data to another thread
-    std::thread untypedSubscriberThread(subscriberHandler, std::ref(waitSet));
-    untypedSubscriberThread.join();
+    // run until interrupted by Ctrl-C
+    while (true)
+    {
+        auto eventVector = waitSet.wait();
+        for (auto& event : eventVector)
+        {
+            if (event->doesOriginateFrom(&shutdownTrigger))
+            {
+                return (EXIT_SUCCESS);
+            }
+            else
+            {
+                auto subscriber = event->getOrigin<iox::popo::TypedSubscriber<RadarObject>>();
+                subscriber->take()
+                    .and_then([](iox::popo::Sample<const RadarObject>& object) {
+                        std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
+                                  << std::endl;
+                    })
+                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+            }
+        }
+    }
 
     return (EXIT_SUCCESS);
 }

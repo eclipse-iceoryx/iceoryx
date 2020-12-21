@@ -36,7 +36,7 @@ STL types but we have to make exceptions here. For instance, we do not
 throw exceptions, try to avoid undefined behavior and we do not use
 dynamic memory. In these cases we adjusted the API to our use case.
 
-Most of the headers are providing some minimalistic example on how the
+Most of the headers are providing some example code on how the
 class should be used.
 
 | class                   | internal | maybe obsolete | description |
@@ -51,7 +51,7 @@ class should be used.
 |`list`               |   |   | Heap and exception free, relocatable implementation of `std::list` |
 |`NewType<T, Policies>`|   |   | C++11 implementation of [Haskells NewType-pattern](https://wiki.haskell.org/Newtype). |
 |`optional`           |   |   | C++11 implementation of the C++17 feature `std::optional` |
-|`pair`               | i | X | Simplistic reimplementation of an `std::pair` It maybe becomes obsolete. |
+|`pair`               | i | X | Simplistic re-implementation of an `std::pair` It maybe becomes obsolete. |
 |`poor_mans_heap`     |   |   | Acquires memory on the stack for placement new instantiations. All classes must inherit from a base class which has to be known at compile time but the class itself does not have to be known - only the size. |
 |`ReferenceCounter`   | i |   | Basic building block for classes which are needing some kind of reference counting like a `std::shared_ptr` |
 |`serialization`      |   | X | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format). |

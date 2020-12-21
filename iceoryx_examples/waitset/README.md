@@ -6,70 +6,69 @@ WaitSet attaches multiple subscribers, user trigger or other _Triggerables_ to i
 one or many of the attached entities signal an event. If that happens one receives
 a list of _EventInfos_ which is corresponding to all occurred events.
 
-WaitSet events can be state based, this means that the WaitSet will notify you 
-till you reset the state. The `HAS_SAMPLES` event of the subscriber for instance 
+WaitSet events can be state based, this means that the WaitSet will notify you
+till you reset the state. The `HAS_SAMPLES` event of the subscriber for instance
 will notify you as long as there are samples. But it is also possible that one
 attaches one shot events. These are events which will trigger the WaitSet only once.
 
 ## Threadsafety
-The WaitSet is **not** threadsafe! 
-- It is **not** allowed to attach or detach _Triggerable_
-   classes with `attachEvent` or `detachEvent` when another thread is currently 
+The WaitSet is **not** threadsafe!
+- It is **not** allowed to attach or detach _Triggerable
+   classes with `attachEvent` or `detachEvent` when another thread is currently
    waiting for events with `wait`.
 
-The _TriggerHandle_ on the other hand is threadsafe! Therefore you are allowed to 
-attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may 
+The _TriggerHandle_ on the other hand is threadsafe! Therefore you are allowed to
+attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
 trigger the _TriggerHandle_.
 
 ## Glossary
 
- - **EventCallback** a callback attached to an _EventInfo_. It must have the 
+ - **EventCallback** a callback attached to an _EventInfo_. It must have the
      following signature `void ( EventOrigin )`. Any free function, static
      class method and non capturing lambda is allowed. You have to ensure the lifetime of that callback.
      This can become important when you would like to use lambdas.
- - **EventId** an id which is tagged to an event. It does not need to be unique 
-     or follow any restrictions. The user can choose any arbitrary `uint64_t`. Assigning 
-     the same _EventId_ to multiple _Events_ can be useful when you would like to 
+ - **EventId** an id which is tagged to an event. It does not need to be unique
+     or follow any restrictions. The user can choose any arbitrary `uint64_t`. Assigning
+     the same _EventId_ to multiple _Events_ can be useful when you would like to
      group _Events_.
- - **EventInfo** a class which corresponds with _Triggers_ and is used to inform 
-     the user which _Event_ occurred. You can use the _EventInfo_ to acquire 
+ - **EventInfo** a class which corresponds with _Triggers_ and is used to inform
+     the user which _Event_ occurred. You can use the _EventInfo_ to acquire
      the _EventId_, call the _EventCallback_ or acquire the _EventOrigin_.
  - **EventOrigin** the pointer to the class where the _Event_ originated from, short
      pointer to the _Triggerable_.
- - **Events** a _Triggerable_ will signal an event via a _TriggerHandle_ to a _Notifyable_. 
-     For instance one can attach the subscriber event `HAS_SAMPLES` to _WaitSet_. This will cause the 
+ - **Events** a _Triggerable_ will signal an event via a _TriggerHandle_ to a _Notifyable_.
+     For instance one can attach the subscriber event `HAS_SAMPLES` to _WaitSet_. This will cause the
      subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a sample was received.
- - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_ 
+ - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
- - **Trigger** a class which is used by the _Notifyable_ to acquire the information which events were 
+ - **Trigger** a class which is used by the _Notifyable_ to acquire the information which events were
      signalled. It corresponds to a _TriggerHandle_. If the _Notifyable_ goes out of scope the corresponding
      _TriggerHandle_ will be invalidated and if the _Triggerable_ goes out of scope the corresponding
      _Trigger_ will be invalidated.
  - **Triggerable** a class which has attached a _TriggerHandle_ to itself to signal
      certain _Events_ to a _Notifyable_.
- - **TriggerHandle** a threadsafe class which can be used to trigger a _Notifyable_. 
+ - **TriggerHandle** a threadsafe class which can be used to trigger a _Notifyable_.
      If a _TriggerHandle_ goes out of scope it will detach itself from the _Notifyable_. A _TriggerHandle_ is
      logical equal to another _Trigger_ if they:
-     - are attached to the same _Notifyable_ (or in other words they are using the 
+     - are attached to the same _Notifyable_ (or in other words they are using the
        same `ConditionVariable`)
      - they have the same _EventOrigin_
-     - they have the same callback to verify that they were triggered 
+     - they have the same callback to verify that they were triggered
        (`hasEventCallback`)
      - they have the same _EventId_
  - **WaitSet** a _Notifyable_ which manages a set of _Triggers_ which are corresponding to _Events_.
-     A user may attach or detach events. The _Waitset_ listens 
+     A user may attach or detach events. The _Waitset_ listens
      to the whole set of _Triggers_ and if one or more _Triggers_ are triggered by an event it will notify
      the user. If a _WaitSet_ goes out of scope all attached _Triggers_ will be
      invalidated.
 
 ## Quick Overview
-To a **Notifyable** like the **WaitSet** **Events** can be attached or detached. 
-The **WaitSet** will listen on **Triggers** for a signal that an **Event** has occurred and it hands out 
-**TriggerHandles** to **Triggerable** objects. The **TriggerHandle** is used to inform the **WaitSet** 
+To a **Notifyable** like the **WaitSet** **Events** can be attached or detached.
+The **WaitSet** will listen on **Triggers** for a signal that an **Event** has occurred and it hands out
+**TriggerHandles** to **Triggerable** objects. The **TriggerHandle** is used to inform the **WaitSet**
 about the occurrence of an **Event**. When returning from `WaitSet::wait()` the user is provided with a vector of **EventInfos**
 associated with **Events** which had occurred. The **EventOrigin**, **EventId** and **EventCallback**
 are stored inside of the **EventInfo** and can be acquired by the user.
-
 
 ## Reference
 
@@ -88,17 +87,17 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 This example consists of 5 use cases.
  
  1. `ice_waitset_gateway.cpp`: We build a gateway to forward data
-    to another network. A list of subscribers is handled in an uniform way 
-    by defining a callback and which is executed for every subscriber who 
+    to another network. A list of subscribers is handled in an uniform way
+    by defining a callback and which is executed for every subscriber who
     has received data.
 
  2. `ice_waitset_grouping`: We would like to group multiple subscribers into 2 distinct
     groups and handle them according to their group membership.
 
- 3. `ice_waitset_individual`: A list of subscribers where every subscriber is 
+ 3. `ice_waitset_individual`: A list of subscribers where every subscriber is
     handled differently.
 
- 4. `ice_waitset_sync`: We use the WaitSet to trigger a cyclic call which should 
+ 4. `ice_waitset_sync`: We use the WaitSet to trigger a cyclic call which should
     execute an algorithm every 100ms.
 
  5. `ice_waitset_trigger`: We create our own class which can be attached to a
@@ -109,6 +108,8 @@ This example consists of 5 use cases.
 All our examples require a running `iox-roudi` and some data to receive which will be
 send by `iox-ex-waitset-publisher`. The publisher does not contain any _WaitSet_ specific
 logic and is explained in detail in the [icedelivery example](../icedelivery/).
+
+<!-- @todo Add expected output with asciinema recording before v1.0-->
 
 ### Gateway
 
@@ -129,7 +130,7 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
     });
 }
 ```
-An _Event_ always requires a callback which has the following signature 
+An _Event_ always requires a callback which has the following signature
 `void (EventOrigin)`. In our example the _EventOrigin_ is a
 `iox::popo::UntypedSubscriber` pointer which we use to acquire the latest sample by calling
 `take()`. When `take()` was successful we print our message to
@@ -137,15 +138,15 @@ the console inside of the `and_then` lambda.
 
 In our `main` function we create a _WaitSet_ which has storage capacity for 5 events,
 4 subscribers and one shutdown trigger, after we registered us at our central
-broker RouDi. Then we attach our `shutdownTrigger` to handle `CTRL+c` events. 
+broker RouDi. Then we attach our `shutdownTrigger` to handle `CTRL+c` events.
 ```cpp
 iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER>;
 
 waitset.attachEvent(shutdownTrigger);
 ```
 
-After that we create a vector to hold our subscribers, we create, subscribe and then 
-attach them to a _WaitSet_ with the `HAS_SAMPLES` event and the `subscriberCallback`. 
+After that we create a vector to hold our subscribers, we create, subscribe and then
+attach them to a _WaitSet_ with the `HAS_SAMPLES` event and the `subscriberCallback`.
 Everytime one 
 of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 ```cpp
@@ -160,10 +161,10 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 }
 ```
 
-Now our system is prepared and ready to work. We enter the event loop which 
+Now our system is prepared and ready to work. We enter the event loop which
 starts with a call to our _WaitSet_ (`waitset.wait()`). This call will block until
 one or more events triggered the _WaitSet_. After the call returned we get a
-vector filled with _EventInfos_ which are corresponding to all the events which 
+vector filled with _EventInfos_ which are corresponding to all the events which
 triggered the _WaitSet_.
 
 We iterate through this vector, if an _Event_ originated from the `shutdownTrigger`
@@ -193,7 +194,7 @@ In our next use case we would like to divide the subscribers into two groups
 and we do not want to attach a callback to them. Instead we perform the calls on the
 subscribers directly.
 
-We again start by creating a _WaitSet_ with a capacity of 5 (4 subscribers and 1 shutdownTrigger), 
+We again start by creating a _WaitSet_ with a capacity of 5 (4 subscribers and 1 shutdownTrigger),
 and attach the `shutdownTrigger` to handle `CTRL+c`.
 ```cpp
 iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
@@ -229,13 +230,13 @@ for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 ```
 
 The event loop calls `auto eventVector = waitset.wait()` in a blocking call to
-receive a vector of all the _EventInfos_ which are corresponding to the occurred events. 
+receive a vector of all the _EventInfos_ which are corresponding to the occurred events.
 If the _Event_ originated from the `shutdownTrigger` we terminate the program.
 ```cpp
 while (true)
 {
     auto eventVector = waitset.wait();
-    
+
     for (auto& event : eventVector)
     {
         if (event->doesOriginateFrom(&shutdownTrigger))
@@ -264,16 +265,16 @@ we just dismiss the received data.
     }
 ```
 **Important** The second group needs to release all queued samples otherwise
-the WaitSet would notify the user again and again that the subscriber from the second 
+the WaitSet would notify the user again and again that the subscriber from the second
 group has new samples.
 
 ### Individual
-When every _Triggerable_ requires a different reaction we need to know the 
+When every _Triggerable_ requires a different reaction we need to know the
 origin of an _Event_. We can call `event.doesOriginateFrom(EventOrigin)`
 which will return true if the event originated from _EventOrigin_ and
 otherwise false.
 
-We start this example by creating a _WaitSet_ with the default capacity and 
+We start this example by creating a _WaitSet_ with the default capacity and
 attaching the `shutdownTrigger` to handle `CTRL-c`.
 ```cpp
 iox::popo::WaitSet waitset<>;
@@ -309,9 +310,9 @@ while (true)
         }
 ```
 
-When the origin is `subscriber1` we would like to state that subscriber 1 has received the 
+When the origin is `subscriber1` we would like to state that subscriber 1 has received the
 following number X. But for `subscriber2` we just dismiss the received samples.
-We accomplish this by asking the `event` if it originated from the 
+We accomplish this by asking the `event` if it originated from the
 corresponding subscriber. If so we act.
 ```cpp
         else if (event->doesOriginateFrom(&subscriber1))
@@ -347,7 +348,7 @@ us immediately again since the user trigger is state based.
 
 We begin as always, by creating a _WaitSet_ with the default capacity and by
 attaching the `shutdownTrigger` to 
-it. In this case we do not set an event id when calling `attachEvent` which means 
+it. In this case we do not set an event id when calling `attachEvent` which means
 the default event id  `EventInfo::INVALID_ID` is set.
 ```cpp
 iox::popo::WaitSet<> waitset;
@@ -356,8 +357,8 @@ iox::popo::WaitSet<> waitset;
 waitset.attachEvent(shutdownTrigger);
 ```
 
-After that we require a `cyclicTrigger` to trigger our 
-`cyclicRun` every second. Therefore, we attach it to the `waitset` with 
+After that we require a `cyclicTrigger` to trigger our
+`cyclicRun` every second. Therefore, we attach it to the `waitset` with
 eventId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
@@ -400,20 +401,20 @@ The `cyclicTrigger` callback is called in the else part.
 ```
 
 ### Trigger
-In this example we describe how you would implement a _Triggerable_ class which 
-can be attached to a _WaitSet_. Our class in this example will be called 
-`MyTriggerClass` and it signals the _WaitSet_ two events. 
+In this example we describe how you would implement a _Triggerable_ class which
+can be attached to a _WaitSet_. Our class in this example will be called
+`MyTriggerClass` and it signals the _WaitSet_ two events.
 The `PERFORMED_ACTION` event which is triggered whenever the method `performAction`
-is called and the 
+is called and the
 `ACTIVATE` event which is triggered when `activate` is called with an `activationCode`.
 
 #### MyTriggerClass
 
-At the moment the _WaitSet_ does not support _Triggerable_ classes which are movable 
+At the moment the _WaitSet_ does not support _Triggerable_ classes which are movable
 or copyable. This is caused by the `resetCallback` and the `hasEventCallback`
 which are pointing to the _Triggerable_. After a move the callbacks inside of the _WaitSet_
-would point to the wrong memory location and a copy could lead to an unattached object 
-if there is no more space left in the _WaitSet_. Therefore we have to delete the move 
+would point to the wrong memory location and a copy could lead to an unattached object
+if there is no more space left in the _WaitSet_. Therefore we have to delete the move
 and copy operations for now.
 ```cpp
     MyTriggerClass(const MyTriggerClass&) = delete;
@@ -467,13 +468,13 @@ set a `eventId` and a `callback`.
 If the parameter event was set to `PERFORMED_ACTION` we call `acquireTriggerHandle`
 and the waitset which will return an `cxx::expected`. The following parameters
 have to be provided.
- 
+
  1. The origin of the trigger, e.g. `this`
  2. A method which can be called by the trigger to ask if it was triggered.
- 3. A method which resets the trigger. Used when the WaitSet goes out of scope. 
+ 3. A method which resets the trigger. Used when the WaitSet goes out of scope.
  4. The id of the event.
  5. A callback with the signature `void (MyTriggerClass * )`.
- 
+
 ```cpp
     iox::cxx::expected<iox::popo::WaitSetError>
     enableEvent(iox::popo::WaitSet<>& waitset,
@@ -491,7 +492,7 @@ have to be provided.
                                 {*this, &MyTriggerClass::disableEvent},
                                 eventId,
                                 callback)
-                .and_then([this](iox::popo::TriggerHandle& trigger) { 
+                .and_then([this](iox::popo::TriggerHandle& trigger) {
                     m_actionTrigger = std::move(trigger); });
         }
 ```
@@ -507,7 +508,7 @@ for the trigger.
                                 {*this, &MyTriggerClass::disableEvent},
                                 eventId,
                                 callback)
-                .and_then([this](iox::popo::TriggerHandle& trigger) { 
+                .and_then([this](iox::popo::TriggerHandle& trigger) {
                     m_activateTrigger = std::move(trigger); });
         }
 ```
@@ -579,7 +580,7 @@ Now that everything is set up we can start our `eventLoop` in a new thread.
     std::thread eventLoopThread(eventLoop);
 ```
 
-A thread which will trigger an event every second is started with the following 
+A thread which will trigger an event every second is started with the following
 lines.
 ```cpp
     std::thread triggerThread([&] {

@@ -8,6 +8,8 @@ in the same way as the C++ ones.
 
 ## Examples
 
+<!-- @todo Add expected output with asciinema recording before v1.0-->
+
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced
 in the [icedelivery C example](../icedelivery_on_c).
@@ -52,12 +54,13 @@ the `subscriberCallback` and an event id `1U`.
 ```c
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
-uint64_t historyRequest = 1U;
+const uint64_t historyRequest = 1U;
+const uint64_t queueCapacity = 256U;
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
+    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-    iox_sub_subscribe(subscriber, 256);
+    iox_sub_subscribe(subscriber);
     iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);
 }
 ```
@@ -133,12 +136,13 @@ After that we can create a list of subscribers and subscribe them to our topic.
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
-uint64_t historyRequest = 1U;
+const uint64_t historyRequest = 1U;
+const uint64_t queueCapacity = 256U;
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
+    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-    iox_sub_subscribe(subscriber[i], 256);
+    iox_sub_subscribe(subscriber[i]);
 }
 ```
 
@@ -242,12 +246,13 @@ iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 Now we create two subscriber, subscribe them to our topic and attach them to
 the waitset without a callback and with the same trigger id.
 ```c
-uint64_t historyRequest = 1U;
-subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", historyRequest);
-subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", historyRequest);
+const uint64_t historyRequest = 1U;
+const uint64_t queueCapacity = 256U;
+subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-iox_sub_subscribe(subscriber[0], 256);
-iox_sub_subscribe(subscriber[1], 256);
+iox_sub_subscribe(subscriber[0]);
+iox_sub_subscribe(subscriber[1]);
 
 iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
 iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);

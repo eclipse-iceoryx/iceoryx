@@ -7,7 +7,7 @@ We compare the latency of iceoryx with message queues and unix domain sockets.
 
 The measurement is carried out with several payload sizes. Round trips are performed
 for each payload size, using either the default setting or the provided command line parameter
-for the number of round trips to do. 
+for the number of round trips to do.
 The measured time is just allocating/releasing memory and the time to send the data.
 The construction and writing of the payload is not part of the measurement.
 
@@ -15,7 +15,7 @@ At the end of the benchmark, the average latency for each payload size is printe
 
 ## Run iceperf
 
-Create three terminals and run one command in each of them. 
+Create three terminals and run one command in each of them.
 The order is first the RouDi daemon, then iceperf-laurel which is the leader in this setup
 and then iceperf-hardy for doing the ping pong measurements with iceperf-laurel. 
 You can set the number of measurement iterations (number of roundtrips) with a command line paramter
@@ -37,13 +37,14 @@ iceperf-hardy with the parameter `cpp-api` or `c-api`.
     build/iceoryx_examples/iceperf/iceperf-laurel 100000 cpp-api
 
     build/iceoryx_examples/iceperf/iceperf-hardy cpp-api
-```
 
 ## Expected output
 
 The numbers will differ depending on parameters and the performance of the hardware.
 Which technologies are measured depends on the operating system (e.g. no message queue on MacOS).
 Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2.80GHz.
+
+<!-- @todo Replace this with asciinema recording before v1.0-->
 
 ### iceperf-laurel application
 
@@ -191,7 +192,7 @@ Besides includes for the different IPC technologies, the topic_data.hpp file is 
 
 With `payloadSize` as the payload size used for the current measurement. In case it is not possible to transfer the `payloadSize` with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided into several sub-packets. This is indicated with `subPackets`. The `run` flag is used to shutdown iceperf-hardy at the end of the benchmark.
 
-Let's set some constants to prevent magic values. The default number of round trips is set and names for the communication resources that are used. 
+Let's set some constants to prevent magic values. The default number of round trips is set and names for the communication resources that are used.
 ```cpp
     constexpr int64_t NUMBER_OF_ROUNDTRIPS{10000};
     constexpr char APP_NAME[] = "/laurel";
@@ -243,7 +244,7 @@ The `leaderDo()` function executes a measurement for the provided IPC technology
     }
 ```
 
-Initialization is different for each IPC technology. Here we have to create sockets, message queues or iceoryx publisher and subscriber. With `ipcTechnology.initLeader()` we are setting up these resources on the leader side. After the definition of the different payload sizes to use, we execute a single round trip measurement for each individual payload size. The leader has to orchestrate the whole process and has a pre and post step for each ping pong round trip measurement. `ipcTechnology.prePingPongLeader()` sets the payload size for the upcoming measurement. `ipcTechnology.pingPongLeader(numRoundtrips)` then does the ping pong between leader and follower and returns the time it took to do the provided number of round trips. After the measurments were done for all the different payload sizes, `ipcTechnology.releaseFollower()` releases the follower that is not aware of things like how many payload sizes are considered. After cleaning up the communication resources with `ipcTechnology.shutdown()` the results are printed. 
+Initialization is different for each IPC technology. Here we have to create sockets, message queues or iceoryx publisher and subscriber. With `ipcTechnology.initLeader()` we are setting up these resources on the leader side. After the definition of the different payload sizes to use, we execute a single round trip measurement for each individual payload size. The leader has to orchestrate the whole process and has a pre and post step for each ping pong round trip measurement. `ipcTechnology.prePingPongLeader()` sets the payload size for the upcoming measurement. `ipcTechnology.pingPongLeader(numRoundtrips)` then does the ping pong between leader and follower and returns the time it took to do the provided number of round trips. After the measurements were done for all the different payload sizes, `ipcTechnology.releaseFollower()` releases the follower that is not aware of things like how many payload sizes are considered. After cleaning up the communication resources with `ipcTechnology.shutdown()` the results are printed. 
 
 In the `main()` method we create instances for the different IPC technologies we want to compare. Each one is implemented in an own class and implements the pure virtual functions provided with the `IcePerfBase` class
 

@@ -2,6 +2,8 @@
 
 ## Introduction
 
+> This Readme.md is slightly outdated and not all functionality of the introspection is available with v1.0
+
 This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can
 look into the machine room of RouDi. The introspection shows live information about the memory usage and all
 registered processes. Additionally, it shows the publisher and subscriber ports that are created inside the shared
@@ -10,44 +12,22 @@ memory.
 ## Run icecrystal
 
 We reuse the binaries from [icedelivery](../icedelivery/). Create four terminals and run one command in each of them.
+```sh
+# If installed and available in PATH environment variable
+iox-roudi
+# If build from scratch with script in tools
+$ICEORYX_ROOT/build/iox-roudi
 
-    # If installed and available in PATH environment variable
-    iox-roudi
-    # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/posh/iox-roudi
+build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 
-    ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal
+build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 
-    ./build/iceoryx_examples/icedelivery/ice-subscriber-bare-metal
+build/iox-introspection-client --all
+```
 
-    ./build/iceoryx_introspection/iceoryx_introspection_client --all
+<!-- ## Expected output -->
 
-## Expected output
-
-The counter can differ depending on startup of the applications.
-
-### RouDi application
-
-    Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
-    [ Reserving shared memory successful ]
-    Reserving 410709312 bytes in the shared memory [/username]
-    [ Reserving shared memory successful ]
-
-### Publisher application
-
-    Sending: 0
-    Sending: 1
-    Sending: 2
-    Sending: 3
-    Sending: 4
-    Sending: 5
-
-### Subscriber application
-
-    Receiving: 4
-    Receiving: 5
-    Receiving: 6
-    Receiving: 7
+<!-- @todo Add expected output of RouDi, publisher, subscriber and introspection with asciinema recording before v1.0-->
 
 ### Iceoryx introspection application
 
