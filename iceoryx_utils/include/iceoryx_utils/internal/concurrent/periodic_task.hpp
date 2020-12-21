@@ -33,7 +33,7 @@ template <typename T>
 class PeriodicTask
 {
   public:
-    /// @brief Creates a periodic task by spawning a thread. The specified callable is executed immediatelly on creatian
+    /// @brief Creates a periodic task by spawning a thread. The specified callable is executed immediately on creation
     /// and then periodically after the interval duration.
     /// @param[in] taskName will be set as thread name
     /// @param[in] interval is the time the thread waits between two invocations of the callable
