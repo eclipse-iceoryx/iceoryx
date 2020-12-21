@@ -17,6 +17,7 @@ cmake_minimum_required(VERSION 3.5)
 project(example_iceperf)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
+find_package(iceoryx_binding_c CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
