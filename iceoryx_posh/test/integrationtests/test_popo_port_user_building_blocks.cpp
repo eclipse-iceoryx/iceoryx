@@ -70,7 +70,7 @@ class PortUser_IntegrationTest : public Test
 
     void SetUp()
     {
-        for (uint32_t i = 0; i < NUMBER_OF_PUBLISHERS; i++)
+        for (uint32_t i = 0U; i < NUMBER_OF_PUBLISHERS; i++)
         {
             std::stringstream publisherAppName;
             publisherAppName << TEST_PUBLISHER_APP_NAME << i;
@@ -86,7 +86,7 @@ class PortUser_IntegrationTest : public Test
 
     void TearDown()
     {
-        for (uint32_t i = 0; i < NUMBER_OF_PUBLISHERS; i++)
+        for (uint32_t i = 0U; i < NUMBER_OF_PUBLISHERS; i++)
         {
             m_publisherPortUserVector[i].stopOffer();
             static_cast<void>(m_publisherPortRouDiVector[i].tryGetCaProMessage());
@@ -290,7 +290,7 @@ class PortUser_IntegrationTest : public Test
         }
 
         // Subscriber is ready to receive -> start sending samples
-        for (size_t i = 0; i < ITERATIONS; i++)
+        for (size_t i = 0U; i < ITERATIONS; i++)
         {
             publisherPortUser.tryAllocateChunk(sizeof(DummySample))
                 .and_then([&](auto chunkHeader) {
@@ -351,7 +351,7 @@ TIMING_TEST_F(PortUser_IntegrationTest, MultiProducer, Repeat(5), [&] {
                                             std::ref(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer)));
 
 
-    for (uint32_t i = 0; i < NUMBER_OF_PUBLISHERS; i++)
+    for (uint32_t i = 0U; i < NUMBER_OF_PUBLISHERS; i++)
     {
         m_publisherThreadVector.emplace_back(
             std::bind(&PortUser_IntegrationTest::publisherThread,
