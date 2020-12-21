@@ -496,12 +496,15 @@ publisher.offer();
     intend to send.
 
     If we successfully acquired a chunk, we can construct the data to be send using placement new and publish it.
+    Notice that ``sample.get()`` returns a ``void*`` to the memory ``chunk`` were we can then place our data.
+    Depending on what we want to send, we may also use ``memcpy`` to copy the data to the ``chunk``.
 
     ```cpp
     if (!result.has_error())
     {
         auto& sample = result.value();
-        new (sample.get()) CounterTopic(73);
+        void* chunk = sample.get();
+        new (chunk) CounterTopic(73);
         sample.publish();
     }
     else
@@ -552,8 +555,8 @@ while (keepRunning)
 
     subscriber->take()
         .and_then([](iox::popo::Sample<const void>& sample) {
-            CounterTopic* ptr = reinterpret_cast<CounterTopic*>(sample.get());
-            /* process the received data using the ptr */
+            auto counter = reinterpret_cast<const CounterTopic*>(sample.get());
+            /* process the received data using counter */
         })
         .if_empty([] { /* no data received but also no error */ })
         .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
@@ -562,9 +565,44 @@ while (keepRunning)
 
 Note that since the received sample received is untyped (``iox::popo::Sample<const void>``), we cannot use
 ``operator->`` to access the members of the underlying type but have to cast it to the correct type ``CounterTopic``
-manually.
+manually. We know this type since it is uniquely identified by the topic we subscribed to (in our case ``CounterTopic``). 
+A ``reinterpret_cast`` is used to interpret the data as a ``CounterTopic``. Note that a ``static_cast`` would also work here,
+but a ``reinterpret_cast`` is used to emphasize the data-agonstic nature of the data transmission itself. 
 
 As in the untyped case we also could use a loop to get all samples as long as they are available.
+
+A non-functional approach is also possible but more verbose.
+
+```cpp
+while (keepRunning)
+    {
+        // wait for new data (either sleep and wake up periodically or by notification from the waitset)
+
+        auto result = subscriber->take();
+
+        if(!result.has_error()) 
+        {
+            auto& maybeSample = result.value();
+            if (maybeSample.has_value())
+            {
+                auto& sample = maybeSample.value();
+                void* chunk = sample.get();
+
+                //interpret and process the data
+                const CounterTopic* counter = reinterpret_cast<const CounterTopic*>(chunk);
+                
+            }
+            else
+            {
+                // we received no data
+            }
+        } else {
+            iox::popo::ChunkReceiveError& error = result.get_error();
+            //handle the error
+        }
+            
+    }
+```
 
 ### Shutdown
 
