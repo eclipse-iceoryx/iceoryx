@@ -68,8 +68,9 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 ## Documentation
 
+* [Getting Started](doc/website/getting-started/overview.md)
+* [Installation Guide](doc/website/getting-started/installation.md)
 * [Concepts](doc/conceptual-guide.md)
-* [Usage Guide](doc/usage-guide.md)
 * [Iceoryx Utils Hacker Guide](iceoryx_utils/README.md)
 
 ### Targeted quality levels & platforms
