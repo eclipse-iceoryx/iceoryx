@@ -55,11 +55,6 @@ add_library(iceoryx_dds
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
 
-set_target_properties(iceoryx_dds PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-)
-
 set_target_properties(iceoryx_utils PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -128,10 +123,6 @@ target_link_libraries(iox-gw-iceoryx2dds
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
-set_target_properties(iox-gw-iceoryx2dds PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-)
 
 target_compile_options(iox-gw-iceoryx2dds PRIVATE ${ICEORYX_WARNINGS})
 
@@ -142,11 +133,14 @@ target_link_libraries(iox-gw-dds2iceoryx
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
-set_target_properties(iox-gw-dds2iceoryx PROPERTIES
+
+target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
+
+set_target_properties(iox-gw-iceoryx2dds iox-gw-dds2iceoryx iceoryx_dds 
+  PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
 )
-target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
 
 #
 ########## build test executables ##########
