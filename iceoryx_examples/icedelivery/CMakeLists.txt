@@ -42,6 +42,7 @@ target_link_libraries(iox-ex-subscriber-untyped
 )
 
 set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
+                      iox-ex-publisher-with-history iox-ex-subscriber-with-history
                       iox-ex-publisher-typed iox-ex-publisher-untyped
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
