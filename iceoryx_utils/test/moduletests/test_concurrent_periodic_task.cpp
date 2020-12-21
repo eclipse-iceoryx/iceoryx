@@ -54,10 +54,6 @@ struct PeriodicTaskTestType
 
 uint64_t PeriodicTaskTestType::callCounter{0};
 
-
-using CallableTypes =
-    Types<PeriodicTaskTestType, cxx::function_ref<void()>, cxx::MethodCallback<void()>, std::function<void()>>;
-
 class PeriodicTask_test : public Test
 {
   public:
