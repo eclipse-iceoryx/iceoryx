@@ -17,9 +17,7 @@
 #include "iceoryx_posh/popo/typed_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#include <chrono>
 #include <iostream>
-#include <thread>
 
 bool killswitch = false;
 
