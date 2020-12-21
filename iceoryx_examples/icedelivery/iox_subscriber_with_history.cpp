@@ -33,14 +33,14 @@ int main()
     signal(SIGINT, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-with-history");
 
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    // The publisher is sending faster then we receive since we are waiting
-    // for one second in every loop cycle. Therefore we require a little bit of
-    // space for our samples in the history.
+    // When starting the subscriber late it will miss the first samples which the
+    // publisher has send. The history ensures that we at least get the last 10
+    // samples send by the publisher when we subscribe.
     subscriberOptions.historyRequest = 5U;
     iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     typedSubscriber.subscribe();

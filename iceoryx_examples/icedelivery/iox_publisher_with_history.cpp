@@ -27,17 +27,12 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void getRadarObject(RadarObject* const object, const uint64_t& val) noexcept
-{
-    *object = RadarObject(val, val, val);
-}
-
 int main()
 {
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-with-history");
 
     // create publisher options to set a historyCapacity of 10U
     iox::popo::PublisherOptions publisherOptions;

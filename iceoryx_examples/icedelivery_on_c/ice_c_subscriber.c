@@ -35,8 +35,9 @@ void receiving()
 {
     iox_runtime_init("iox-c-subscriber");
 
-    // The publisher sends a new sample every 400ms but we check only every second for new
-    // samples. Therefore we need some space for the samples in the history.
+    // When starting the subscriber late it will miss the first samples which the
+    // publisher has send. The history ensures that we at least get the last 10
+    // samples send by the publisher when we subscribe.
     const uint64_t historyRequest = 10U;
     const uint64_t queueCapacity = 5U;
     iox_sub_storage_t subscriberStorage;
