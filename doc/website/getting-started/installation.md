@@ -69,6 +69,9 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     Tip: You can fasten up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
     You can choose more or less depending on your available CPU cores on your machine.
 
+**NOTE:** Iceoryx is build in Release mode with `-O3` optimization by default. If you want to have debug symbols please
+set `CMAKE_BUILD_TYPE=Debug`
+
 ### Build options
 
 Please take a look at the cmake file [build_options.cmake](../iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
@@ -108,7 +111,6 @@ You can use the help for getting an overview over the available options:
     ```
     ./tools/iceoryx_build_test.sh help
     ```
-
 
 ## Build with colcon
 
