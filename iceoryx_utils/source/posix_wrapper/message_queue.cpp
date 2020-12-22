@@ -68,12 +68,12 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
         // fields have a different order in QNX,
         // so we need to initialize by name
         m_attributes.mq_flags = (mode == IpcChannelMode::NON_BLOCKING) ? O_NONBLOCK : 0;
-        m_attributes.mq_maxmsg = maxMsgNumber;
-        m_attributes.mq_msgsize = maxMsgSize;
-        m_attributes.mq_curmsgs = 0;
+        m_attributes.mq_maxmsg = static_cast<long>(maxMsgNumber);
+        m_attributes.mq_msgsize = static_cast<long>(maxMsgSize);
+        m_attributes.mq_curmsgs = 0L;
 #ifdef __QNX__
-        m_attributes.mq_recvwait = 0;
-        m_attributes.mq_sendwait = 0;
+        m_attributes.mq_recvwait = 0L;
+        m_attributes.mq_sendwait = 0L;
 #endif
         auto openResult = open(m_name, mode, channelSide);
         if (!openResult.has_error())
@@ -184,7 +184,7 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
                                   m_mqDescriptor,
                                   msg.c_str(),
                                   messageSize,
-                                  1);
+                                  1U);
 
     if (mqCall.hasErrors())
     {
@@ -343,7 +343,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
                                   m_mqDescriptor,
                                   msg.c_str(),
                                   messageSize,
-                                  1,
+                                  1U,
                                   &timeOut);
 
     if (mqCall.hasErrors())

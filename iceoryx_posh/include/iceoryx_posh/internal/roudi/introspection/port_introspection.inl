@@ -429,7 +429,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
 
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
 
-    uint32_t index{0};
+    uint32_t index{0U};
     for (auto& pair : m_publisherMap)
     {
         auto m_publisherIndex = pair.second;
@@ -448,7 +448,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
             publisherData.m_caproEventMethodID = publisherInfo.service.getEventIDString();
 
             m_publisherList.emplace_back(publisherData);
-            publisherInfo.index = index++;
+            publisherInfo.index = static_cast<int32_t>(index++);
         }
     }
 

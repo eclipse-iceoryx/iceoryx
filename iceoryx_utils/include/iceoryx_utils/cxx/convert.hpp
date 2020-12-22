@@ -38,6 +38,8 @@ namespace cxx
 ///     if ( cxx::convert::fromString("123", i) ) {}  // will succeed
 ///     if ( cxx::convert::fromString("-123", a) ) {} // will fail since -123 is not unsigned
 /// @endcode
+
+constexpr int32_t STRTOULL_BASE = 10;
 class convert
 {
   public:

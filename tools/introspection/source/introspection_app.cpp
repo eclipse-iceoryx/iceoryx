@@ -332,31 +332,31 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, "----------------------------------------------------------------------------\n");
 
     bool needsLineBreak{false};
-    uint32_t currentLine{0};
-    auto printEntry = [&](std::uint32_t maxSize, const std::string& data) -> std::string {
+    uint32_t currentLine{0U};
+    auto printEntry = [&](int32_t maxSize, const std::string& data) -> std::string {
         std::stringstream stream;
 
-        constexpr uint32_t indentation{2};
+        constexpr int32_t indentation{2};
         constexpr char indentationString[indentation + 1] = "  ";
 
         auto stringSize = data.size();
-        if (currentLine == 0)
+        if (currentLine == 0U)
         {
-            stream << std::left << std::setw(maxSize) << data.substr(0, maxSize);
+            stream << std::left << std::setw(maxSize) << data.substr(0, static_cast<size_t>(maxSize));
         }
-        else if (stringSize > maxSize + (currentLine - 1) * (maxSize - indentation))
+        else if (stringSize > static_cast<size_t>(maxSize) + (currentLine - 1) * static_cast<size_t>(maxSize - indentation))
         {
-            const auto startPosition = maxSize + (currentLine - 1) * (maxSize - indentation);
+            const auto startPosition = static_cast<size_t>(maxSize) + (currentLine - 1) * static_cast<size_t>(maxSize - indentation);
 
             stream << indentationString << std::left << std::setw(maxSize - indentation)
-                   << data.substr(startPosition, maxSize - indentation);
+                   << data.substr(startPosition, static_cast<size_t>(maxSize - indentation));
         }
         else
         {
             stream << std::left << std::setw(maxSize) << "";
         }
 
-        needsLineBreak |= (stringSize > maxSize + (currentLine) * (maxSize - indentation));
+        needsLineBreak |= (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
 
         return stream.str();
     };
@@ -574,14 +574,14 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
     std::vector<ComposedSubscriberPortData> subscriberPortData;
     subscriberPortData.reserve(portData->m_subscriberList.size());
 
-    uint32_t i = 0u;
+    uint32_t i = 0U;
     if (portData->m_subscriberList.size() == subscriberPortChangingData->subscriberPortChangingDataList.size())
     { // should be the same, else it will be soon
         for (const auto& port : portData->m_subscriberList)
         {
             subscriberPortData.push_back(
                 {port,
-                 (port.m_publisherIndex != -1) ? &portData->m_publisherList[port.m_publisherIndex] : nullptr,
+                 (port.m_publisherIndex != -1) ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)] : nullptr,
                  subscriberPortChangingData->subscriberPortChangingDataList[i++]});
         }
     }

@@ -28,7 +28,7 @@
 // access to indices < 0 or >= capacity is undefined behaviour (most likely a
 // segmentation fault)
 
-template <typename T, uint32_t capacity = 1>
+template <typename T, uint32_t capacity = 1U>
 class FixedSizeContainer
 {
   public:
@@ -50,8 +50,8 @@ class FixedSizeContainer
         if (nextElement >= 0)
         {
             m_freeIndex = nextElement;
-            m_values[m_freeIndex].value = element;
-            m_values[m_freeIndex].isValid = true;
+            m_values[static_cast<uint32_t>(m_freeIndex)].value = element;
+            m_values[static_cast<uint32_t>(m_freeIndex)].isValid = true;
             ++m_size;
         }
 
@@ -60,9 +60,9 @@ class FixedSizeContainer
 
     void remove(Index_t index)
     {
-        if (m_values[index].isValid)
+        if (m_values[static_cast<uint32_t>(index)].isValid)
         {
-            m_values[index].isValid = false;
+            m_values[static_cast<uint32_t>(index)].isValid = false;
             --m_size;
         }
     }
@@ -72,12 +72,12 @@ class FixedSizeContainer
     // if the index is invalid than the behavior is undefined
     T& operator[](Index_t index)
     {
-        return m_values[index].value;
+        return m_values[static_cast<uint32_t>(index)].value;
     }
 
     T* get(Index_t index)
     {
-        return (m_values[index].isValid) ? &m_values[index].value : nullptr;
+        return (m_values[static_cast<uint32_t>(index)].isValid) ? &m_values[static_cast<uint32_t>(index)].value : nullptr;
     }
 
     size_t size()
@@ -91,7 +91,7 @@ class FixedSizeContainer
         if (m_size >= capacity)
             return NOT_AN_ELEMENT; // container is full
 
-        for (; m_values[m_freeIndex].isValid; m_freeIndex = (m_freeIndex + 1u) % capacity)
+        for (; m_values[static_cast<uint32_t>(m_freeIndex)].isValid; m_freeIndex = (m_freeIndex + 1) % static_cast<Index_t>(capacity))
             ;
 
         return m_freeIndex;
@@ -99,7 +99,7 @@ class FixedSizeContainer
 
     void setValid(Index_t index, bool value = true)
     {
-        m_values[index].isValid = value;
+        m_values[static_cast<uint32_t>(index)].isValid = value;
     }
 
     void setInvalid(Index_t index)
@@ -108,7 +108,7 @@ class FixedSizeContainer
     }
 
     Index_t m_freeIndex{0};
-    size_t m_size{0u};
+    size_t m_size{0U};
 
     struct entry_t
     {
