@@ -146,7 +146,7 @@ else
     // handle the case that there is no value
 }
 ```
-A shorthand to get the value is 
+A shorthand to get the value is
 ```cpp
 auto value = *result;
 ```
@@ -216,7 +216,6 @@ result.and_then(handleValue).or_else(handleError);
 
 There are more convenience functions such as ``value_or`` which provides the value or an alternative specified by the
 user. These can be found in [``expected.hpp``](../../../iceoryx_utils/include/iceoryx_utils/cxx/expected.hpp).
-
 
 ## Using the API
 
@@ -292,11 +291,11 @@ Now we can use the publisher to send the data in various ways.
 
     Here result is an ``expected`` and hence we may get an error which we have to handle. This can happen if we try
     to loan too many samples and exhaust memory.
-    
+
     If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value
     we want to send. It is important to note that in the typed case we get a default constructed topic and such an
     access is legal.
-    
+
     Once we are done constructing and preparing the data we publish it, causing it to be delivered to any subscriber
     which is currently subscribed to the topic.
 
@@ -312,14 +311,14 @@ Now we can use the publisher to send the data in various ways.
         })
         .or_else([](iox::popo::AllocationError) {
             /* handle the error */
-        });   
+        });
     
     ```
 
     We try to loan a sample from the publisher and if successful get the underlying pointer ``ptr`` to our topic and
     if successful assign it a new value. Note that ``ptr`` points to an already default constructed sample, so we
     cannot treat it as uninitialized memory and therefore must assign the data to send.
-    
+
     If you are only using a simple data type which does not rely on RAII, you can also use the pointer to construct
     the data via placement new instead.
 
@@ -378,7 +377,7 @@ difference is the way we wake up before checking for data.
 
         auto result = subscriber->take();
 
-        if(!result.has_error()) 
+        if(!result.has_error())
         {
             auto& maybeSample = result.value();
             if (maybeSample.has_value())
@@ -398,7 +397,6 @@ difference is the way we wake up before checking for data.
             iox::popo::ChunkReceiveError& error = result.get_error();
             //handle the error
         }
-            
     }
 
     ```
@@ -429,6 +427,7 @@ difference is the way we wake up before checking for data.
     }
 
     ```
+
     By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>`` and 
     handle a potential error in the ``or_else`` branch. If we wake up periodically, it is also possible that
     no data is received and if we want to handle this we can optionally do so in the ``if_empty`` branch.
@@ -525,13 +524,11 @@ publisher.offer();
         })
         .or_else([](iox::popo::AllocationError) {
             /* handle the error */
-        });   
+        });
     ```
     Notice that we get an untyped sample, ``iox::popo::Sample<const void>``. We could also use ``auto& sample`` in the
     lambda arguments to shorten it. Again we access the pointer to the underlying raw memory of the sample and
     construct the data we want to send.
-
-
 
 #### Creating a subscriber
 
@@ -542,11 +539,11 @@ template type argument.
 iox::popo::UntypedSubscriber subscriber({"Group", "Instance", "CounterTopic"});
 subscriber.subscribe();
 ```
+
 #### Receiving data
 
 Receiving the data works in the same way as in the typed API, the main difference is the ``reinterpret_cast`` needed
 before accessing the data (since the subscriber has no knowledge of the underlying type).
-
 
 ```cpp
 while (keepRunning)
@@ -590,7 +587,6 @@ while (keepRunning)
 
                 //interpret and process the data
                 const CounterTopic* counter = reinterpret_cast<const CounterTopic*>(chunk);
-                
             }
             else
             {
@@ -600,7 +596,6 @@ while (keepRunning)
             iox::popo::ChunkReceiveError& error = result.get_error();
             //handle the error
         }
-            
     }
 ```
 
@@ -642,7 +637,7 @@ includes all memory chunks used for the data transmission which may still be hol
 This covers the main use cases and should enable the user to quickly develop iceoryx applications.
 
 Full examples and instructions on how to build and run them can be found in
-[examples](../../../iceoryx_examples/README.md). The [singleprocess](../../../iceoryx_examples/singleprocess/README.md) 
+[examples](../../../iceoryx_examples/README.md). The [singleprocess](../../../iceoryx_examples/singleprocess/README.md)
 example illustrates the basic interaction of publishers and subscribers.
 The [icedelivery](../../../iceoryx_examples/icedelivery/README.md) example can be a starting point to further
 explore how iceoryx is used in an interprocess communication setting with multiple applications.
