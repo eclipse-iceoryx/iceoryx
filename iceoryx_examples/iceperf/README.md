@@ -195,7 +195,7 @@ With `payloadSize` as the payload size used for the current measurement. In case
 Let's set some constants to prevent magic values. The default number of round trips is set and names for the communication resources that are used.
 ```cpp
     constexpr int64_t NUMBER_OF_ROUNDTRIPS{10000};
-    constexpr char APP_NAME[] = "/laurel";
+    constexpr char APP_NAME[] = "laurel";
     constexpr char PUBLISHER[] = "Laurel";
     constexpr char SUBSCRIBER[] = "Hardy";
 ```

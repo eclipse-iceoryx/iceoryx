@@ -22,34 +22,33 @@ find_package(iceoryx_binding_c CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
-endif ( NOT ICEORYX_CXX_STANDARD )
+endif ()
 
 add_executable(iceperf-laurel iceperf_laurel.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
-set_target_properties(iceperf-laurel PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
 
 target_link_libraries(iceperf-laurel
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
+target_compile_options(iceperf-laurel PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-laurel socket)
-endif(CMAKE_SYSTEM_NAME MATCHES QNX)
+endif()
 
 add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
-set_target_properties(iceperf-hardy PROPERTIES
+
+set_target_properties(iceperf-laurel iceperf-hardy PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
+
 target_link_libraries(iceperf-hardy
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
+target_compile_options(iceperf-hardy PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-hardy socket)

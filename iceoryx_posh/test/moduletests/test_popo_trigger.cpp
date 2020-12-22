@@ -83,7 +83,7 @@ Trigger_test::TriggerClass* Trigger_test::TriggerClass::m_lastCallbackArgument =
 
 TEST_F(Trigger_test, DefaultCTorConstructsEmptyTrigger)
 {
-    Trigger sut, sut2;
+    Trigger sut;
 
     EXPECT_EQ(static_cast<bool>(sut), false);
     EXPECT_EQ(sut.isValid(), false);
@@ -93,6 +93,25 @@ TEST_F(Trigger_test, DefaultCTorConstructsEmptyTrigger)
 TEST_F(Trigger_test, TriggerWithValidOriginIsValid)
 {
     Trigger sut = createValidTrigger();
+
+    EXPECT_TRUE(sut.isValid());
+    EXPECT_TRUE(static_cast<bool>(sut));
+}
+
+TEST_F(Trigger_test, MovedConstructedValidTriggerIsValid)
+{
+    Trigger trigger = createValidTrigger();
+    Trigger sut{std::move(trigger)};
+
+    EXPECT_TRUE(sut.isValid());
+    EXPECT_TRUE(static_cast<bool>(sut));
+}
+
+TEST_F(Trigger_test, MovedAssignedValidTriggerIsValid)
+{
+    Trigger sut;
+    Trigger trigger = createValidTrigger();
+    sut = std::move(trigger);
 
     EXPECT_TRUE(sut.isValid());
     EXPECT_TRUE(static_cast<bool>(sut));
@@ -199,8 +218,8 @@ TEST_F(Trigger_test, HasTriggeredCallbackReturnsAlwaysFalseWhenInvalid)
 
 TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
 {
-    Trigger sut = createValidTrigger();
     TriggerClass secondTriggerClass;
+    Trigger sut = createValidTrigger();
 
     sut.updateOrigin(&secondTriggerClass);
 
