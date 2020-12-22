@@ -119,12 +119,10 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::prepare
     const posix::PosixGroup& writerGroup,
     uint32_t id) noexcept
 {
-    /// @note GCC-9 drops here a warning that the destination char buffer length is equal to the max length to copy.
-    /// This can potentially lead to a char array without null-terminator. We add the null-terminator afterwards.
-    strncpy(sample.m_readerGroupName, readerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
-    sample.m_readerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
-    strncpy(sample.m_writerGroupName, writerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
-    sample.m_writerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
+    sample.m_readerGroupName.assign("");
+    sample.m_readerGroupName.append(cxx::TruncateToCapacity, readerGroup.getName());
+    sample.m_writerGroupName.assign("");
+    sample.m_writerGroupName.append(cxx::TruncateToCapacity, writerGroup.getName());
     sample.m_id = id;
 }
 
