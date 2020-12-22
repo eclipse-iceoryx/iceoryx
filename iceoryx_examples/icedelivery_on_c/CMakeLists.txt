@@ -36,6 +36,7 @@ target_link_libraries(iox-c-publisher
 set_target_properties(iox-c-publisher PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
+target_compile_options(iox-c-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-c-subscriber ./ice_c_subscriber.c)
 set_source_files_properties(./ice_c_subscriber.c PROPERTIES LANGUAGE C)
@@ -46,6 +47,7 @@ target_link_libraries(iox-c-subscriber
 set_target_properties(iox-c-subscriber PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
+target_compile_options(iox-c-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 install(
     TARGETS iox-c-publisher iox-c-subscriber

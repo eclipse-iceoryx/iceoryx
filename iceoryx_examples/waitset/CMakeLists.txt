@@ -28,31 +28,37 @@ add_executable(iox-ex-waitset-publisher ./ice_waitset_publisher.cpp)
 target_link_libraries(iox-ex-waitset-publisher
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-waitset-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-waitset-gateway ./ice_waitset_gateway.cpp)
 target_link_libraries(iox-ex-waitset-gateway
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-waitset-gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-waitset-grouping ./ice_waitset_grouping.cpp)
 target_link_libraries(iox-ex-waitset-grouping
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-waitset-grouping PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-waitset-individual ./ice_waitset_individual.cpp)
 target_link_libraries(iox-ex-waitset-individual
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-waitset-individual PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-waitset-sync ./ice_waitset_sync.cpp)
 target_link_libraries(iox-ex-waitset-sync
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-waitset-sync PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-waitset-trigger ./ice_waitset_trigger.cpp)
 target_link_libraries(iox-ex-waitset-trigger
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-waitset-trigger PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 set_target_properties(
     iox-ex-waitset-trigger 

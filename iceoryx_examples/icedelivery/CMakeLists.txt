@@ -30,31 +30,37 @@ add_executable(iox-ex-publisher-typed ./iox_publisher_typed.cpp)
 target_link_libraries(iox-ex-publisher-typed
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-publisher-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-publisher-with-history ./iox_publisher_with_history.cpp)
 target_link_libraries(iox-ex-publisher-with-history
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-publisher-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-publisher-untyped ./iox_publisher_untyped.cpp)
 target_link_libraries(iox-ex-publisher-untyped
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-publisher-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-subscriber-typed ./iox_subscriber_typed.cpp)
 target_link_libraries(iox-ex-subscriber-typed
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-subscriber-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-subscriber-with-history ./iox_subscriber_with_history.cpp)
 target_link_libraries(iox-ex-subscriber-with-history
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-subscriber-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-subscriber-untyped ./iox_subscriber_untyped.cpp)
 target_link_libraries(iox-ex-subscriber-untyped
     iceoryx_posh::iceoryx_posh
 )
+target_compile_options(iox-ex-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
                       iox-ex-publisher-with-history iox-ex-subscriber-with-history

@@ -37,6 +37,7 @@ set_target_properties(single_process PROPERTIES
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
+target_compile_options(single_process PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 install(
     TARGETS single_process
