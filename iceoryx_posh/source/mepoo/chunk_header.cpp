@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -26,7 +26,7 @@ ChunkHeader::ChunkHeader() noexcept
 void* ChunkHeader::payload() const noexcept
 {
     // payload is always located relative to "this" in this way
-    return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + m_payloadOffset);
+    return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + payloadOffset);
 }
 
 ChunkHeader* ChunkHeader::fromPayload(const void* const payload) noexcept
@@ -38,9 +38,18 @@ ChunkHeader* ChunkHeader::fromPayload(const void* const payload) noexcept
     uint64_t payloadAddress = reinterpret_cast<uint64_t>(payload);
     // the payload offset is always stored in front of the payload, no matter if a custom header is used or not
     // or if the payload has a custom allignment
-    using PayloadOffsetType = decltype(ChunkHeader::m_payloadOffset);
+    using PayloadOffsetType = decltype(ChunkHeader::payloadOffset);
     auto payloadOffset = reinterpret_cast<PayloadOffsetType*>(payloadAddress - sizeof(PayloadOffsetType));
     return reinterpret_cast<ChunkHeader*>(payloadAddress - *payloadOffset);
+}
+
+uint32_t ChunkHeader::usedSizeOfChunk()
+{
+    auto usedSizeOfChunk = static_cast<uint64_t>(payloadOffset) + static_cast<uint64_t>(payloadSize);
+
+    cxx::Expects(usedSizeOfChunk <= chunkSize);
+
+    return static_cast<uint32_t>(usedSizeOfChunk);
 }
 
 } // namespace mepoo

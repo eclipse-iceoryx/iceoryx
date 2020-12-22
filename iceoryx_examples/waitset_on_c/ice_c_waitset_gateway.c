@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/event_info.h"
 #include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/subscriber.h"
-#include "iceoryx_binding_c/trigger_info.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
@@ -26,8 +26,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_TRIGGER 3
-#define NUMBER_OF_SUBSCRIBER 2
+#define NUMBER_OF_EVENTS 3
+#define NUMBER_OF_SUBSCRIBERS 2
 
 iox_user_trigger_storage_t shutdownTriggerStorage;
 iox_user_trigger_t shutdownTrigger;
@@ -62,57 +62,58 @@ int main()
     shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
+    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
 
     // array where the subscriber are stored
-    iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBER];
+    iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
     // create subscriber and subscribe them to our service
-    uint64_t historyRequest = 1U;
-    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
+    const uint64_t historyRequest = 1U;
+    const uint64_t queueCapacity = 256U;
+    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
+        iox_sub_t subscriber =
+            iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-        iox_sub_subscribe(subscriber, 256);
-        iox_sub_attach_to_waitset(subscriber, waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 1, subscriberCallback);
+        iox_sub_subscribe(subscriber);
+        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);
     }
 
 
     uint64_t missedElements = 0U;
-    uint64_t numberOfTriggeredConditions = 0U;
+    uint64_t numberOfEvents = 0U;
 
-    // array where all trigger from iox_ws_wait will be stored
-    iox_trigger_info_storage_t triggerArray[NUMBER_OF_TRIGGER];
+    // array where all event infos from iox_ws_wait will be stored
+    iox_event_info_t eventArray[NUMBER_OF_EVENTS];
 
     // event loop
     bool keepRunning = true;
     while (keepRunning)
     {
-        numberOfTriggeredConditions =
-            iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        numberOfEvents = iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
 
-        for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
+        for (uint64_t i = 0U; i < numberOfEvents; ++i)
         {
-            iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
+            iox_event_info_t event = eventArray[i];
 
-            if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
+            if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
             }
             else
             {
-                // call the callback which was assigned to the trigger
-                iox_trigger_info_call(trigger);
+                // call the callback which was assigned to the event
+                iox_event_info_call(event);
             }
         }
     }
 
     // cleanup all resources
-    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
+    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));

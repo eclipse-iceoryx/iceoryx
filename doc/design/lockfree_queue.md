@@ -1,6 +1,6 @@
 Remark: This is a preliminary description and will be reworked when the capacity feature is implemented.
 
-# Lock Free queue 
+# Lock Free queue
 
 We explain some details of the lock free queue in order to provide an intuition for the way the lock free queue works. This could serve as a basis for a formal proof later if desired.
 
@@ -13,7 +13,6 @@ The index queue has some capacity n and stores indices in the range [0, n[.
 The number n is also called cycle length.
 
 Assume n = 4 in this explanation, so we can store the indices 0, 1, 2, 3.
-
 
 ### Index representation
 Each index i corresponds to an equivalence class [i] modulo n, i.e. 
@@ -30,7 +29,6 @@ This is done for two reasons: detection of empty queues and to eliminate the ABA
 It is imperative that such indices can be used in compare and swap operations (CAS), i.e. 
 will not exceed 64 bits on standard architectures supporting 64 bit CAS. 
 Therefore j can be assumed to be an unsigned 64 bit integer.
-
 
 ### Queue representation
 The queue has a head H, tail T and an array of n values. All of them are cyclic indices as in 2.
@@ -52,7 +50,6 @@ We always insert (push) at Tail and remove (pop) at Head.
 Head and Tail both increase strictly monotonic (making ABA problems unlikely).
 I.e. a push causes tail to increase by one (causing the cycle to increase after n pushes) and similarly each pop causes Head to increase by one.
 
-
 ### Push operation
 push(y) causes the cycle at the position Tail points to to be replaced with Tails cycle while the element there is replaced with x
 via a CAS operation.
@@ -68,7 +65,6 @@ push(y)
 We only push if the cycle at the element Tail points to is exactly one behind Tails cycle.
 
 Constraint: we can never push more than n elements (and our use case does not require this).
-
 
 ### Pop operation
 Pop reads the value at the index of head and returns it if the cycle matches Heads cycle and a CAS to increase head by 1 succeeds.
@@ -115,7 +111,6 @@ wraparound for an ABA problem to occur (in addition to re-inserting the same val
 This is simply because if the maximum cycle is small then the cycle length n must be large and
 we increase the cycle every n pushes (or pops), but the numbers representing the index increase by one every operation.
 
-
 ### Lock free analysis
 Claim:
 The queue is operation-wise lock free: pushes cannot block pops arbitrarily and vice versa.
@@ -138,5 +133,3 @@ The queue is therefore not wait free.
 
 This could technically be mitigated somewhat with a more complex logic keeping track of operation failures
 but seems not to be worth it in practice. (incomplete analysis, further studies required)
-
-

@@ -242,11 +242,16 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
 
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 {
-    const auto publisherPort = m_runtime->getMiddlewarePublisher(
-        iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.historyCapacity = 13U;
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
+                                                                 publisherOptions,
+                                                                 m_nodeName,
+                                                                 iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), publisherPort->m_serviceDescription);
+    EXPECT_EQ(publisherOptions.historyCapacity, publisherPort->m_chunkSenderData.m_historyCapacity);
 }
 
 TEST_F(PoshRuntime_test, getMiddlewarePublisherDefaultArgs)
@@ -296,10 +301,10 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     auto sameServiceDescription = iox::capro::ServiceDescription(99U, 1U, 20U);
 
     const auto publisherPort1 = m_runtime->getMiddlewarePublisher(
-        sameServiceDescription, 0U, m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        sameServiceDescription, iox::popo::PublisherOptions(), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     const auto publisherPort2 = m_runtime->getMiddlewarePublisher(
-        sameServiceDescription, 0U, m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        sameServiceDescription, iox::popo::PublisherOptions(), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort1);
 
@@ -316,12 +321,18 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
 {
-    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
-        iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.historyRequest = 13U;
+    subscriberOptions.queueCapacity = 42U;
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
+                                                             subscriberOptions,
+                                                             m_nodeName,
+                                                             iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, subscriberPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), subscriberPort->m_serviceDescription);
-    EXPECT_EQ(0U, subscriberPort->m_historyRequest);
+    EXPECT_EQ(subscriberOptions.historyRequest, subscriberPort->m_historyRequest);
+    EXPECT_EQ(subscriberOptions.queueCapacity, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)

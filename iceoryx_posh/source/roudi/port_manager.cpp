@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -58,10 +59,12 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
+    popo::PublisherOptions options;
+    options.historyCapacity = 1;
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
     auto maybePublisher = acquirePublisherPortData(IntrospectionPortService,
-                                                   1,
+                                                   options,
                                                    MQ_ROUDI_NAME,
                                                    introspectionMemoryManager,
                                                    INTROSPECTION_SERVICE_ID,
@@ -75,7 +78,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     auto portGeneric = maybePublisher.value();
 
     maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
-                                              1,
+                                              options,
                                               MQ_ROUDI_NAME,
                                               introspectionMemoryManager,
                                               INTROSPECTION_SERVICE_ID,
@@ -90,7 +93,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     auto portThroughput = maybePublisher.value();
 
     maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
-                                              1,
+                                              options,
                                               MQ_ROUDI_NAME,
                                               introspectionMemoryManager,
                                               INTROSPECTION_SERVICE_ID,
@@ -576,7 +579,7 @@ const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter() noexcep
 
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
-                                      const uint64_t& historyCapacity,
+                                      const popo::PublisherOptions& publisherOptions,
                                       const ProcessName_t& processName,
                                       mepoo::MemoryManager* payloadMemoryManager,
                                       const NodeName_t& node,
@@ -596,7 +599,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, historyCapacity, payloadMemoryManager, processName, portConfigInfo.memoryInfo);
+        service, payloadMemoryManager, processName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
         m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, node);
@@ -607,13 +610,13 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
-                                       const uint64_t& historyRequest,
+                                       const popo::SubscriberOptions& subscriberOptions,
                                        const ProcessName_t& processName,
                                        const NodeName_t& node,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
-        m_portPool->addSubscriberPort(service, historyRequest, processName, portConfigInfo.memoryInfo);
+        m_portPool->addSubscriberPort(service, processName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
         m_portIntrospection.addSubscriber(maybeSubscriberPortData.value(), processName, service, node);
@@ -653,7 +656,8 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const Process
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service,
+                                            const capro::IdString_t& instance) noexcept
 {
     m_serviceRegistry.add(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);

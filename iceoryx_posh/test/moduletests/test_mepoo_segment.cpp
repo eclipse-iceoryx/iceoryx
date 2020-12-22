@@ -180,9 +180,9 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetWriterGroup))
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
 {
-    ASSERT_THAT(sut.getMemoryManager().getNumberOfMemPools(), Eq(1u));
+    ASSERT_THAT(sut.getMemoryManager().getNumberOfMemPools(), Eq(1U));
     auto config = sut.getMemoryManager().getMemPoolInfo(0);
-    ASSERT_THAT(config.m_numChunks, Eq(100u));
-    auto chunk = sut.getMemoryManager().getChunk(128);
-    EXPECT_THAT(chunk.getChunkHeader()->m_info.m_payloadSize, Eq(128u));
+    ASSERT_THAT(config.m_numChunks, Eq(100U));
+    auto chunk = sut.getMemoryManager().getChunk(128U);
+    EXPECT_THAT(chunk.getChunkHeader()->payloadSize, Eq(128U));
 }

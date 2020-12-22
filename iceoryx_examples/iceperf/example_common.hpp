@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
+#ifndef IOX_EXAMPLES_ICEPERF_EXAMPLE_COMMON_HPP
+#define IOX_EXAMPLES_ICEPERF_EXAMPLE_COMMON_HPP
 
-using namespace ::testing;
-using ::testing::_;
-using ::testing::Return;
-
-int main(int argc, char* argv[])
+enum class Benchmarks
 {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+    ALL,
+    C_API,
+    CPP_API
+};
+
+Benchmarks getBenchmarkFromString(const char* argv) noexcept;
+
+#endif
+

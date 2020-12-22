@@ -119,10 +119,10 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::prepare
     const posix::PosixGroup& writerGroup,
     uint32_t id) noexcept
 {
-    strncpy(sample.m_readerGroupName, readerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
-    sample.m_readerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
-    strncpy(sample.m_writerGroupName, writerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
-    sample.m_writerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
+    sample.m_readerGroupName.assign("");
+    sample.m_readerGroupName.append(cxx::TruncateToCapacity, readerGroup.getName());
+    sample.m_writerGroupName.assign("");
+    sample.m_writerGroupName.append(cxx::TruncateToCapacity, writerGroup.getName());
     sample.m_id = id;
 }
 

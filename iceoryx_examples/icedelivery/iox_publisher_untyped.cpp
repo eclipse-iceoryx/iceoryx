@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/untyped_publisher.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-#include <chrono>
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 #include <iostream>
-#include <thread>
 
 bool killswitch = false;
 
@@ -35,7 +34,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
 
-    iox::popo::UntypedPublisher untypedPublisher({"Odometry", "Position", "Vehicle"});
+    iox::popo::UntypedPublisher untypedPublisher({"Radar", "FrontLeft", "Object"});
     untypedPublisher.offer();
 
     float_t ct = 0.0;
@@ -45,14 +44,14 @@ int main()
 
         // API Usage #1
         //  * Loaned sample can be held until ready to publish
-        auto result = untypedPublisher.loan(sizeof(Position));
+        auto result = untypedPublisher.loan(sizeof(RadarObject));
         if (!result.has_error())
         {
             auto& sample = result.value();
             // In the untyped API, the returned sample is a void pointer, therefore the data must be constructed
             // in place
-            auto position = static_cast<Position*>(sample.get());
-            *position = Position(ct, ct, ct);
+            auto object = static_cast<RadarObject*>(sample.get());
+            *object = RadarObject(ct, ct, ct);
             sample.publish();
         }
         else
@@ -64,15 +63,17 @@ int main()
 
         // API Usage #2
         // * Loan sample and provide logic to use it immediately via a lambda
-        untypedPublisher.loan(sizeof(Position))
+        untypedPublisher.loan(sizeof(RadarObject))
             .and_then([&](auto& sample) {
-                auto position = static_cast<Position*>(sample.get());
-                *position = Position(ct, ct, ct);
+                auto object = static_cast<RadarObject*>(sample.get());
+                *object = RadarObject(ct, ct, ct);
                 sample.publish();
             })
             .or_else([&](iox::popo::AllocationError error) {
                 // Do something with error
             });
+
+        std::cout << "Sent two times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

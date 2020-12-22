@@ -37,20 +37,19 @@ class UntypedSubscriberImpl
     using BaseSubscriber =
         base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>;
 
-    UntypedSubscriberImpl(const capro::ServiceDescription& service);
+    UntypedSubscriberImpl(const capro::ServiceDescription& service,
+                          const SubscriberOptions& subscriberOptions = SubscriberOptions());
     UntypedSubscriberImpl(const UntypedSubscriberImpl& other) = delete;
     UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
     UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
     virtual ~UntypedSubscriberImpl() = default;
 
-    using BaseSubscriber::attachTo;
-    using BaseSubscriber::detachEvent;
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
     using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::hasSamples;
     using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseQueuedSamples;
     using BaseSubscriber::subscribe;

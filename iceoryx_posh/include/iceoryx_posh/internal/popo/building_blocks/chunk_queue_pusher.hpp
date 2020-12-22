@@ -44,9 +44,7 @@ class ChunkQueuePusher
 
     /// @brief push a new chunk to the chunk queue
     /// @param[in] shared chunk object
-    /// @return if the values was pushed successfully into the chunk queue it returns
-    ///         success, otherwise a ChunkQueueError
-    cxx::expected<ChunkQueueError> tryPush(mepoo::SharedChunk chunk) noexcept;
+    void push(mepoo::SharedChunk chunk) noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

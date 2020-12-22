@@ -42,10 +42,7 @@ using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
 using ::testing::Return;
 
-
-using TimePointNs = iox::mepoo::TimePointNs;
-using BaseClock = iox::mepoo::BaseClock;
-using Timer = iox::posix::Timer;
+using iox::posix::Timer;
 
 class Mepoo_IntegrationTest : public Test
 {
@@ -300,7 +297,7 @@ class Mepoo_IntegrationTest : public Test
         {
             publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
                 new (sample->payload()) Topic;
-                sample->m_info.m_payloadSize = topicSize;
+                sample->payloadSize = topicSize;
                 publisherPort->sendChunk(sample);
                 m_roudiEnv->InterOpWait();
             });

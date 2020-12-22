@@ -95,6 +95,7 @@ class GatewayGeneric : public gateway_t
     /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for
     /// later access.
     /// @param service The service to create a channel for.
+    /// @param options The PublisherOptions or SubscriberOptions with historyCapacity and queueCapacity.
     /// @return an expected containing a copy of the added channel, otherwise an error
     ///
     /// @note Wildcard services are not allowed and will be ignored.
@@ -107,7 +108,9 @@ class GatewayGeneric : public gateway_t
     /// The service description is perhaps too large for copying since they contain strings, however this should be
     /// addressed with a service description repository feature.
     ///
-    cxx::expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service) noexcept;
+    template <typename IceoryxPubSubOptions>
+    cxx::expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service,
+                                                      const IceoryxPubSubOptions& options) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns

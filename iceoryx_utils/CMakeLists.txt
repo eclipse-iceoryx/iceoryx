@@ -1,3 +1,18 @@
+# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_utils_VERSION)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
@@ -5,7 +20,7 @@ project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
-if( clang-tidy )
+if(CLANG_TIDY)
     find_program(
         CLANG_TIDY_EXE
         NAMES "clang-tidy"
@@ -16,7 +31,7 @@ if( clang-tidy )
     else(CLANG_TIDY_EXE)
         message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
     endif(CLANG_TIDY_EXE)
-endif( clang-tidy )
+endif(CLANG_TIDY)
 
 ########## find_package in source tree ##########
 #
@@ -27,19 +42,14 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 )
 
 #
-########## set variables for library export ##########
-#
-
-
-#
 ########## set util internal target, needed by tests in components ##########
 #
 # TODO: we need something like internal public for internal build dependencies
 # instead of making the whole source folder public for internal dependency resolution
 
-if(test AND NOT GTest_FOUND)
+if(BUILD_TEST AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
-endif(test AND NOT GTest_FOUND)
+endif(BUILD_TEST AND NOT GTest_FOUND)
 
 if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_utils_testing without also building the tests
 
@@ -95,11 +105,6 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     if(LINUX)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
     endif()
-
-    # install_target_directories_and_header(
-    # TARGETS iceoryx_utils_testing
-    # INCLUDE_DIRECTORY testutils/
-    # )
 
     setup_install_directories_and_export_package(
     TARGETS iceoryx_utils_testing
@@ -255,7 +260,6 @@ install(
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
-if(test)
+if(BUILD_TEST)
     add_subdirectory(test)
-    add_subdirectory(test/stresstests/benchmark_optional_and_expected)
-endif(test)
+endif(BUILD_TEST)

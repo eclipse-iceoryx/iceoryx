@@ -31,6 +31,15 @@ template <typename T>
 T assignSymbol(const std::string& functionName);
 } // namespace mocks
 
+#define STATIC_FUNCTION_LOADER_MANUAL_DEDUCE(type, functionName)                                                       \
+    []() {                                                                                                             \
+        static auto returnValue = mocks::assignSymbol<type>(#functionName);                                            \
+        return returnValue;                                                                                            \
+    }()
+
+#define STATIC_FUNCTION_LOADER_AUTO_DEDUCE(functionName)                                                               \
+    STATIC_FUNCTION_LOADER_MANUAL_DEDUCE(decltype(&functionName), functionName)
+
 #include "mocks.inl"
 
 #endif // IOX_UTILS_MOCKS_MOCKS_HPP

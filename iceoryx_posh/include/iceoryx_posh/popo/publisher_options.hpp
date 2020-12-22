@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
+#ifndef IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
+#define IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
 
-using namespace ::testing;
-using ::testing::_;
-using ::testing::Return;
+#include <cstdint>
 
-int main(int argc, char* argv[])
+namespace iox
 {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+namespace popo
+{
+/// @brief This struct is used to configure the publisher
+struct PublisherOptions
+{
+    /// @brief The size of the history chunk queue
+    uint64_t historyCapacity{0U};
+};
+
+} // namespace popo
+} // namespace iox
+#endif // IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP

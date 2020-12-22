@@ -35,20 +35,21 @@ Let's take a look at the `receiving` function which comes with the
  2. We create a subscriber port and are subscribing to the service
     {"Radar", "FrontLeft", "Counter" }. Hereby the `historyRequest`
     tells the subscriber how many previously send samples it should receive
-    right after the connection is established. These are
-    samples which the publisher has send before the subscriber was
-    connected.
+    right after the connection is established and the `queueCapacity` how many
+    samples the subscriber can hold. These are samples which the publisher has
+    send before the subscriber was connected.
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c
-    uint64_t historyRequest = 0u;
+    const uint64_t historyRequest = 10U;
+    const uint64_t queueCapacity = 5U;
     iox_sub_storage_t subscriberStorage;
-    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
+    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
     ```
 
-  3. We subscribe to the service with a queue capacity of 10.
+  3. We subscribe to the service.
      ```c
-     iox_sub_subscribe(subscriber, 10);
+     iox_sub_subscribe(subscriber);
      ```
 
   4. In this loop we receive samples as long the `killswitch` is not
@@ -109,7 +110,7 @@ Let's take a look at the `sending` function which comes with the
  2. We create a publisher with the service
     {"Radar", "FrontLeft", "Counter"}
     ```c
-    uint64_t historyRequest = 0u;
+    const uint64_t historyRequest = 10U;
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
     ```
@@ -139,7 +140,7 @@ Let's take a look at the `sending` function which comes with the
 
             ++ct;
 
-            sleep_for(1000);
+            sleep_for(400);
         }
         else
         {

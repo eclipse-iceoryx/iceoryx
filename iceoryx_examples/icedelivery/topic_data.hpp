@@ -16,12 +16,12 @@
 
 #include <cstdint>
 
-struct Position
+struct RadarObject
 {
-    Position() noexcept
+    RadarObject() noexcept
     {
     }
-    Position(double x, double y, double z) noexcept
+    RadarObject(double x, double y, double z) noexcept
         : x(x)
         , y(y)
         , z(z)

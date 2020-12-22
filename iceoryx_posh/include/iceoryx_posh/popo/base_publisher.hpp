@@ -110,7 +110,7 @@ class BasePublisher : public PublisherInterface<T>
 
   protected:
     BasePublisher() = default; // Required for testing.
-    BasePublisher(const capro::ServiceDescription& service);
+    BasePublisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions);
 
   private:
     ///

@@ -37,7 +37,7 @@ void receive()
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        while (subscriber.hasNewSamples())
+        while (subscriber.hasSamples())
         {
             subscriber.take()
                 .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
@@ -53,7 +53,7 @@ void receive()
 int main()
 {
     signal(SIGINT, sigHandler);
-    iox::runtime::PoshRuntime::initRuntime("/iox-subscriber");
+    iox::runtime::PoshRuntime::initRuntime("iox-subscriber");
 
     std::thread receiver(receive);
     receiver.join();

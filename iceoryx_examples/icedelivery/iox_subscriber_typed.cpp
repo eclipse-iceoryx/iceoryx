@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
-#include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
+
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <csignal>
 #include <iostream>
 
-iox::popo::UserTrigger shutdownTrigger;
+bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
-    shutdownTrigger.trigger(); // unblock waitsets
+    killswitch = true;
 }
 
 int main()
@@ -37,38 +36,34 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed");
 
-    // initialized subscribers
-    iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"});
-    typedSubscriber.subscribe(10);
-
-    // set up waitset
-    iox::popo::WaitSet<> waitSet{};
-    typedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-    shutdownTrigger.attachTo(waitSet);
+    // initialized subscriber
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 10U;
+    iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    typedSubscriber.subscribe();
 
     // run until interrupted by Ctrl-C
-    while (true)
+    while (!killswitch)
     {
-        auto triggerVector = waitSet.wait();
-        for (auto& trigger : triggerVector)
+        if (typedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            if (trigger.doesOriginateFrom(&shutdownTrigger))
-            {
-                return (EXIT_SUCCESS);
-            }
-            else
-            {
-                auto subscriber = trigger.getOrigin<iox::popo::TypedSubscriber<Position>>();
-                subscriber->take()
-                    .and_then([](iox::popo::Sample<const Position>& position) {
-                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
-                                  << std::endl;
-                    })
-                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
-            }
+            typedSubscriber.take()
+                .and_then([](iox::popo::Sample<const RadarObject>& object) {
+                    std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
+                              << std::endl;
+                })
+                .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
         }
+        else
+        {
+            std::cout << "Not subscribed!" << std::endl;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+
+    typedSubscriber.unsubscribe();
 
     return (EXIT_SUCCESS);
 }

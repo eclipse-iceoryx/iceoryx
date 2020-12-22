@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,9 +67,12 @@ class Channel
     ///
     /// @brief create Creates a channel for the given service whose terminals reside in a static object pool.
     /// @param service The service to create the channel for.
+    /// @param options The PublisherOptions or SubscriberOptions with historyCapacity and queueCapacity.
     /// @return A copy of the created channel, if successful.
     ///
-    static cxx::expected<Channel, ChannelError> create(const capro::ServiceDescription& service) noexcept;
+    template <typename IceoryxPubSubOptions>
+    static cxx::expected<Channel, ChannelError> create(const capro::ServiceDescription& service,
+                                                       const IceoryxPubSubOptions& options) noexcept;
 
     capro::ServiceDescription getServiceDescription() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;

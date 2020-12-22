@@ -18,7 +18,7 @@
 /// @brief describes events which can be triggered by a subscriber
 enum iox_SubscriberEvent
 {
-    SubscriberEvent_HAS_NEW_SAMPLES,
+    SubscriberEvent_HAS_SAMPLES,
 };
 
 /// @brief describes the current state of a subscriber
@@ -52,8 +52,8 @@ enum iox_AllocationResult
 
 enum iox_WaitSetResult
 {
-    WaitSetResult_TRIGGER_VECTOR_OVERFLOW,
-    WaitSetResult_TRIGGER_ALREADY_ACQUIRED,
+    WaitSetResult_WAIT_SET_FULL,
+    WaitSetResult_EVENT_ALREADY_ATTACHED,
     WaitSetResult_UNDEFINED_ERROR,
     WaitSetResult_SUCCESS
 };

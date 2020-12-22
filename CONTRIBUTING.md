@@ -42,7 +42,7 @@ or
 
 If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
 Please have a quick search upfront if a similar issue already exists. An
-[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritise the issues for a specific release.
+[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritize the issues for a specific release.
 This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please
 contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
 
@@ -90,6 +90,7 @@ See [error-handling.md](./doc/error-handling.md) for additional information abou
 * Methods and variables in `lowerCamelCase`: `uint16_t myVariable`
 * Compile time constants, also enum values in `UPPER_SNAKE_CASE`: `static constexpr uint16_t MY_CONSTANT`
 * Class members start with `m_`: `m_myMember`
+    * Public members of structs and classes do not have the `m_` prefix
 * Namespaces in `lower_snake_case` : `my_namespace`
 * Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
 
@@ -115,7 +116,7 @@ The folder structure boils down to:
   * include: public headers with stable API
     * internal: public headers with unstable API, which might change quite frequently
   * source: implementation files
-  * test: unit and integrations tests
+  * test: unit and integration tests
   * CMakeLists.txt: Build the component separately
 * examples_iceoryx: Examples described in [iceoryx_examples](./iceoryx_examples/README.md)
 
@@ -138,27 +139,27 @@ Integration tests are composition of more than one class and test their interact
 
 To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with lcov and htmlgen.
 You will need to install the following packages:
-    ```
-    sudo apt install lcov
-    ```
+```
+sudo apt install lcov
+```
 
 In iceoryx we have multiple testlevels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all testlevels together. You can create reports for these different testlevels or for all tests. Coverage is done with gcc.
 The coverage scan applies to Quality level 3 and partly level 2 with branch coverage.
 
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
-You can do this with one command like this:
-    ```
-    ./tools/iceoryx_build_test.sh clean -c <testlevel> -j 4
-    ```
-
+You can do this with one command in iceroyx folder like this:
+```
+./tools/iceoryx_build_test.sh clean buildall -c <testlevel>
+```
+Optionally you can use buildall option to get coverage for extensions like DDS or C-Binding.
 The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
 example:
-    ```
-    ./tools/iceoryx_build_test.sh clean -c unit -j 4
-    ```
-For having only unittest reports. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
+```
+./tools/iceoryx_build_test.sh buildall clean -c unit
+```
+For having only reports for unit-test. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
 
-All reports are stored in build/lcov as html report.
+All reports are stored in build/lcov as html report (index.html).
 
 ## Legal & Compliance
 

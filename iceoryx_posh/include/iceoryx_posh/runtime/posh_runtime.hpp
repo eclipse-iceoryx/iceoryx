@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 
@@ -84,27 +85,27 @@ class PoshRuntime
 
     /// @brief request the RouDi daemon to create a publisher port
     /// @param[in] serviceDescription service description for the new publisher port
-    /// @param[in] historyCapacity history capacity of a publisher
+    /// @param[in] publisherOptions like the history capacity of a publisher
     /// @param[in] nodeName name of the node where the publisher should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created publisher port user
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
-                           const uint64_t& historyCapacity = 0U,
+                           const popo::PublisherOptions& publisherOptions = popo::PublisherOptions(),
                            const NodeName_t& nodeName = "",
                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a subscriber port
     /// @param[in] serviceDescription service description for the new subscriber port
-    /// @param[in] historyRequest history requested by a subscriber
+    /// @param[in] subscriberOptions like the queue capacity and history requested by a subscriber
     /// @param[in] nodeName name of the node where the subscriber should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created subscriber port data
     SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
-                            const uint64_t& historyRequest = 0U,
+                            const popo::SubscriberOptions& subscriberOptions = popo::SubscriberOptions(),
                             const NodeName_t& nodeName = "",
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 

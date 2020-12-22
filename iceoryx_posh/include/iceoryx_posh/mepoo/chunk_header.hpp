@@ -16,7 +16,6 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
 
 #include <cstdint>
 
@@ -36,31 +35,28 @@ struct alignas(32) ChunkHeader
     ///            - semantic meaning of a member changes
     static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
 
-    /// @deprecated iox-#14
-    ChunkInfo m_info;
-
     /// @brief The size of the whole chunk, including the header
-    uint32_t m_chunkSize{0U};
+    uint32_t chunkSize{0U};
 
     /// @brief Used to detect incompatibilities for record&replay functionality
-    uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
+    uint8_t chunkHeaderVersion{CHUNK_HEADER_VERSION};
 
     /// @brief Currently not used and set to `0`
-    uint8_t m_reserved1{0U};
-    uint8_t m_reserved2{0U};
-    uint8_t m_reserved3{0U};
+    uint8_t reserved1{0U};
+    uint8_t reserved2{0U};
+    uint8_t reserved3{0U};
 
     /// @brief The unique identifier of the publisher the chunk was sent from
-    UniquePortId m_originId{popo::InvalidId};
+    UniquePortId originId{popo::InvalidId};
 
     /// @brief a serial number for the sent chunks
-    uint64_t m_sequenceNumber{0U};
+    uint64_t sequenceNumber{0U};
 
     /// @brief The size of the chunk occupied by the payload
-    uint32_t m_payloadSize{0U};
+    uint32_t payloadSize{0U};
 
     /// @brief The offset of the payload relative to the begin of the chunk
-    uint32_t m_payloadOffset{sizeof(ChunkHeader)};
+    uint32_t payloadOffset{sizeof(ChunkHeader)};
 
     /// @brief Get a pointer to the payload carried by the chunk
     /// @return the pointer to the payload
@@ -75,6 +71,10 @@ struct alignas(32) ChunkHeader
     /// @param[in] payload is the pointer to the payload of the chunk
     /// @return the pointer to the `ChunkHeader` or a `nullptr` if `payload` is a `nullptr`
     static ChunkHeader* fromPayload(const void* const payload) noexcept;
+
+    /// @brief Calculates the used size of the chunk with the ChunkHeader, custom heander and payload
+    /// @return the used size of the chunk
+    uint32_t usedSizeOfChunk();
 };
 
 } // namespace mepoo

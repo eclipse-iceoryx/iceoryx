@@ -67,10 +67,10 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
 {
     switch (value)
     {
-    case WaitSetError::TRIGGER_VECTOR_OVERFLOW:
-        return WaitSetResult_TRIGGER_VECTOR_OVERFLOW;
-    case WaitSetError::TRIGGER_ALREADY_ACQUIRED:
-        return WaitSetResult_TRIGGER_ALREADY_ACQUIRED;
+    case WaitSetError::WAIT_SET_FULL:
+        return WaitSetResult_WAIT_SET_FULL;
+    case WaitSetError::EVENT_ALREADY_ATTACHED:
+        return WaitSetResult_EVENT_ALREADY_ATTACHED;
     default:
         return WaitSetResult_UNDEFINED_ERROR;
     }

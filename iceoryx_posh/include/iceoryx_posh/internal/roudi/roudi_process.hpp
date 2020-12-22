@@ -68,9 +68,9 @@ class RouDiProcess
     /// @return the session ID for this process
     uint64_t getSessionId() noexcept;
 
-    void setTimestamp(const mepoo::TimePointNs timestamp) noexcept;
+    void setTimestamp(const mepoo::TimePointNs_t timestamp) noexcept;
 
-    mepoo::TimePointNs getTimestamp() noexcept;
+    mepoo::TimePointNs_t getTimestamp() noexcept;
 
     mepoo::MemoryManager* getPayloadMemoryManager() const noexcept;
     uint64_t getPayloadSegmentId() const noexcept;
@@ -80,7 +80,7 @@ class RouDiProcess
   private:
     int m_pid;
     runtime::MqInterfaceUser m_mq;
-    mepoo::TimePointNs m_timestamp;
+    mepoo::TimePointNs_t m_timestamp;
     mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
     bool m_isMonitored{true};
     uint64_t m_payloadSegmentId;
@@ -146,13 +146,13 @@ class ProcessManager : public ProcessManagerInterface
 
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,
-                                 const uint64_t& historyRequest,
+                                 const popo::SubscriberOptions& subscriberOptions,
                                  const NodeName_t& node,
                                  const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addPublisherForProcess(const ProcessName_t& name,
                                 const capro::ServiceDescription& service,
-                                const uint64_t& historyCapacity,
+                                const popo::PublisherOptions& publisherOptions,
                                 const NodeName_t& node,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 

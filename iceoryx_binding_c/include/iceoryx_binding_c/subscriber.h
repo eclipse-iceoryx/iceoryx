@@ -21,20 +21,21 @@
 
 /// @brief Subscriber handle
 typedef struct cpp2c_Subscriber* iox_sub_t;
-typedef CLASS cpp2c_WaitSet* iox_ws_t;
 
 /// @brief initialize subscriber handle in the default runtime node
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] historyCapacity size of the history chunk queue
+/// @param[in] queueCapacity size of the receiver queue
+/// @param[in] historyRequest of chunks received after subscription if chunks are available
 /// @return handle of the subscriber
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       uint64_t historyRequest);
+                       const uint64_t queueCapacity,
+                       const uint64_t historyRequest);
 
 /// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed
@@ -42,8 +43,7 @@ void iox_sub_deinit(iox_sub_t const self);
 
 /// @brief subscribes to the service
 /// @param[in] self handle to the subscriber
-/// @param[in] queueCapacity size of the receiver queue
-void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity);
+void iox_sub_subscribe(iox_sub_t const self);
 
 /// @brief unsubscribes from a service
 /// @param[in] self handle to the subscriber
@@ -73,33 +73,12 @@ void iox_sub_release_queued_chunks(iox_sub_t const self);
 
 /// @brief are new chunks available?
 /// @param[in] self handle to the subscriber
-/// @return true if there are new chunks otherwise false
-bool iox_sub_has_new_chunks(iox_sub_t const self);
+/// @return true if there are chunks otherwise false
+bool iox_sub_has_chunks(iox_sub_t const self);
 
 /// @brief are chunks lost?
 /// @param[in] self handle to the subscriber
 /// @return true if there are lost chunks otherwise false
 bool iox_sub_has_lost_chunks(iox_sub_t const self);
-
-/// @brief attaches the subscriber to a waitset
-/// @param[in] self handle to the subscriber
-/// @param[in] waitset handle to the waitset
-/// @param[in] event the type of the event which should be attached to the waitset
-/// @param[in] triggerId the user defined trigger id
-/// @param[in] callback a callback which is attached to the trigger, NULL if no
-///            callback should be set
-/// @return if it was attached successfully it returns WaitSetResult_SUCCESS
-///         otherwise an enum which is describing the error
-ENUM iox_WaitSetResult iox_sub_attach_to_waitset(iox_sub_t const self,
-                                                 iox_ws_t const waitset,
-                                                 const ENUM iox_SubscriberEvent event,
-                                                 const uint64_t triggerId,
-                                                 void (*callback)(iox_sub_t));
-
-/// @brief detaches the subscriber from a waitset
-/// @param[in] self handle to the subscriber
-/// @param[in] event the type of the event which should be detached
-void iox_sub_detach_event(iox_sub_t const self, const ENUM iox_SubscriberEvent event);
-
 
 #endif

@@ -17,9 +17,7 @@
 #include "iceoryx_posh/popo/typed_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#include <chrono>
 #include <iostream>
-#include <thread>
 
 bool killswitch = false;
 
@@ -29,9 +27,9 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void getVehiclePosition(Position* const allocation, const uint64_t& val) noexcept
+void getRadarObject(RadarObject* const object, const uint64_t& val) noexcept
 {
-    new (allocation) Position(val, val, val);
+    *object = RadarObject(val, val, val);
 }
 
 int main()
@@ -41,7 +39,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
 
-    iox::popo::TypedPublisher<Position> typedPublisher({"Odometry", "Position", "Vehicle"});
+    iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"});
     typedPublisher.offer();
 
     float_t ct = 0.0;
@@ -73,9 +71,9 @@ int main()
         //
         typedPublisher.loan()
             .and_then([&](auto& sample) {
-                auto position = sample.get();
+                auto object = sample.get();
                 // Do some stuff leading to eventually generating the data in the samples loaned memory...
-                *position = Position(ct, ct, ct);
+                *object = RadarObject(ct, ct, ct);
                 // ...then publish the sample
                 sample.publish();
             })
@@ -87,16 +85,18 @@ int main()
         // API Usage #3
         //  * Basic copy-and-publish. Useful for smaller data types.
         //
-        auto position = Position(ct, ct, ct);
-        typedPublisher.publishCopyOf(position);
+        auto object = RadarObject(ct, ct, ct);
+        typedPublisher.publishCopyOf(object);
 
         // API Usage #4
         //  * Provide a callable that will be used to populate the loaned sample.
         //  * The first argument of the callable must be T* and is the location that the callable should
         //      write its result to.
         //
-        typedPublisher.publishResultOf(getVehiclePosition, ct);
-        typedPublisher.publishResultOf([&ct](Position* position) { *position = Position(ct, ct, ct); });
+        typedPublisher.publishResultOf(getRadarObject, ct);
+        typedPublisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); });
+
+        std::cout << "Sent five times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
