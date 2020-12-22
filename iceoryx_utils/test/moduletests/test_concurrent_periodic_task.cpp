@@ -15,6 +15,7 @@
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
+#include "timing_test.hpp"
 
 #include "test.hpp"
 
@@ -23,6 +24,7 @@
 
 using namespace ::testing;
 using namespace iox;
+using namespace iox::units::duration_literals;
 
 constexpr std::chrono::milliseconds SLEEP_TIME{100};
 #if defined(__APPLE__)
@@ -100,8 +102,7 @@ TEST_F(PeriodicTask_test, MoveAssignmentIsDeleted)
     EXPECT_FALSE(std::is_move_assignable<concurrent::PeriodicTask<PeriodicTaskTestType>>::value);
 }
 
-TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithDefaultConstructor)
-{
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithDefaultConstructor, Repeat(3), [&] {
     {
         using namespace iox::units::duration_literals;
         concurrent::PeriodicTask<PeriodicTaskTestType> sut("Test", 10_ms);
@@ -110,10 +111,9 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithDefaultConstructor)
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-}
+});
 
-TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithConstructorWithArguments)
-{
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithConstructorWithArguments, Repeat(3), [&] {
     constexpr uint64_t CALL_COUNTER_OFFSET{1000ULL * 1000ULL * 1000ULL * 1000ULL};
     {
         using namespace iox::units::duration_literals;
@@ -124,10 +124,9 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithConstructorWithArguments)
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter,
                 AllOf(Ge(CALL_COUNTER_OFFSET + MIN_RUNS), Le(CALL_COUNTER_OFFSET + MAX_RUNS)));
-}
+});
 
-TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference)
-{
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference, Repeat(3), [&] {
     {
         using namespace iox::units::duration_literals;
         PeriodicTaskTestType testType;
@@ -137,10 +136,9 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference)
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-}
+});
 
-TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef)
-{
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef, Repeat(3), [&] {
     {
         using namespace iox::units::duration_literals;
         concurrent::PeriodicTask<cxx::function_ref<void()>> sut("Test", 10_ms, PeriodicTaskTestType::increment);
@@ -149,10 +147,9 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef)
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-}
+});
 
-TEST_F(PeriodicTask_test, PeriodicTaskWithStdFunction)
-{
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithStdFunction, Repeat(3), [&] {
     {
         using namespace iox::units::duration_literals;
         concurrent::PeriodicTask<std::function<void()>> sut("Test", 10_ms, PeriodicTaskTestType::increment);
@@ -161,18 +158,17 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithStdFunction)
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-}
+});
 
-TEST_F(PeriodicTask_test, PeriodicTaskWithMethodCallback)
-{
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithMethodCallback, Repeat(3), ([&] {
     {
         using namespace iox::units::duration_literals;
         PeriodicTaskTestType testType;
         concurrent::PeriodicTask<cxx::MethodCallback<void>> sut{
-            "Test", 10_ms, testType, &PeriodicTaskTestType::incrementMethod};
+            "Test", 10_ms, cxx::MethodCallback<void>{testType, &PeriodicTaskTestType::incrementMethod}};
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-}
+}));
