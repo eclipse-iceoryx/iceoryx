@@ -37,7 +37,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type)
+    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
 endif()
 
 if(BUILD_STRICT)
