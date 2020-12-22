@@ -199,8 +199,8 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
     else
     {
         auto chunkHeader = new (chunk) ChunkHeader();
-        chunkHeader->m_chunkSize = totalSizeOfAquiredChunk;
-        chunkHeader->m_payloadSize = f_size;
+        chunkHeader->chunkSize = totalSizeOfAquiredChunk;
+        chunkHeader->payloadSize = f_size;
         auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
             ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
         return SharedChunk(chunkManagement);

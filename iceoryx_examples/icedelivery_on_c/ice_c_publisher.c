@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ void sending()
 {
     iox_runtime_init("iox-c-publisher");
 
-    const uint64_t historyRequest = 0U;
+    const uint64_t historyRequest = 10U;
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
 
@@ -57,7 +57,7 @@ void sending()
 
             ++ct;
 
-            sleep_for(1000);
+            sleep_for(400);
         }
         else
         {
