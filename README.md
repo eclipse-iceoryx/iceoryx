@@ -54,11 +54,11 @@ An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Oth
 
 ## Build and install
 
-You can find the build and installation guidelines [here](doc/installation-guide.md).
+You can find the build and installation guidelines [here](doc/website/getting-started/installation.md).
 
 ## Examples
 
-After you've built all the necessary things, you can continue playing around with the [examples](./iceoryx_examples).
+After you've built all the necessary things, you can continue playing around with the [examples](./iceoryx_examples/README.md).
 
 ## Build and run in a Docker environment
 
