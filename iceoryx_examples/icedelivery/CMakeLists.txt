@@ -16,6 +16,11 @@ target_link_libraries(iox-ex-publisher-typed
     iceoryx_posh::iceoryx_posh
 )
 
+add_executable(iox-ex-publisher-with-history ./iox_publisher_with_history.cpp)
+target_link_libraries(iox-ex-publisher-with-history
+    iceoryx_posh::iceoryx_posh
+)
+
 add_executable(iox-ex-publisher-untyped ./iox_publisher_untyped.cpp)
 target_link_libraries(iox-ex-publisher-untyped
     iceoryx_posh::iceoryx_posh
@@ -26,12 +31,18 @@ target_link_libraries(iox-ex-subscriber-typed
     iceoryx_posh::iceoryx_posh
 )
 
+add_executable(iox-ex-subscriber-with-history ./iox_subscriber_with_history.cpp)
+target_link_libraries(iox-ex-subscriber-with-history
+    iceoryx_posh::iceoryx_posh
+)
+
 add_executable(iox-ex-subscriber-untyped ./iox_subscriber_untyped.cpp)
 target_link_libraries(iox-ex-subscriber-untyped
     iceoryx_posh::iceoryx_posh
 )
 
 set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
+                      iox-ex-publisher-with-history iox-ex-subscriber-with-history
                       iox-ex-publisher-typed iox-ex-publisher-untyped
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
@@ -42,5 +53,6 @@ set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
 # ========================================================== //
 
 install(TARGETS iox-ex-publisher-untyped iox-ex-publisher-typed
+                iox-ex-publisher-with-history iox-ex-subscriber-with-history
                 iox-ex-subscriber-untyped iox-ex-subscriber-typed
         RUNTIME DESTINATION bin)

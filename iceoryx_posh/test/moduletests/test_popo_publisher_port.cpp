@@ -197,7 +197,7 @@ TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
     auto chunkHeader = maybeChunkHeader.value();
 
-    EXPECT_THAT(chunkHeader->m_originId, Eq(m_sutUserSide.getUniqueID()));
+    EXPECT_THAT(chunkHeader->originId, Eq(m_sutUserSide.getUniqueID()));
     m_sutUserSide.freeChunk(chunkHeader);
 }
 

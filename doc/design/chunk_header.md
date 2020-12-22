@@ -31,60 +31,60 @@ Chunks are the transport capsules in iceoryx. They store data from a publisher a
 ```
 struct alignas(32) ChunkHeader
 {
-    uint32_t m_chunkSize;
-    uint8_t m_chunkHeaderVersion;
-    uint8_t m_reserved1;
-    uint8_t m_reserved2;
-    uint8_t m_reserved3;
-    uint64_t m_originId;
-    uint64_t m_sequenceNumber;
-    uint32_t m_payloadSize;
-    uint32_t m_payloadOffset;
+    uint32_t chunkSize;
+    uint8_t chunkHeaderVersion;
+    uint8_t reserved1;
+    uint8_t reserved2;
+    uint8_t reserved3;
+    uint64_t originId;
+    uint64_t sequenceNumber;
+    uint32_t payloadSize;
+    uint32_t payloadOffset;
 };
 ```
 
-- **m_chunkSize** is the size of the whole chunk
-- **m_chunkHeaderVersion** is used to detect incompatibilities for record&replay functionality
-- **m_reserved1**, **m_reserved2**, **m_reserved3** are currently not used and set to `0`
-- **m_originId** is the unique identifier of the publisher the chunk was sent from
-- **m_sequenceNumber** is a serial number for the sent chunks
-- **m_payloadSize** is the size of the chunk occupied by the payload
-- **m_payloadOffset** is the offset of the payload relative to the begin of the chunk
+- **chunkSize** is the size of the whole chunk
+- **chunkHeaderVersion** is used to detect incompatibilities for record&replay functionality
+- **reserved1**, **reserved2**, **reserved3** are currently not used and set to `0`
+- **originId** is the unique identifier of the publisher the chunk was sent from
+- **sequenceNumber** is a serial number for the sent chunks
+- **payloadSize** is the size of the chunk occupied by the payload
+- **payloadOffset** is the offset of the payload relative to the begin of the chunk
 
 #### Framing
 
-For back calculation from the payload pointer to the `ChunkHeader` pointer, the payload offset must be accessible from a defined position relative to the payload. Lets call this `back-offset`. This is solved by storing the offset in the 4 bytes in front of the payload. In case of a simple layout where the `ChunkHeader` is adjacent to the payload, this nicely overlaps with the position of `m_payloadOffset` and no memory is wasted. In more complex cases, the offset has to be stored a second time. If the payload alignment requires some padding from the header extension, this memory is used to store the offset.
+For back calculation from the payload pointer to the `ChunkHeader` pointer, the payload offset must be accessible from a defined position relative to the payload. Lets call this `back-offset`. This is solved by storing the offset in the 4 bytes in front of the payload. In case of a simple layout where the `ChunkHeader` is adjacent to the payload, this nicely overlaps with the position of `payloadOffset` and no memory is wasted. In more complex cases, the offset has to be stored a second time. If the payload alignment requires some padding from the header extension, this memory is used to store the offset.
 
 1. No custom header and alignment doesn't exceed the `ChunkHeader` alignment
 
 ```
- sizeof(ChunkHeader)    m_payloadSize
+ sizeof(ChunkHeader)      payloadSize
 |------------------>|--------------------->|
 |                   |                      |
 +===================+======================+==================================+
 |  ChunkHeader  ¦   |       Payload        |  Padding                         |
 +===================+======================+==================================+
 |                   |                                                         |
-|  m_payloadOffset  |                                                         |
+|   payloadOffset   |                                                         |
 |------------------>|                                                         |
-|                                m_chunkSize                                  |
+|                                 chunkSize                                   |
 |---------------------------------------------------------------------------->|
 ```
 
 2. No custom header and alignment exceeds the `ChunkHeader` alignment
 
 ```
- sizeof(ChunkHeader)             back-offset    m_payloadSize
+ sizeof(ChunkHeader)             back-offset     payloadSize
 |------------------>|                  |<---|------------------->|
 |                   |                  |    |                    |
 +===================+=======================+====================+============+
 |    ChunkHeader    |                  ¦    |      Payload       |  Padding   |
 +===================+=======================+====================+============+
 |                                           |                                 |
-|           m_payloadOffset                 |                                 |
+|            payloadOffset                  |                                 |
 |------------------------------------------>|                                 |
 |                                                                             |
-|                                m_chunkSize                                  |
+|                                 chunkSize                                   |
 |---------------------------------------------------------------------------->|
 ```
 
@@ -93,17 +93,17 @@ Depending on the address of the chunk there is the chance that `ChunkHeader` is 
 3. Custom header is used
 
 ```
- sizeof(ChunkHeader)             back-offset    m_payloadSize
+ sizeof(ChunkHeader)             back-offset     payloadSize
 |------------------>|                  |<---|------------------->|
 |                   |                  |    |                    |
 +===================+===============+=======+====================+============+
 |    ChunkHeader    | Custom Header |  ¦    |      Payload       |  Padding   |
 +===================+===============+=======+====================+============+
 |                                           |                                 |
-|           m_payloadOffset                 |                                 |
+|            payloadOffset                  |                                 |
 |------------------------------------------>|                                 |
 |                                                                             |
-|                                m_chunkSize                                  |
+|                                 chunkSize                                   |
 |---------------------------------------------------------------------------->|
 ```
 
@@ -225,7 +225,7 @@ Furthermore, the `Publisher` and `Subscriber` have access to the `ChunkHeader` a
 
 #### Pitfalls & Testing
 
-- when the payload is adjacent to the `ChunkHeader`, it must be ensured that `m_payloadOffset` overlaps with the `back-offset`, which is `sizeof(m_payloadOffset)` in front of the payload
+- when the payload is adjacent to the `ChunkHeader`, it must be ensured that `payloadOffset` overlaps with the `back-offset`, which is `sizeof(payloadOffset)` in front of the payload
 - to simplify calculation, it is assumed that the alignment of the custom header doesn't exceed the alignment of the `ChunkHeader`. This has to be enforced with an `assert`
 
 ## Open Issues
@@ -324,7 +324,7 @@ sub->take()
     - we could maintain a list of known header IDs or ranges of IDs similar to `IANA` https://tools.ietf.org/id/draft-cotton-tsvwg-iana-ports-00.html#privateports
     - the IDs could be stored in the `ChunkHeader` and everything with an ID larger than `0xC000` is free to use
     - to make this somewhat save, the `ChunkHeaderHook` must be mandatory with e.g. a `virtual uint16_t getId() = 0;` method which will be called in the `ChunkSender`
-- do we want to store the version of the custom extension in the `ChunkHeader`, similarly to `m_chunkHeaderVersion`
+- do we want to store the version of the custom extension in the `ChunkHeader`, similarly to `chunkHeaderVersion`
 - for record&replay the custom header is totally opaque, which might lead to problems if e.g. a timestamp is stored in the custom header and needs to be updated for the replay
     - if we maintain a list of known custom header IDs and also store the custom header version, a record&replay framework could implement the required conversions
 - for record&replay it is necessary to store the alignment of the payload; decide if a uint16_t should be used of if just the alignment power should be stored in a uint8_t

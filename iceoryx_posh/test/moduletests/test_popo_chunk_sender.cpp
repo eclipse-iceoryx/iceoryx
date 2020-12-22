@@ -114,7 +114,7 @@ TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(sizeof(DummySample), uniqueId);
 
     ASSERT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT((*maybeChunkHeader)->m_originId, Eq(uniqueId));
+    EXPECT_THAT((*maybeChunkHeader)->originId, Eq(uniqueId));
 }
 
 TEST_F(ChunkSender_test, allocate_MultipleChunks)
@@ -326,7 +326,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
         EXPECT_TRUE(popRet.has_value());
         auto dummySample = *reinterpret_cast<DummySample*>(popRet->getPayload());
         EXPECT_THAT(dummySample.dummy, Eq(i));
-        EXPECT_THAT(popRet->getChunkHeader()->m_sequenceNumber, Eq(i));
+        EXPECT_THAT(popRet->getChunkHeader()->sequenceNumber, Eq(i));
     }
 }
 

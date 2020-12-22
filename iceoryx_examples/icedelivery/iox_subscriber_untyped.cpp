@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
+
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <csignal>
 #include <iostream>
 
-iox::popo::UserTrigger shutdownTrigger;
+bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
-    shutdownTrigger.trigger(); // unblock waitsets
+    killswitch = true;
 }
 
 int main()
@@ -37,41 +36,35 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
 
-    // initialized subscribers
+    // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
     iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     untypedSubscriber.subscribe();
 
-    // set up waitset
-    iox::popo::WaitSet<> waitSet;
-    waitSet.attachEvent(untypedSubscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
-    waitSet.attachEvent(shutdownTrigger);
-
     // run until interrupted by Ctrl-C
-    while (true)
+    while (!killswitch)
     {
-        auto eventVector = waitSet.wait();
-        for (auto& event : eventVector)
+        if (untypedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            if (event->doesOriginateFrom(&shutdownTrigger))
-            {
-                return (EXIT_SUCCESS);
-            }
-            else
-            {
-                auto untypedSubscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
-                untypedSubscriber->take()
-                    .and_then([](iox::popo::Sample<const void>& sample) {
-                        auto object = static_cast<const RadarObject*>(sample.get());
-                        std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
-                                  << std::endl;
-                    })
-                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
-            }
+            untypedSubscriber.take()
+                .and_then([](iox::popo::Sample<const void>& sample) {
+                    auto object = static_cast<const RadarObject*>(sample.get());
+                    std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
+                              << std::endl;
+                })
+                .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
         }
+        else
+        {
+            std::cout << "Not subscribed!" << std::endl;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+
+    untypedSubscriber.unsubscribe();
 
     return (EXIT_SUCCESS);
 }
