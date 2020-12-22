@@ -22,7 +22,7 @@ find_package(iceoryx_binding_c CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
-endif ( NOT ICEORYX_CXX_STANDARD )
+endif ()
 
 add_executable(iceperf-laurel iceperf_laurel.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 
@@ -34,7 +34,7 @@ target_compile_options(iceperf-laurel PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANI
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-laurel socket)
-endif(CMAKE_SYSTEM_NAME MATCHES QNX)
+endif()
 
 add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 

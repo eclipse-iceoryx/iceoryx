@@ -42,7 +42,7 @@ if(USE_CYCLONE_DDS)
     message(INFO " Using CycloneDDS stack")
     find_package(CycloneDDS CONFIG REQUIRED)
     find_package(CycloneDDS-CXX CONFIG REQUIRED)
-endif(USE_CYCLONE_DDS)
+endif()
 
 #
 ########## build building-block library ##########
@@ -145,7 +145,7 @@ set_target_properties(iox-gw-iceoryx2dds iox-gw-dds2iceoryx iceoryx_dds
 #
 if(BUILD_TEST)
     add_subdirectory(test)
-endif(BUILD_TEST)
+endif()
 
 #
 ########## export library ##########

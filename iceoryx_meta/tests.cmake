@@ -23,10 +23,10 @@ if (BUILD_TEST)
     ### possible place for more extensions
     if (DDS_GATEWAY)
         list(APPEND COMPONENTS "dds_gateway")
-    endif(DDS_GATEWAY)
+    endif()
     if (BINDING_C)
         list(APPEND COMPONENTS "binding_c")
-    endif(BINDING_C)
+    endif()
 
     ### create test targets without Timing tests
     foreach(cmp IN ITEMS ${COMPONENTS})
@@ -72,4 +72,4 @@ if (BUILD_TEST)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )
-endif(BUILD_TEST)
+endif()

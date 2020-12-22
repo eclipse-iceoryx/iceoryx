@@ -39,8 +39,8 @@ if(CLANG_TIDY)
         set(PERFORM_CLANG_TIDY "${CLANG_TIDY_EXE}")
     else(CLANG_TIDY_EXE)
         message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
-    endif(CLANG_TIDY_EXE)
-endif(CLANG_TIDY)
+    endif()
+endif()
 
 #
 ########## set variables for library export ##########
@@ -235,7 +235,7 @@ if(PERFORM_CLANG_TIDY)
     set_target_properties(
         iceoryx_posh_roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
     )
-endif(PERFORM_CLANG_TIDY)
+endif()
 
 target_include_directories(iceoryx_posh_roudi PRIVATE
     source/runtime
@@ -333,9 +333,9 @@ if(TOML_CONFIG)
         set_target_properties(
             iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
-    endif(PERFORM_CLANG_TIDY)
+    endif()
 
-endif(TOML_CONFIG)
+endif()
 
 if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     #
@@ -367,14 +367,14 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
 
     target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS})
 
-endif(ROUDI_ENVIRONMENT OR BUILD_TEST)
+endif()
 
 #
 ########## exporting library ##########
 #
 if(TOML_CONFIG)
     set(ROUDI_EXPORT iox-roudi)
-endif(TOML_CONFIG)
+endif()
 
 setup_install_directories_and_export_package(
     TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_config iceoryx_posh_gateway ${ROUDI_EXPORT}
@@ -389,4 +389,4 @@ install(
 
 if(BUILD_TEST)
     add_subdirectory(test)
-endif(BUILD_TEST)
+endif()

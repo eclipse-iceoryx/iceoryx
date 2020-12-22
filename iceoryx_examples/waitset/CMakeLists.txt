@@ -22,7 +22,7 @@ find_package(iceoryx_posh CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
-endif ( NOT ICEORYX_CXX_STANDARD )
+endif ()
 
 add_executable(iox-ex-waitset-publisher ./ice_waitset_publisher.cpp)
 target_link_libraries(iox-ex-waitset-publisher

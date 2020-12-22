@@ -30,7 +30,7 @@ if(WIN32)
     set(CREATE_PATH_COMMAND mkdir)
 else()
     set(CREATE_PATH_COMMAND mkdir -p)
-endif(WIN32)
+endif()
 
 # set download config, source and build paths
 set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/download)

@@ -83,7 +83,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SAN
 #
 if(BUILD_TEST)
     add_subdirectory(test)
-endif(BUILD_TEST)
+endif()
 
 #
 ########## export library ##########
