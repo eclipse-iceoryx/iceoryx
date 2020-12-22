@@ -104,7 +104,7 @@ The script currently only works for Linux and QNX, it is planned to offer a mult
  2. Build everything
     ```
     cd iceoryx
-    ./tools/iceoryx_build_test.sh build_all
+    ./tools/iceoryx_build_test.sh build-all
     ```
 
 You can use the help for getting an overview over the available options:
