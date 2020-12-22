@@ -70,7 +70,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     You can choose more or less depending on your available CPU cores on your machine.
 
 **NOTE:** Iceoryx is build in Release mode with `-O3` optimization by default. If you want to have debug symbols please
-set `CMAKE_BUILD_TYPE=Debug`
+set `CMAKE_BUILD_TYPE=Debug`.
 
 ### Build options
 
