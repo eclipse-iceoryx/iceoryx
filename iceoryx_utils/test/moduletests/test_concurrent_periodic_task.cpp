@@ -24,6 +24,15 @@
 using namespace ::testing;
 using namespace iox;
 
+constexpr std::chrono::milliseconds SLEEP_TIME{100};
+#if defined(__APPLE__)
+constexpr uint64_t MIN_RUNS{3U};
+constexpr uint64_t MAX_RUNS{17U};
+#else
+constexpr uint64_t MIN_RUNS{5U};
+constexpr uint64_t MAX_RUNS{15U};
+#endif
+
 struct PeriodicTaskTestType
 {
   public:
@@ -97,10 +106,10 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithDefaultConstructor)
         using namespace iox::units::duration_literals;
         concurrent::PeriodicTask<PeriodicTaskTestType> sut("Test", 10_ms);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
 
-    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Gt(5U), Lt(15U)));
+    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 }
 
 TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithConstructorWithArguments)
@@ -110,10 +119,11 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithConstructorWithArguments)
         using namespace iox::units::duration_literals;
         concurrent::PeriodicTask<PeriodicTaskTestType> sut("Test", 10_ms, CALL_COUNTER_OFFSET);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
 
-    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Gt(CALL_COUNTER_OFFSET + 5U), Lt(CALL_COUNTER_OFFSET + 15U)));
+    EXPECT_THAT(PeriodicTaskTestType::callCounter,
+                AllOf(Ge(CALL_COUNTER_OFFSET + MIN_RUNS), Le(CALL_COUNTER_OFFSET + MAX_RUNS)));
 }
 
 TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference)
@@ -123,10 +133,10 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference)
         PeriodicTaskTestType testType;
         concurrent::PeriodicTask<PeriodicTaskTestType&> sut("Test", 10_ms, testType);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
 
-    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Gt(5U), Lt(15U)));
+    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 }
 
 TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef)
@@ -135,10 +145,10 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef)
         using namespace iox::units::duration_literals;
         concurrent::PeriodicTask<cxx::function_ref<void()>> sut("Test", 10_ms, PeriodicTaskTestType::increment);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
 
-    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Gt(5U), Lt(15U)));
+    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 }
 
 TEST_F(PeriodicTask_test, PeriodicTaskWithStdFunction)
@@ -147,10 +157,10 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithStdFunction)
         using namespace iox::units::duration_literals;
         concurrent::PeriodicTask<std::function<void()>> sut("Test", 10_ms, PeriodicTaskTestType::increment);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
 
-    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Gt(5U), Lt(15U)));
+    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 }
 
 TEST_F(PeriodicTask_test, PeriodicTaskWithMethodCallback)
@@ -161,8 +171,8 @@ TEST_F(PeriodicTask_test, PeriodicTaskWithMethodCallback)
         concurrent::PeriodicTask<cxx::MethodCallback<void>> sut{
             "Test", 10_ms, testType, &PeriodicTaskTestType::incrementMethod};
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
 
-    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Gt(5U), Lt(15U)));
+    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 }
