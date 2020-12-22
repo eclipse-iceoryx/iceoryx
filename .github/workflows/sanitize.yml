@@ -32,7 +32,7 @@ jobs:
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
-          ../tools/run_all_tests.sh
+          ../tools/run_all_tests.sh asan-only
           
  # This job builds & runs iceoryx tests (with sanitizer) in macos-10.15
   clang-sanitize-macos:

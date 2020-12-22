@@ -57,8 +57,6 @@ while (( "$#" )); do
         BUILD_TYPE="Debug"
         RUN_TEST=true
         COV_FLAG="ON"
-        OUT_OF_TREE_FLAG="OFF"
-
         if [ -z "$2" ]
         then
             shift 1
