@@ -50,10 +50,9 @@ int main()
             untypedSubscriber.take()
                 .and_then([](iox::popo::Sample<const void>& sample) {
                     auto object = static_cast<const RadarObject*>(sample.get());
-                    std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
-                              << std::endl;
+                    std::cout << "Got value: " << object->x << std::endl;
                 })
-                .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                .if_empty([] { std::cout << std::endl; })
                 .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
         }
         else

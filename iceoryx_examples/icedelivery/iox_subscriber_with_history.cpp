@@ -40,8 +40,8 @@ int main()
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
     // When starting the subscriber late it will miss the first samples which the
-    // publisher has send. The history ensures that we at least get the last 10
-    // samples send by the publisher when we subscribe.
+    // publisher has send. The history ensures that we at least get the last 5
+    // samples sent by the publisher when we subscribe (if at least 5 were already sent).
     subscriberOptions.historyRequest = 5U;
     iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     typedSubscriber.subscribe();
@@ -58,8 +58,7 @@ int main()
             {
                 typedSubscriber.take()
                     .and_then([](iox::popo::Sample<const RadarObject>& object) {
-                        std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
-                                  << std::endl;
+                        std::cout << "Got value: " << object->x << std::endl;
                     })
                     .if_empty([&] { hasMoreSamples = false; });
             } while (hasMoreSamples);
