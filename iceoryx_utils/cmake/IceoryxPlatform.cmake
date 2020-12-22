@@ -59,7 +59,6 @@ function(iox_create_asan_compile_time_blacklist BLACKLIST_FILE_PATH)
         file(APPEND ${BLACKLIST_FILE_PATH} "# src:*file_name.cpp*\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "# fun:*Test_Name*\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "# End of file\n")
-        file(APPEND ${BLACKLIST_FILE_PATH} "fun:*Trigger_test*\n")
     endif()
 endfunction()
 
