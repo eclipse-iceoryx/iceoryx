@@ -8,27 +8,12 @@ In domains like automotive, robotics or gaming, a huge amount of data must be
 transferred between different parts of the system. If these parts are actually
 different processes on a POSIX based operating system like Linux, this huge
 amount of data has to be transferred via an inter-process-communication (IPC)
-mechanism.
-
-* https://projects.eclipse.org/projects/technology.iceoryx
-
-## Developer resources
-
-Information regarding source code management, builds, coding standards, and
-more.
-
-* https://projects.eclipse.org/projects/technology.iceoryx/developer
-
-The project maintains the following source code repositories
-
-* https://github.com/eclipse/iceoryx
+mechanism. Find more infos on the [Eclipse site](https://projects.eclipse.org/projects/technology.iceoryx).
 
 ## Eclipse Contributor Agreement
 
 Before your contribution can be accepted by the project team, contributors must
-electronically sign the Eclipse Contributor Agreement (ECA).
-
-* http://www.eclipse.org/legal/ECA.php
+electronically sign the Eclipse Contributor Agreement ([ECA](http://www.eclipse.org/legal/ECA.php)).
 
 Commits that are provided by non-committers must have a Signed-off-by field in
 the footer indicating that the author is aware of the terms by which the
@@ -36,8 +21,7 @@ contribution has been provided to the project. The non-committer must
 additionally have an Eclipse Foundation account and must have a signed Eclipse
 Contributor Agreement (ECA) on file.
 
-For more information, please see the Eclipse Committer Handbook:
-https://www.eclipse.org/projects/handbook/#resources-commit
+For more information, please see the [Eclipse Committer Handbook](https://www.eclipse.org/projects/handbook/#resources-commit).
 
 ## Contact
 
@@ -48,9 +32,21 @@ Contact the project developers via the project's "dev" list.
 ## Feature request and bugs
 
 We love pull requests! The next sections try to cover most of the relevant questions. For larger contributions or
-architectural changes, we'd kindly ask you to get in touch with one of the maintainers beforehand. If you would like to
-report a bug or propose a new feature, please raise an issue before raising a pull request. This makes it easier to
-track. Please make sure you have:
+architectural changes, we'd kindly ask you to either:
+
+* Raise the proposed changes during a [developer meetup](https://github.com/eclipse/iceoryx/wiki/Developer-meetup)
+
+or
+
+* Create a design document and raise it in a separate pull request beforehand
+
+If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
+Please have a quick search upfront if a similar issue already exists. An
+[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritize the issues for a specific release.
+This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please
+contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
+
+Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
 1. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
@@ -94,7 +90,9 @@ See [error-handling.md](./doc/error-handling.md) for additional information abou
 * Methods and variables in `lowerCamelCase`: `uint16_t myVariable`
 * Compile time constants, also enum values in `UPPER_SNAKE_CASE`: `static constexpr uint16_t MY_CONSTANT`
 * Class members start with `m_`: `m_myMember`
+    * Public members of structs and classes do not have the `m_` prefix
 * Namespaces in `lower_snake_case` : `my_namespace`
+* Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
 
 ### Doxygen
 
@@ -118,9 +116,9 @@ The folder structure boils down to:
   * include: public headers with stable API
     * internal: public headers with unstable API, which might change quite frequently
   * source: implementation files
-  * test: unit and integrations tests
+  * test: unit and integration tests
   * CMakeLists.txt: Build the component separately
-* examples_iceoryx: Examples described in the main [Readme.md](./README.md#user-content-examples)
+* examples_iceoryx: Examples described in [iceoryx_examples](./iceoryx_examples/README.md)
 
 All new code should follow the folder structure.
 
@@ -141,27 +139,27 @@ Integration tests are composition of more than one class and test their interact
 
 To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with lcov and htmlgen.
 You will need to install the following packages:
-    ```
-    sudo apt install lcov
-    ```
+```
+sudo apt install lcov
+```
 
 In iceoryx we have multiple testlevels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all testlevels together. You can create reports for these different testlevels or for all tests. Coverage is done with gcc.
 The coverage scan applies to Quality level 3 and partly level 2 with branch coverage.
 
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
-You can do this with one command like this:
-    ```
-    ./tools/iceoryx_build_test.sh clean -c <testlevel> -j 4
-    ```
-
+You can do this with one command in iceroyx folder like this:
+```
+./tools/iceoryx_build_test.sh clean build-all -c <testlevel>
+```
+Optionally you can use build-all option to get coverage for extensions like DDS or C-Binding.
 The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
 example:
-    ```
-    ./tools/iceoryx_build_test.sh clean -c unit -j 4
-    ```
-For having only unittest reports. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
+```
+./tools/iceoryx_build_test.sh build-all clean -c unit
+```
+For having only reports for unit-test. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
 
-All reports are stored in build/lcov as html report.
+All reports are stored in build/lcov as html report (index.html).
 
 ## Legal & Compliance
 
@@ -294,3 +292,13 @@ This quality level is meant for all targets that need tier 1 support in ROS2.
 
 * Warnings in Helix QAC addressed
 * Code coverage according to [MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage) available
+
+## Training material recommended for contributors
+
+* Effective C++ by Scott Meyers
+* [Unit Testing and the Arrange, Act and Assert (AAA) Pattern](https://medium.com/@pjbgf/title-testing-code-ocd-and-the-aaa-pattern-df453975ab80) by Paulo Gomes
+* The C++ Standard Library by Nicolai M. Josuttis
+* Modern C++ Programming with Test-Driven Development: Code Better, Sleep Better by Jeff Langr
+* Modern C++ Design: Generic Programming and Design Patterns by Andrei Alexandrescu
+* Exceptional C++ by Herb Sutter
+* C++ Concurrency in Action by Anthony Williams

@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -25,10 +26,8 @@ namespace iox
 {
 namespace capro
 {
-using IdString = cxx::string<100>;
-
 static constexpr uint16_t InvalidID = 0u;
-static const IdString InvalidIDString{"0"};
+static const IdString_t InvalidIDString{"0"};
 static constexpr uint16_t AnyService = 0xFFFFu;
 static constexpr uint16_t AnyInstance = 0xFFFFu;
 static constexpr uint16_t AnyEvent = 0xFFFFu;
@@ -108,15 +107,15 @@ class ServiceDescription
     ServiceDescription(uint16_t f_serviceID, uint16_t f_instanceID) noexcept;
 
     /// @brief construction of the capro service description using fixed strings to create a service service description
-    ServiceDescription(const IdString& f_service, const IdString& f_instance) noexcept;
+    ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept;
 
     /// @brief construction of the capro service description using integers to create an event service description
     ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID, uint16_t f_instanceID) noexcept;
 
     /// @brief construction of the capro service description using fixed strings to create an event service description
-    ServiceDescription(const IdString& f_service,
-                       const IdString& f_instance,
-                       const IdString& f_event,
+    ServiceDescription(const IdString_t& f_service,
+                       const IdString_t& f_instance,
+                       const IdString_t& f_event,
                        ClassHash m_classHash = {0u, 0u, 0u, 0u},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
@@ -153,9 +152,9 @@ class ServiceDescription
     uint16_t getInstanceID() const noexcept;
     uint16_t getServiceID() const noexcept;
     uint16_t getEventID() const noexcept;
-    IdString getServiceIDString() const noexcept;
-    IdString getInstanceIDString() const noexcept;
-    IdString getEventIDString() const noexcept;
+    IdString_t getServiceIDString() const noexcept;
+    IdString_t getInstanceIDString() const noexcept;
+    IdString_t getEventIDString() const noexcept;
     ///@}
 
     ///@{
@@ -174,11 +173,11 @@ class ServiceDescription
     /// @brief 16-Bit instance ID
     uint16_t m_instanceID;
     /// @brief string representation of the service
-    IdString m_serviceString;
+    IdString_t m_serviceString;
     /// @brief string representation of the instance
-    IdString m_instanceString;
+    IdString_t m_instanceString;
     /// @brief string representation of the event
-    IdString m_eventString;
+    IdString_t m_eventString;
 
     bool m_hasServiceOnlyDescription = false;
     /// @brief 128-Bit class hash (32-Bit * 4)

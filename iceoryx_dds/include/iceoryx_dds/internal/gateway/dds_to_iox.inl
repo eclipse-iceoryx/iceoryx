@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const co
             LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
                        << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
                        << ", " << serviceDescription.getEventIDString() << "}";
-            setupChannel(serviceDescription);
+            setupChannel(serviceDescription, popo::PublisherOptions());
         }
     }
 }
@@ -59,29 +59,28 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getExternalTerminal();
 
-    reader->peekNextSize().and_then([&](uint64_t size) {
-        // reserve a chunk for the sample
-        m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(size));
-        // read sample into reserved chunk
-        auto buffer = static_cast<uint8_t*>(m_reservedChunk);
-        reader->takeNext(buffer, size)
-            .and_then([&]() {
-                // publish chunk
-                publisher->sendChunk(buffer);
-            })
-            .or_else([&](DataReaderError err) {
-                LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
-                          << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+    while (reader->hasSamples())
+    {
+        reader->peekNextSize().and_then([&](auto size) {
+            publisher->loan(size).and_then([&](auto& sample) {
+                reader->takeNext(static_cast<uint8_t*>(sample.get()), size)
+                    .and_then([&]() { sample.publish(); })
+                    .or_else([&](DataReaderError err) {
+                        LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
+                                  << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+                    });
             });
-    });
+        });
+    }
 }
 
 // ======================================== Private ======================================== //
 template <typename channel_t, typename gateway_t>
 cxx::expected<channel_t, gw::GatewayError>
-DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service) noexcept
+DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service,
+                                                       const popo::PublisherOptions& publisherOptions) noexcept
 {
-    return this->addChannel(service).and_then([&service](channel_t channel) {
+    return this->addChannel(service, publisherOptions).and_then([&service](auto channel) {
         auto publisher = channel.getIceoryxTerminal();
         auto reader = channel.getExternalTerminal();
         publisher->offer();

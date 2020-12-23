@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,13 +17,11 @@ cmake_minimum_required(VERSION 3.7)
 file (STRINGS "../VERSION" iceoryx_binding_c_VERSION)
 project(iceoryx_binding_c VERSION ${iceoryx_binding_c_VERSION})
 
-option(test "build test binaries")
-
 find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
-include(IceoryxPlatformDetection)
+include(IceoryxPlatform)
 
 #
 ########## set variables for export ##########
@@ -48,14 +46,15 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 add_library(${PROJECT_NAME}
     STATIC
-    source/c_condition.cpp
-    source/c_guard_condition.cpp
+    source/c_user_trigger.cpp
     source/c_publisher.cpp
     source/c_node.cpp
     source/c_runtime.cpp
     source/c_subscriber.cpp
+    source/c_event_info.cpp
     source/c_wait_set.cpp
     source/cpp2c_enum_translation.cpp
+    source/cpp2c_publisher.cpp
     source/cpp2c_subscriber.cpp
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -77,14 +76,14 @@ target_link_libraries(${PROJECT_NAME}
     iceoryx_utils::iceoryx_utils
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
 ########## build test executables ##########
 #
-if(test)
+if(BUILD_TEST)
     add_subdirectory(test)
-endif(test)
+endif()
 
 #
 ########## export library ##########

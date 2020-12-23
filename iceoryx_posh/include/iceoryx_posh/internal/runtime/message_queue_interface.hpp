@@ -49,10 +49,6 @@ enum class MqMessageType : int32_t
     NOTYPE = 0,
     REG, // register app
     REG_ACK,
-    CREATE_SENDER,       /// @deprecated #25
-    CREATE_SENDER_ACK,   /// @deprecated #25
-    CREATE_RECEIVER,     /// @deprecated #25
-    CREATE_RECEIVER_ACK, /// @deprecated #25
     CREATE_PUBLISHER,
     CREATE_PUBLISHER_ACK,
     CREATE_SUBSCRIBER,
@@ -82,10 +78,8 @@ enum class MqMessageErrorType : int32_t
 {
     BEGIN = -1,
     NOTYPE = 0,
-    /// A sender could not be created unique
+    /// A publisher could not be created unique
     NO_UNIQUE_CREATED,
-    /// Not enough space to create another one
-    SENDERLIST_FULL, /// @deprecated #25
     REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE,
     REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE,
     REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE,
@@ -161,7 +155,7 @@ class MqBase
     /// @brief Returns the interface name, the unique char string which
     ///         explicitly identifies the message queue.
     /// @return name of the message queue
-    const std::string& getInterfaceName() const noexcept;
+    const ProcessName_t& getInterfaceName() const noexcept;
 
     /// @brief If the message queue could not be opened or linked in the
     ///         constructor it will return false, otherwise true. This is
@@ -177,7 +171,7 @@ class MqBase
     /// @brief Since there might be an outdated message queue due to an unclean temination
     ///        this function closes the message queue if it's existing.
     /// @param[in] name of the message queue to clean up
-    static void cleanupOutdatedMessageQueue(const std::string& name) noexcept;
+    static void cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept;
 
     friend class MqInterfaceUser;
     friend class MqInterfaceCreator;
@@ -200,7 +194,7 @@ class MqBase
     MqBase() = delete;
     // TODO: unique identifier problem, multiple MqBase objects with the
     //        same InterfaceName are using the same message queue
-    MqBase(const std::string& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
+    MqBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
     virtual ~MqBase() = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
@@ -238,7 +232,7 @@ class MqBase
     bool hasClosableMessageQueue() const noexcept;
 
   protected:
-    std::string m_interfaceName;
+    ProcessName_t m_interfaceName;
     uint64_t m_maxMessageSize{0};
     uint64_t m_maxMessages{0};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
@@ -257,7 +251,7 @@ class MqInterfaceUser : public MqBase
     ///         is used for mq_open
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
-    MqInterfaceUser(const std::string& name,
+    MqInterfaceUser(const ProcessName_t& name,
                     const int64_t maxMessages = APP_MAX_MESSAGES,
                     const int64_t messageSize = APP_MESSAGE_SIZE) noexcept;
 
@@ -286,7 +280,7 @@ class MqInterfaceCreator : public MqBase
     ///         is used for mq_open
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
-    MqInterfaceCreator(const std::string& name,
+    MqInterfaceCreator(const ProcessName_t& name,
                        const int64_t maxMessages = ROUDI_MAX_MESSAGES,
                        const int64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 
@@ -312,8 +306,8 @@ class MqRuntimeInterface
     /// @param[in] roudiName name of the RouDi message queue
     /// @param[in] appName name of the appplication and its message queue
     /// @param[in] roudiWaitingTimeout timeout for searching the RouDi message queue
-    MqRuntimeInterface(const std::string& roudiName,
-                       const std::string& appName,
+    MqRuntimeInterface(const ProcessName_t& roudiName,
+                       const ProcessName_t& appName,
                        const units::Duration roudiWaitingTimeout) noexcept;
     ~MqRuntimeInterface() = default;
 
@@ -366,7 +360,7 @@ class MqRuntimeInterface
     RegAckResult waitForRegAck(int64_t transmissionTimestamp) noexcept;
 
   private:
-    std::string m_appName;
+    ProcessName_t m_appName;
     cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
     MqInterfaceCreator m_AppMqInterface;
     MqInterfaceUser m_RoudiMqInterface;

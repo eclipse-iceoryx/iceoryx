@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -47,9 +48,7 @@ class SubscriberPortUser : public BasePort
     ~SubscriberPortUser() = default;
 
     /// @brief try to subscribe to all matching publishers
-    /// @param[in] queueCapacity, capacity of the queue where chunks are stored before they are passed to the user with
-    /// tryGetChunk. Caution: Depending on the underlying queue there can be a different overflow behavior
-    void subscribe(const uint64_t queueCapacity = MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
+    void subscribe() noexcept;
 
     /// @brief unsubscribe from publishers, if there are any to which we are currently subscribed
     void unsubscribe() noexcept;

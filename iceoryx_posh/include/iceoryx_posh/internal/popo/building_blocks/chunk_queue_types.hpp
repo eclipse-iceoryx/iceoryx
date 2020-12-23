@@ -21,11 +21,6 @@ namespace iox
 {
 namespace popo
 {
-enum class ChunkQueueError
-{
-    QUEUE_OVERFLOW
-};
-
 struct ChunkTuple
 {
     ChunkTuple() = default;

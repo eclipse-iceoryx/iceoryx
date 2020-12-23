@@ -1,3 +1,18 @@
+# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 # Build icedelivery example
 cmake_minimum_required(VERSION 3.5)
 project(example_icedelivery)
@@ -8,88 +23,49 @@ find_package(iceoryx_posh CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatformDetection)
-endif ( NOT ICEORYX_CXX_STANDARD )
+    include(IceoryxPlatform)
+endif ()
 
-# ========================= Deprecated ========================= //
-
-add_executable(iox-ex-publisher-bare-metal ./ice_publisher_bare_metal.cpp)
-target_link_libraries(iox-ex-publisher-bare-metal
+add_executable(iox-ex-publisher-typed ./iox_publisher_typed.cpp)
+target_link_libraries(iox-ex-publisher-typed
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-publisher-bare-metal PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
+target_compile_options(iox-ex-publisher-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-bare-metal ./ice_subscriber_bare_metal.cpp)
-target_link_libraries(iox-ex-subscriber-bare-metal
+add_executable(iox-ex-publisher-with-history ./iox_publisher_with_history.cpp)
+target_link_libraries(iox-ex-publisher-with-history
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-subscriber-bare-metal PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
+target_compile_options(iox-ex-publisher-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-publisher-simple ./ice_publisher_simple.cpp)
-target_link_libraries(iox-ex-publisher-simple
+add_executable(iox-ex-publisher-untyped ./iox_publisher_untyped.cpp)
+target_link_libraries(iox-ex-publisher-untyped
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-publisher-simple PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
+target_compile_options(iox-ex-publisher-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-simple ./ice_subscriber_simple.cpp)
-target_link_libraries(iox-ex-subscriber-simple
+add_executable(iox-ex-subscriber-typed ./iox_subscriber_typed.cpp)
+target_link_libraries(iox-ex-subscriber-typed
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-subscriber-simple PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
+target_compile_options(iox-ex-subscriber-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-# ========================= Modern ========================= //
-
-add_executable(iox-ex-publisher-typed-modern ./iox_publisher_typed_modern.cpp)
-target_link_libraries(iox-ex-publisher-typed-modern
+add_executable(iox-ex-subscriber-with-history ./iox_subscriber_with_history.cpp)
+target_link_libraries(iox-ex-subscriber-with-history
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-publisher-typed-modern PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
+target_compile_options(iox-ex-subscriber-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-publisher-untyped-modern ./iox_publisher_untyped_modern.cpp)
-target_link_libraries(iox-ex-publisher-untyped-modern
+add_executable(iox-ex-subscriber-untyped ./iox_subscriber_untyped.cpp)
+target_link_libraries(iox-ex-subscriber-untyped
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-publisher-untyped-modern PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
+target_compile_options(iox-ex-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-typed-modern ./iox_subscriber_typed_modern.cpp)
-target_link_libraries(iox-ex-subscriber-typed-modern
-    iceoryx_posh::iceoryx_posh
-)
-set_target_properties(iox-ex-subscriber-typed-modern PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
-add_executable(iox-ex-subscriber-untyped-modern ./iox_subscriber_untyped_modern.cpp)
-target_link_libraries(iox-ex-subscriber-untyped-modern
-    iceoryx_posh::iceoryx_posh
-)
-set_target_properties(iox-ex-subscriber-untyped-modern PROPERTIES
+set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
+                      iox-ex-publisher-with-history iox-ex-subscriber-with-history
+                      iox-ex-publisher-typed iox-ex-publisher-untyped
+                      PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -97,7 +73,7 @@ set_target_properties(iox-ex-subscriber-untyped-modern PROPERTIES
 
 # ========================================================== //
 
-install(
-    TARGETS iox-ex-publisher-bare-metal iox-ex-subscriber-bare-metal iox-ex-publisher-simple iox-ex-subscriber-simple
-    RUNTIME DESTINATION bin
-)
+install(TARGETS iox-ex-publisher-untyped iox-ex-publisher-typed
+                iox-ex-publisher-with-history iox-ex-subscriber-with-history
+                iox-ex-subscriber-untyped iox-ex-subscriber-typed
+        RUNTIME DESTINATION bin)

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 namespace iox
 {
@@ -33,15 +35,16 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
     , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
-    , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
-                                  .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
-                             *m_roudiMemoryInterface->segmentManager().value(),
-                             m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME))
+    , m_mempoolIntrospection(
+          *m_roudiMemoryInterface->introspectionMemoryManager()
+               .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
+          *m_roudiMemoryInterface->segmentManager().value(),
+          PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionMempoolService, MQ_ROUDI_NAME)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    m_processIntrospection.registerSenderPort(
-        m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
+    m_processIntrospection.registerPublisherPort(
+        PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, MQ_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.start();
@@ -51,7 +54,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
 
     // run the threads
     m_processManagementThread = std::thread(&RouDi::processThread, this);
-    pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
+    posix::setThreadName(m_processManagementThread.native_handle(), "ProcessMgmt");
 
     if (roudiStartupParameters.m_mqThreadStart == MQThreadStart::IMMEDIATE)
     {
@@ -67,7 +70,7 @@ RouDi::~RouDi()
 void RouDi::startMQThread()
 {
     m_processMQThread = std::thread(&RouDi::mqThread, this);
-    pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
+    posix::setThreadName(m_processMQThread.native_handle(), "MQ-processing");
 }
 
 void RouDi::shutdown()
@@ -122,13 +125,7 @@ void RouDi::mqThread()
     {
         // read RouDi message queue
         runtime::MqMessage message;
-        /// @todo do we really need timedReceive? an alternative solution would be to close the message queue,
-        /// which also results in a return from mq_receive, and check the relevant errno and shutdown RouDi
-        if (!roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
-        {
-            // TODO: errorHandling
-        }
-        else
+        if (roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
         {
             auto cmd = runtime::stringToMqMessageType(message.getElementAtIndex(0).c_str());
             std::string processName = message.getElementAtIndex(1);
@@ -179,48 +176,6 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-
-    /// @deprecated #25
-    case runtime::MqMessageType::CREATE_SENDER:
-    {
-        if (message.getNumberOfElements() != 5)
-        {
-            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_SENDER\" from \"" << processName
-                       << "\"received!";
-        }
-        else
-        {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
-
-            m_prcMgr.addSenderForProcess(processName,
-                                         service,
-                                         NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
-                                         iox::runtime::PortConfigInfo(portConfigInfoSerialization));
-        }
-        break;
-    }
-
-    /// @deprecated #25
-    case runtime::MqMessageType::CREATE_RECEIVER:
-    {
-        if (message.getNumberOfElements() != 5)
-        {
-            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_RECEIVER\" from \"" << processName
-                       << "\"received!";
-        }
-        else
-        {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
-
-            m_prcMgr.addReceiverForProcess(processName,
-                                           service,
-                                           NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
-                                           iox::runtime::PortConfigInfo(portConfigInfoSerialization));
-        }
-        break;
-    }
     case runtime::MqMessageType::CREATE_PUBLISHER:
     {
         if (message.getNumberOfElements() != 6)
@@ -233,9 +188,12 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(5));
 
+            popo::PublisherOptions options;
+            options.historyCapacity = std::stoull(message.getElementAtIndex(3));
+
             m_prcMgr.addPublisherForProcess(processName,
                                             service,
-                                            std::stoull(message.getElementAtIndex(3)),
+                                            options,
                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
                                             iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
@@ -243,7 +201,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     }
     case runtime::MqMessageType::CREATE_SUBSCRIBER:
     {
-        if (message.getNumberOfElements() != 6)
+        if (message.getNumberOfElements() != 7)
         {
             LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_SUBSCRIBER\" from \"" << processName
                        << "\"received!";
@@ -251,12 +209,17 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(5));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(6));
+
+
+            popo::SubscriberOptions options;
+            options.historyRequest = std::stoull(message.getElementAtIndex(3));
+            options.queueCapacity = std::stoull(message.getElementAtIndex(4));
 
             m_prcMgr.addSubscriberForProcess(processName,
                                              service,
-                                             std::stoull(message.getElementAtIndex(3)),
-                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
+                                             options,
+                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5)),
                                              iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -286,7 +249,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         else
         {
             capro::Interfaces interface =
-                StringToCaProInterface(capro::IdString(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
+                StringToCaProInterface(capro::IdString_t(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
 
             m_prcMgr.addInterfaceForProcess(
                 processName, interface, NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
@@ -357,7 +320,7 @@ bool RouDi::registerProcess(const ProcessName_t& name,
                             const uint64_t sessionId,
                             const version::VersionInfo& versionInfo)
 {
-    bool monitorProcess = (m_monitoringMode == config::MonitoringMode::ON);
+    bool monitorProcess = (m_monitoringMode == roudi::MonitoringMode::ON);
     return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo);
 }
 

@@ -81,7 +81,7 @@ class PoshRuntime_test : public Test
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    const iox::ProcessName_t m_runtimeName{"/publisher"};
+    const iox::ProcessName_t m_runtimeName{"publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
     MqMessage m_sendBuffer;
@@ -96,7 +96,7 @@ bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
-    iox::ProcessName_t appName("/valid_name");
+    iox::ProcessName_t appName("valid_name");
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntime::initRuntime(appName); });
 }
@@ -104,13 +104,11 @@ TEST_F(PoshRuntime_test, ValidAppName)
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
     std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH, 's');
-    maxValidName.front() = '/';
 
     auto& runtime = PoshRuntime::initRuntime(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
 
     EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
-
 
 TEST_F(PoshRuntime_test, NoAppName)
 {
@@ -120,16 +118,13 @@ TEST_F(PoshRuntime_test, NoAppName)
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
-
-TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
+TEST_F(PoshRuntime_test, LeadingSlashAppName)
 {
-    const iox::ProcessName_t invalidAppName = "invalidname";
+    const iox::ProcessName_t invalidAppName = "/miau";
 
-    EXPECT_DEATH(
-        { PoshRuntime::initRuntime(invalidAppName); },
-        "Cannot initialize runtime. Application name invalidname does not have the required leading slash '/'");
+    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
+                 "Cannot initialize runtime. Please remove leading slash from Application name /miau");
 }
-
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
 // when getInstance() is called without parameter, it returns existing instance
@@ -143,7 +138,7 @@ TEST(PoshRuntime, AppNameEmpty)
 
 TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 {
-    const iox::ProcessName_t appname = "/app";
+    const iox::ProcessName_t appname = "app";
 
     auto& sut = PoshRuntime::initRuntime(appname);
 
@@ -245,114 +240,18 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
     EXPECT_FALSE(successfullySent);
 }
 
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareSenderIsSuccessful)
-{
-    const auto senderPort = m_runtime->getMiddlewareSender(
-        iox::capro::ServiceDescription(99U, 1U, 20U), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
-
-    ASSERT_THAT(senderPort, Ne(nullptr));
-    EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), senderPort->m_serviceDescription);
-    EXPECT_EQ(22U, senderPort->m_memoryInfo.deviceId);
-    EXPECT_EQ(33U, senderPort->m_memoryInfo.memoryType);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareSenderDefaultArgs)
-{
-    const auto senderPort = m_runtime->getMiddlewareSender(iox::capro::ServiceDescription(99U, 1U, 20U));
-
-    EXPECT_EQ(0U, senderPort->m_memoryInfo.deviceId);
-    EXPECT_EQ(0U, senderPort->m_memoryInfo.memoryType);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareSenderSenderlistOverflow)
-{
-    auto senderlistOverflowDetected{false};
-
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&senderlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            if (error == iox::Error::kPORT_POOL__SENDERLIST_OVERFLOW)
-            {
-                senderlistOverflowDetected = true;
-            }
-        });
-
-    ///@note 5 sender ports are alloted for internal services of Roudi.
-    /// hence getServiceRegistryChangeCounter() is used
-    auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
-    auto usedSenderPort = serviceCounter->load();
-    for (; usedSenderPort < iox::MAX_PUBLISHERS; ++usedSenderPort)
-    {
-        auto senderPort = m_runtime->getMiddlewareSender(
-            iox::capro::ServiceDescription(usedSenderPort, usedSenderPort + 1U, usedSenderPort + 2U));
-        ASSERT_NE(nullptr, senderPort);
-    }
-
-    EXPECT_FALSE(senderlistOverflowDetected);
-
-    auto senderPort = m_runtime->getMiddlewareSender(
-        iox::capro::ServiceDescription(usedSenderPort, usedSenderPort + 1U, usedSenderPort + 2U));
-
-    EXPECT_EQ(nullptr, senderPort);
-    EXPECT_TRUE(senderlistOverflowDetected);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareReceiverIsSuccessful)
-{
-    auto receiverPort = m_runtime->getMiddlewareReceiver(
-        iox::capro::ServiceDescription(99U, 1U, 20U), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
-
-    ASSERT_NE(nullptr, receiverPort);
-    EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), receiverPort->m_serviceDescription);
-    EXPECT_EQ(22U, receiverPort->m_memoryInfo.deviceId);
-    EXPECT_EQ(33U, receiverPort->m_memoryInfo.memoryType);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareReceiverDefaultArgs)
-{
-    auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(99U, 1U, 20U));
-
-    ASSERT_NE(nullptr, receiverPort);
-    EXPECT_EQ(0U, receiverPort->m_memoryInfo.deviceId);
-    EXPECT_EQ(0U, receiverPort->m_memoryInfo.memoryType);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareReceiverReceiverlistOverflow)
-{
-    auto receiverlistOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&receiverlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            receiverlistOverflowDetected = true;
-            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__RECEIVERLIST_OVERFLOW));
-        });
-
-    uint32_t i = 0U;
-    for (; i < iox::MAX_SUBSCRIBERS; ++i)
-    {
-        auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
-        ASSERT_NE(nullptr, receiverPort);
-    }
-
-    EXPECT_FALSE(receiverlistOverflowDetected);
-
-    auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
-
-    EXPECT_EQ(nullptr, receiverPort);
-    EXPECT_TRUE(receiverlistOverflowDetected);
-}
-
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 {
-    const auto publisherPort = m_runtime->getMiddlewarePublisher(
-        iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.historyCapacity = 13U;
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
+                                                                 publisherOptions,
+                                                                 m_nodeName,
+                                                                 iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), publisherPort->m_serviceDescription);
+    EXPECT_EQ(publisherOptions.historyCapacity, publisherPort->m_chunkSenderData.m_historyCapacity);
 }
 
 TEST_F(PoshRuntime_test, getMiddlewarePublisherDefaultArgs)
@@ -376,7 +275,7 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
         });
 
     uint32_t i{0U};
-    for (; i < iox::MAX_PUBLISHERS; ++i)
+    for (; i < (iox::MAX_PUBLISHERS - iox::PUBLISHERS_RESERVED_FOR_INTROSPECTION); ++i)
     {
         auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
         ASSERT_NE(nullptr, publisherPort);
@@ -402,10 +301,10 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     auto sameServiceDescription = iox::capro::ServiceDescription(99U, 1U, 20U);
 
     const auto publisherPort1 = m_runtime->getMiddlewarePublisher(
-        sameServiceDescription, 0U, m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        sameServiceDescription, iox::popo::PublisherOptions(), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     const auto publisherPort2 = m_runtime->getMiddlewarePublisher(
-        sameServiceDescription, 0U, m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        sameServiceDescription, iox::popo::PublisherOptions(), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort1);
 
@@ -422,12 +321,18 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
 {
-    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
-        iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.historyRequest = 13U;
+    subscriberOptions.queueCapacity = 42U;
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
+                                                             subscriberOptions,
+                                                             m_nodeName,
+                                                             iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, subscriberPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), subscriberPort->m_serviceDescription);
-    EXPECT_EQ(0U, subscriberPort->m_historyRequest);
+    EXPECT_EQ(subscriberOptions.historyRequest, subscriberPort->m_historyRequest);
+    EXPECT_EQ(subscriberOptions.queueCapacity, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)
@@ -526,7 +431,7 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
 TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
 {
     PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
-    PoshRuntimeTestAccess::initRuntime("/instance");
+    PoshRuntimeTestAccess::initRuntime("instance");
 
     EXPECT_TRUE(callbackWasCalled);
 }
@@ -536,4 +441,3 @@ TEST_F(PoshRuntime_test, SetEmptyRuntimeFactoryFails)
     EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
                  "Cannot set runtime factory. Passed factory must not be empty!");
 }
-

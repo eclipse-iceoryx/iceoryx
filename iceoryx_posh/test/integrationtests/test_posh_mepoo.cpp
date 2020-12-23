@@ -17,6 +17,7 @@
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "testutils/timing_test.hpp"
 
@@ -41,10 +42,7 @@ using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
 using ::testing::Return;
 
-
-using TimePointNs = iox::mepoo::TimePointNs;
-using BaseClock = iox::mepoo::BaseClock;
-using Timer = iox::posix::Timer;
+using iox::posix::Timer;
 
 class Mepoo_IntegrationTest : public Test
 {
@@ -78,8 +76,8 @@ class Mepoo_IntegrationTest : public Test
 
     virtual void TearDown()
     {
-        senderPort.deactivate();
-        receiverPort.unsubscribe();
+        publisherPort->stopOffer();
+        subscriberPort->unsubscribe();
 
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -143,11 +141,11 @@ class Mepoo_IntegrationTest : public Test
 
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
-        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("/sender");
-        senderPort = iox::popo::SenderPort(senderRuntime.getMiddlewareSender(m_service_description));
+        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("sender");
+        publisherPort.emplace(senderRuntime.getMiddlewarePublisher(m_service_description));
 
-        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("/receiver");
-        receiverPort = iox::popo::ReceiverPort(receiverRuntime.getMiddlewareReceiver(m_service_description));
+        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("receiver");
+        subscriberPort.emplace(receiverRuntime.getMiddlewareSubscriber(m_service_description));
     }
 
     void SetUpRouDiOnly(MemPoolInfoContainer& memPoolTestContainer,
@@ -283,29 +281,27 @@ class Mepoo_IntegrationTest : public Test
         using Topic = MemPoolTestTopic<size>;
         constexpr auto topicSize = sizeof(Topic);
 
-        if (!(senderPort.isPortActive()))
+        if (!(publisherPort->isOffered()))
         {
-            senderPort.activate();
+            publisherPort->offer();
         }
 
-        if (receiverPort.isSubscribed())
+        if (subscriberPort->getSubscriptionState() != iox::SubscribeState::SUBSCRIBED)
         {
-            receiverPort.unsubscribe();
+            subscriberPort->subscribe();
         }
 
-        m_roudiEnv->InterOpWait();
-        receiverPort.subscribe(true, topicSize);
         m_roudiEnv->InterOpWait();
 
         for (int idx = 0; idx < times; ++idx)
         {
-            auto sample = senderPort.reserveChunk(topicSize);
-            new (sample->payload()) Topic;
-            sample->m_info.m_payloadSize = topicSize;
-            senderPort.deliverChunk(sample);
-            m_roudiEnv->InterOpWait();
+            publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
+                new (sample->payload()) Topic;
+                sample->payloadSize = topicSize;
+                publisherPort->sendChunk(sample);
+                m_roudiEnv->InterOpWait();
+            });
         }
-        senderPort.deactivate();
 
         return true;
     }
@@ -330,8 +326,8 @@ class Mepoo_IntegrationTest : public Test
 
     MePooConfig memconf;
 
-    iox::popo::SenderPort senderPort{nullptr};
-    iox::popo::ReceiverPort receiverPort{nullptr};
+    iox::cxx::optional<iox::popo::PublisherPortUser> publisherPort;
+    iox::cxx::optional<iox::popo::SubscriberPortUser> subscriberPort;
 
     iox::cxx::optional<RouDiEnvironment> m_roudiEnv;
 };
@@ -374,64 +370,48 @@ TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
     EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, memPoolTestContainer), Eq(true));
 }
 
-/// @todo jenkins doesn't have enough RAM for this test; needs to be moved to a nightly test on a powerful machine
-TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolOver4GB)
-{
-    constexpr uint32_t chunkSize = 16777216;
-    constexpr uint32_t m_numChunks = 350;
-
-    MemPoolInfoContainer memPoolTestContainer;
-
-    std::vector<TestMemPoolConfig> testMempoolConfig;
-    testMempoolConfig.push_back({chunkSize, m_numChunks});
-    auto mempoolSize = 1234; // TODO get from createRouDiConfig();
-    SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
-
-    uint64_t size = 666; // this->m_roudiEnv->m_roudiApp->m_shmMgr.m_mePooConfig.getSharedMemorySize();
-    EXPECT_THAT(size, Eq(mempoolSize));
-
-    constexpr int samplesize2 = chunkSize - 10;
-    const int repetition2 = 2;
-    ASSERT_TRUE(sendreceivesample<samplesize2>(repetition2));
-
-    auto mempolIndex2 = indexOfMempool<samplesize2>(testMempoolConfig);
-    memPoolTestContainer[mempolIndex2].m_usedChunks = repetition2;
-    memPoolTestContainer[mempolIndex2].m_minFreeChunks = m_numChunks - repetition2;
-
-    m_roudiEnv->InterOpWait();
-
-
-    // get mempoolconfig from introspection
-    MemPoolInfoContainer memPoolInfoContainer;
-    EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, memPoolTestContainer, Log::Off), Eq(false));
-    getMempoolInfoFromIntrospection(memPoolInfoContainer);
-
-    EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, memPoolTestContainer), Eq(true));
-}
-
-TEST_F(Mepoo_IntegrationTest, DISABLED_WrongSampleSize)
+TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
 {
     MemPoolInfoContainer memPoolTestContainer;
-
     auto testMempoolConfig = defaultMemPoolConfig();
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
-
     constexpr int samplesize3 = 2048;
     const int repetition3 = 1;
+    auto errorHandlerCalled{false};
+    iox::Error receivedError{iox::Error::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
 
-    EXPECT_DEATH({ sendreceivesample<samplesize3>(repetition3); }, ".*");
+    sendreceivesample<samplesize3>(repetition3);
+
+    EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE));
 }
 
-TEST_F(Mepoo_IntegrationTest, DISABLED_SampleOverflow)
+TEST_F(Mepoo_IntegrationTest, SampleOverflow)
 {
     MemPoolInfoContainer memPoolTestContainer;
-
     auto testMempoolConfig = defaultMemPoolConfig();
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
-
     constexpr int samplesize1 = 200;
-    const int repetition1 = DefaultNumChunks;
-    EXPECT_DEATH({ sendreceivesample<samplesize1>(repetition1); }, ".*");
+    const int repetition1 = 2 * DefaultNumChunks;
+    auto errorHandlerCalled{false};
+    iox::Error receivedError{iox::Error::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
+
+    sendreceivesample<samplesize1>(repetition1);
+
+    EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS));
 }
 
 TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5), [&] {
@@ -453,27 +433,3 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     auto maxtime = 2000_ms;
     EXPECT_THAT(timediff, Le(maxtime));
 });
-
-TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTime2GBConfig)
-{
-    constexpr uint32_t chunkSize = 1024 * 1024 * 512;
-    constexpr uint32_t m_numChunks = 4;
-
-    MemPoolInfoContainer memPoolTestContainer;
-    std::vector<TestMemPoolConfig> testMempoolConfig;
-    testMempoolConfig.push_back({chunkSize, m_numChunks});
-
-    auto start = Timer::now();
-
-    SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
-
-    auto stop = Timer::now();
-
-    // Calc the difference
-    iox::units::Duration timediff = stop.value() - start.value();
-
-    PrintTiming(timediff);
-
-    auto maxtime = 5000_ms;
-    EXPECT_THAT(timediff, Le(maxtime));
-}

@@ -37,30 +37,12 @@ SubscriberPortUser::MemberType_t* SubscriberPortUser::getMembers() noexcept
 }
 
 
-void SubscriberPortUser::subscribe(const uint64_t queueCapacity) noexcept
+void SubscriberPortUser::subscribe() noexcept
 {
     if (!getMembers()->m_subscribeRequested.load(std::memory_order_relaxed))
     {
         // start with new chunks, drop old ones that could be in the queue
         m_chunkReceiver.clear();
-
-        /// @todo is it safe to change the capacity when it is no more the initial subscribe?
-        /// What is the contract for changing the capacity?
-
-        uint64_t capacity = queueCapacity;
-        if (capacity > m_chunkReceiver.getMaximumCapacity())
-        {
-            LogWarn() << "Requested queue capacity " << queueCapacity
-                      << " exceeds the maximum possible one for this subscriber"
-                      << ", limiting to " << m_chunkReceiver.getMaximumCapacity();
-            capacity = m_chunkReceiver.getMaximumCapacity();
-        }
-
-        // only change the capacity if it has to be changed
-        if (m_chunkReceiver.getCurrentCapacity() != capacity)
-        {
-            m_chunkReceiver.setCapacity(capacity);
-        }
 
         getMembers()->m_subscribeRequested.store(true, std::memory_order_relaxed);
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -526,7 +526,6 @@ class expected<ValueType, ErrorType>
     ValueType value_or(const ValueType& value) noexcept;
 
 
-
     /// @brief dereferencing operator which returns a reference to the contained
     ///         success value. if the expected contains an error the behavior is
     ///         undefined.
@@ -798,6 +797,14 @@ class expected<ValueType, ErrorType>
     variant<ValueType, ErrorType> m_store;
     bool m_hasError;
 };
+
+template <typename ErrorType>
+class expected<void, ErrorType> : public expected<ErrorType>
+{
+  public:
+    using expected<ErrorType>::expected;
+};
+
 
 } // namespace cxx
 } // namespace iox

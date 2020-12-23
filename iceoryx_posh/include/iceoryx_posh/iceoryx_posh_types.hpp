@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
-#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/log/logstream.hpp"
 
 #include <cstdint>
 
@@ -31,12 +32,9 @@ template <typename>
 class TypedUniqueId;
 struct BasePortData;
 
-class SenderPort;   /// @deprecated #25
-class ReceiverPort; /// @deprecated #25
-
-class PublisherPortUser;
 class PublisherPortRouDi;
-
+class PublisherPortUser;
+class SubscriberPortRouDi;
 class SubscriberPortUser;
 } // namespace popo
 namespace posix
@@ -45,16 +43,13 @@ class UnixDomainSocket;
 class MessageQueue;
 } // namespace posix
 
-using SenderPortType = iox::popo::SenderPort;     /// @deprecated #25
-using ReceiverPortType = iox::popo::ReceiverPort; /// @deprecated #25
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
+using SubscriberPortRouDiType = iox::popo::SubscriberPortRouDi;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 using SubscriberPortType = iox::build::CommunicationPolicy;
-
-constexpr char MQ_ROUDI_NAME[] = "/roudi";
 
 /// @brief The socket is created in the current path if no absolute path is given hence
 ///      we need an absolut path so that every application knows where our sockets can
@@ -64,20 +59,6 @@ using IpcChannelType = iox::posix::UnixDomainSocket;
 #else
 using IpcChannelType = iox::posix::MessageQueue;
 #endif
-
-/// shared memmory segment for the iceoryx managment data
-constexpr char SHM_NAME[] = "/iceoryx_mgmt";
-
-// Make the user-defined literal operators accessible
-using namespace units::duration_literals;
-
-// Timeout
-constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
-constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
-constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
-constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
-constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL;         // > DISCOVERY_INTERVAL
-constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 
 /// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
@@ -94,6 +75,11 @@ constexpr uint32_t MAX_SUBSCRIBERS = build::IOX_MAX_SUBSCRIBERS;
 constexpr uint32_t MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY =
     build::IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
 constexpr uint32_t MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
+// Introspection is using the following publisherPorts, which reduced the number of ports available for the user
+// 1x publisherPort mempool introspection
+// 1x publisherPort process introspection
+// 3x publisherPort port introspection
+constexpr uint32_t PUBLISHERS_RESERVED_FOR_INTROSPECTION = 5;
 /// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of
 /// chunks a user is allowed to hold with the maximum queue capacity. This allows that a polling user can replace all
 /// the held chunks in one execution with all new ones from a completely filled queue. Or the other way round, when we
@@ -117,7 +103,7 @@ constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESS
 constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
-constexpr uint32_t MAX_NUMBER_OF_CONDITIONS_PER_WAITSET = 128U;
+constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
 //--------- Communication Resources End---------------------
 
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
@@ -148,14 +134,8 @@ constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50U;
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;
 constexpr uint32_t MAX_NODE_PER_PROCESS = 50U;
 
-#if defined(__APPLE__)
-/// @note on macOS the process name length needs to be decreased since the process name is used for the unix domain
-/// socket path which has a capacity for only 103 characters. The full path consists of UnixDomainSocket::PATH_PREFIX,
-/// which is currently 5 characters and the specified process name
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 98U;
-#else
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100U;
-#endif
+constexpr uint32_t MAX_PROCESS_NAME_LENGTH = MAX_IPC_CHANNEL_NAME_LENGTH;
+
 
 static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
 
@@ -191,17 +171,77 @@ struct DefaultChunkQueueConfig
 };
 
 // alias for cxx::string
-using ConfigFilePathString_t = cxx::string<1024>;
 using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
+using ShmName_t = cxx::string<128>;
+
+namespace capro
+{
+using IdString_t = cxx::string<100>;
+}
+
+/// @todo Move everything in this namespace to iceoryx_roudi_types.hpp once we move RouDi to a separate CMake target
+namespace roudi
+{
+using ConfigFilePathString_t = cxx::string<1024>;
+
+constexpr char MQ_ROUDI_NAME[] = "/roudi";
+
+/// shared memmory segment for the iceoryx managment data
+constexpr char SHM_NAME[] = "/iceoryx_mgmt";
+
+// Timeout
+using namespace units::duration_literals;
+constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
+constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
+constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
+
+/// @brief Controls process alive monitoring. Upon timeout, a monitored process is removed
+/// and its resources are made available. The process can then start and register itself again.
+/// Contrarily, unmonitored processes can be restarted but registration will fail.
+/// Once Runlevel Management is extended, it will detect absent processes. Those processes can register again.
+/// ON - all processes are monitored
+/// OFF - no process is monitored
+enum class MonitoringMode
+{
+    ON,
+    OFF
+};
+
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode);
+} // namespace roudi
+
+namespace mepoo
+{
+using SequenceNumber_t = std::uint64_t;
+using BaseClock_t = std::chrono::steady_clock;
+
+// use signed integer for duration;
+// there is a bug in gcc 4.8 which leads to a wrong calcutated time
+// when sleep_until() is used with a timepoint in the past
+using DurationNs_t = std::chrono::duration<std::int64_t, std::nano>;
+using TimePointNs_t = std::chrono::time_point<BaseClock_t, DurationNs_t>;
+}
 
 namespace runtime
 {
-// alias for IdString
-using IdString = iox::capro::IdString;
-using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
+using InstanceContainer = iox::cxx::vector<capro::IdString_t, MAX_NUMBER_OF_INSTANCES>;
+using namespace units::duration_literals;
+constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
+constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * roudi::DISCOVERY_INTERVAL;  // > DISCOVERY_INTERVAL
+constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 } // namespace runtime
 
+namespace version
+{
+static const uint64_t COMMIT_ID_STRING_SIZE = 12u;
+using CommitIdString_t = cxx::string<COMMIT_ID_STRING_SIZE>;
+static const uint64_t BUILD_DATE_STRING_SIZE = 36u;
+using BuildDateString_t = cxx::string<BUILD_DATE_STRING_SIZE>;
+} // namespace version
+
 } // namespace iox
+
+#include "iceoryx_posh/iceoryx_posh_types.inl"
 
 #endif // IOX_POSH_ICEORYX_POSH_TYPES_HPP

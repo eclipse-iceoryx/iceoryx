@@ -15,16 +15,14 @@
 #ifndef IOX_DDS_DDS_DATA_READER_HPP
 #define IOX_DDS_DDS_DATA_READER_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/string.hpp"
 
 namespace iox
 {
 namespace dds
 {
-using IdString = iox::cxx::string<100u>;
-
 enum class DataReaderError : uint8_t
 {
     NOT_CONNECTED,
@@ -48,7 +46,13 @@ class DataReader
     /// @brief peekNextSize Get the size of the next sample if one is available.
     /// @return The size of the next sample if one is available.
     ///
-    virtual iox::cxx::optional<uint64_t> peekNextSize() = 0;
+    virtual iox::cxx::optional<uint32_t> peekNextSize() = 0;
+
+    ///
+    /// @brief hasSamples Checks if new samples ready to take.
+    /// @return True if new samples available.
+    ///
+    virtual bool hasSamples() = 0;
 
     ///
     /// @brief take Take the next available sample from the DDS data space.
@@ -75,19 +79,19 @@ class DataReader
     /// @brief getServiceId
     /// @return The ID of the service producing the bytes
     ///
-    virtual IdString getServiceId() const noexcept = 0;
+    virtual capro::IdString_t getServiceId() const noexcept = 0;
 
     ///
     /// @brief getInstanceId
     /// @return The ID of the instance of the service producing the bytes
     ///
-    virtual IdString getInstanceId() const noexcept = 0;
+    virtual capro::IdString_t getInstanceId() const noexcept = 0;
 
     ///
     /// @brief getEventId
     /// @return The ID of the event producing the data
     ///
-    virtual IdString getEventId() const noexcept = 0;
+    virtual capro::IdString_t getEventId() const noexcept = 0;
 
   protected:
     DataReader() = default;

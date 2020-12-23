@@ -16,13 +16,13 @@
 
 #include "base.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 
 class Iceoryx : public IcePerfBase
 {
   public:
-    Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::IdString& subscriberName) noexcept;
+    Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept;
     void initLeader() noexcept override;
     void initFollower() noexcept override;
     void shutdown() noexcept override;
@@ -32,8 +32,8 @@ class Iceoryx : public IcePerfBase
     void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept override;
     PerfTopic receivePerfTopic() noexcept override;
 
-    iox::popo::Publisher m_publisher;
-    iox::popo::Subscriber m_subscriber;
+    iox::popo::UntypedPublisher m_publisher;
+    iox::popo::UntypedSubscriber m_subscriber;
 };
 
 #endif // IOX_EXAMPLES_ICEPERF_ICEORYX_HPP

@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
@@ -27,8 +28,6 @@ namespace iox
 {
 namespace roudi
 {
-using ShmNameString = cxx::string<100>;
-
 /// @brief Creates the shared memory based on a provided configuration
 class PosixShmMemoryProvider : public MemoryProvider
 {
@@ -38,7 +37,7 @@ class PosixShmMemoryProvider : public MemoryProvider
     /// @param [in] accessMode defines the read and write access to the memory
     /// @param [in] ownership defines the ownership of the shared memory. "mine" controls the lifetime of the memory and
     /// "openExisting" will just use an already existing shared memory
-    PosixShmMemoryProvider(const ShmNameString& shmName,
+    PosixShmMemoryProvider(const ShmName_t& shmName,
                            const posix::AccessMode accessMode,
                            const posix::OwnerShip ownership) noexcept;
     ~PosixShmMemoryProvider() noexcept;
@@ -62,7 +61,7 @@ class PosixShmMemoryProvider : public MemoryProvider
     cxx::expected<MemoryProviderError> destroyMemory() noexcept;
 
   private:
-    ShmNameString m_shmName;
+    ShmName_t m_shmName;
     posix::AccessMode m_accessMode{posix::AccessMode::readOnly};
     posix::OwnerShip m_ownership{posix::OwnerShip::openExisting};
     cxx::optional<posix::SharedMemoryObject> m_shmObject;

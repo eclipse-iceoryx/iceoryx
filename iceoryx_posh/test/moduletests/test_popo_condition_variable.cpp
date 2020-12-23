@@ -30,7 +30,7 @@ using namespace iox::units::duration_literals;
 class ConditionVariable_test : public Test
 {
   public:
-    ConditionVariableData m_condVarData;
+    ConditionVariableData m_condVarData{"Horscht"};
     ConditionVariableWaiter m_waiter{&m_condVarData};
     ConditionVariableSignaler m_signaler{&m_condVarData};
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,11 +31,16 @@ struct iox_sem_t
     union
     {
         sem_t* posix;
-        dispatch_semaphore_t dispatch;
+
+        struct
+        {
+            pthread_mutex_t mtx;
+            pthread_cond_t variable;
+        } condition;
     } m_handle;
 
     bool m_hasPosixHandle{true};
-    std::atomic<int>* m_value{nullptr};
+    std::atomic<int> m_value{0};
 };
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);

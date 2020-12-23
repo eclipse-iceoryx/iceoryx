@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -172,13 +172,20 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
         }
     }
 
-    if (memPoolPointer == nullptr)
+    if (m_memPoolVector.size() == 0)
+    {
+        std::cerr << "There are no mempools available!" << std::endl;
+
+        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL, nullptr, ErrorLevel::SEVERE);
+        return SharedChunk(nullptr);
+    }
+    else if (memPoolPointer == nullptr)
     {
         std::cerr << "The following mempools are available:" << std::endl;
         printMemPoolVector();
         std::cerr << "\nCould not find a fitting mempool for a chunk of size " << adjustedSize << std::endl;
 
-        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
+        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE, nullptr, ErrorLevel::SEVERE);
         return SharedChunk(nullptr);
     }
     else if (chunk == nullptr)
@@ -186,17 +193,16 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
         std::cerr << "MemoryManager: unable to acquire a chunk with a payload size of " << f_size << std::endl;
         std::cerr << "The following mempools are available:" << std::endl;
         printMemPoolVector();
+        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, nullptr, ErrorLevel::MODERATE);
         return SharedChunk(nullptr);
     }
     else
     {
-        new (chunk) ChunkHeader();
-        static_cast<ChunkHeader*>(chunk)->m_info.m_payloadSize = f_size;
-        static_cast<ChunkHeader*>(chunk)->m_info.m_usedSizeOfChunk = adjustedSize;
-        static_cast<ChunkHeader*>(chunk)->m_info.m_totalSizeOfChunk = totalSizeOfAquiredChunk;
-        ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool.front().getChunk());
-        new (chunkManagement)
-            ChunkManagement(static_cast<ChunkHeader*>(chunk), memPoolPointer, &m_chunkManagementPool.front());
+        auto chunkHeader = new (chunk) ChunkHeader();
+        chunkHeader->chunkSize = totalSizeOfAquiredChunk;
+        chunkHeader->payloadSize = f_size;
+        auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
+            ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
         return SharedChunk(chunkManagement);
     }
 }

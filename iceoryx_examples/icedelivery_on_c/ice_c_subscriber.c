@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,25 +33,33 @@ static void sigHandler(int signalValue)
 
 void receiving()
 {
-    iox_runtime_register("/iox-c-subscriber");
+    iox_runtime_init("iox-c-subscriber");
 
-    uint64_t historyRequest = 0U;
+    // When starting the subscriber late it will miss the first samples which the
+    // publisher has send. The history ensures that we at least get the last 10
+    // samples send by the publisher when we subscribe.
+    const uint64_t historyRequest = 10U;
+    const uint64_t queueCapacity = 5U;
     iox_sub_storage_t subscriberStorage;
 
-    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
-    iox_sub_subscribe(subscriber, 10);
+    iox_sub_t subscriber =
+        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest);
+    iox_sub_subscribe(subscriber);
 
     while (!killswitch)
     {
         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {
             const void* chunk = NULL;
+            // we will receive here more then one sample since the publisher is sending a
+            // new sample every 400ms and we check for new samples only every second
             while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
             {
-                const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
-                printf("Receiving: %u\n", sample->counter);
+                const struct RadarObject* sample = (const struct RadarObject*)(chunk);
+                printf("Got value: %.0f\n", sample->x);
                 iox_sub_release_chunk(subscriber, chunk);
             }
+            printf("\n");
         }
         else
         {

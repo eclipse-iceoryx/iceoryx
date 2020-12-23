@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -55,7 +56,10 @@ class SubscriberPortSingleProducer_test : public Test
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
-        TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+        TEST_SERVICE_DESCRIPTION,
+        "myApp",
+        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+        iox::popo::SubscriberOptions()};
     iox::popo::SubscriberPortUser m_sutUserSideSingleProducer{&m_subscriberPortDataSingleProducer};
     iox::popo::SubscriberPortSingleProducer m_sutRouDiSideSingleProducer{&m_subscriberPortDataSingleProducer};
 };
@@ -343,7 +347,8 @@ class SubscriberPortMultiProducer_test : public Test
     iox::popo::SubscriberPortData m_subscriberPortDataMultiProducer{
         SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION,
         "myApp",
-        iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+        iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
+        iox::popo::SubscriberOptions()};
     iox::popo::SubscriberPortUser m_sutUserSideMultiProducer{&m_subscriberPortDataMultiProducer};
     iox::popo::SubscriberPortMultiProducer m_sutRouDiSideMultiProducer{&m_subscriberPortDataMultiProducer};
 };

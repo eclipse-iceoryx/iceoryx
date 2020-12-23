@@ -58,13 +58,13 @@ int main()
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
     // Start application
-    iox::runtime::PoshRuntime::initRuntime("/iox-gw-dds2iceoryx");
+    iox::runtime::PoshRuntime::initRuntime("iox-gw-dds2iceoryx");
 
     iox::dds::DDS2IceoryxGateway<> gw;
 
     iox::config::TomlGatewayConfigParser::parse()
-        .and_then([&](iox::config::GatewayConfig config) { gw.loadConfiguration(config); })
-        .or_else([&](iox::config::TomlGatewayConfigParseError err) {
+        .and_then([&](auto config) { gw.loadConfiguration(config); })
+        .or_else([&](auto err) {
             iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
                                 << iox::config::TomlGatewayConfigParseErrorString[err];
             iox::dds::LogWarn() << "[Main] Using default configuration.";

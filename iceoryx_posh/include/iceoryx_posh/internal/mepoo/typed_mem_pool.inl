@@ -50,8 +50,7 @@ inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acqui
     }
 
     new (chunkHeader) ChunkHeader();
-    chunkHeader->m_info.m_payloadSize = sizeof(T);
-    chunkHeader->m_info.m_usedSizeOfChunk = MemoryManager::sizeWithChunkHeaderStruct(sizeof(T));
+    chunkHeader->payloadSize = sizeof(T);
 
     new (chunkManagement) ChunkManagement(chunkHeader, &m_memPool, &m_chunkManagementPool);
 

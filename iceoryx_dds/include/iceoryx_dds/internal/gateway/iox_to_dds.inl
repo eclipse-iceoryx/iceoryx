@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,9 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const co
             LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
                        << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
                        << ", " << serviceDescription.getEventIDString() << "}";
-            setupChannel(serviceDescription);
+            popo::SubscriberOptions options;
+            options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
+            setupChannel(serviceDescription, options);
         }
     }
 }
@@ -61,7 +63,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
                << ", Instance: " << msg.m_serviceDescription.getInstanceIDString()
                << ", Event: " << msg.m_serviceDescription.getEventIDString() << " }";
 
-    if (msg.m_serviceDescription.getServiceIDString() == capro::IdString(roudi::INTROSPECTION_SERVICE_ID))
+    if (msg.m_serviceDescription.getServiceIDString() == capro::IdString_t(roudi::INTROSPECTION_SERVICE_ID))
     {
         return;
     }
@@ -76,7 +78,9 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
     {
         if (!this->findChannel(msg.m_serviceDescription).has_value())
         {
-            setupChannel(msg.m_serviceDescription);
+            popo::SubscriberOptions options;
+            options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
+            setupChannel(msg.m_serviceDescription, options);
         }
         break;
     }
@@ -99,16 +103,12 @@ template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto subscriber = channel.getIceoryxTerminal();
-    while (subscriber->hasNewChunks())
+    while (subscriber->hasSamples())
     {
-        const mepoo::ChunkHeader* header;
-        subscriber->getChunk(&header);
-        if (header->m_info.m_payloadSize > 0)
-        {
+        subscriber->take().and_then([&channel](popo::Sample<const void>& sample) {
             auto dataWriter = channel.getExternalTerminal();
-            dataWriter->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
-        }
-        subscriber->releaseChunk(header);
+            dataWriter->write(static_cast<const uint8_t*>(sample.get()), sample.getHeader()->payloadSize);
+        });
     }
 }
 
@@ -116,12 +116,13 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
 
 template <typename channel_t, typename gateway_t>
 cxx::expected<channel_t, gw::GatewayError>
-Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service) noexcept
+Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service,
+                                                       const popo::SubscriberOptions& subscriberOptions) noexcept
 {
-    return this->addChannel(service).and_then([](channel_t channel) {
+    return this->addChannel(service, subscriberOptions).and_then([](auto channel) {
         auto subscriber = channel.getIceoryxTerminal();
         auto dataWriter = channel.getExternalTerminal();
-        subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
+        subscriber->subscribe();
         dataWriter->connect();
     });
 }

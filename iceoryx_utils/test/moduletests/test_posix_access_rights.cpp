@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 #include "test.hpp"
 
@@ -35,7 +36,18 @@ class PosixAccessRights_test : public Test
         fileStream.open(TestFileName, std::fstream::out | std::fstream::trunc);
         fileStream.close();
 
-        std::system(std::string("groups > " + TestFileName).c_str());
+        auto sysC = iox::cxx::makeSmartC(system,
+                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                         {-1},
+                                         {},
+                                         std::string("groups > " + TestFileName).c_str());
+
+        if (sysC.hasErrors())
+        {
+            std::cerr << "system call failed with error: " << sysC.getErrorString();
+            exit(EXIT_FAILURE);
+        }
+
         internal::CaptureStderr();
     }
 
