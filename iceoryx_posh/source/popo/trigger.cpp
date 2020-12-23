@@ -54,6 +54,7 @@ const EventInfo& Trigger::getEventInfo() const noexcept
 void Trigger::invalidate() noexcept
 {
     m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
+    m_resetCallback = cxx::MethodCallback<void, uint64_t>();
 }
 
 Trigger::operator bool() const noexcept
@@ -88,9 +89,9 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
         m_eventInfo = std::move(rhs.m_eventInfo);
 
         // Trigger
-        m_resetCallback = rhs.m_resetCallback;
-        m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
-        m_uniqueId = rhs.m_uniqueId;
+        m_resetCallback = std::move(rhs.m_resetCallback);
+        m_hasTriggeredCallback = std::move(rhs.m_hasTriggeredCallback);
+        m_uniqueId = std::move(rhs.m_uniqueId);
 
         rhs.invalidate();
     }

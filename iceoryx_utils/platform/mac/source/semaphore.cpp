@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -145,6 +145,11 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
     if (sem->m_hasPosixHandle)
     {
         int tryWaitCall = sem_trywait(sem->m_handle.posix);
+        constexpr int ETIMEDOUT_PLUS_256 = ETIMEDOUT + 256;
+        if (errno == ETIMEDOUT_PLUS_256)
+        {
+            errno &= 0xFF;
+        }
         if (tryWaitCall == -1 && errno != EAGAIN)
         {
             return -1;
@@ -163,6 +168,11 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         std::this_thread::sleep_for(std::chrono::nanoseconds(timeoutInNanoSeconds));
 
         tryWaitCall = sem_trywait(sem->m_handle.posix);
+        if (errno == ETIMEDOUT_PLUS_256)
+        {
+            errno &= 0xFF;
+        }
+        errno &= 0xFF;
         if (tryWaitCall == -1 && errno == EAGAIN)
         {
             errno = ETIMEDOUT;
@@ -186,6 +196,11 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
             if (pthread_cond_timedwait(&sem->m_handle.condition.variable, &sem->m_handle.condition.mtx, abs_timeout)
                 != 0)
             {
+                constexpr int ETIMEDOUT_PLUS_256 = ETIMEDOUT + 256;
+                if (errno == ETIMEDOUT_PLUS_256)
+                {
+                    errno &= 0xFF;
+                }
                 pthread_mutex_unlock(&sem->m_handle.condition.mtx);
                 return -1;
             }

@@ -23,37 +23,42 @@ find_package(iceoryx_binding_c CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
-endif ( NOT ICEORYX_CXX_STANDARD )
+endif ()
 
 add_executable(iox-ex-c-waitset-publisher ./ice_c_waitset_publisher.c)
 target_link_libraries(iox-ex-c-waitset-publisher
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
+target_compile_options(iox-ex-c-waitset-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-c-waitset-gateway ./ice_c_waitset_gateway.c)
 target_link_libraries(iox-ex-c-waitset-gateway
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
+target_compile_options(iox-ex-c-waitset-gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-c-waitset-grouping ./ice_c_waitset_grouping.c)
 target_link_libraries(iox-ex-c-waitset-grouping
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
+target_compile_options(iox-ex-c-waitset-grouping PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-c-waitset-individual ./ice_c_waitset_individual.c)
 target_link_libraries(iox-ex-c-waitset-individual
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
+target_compile_options(iox-ex-c-waitset-individual PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-c-waitset-sync ./ice_c_waitset_sync.c)
 target_link_libraries(iox-ex-c-waitset-sync
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
+target_compile_options(iox-ex-c-waitset-sync PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 set_source_files_properties(
     ./ice_c_waitset_sync.c 

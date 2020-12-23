@@ -101,8 +101,7 @@ TYPED_TEST(ChunkQueue_test, InitialConditionVariableAttached)
 TYPED_TEST(ChunkQueue_test, PushOneChunk)
 {
     auto chunk = this->allocateChunk();
-    auto ret = this->m_pusher.tryPush(chunk);
-    EXPECT_FALSE(ret.has_error());
+    this->m_pusher.push(chunk);
     EXPECT_THAT(this->m_popper.empty(), Eq(false));
     /// @note size not implemented on FIFO
     if (this->m_variantQueueType != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
@@ -114,7 +113,7 @@ TYPED_TEST(ChunkQueue_test, PushOneChunk)
 TYPED_TEST(ChunkQueue_test, PopOneChunk)
 {
     auto chunk = this->allocateChunk();
-    this->m_pusher.tryPush(chunk);
+    this->m_pusher.push(chunk);
 
     EXPECT_THAT(this->m_popper.tryPop().has_value(), Eq(true));
     EXPECT_THAT(this->m_popper.empty(), Eq(true));
@@ -132,7 +131,7 @@ TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
     {
         auto chunk = this->allocateChunk();
         *reinterpret_cast<int32_t*>(chunk.getPayload()) = i;
-        this->m_pusher.tryPush(chunk);
+        this->m_pusher.push(chunk);
     }
 
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
@@ -153,7 +152,7 @@ TYPED_TEST(ChunkQueue_test, ClearOnEmpty)
 TYPED_TEST(ChunkQueue_test, ClearWithData)
 {
     auto chunk = this->allocateChunk();
-    this->m_pusher.tryPush(chunk);
+    this->m_pusher.push(chunk);
     this->m_popper.clear();
     EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
@@ -175,7 +174,7 @@ TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
     this->m_popper.setConditionVariable(&condVar);
 
     auto chunk = this->allocateChunk();
-    this->m_pusher.tryPush(chunk);
+    this->m_pusher.push(chunk);
 
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(true));
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
@@ -195,7 +194,7 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
     EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));
 
     auto chunk = this->allocateChunk();
-    this->m_pusher.tryPush(chunk);
+    this->m_pusher.push(chunk);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(false));
     EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(true));
@@ -247,13 +246,22 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
     for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
     {
         auto chunk = this->allocateChunk();
-        this->m_pusher.tryPush(chunk);
+        this->m_pusher.push(chunk);
     }
-    auto chunk = this->allocateChunk();
-    auto ret = this->m_pusher.tryPush(chunk);
-    EXPECT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.get_error(), Eq(iox::popo::ChunkQueueError::QUEUE_OVERFLOW));
-    EXPECT_THAT(this->m_popper.empty(), Eq(false));
+
+    {
+        auto chunk = this->allocateChunk();
+        this->m_pusher.push(chunk);
+        EXPECT_TRUE(this->m_popper.hasOverflown());
+    }
+
+    // get all the chunks in the queue
+    while (this->m_popper.tryPop().has_value())
+    {
+    }
+
+    // all chunks must be released
+    EXPECT_THAT(this->mempool.getUsedChunks(), Eq(0u));
 }
 
 /// @note this could be changed to a parameterized ChunkQueueOverflowingFIFO_test when there are more FIFOs available
@@ -300,21 +308,17 @@ TYPED_TEST(ChunkQueueSoFi_test, PushFull)
     for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY * 2; ++i)
     {
         auto chunk = this->allocateChunk();
-        this->m_pusher.tryPush(chunk);
+        this->m_pusher.push(chunk);
     }
 
-    {
-        // pushing is still fine
-        auto chunk = this->allocateChunk();
-        auto ret = this->m_pusher.tryPush(chunk);
-        EXPECT_FALSE(ret.has_error());
-        EXPECT_THAT(this->m_popper.empty(), Eq(false));
-    }
+    // this led to an overflow
+    EXPECT_TRUE(this->m_popper.hasOverflown());
+
     // get al the chunks in the queue
     while (this->m_popper.tryPop().has_value())
     {
     }
 
-    // now all chunks are released
+    // all chunks must be released
     EXPECT_THAT(this->mempool.getUsedChunks(), Eq(0u));
 }

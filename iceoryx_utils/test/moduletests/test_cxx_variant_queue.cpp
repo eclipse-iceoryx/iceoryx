@@ -113,8 +113,8 @@ TEST_F(VariantQueue_test, handlesOverflow)
         sut.push(24123);
         sut.push(22222);
         sut.push(33333);
-        auto hasPushed = sut.push(667);
-        EXPECT_THAT((hasPushed.has_error() || (hasPushed.value()).has_value()), Eq(true));
+        auto maybeOverflowValue = sut.push(667);
+        EXPECT_THAT(maybeOverflowValue.has_value(), Eq(true));
     });
 }
 

@@ -34,7 +34,7 @@ ALIASES += "requirement=\xrefitem requirement \"Requirement\" \"Requirements\" "
 ## Howto document your code
  * The implementation documentation should never describe what happens, that does already the code for you. It should describe why it is implemented in the way it is.
 
- * Never add fancy lines in your comments like this: (exception is the fileheader which is Bosch-wide standard)
+ * Never add fancy lines in your comments like this: (exception is the fileheader which is iceoryx-wide standard)
  ```cpp
     //=================================
     // My bad comment

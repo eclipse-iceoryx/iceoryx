@@ -19,7 +19,7 @@ if(UNIX AND NOT APPLE)
     elseif(CMAKE_SYSTEM_NAME MATCHES QNX)
         set(QNX true)
     endif()
-endif(UNIX AND NOT APPLE)
+endif()
 
 if(LINUX)
     set(ICEORYX_CXX_STANDARD 14)
@@ -29,10 +29,11 @@ elseif(WIN32)
     set(ICEORYX_CXX_STANDARD 14)
 elseif(APPLE)
     set(ICEORYX_CXX_STANDARD 17)
-endif(LINUX)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} /W1)
+    # todo: '/O2' and '/RTC1' (set by default) options are incompatible, 
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -46,8 +47,8 @@ if(BUILD_STRICT)
         set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} -Werror)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} -Werror)
-    endif (  )
-endif(BUILD_STRICT)
+    endif()
+endif()
 
 function(iox_create_asan_compile_time_blacklist BLACKLIST_FILE_PATH)
     # Suppressing Errors in Recompiled Code (Blacklist)
@@ -96,7 +97,7 @@ function(iox_create_lsan_runtime_blacklist BLACKLIST_FILE_PATH)
     endif()
 endfunction()
 
-if(sanitize)
+if(SANITIZE)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         set(ICEORYX_SANITIZER_BLACKLIST_FILE ${CMAKE_BINARY_DIR}/sanitizer_blacklist/asan_compile_time.txt)
         iox_create_asan_compile_time_blacklist(${ICEORYX_SANITIZER_BLACKLIST_FILE})
@@ -105,14 +106,14 @@ if(sanitize)
 
         # unset local variables , to avoid polluting global space
         unset(ICEORYX_SANITIZER_BLACKLIST_FILE )
-    endif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    endif()
 
     iox_create_asan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/asan_runtime.txt)
     iox_create_lsan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/lsan_runtime.txt)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -O1)
-
+        set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls)
+        
         # For using LeakSanitizer in standalone mode
         # https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#stand-alone-mode
         # Using this mode was a bit unstable
@@ -128,11 +129,19 @@ if(sanitize)
         set(ICEORYX_SANITIZER_FLAGS ${ICEORYX_SANITIZER_COMMON_FLAGS} ${ICEORYX_ADDRESS_SANITIZER_FLAGS} ${ICEORYX_UB_SANITIZER_FLAGS} CACHE INTERNAL "")
 
         # unset local variables , to avoid polluting global space
-        unset(ICEORYX_SANITIZER_BLACKLIST )
+        unset(ICEORYX_SANITIZER_BLACKLIST)
         unset(ICEORYX_SANITIZER_COMMON_FLAGS)
         unset(ICEORYX_ADDRESS_SANITIZER_FLAGS)
         unset(ICEORYX_UB_SANITIZER_FLAGS)
-    else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    else()
         message( FATAL_ERROR "You need to run sanitize with gcc/clang compiler." )
-    endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-endif(sanitize)
+    endif()
+endif()
+
+if(COVERAGE)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(ICEORYX_SANITIZER_FLAGS -fprofile-arcs -ftest-coverage CACHE INTERNAL "")
+    else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        message( FATAL_ERROR "You need to run gcov with gcc compiler." )
+    endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+endif()

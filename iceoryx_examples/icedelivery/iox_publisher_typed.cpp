@@ -17,9 +17,7 @@
 #include "iceoryx_posh/popo/typed_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#include <chrono>
 #include <iostream>
-#include <thread>
 
 bool killswitch = false;
 
@@ -44,7 +42,7 @@ int main()
     iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"});
     typedPublisher.offer();
 
-    float_t ct = 0.0;
+    double ct = 0.0;
     while (!killswitch)
     {
         ++ct;
@@ -98,7 +96,7 @@ int main()
         typedPublisher.publishResultOf(getRadarObject, ct);
         typedPublisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); });
 
-        std::cout << "Sent five times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
+        std::cout << "Sent five times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

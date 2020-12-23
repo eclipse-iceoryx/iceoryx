@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/untyped_publisher.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-#include <chrono>
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 #include <iostream>
-#include <thread>
 
 bool killswitch = false;
 
@@ -38,7 +37,7 @@ int main()
     iox::popo::UntypedPublisher untypedPublisher({"Radar", "FrontLeft", "Object"});
     untypedPublisher.offer();
 
-    float_t ct = 0.0;
+    double ct = 0.0;
     while (!killswitch)
     {
         ++ct;
@@ -74,7 +73,7 @@ int main()
                 // Do something with error
             });
 
-        std::cout << "Sent two times value: (" << ct << ", " << ct << ", " << ct << ")" << std::endl;
+        std::cout << "Sent two times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

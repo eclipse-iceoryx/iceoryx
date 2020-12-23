@@ -41,10 +41,10 @@ Let's take a look at the `receiving` function which comes with the
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c
-    const uint64_t historyRequest = 0U;
-    const uint64_t queueCapacity = 10U;
+    const uint64_t historyRequest = 10U;
+    const uint64_t queueCapacity = 5U;
     iox_sub_storage_t subscriberStorage;
-    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest);
     ```
 
   3. We subscribe to the service.
@@ -63,8 +63,8 @@ Let's take a look at the `receiving` function which comes with the
              const void* chunk = NULL;
              while (ChunkReceiveError_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
              {
-                 const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
-                 printf("Receiving: %u\n", sample->counter);
+                 const struct RadarObject* sample = (const struct RadarObject*)(chunk);
+                 printf("Got value: %.0f\n", sample->x);
                  iox_sub_release_chunk(subscriber, chunk);
              }
          }
@@ -110,9 +110,9 @@ Let's take a look at the `sending` function which comes with the
  2. We create a publisher with the service
     {"Radar", "FrontLeft", "Counter"}
     ```c
-    const uint64_t historyRequest = 0U;
+    const uint64_t historyRequest = 10U;
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest);
     ```
  3. We offer our service to the world.
     ```c
@@ -123,24 +123,26 @@ Let's take a look at the `sending` function which comes with the
     incrementing number to all subscribers every send and print the
     value of this number to the console.
     ```c
-    uint32_t ct = 0u;
+    double ct = 0.0;
 
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct RadarObject)))
         {
-            struct CounterTopic* sample = (struct CounterTopic*)chunk;
+            struct RadarObject* sample = (struct RadarObject*)chunk;
 
-            sample->counter = ct;
+            sample->x = ct;
+            sample->y = ct;
+            sample->z = ct;
 
-            printf("Sending: %u\n", ct);
+            printf("Sent value: %.0f\n", ct);
 
             iox_pub_send_chunk(publisher, chunk);
 
             ++ct;
 
-            sleep_for(1000);
+            sleep_for(400);
         }
         else
         {

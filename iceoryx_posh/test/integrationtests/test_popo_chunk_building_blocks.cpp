@@ -105,7 +105,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                 });
 
             /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
+            std::this_thread::sleep_for(std::chrono::microseconds(rand() % 100));
         }
         // Signal the next threads we're done
         m_publisherRun = false;
@@ -120,8 +120,6 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         bool newChunkReceivedInLastIteration{true};
         while (!finished)
         {
-            ASSERT_FALSE(m_popper.hasOverflown());
-
             m_popper.tryPop()
                 .and_then([&](auto& chunk) {
                     auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
@@ -158,8 +156,6 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
         while (!finished)
         {
-            ASSERT_FALSE(m_chunkReceiver.hasOverflown());
-
             m_chunkReceiver.tryGet()
                 .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
@@ -241,5 +237,7 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
         subscribingThread.join();
     }
 
+    ASSERT_FALSE(m_popper.hasOverflown());
+    ASSERT_FALSE(m_chunkReceiver.hasOverflown());
     EXPECT_EQ(m_sendCounter, m_receiveCounter);
 }

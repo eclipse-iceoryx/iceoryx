@@ -31,24 +31,24 @@ using namespace ::testing;
 
 TEST(iox_types_test, WaitSetStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(WaitSet<>), Eq(sizeof(iox_ws_storage_t)));
+    EXPECT_THAT(sizeof(WaitSet<>), Le(sizeof(iox_ws_storage_t)));
     EXPECT_THAT(alignof(WaitSet<>), Le(alignof(iox_ws_storage_t)));
 }
 
 TEST(iox_types_test, UserTriggerStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(UserTrigger), Eq(sizeof(iox_user_trigger_storage_t)));
+    EXPECT_THAT(sizeof(UserTrigger), Le(sizeof(iox_user_trigger_storage_t)));
     EXPECT_THAT(alignof(UserTrigger), Le(alignof(iox_user_trigger_storage_t)));
 }
 
 TEST(iox_types_test, cpp2c_SubscriberStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(cpp2c_Subscriber), Eq(sizeof(iox_sub_storage_t)));
+    EXPECT_THAT(sizeof(cpp2c_Subscriber), Le(sizeof(iox_sub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Subscriber), Le(alignof(iox_sub_storage_t)));
 }
 
 TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(cpp2c_Publisher), Eq(sizeof(iox_pub_storage_t)));
+    EXPECT_THAT(sizeof(cpp2c_Publisher), Le(sizeof(iox_pub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
 }
