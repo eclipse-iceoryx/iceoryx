@@ -40,6 +40,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: lcov-report
-          path: ./build/lcov/*
-          retention-days: 10
+          path: |
+            ./build/lcov/*
+            !./build/lcov/*.info
+          retention-days: 90
 
