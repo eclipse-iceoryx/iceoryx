@@ -1,12 +1,12 @@
 # WaitSet C binding
 
+## Introduction
+
 A detailed introduction into the WaitSet topic can be found in the 
 [waitset C++ example](../waitset). Here we will only introduce the C API and
 not the WaitSet in general. For that we will take a look at the same use case
 as the [waitset C++ example](../waitset). The examples are also structured 
 in the same way as the C++ ones.
-
-## Examples
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 

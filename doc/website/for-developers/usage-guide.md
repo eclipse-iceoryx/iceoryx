@@ -1,8 +1,6 @@
+# Usage guide
 
-# Contents
-- [Configuring RouDi](#configuring-roudi)
-
-# Configuring RouDi
+## Configuring RouDi
 
 RouDi can optionally be build with support to read the mempool config from a configuration file.
 To build the feature, the cmake option `-DTOML_CONFIG=on` must be used.
@@ -82,7 +80,7 @@ count = 100
 
 When no config file is specified, a hard-coded version similar to [default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
 
-# CaPro protocol
+## CaPro protocol
 
 <!-- @todo Move this section to overview.md >
 

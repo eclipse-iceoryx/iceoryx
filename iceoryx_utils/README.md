@@ -1,11 +1,11 @@
 
-# iceoryx utils
+# Eclipse iceoryx utils overview
 
 The iceoryx utils are our basic building blocks - the foundation of
 iceoryx. There are a wide variety of building blocks grouped together in categories
 or namespace, depending on where or how they are used.
 
-## categories
+## Categories
 
 | Namespace       | Short Description |
 |:---------------:|:------------------|
@@ -17,7 +17,7 @@ or namespace, depending on where or how they are used.
 | [units](#units) | |
 | other | There are even more namespaces inside the iceoryx utils but they will either become obsolete in the future, will be integrated into existing names or are established as another namespace and documented here. We are unsure where they will end up in the future. |
 
-## structure
+## Structure
 
  The following sections have a column called `internal` to indicate that the API
  is not stable and can change anytime. You should never rely on it and you get no
@@ -25,7 +25,7 @@ or namespace, depending on where or how they are used.
 
  The column `maybe obsolete` marks classes which can be removed anytime soon.
 
-### cxx
+### CXX
 
 STL constructs which are not in the C++11 standard included are contained here as
 well as constructs which are helping us in our daily life. We differ in
@@ -63,7 +63,7 @@ class should be used.
 |`variant`            |   |   | C++11 implementation of the C++17 feature `std::variant` |
 |`vector`             |   |   | Heap and exception free implementation of `std::vector` |
 
-### concurrent
+### Concurrent
 
 If you have to write concurrent code, never use concurrency constructs like `mutex`, `atomic`, `thread`, `semaphore` etc. directly. Most of the use cases can be solved by using an `ActiveObject` which uses as building block our `FiFo` or a
 queue which is thread-safe when combined with `smart_lock`. To learn more about active objects see [Prefer Using Active Objects Instead Of Naked Threads](https://www.drdobbs.com/parallel/prefer-using-active-objects-instead-of-n/225700095).
@@ -90,21 +90,19 @@ an attribute overview
 |`TACO`          | Yes | Yes | Yes | n:m | Yes | Copyable or Movable | fast lock-free exchange data between threads|
 |`TriggerQueue`  | No  | Yes | No  | n:m | Yes | Copyable            | Process events in a blocking way|
 
-
-
-### design pattern
+### Design pattern
 
 | class                   | internal | maybe obsolete | description |
 |:-----------------------:|:--------:|:--------------:|:------------|
 |`Creation`           |  | | When implementing resource handling classes which follow the RAII idiom we may have to throw exceptions inside the constructor. As an alternative to exceptions we have the creation pattern, a specialized factory which returns the object inside of an `expected`. |
 
-### log
+### Log
 
 | class                   | internal | maybe obsolete | description |
 |:-----------------------:|:--------:|:--------------:|:------------|
 |`logger`             |   | | |
 
-### posix wrapper
+### POSIX wrapper
 
 We abstract POSIX resources following the RAII idiom and by using our [Creation](#design-pattern) pattern. Try to exclusively use these
 abstractions or add a new one when using POSIX resources like semaphores, shared memory, etc.
@@ -126,7 +124,7 @@ abstractions or add a new one when using POSIX resources like semaphores, shared
 |`timespec`           | i | X | Free functions which modify `timespec`. |
 |`UnixDomainSocket`   | i | | Interface for unix domain sockets. |
 
-### units
+### Units
 
 Never use physical properties like speed or time directly as integer or float in your code.
 Otherwise you encounter problems like this function `void setTimeout(int timeout)`. What is the unit of the argument, seconds? minutes? If you use our `Duration` you see it directly in the code.

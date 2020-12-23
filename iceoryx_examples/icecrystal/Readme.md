@@ -1,4 +1,4 @@
-# icecrystal - Learn how to use the introspection for debugging
+# icecrystal
 
 ## Introduction
 

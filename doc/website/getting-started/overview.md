@@ -632,17 +632,9 @@ Afterwards we can start the applications which immediately connect to the RouDi 
 When the application terminates, the runtime cleans up all resources needed for communication with RouDi. This
 includes all memory chunks used for the data transmission which may still be hold by the application.
 
-## Examples
-
-This covers the main use cases and should enable the user to quickly develop iceoryx applications.
-
-Full examples and instructions on how to build and run them can be found in
-[examples](../../../iceoryx_examples/README.md). The [singleprocess](../../../iceoryx_examples/singleprocess/README.md)
-example illustrates the basic interaction of publishers and subscribers.
-The [icedelivery](../../../iceoryx_examples/icedelivery/README.md) example can be a starting point to further
-explore how iceoryx is used in an interprocess communication setting with multiple applications.
-
 ## C API
+
+<!-- Move this into API section? -->
 
 The C API usage is outlined in [icedelivery_on_c](../../../iceoryx_examples/icedelivery_on_c/README.md).
 

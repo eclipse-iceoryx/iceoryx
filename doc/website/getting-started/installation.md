@@ -160,11 +160,13 @@ If you want to execute only individual testcases then you can use these executab
 
 ## Use Sanitizer Scan
 
+<!-- Move this to advanced-building.md -->
+
 Due to the fact that iceoryx works a lot with system memory it should be ensured that errors like memory leaks are not introduced.
 To prevent these, we use the clang toolchain which offers several tools for scanning the codebase. One of them is the Adress-Sanitizer which checks for example on dangling pointers: [https://clang.llvm.org/docs/AddressSanitizer.html](https://clang.llvm.org/docs/AddressSanitizer.html)
 
 In iceoryx are scripts available to do the scan on your own. Additionally the Scans are running on the CI in every Pull-Request.
-As Requirement you should install the clang compiler: 
+As Requirement you should install the clang compiler:
 ```
 sudo apt install clang
 ```

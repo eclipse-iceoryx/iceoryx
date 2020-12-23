@@ -7,7 +7,9 @@ nav:
   - Getting started:
     - getting-started/overview.md
     - getting-started/installation.md
-    - getting-started/examples.md
+    - Examples:
+      - getting-started/basic-examples.md
+      - getting-started/advanced-examples.md
   - API-References.md
   - API-Cheatsheet.md
   - FAQ.md

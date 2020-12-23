@@ -1,4 +1,4 @@
-# singleprocess - Transfer data between threads, all in one process
+# singleprocess
 
 ## Introduction
 

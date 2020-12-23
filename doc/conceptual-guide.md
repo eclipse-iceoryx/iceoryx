@@ -2,11 +2,6 @@
 
 # Structure of an iceoryx system
 
-## Contents
-1. [Structure of an Iceoryx System](#Structure-of-an-iceoryx-System)
-2. [Shared Memory Management](#Shared-Memory-Management)
-3. [Communication Mechanisms](#Communication-Mechanisms)
-
 An iceoryx system consists of:
 
 * One RouDi Daemon

@@ -1,4 +1,4 @@
-# icedelivery in C - Transfer data between POSIX applications
+# icedelivery in C
 
 You can find a more detailled description of the C API in the [iceoryx_binding_c README.md](../../iceoryx_binding_c)
 

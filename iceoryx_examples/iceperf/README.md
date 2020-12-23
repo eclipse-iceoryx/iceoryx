@@ -1,4 +1,4 @@
-# iceperf - Benchmark for the iceoryx transmission latency
+# iceperf
 
 ## Introduction
 

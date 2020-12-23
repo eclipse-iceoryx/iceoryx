@@ -1,4 +1,4 @@
-# icedelivery - Transfer data between POSIX applications
+# icedelivery
 
 ## Introduction
 
