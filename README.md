@@ -9,6 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Codecov](https://codecov.io/gh/eclipse/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse/iceoryx?branch=master)
 [![Colcon build](https://github.com/eclipse/iceoryx/workflows/Colcon%20build/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions)
+[![Sanitize](https://github.com/eclipse/iceoryx/workflows/Sanitize/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions?query=workflow%3ASanitize)
 
 ## Introduction
 
