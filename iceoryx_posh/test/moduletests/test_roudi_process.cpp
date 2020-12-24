@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
-#define private public
-#define protected public
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
-#undef protected
-#undef private
+#include "test.hpp"
 
 using namespace ::testing;
 using namespace iox::roudi;
@@ -30,15 +26,6 @@ using namespace iox::popo;
 using namespace iox::runtime;
 using ::testing::Return;
 
-/*class MqInterfaceUser_Mock : public iox::runtime::MqInterfaceUser
-{
-  public:
-    MqInterfaceUser_Mock()
-        : iox::runtime::MqInterfaceUser("MockTest", 5L, 512L)
-    {
-    }
-    MOCK_METHOD1(send, bool(MqMessage));
-};*/
 class MqInterfaceUser_Mock : public iox::roudi::RouDiProcess
 {
   public:
@@ -60,12 +47,6 @@ class RouDiProcess_test : public Test
     const uint64_t sessionId = 255;
     MqInterfaceUser_Mock mqIntrfceusermock;
 };
-
-TEST_F(RouDiProcess_test, CTor)
-{
-    RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.getPid(), Eq(200));
-}
 
 TEST_F(RouDiProcess_test, getPid)
 {
@@ -103,12 +84,9 @@ TEST_F(RouDiProcess_test, getPayloadMemoryManager)
     EXPECT_THAT(roudiproc.getPayloadMemoryManager(), Eq(nullptr));
 }
 
-// Not able to test sendToMQ as there is no return value and mocking is not currently done
-
 TEST_F(RouDiProcess_test, sendToMQ)
 {
     iox::runtime::MqMessage data{"MESSAGE_NOT_SUPPORTED"};
-    //    RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
     EXPECT_CALL(mqIntrfceusermock, sendToMQ(_)).Times(1);
     mqIntrfceusermock.sendToMQ(data);
 }
