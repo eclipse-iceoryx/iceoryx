@@ -157,8 +157,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     {
         if (&rhs != this)
         {
-            m_vtable = rhs.m_vtable;
+            // note: src vtable is needed for destroy, then changed to src vtable
             m_vtable.destroy(*this);
+            m_function = nullptr; // only needed when the src has no object
+            m_vtable = rhs.m_vtable;
             m_vtable.copy(rhs, *this);
         }
 
@@ -170,8 +172,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     {
         if (&rhs != this)
         {
-            m_vtable = rhs.m_vtable;
+            // note: src vtable is needed for destroy, then changed to src vtable
             m_vtable.destroy(*this);
+            m_function = nullptr; // only needed when the src has no object
+            m_vtable = rhs.m_vtable;
             m_vtable.move(rhs, *this);
         }
 
@@ -188,9 +192,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     // todo: think about constness, calling it may change the stored object
     ReturnType operator()(Args... args)
     {
-        std::cout << "invoke" << std::endl;
         auto r = m_function(std::forward<Args>(args)...);
-        std::cout << "invoked" << std::endl;
         return r;
     }
 
@@ -246,6 +248,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     template <typename T>
     static void copy(const storable_function& src, storable_function& dest) noexcept
     {
+        std::cout << "###cpy" << std::endl;
         if (!src.m_storedObj)
         {
             dest.m_storedObj = nullptr;
@@ -282,6 +285,8 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
             p = new (p) T(std::move(*obj));
             dest.m_function = *p;
             dest.m_storedObj = p;
+            src.m_function = nullptr;
+            src.m_storedObj = nullptr;
         }
     }
 
@@ -293,7 +298,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
             auto p = static_cast<T*>(f.m_storedObj);
             p->~T();
             f.m_storage.deallocate();
-            f.m_storedObj = nullptr;
         }
     }
 };

@@ -30,11 +30,78 @@ template <typename T>
 using fixed_size_function = iox::cxx::function<T, 128>;
 using test_function = fixed_size_function<signature>;
 
-class Functor
+
+// helper template to count construction and copy statistics,
+// for our purpose (test_function) we do not need to distinguish
+// between copy (move) ctor and copy(move) assignment
+template <typename T>
+class Counter
+{
+  public:
+    static uint64_t numCreated;
+    static uint64_t numCopied;
+    static uint64_t numMoved;
+    static uint64_t numDestroyed;
+
+    Counter()
+    {
+        ++numCreated;
+    }
+
+    Counter(const Counter&)
+    {
+        ++numCreated;
+        ++numCopied;
+    }
+
+    Counter(Counter&&)
+    {
+        ++numMoved;
+    }
+
+    ~Counter()
+    {
+        ++numDestroyed;
+    }
+
+    Counter& operator=(const Counter&)
+    {
+        ++numCopied;
+    }
+
+    Counter& operator=(Counter&&)
+    {
+        ++numMoved;
+    }
+
+    static void resetCounts()
+    {
+        numCreated = 0U;
+        numCopied = 0U;
+        numMoved = 0U;
+        numDestroyed = 0U;
+    }
+};
+
+template <typename T>
+uint64_t Counter<T>::numCreated = 0U;
+
+template <typename T>
+uint64_t Counter<T>::numCopied = 0U;
+
+template <typename T>
+uint64_t Counter<T>::numMoved = 0U;
+
+template <typename T>
+uint64_t Counter<T>::numDestroyed = 0U;
+
+
+class Functor : public Counter<Functor>
 {
   public:
     Functor(int32_t state)
-        : m_state(state)
+        : Counter<Functor>()
+        , m_state(state)
     {
     }
 
@@ -80,8 +147,10 @@ TEST_F(function_test, DefaultConstructionCreatesNoCallable)
 TEST_F(function_test, ConstructionFromFunctorIsCallable)
 {
     Functor f(73);
+    Functor::resetCounts();
     test_function sut(f);
 
+    EXPECT_EQ(Functor::numCreated, 1U);
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
@@ -116,10 +185,10 @@ TEST_F(function_test, ConstructionFromStaticFunctionIsCallable)
 TEST_F(function_test, FunctionStateIsIndependentOfSource)
 {
     constexpr uint32_t INITIAL_STATE = 73U;
-    static_storage<1024> storage;
+    static_storage<1024U> storage;
     auto p = storage.allocate<Functor>();
-    auto f = new (p) Functor(INITIAL_STATE);
-    auto& functor = *f;
+    p = new (p) Functor(INITIAL_STATE);
+    auto& functor = *p;
 
     // test whether the function really owns the functor
     // (no dependency or side effects)
@@ -131,10 +200,141 @@ TEST_F(function_test, FunctionStateIsIndependentOfSource)
     EXPECT_EQ(sut(1U), functor(1U));
 
     // clear original (set to 0)
-    f->~Functor();
+    p->~Functor();
     storage.clear();
 
     EXPECT_EQ(sut(1U), INITIAL_STATE + 2U);
 }
+
+// The implementation uses type erasure and we need to verify that the corresponding
+// constructors and operators of the underlying object (functor) are called.
+
+TEST_F(function_test, DestructorCallsDestructorOfStoredFunctor)
+{
+    Functor f(73);
+    Functor::resetCounts();
+
+    {
+        test_function sut(f);
+    }
+
+    EXPECT_EQ(Functor::numDestroyed, 1U);
+}
+
+TEST_F(function_test, CopyCtorCopiesStoredFunctor)
+{
+    Functor functor(73);
+    test_function f(functor);
+    Functor::resetCounts();
+
+    test_function sut(f);
+
+    EXPECT_EQ(Functor::numCopied, 1U);
+    ASSERT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), f(1));
+}
+
+TEST_F(function_test, MoveCtorMovesStoredFunctor)
+{
+    Functor functor(73);
+    test_function f(functor);
+    Functor::resetCounts();
+
+    test_function sut(std::move(f));
+
+    EXPECT_EQ(Functor::numMoved, 1U);
+    ASSERT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), functor(1));
+    EXPECT_FALSE(f.operator bool());
+}
+
+TEST_F(function_test, CopyAssignmentCopiesStoredFunctor)
+{
+    Functor functor1(73);
+    Functor functor2(73);
+    test_function f(functor1);
+    test_function sut(functor2);
+
+    Functor::resetCounts();
+    sut = f;
+
+    EXPECT_EQ(Functor::numDestroyed, 1U);
+    EXPECT_EQ(Functor::numCopied, 1U);
+    ASSERT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), f(1));
+}
+
+TEST_F(function_test, MoveAssignmentMovesStoredFunctor)
+{
+    Functor functor1(73);
+    Functor functor2(73);
+    test_function f(functor1);
+    test_function sut(functor1);
+
+    Functor::resetCounts();
+    sut = std::move(f);
+
+    EXPECT_EQ(Functor::numDestroyed, 1U);
+    EXPECT_EQ(Functor::numMoved, 1U);
+    ASSERT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), functor1(1));
+    EXPECT_FALSE(f.operator bool());
+}
+
+TEST_F(function_test, CopiedNonCallableFunctionIsNotCallable)
+{
+    test_function f;
+    Functor::resetCounts();
+
+    test_function sut(f);
+
+    EXPECT_EQ(Functor::numCopied, 0U);
+    EXPECT_EQ(Functor::numMoved, 0U);
+    EXPECT_FALSE(sut.operator bool());
+}
+
+TEST_F(function_test, MovedNonCallableFunctionIsNotCallable)
+{
+    test_function f;
+    Functor::resetCounts();
+
+    test_function sut(std::move(f));
+
+    EXPECT_EQ(Functor::numCopied, 0U);
+    EXPECT_EQ(Functor::numMoved, 0U);
+    EXPECT_FALSE(sut.operator bool());
+    EXPECT_FALSE(f.operator bool());
+}
+
+TEST_F(function_test, CopyAssignedNonCallableFunctionIsNotCallable)
+{
+    Functor functor(73);
+    test_function f;
+    test_function sut(functor);
+
+    Functor::resetCounts();
+    sut = f;
+
+    EXPECT_EQ(Functor::numCopied, 0U);
+    EXPECT_EQ(Functor::numMoved, 0U);
+    EXPECT_FALSE(sut.operator bool());
+    EXPECT_FALSE(f.operator bool());
+}
+
+TEST_F(function_test, MoveAssignedNonCallableFunctionIsNotCallable)
+{
+    Functor functor(73);
+    test_function f;
+    test_function sut(functor);
+
+    Functor::resetCounts();
+    sut = std::move(f);
+
+    EXPECT_EQ(Functor::numCopied, 0U);
+    EXPECT_EQ(Functor::numMoved, 0U);
+    EXPECT_FALSE(sut.operator bool());
+    EXPECT_FALSE(f.operator bool());
+}
+
 
 } // namespace
