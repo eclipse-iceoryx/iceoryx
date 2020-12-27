@@ -24,9 +24,10 @@ namespace
 {
 using std::cout;
 using std::endl;
+
+using signature = int32_t(int32_t);
 template <typename T>
 using fixed_size_function = iox::cxx::function<T, 128>;
-using signature = int32_t(int32_t);
 using test_function = fixed_size_function<signature>;
 
 class Functor
@@ -72,6 +73,7 @@ class function_test : public Test
 TEST_F(function_test, DefaultConstructionCreatesNoCallable)
 {
     test_function sut;
+
     EXPECT_FALSE(sut.operator bool());
 }
 
@@ -79,7 +81,8 @@ TEST_F(function_test, ConstructionFromFunctorIsCallable)
 {
     Functor f(73);
     test_function sut(f);
-    EXPECT_TRUE(sut.operator bool());
+
+    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -89,7 +92,7 @@ TEST_F(function_test, ConstructionFromLambdaIsCallable)
     auto lambda = [state = capture](int32_t n) { return state + n; };
     test_function sut(lambda);
 
-    EXPECT_TRUE(sut.operator bool());
+    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), lambda(1));
 }
 
@@ -97,17 +100,41 @@ TEST_F(function_test, ConstructionFromFreeFunctionIsCallable)
 {
     test_function sut(freeFunction);
 
-    EXPECT_TRUE(sut.operator bool());
+    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
 }
 
 TEST_F(function_test, ConstructionFromStaticFunctionIsCallable)
 {
-    // is essentially a free function but we test the case to be sure
+    // is essentially also a free function but we test the case to be sure
     test_function sut(staticFunction);
 
-    EXPECT_TRUE(sut.operator bool());
+    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), staticFunction(1));
+}
+
+TEST_F(function_test, FunctionStateIsIndependentOfSource)
+{
+    constexpr uint32_t INITIAL_STATE = 73U;
+    static_storage<1024> storage;
+    auto p = storage.allocate<Functor>();
+    auto f = new (p) Functor(INITIAL_STATE);
+    auto& functor = *f;
+
+    // test whether the function really owns the functor
+    // (no dependency or side effects)
+    test_function sut(functor);
+
+    ASSERT_TRUE(sut.operator bool());
+
+    // both increment their state independently
+    EXPECT_EQ(sut(1U), functor(1U));
+
+    // clear original (set to 0)
+    f->~Functor();
+    storage.clear();
+
+    EXPECT_EQ(sut(1U), INITIAL_STATE + 2U);
 }
 
 } // namespace

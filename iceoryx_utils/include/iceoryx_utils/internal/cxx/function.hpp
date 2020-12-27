@@ -17,7 +17,7 @@
 
 
 // replace later when the error in function_ref is found
-#if 0
+#if 1
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #else
 #include "iceoryx_utils/internal/cxx/function_ref_alternative.hpp"
@@ -209,11 +209,12 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     }
 
   private:
+    vtable m_vtable;
+
     /// @note  in general we cannot know the alignment of the type we want to store at construction time
     StorageType m_storage;
     void* m_storedObj{nullptr};
     function_ref<signature<ReturnType, Args...>> m_function;
-    vtable m_vtable;
 
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value

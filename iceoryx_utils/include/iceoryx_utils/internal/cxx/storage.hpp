@@ -15,6 +15,7 @@
 #ifndef IOX_UTILS_STORAGE_HPP
 #define IOX_UTILS_STORAGE_HPP
 
+#include <cstring>
 #include <memory>
 #include <stdint.h>
 
@@ -33,7 +34,7 @@ class optimized_storage
   private:
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
-    bool m_delete{false};
+    uint64_t m_dynamic{0};
 
 
   public:
@@ -68,7 +69,7 @@ class optimized_storage
             return nullptr;
         }
 
-        m_delete = true;
+        m_dynamic = space;
         auto ptr = m_ptr;
         std::align(align, size, ptr, space);
         return ptr;
@@ -77,12 +78,21 @@ class optimized_storage
     // note: no dtor of the stored type is called (we cannot know the type)
     void deallocate()
     {
-        if (m_delete)
+        if (m_dynamic > 0)
         {
             free(m_ptr);
-            m_delete = false;
+            m_dynamic = 0;
         }
         m_ptr = nullptr;
+    }
+
+    void clear()
+    {
+        std::memset(m_bytes, 0, sizeof(m_bytes));
+        if (m_dynamic > 0)
+        {
+            std::memset(m_ptr, 0, m_dynamic);
+        }
     }
 
     optimized_storage() = default;
@@ -109,7 +119,7 @@ class static_storage
   private:
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
-    bool m_delete{false};
+    bool m_dynamic{false};
 
     static constexpr uint64_t align_delta(uint64_t align, uint64_t alignTarget)
     {
@@ -156,12 +166,17 @@ class static_storage
     /// @note no dtor of the stored type is called (we cannot know the type)
     void deallocate()
     {
-        if (m_delete)
+        if (m_dynamic)
         {
             free(m_ptr);
-            m_delete = false;
+            m_dynamic = false;
         }
         m_ptr = nullptr;
+    }
+
+    void clear()
+    {
+        std::memset(m_bytes, 0, sizeof(m_bytes));
     }
 
     static_storage() = default;
