@@ -47,6 +47,30 @@ struct is_invocable
 };
 
 ///
+/// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
+///        and the result of the invocation is ReturnType
+///
+template <typename ReturnType, typename Callable, typename... ArgTypes>
+struct is_invocable_r
+{
+    template <typename C, typename... As>
+    static constexpr std::true_type
+    test(std::enable_if_t<std::is_same<typename std::result_of<C(As...)>::type, ReturnType>::value>*)
+    {
+        return {};
+    }
+
+    template <typename C, typename... As>
+    static constexpr std::false_type test(...)
+    {
+        return {};
+    }
+
+    // Test with nullptr as this can stand in for a pointer to any type.
+    static constexpr bool value = decltype(test<Callable, ArgTypes...>(nullptr))::value;
+};
+
+///
 /// @brief Verfies the signature ReturnType(ArgTypes...) of the provided Callable type
 ///
 template <typename Callable = void, typename ReturnType = void, typename ArgTypes = void>

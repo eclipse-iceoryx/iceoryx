@@ -271,7 +271,7 @@ TEST_F(function_test, MoveAssignmentMovesStoredFunctor)
     Functor::resetCounts();
     sut = std::move(f);
 
-    // destory previous Functor in and Functor in f after move
+    // destroy previous Functor in sut and Functor in f after move
     // (f is not callable but can be reassigned)
     EXPECT_EQ(Functor::numDestroyed, 2U);
     EXPECT_EQ(Functor::numMoved, 1U);

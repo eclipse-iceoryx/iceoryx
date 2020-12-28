@@ -94,11 +94,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     storable_function() = default;
 
-    // todo: need is_invocable_r (has_signature does not work) to let compilation fail for non-invocable types
     /// @brief construct from functor (including lambda)
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
-                                                 /*&& is_invocable_r<ReturnType, Functor, Args...>::value*/,
+                                                     && is_invocable_r<ReturnType, Functor, Args...>::value,
                                                  void>::type>
     storable_function(const Functor& functor) noexcept
     {
@@ -112,7 +111,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
         m_storedObj = nullptr;
         m_vtable.copyFunction = copyFreeFunction;
         m_vtable.moveFunction = moveFreeFunction;
-        // destroy is not needed
+        // destroy is not needed for free functions
     }
 
     /// @brief construct from object reference and member function
@@ -225,7 +224,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
-                                                 /*&& is_invocable_r<ReturnType, Functor, Args...>::value*/,
+                                                     && is_invocable_r<ReturnType, Functor, Args...>::value,
                                                  void>::type>
     void storeFunctor(const Functor& functor) noexcept
     {
@@ -245,8 +244,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
             m_vtable.moveFunction = move<StoredType>;
             m_vtable.destroyFunction = destroy<StoredType>;
         }
-        // else handle problem, but there should be none when we have the heap fallback
-        // otherwise we need to detect the size problem at compile time
+
+        // else we detect the problem at compile time or store nothing when memory is exhausted
+        // note that we have no other choice, it is used in the ctor and we cannot throw
+        // the object will be valid but not callable (operator bool returns false)
     }
 
     // need these templates to preserve the actual type T for the underlying copy/move etc. call
@@ -319,10 +320,18 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 };
 
 } // namespace detail
-// exposed to the user, to set the storage type (and reorder template arguments)
-// the storage type must precede the (required) variadic arguments in the internal one
+
+/// @note exposed to the user, to set the storage type (and reorder template arguments)
+/// the storage type must precede the (required) variadic arguments in the internal one
+/// if the static storage is insufficient to store the callable we get a compile time error
 template <typename Signature, uint64_t Bytes = 128>
 using function = detail::storable_function<static_storage<Bytes>, Signature>;
+
+/// @note the following would essentially be a complete std::function replacement
+/// which would allocate dynamically if the static storages of Bytes is not sufficient
+/// to store the callable
+// template <typename Signature, uint64_t Bytes = 128>
+// using function = detail::storable_function<optimized_storage<Bytes>, Signature>;
 
 } // namespace cxx
 } // namespace iox
