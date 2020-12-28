@@ -15,7 +15,6 @@
 #ifndef IOX_BINDING_C_SLEEP_FOR_H
 #define IOX_BINDING_C_SLEEP_FOR_H
 
-#include <stdint.h>
 #ifdef _WIN32
 #include <windows.h>
 

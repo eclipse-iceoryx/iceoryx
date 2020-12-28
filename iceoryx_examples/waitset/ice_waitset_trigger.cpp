@@ -16,7 +16,6 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
-#include <bits/stdint-uintn.h>
 #include <iostream>
 #include <thread>
 
