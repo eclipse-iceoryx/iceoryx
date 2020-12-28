@@ -18,7 +18,7 @@
 
 inline void psignal(int sig, const char *s)
 {
-    psignal(static_cast<uint>(sig), const char *s)
+    psignal(static_cast<unsigned int>(sig), s);
 }
 
 #endif // IOX_UTILS_MAC_PLATFORM_SIGNAL_HPP
