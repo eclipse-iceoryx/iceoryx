@@ -14,7 +14,6 @@
 #ifndef IOX_UTILS_OBJECTPOOL_OBJECTPOOL_HPP
 #define IOX_UTILS_OBJECTPOOL_OBJECTPOOL_HPP
 
-#include <bits/stdint-uintn.h>
 #include <cstddef> //for size_t
 #include <utility> //for std::forward
 
