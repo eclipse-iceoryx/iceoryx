@@ -15,7 +15,6 @@
 #define IOX_UTILS_MAC_PLATFORM_SEMAPHORE_HPP
 
 #include <atomic>
-#include <bits/stdint-intn.h>
 #include <dispatch/dispatch.h>
 #include <semaphore.h>
 
