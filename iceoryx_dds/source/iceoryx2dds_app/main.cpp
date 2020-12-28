@@ -21,6 +21,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 class ShutdownManager
