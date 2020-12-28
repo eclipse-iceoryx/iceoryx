@@ -339,7 +339,7 @@ SemaphoreError Semaphore::errnoToEnum(const int errnoValue) const noexcept
         std::cerr << "call was interrupted by signal handler" << std::endl;
         return SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER;
     default:
-        std::cerr << "an undefined error occurred in semaphore - this should never happen!" << std::endl;
+        std::cerr << "an unexpected error occurred in semaphore - this should never happen! errno: " << strerror(errnoValue) << std::endl;
         return SemaphoreError::UNDEFINED;
     }
 }

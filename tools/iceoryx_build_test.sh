@@ -72,6 +72,10 @@ while (( "$#" )); do
         BUILD_TYPE="Release"
         shift 1
         ;;
+    "relwithdebinfo")
+        BUILD_TYPE="RelWithDebInfo"
+        shift 1
+        ;;
     "debug")
         BUILD_TYPE="Debug"
         shift 1
@@ -153,10 +157,11 @@ while (( "$#" )); do
         echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration'"
         echo "Args:"
         echo "    clean                 Deletes the build/ directory before"
+        echo "    release               Build with -O3"
+        echo "    debug                 Build debug configuration -g"
         echo "    relwithdebinfo        Build with -O2 -DNDEBUG"
-        echo "    debug                 Build debug configuration"
         echo "    examples              Build all examples"
-        echo "    buildall              Build all extensions and all examples"
+        echo "    build-all             Build all extensions and all examples"
         echo "    out-of-tree           Out-of-tree build for CI build"
         echo "    build-strict          Build is performed with '-Werror'"
         echo "    build-test            Builds all tests (doesn't run)"
