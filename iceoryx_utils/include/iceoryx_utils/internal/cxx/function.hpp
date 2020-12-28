@@ -108,14 +108,11 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @brief construct from function pointer (including static functions)
     storable_function(ReturnType (*function)(Args...)) noexcept
     {
-        std::cout << "from fptr" << std::endl;
-        // no need to store anything else (m_storage is not needed here)
-
-        // major todo: storing this function pointer and calling it later will not work
-        // with the iceoryx function_ref, why?
-        // use an alternative and investiagte later
         m_function = function;
         m_storedObj = nullptr;
+        m_vtable.copyFunction = copyFreeFunction;
+        m_vtable.moveFunction = moveFreeFunction;
+        // destroy is not needed
     }
 
     /// @brief construct from object reference and member function
@@ -202,8 +199,16 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
         return m_function.operator bool();
     }
 
+    /// @brief swap this with another function
+    void swap(storable_function& f) noexcept
+    {
+        storable_function tmp = std::move(f);
+        f = std::move(*this);
+        *this = std::move(tmp);
+    }
+
     /// @brief swap two functions
-    void swap(storable_function& f, storable_function& g) noexcept
+    static void swap(storable_function& f, storable_function& g) noexcept
     {
         storable_function tmp = std::move(f);
         f = std::move(g);
@@ -248,7 +253,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     template <typename T>
     static void copy(const storable_function& src, storable_function& dest) noexcept
     {
-        std::cout << "###cpy" << std::endl;
         if (!src.m_storedObj)
         {
             dest.m_storedObj = nullptr;
@@ -274,17 +278,18 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
         {
             dest.m_storedObj = nullptr;
             dest.m_function = src.m_function;
+            src.m_function = nullptr;
             return;
         }
 
         auto p = dest.m_storage.template allocate<T>();
-
         if (p)
         {
             auto obj = reinterpret_cast<T*>(src.m_storedObj);
             p = new (p) T(std::move(*obj));
             dest.m_function = *p;
             dest.m_storedObj = p;
+            src.m_vtable.destroy(src);
             src.m_function = nullptr;
             src.m_storedObj = nullptr;
         }
@@ -299,6 +304,17 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
             p->~T();
             f.m_storage.deallocate();
         }
+    }
+
+    static void copyFreeFunction(const storable_function& src, storable_function& dest) noexcept
+    {
+        dest.m_function = src.m_function;
+    }
+
+    static void moveFreeFunction(storable_function& src, storable_function& dest) noexcept
+    {
+        dest.m_function = src.m_function;
+        src.m_function = nullptr;
     }
 };
 

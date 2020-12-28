@@ -250,10 +250,8 @@ TEST_F(function_test, MoveCtorMovesStoredFunctor)
 
 TEST_F(function_test, CopyAssignmentCopiesStoredFunctor)
 {
-    Functor functor1(73);
-    Functor functor2(73);
-    test_function f(functor1);
-    test_function sut(functor2);
+    test_function f(Functor(73));
+    test_function sut(Functor(42));
 
     Functor::resetCounts();
     sut = f;
@@ -266,18 +264,70 @@ TEST_F(function_test, CopyAssignmentCopiesStoredFunctor)
 
 TEST_F(function_test, MoveAssignmentMovesStoredFunctor)
 {
-    Functor functor1(73);
-    Functor functor2(73);
-    test_function f(functor1);
-    test_function sut(functor1);
+    Functor functor(73);
+    test_function f(functor);
+    test_function sut(Functor(42));
+
+    Functor::resetCounts();
+    sut = std::move(f);
+
+    // destory previous Functor in and Functor in f after move
+    // (f is not callable but can be reassigned)
+    EXPECT_EQ(Functor::numDestroyed, 2U);
+    EXPECT_EQ(Functor::numMoved, 1U);
+    ASSERT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), functor(1));
+    EXPECT_FALSE(f.operator bool());
+}
+
+
+TEST_F(function_test, CopyCtorCopiesStoredFreeFunction)
+{
+    test_function f(freeFunction);
+    test_function sut(f);
+
+    ASSERT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), f(1));
+}
+
+TEST_F(function_test, MoveCtorMovesStoredFreeFunction)
+{
+    test_function f(freeFunction);
+    test_function sut(std::move(f));
+
+    ASSERT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), freeFunction(1));
+    EXPECT_FALSE(f.operator bool());
+}
+
+TEST_F(function_test, CopyAssignmentCopiesStoredFreeFunction)
+{
+    test_function f(freeFunction);
+    test_function sut(Functor(73));
+
+    Functor::resetCounts();
+    sut = f;
+
+    EXPECT_EQ(Functor::numDestroyed, 1U);
+    EXPECT_EQ(Functor::numCopied, 0U);
+    EXPECT_EQ(Functor::numMoved, 0U);
+    ASSERT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), f(1));
+}
+
+TEST_F(function_test, MoveAssignmentMovesStoredFreeFunction)
+{
+    test_function f(freeFunction);
+    test_function sut(Functor(73));
 
     Functor::resetCounts();
     sut = std::move(f);
 
     EXPECT_EQ(Functor::numDestroyed, 1U);
-    EXPECT_EQ(Functor::numMoved, 1U);
+    EXPECT_EQ(Functor::numCopied, 0U);
+    EXPECT_EQ(Functor::numMoved, 0U);
     ASSERT_TRUE(sut.operator bool());
-    EXPECT_EQ(sut(1), functor1(1));
+    EXPECT_EQ(sut(1), freeFunction(1));
     EXPECT_FALSE(f.operator bool());
 }
 
@@ -308,13 +358,13 @@ TEST_F(function_test, MovedNonCallableFunctionIsNotCallable)
 
 TEST_F(function_test, CopyAssignedNonCallableFunctionIsNotCallable)
 {
-    Functor functor(73);
     test_function f;
-    test_function sut(functor);
+    test_function sut(Functor(73));
 
     Functor::resetCounts();
     sut = f;
 
+    EXPECT_EQ(Functor::numDestroyed, 1U);
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
     EXPECT_FALSE(sut.operator bool());
@@ -323,17 +373,47 @@ TEST_F(function_test, CopyAssignedNonCallableFunctionIsNotCallable)
 
 TEST_F(function_test, MoveAssignedNonCallableFunctionIsNotCallable)
 {
-    Functor functor(73);
     test_function f;
-    test_function sut(functor);
+    test_function sut(Functor(73));
 
     Functor::resetCounts();
     sut = std::move(f);
 
+    EXPECT_EQ(Functor::numDestroyed, 1U);
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
     EXPECT_FALSE(sut.operator bool());
     EXPECT_FALSE(f.operator bool());
+}
+
+TEST_F(function_test, MemberSwapWorks)
+{
+    Functor f1(73);
+    Functor f2(37);
+    test_function sut1(f1);
+    test_function sut2(f2);
+
+    sut1.swap(sut2);
+
+    ASSERT_TRUE(sut1.operator bool());
+    EXPECT_EQ(sut1(1), f2(1));
+    ASSERT_TRUE(sut2.operator bool());
+    EXPECT_EQ(sut2(1), f1(1));
+}
+
+TEST_F(function_test, StaticSwapWorks)
+{
+    Functor f1(73);
+    Functor f2(37);
+    test_function sut1(f1);
+    test_function sut2(f2);
+
+    test_function::swap(sut1, sut2);
+
+    ASSERT_TRUE(sut1.operator bool());
+    EXPECT_EQ(sut1(1), f2(1));
+    ASSERT_TRUE(sut2.operator bool());
+    EXPECT_EQ(sut2(1), f1(1));
 }
 
 
