@@ -15,10 +15,11 @@
 #ifndef IOX_BINDING_C_SLEEP_FOR_H
 #define IOX_BINDING_C_SLEEP_FOR_H
 
+#include <stdint.h>
 #ifdef _WIN32
 #include <windows.h>
 
-void sleep_for(int milliseconds)
+void sleep_for(uint64_t milliseconds)
 {
     Sleep(milliseconds);
 }
@@ -26,10 +27,9 @@ void sleep_for(int milliseconds)
 #else
 #include <unistd.h>
 
-void sleep_for(int milliseconds)
+void sleep_for(uint32_t milliseconds)
 {
-    useconds_t a;
-    usleep(milliseconds * 1000);
+    usleep(milliseconds * 1000U);
 }
 #endif
 

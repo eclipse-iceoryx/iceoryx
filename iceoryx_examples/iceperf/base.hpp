@@ -29,7 +29,7 @@ class IcePerfBase
     void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept;
     void postPingPongLeader() noexcept;
     void releaseFollower() noexcept;
-    double pingPongLeader(int64_t numRoundTrips) noexcept;
+    double pingPongLeader(uint64_t numRoundTrips) noexcept;
     void pingPongFollower() noexcept;
 
   private:

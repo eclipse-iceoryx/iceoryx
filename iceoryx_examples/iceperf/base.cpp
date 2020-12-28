@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "base.hpp"
+#include <bits/stdint-uintn.h>
 
 
 void IcePerfBase::prePingPongLeader(uint32_t payloadSizeInBytes) noexcept
@@ -30,7 +31,7 @@ void IcePerfBase::releaseFollower() noexcept
     sendPerfTopic(sizeof(PerfTopic), false);
 }
 
-double IcePerfBase::pingPongLeader(int64_t numRoundTrips) noexcept
+double IcePerfBase::pingPongLeader(uint64_t numRoundTrips) noexcept
 {
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -45,7 +46,7 @@ double IcePerfBase::pingPongLeader(int64_t numRoundTrips) noexcept
 
     constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
-    auto latencyInNanoSeconds = (duration.count() / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
+    auto latencyInNanoSeconds = (static_cast<uint64_t>(duration.count()) / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
     auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
     return latencyInMicroSeconds;
 }
