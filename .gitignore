@@ -1,5 +1,6 @@
 build/
 build_out_of_tree/
+build_package/
 install/
 /CMakeLists.txt
 clangd/
