@@ -111,6 +111,12 @@ class Functor : public Counter<Functor>
         return m_state;
     }
 
+    // integer arg to satisfy signature requirement of our test_function
+    int32_t getState(int32_t n = 0) const
+    {
+        return m_state + n;
+    }
+
     int32_t m_state{0};
 };
 
@@ -180,6 +186,27 @@ TEST_F(function_test, ConstructionFromStaticFunctionIsCallable)
 
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), staticFunction(1));
+}
+
+TEST_F(function_test, ConstructionFromMemberFunctionIsCallable)
+{
+    Functor f(37);
+    test_function sut(f, &Functor::operator());
+
+    ASSERT_TRUE(sut.operator bool());
+    auto result = f(1);
+    EXPECT_EQ(sut(1), result + 1);
+}
+
+TEST_F(function_test, ConstructionFromConstMemberFunctionIsCallable)
+{
+    Functor f(37);
+    test_function sut(f, &Functor::getState);
+
+    ASSERT_TRUE(sut.operator bool());
+    auto state = f.getState(1);
+    EXPECT_EQ(sut(1), state);
+    EXPECT_EQ(f.getState(1), state); // state is unchanged by the previous call
 }
 
 TEST_F(function_test, FunctionStateIsIndependentOfSource)
