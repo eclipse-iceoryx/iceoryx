@@ -34,7 +34,7 @@ class optimized_storage
   private:
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
-    uint64_t m_dynamic{0};
+    uint64_t m_dynamicBytes{0};
 
 
   public:
@@ -55,8 +55,7 @@ class optimized_storage
         m_ptr = m_bytes;
         if (std::align(align, size, m_ptr, space))
         {
-            // fits, ptr was potentially modified to reflect alignent
-            // std::cout << "static storage is large enough" << std::endl;
+            // fits, ptr was potentially modified to satisfy alignent
             return m_ptr;
         }
 
@@ -69,7 +68,7 @@ class optimized_storage
             return nullptr;
         }
 
-        m_dynamic = space;
+        m_dynamicBytes = space;
         auto ptr = m_ptr;
         std::align(align, size, ptr, space);
         return ptr;
@@ -78,31 +77,28 @@ class optimized_storage
     // note: no dtor of the stored type is called (we cannot know the type)
     void deallocate()
     {
-        if (m_dynamic > 0)
+        if (m_dynamicBytes > 0)
         {
             free(m_ptr);
-            m_dynamic = 0;
+            m_dynamicBytes = 0;
         }
         m_ptr = nullptr;
     }
 
     void clear()
     {
-        std::memset(m_bytes, 0, sizeof(m_bytes));
-        if (m_dynamic > 0)
+        std::memset(m_bytes, 0, Capacity);
+        if (m_dynamicBytes > 0)
         {
-            std::memset(m_ptr, 0, m_dynamic);
+            std::memset(m_ptr, 0, m_dynamicBytes);
         }
     }
 
     optimized_storage() = default;
 
-    // todo: check whether we need intricate copy behavior
-    // memcpy is not really advised, depending what is stored
     optimized_storage(const optimized_storage&) = default;
     optimized_storage& operator=(const optimized_storage&) = default;
 
-    // todo: check move behavior
     optimized_storage(optimized_storage&&) = default;
     optimized_storage& operator=(optimized_storage&&) = default;
 
@@ -119,18 +115,18 @@ class static_storage
   private:
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
-    bool m_dynamic{false};
 
     static constexpr uint64_t align_delta(uint64_t align, uint64_t alignTarget)
     {
         auto r = align % alignTarget;
 
-        // if r != 0 we are not aligned and need to add this ammount to an align
+        // if r != 0 we are not aligned and need to add this amount to an align
         // aligned address to be aligned with alignTarget
         return r != 0 ? alignTarget - r : 0;
     }
 
   public:
+    // check whether the type T will fit in the buffer statically at compile time
     template <typename T>
     static constexpr bool fits_statically()
     {
@@ -164,24 +160,21 @@ class static_storage
     }
 
     /// @note no dtor of the stored type is called (we cannot know the type)
+    ///       it is just marked as unused
     void deallocate()
     {
-        if (m_dynamic)
-        {
-            free(m_ptr);
-            m_dynamic = false;
-        }
         m_ptr = nullptr;
     }
 
     void clear()
     {
-        std::memset(m_bytes, 0, sizeof(m_bytes));
+        std::memset(m_bytes, 0, Capacity);
     }
 
     static_storage() = default;
 
-    ///@ todo: check whether we need more intricate copy/move behavior
+    // note that m_bytes are copied by those, most likely with a memcpy call
+    // (i.e. we need no custom versions)
     static_storage(const static_storage&) = default;
     static_storage& operator=(const static_storage&) = default;
 
