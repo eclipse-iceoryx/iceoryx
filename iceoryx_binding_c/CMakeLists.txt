@@ -45,7 +45,6 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 ########## build building-block library ##########
 #
 add_library(${PROJECT_NAME}
-    STATIC
     source/c_user_trigger.cpp
     source/c_publisher.cpp
     source/c_node.cpp
