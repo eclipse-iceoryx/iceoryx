@@ -61,6 +61,8 @@ if(EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
 endif()
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/package/package.cmake)
+
 message("")
 message("       Build Properties")
 message("          project name..............: " ${CMAKE_PROJECT_NAME})
