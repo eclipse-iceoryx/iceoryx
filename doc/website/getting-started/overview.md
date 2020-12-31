@@ -40,18 +40,29 @@ To do so, the following lines of code are required
 
 ### Service description
 
-A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is uniquely identified by three string identifiers.
+A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is uniquely identified by three string
+identifiers.
 
 1. ``Group`` name
 2. ``Instance`` name
 3. ``Topic`` name
 
-A triple consisting of such strings is called a ``ServiceDescription``. In Autosar terminology these three
-identifiers are called ``Service``, ``Instance`` and ``Event`` respectively. Note that in the API they are still
-named in this way in the ``capro::ServiceDescription`` class and hence ``Group`` corresponds to and Autosar
-``Service`` and ``Topic`` to an Autosar ``Èvent``.
+A triple consisting of such strings is called a ``ServiceDescription``. The service model of iceoryx is derived
+from AUTOSAR and is still used in the API with these names. The so called canonical protocol is implemented in the
+namespace ``capro``.
 
-Two ``ServiceDescription`` are considered matching if all these three strings are element-wise equal, i.e. group,
+The following tables gives an overview over the different terminologies:
+
+|         | Group   | Instance | Topic |
+|---------|---------|----------|-------|
+| ROS2    | -       | Topic    | Type  |
+| AUTOSAR | Service | Instance | Event |
+| DDS     | -       | Topic    | Type  |
+
+Service and instance are like classes and objects in C++. So you always have a specific instance of a service during
+runtime.
+
+Two ``ServiceDescription``s are considered matching if all these three strings are element-wise equal, i.e. group,
 instance and topic names are the same for both of them.
 
 This means the group and instance identifier can be ignored to create different ``ServiceDescription``s. They will be
