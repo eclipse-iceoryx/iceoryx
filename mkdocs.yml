@@ -2,6 +2,7 @@ site_name: iceoryx.io
 site_url: https://iceoryx.io
 repo_url: https://github.com/eclipse/iceoryx
 docs_dir: doc/website/
+remote_branch: main
 nav:
   - index.md
   - Getting started:
