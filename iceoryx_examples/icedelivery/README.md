@@ -26,7 +26,7 @@ build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
 ```
 
-<script id="asciicast-382036" src="https://asciinema.org/a/382036.js" async></script>
+[![asciicast](https://asciinema.org/a/382036.svg)](https://asciinema.org/a/382036)
 
 ## Code walkthrough
 
