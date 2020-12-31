@@ -15,7 +15,7 @@ nav:
   - API-Cheatsheet.md
   - FAQ.md
   - Advanced:
-    - Standard library: for-developers/iceoryx_utils.md
+    - Safe standard library: for-developers/iceoryx_utils.md
     - for-developers/usage-guide.md
 markdown_extensions:
   - markdown_include.include:
