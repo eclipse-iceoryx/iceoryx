@@ -1,19 +1,19 @@
 # Overview
 
-This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to
+This document covers the core functionality of Eclipse iceoryx and is intended to quickly get started to
 set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the
 basic concepts presented here will still apply.
 
 ## General
 
-To set up a collection of applications using iceoryx (an ``iceoryx system``), the applications need to initialize a
-runtime and create ``publishers`` and ``subscribers``. The publishers send data of a specific ``topic`` which can be
+To set up a collection of applications using iceoryx (an _iceoryx system_), the applications need to initialize a
+runtime and create _publishers_ and _subscribers_. The publishers send data of a specific _topic_ which can be
 received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
 these offered topics, the middleware daemon, called ``RouDi``, must be running.
 
 For further information how iceoryx can be used see the [examples](../../../iceoryx_examples/README.md). The
-[conceptual-guide](../../conceptual-guide.md) provides additional information about the ``Shared Memory
-communication`` that lies at the heart of iceoryx.
+[conceptual-guide](../../conceptual-guide.md) provides additional information about the _Shared Memory
+communication_ that lies at the heart of iceoryx.
 
 We now briefly define the main entities of an iceoryx system before showing how they are created and used by the
 iceoryx API.
@@ -280,84 +280,84 @@ publisher.offer();
 ```
 
 Note that it suffices to set the first two identifiers (Group and Instance) to some default values for all topics.
+
 #### Sending data
 
 Now we can use the publisher to send the data in various ways.
 
-1. Loan and assign
+##### 1. Loan and assign
 
-    ```cpp
-    auto result = publisher.loan();
-    if (!result.has_error())
-    {
-        auto& sample = result.value();
-        sample->counter = 73;
+```cpp
+auto result = publisher.loan();
+if (!result.has_error())
+{
+    auto& sample = result.value();
+    sample->counter = 73;
+    sample.publish();
+}
+else
+{
+    // handle the error
+}
+```
+
+Here result is an ``expected`` and hence we may get an error which we have to handle. This can happen if we try
+to loan too many samples and exhaust memory.
+
+If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value
+we want to send. It is important to note that in the typed case we get a default constructed topic and such an
+access is legal.
+
+Once we are done constructing and preparing the data we publish it, causing it to be delivered to any subscriber
+which is currently subscribed to the topic.
+
+##### 2. Functional approach with loaning
+
+```cpp
+publisher.loan()
+    .and_then([&](auto& sample) {
+        auto ptr = sample.get();
+        *ptr = CounterTopic(73);
         sample.publish();
-    }
-    else
-    {
-        // handle the error
-    }
-    ```
+    })
+    .or_else([](iox::popo::AllocationError) {
+        /* handle the error */
+    });
 
-    Here result is an ``expected`` and hence we may get an error which we have to handle. This can happen if we try
-    to loan too many samples and exhaust memory.
+```
 
-    If we successfully get a sample, we can use ``operator->`` to access the underlying data and set it to the value
-    we want to send. It is important to note that in the typed case we get a default constructed topic and such an
-    access is legal.
+We try to loan a sample from the publisher and if successful get the underlying pointer ``ptr`` to our topic and
+if successful assign it a new value. Note that ``ptr`` points to an already default constructed sample, so we
+cannot treat it as uninitialized memory and therefore must assign the data to send.
 
-    Once we are done constructing and preparing the data we publish it, causing it to be delivered to any subscriber
-    which is currently subscribed to the topic.
+If you are only using a simple data type which does not rely on RAII, you can also use the pointer to construct
+the data via placement new instead.
 
+```cpp
+new (ptr) CounterTopic(73);
+```
 
-2. Functional approach with loaning
+##### 3. Publish by copy
 
-    ```cpp
-    publisher.loan()
-        .and_then([&](auto& sample) {
-            auto ptr = sample.get();
-            *ptr = CounterTopic(73);
-            sample.publish();
-        })
-        .or_else([](iox::popo::AllocationError) {
-            /* handle the error */
-        });
-    
-    ```
+```cpp
+CounterTopic counter(73);
+publisher.publishCopyOf(counter);
+```
+This copies the constructed ``counter`` object and hence should mostly be used for small data.
 
-    We try to loan a sample from the publisher and if successful get the underlying pointer ``ptr`` to our topic and
-    if successful assign it a new value. Note that ``ptr`` points to an already default constructed sample, so we
-    cannot treat it as uninitialized memory and therefore must assign the data to send.
+##### 4. Publish the result of a computation
 
-    If you are only using a simple data type which does not rely on RAII, you can also use the pointer to construct
-    the data via placement new instead.
+```cpp
+auto myComputation = [](CounterTopic* data) { *data = CounterTopic(73); };
+auto result = publisher.publishResultOf(myComputation);
+if (result.has_error())
+{
+    // handle the error
+}
+```
 
-    ```cpp
-    new (ptr) CounterTopic(73);
-    ```
-
-3. Publish by copy
-
-    ```cpp
-    CounterTopic counter(73);
-    publisher.publishCopyOf(counter);
-    ```
-    This copies the constructed ``counter`` object and hence should mostly be used for small data.
-
-4. Publish the result of a computation
-
-    ```cpp
-    auto myComputation = [](CounterTopic* data) { *data = CounterTopic(73); };
-    auto result = publisher.publishResultOf(myComputation);
-    if (result.has_error())
-    {
-        // handle the error
-    }    
-    ```
-
-    This can be used if we want to set the data by some callable (i.e. lambda, function or [functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++)). As with all the
-    other ways, it can fail when there is no memory for the sample availabe and this failure must be handled.
+This can be used if we want to set the data by some callable (i.e. lambda, function or [functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++)). As with all the
+other ways, it can fail when there is no memory for the sample availabe and this failure must be handled.
 
 #### Creating a subscriber
 
@@ -379,52 +379,86 @@ For simplicity we assume that we periodically check for new data. It is also pos
 using the [Waitset](../../../iceoryx_examples/waitset/README.md). The code to receive the data is the same, the only
 difference is the way we wake up before checking for data.
 
-1. Take and process a sample
+##### 1. Take and process a sample
 
-    ```cpp
-    while (keepRunning)
+```cpp
+while (keepRunning)
+{
+    // wait for new data (either sleep and wake up periodically or by notification from the waitset)
+
+    auto result = subscriber->take();
+
+    if(!result.has_error())
     {
-        // wait for new data (either sleep and wake up periodically or by notification from the waitset)
-
-        auto result = subscriber->take();
-
-        if(!result.has_error())
+        auto& maybeSample = result.value();
+        if (maybeSample.has_value())
         {
-            auto& maybeSample = result.value();
-            if (maybeSample.has_value())
-            {
-                auto& sample = maybeSample.value();
-                const CounterTopic* counter = sample.get();
-                //process the data
+            auto& sample = maybeSample.value();
+            const CounterTopic* counter = sample.get();
+            //process the data
 
-                //alternatively use operator->
-                uint32_t counter = sample->counter;
-            }
-            else
-            {
-                // we received no data
-            }
-        } else {
-            iox::popo::ChunkReceiveError& error = result.get_error();
-            //handle the error
+            //alternatively use operator->
+            uint32_t counter = sample->counter;
         }
+        else
+        {
+            // we received no data
+        }
+    } else {
+        iox::popo::ChunkReceiveError& error = result.get_error();
+        //handle the error
     }
+}
 
-    ```
+```
 
-    By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>``. Since this
-    may fail, we have to handle a potential error. If there is no error, we may still have not recived a sample, indicated by
-    a ``nullopt``. Otherwise we can get the pointer of our data from the sample and process the received data.
+By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>``. Since this
+may fail, we have to handle a potential error. If there is no error, we may still have not recived a sample, indicated by
+a ``nullopt``. Otherwise we can get the pointer of our data from the sample and process the received data.
 
-    We can shorten this somewhat by using a functional approach.
+We can shorten this somewhat by using a functional approach.
 
-2. Functional approach
+##### 2. Functional approach
 
-    ```cpp
-    while (keepRunning)
+```cpp
+while (keepRunning)
+{
+    // wait for new data (either sleep and wake up periodically or by notification from the waitset)
+
+    subscriber->take()
+        .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+            CounterTopic* ptr = sample.get();
+            /* process the received data using the ptr */
+
+            /* alternatively use operator-> */
+            uint32_t counter = sample->counter;
+        })
+        .if_empty([] { /* no data received but also no error */ })
+        .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
+}
+
+```
+
+By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>`` and 
+handle a potential error in the ``or_else`` branch. If we wake up periodically, it is also possible that
+no data is received and if we want to handle this we can optionally do so in the ``if_empty`` branch.
+
+The usual case is that we actually receive data, and we process it in the ``and_then``. Notice that in the lambda we
+do not pass a ``CounterTopic`` directly but a reference to a ``iox::popo::Sample<const CounterTopic>&``. We can
+access the underlying ``CounterTopic`` either by getting a pointer to it via ``get`` or by using ``operator->``. In
+any case, we now can process or copy the received data and once the ``sample`` goes out of scope, the underlying
+``CounterTopic`` object is deleted as well (this happens when the temporary object returned by ``take`` is
+destroyed). This means it is only safe to hold references to the data as long as the ``sample`` exists. Should we
+need a longer lifetime, we have to copy or move the data from the ``sample``.
+
+This only allows us to get one sample at a time. Should we want to get all currently available samples we can do so
+by using an additional loop.
+
+```cpp
+while (keepRunning)
+{
+    while (subscriber.hasSamples())
     {
-        // wait for new data (either sleep and wake up periodically or by notification from the waitset)
-
         subscriber->take()
             .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                 CounterTopic* ptr = sample.get();
@@ -433,48 +467,14 @@ difference is the way we wake up before checking for data.
                 /* alternatively use operator-> */
                 uint32_t counter = sample->counter;
             })
-            .if_empty([] { /* no data received but also no error */ })
             .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
     }
+    // wait for new samples (either sleep or use the waitset)
+}
+```
 
-    ```
-
-    By calling ``take`` we get a ``iox::cxx::expected<iox::optional<iox::popo::Sample<const CounterTopic>>>`` and 
-    handle a potential error in the ``or_else`` branch. If we wake up periodically, it is also possible that
-    no data is received and if we want to handle this we can optionally do so in the ``if_empty`` branch.
-
-    The usual case is that we actually receive data, and we process it in the ``and_then``. Notice that in the lambda we
-    do not pass a ``CounterTopic`` directly but a reference to a ``iox::popo::Sample<const CounterTopic>&``. We can
-    access the underlying ``CounterTopic`` either by getting a pointer to it via ``get`` or by using ``operator->``. In
-    any case, we now can process or copy the received data and once the ``sample`` goes out of scope, the underlying
-    ``CounterTopic`` object is deleted as well (this happens when the temporary object returned by ``take`` is
-    destroyed). This means it is only safe to hold references to the data as long as the ``sample`` exists. Should we
-    need a longer lifetime, we have to copy or move the data from the ``sample``.
-
-    This only allows us to get one sample at a time. Should we want to get all currently available samples we can do so
-    by using an additional loop.
-
-    ```cpp
-    while (keepRunning)
-    {
-        while (subscriber.hasSamples())
-        {
-            subscriber->take()
-                .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                    CounterTopic* ptr = sample.get();
-                    /* process the received data using the ptr */
-
-                    /* alternatively use operator-> */
-                    uint32_t counter = sample->counter;
-                })
-                .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
-        }
-        // wait for new samples (either sleep or use the waitset)
-    }
-    ```
-
-    Here we do not check whether we actually have data since we already know there is data available by calling
-    ``hasSamples``.
+Here we do not check whether we actually have data since we already know there is data available by calling
+``hasSamples``.
 
 ### Untyped API
 
@@ -494,52 +494,53 @@ publisher.offer();
 
 #### Sending data
 
-1. Loan and emplace
+##### 1. Loan and emplace
 
-    Before sending, we have to loan a chunk of memory to emplace our data.
+Before sending, we have to loan a chunk of memory to emplace our data.
 
-    ```cpp
-    auto result = publisher.loan(sizeof(CounterTopic));
-    ```
+```cpp
+auto result = publisher.loan(sizeof(CounterTopic));
+```
 
-    Since the data type is not known to the publisher, we have to provide the size in bytes of the payload data we
-    intend to send.
+Since the data type is not known to the publisher, we have to provide the size in bytes of the payload data we
+intend to send.
 
-    If we successfully acquired a chunk, we can construct the data to be send using placement new and publish it.
-    Notice that ``sample.get()`` returns a ``void*`` to the memory ``chunk`` were we can then place our data.
-    Depending on what we want to send, we may also use ``memcpy`` to copy the data to the ``chunk``.
+If we successfully acquired a chunk, we can construct the data to be send using placement new and publish it.
+Notice that ``sample.get()`` returns a ``void*`` to the memory ``chunk`` were we can then place our data.
+Depending on what we want to send, we may also use ``memcpy`` to copy the data to the ``chunk``.
 
-    ```cpp
-    if (!result.has_error())
-    {
-        auto& sample = result.value();
-        void* chunk = sample.get();
-        new (chunk) CounterTopic(73);
+```cpp
+if (!result.has_error())
+{
+    auto& sample = result.value();
+    void* chunk = sample.get();
+    new (chunk) CounterTopic(73);
+    sample.publish();
+}
+else
+{
+    // could not acquire chunk, handle the error
+}
+```
+
+Here placement new is required, there is no preconstructed object at ``sample.get()``.
+
+##### 2. Functional approach with loaning
+
+```cpp
+publisher.loan(sizeof(CounterTopic))
+    .and_then([&](iox::popo::Sample<void>& sample) {
+        new (sample.get()) CounterTopic(73);
         sample.publish();
-    }
-    else
-    {
-        // could not acquire chunk, handle the error
-    }    
-    ```
+    })
+    .or_else([](iox::popo::AllocationError) {
+        /* handle the error */
+    });
+```
 
-    Here placement new is required, there is no preconstructed object at ``sample.get()``.
-
-2. Functional approach with loaning
-
-    ```cpp
-    publisher.loan(sizeof(CounterTopic))
-        .and_then([&](iox::popo::Sample<void>& sample) {
-            new (sample.get()) CounterTopic(73);
-            sample.publish();
-        })
-        .or_else([](iox::popo::AllocationError) {
-            /* handle the error */
-        });
-    ```
-    Notice that we get an untyped sample, ``iox::popo::Sample<const void>``. We could also use ``auto& sample`` in the
-    lambda arguments to shorten it. Again we access the pointer to the underlying raw memory of the sample and
-    construct the data we want to send.
+Notice that we get an untyped sample, ``iox::popo::Sample<const void>``. We could also use ``auto& sample`` in the
+lambda arguments to shorten it. Again we access the pointer to the underlying raw memory of the sample and
+construct the data we want to send.
 
 #### Creating a subscriber
 
@@ -633,20 +634,14 @@ Now that we have applications capable of sending and receiving data, we can run 
 
 First we need to start RouDi.
 
-    # If installed and available in PATH environment variable
-    iox-roudi
-    # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/posh/iox-roudi
+```
+# If installed and available in PATH environment variable
+iox-roudi
+# If build from scratch with script in tools
+$ICEORYX_ROOT/build/posh/iox-roudi
+```
 
 Afterwards we can start the applications which immediately connect to the RouDi via their runtime.
 
 When the application terminates, the runtime cleans up all resources needed for communication with RouDi. This
 includes all memory chunks used for the data transmission which may still be hold by the application.
-
-## C API
-
-<!-- Move this into API section? -->
-
-The C API usage is outlined in [icedelivery_on_c](../../../iceoryx_examples/icedelivery_on_c/README.md).
-
-This API is still under much development and not fully supported yet.

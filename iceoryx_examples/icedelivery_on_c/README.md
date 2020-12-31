@@ -12,7 +12,7 @@ underlying mechanisms.
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 
-## Code walthrough
+## Code walkthrough
 
 ### Subscriber
 

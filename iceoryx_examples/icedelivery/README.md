@@ -3,7 +3,7 @@
 ## Introduction
 
 This example showcases a data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
-It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed). Check icedelivery_on_c for the C API
+It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed).
 
 ## Run icedelivery
 
