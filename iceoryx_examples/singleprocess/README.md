@@ -1,4 +1,4 @@
-# singleprocess
+# Single process
 
 ## Introduction
 

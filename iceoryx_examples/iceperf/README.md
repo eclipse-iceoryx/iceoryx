@@ -37,6 +37,7 @@ iceperf-hardy with the parameter `cpp-api` or `c-api`.
     build/iceoryx_examples/iceperf/iceperf-laurel 100000 cpp-api
 
     build/iceoryx_examples/iceperf/iceperf-hardy cpp-api
+```
 
 ## Expected output
 
@@ -44,7 +45,7 @@ The numbers will differ depending on parameters and the performance of the hardw
 Which technologies are measured depends on the operating system (e.g. no message queue on MacOS).
 Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2.80GHz.
 
-<!-- @todo Replace this with asciinema recording before v1.0-->
+<!-- @todo Replace this with asciinema recording before v1.0 -->
 
 ### iceperf-laurel application
 

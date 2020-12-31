@@ -25,11 +25,9 @@ build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 build/iox-introspection-client --all
 ```
 
-<!-- ## Expected output -->
-
 <!-- @todo Add expected output of RouDi, publisher, subscriber and introspection with asciinema recording before v1.0-->
 
-### Iceoryx introspection application
+## Expected output
 
 ![introspection_screenshot](https://user-images.githubusercontent.com/22388003/75041206-672feb80-54bc-11ea-8621-2acf95bf376e.png)
 

@@ -3,18 +3,19 @@ site_url: https://iceoryx.io
 repo_url: https://github.com/eclipse/iceoryx
 docs_dir: doc/website/
 nav:
-  - introduction.md
+  - index.md
   - Getting started:
     - getting-started/overview.md
     - getting-started/installation.md
     - Examples:
       - getting-started/basic-examples.md
+      - getting-started/intermediate-examples.md
       - getting-started/advanced-examples.md
   - API-References.md
   - API-Cheatsheet.md
   - FAQ.md
   - Advanced:
-    - for-developers/iceoryx_utils.md
+    - Standard library: for-developers/iceoryx_utils.md
     - for-developers/usage-guide.md
 markdown_extensions:
   - markdown_include.include:
