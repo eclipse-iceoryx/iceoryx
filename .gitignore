@@ -2,6 +2,7 @@ build/
 build_out_of_tree/
 install/
 /CMakeLists.txt
+clangd/
 .vscode
 /**/*.user
 iceoryx_utils/doc/html/

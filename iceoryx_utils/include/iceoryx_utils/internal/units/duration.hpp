@@ -218,7 +218,7 @@ class Duration
   private:
     /// @brief constructor needs to be private to ensure a unit safe usage of duration
     constexpr explicit Duration(const long double durationInSeconds);
-    long double durationInSeconds;
+    long double durationInSeconds{0.0};
 };
 
 /// @brief creates Duration object multplying T with durationInSeconds

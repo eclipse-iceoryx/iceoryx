@@ -2,12 +2,12 @@
 
 ## Introduction
 
-This example showcases a one-way data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
-It provides publisher and subscriber applications. They come in two API flavours (untyped and typed).
+This example showcases a data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
+It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed). Check icedelivery_on_c for the C API
 
 ## Run icedelivery
 
-Create three terminals and run one command in each of them. Choose one publisher and one subscriber and mix the typed and untyped versions.
+Create different terminals and run one command in each of them. Choose at least one publisher and one subscriber for having a data communication. You can also mix the typed and untyped versions. And if you feel like crazy today you start several publishers and subscribers from icedelivery and icedelivery_on_c (needs the default n:m communication, not possible if you build with the ONE_TO_MANY option)
 ```sh
 # If installed and available in PATH environment variable
 iox-roudi
@@ -46,9 +46,9 @@ RouDi is ready for clients
 ```
 2020-12-20 16:05:01.837 [ Debug ]: Application registered management segment 0x7fd6d39e3000 with size 64244064 to id 1
 2020-12-20 16:26:42.791 [ Info  ]: Application registered payload segment 0x7f377c4e6000 with size 149134400 to id 2
-Sent {five,two} times value: (1, 1, 1)
-Sent {five,two} times value: (2, 2, 2)
-Sent {five,two} times value: (3, 3, 3)
+Sent {five,two} times value: 1
+Sent {five,two} times value: 2
+Sent {five,two} times value: 3
 ```
 
 ### Subscriber application (typed)
@@ -56,21 +56,17 @@ Sent {five,two} times value: (3, 3, 3)
 2020-12-20 16:26:58.839 [ Debug ] Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
 2020-12-20 16:26:58.839 [ Info  ] Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
 Not subscribed!
-Got value: (2, 2, 2)
-Got value: (2, 2, 2)
-Got value: (2, 2, 2)
-Got value: (2, 2, 2)
-Got value: (2, 2, 2)
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Got value: (3, 3, 3)
-Got value: (3, 3, 3)
-Got value: (3, 3, 3)
-Got value: (3, 3, 3)
-Got value: (3, 3, 3)
+Got value: 2
+Got value: 2
+Got value: 2
+Got value: 2
+Got value: 2
+
+Got value: 3
+Got value: 3
+Got value: 3
+Got value: 3
+Got value: 3
 
 ```
 
@@ -79,18 +75,12 @@ Got value: (3, 3, 3)
 2020-12-20 16:26:58.839 [ Debug ] Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
 2020-12-20 16:26:58.839 [ Info  ] Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
 Not subscribed!
-Got value: (2, 2, 2)
-Got value: (2, 2, 2)
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Didn't get a value, but do something anyway.
-Got value: (3, 3, 3)
-Got value: (3, 3, 3)
+Got value: 2
+Got value: 2
+
+
+Got value: 3
+Got value: 3
 ```
 
 ## Code walkthrough
@@ -293,8 +283,7 @@ need to take care about all cases, but it is advised to do so.
 In the `and_then` case the content of the sample is printed to the command line:
 ```cpp
 auto object = static_cast<const RadarObject*>(sample->get());
-std::cout << "Got value: (" << object->x << ", " << object->y << ", " << object->z << ")"
-            << std::endl;
+std::cout << "Got value: " << object->x << std::endl;
 ```
 
 Please note the `static_cast` before reading out the data. It is necessary, because the untyped subscriber is unaware

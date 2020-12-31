@@ -149,13 +149,13 @@ The coverage scan applies to Quality level 3 and partly level 2 with branch cove
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
 You can do this with one command in iceroyx folder like this:
 ```
-./tools/iceoryx_build_test.sh clean buildall -c <testlevel>
+./tools/iceoryx_build_test.sh clean build-all -c <testlevel>
 ```
-Optionally you can use buildall option to get coverage for extensions like DDS or C-Binding.
+Optionally you can use build-all option to get coverage for extensions like DDS or C-Binding.
 The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
 example:
 ```
-./tools/iceoryx_build_test.sh buildall clean -c unit
+./tools/iceoryx_build_test.sh build-all clean -c unit
 ```
 For having only reports for unit-test. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
 
