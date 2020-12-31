@@ -5,9 +5,10 @@
 This example showcases a data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
 It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed).
 
-## Run icedelivery
+## Expected output
 
 Create different terminals and run one command in each of them. Choose at least one publisher and one subscriber for having a data communication. You can also mix the typed and untyped versions. And if you feel like crazy today you start several publishers and subscribers from icedelivery and icedelivery_on_c (needs the default n:m communication, not possible if you build with the ONE_TO_MANY option)
+
 ```sh
 # If installed and available in PATH environment variable
 iox-roudi
@@ -25,63 +26,7 @@ build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
 ```
 
-## Expected output
-
-<!-- @todo Replace this with asciinema recording before v1.0-->
-
-The counter can differ depending on startup of the applications.
-
-### RouDi application
-```
-2020-12-20 15:55:18.616 [ Info  ]: No config file provided and also not found at '/etc/iceoryx/roudi_config.toml'. Falling back to built-in config.
-Log level set to: [Warning]
-Reserving 64244064 bytes in the shared memory [/iceoryx_mgmt]
-[ Reserving shared memory successful ]
-Reserving 149134400 bytes in the shared memory [/user]
-[ Reserving shared memory successful ]
-RouDi is ready for clients
-```
-
-### Publisher application
-```
-2020-12-20 16:05:01.837 [ Debug ]: Application registered management segment 0x7fd6d39e3000 with size 64244064 to id 1
-2020-12-20 16:26:42.791 [ Info  ]: Application registered payload segment 0x7f377c4e6000 with size 149134400 to id 2
-Sent {five,two} times value: 1
-Sent {five,two} times value: 2
-Sent {five,two} times value: 3
-```
-
-### Subscriber application (typed)
-```
-2020-12-20 16:26:58.839 [ Debug ] Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
-2020-12-20 16:26:58.839 [ Info  ] Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
-Not subscribed!
-Got value: 2
-Got value: 2
-Got value: 2
-Got value: 2
-Got value: 2
-
-Got value: 3
-Got value: 3
-Got value: 3
-Got value: 3
-Got value: 3
-
-```
-
-### Subscriber application (untyped)
-```
-2020-12-20 16:26:58.839 [ Debug ] Application registered management segment 0x7f6353c04000 with size 64244064 to id 1
-2020-12-20 16:26:58.839 [ Info  ] Application registered payload segment 0x7f634ab8c000 with size 149134400 to id 2
-Not subscribed!
-Got value: 2
-Got value: 2
-
-
-Got value: 3
-Got value: 3
-```
+<script id="asciicast-382036" src="https://asciinema.org/a/382036.js" async></script>
 
 ## Code walkthrough
 
