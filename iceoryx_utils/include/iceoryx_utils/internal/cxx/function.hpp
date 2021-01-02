@@ -24,7 +24,7 @@
 #endif
 
 #include "iceoryx_utils/cxx/type_traits.hpp"
-#include "iceoryx_utils/internal/cxx/storage.hpp"
+#include "iceoryx_utils/internal/cxx/static_storage.hpp"
 
 #include <iostream>
 #include <type_traits>
@@ -321,7 +321,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
 } // namespace detail
 
-/// @note exposed to the user, to set the storage type (and reorder template arguments)
+/// @note set the storage type and reorder template arguments for the user API
 /// the storage type must precede the (required) variadic arguments in the internal one
 /// if the static storage is insufficient to store the callable we get a compile time error
 template <typename Signature, uint64_t Bytes = 128>
@@ -329,7 +329,7 @@ using function = detail::storable_function<static_storage<Bytes>, Signature>;
 
 /// @note the following would essentially be a complete std::function replacement
 /// which would allocate dynamically if the static storages of Bytes is not sufficient
-/// to store the callable
+/// to store the callable (i.e. we use an optimized_storage)
 // template <typename Signature, uint64_t Bytes = 128>
 // using function = detail::storable_function<optimized_storage<Bytes>, Signature>;
 

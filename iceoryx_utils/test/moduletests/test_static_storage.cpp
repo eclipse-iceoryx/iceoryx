@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/internal/cxx/storage.hpp"
+#include "iceoryx_utils/internal/cxx/static_storage.hpp"
 #include "test.hpp"
 
 #include <iostream>
@@ -107,19 +107,19 @@ TEST(static_storage_test, DoesNotFitStaticallyWithDifferentAlignment)
     EXPECT_FALSE(result);
 }
 
-TEST(static_storage_test, AllocateWorksWhenSizeIsSufficient)
+TEST(static_storage_test, AllocateSucceedsIfSizeIsSufficient)
 {
     static_storage<18, 2> sut;
     EXPECT_NE(sut.allocate(16, 4), nullptr);
 }
 
-TEST(static_storage_test, AllocateWorksWhenSizeIsInSufficient)
+TEST(static_storage_test, AllocateFailsIfSizeIsInsufficient)
 {
     static_storage<17, 2> sut;
     EXPECT_NE(sut.allocate(16, 4), nullptr);
 }
 
-TEST(static_storage_test, TypedAllocateWorksWhenSizeIsSufficient)
+TEST(static_storage_test, TypedAllocateSucceedsIfSizeIsSufficient)
 {
     using Data = Bytes<16, 4>;
     static_storage<18, 2> sut;
