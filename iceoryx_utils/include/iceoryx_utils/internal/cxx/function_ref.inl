@@ -38,7 +38,7 @@ template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (*function)(ArgTypes...))
 {
     ///@note the cast is not portable but works and is legal on POSIX
-    ///@todo we should consider storing the target in a portable way (e.g. a union)
+    ///      (i.e. it is required to work on any POSIX system)
     m_pointerToCallable = reinterpret_cast<void*>(function);
 
     ///@note the lambda does not capture and is convertible to a function pointer

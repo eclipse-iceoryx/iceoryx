@@ -23,8 +23,14 @@ namespace iox
 {
 namespace cxx
 {
-/// @brief static storage class which cannot use dynamic memory as a fallback
+/// @brief static storage class to allocate memory for objects not yet known
 ///        this storage is not aware of any underlying type
+
+/// @note we can define optimized_storage (or dynamic_storage) with a similar interface
+///       but other allocation policies and use them where we need to store objects
+///       with some interchangable storage policy (e.g. in storable_function)
+///       optimized_storage would have a dynamic memory fallback when static memory is
+///       insufficent
 template <uint64_t Capacity, uint64_t Align = 1>
 class static_storage
 {
@@ -32,22 +38,12 @@ class static_storage
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
 
-    static constexpr uint64_t align_delta(uint64_t align, uint64_t alignTarget)
-    {
-        auto r = align % alignTarget;
-
-        // if r != 0 we are not aligned and need to add this amount to an align
-        // aligned address to be aligned with alignTarget
-        return r != 0 ? alignTarget - r : 0;
-    }
+    static constexpr uint64_t align_delta(uint64_t align, uint64_t alignTarget);
 
   public:
     static_storage() = default;
 
-    ~static_storage()
-    {
-        deallocate();
-    }
+    ~static_storage();
 
     // it is not supposed to be copied or moved for now
     // (construct a new one explicitly and populate it instead)
@@ -59,52 +55,29 @@ class static_storage
     static_storage(static_storage&&) = delete;
     static_storage& operator=(static_storage&&) = delete;
 
-    // check whether the type T will fit in the buffer statically at compile time
+    /// @brief check whether the type T will fit in the buffer statically at compile time
     template <typename T>
-    static constexpr bool fits_statically()
-    {
-        return sizeof(T) + align_delta(alignof(m_bytes), alignof(T)) <= Capacity;
-    }
+    static constexpr bool fits_statically();
 
+    /// @brief provide static memory for an object of type T
+    /// @note  compilation fails if static memory is insufficient
     template <typename T>
-    T* allocate()
-    {
-        static_assert(fits_statically<T>(), "type does not fit into static storage");
-        return reinterpret_cast<T*>(allocate(alignof(T), sizeof(T)));
-    }
+    T* allocate();
 
-    void* allocate(uint64_t align, uint64_t size)
-    {
-        if (m_ptr)
-        {
-            return nullptr; // cannot allocate, already in use
-        }
+    /// @brief provide align aligned memory with a specific size
+    void* allocate(uint64_t align, uint64_t size);
 
-        uint64_t space = Capacity;
-        m_ptr = m_bytes;
-        if (std::align(align, size, m_ptr, space))
-        {
-            // fits, ptr was potentially modified to reflect alignent
-            return m_ptr;
-        }
-
-        // does not fit
-        return nullptr;
-    }
-
+    /// @brief mark the static memory as unused
     /// @note no dtor of the stored type is called (we cannot know the type)
-    ///       it is just marked as unused
-    void deallocate()
-    {
-        m_ptr = nullptr;
-    }
+    ///       nor is it overwritten
+    void deallocate();
 
-    void clear()
-    {
-        std::memset(m_bytes, 0, Capacity);
-    }
+    /// @brief set the managed static memory to all zeros
+    void clear();
 };
 
 } // namespace cxx
 } // namespace iox
+
+#include "iceoryx_utils/internal/cxx/static_storage.inl"
 #endif // IOX_UTILS_STATIC_STORAGE_HPP
