@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/internal/cxx/function.hpp"
+#include "iceoryx_utils/cxx/function.hpp"
 #include "test.hpp"
 
 #include <iostream>
