@@ -21,4 +21,4 @@ if(TOML_CONFIG)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/etc/iceoryx/roudi_config_example.toml
 		DESTINATION etc/
 		COMPONENT dev)
-endif(TOML_CONFIG)
+endif()

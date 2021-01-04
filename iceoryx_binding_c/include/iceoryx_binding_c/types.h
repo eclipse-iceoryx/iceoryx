@@ -39,7 +39,7 @@ struct iox_user_trigger_storage_t_
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[16];
 #else
-    uint64_t do_not_touch_me[13];
+    uint64_t do_not_touch_me[14];
 #endif
 };
 typedef struct iox_user_trigger_storage_t_ iox_user_trigger_storage_t;
@@ -51,7 +51,7 @@ struct iox_sub_storage_t_
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[16];
 #else
-    uint64_t do_not_touch_me[13];
+    uint64_t do_not_touch_me[14];
 #endif
 };
 typedef struct iox_sub_storage_t_ iox_sub_storage_t;

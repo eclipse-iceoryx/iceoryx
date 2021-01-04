@@ -43,7 +43,7 @@ void receiving()
     iox_sub_storage_t subscriberStorage;
 
     iox_sub_t subscriber =
-        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest);
     iox_sub_subscribe(subscriber);
 
     while (!killswitch)
@@ -55,8 +55,8 @@ void receiving()
             // new sample every 400ms and we check for new samples only every second
             while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
             {
-                const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
-                printf("Receiving: %u\n", sample->counter);
+                const struct RadarObject* sample = (const struct RadarObject*)(chunk);
+                printf("Got value: %.0f\n", sample->x);
                 iox_sub_release_chunk(subscriber, chunk);
             }
             printf("\n");
