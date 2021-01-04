@@ -29,6 +29,7 @@ NUM_JOBS=""
 
 CLEAN_BUILD=false
 BUILD_TYPE=""
+BUILD_DOC="OFF"
 STRICT_FLAG="OFF"
 TEST_FLAG="OFF"
 COV_FLAG="OFF"
@@ -146,6 +147,11 @@ while (( "$#" )); do
         export CXX=$(which clang++)
         shift 1
     ;;
+    "doc")
+        echo " [i] Build and generate doxygen"
+        BUILD_DOC="ON"
+        shift 1
+    ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx, the dds gateway and the examples are built."
@@ -223,6 +229,7 @@ echo " [i] Current working directory: $(pwd)"
 echo ">>>>>> Start building iceoryx package <<<<<<"
 cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
 -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DINTROSPECTION=$INTROSPECTION_FLAG \
+-DBUILD_DOC=$BUILD_DOC \
 -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
 
 cmake --build . --target install -- -j$NUM_JOBS
@@ -260,7 +267,7 @@ then
 fi
 
 #====================================================================================================
-#==== Step 2 : Run all Tests  =======================================================================
+#==== Step : Run all Tests  =========================================================================
 #====================================================================================================
 # the absolute path of the directory assigned to the build
 cd $BUILD_DIR
@@ -290,8 +297,11 @@ for COMPONENT in $COMPONENTS; do
     esac
 done
 
-if [ "$COV_FLAG" == "ON" ]
-then
+#====================================================================================================
+#==== Step : Coverage ===============================================================================
+#====================================================================================================
+
+if [ "$COV_FLAG" == "ON" ]; then
     echo ">>>>>> Generate Gcov Report <<<<<<"
     cd $WORKSPACE
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE capture #scan all files after test execution
@@ -300,3 +310,18 @@ then
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE genhtml #generate html
     echo ">>>>>> Report Generation complete <<<<<<"
 fi
+
+#====================================================================================================
+#==== Step : Doxygen PDF Generation =================================================================
+#====================================================================================================
+
+cd $BUILD_DIR
+
+for dir in $BUILD_DIR/doc/*; do
+  if [ -d "$dir" ]; then
+    cd "$dir"/latex
+    make
+    cd ..
+    mv "$dir"/latex/refman.pdf "$dir"_doxygen.pdf
+  fi
+done
