@@ -139,15 +139,15 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
     uint64_t i{0U};
     bool haveAllProcessesFinished{false};
-    posix::Timer finalKillTimer(processKillDelay);
+    iox::clock::Timer finalKillTimer(processKillDelay);
 
     auto awaitProcessTermination = [&]() {
         bool shouldCheckProcessState = true;
-        finalKillTimer.resetCreationTime();
+        finalKillTimer.resetDurationTimer();
 
         // try to shut down all processes until either all processes have terminated or a timer set to processKillDelay
         // has expired
-        while (!haveAllProcessesFinished && !finalKillTimer.hasExpiredComparedToCreationTime())
+        while (!haveAllProcessesFinished && !finalKillTimer.hasTimerExpired())
         {
             i = 0;
 
@@ -192,7 +192,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     awaitProcessTermination();
 
     // any processes still alive? Time to send SIG_KILL to kill.
-    if (finalKillTimer.hasExpiredComparedToCreationTime())
+    if (finalKillTimer.hasTimerExpired())
     {
         i = 0;
         for (auto& process : m_processList)
@@ -211,7 +211,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
         awaitProcessTermination();
 
         // any processes still alive? Time to ignore them.
-        if (finalKillTimer.hasExpiredComparedToCreationTime())
+        if (finalKillTimer.hasTimerExpired())
         {
             i = 0;
             for (auto& process : m_processList)

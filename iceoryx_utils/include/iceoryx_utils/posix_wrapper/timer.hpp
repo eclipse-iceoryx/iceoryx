@@ -321,6 +321,31 @@ class Timer
 };
 
 } // namespace posix
+
+//IOX-#337 Alternate Timer to replace the POSIX timer
+namespace clock{
+
+class Timer{
+
+  private:
+
+        iox::units::Duration m_measuringDuration;
+        iox::units::Duration m_startTime;
+
+        iox::units::Duration getCurrentMonotonicTime() noexcept;
+
+      public:
+        /// @brief Checks if the timer has expired compared to its creation time
+        /// @return Is the elapsed time larger than timeToWait?
+        bool hasTimerExpired() noexcept;
+
+        Timer(const iox::units::Duration) noexcept;
+
+        void resetDurationTimer() noexcept;
+    };
+
+}// namespace clock
+
 } // namespace iox
 
 #endif // IOX_UTILS_POSIX_WRAPPER_TIMER_HPP

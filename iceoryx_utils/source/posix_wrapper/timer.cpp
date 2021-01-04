@@ -610,4 +610,37 @@ cxx::error<TimerError> Timer::createErrorFromErrno(const int32_t errnum) noexcep
 }
 
 } // namespace posix
+
+namespace clock{
+    
+    Timer::Timer(const iox::units::Duration timeToWait) noexcept
+        : m_measuringDuration(timeToWait)
+        , m_startTime(getCurrentMonotonicTime()) 
+        {
+    }
+
+    bool Timer::hasTimerExpired() noexcept
+    {
+        auto currentTime = getCurrentMonotonicTime();
+        auto elpasedTime = currentTime - m_startTime;
+
+        if(elpasedTime >= m_measuringDuration){
+            return true;
+        }
+        return false;
+    }
+
+    void Timer::resetDurationTimer() noexcept
+    {
+        m_startTime = getCurrentMonotonicTime();
+    }
+
+    iox::units::Duration Timer::getCurrentMonotonicTime() noexcept
+    {
+        auto currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch());
+        iox::units::Duration currentTimeinMS(currentTime);
+        return currentTimeinMS;
+    }
+} // namespace clock
+
 } // namespace iox
