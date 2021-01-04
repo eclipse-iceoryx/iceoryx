@@ -147,7 +147,7 @@ TEST_F(RoudiFindService_test, FindSameServiceMultipleTimesReturnsSingleInstance)
     ASSERT_THAT(*instanceContainer.value().begin(), Eq(IdString_t("instance1")));
 }
 
-TEST_F(RoudiFindService_test, DISABLED_OfferMultiMethodServiceSingleInstance_PERFORMANCETEST42)
+TEST_F(RoudiFindService_test, OfferMultiMethodServiceSingleInstance)
 {
     senderRuntime->offerService({"service1", "instance1"});
     senderRuntime->offerService({"service2", "instance1"});
@@ -176,7 +176,7 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
     InstanceContainer instanceContainerExp;
     InitContainer(instanceContainerExp, {"instance1", "instance2", "instance3"});
 
-    auto instanceContainer = receiverRuntime->findService({"service1", "65535"});
+    auto instanceContainer = receiverRuntime->findService({"service1", iox::capro::AnyServiceString});
 
     ASSERT_THAT(instanceContainer.value().size(), Eq(3u));
     EXPECT_TRUE(instanceContainer.value() == instanceContainerExp);
