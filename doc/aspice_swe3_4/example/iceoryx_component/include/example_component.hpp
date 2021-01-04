@@ -15,8 +15,8 @@
 #define IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_COMPONENT_HPP
 
 
-#include "example_sample_class.hpp"
-#include "source/example_base_class.hpp"
+#include "example_base_class.hpp"
+#include "example_module/example_derived_class.hpp"
 
 /// @brief This is the Example Component Description
 /// @details This is the detailed Example Component Description

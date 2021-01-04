@@ -61,6 +61,11 @@ if(EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
 endif()
 
+# ===== Doxygen example
+if(BUILD_DOC)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../doc/aspice_swe3_4/example/iceoryx_component ${CMAKE_BINARY_DIR}/iceoryx_component)
+endif()
+
 message("")
 message("       Build Properties")
 message("          project name..............: " ${CMAKE_PROJECT_NAME})

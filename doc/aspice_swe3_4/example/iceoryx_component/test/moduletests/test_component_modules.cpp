@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,24 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef EXAMPLE_BASE_CLASS_INL_INCLUDED
-#define EXAMPLE_BASE_CLASS_INL_INCLUDED
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+using namespace ::testing;
+using ::testing::_;
+using ::testing::Return;
 
 
-namespace example
+int main(int argc, char* argv[])
 {
-template <typename T>
-inline ExampleBaseClass<T>::ExampleBaseClass(const uint32_t a, const uint32_t b)
-{
-    // example code
+    ::testing::InitGoogleTest(&argc, argv);
+
+    return RUN_ALL_TESTS();
 }
-
-template <typename T>
-inline void ExampleBaseClass<T>::simplerMethod() const noexcept
-{
-    // example code
-}
-
-} // namespace example
-
-#endif // EXAMPLE_BASE_CLASS_INL_INCLUDED
