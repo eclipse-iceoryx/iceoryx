@@ -26,6 +26,7 @@ include(cmake/iceoryxversions.cmake)
 include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+include(IceoryxDoxygen)
 
 include(cmake/iceoryx_posh_deployment.cmake)
 

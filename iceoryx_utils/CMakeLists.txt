@@ -19,6 +19,7 @@ project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxDoxygen.cmake")
 
 if(CLANG_TIDY)
     find_program(
@@ -257,6 +258,7 @@ install(
     FILES
         cmake/IceoryxPackageHelper.cmake
         cmake/IceoryxPlatform.cmake
+        cmake/IceoryxDoxygen.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 

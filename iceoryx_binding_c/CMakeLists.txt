@@ -22,6 +22,7 @@ find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+include(IceoryxDoxygen)
 
 #
 ########## set variables for export ##########
