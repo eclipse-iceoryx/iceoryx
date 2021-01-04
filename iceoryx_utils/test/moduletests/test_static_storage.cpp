@@ -188,5 +188,20 @@ TEST(static_storage_test, DeallocateDoesNotClearStorageBytes)
     EXPECT_TRUE(data->hasValue(73));
 }
 
+TEST(static_storage_test, AllocationIsAligned)
+{
+    static_storage<17, 2> sut;
+    uintptr_t p = reinterpret_cast<uintptr_t>(sut.allocate(16, 4));
+    EXPECT_EQ(p % 4, 0);
+}
+
+TEST(static_storage_test, TypedAllocationIsAligned)
+{
+    using Data = Bytes<4, 8>;
+    static_storage<17, 2> sut;
+    uintptr_t p = reinterpret_cast<uintptr_t>(sut.allocate<Data>());
+    EXPECT_EQ(p % 8, 0);
+}
+
 
 } // namespace

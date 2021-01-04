@@ -25,9 +25,11 @@ namespace
 using std::cout;
 using std::endl;
 
+constexpr uint64_t Bytes = 128U;
+
 using signature = int32_t(int32_t);
 template <typename T>
-using fixed_size_function = iox::cxx::function<T, 128>;
+using fixed_size_function = iox::cxx::function<T, Bytes>;
 using test_function = fixed_size_function<signature>;
 
 
@@ -207,6 +209,20 @@ TEST_F(function_test, ConstructionFromConstMemberFunctionIsCallable)
     auto state = f.getState(1);
     EXPECT_EQ(sut(1), state);
     EXPECT_EQ(f.getState(1), state); // state is unchanged by the previous call
+}
+
+TEST_F(function_test, ConstructionFromAnotherFunctionIsCallable)
+{
+    constexpr int32_t INITIAL = 37;
+    int32_t capture = INITIAL;
+    auto lambda = [&](int32_t n) { return ++capture + n; };
+    function<signature, Bytes / 2> f(lambda); // the other function type must be small enough to fit
+    test_function sut(f);
+
+    ASSERT_TRUE(sut.operator bool());
+    auto result = f(1);
+    EXPECT_EQ(sut(1), result + 1);
+    EXPECT_EQ(capture, INITIAL + 2);
 }
 
 TEST_F(function_test, FunctionStateIsIndependentOfSource)
