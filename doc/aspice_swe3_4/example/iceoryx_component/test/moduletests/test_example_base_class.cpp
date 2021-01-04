@@ -32,13 +32,6 @@ namespace test
 class ExampleBaseClass_test : public Test
 {
   public:
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
     example::ExampleBaseClass<uint32_t> sut;
 };
 

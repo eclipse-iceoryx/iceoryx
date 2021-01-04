@@ -13,7 +13,7 @@ This document defines the documentation guidelines for SWE 3 (Detailed Design) a
 The documentation is generated into .html pages and latex for pdf generation
 To generate the documentation you need to install:
 ```bash
-sudo apt install doxygen graphviz texlive-base texlive-font-utils
+sudo apt install doxygen graphviz texlive-base texlive-font-utils texlive-latex-extra
 ```
 The documentation we use plantuml for describing dynamic behavior in the code (sequence or activity diagrams).
 Needed package:

@@ -48,7 +48,7 @@ class ExampleBaseClass
     ExampleBaseClass() = default;
 
     /// @brief Short description
-    const uint32_t getMemberVariable() const noexcept;
+    uint32_t getMemberVariable() const noexcept;
 
     /// @brief Short description
     uint32_t simplerMethod() const noexcept;

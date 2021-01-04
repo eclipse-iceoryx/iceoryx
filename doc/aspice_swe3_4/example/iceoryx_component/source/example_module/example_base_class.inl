@@ -23,7 +23,7 @@ inline ExampleBaseClass<T>::ExampleBaseClass(const uint32_t input)
 }
 
 template <typename T>
-inline const uint32_t ExampleBaseClass<T>::getMemberVariable() const noexcept
+inline uint32_t ExampleBaseClass<T>::getMemberVariable() const noexcept
 {
     return m_memberVariable;
 }
