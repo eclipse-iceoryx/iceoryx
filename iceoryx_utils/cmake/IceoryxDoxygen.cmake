@@ -24,7 +24,7 @@ if(BUILD_DOC)
         set(DOXYGEN_PLANTUML_JAR_PATH /usr/share/plantuml/plantuml.jar)
     else()
         message(WARNING "plantuml.jar not found at '/usr/share/plantuml/', please set environment variable PLANTUML_JAR_PATH to the correct location.")
-        set(PLANTUML_JAR_PATH "$ENV{PLANTUML_JAR_PATH}" CACHE STRING "PLANTUML location." )
+        set(DOXYGEN_PLANTUML_JAR_PATH "$ENV{PLANTUML_JAR_PATH}" CACHE STRING "PLANTUML location." )
     endif()
 
     set(DOXYGEN_ALIASES
