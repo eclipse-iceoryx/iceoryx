@@ -159,7 +159,12 @@ example:
 ```
 For having only reports for unit-test. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
 
-All reports are stored in build/lcov as html report (index.html).
+All reports are stored locally in build/lcov as html report (index.html). In Github we are using for codecov for a general reporting of the code coverage. 
+Codecov gives a brief overview over the code coverage and also indicates in Pull-Requests if new added code is not covered by tests.
+If you want to download the detailed html reports from the Pull-Requests or master build you can do it by the following way:
+1. Open the "Checks" view in the PR
+2. Open the "Details" link for the check `Build, Test and get Test-Coverage`
+3. On the right side you find a menu button `Artifacts` which shows `lcov-report` as download link
 
 ## Legal & Compliance
 
