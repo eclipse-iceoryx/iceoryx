@@ -110,3 +110,13 @@ You can set it by calling:
 export PLANTUML_JAR_PATH=/custom/path
 ```
 For good examples on PlantUML checkout https://plantuml.com.
+
+### Pull-Request
+
+In iceoryx Pull-Requests are pdf files generated and uploaded to the Github artifact store. 
+
+If you want to download the pdf files from the Pull-Requests or master build you can do it by the following way:
+
+ * Open the "Checks" view in the PR
+ * Open the "Details" link for the check `Doxygen Generation`
+ * On the right side you find a menu button `Artifacts` which shows `iceoryx-pdf` as download link
