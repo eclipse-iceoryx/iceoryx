@@ -1,3 +1,6 @@
+---
+title: Home
+---
 # Welcome to iceoryx.io
 
 <p align="center">

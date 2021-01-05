@@ -30,9 +30,9 @@ doxygen doxyfile-posh
 
 # Generate markdown from doxygen
 cd WORKSPACE
-mkdir WORKSPACE/doc/website/doxygen/utils
+mkdir WORKSPACE/doc/website/API-reference/utils
 doxybook2 --input iceoryx_utils/doc/xml/ --output WORKSPACE/doc/website/doxygen/utils
-mkdir WORKSPACE/doc/website/doxygen/posh
+mkdir WORKSPACE/doc/website/API-reference/posh
 doxybook2 --input iceoryx_posh/doc/xml/ --output WORKSPACE/doc/website/doxygen/posh
 
 # Generate HTML
