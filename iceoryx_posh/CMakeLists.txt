@@ -295,6 +295,7 @@ if(TOML_CONFIG)
     )
 
     target_link_libraries(iceoryx_posh_config PRIVATE
+        iceoryx_posh::iceoryx_posh
         iceoryx_utils::iceoryx_utils
         cpptoml
         ${ICEORYX_SANITIZER_FLAGS}
