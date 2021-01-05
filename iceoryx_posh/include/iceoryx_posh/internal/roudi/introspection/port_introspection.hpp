@@ -21,7 +21,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/platform/pthread.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -83,10 +83,10 @@ class PortIntrospection
             capro::ServiceDescription service;
             NodeName_t node;
 
-            using TimePointNs = mepoo::TimePointNs;
-            using DurationNs = mepoo::DurationNs;
-            TimePointNs m_sequenceNumberTimestamp = TimePointNs(DurationNs(0));
-            mepoo::SequenceNumberType m_sequenceNumber{0};
+            using TimePointNs_t = mepoo::TimePointNs_t;
+            using DurationNs_t = mepoo::DurationNs_t;
+            TimePointNs_t m_sequenceNumberTimestamp {DurationNs_t(0)};
+            mepoo::SequenceNumber_t m_sequenceNumber{0U};
 
             // map from indices to object pointers
             std::map<int, ConnectionInfo*> connectionMap;

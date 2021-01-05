@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // limitations under the License.
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
+
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 namespace iox
 {
@@ -99,7 +101,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::run()
     });
 
     // set thread name
-    pthread_setname_np(m_thread.native_handle(), "PortIntr");
+    posix::setThreadName(m_thread.native_handle(), "PortIntr");
 }
 
 template <typename PublisherPort, typename SubscriberPort>

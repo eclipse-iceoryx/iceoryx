@@ -31,7 +31,7 @@ class TriggerHandle_test : public Test
         m_resetCallbackId = id;
     }
     uint64_t m_resetCallbackId = 0U;
-    ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar{"Horscht"};
     TriggerHandle_test* m_self = this;
 
     TriggerHandle m_sut{&m_condVar, {*this, &TriggerHandle_test::resetCallback}, 12};
@@ -109,4 +109,3 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
 
     t.join();
 }
-

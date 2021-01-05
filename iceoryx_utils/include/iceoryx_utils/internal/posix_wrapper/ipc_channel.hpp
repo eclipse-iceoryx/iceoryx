@@ -14,8 +14,21 @@
 #ifndef IOX_UTILS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 #define IOX_UTILS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 
+#include "iceoryx_utils/cxx/string.hpp"
+
+
 namespace iox
 {
+#if defined(__APPLE__)
+/// @note on macOS the process name length needs to be decreased since the process name is used for the unix domain
+/// socket path which has a capacity for only 103 characters. The full path consists of UnixDomainSocket::PATH_PREFIX,
+/// which is currently 5 characters and the specified process name
+constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 98U;
+#else
+constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 100U;
+#endif
+
+using IpcChannelName_t = cxx::string<MAX_IPC_CHANNEL_NAME_LENGTH>;
 namespace posix
 {
 enum class IpcChannelError : uint8_t

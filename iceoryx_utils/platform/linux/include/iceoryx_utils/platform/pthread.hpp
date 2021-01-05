@@ -16,4 +16,9 @@
 
 #include <pthread.h>
 
+inline int iox_pthread_setname_np(pthread_t thread, const char* name)
+{
+    return pthread_setname_np(thread, name);
+}
+
 #endif // IOX_UTILS_LINUX_PLATFORM_PTHREAD_HPP

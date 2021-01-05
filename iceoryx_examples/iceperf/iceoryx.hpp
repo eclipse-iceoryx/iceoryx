@@ -16,13 +16,13 @@
 
 #include "base.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 
 class Iceoryx : public IcePerfBase
 {
   public:
-    Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::IdString& subscriberName) noexcept;
+    Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept;
     void initLeader() noexcept override;
     void initFollower() noexcept override;
     void shutdown() noexcept override;

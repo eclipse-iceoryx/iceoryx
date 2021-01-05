@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 using namespace iox;
@@ -22,63 +25,63 @@ extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
 }
 
-static uint64_t trigger_vector_to_c_array(const WaitSet::TriggerInfoVector& triggerVector,
-                                          iox_trigger_info_t const triggerArray,
-                                          const uint64_t triggerArrayCapacity,
+static uint64_t event_info_vector_to_c_array(const WaitSet<>::EventInfoVector& triggerVector,
+                                          iox_event_info_t* eventInfoArray,
+                                          const uint64_t eventInfoArrayCapacity,
                                           uint64_t* missedElements)
 {
-    uint64_t triggerArraySize = 0U;
+    uint64_t eventInfoArraySize = 0U;
     uint64_t triggerVectorSize = triggerVector.size();
-    if (triggerVectorSize > triggerArrayCapacity)
+    if (triggerVectorSize > eventInfoArrayCapacity)
     {
-        *missedElements = triggerVectorSize - triggerArrayCapacity;
-        triggerArraySize = triggerArrayCapacity;
+        *missedElements = triggerVectorSize - eventInfoArrayCapacity;
+        eventInfoArraySize = eventInfoArrayCapacity;
     }
     else
     {
         *missedElements = 0U;
-        triggerArraySize = triggerVectorSize;
+        eventInfoArraySize = triggerVectorSize;
     }
 
-    for (uint64_t i = 0; i < triggerArraySize; ++i)
+    for (uint64_t i = 0U; i < eventInfoArraySize; ++i)
     {
-        triggerArray[i] = triggerVector[i];
+        eventInfoArray[i] = triggerVector[i];
     }
 
-    return triggerArraySize;
+    return eventInfoArraySize;
 }
 
 iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
-    new (self) WaitSet();
+    new (self) cpp2c_WaitSet();
     return reinterpret_cast<iox_ws_t>(self);
 }
 
 void iox_ws_deinit(iox_ws_t const self)
 {
-    self->~WaitSet();
+    self->~cpp2c_WaitSet();
 }
 
 uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            struct timespec timeout,
-                           iox_trigger_info_t const triggerArray,
-                           const uint64_t triggerArrayCapacity,
+                           iox_event_info_t* const eventInfoArray,
+                           const uint64_t eventInfoArrayCapacity,
                            uint64_t* missedElements)
 {
-    return trigger_vector_to_c_array(
+    return event_info_vector_to_c_array(
         self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
                         + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
-        triggerArray,
-        triggerArrayCapacity,
+        eventInfoArray,
+        eventInfoArrayCapacity,
         missedElements);
 }
 
 uint64_t iox_ws_wait(iox_ws_t const self,
-                     iox_trigger_info_t const triggerArray,
-                     const uint64_t triggerArrayCapacity,
+                     iox_event_info_t* const eventInfoArray,
+                     const uint64_t eventInfoArrayCapacity,
                      uint64_t* missedElements)
 {
-    return trigger_vector_to_c_array(self->wait(), triggerArray, triggerArrayCapacity, missedElements);
+    return event_info_vector_to_c_array(self->wait(), eventInfoArray, eventInfoArrayCapacity, missedElements);
 }
 
 uint64_t iox_ws_size(iox_ws_t const self)
@@ -86,7 +89,39 @@ uint64_t iox_ws_size(iox_ws_t const self)
     return self->size();
 }
 
-uint64_t iox_ws_trigger_capacity(iox_ws_t const self)
+uint64_t iox_ws_capacity(iox_ws_t const self)
 {
-    return self->triggerCapacity();
+    return self->capacity();
 }
+
+iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
+                                                 iox_sub_t const subscriber,
+                                                 const iox_SubscriberEvent subscriberEvent,
+                                                 const uint64_t eventId,
+                                                 void (*callback)(iox_sub_t))
+{
+    auto result = self->attachEvent(*subscriber, subscriberEvent, eventId, callback);
+    return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_user_trigger_event(iox_ws_t const self,
+                                                   iox_user_trigger_t const userTrigger,
+                                                   const uint64_t eventId,
+                                                   void (*callback)(iox_user_trigger_t))
+{
+    auto result = self->attachEvent(*userTrigger, eventId, callback);
+    return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+void iox_ws_detach_subscriber_event(iox_ws_t const self,
+                                    iox_sub_t const subscriber,
+                                    const iox_SubscriberEvent subscriberEvent)
+{
+    self->detachEvent(*subscriber, subscriberEvent);
+}
+
+void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t const userTrigger)
+{
+    self->detachEvent(*userTrigger);
+}
+

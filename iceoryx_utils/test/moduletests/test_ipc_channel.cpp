@@ -30,10 +30,10 @@ using IpcChannelTypes = Types<UnixDomainSocket>;
 using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket>;
 #endif
 
-constexpr char goodName[] = "/channel_test";
-constexpr char anotherGoodName[] = "/horst";
-constexpr char theUnknown[] = "/WhoeverYouAre";
-constexpr char badName[] = "skdhnskähug";
+constexpr char goodName[] = "channel_test";
+constexpr char anotherGoodName[] = "horst";
+constexpr char theUnknown[] = "WhoeverYouAre";
+constexpr char slashName[] = "/miau";
 
 template <typename T>
 class IpcChannel_test : public Test
@@ -92,22 +92,10 @@ TYPED_TEST(IpcChannel_test, createNoName)
     ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
-TYPED_TEST(IpcChannel_test, createBadName)
+TYPED_TEST(IpcChannel_test, createWithLeadingSlash)
 {
-    auto serverResult = TestFixture::IpcChannelType::create(badName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
-    EXPECT_TRUE(serverResult.has_error());
-}
-
-TYPED_TEST(IpcChannel_test, createNameExceedsLimits)
-{
-    constexpr uint64_t TOO_LONG_STRING_SIZE{4096};
-    std::string tooLongName(TOO_LONG_STRING_SIZE, 's');
-    tooLongName.front() = '/';
-
-    auto serverResult =
-        TestFixture::IpcChannelType::create(tooLongName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
-    ASSERT_TRUE(serverResult.has_error());
-    EXPECT_THAT(serverResult.get_error(), Eq(iox::posix::IpcChannelError::INVALID_CHANNEL_NAME));
+    auto serverResult = TestFixture::IpcChannelType::create(slashName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    EXPECT_FALSE(serverResult.has_error());  
 }
 
 TYPED_TEST(IpcChannel_test, createAgain)

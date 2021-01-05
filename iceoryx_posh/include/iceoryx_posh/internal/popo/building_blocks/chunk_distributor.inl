@@ -61,6 +61,13 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
 
+            if (requestedHistory > getMembers()->m_historyCapacity)
+            {
+                LogWarn() << "Chunk history request exceeds history capacity! Request is "
+                          << requestedHistory
+                          << ". Capacity is " << getMembers()->m_historyCapacity << ".";
+            }
+
             // if the current history is large enough we send the requested number of chunks, else we send the
             // total history
             const auto startIndex =
@@ -140,9 +147,7 @@ template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
-    // PRQA S 3803 2 # We intentionally do not return anything here as from a ChunkDistributor
-    // point of view it doesn't matter if the push succeeds or fails
-    ChunkQueuePusher_t(queue).tryPush(chunk);
+    ChunkQueuePusher_t(queue).push(chunk);
 }
 
 template <typename ChunkDistributorDataType>

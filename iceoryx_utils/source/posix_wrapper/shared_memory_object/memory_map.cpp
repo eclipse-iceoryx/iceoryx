@@ -47,7 +47,7 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
                      const off_t f_offset)
     : m_length(f_length)
 {
-    int32_t l_memoryProtection;
+    int32_t l_memoryProtection{PROT_NONE};
     switch (f_accessMode)
     {
     case AccessMode::readOnly:
