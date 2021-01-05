@@ -6,8 +6,8 @@ remote_branch: main
 markdown_extensions:
   - markdown_include.include:
       base_path: doc
-  #- admonition
+  - admonition
 plugins:
   - awesome-pages
-
-#theme: readthedocs
+theme:
+  name: 'material'
