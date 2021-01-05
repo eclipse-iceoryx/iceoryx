@@ -20,26 +20,25 @@ WORKSPACE=$(git rev-parse --show-toplevel)
 WEBREPO="git@github.com:eclipse-iceoryx/iceoryx-web.git"
 VERSION=$1
 
-cd WORKSPACE
+cd $WORKSPACE
 
 # Generate doxygen, replace with CMake commands later
-cd  WORKSPACE/iceoryx_utils/doc/
+cd  $WORKSPACE/iceoryx_utils/doc/
 doxygen doxyfile-utils
-cd  WORKSPACE/iceoryx_posh/doc/
+cd  $WORKSPACE/iceoryx_posh/doc/
 doxygen doxyfile-posh
 
 # Generate markdown from doxygen
-cd WORKSPACE
-mkdir WORKSPACE/doc/website/API-reference/utils
-doxybook2 --input iceoryx_utils/doc/xml/ --output WORKSPACE/doc/website/doxygen/utils
-mkdir WORKSPACE/doc/website/API-reference/posh
-doxybook2 --input iceoryx_posh/doc/xml/ --output WORKSPACE/doc/website/doxygen/posh
+cd $WORKSPACE
+mkdir -p $WORKSPACE/doc/website/API-reference/utils
+doxybook2 --input $WORKSPACE/iceoryx_utils/doc/xml/ --output $WORKSPACE/doc/website/API-reference/utils
+mkdir -p $WORKSPACE/doc/website/API-reference/posh
+doxybook2 --input $WORKSPACE/iceoryx_posh/doc/xml/ --output $WORKSPACE/doc/website/API-reference/posh
 
-# Generate HTML
-mkdocs build --clean
-
-# Update HTML on GitHub pages
-cd WORKSPACE/../
-git clone WEBREPO
+# Generate HTML and push to GitHub pages
+cd $WORKSPACE/../
+if [ -d "$WORKSPACE/iceoryx-web" ]; then
+    git clone $WEBREPO
+fi
 cd iceoryx-web
-mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml --remote-branch VERSION
+mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml --remote-branch $VERSION
