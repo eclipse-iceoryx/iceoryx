@@ -34,11 +34,8 @@ doxygen doc/doxyfile-posh
 # Generate HTML
 mkdocs build --clean
 
-# Update HTML on GitHub pages, replace this with "mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml"?
+# Update HTML on GitHub pages
 cd WORKSPACE/../
-git clone WEBREPO
-cp -r WORKSPACE/site/ WORKSPACE/../iceoryx-web/
-git add -ad
-git commit -m "Add documentation for release $1"
-git tag $1
-git push
+git clone git@github.com:eclipse-iceoryx/iceoryx-web.git
+cd iceoryx-web
+mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml
