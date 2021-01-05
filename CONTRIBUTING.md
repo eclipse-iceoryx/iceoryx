@@ -34,7 +34,7 @@ Contact the project developers via the project's "dev" list.
 We love pull requests! The next sections try to cover most of the relevant questions. For larger contributions or
 architectural changes, we'd kindly ask you to either:
 
-* Raise the proposed changes during a [developer meetup](https://github.com/eclipse/iceoryx/wiki/Developer-meetup)
+* Raise the proposed changes during a [developer meetup](https://github.com/eclipse-iceoryx/iceoryx/wiki/Developer-meetup)
 
 or
 
@@ -42,7 +42,7 @@ or
 
 If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
 Please have a quick search upfront if a similar issue already exists. An
-[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritize the issues for a specific release.
+[release board](https://github.com/eclipse-iceoryx/iceoryx/projects) is used to prioritize the issues for a specific release.
 This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please
 contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
 
