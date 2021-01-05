@@ -42,7 +42,7 @@ ROUDI_ENV_FLAG="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
-BUILD_SHARED="OFF"
+BUILD_SHARED="ON"
 EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
 
 while (( "$#" )); do
@@ -118,9 +118,9 @@ while (( "$#" )); do
         BUILD_ALL_FLAG="ON"
         shift 1
         ;;
-    "build-shared")
-        echo " [i] Build complete iceoryx with all extensions and all examples"
-        BUILD_SHARED="ON"
+    "build-static")
+        echo " [i] Build iceoryx as static lib"
+        BUILD_SHARED="OFF"
         shift 1
         ;;
     "examples")

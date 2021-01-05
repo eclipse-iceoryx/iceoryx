@@ -28,7 +28,7 @@ jobs:
 
        - name: Build sources
          run: |
-            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree build-shared
+            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree
 
        - name: Build debian package
          run: |
@@ -90,4 +90,4 @@ jobs:
 
       - name: Build sources
         run: |
-          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON && cmake --build build
+          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DBUILD_SHARED_LIBS=OFF && cmake --build build
