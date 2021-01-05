@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#define protected public
+//#define protected public
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
-#undef protected
+//#undef protected
 
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
@@ -40,10 +40,17 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
     {
         return iox::cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_DESTRUCTION_FAILED);
     }
+
+    static const char* getErrorStringMemoryProvider(const MemoryProviderError error)
+    {
+        return MemoryProvider::getErrorString(error);
+    }
+
 };
 
 class MemoryProvider_Test : public Test
 {
+
   public:
     void SetUp() override
     {
@@ -343,7 +350,7 @@ TEST_F(MemoryProvider_Test, GetErrorString)
 
     for(int16_t i = 0; i < nTestCase;i++)
     {
-        const char * result = iox::roudi::MemoryProvider::getErrorString(m_testCombinationMemoryProviderError[i]);
+        const char * result = MemoryProviderFailingCreation::getErrorStringMemoryProvider(m_testCombinationMemoryProviderError[i]);
         EXPECT_THAT(*result, Eq(*m_testResultGetErrorString[i]));
     }
 }
