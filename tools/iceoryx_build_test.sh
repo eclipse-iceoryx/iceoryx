@@ -44,7 +44,8 @@ ROUDI_ENV_FLAG="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
-EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
+EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset"
+COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component" 
 
 while (( "$#" )); do
   case "$1" in
@@ -315,13 +316,25 @@ fi
 #==== Step : Doxygen PDF Generation =================================================================
 #====================================================================================================
 
-cd $BUILD_DIR
 
-for dir in $BUILD_DIR/doc/*; do
-  if [ -d "$dir" ]; then
-    cd "$dir"/latex
-    make
-    cd ..
-    mv "$dir"/latex/refman.pdf "$dir"_doxygen.pdf
-  fi
-done
+if [ "$BUILD_DOC" == "ON" ]; then
+    echo ">>>>>> Doxygen PDF Generation <<<<<<"
+    cd $BUILD_DIR
+
+    rm -rf $WORKSPACE/build_out_of_tree
+    if [ "$BUILD_ALL_FLAG" == "ON" ]; then
+        COMPONENTS="${COMPONENTS} iceoryx_dds"
+    fi
+
+    for dir in $COMPONENTS; do
+        echo "hier etwa?"
+        #if [ -d "$dir" ]; then
+            echo "hier auch?"
+            make doxygen_"$dir"
+            cd doc/"$dir"/latex
+            make
+            cd ../../..
+            mv -v doc/"$dir"/latex/refman.pdf doc/"$dir"_doxygen.pdf
+        #fi
+    done
+fi

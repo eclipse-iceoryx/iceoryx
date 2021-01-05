@@ -118,5 +118,5 @@ In iceoryx Pull-Requests are pdf files generated and uploaded to the Github arti
 If you want to download the pdf files from the Pull-Requests or master build you can do it by the following way:
 
  * Open the "Checks" view in the PR
- * Open the "Details" link for the check `iceoryx-ubuntu` in `Build & Test`
+ * Open the "Details" link for the check `iceoryx-coverage-doxygen-ubuntu` in `Test Coverage + Doxygen Documentation`
  * On the right side you find a menu button `Artifacts` which shows `iceoryx-pdf` as download link

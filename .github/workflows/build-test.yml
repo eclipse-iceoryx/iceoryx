@@ -31,7 +31,7 @@ jobs:
 
        - name: Build sources
          run: |
-            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree doc
+            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree
 
        - name: Run timeless tests
          run: |
@@ -42,14 +42,6 @@ jobs:
          run: |
            cd $GITHUB_WORKSPACE/build
            make timing_tests
-
-       - name: Archive generated doxygen
-         uses: actions/upload-artifact@v2
-         with:
-           name: iceoryx-pdf
-           path: |
-            ./build/doc/*.pdf
-           retention-days: 30
 
  # This job builds & runs iceoryx tests in macos-10.15
   iceoryx-macos:
