@@ -22,20 +22,24 @@ VERSION=$1
 
 cd WORKSPACE
 
-# Generate doxygen
-cd  WORKSPACE/iceoryx_utils/
-doxygen doc/doxyfile-utils
-cd  WORKSPACE/iceoryx_posh/
-doxygen doc/doxyfile-posh
+# Generate doxygen, replace with CMake commands later
+cd  WORKSPACE/iceoryx_utils/doc/
+doxygen doxyfile-utils
+cd  WORKSPACE/iceoryx_posh/doc/
+doxygen doxyfile-posh
 
 # Generate markdown from doxygen
-
+cd WORKSPACE
+mkdir WORKSPACE/doc/website/doxygen/utils
+doxybook2 --input iceoryx_utils/doc/xml/ --output WORKSPACE/doc/website/doxygen/utils
+mkdir WORKSPACE/doc/website/doxygen/posh
+doxybook2 --input iceoryx_posh/doc/xml/ --output WORKSPACE/doc/website/doxygen/posh
 
 # Generate HTML
 mkdocs build --clean
 
 # Update HTML on GitHub pages
 cd WORKSPACE/../
-git clone git@github.com:eclipse-iceoryx/iceoryx-web.git
+git clone WEBREPO
 cd iceoryx-web
-mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml
+mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml --remote-branch VERSION
