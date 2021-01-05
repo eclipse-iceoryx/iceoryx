@@ -189,7 +189,7 @@ If you want to report a vulnerability, please use the [Eclipse process](https://
 We have a [partnership](https://www.perforce.com/blog/qac/why-eclipse-iceoryx-uses-helix-qac) with [Perforce](https://www.perforce.com) and use
 [Helix QAC++ 2019.2](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
 
-Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group issues into the rulesets:
+Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to group issues into the rulesets:
 
 | Ruleset name | Github issue label |
 |---|---|
