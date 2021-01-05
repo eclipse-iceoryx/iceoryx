@@ -41,7 +41,7 @@ int main()
     iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
     typedPublisher.offer();
 
-    float_t ct = 0.0;
+    double ct = 0.0;
     while (!killswitch)
     {
         ++ct;
@@ -54,6 +54,8 @@ int main()
             // ...then publish the sample
             sample.publish();
         });
+
+        std::cout << "Sent value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
     }

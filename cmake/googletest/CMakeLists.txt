@@ -15,7 +15,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(googletest-build CXX)
 
-if(test)
+if(BUILD_TEST)
     
     include(ProcessorCount)
     ProcessorCount(N)
@@ -73,4 +73,4 @@ if(test)
     list(APPEND CMAKE_PREFIX_PATH ${INSTALL_DIR})
     set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} CACHE INTERNAL "" FORCE)
 
-endif(test)
+endif()

@@ -47,8 +47,8 @@ using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 struct MemPoolIntrospectionInfo
 {
     uint32_t m_id;
-    char m_writerGroupName[MAX_GROUP_NAME_LENGTH];
-    char m_readerGroupName[MAX_GROUP_NAME_LENGTH];
+    cxx::string<MAX_GROUP_NAME_LENGTH> m_writerGroupName;
+    cxx::string<MAX_GROUP_NAME_LENGTH> m_readerGroupName;
     MemPoolInfoContainer m_mempoolInfo;
 };
 

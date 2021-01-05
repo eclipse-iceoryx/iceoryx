@@ -79,7 +79,6 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
                      m_MqInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
-    m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC, posix::Timer::CatchUpPolicy::IMMEDIATE);
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 

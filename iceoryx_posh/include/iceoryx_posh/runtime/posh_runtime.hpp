@@ -26,7 +26,9 @@
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
 #include <atomic>
 #include <map>
@@ -203,8 +205,9 @@ class PoshRuntime
     void sendKeepAlive() noexcept;
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
 
-    /// @note the m_keepAliveTimer should always be the last member, so that it will be the first member to be detroyed
-    iox::posix::Timer m_keepAliveTimer{PROCESS_KEEP_ALIVE_INTERVAL, [&]() { this->sendKeepAlive(); }};
+    /// @note the m_keepAliveTask should always be the last member, so that it will be the first member to be destroyed
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_keepAliveTask{
+        "KeepAlive", PROCESS_KEEP_ALIVE_INTERVAL, *this, &PoshRuntime::sendKeepAlive};
 };
 
 } // namespace runtime
