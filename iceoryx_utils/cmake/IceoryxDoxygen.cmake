@@ -18,6 +18,9 @@ if(BUILD_DOC)
 
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_LATEX YES)
+    set(DOXYGEN_GENERATE_XML YES)
+    set(DOXYGEN_XML_OUTPUT xml)
+
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/doc/${PROJECT_NAME})
 
     if(EXISTS "/usr/share/plantuml/plantuml.jar")
