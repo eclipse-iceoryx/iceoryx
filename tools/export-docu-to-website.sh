@@ -36,9 +36,9 @@ mkdir -p $WORKSPACE/doc/website/API-reference/posh
 doxybook2 --input $WORKSPACE/iceoryx_posh/doc/xml/ --output $WORKSPACE/doc/website/API-reference/posh
 
 # Generate HTML and push to GitHub pages
-cd $WORKSPACE/../
-if [ -d "$WORKSPACE/iceoryx-web" ]; then
+if [ -d "$WORKSPACE/../iceoryx-web" ]; then
+    cd $WORKSPACE/../
     git clone $WEBREPO
 fi
-cd iceoryx-web
+cd $WORKSPACE/../iceoryx-web
 mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml --remote-branch $VERSION
