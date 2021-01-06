@@ -43,6 +43,7 @@ OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="ON"
+TOML_FLAG="ON"
 EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
 
 while (( "$#" )); do
@@ -138,18 +139,23 @@ while (( "$#" )); do
         ONE_TO_MANY_ONLY_FLAG="ON"
         shift 1
         ;;
+    "toml-config-off")
+        echo " [i] Build without TOML Support"
+        TOML_FLAG="OFF"
+        shift 1
+        ;;
     "sanitize")
         echo " [i] Build with sanitizers"
         BUILD_TYPE="Debug"
         SANITIZE_FLAG="ON"
         shift 1
-    ;;
+        ;;
     "clang")
         echo " [i] Build with clang compiler"
         export CC=$(which clang)
         export CXX=$(which clang++)
         shift 1
-    ;;
+        ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx, the dds gateway and the examples are built."
@@ -172,6 +178,7 @@ while (( "$#" )); do
         echo "    build-test            Builds all tests (doesn't run)"
         echo "    package               Creates a debian package from clean build in build_package"
         echo "    test                  Builds and runs all tests in all iceoryx components"
+        echo "    toml-config-off       Builds without TOML File support"
         echo "    dds-gateway           Builds the iceoryx dds gateway"
         echo "    binding-c             Builds the iceoryx C-Binding"
         echo "    one-to-many-only      Restricts to 1:n communication only"
@@ -229,7 +236,7 @@ echo " [i] Current working directory: $(pwd)"
 if [ "$PACKAGE" == "OFF" ]; then
     echo ">>>>>> Start building iceoryx package <<<<<<"
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
-    -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG \
+    -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG \
     -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DBUILD_SHARED_LIBS=$BUILD_SHARED -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
 
     cmake --build . --target install -- -j$NUM_JOBS
@@ -264,7 +271,7 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     cd $WORKSPACE && mkdir -p build_out_of_tree && cd build_out_of_tree
         for ex in ${EXAMPLES}  ; do
             mkdir -p $ex && cd $ex
-            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/$ex
+            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=$TOML_FLAG $WORKSPACE/iceoryx_examples/$ex
             cmake --build . --target install -- -j$NUM_JOBS
             if [ $? -ne 0 ]; then
                 echo "Out of tree build failed"

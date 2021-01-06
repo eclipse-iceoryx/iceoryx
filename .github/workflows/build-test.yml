@@ -77,6 +77,10 @@ jobs:
           cd $GITHUB_WORKSPACE/build
           make all_tests
 
+      - name: Build RouDi examples without TOML support
+        run: |
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean
+
  # This job builds & runs iceoryx tests in Windows 2019
   iceoryx-windows:
     runs-on: windows-latest

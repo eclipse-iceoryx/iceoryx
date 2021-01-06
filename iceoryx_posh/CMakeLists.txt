@@ -213,9 +213,6 @@ if(TOML_CONFIG)
         source/gateway/gateway_config.cpp
         source/gateway/toml_gateway_config_parser.cpp
         source/roudi/roudi_config_toml_file_provider.cpp
-        source/roudi/roudi_config.cpp
-        source/roudi/roudi_cmd_line_parser.cpp
-        source/roudi/roudi_cmd_line_parser_config_file_option.cpp
     )
     add_library(${PROJECT_NAMESPACE}::iceoryx_posh_config ALIAS iceoryx_posh_config)
 
@@ -266,7 +263,10 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi_process.cpp
     source/roudi/service_registry.cpp
     source/roudi/iceoryx_roudi_components.cpp
-)
+    source/roudi/roudi_cmd_line_parser.cpp
+    source/roudi/roudi_cmd_line_parser_config_file_option.cpp
+    source/roudi/roudi_config.cpp
+    )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)
 
@@ -291,14 +291,10 @@ target_include_directories(iceoryx_posh_roudi PRIVATE
     source/roudi
 )
 
-if(TOML_CONFIG)
-    set(POSH_CONFIG_LIB ${PROJECT_NAMESPACE}::iceoryx_posh_config)
-endif()
 
 target_link_libraries(iceoryx_posh_roudi
     PUBLIC
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
-    ${POSH_CONFIG_LIB}
     PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}    
     iceoryx_utils::iceoryx_utils
