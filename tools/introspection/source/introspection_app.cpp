@@ -342,11 +342,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         auto stringSize = data.size();
         if (currentLine == 0U)
         {
-            stream << std::left << std::setw(maxSize) << data.substr(0, static_cast<size_t>(maxSize));
+            stream << std::left << std::setw(maxSize) << data.substr(0U, static_cast<size_t>(maxSize));
         }
-        else if (stringSize > static_cast<size_t>(maxSize) + (currentLine - 1) * static_cast<size_t>(maxSize - indentation))
+        else if (stringSize > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
         {
-            const auto startPosition = static_cast<size_t>(maxSize) + (currentLine - 1) * static_cast<size_t>(maxSize - indentation);
+            const auto startPosition = static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
 
             stream << indentationString << std::left << std::setw(maxSize - indentation)
                    << data.substr(startPosition, static_cast<size_t>(maxSize - indentation));
