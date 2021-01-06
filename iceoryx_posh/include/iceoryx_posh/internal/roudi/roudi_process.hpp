@@ -147,13 +147,11 @@ class ProcessManager : public ProcessManagerInterface
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,
                                  const popo::SubscriberOptions& subscriberOptions,
-                                 const NodeName_t& node,
                                  const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addPublisherForProcess(const ProcessName_t& name,
                                 const capro::ServiceDescription& service,
                                 const popo::PublisherOptions& publisherOptions,
-                                const NodeName_t& node,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addConditionVariableForProcess(const ProcessName_t& processName) noexcept;

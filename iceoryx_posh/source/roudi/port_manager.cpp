@@ -61,14 +61,11 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     popo::PublisherOptions options;
     options.historyCapacity = 1;
+    options.nodeName = INTROSPECTION_SERVICE_ID;
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
-    auto maybePublisher = acquirePublisherPortData(IntrospectionPortService,
-                                                   options,
-                                                   MQ_ROUDI_NAME,
-                                                   introspectionMemoryManager,
-                                                   INTROSPECTION_SERVICE_ID,
-                                                   PortConfigInfo());
+    auto maybePublisher = acquirePublisherPortData(
+        IntrospectionPortService, options, MQ_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortService";
@@ -77,12 +74,8 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     auto portGeneric = maybePublisher.value();
 
-    maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
-                                              options,
-                                              MQ_ROUDI_NAME,
-                                              introspectionMemoryManager,
-                                              INTROSPECTION_SERVICE_ID,
-                                              PortConfigInfo());
+    maybePublisher = acquirePublisherPortData(
+        IntrospectionPortThroughputService, options, MQ_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortThroughputService";
@@ -96,7 +89,6 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                                               options,
                                               MQ_ROUDI_NAME,
                                               introspectionMemoryManager,
-                                              INTROSPECTION_SERVICE_ID,
                                               PortConfigInfo());
     if (maybePublisher.has_error())
     {
@@ -582,7 +574,6 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
                                       const ProcessName_t& processName,
                                       mepoo::MemoryManager* payloadMemoryManager,
-                                      const NodeName_t& node,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
@@ -602,7 +593,8 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         service, payloadMemoryManager, processName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
-        m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, node);
+        m_portIntrospection.addPublisher(
+            maybePublisherPortData.value(), processName, service, publisherOptions.nodeName);
     }
 
     return maybePublisherPortData;
@@ -612,14 +604,14 @@ cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const popo::SubscriberOptions& subscriberOptions,
                                        const ProcessName_t& processName,
-                                       const NodeName_t& node,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
         m_portPool->addSubscriberPort(service, processName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
-        m_portIntrospection.addSubscriber(maybeSubscriberPortData.value(), processName, service, node);
+        m_portIntrospection.addSubscriber(
+            maybeSubscriberPortData.value(), processName, service, subscriberOptions.nodeName);
     }
 
     return maybeSubscriberPortData;

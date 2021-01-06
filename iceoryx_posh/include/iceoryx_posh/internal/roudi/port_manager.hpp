@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,14 +66,12 @@ class PortManager
                              const popo::PublisherOptions& publisherOptions,
                              const ProcessName_t& processName,
                              mepoo::MemoryManager* payloadMemoryManager,
-                             const NodeName_t& node,
                              const PortConfigInfo& portConfigInfo) noexcept;
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     acquireSubscriberPortData(const capro::ServiceDescription& service,
                               const popo::SubscriberOptions& subscriberOptions,
                               const ProcessName_t& processName,
-                              const NodeName_t& node,
                               const PortConfigInfo& portConfigInfo) noexcept;
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,

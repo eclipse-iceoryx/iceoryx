@@ -613,7 +613,6 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
 void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
                                              const capro::ServiceDescription& service,
                                              const popo::SubscriberOptions& subscriberOptions,
-                                             const NodeName_t& node,
                                              const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -623,7 +622,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
     {
         // create a SubscriberPort
         auto maybeSubscriber =
-            m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, node, portConfigInfo);
+            m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, portConfigInfo);
 
         if (!maybeSubscriber.has_error())
         {
@@ -655,7 +654,6 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
 void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
                                             const capro::ServiceDescription& service,
                                             const popo::PublisherOptions& publisherOptions,
-                                            const NodeName_t& node,
                                             const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -665,7 +663,7 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
     {
         // create a PublisherPort
         auto maybePublisher = m_portManager.acquirePublisherPortData(
-            service, publisherOptions, name, process->getPayloadMemoryManager(), node, portConfigInfo);
+            service, publisherOptions, name, process->getPayloadMemoryManager(), portConfigInfo);
 
         if (!maybePublisher.has_error())
         {
@@ -754,8 +752,9 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
 
     popo::PublisherOptions options;
     options.historyCapacity = 1;
+    options.nodeName = "node";
     auto maybePublisher = m_portManager.acquirePublisherPortData(
-        service, options, process_name, m_introspectionMemoryManager, "node", PortConfigInfo());
+        service, options, process_name, m_introspectionMemoryManager, PortConfigInfo());
 
     if (maybePublisher.has_error())
     {

@@ -190,12 +190,10 @@ void RouDi::processMessage(const runtime::MqMessage& message,
 
             popo::PublisherOptions options;
             options.historyCapacity = std::stoull(message.getElementAtIndex(3));
+            options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
 
-            m_prcMgr.addPublisherForProcess(processName,
-                                            service,
-                                            options,
-                                            NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
-                                            iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+            m_prcMgr.addPublisherForProcess(
+                processName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }
@@ -215,12 +213,10 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             popo::SubscriberOptions options;
             options.historyRequest = std::stoull(message.getElementAtIndex(3));
             options.queueCapacity = std::stoull(message.getElementAtIndex(4));
+            options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
 
-            m_prcMgr.addSubscriberForProcess(processName,
-                                             service,
-                                             options,
-                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5)),
-                                             iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+            m_prcMgr.addSubscriberForProcess(
+                processName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }
