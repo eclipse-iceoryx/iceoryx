@@ -196,7 +196,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::copyMem
     for (uint32_t i = 0U; i < numOfMemPools; ++i)
     {
         auto src = memoryManager.getMemPoolInfo(i);
-        auto& dst = dest[i];
+        auto& dst = dest[static_cast<uint64_t>(i)];
         dst.m_usedChunks = src.m_usedChunks;
         dst.m_minFreeChunks = src.m_minFreeChunks;
         dst.m_numChunks = src.m_numChunks;
