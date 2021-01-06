@@ -34,9 +34,7 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} /W1)
     # todo: '/O2' and '/RTC1' (set by default) options are incompatible, 
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
 endif()
 
