@@ -88,7 +88,6 @@ class PoshRuntime
     /// @brief request the RouDi daemon to create a publisher port
     /// @param[in] serviceDescription service description for the new publisher port
     /// @param[in] publisherOptions like the history capacity of a publisher
-    /// @param[in] nodeName name of the node where the publisher should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created publisher port user
@@ -100,14 +99,12 @@ class PoshRuntime
     /// @brief request the RouDi daemon to create a subscriber port
     /// @param[in] serviceDescription service description for the new subscriber port
     /// @param[in] subscriberOptions like the queue capacity and history requested by a subscriber
-    /// @param[in] nodeName name of the node where the subscriber should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created subscriber port data
     SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
                             const popo::SubscriberOptions& subscriberOptions = popo::SubscriberOptions(),
-                            const NodeName_t& nodeName = "",
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create an interface port

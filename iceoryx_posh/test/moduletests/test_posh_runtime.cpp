@@ -323,10 +323,9 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.historyRequest = 13U;
     subscriberOptions.queueCapacity = 42U;
-    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
-                                                             subscriberOptions,
-                                                             m_nodeName,
-                                                             iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    subscriberOptions.nodeName = m_nodeName;
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, subscriberPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), subscriberPort->m_serviceDescription);

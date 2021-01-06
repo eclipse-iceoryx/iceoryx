@@ -235,7 +235,6 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
 SubscriberPortUserType::MemberType_t*
 PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                                      const popo::SubscriberOptions& subscriberOptions,
-                                     const NodeName_t& nodeName,
                                      const PortConfigInfo& portConfigInfo) noexcept
 {
     constexpr uint64_t MAX_QUEUE_CAPACITY = SubscriberPortUserType::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
@@ -252,7 +251,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << nodeName
+               << std::to_string(options.queueCapacity) << subscriberOptions.nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);

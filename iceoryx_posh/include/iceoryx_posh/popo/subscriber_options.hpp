@@ -32,6 +32,9 @@ struct SubscriberOptions
 
     /// @brief The max number of chunks received after subscription if chunks are available
     uint64_t historyRequest{0U};
+
+    /// @ brief The name of the node where the subscriber should belong to
+    iox::NodeName_t nodeName{""};
 };
 
 } // namespace popo
