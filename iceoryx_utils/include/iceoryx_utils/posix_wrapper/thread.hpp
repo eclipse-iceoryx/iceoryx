@@ -23,7 +23,7 @@ namespace iox
 {
 namespace posix
 {
-constexpr size_t MAX_THREAD_NAME_LENGTH = 15U;
+constexpr uint64_t MAX_THREAD_NAME_LENGTH = 15U;
 
 using ThreadName_t = cxx::string<MAX_THREAD_NAME_LENGTH>;
 
