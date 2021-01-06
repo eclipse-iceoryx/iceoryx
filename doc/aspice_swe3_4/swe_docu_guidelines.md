@@ -47,11 +47,14 @@ Some general rules:
 ### Allowed Tags
 A list of available doxygen tags can be found [here](https://www.doxygen.nl/manual/commands.html).
 Here we provide a list with the most usual tags in iceoryx:
- - `/// @brief`
- - `/// @details`
- - `/// @note`
- - `/// @return`
+ - `/// @brief` short description
+ - `/// @details` more text if needed
+ - `/// @note` place infos here if they are not that much important but good for explanation
+ - `/// @attention` give here important information to the user/developer, keep as short as possible
+ - `/// @bug` can be used to mark a bug, The ticket issue number in Github should be mentioned here e.g. "iox-#123"
+ - `/// @return` describe return value here
  - `/// @param[in/out]`
+ - `/// @tparam <template-parameter-name>` for template parameters
  - `/// @code` and `/// @endcode` for documenting example code, this is useful for interfaces when you want to show a simple example how to use the class.
  - `/// @startuml` and `/// @enduml` for creating simple diagrams in PlantUML
 
