@@ -198,48 +198,6 @@ target_link_libraries(iceoryx_posh_gateway
 
 target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-if(TOML_CONFIG)
-    if ( NOT cpptoml_FOUND )
-        find_package(cpptoml_vendor QUIET)
-        find_package(cpptoml REQUIRED)
-    endif(NOT cpptoml_FOUND)
-    message("-- Build with TOML config file support.")
-
-    #
-    ######### posh config lib ##########
-    #
-    add_library(iceoryx_posh_config
-        source/log/posh_config_logging.cpp
-        source/gateway/gateway_config.cpp
-        source/gateway/toml_gateway_config_parser.cpp
-        source/roudi/roudi_config_toml_file_provider.cpp
-    )
-    add_library(${PROJECT_NAMESPACE}::iceoryx_posh_config ALIAS iceoryx_posh_config)
-
-    set_target_properties(iceoryx_posh_config PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    )
-
-    target_include_directories(iceoryx_posh_config PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
-        $<INSTALL_INTERFACE:include/${PREFIX}>
-    )
-
-    target_link_libraries(iceoryx_posh_config PRIVATE
-        iceoryx_posh::iceoryx_posh
-        iceoryx_utils::iceoryx_utils
-        cpptoml
-        ${ICEORYX_SANITIZER_FLAGS}
-    )
-
-    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-endif()
 
 #
 ########## posh roudi lib ##########
@@ -305,6 +263,55 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
 target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+
+
+
+if(TOML_CONFIG)
+    if ( NOT cpptoml_FOUND )
+        find_package(cpptoml_vendor QUIET)
+        find_package(cpptoml REQUIRED)
+    endif(NOT cpptoml_FOUND)
+    message("-- Build with TOML config file support.")
+
+    #
+    ######### posh config lib ##########
+    #
+    add_library(iceoryx_posh_config
+        source/log/posh_config_logging.cpp
+        source/gateway/gateway_config.cpp
+        source/gateway/toml_gateway_config_parser.cpp
+        source/roudi/roudi_config_toml_file_provider.cpp
+    )
+    add_library(${PROJECT_NAMESPACE}::iceoryx_posh_config ALIAS iceoryx_posh_config)
+
+    set_target_properties(iceoryx_posh_config PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+
+    target_include_directories(iceoryx_posh_config PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
+        $<INSTALL_INTERFACE:include/${PREFIX}>
+    )
+
+    target_link_libraries(iceoryx_posh_config PRIVATE
+        iceoryx_posh::iceoryx_posh
+        iceoryx_utils::iceoryx_utils
+        iceoryx_posh::iceoryx_posh_roudi
+        cpptoml
+        ${ICEORYX_SANITIZER_FLAGS}
+    )
+
+    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+endif()
+
+
 
 #
 ######### posh roudi daemon ##########
