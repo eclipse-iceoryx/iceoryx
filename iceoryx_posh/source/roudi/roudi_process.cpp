@@ -755,7 +755,7 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
     popo::PublisherOptions options;
     options.historyCapacity = 1;
     auto maybePublisher = m_portManager.acquirePublisherPortData(
-        service, options, process_name, m_introspectionMemoryManager, "runnable", PortConfigInfo());
+        service, options, process_name, m_introspectionMemoryManager, "node", PortConfigInfo());
 
     if (maybePublisher.has_error())
     {

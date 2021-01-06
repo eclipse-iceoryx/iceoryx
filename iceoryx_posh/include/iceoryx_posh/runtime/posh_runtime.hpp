@@ -95,7 +95,6 @@ class PoshRuntime
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
                            const popo::PublisherOptions& publisherOptions = popo::PublisherOptions(),
-                           const NodeName_t& nodeName = "",
                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a subscriber port

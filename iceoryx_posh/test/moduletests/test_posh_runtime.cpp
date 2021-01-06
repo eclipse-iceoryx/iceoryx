@@ -244,10 +244,9 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 13U;
-    const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
-                                                                 publisherOptions,
-                                                                 m_nodeName,
-                                                                 iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    publisherOptions.nodeName = m_nodeName;
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(99U, 1U, 20U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), publisherPort->m_serviceDescription);
@@ -301,10 +300,10 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     auto sameServiceDescription = iox::capro::ServiceDescription(99U, 1U, 20U);
 
     const auto publisherPort1 = m_runtime->getMiddlewarePublisher(
-        sameServiceDescription, iox::popo::PublisherOptions(), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        sameServiceDescription, iox::popo::PublisherOptions(), iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     const auto publisherPort2 = m_runtime->getMiddlewarePublisher(
-        sameServiceDescription, iox::popo::PublisherOptions(), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        sameServiceDescription, iox::popo::PublisherOptions(), iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort1);
 
