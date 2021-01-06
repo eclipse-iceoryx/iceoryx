@@ -249,7 +249,6 @@ target_include_directories(iceoryx_posh_roudi PRIVATE
     source/roudi
 )
 
-
 target_link_libraries(iceoryx_posh_roudi
     PUBLIC
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
@@ -263,8 +262,6 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
 target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-
 
 
 if(TOML_CONFIG)
@@ -309,46 +306,45 @@ if(TOML_CONFIG)
 
     target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-endif()
-
-
-
 #
 ######### posh roudi daemon ##########
 #
 
-if(TOML_CONFIG)
-add_executable(iox-roudi
-    source/roudi/application/roudi_main.cpp
-)
-set_target_properties(iox-roudi PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-target_link_libraries(iox-roudi
-    PRIVATE
-    iceoryx_utils::iceoryx_utils
-    ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
-    ${PROJECT_NAMESPACE}::iceoryx_posh_config
-)
-
-target_include_directories(iox-roudi PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
-    $<INSTALL_INTERFACE:include/${PREFIX}>
-)
-
-target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
-endif()
-
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
+    add_executable(iox-roudi
+        source/roudi/application/roudi_main.cpp
     )
+
+    set_target_properties(iox-roudi PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+
+    target_link_libraries(iox-roudi
+        PRIVATE
+        iceoryx_utils::iceoryx_utils
+        ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
+        ${PROJECT_NAMESPACE}::iceoryx_posh_config
+    )
+
+    target_include_directories(iox-roudi PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
+        $<INSTALL_INTERFACE:include/${PREFIX}>
+    )
+
+    target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
+
+    if(PERFORM_CLANG_TIDY)
+        set_target_properties(
+            iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
+        )
+    endif()
+
 endif()
+
+
 
 if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     #
