@@ -65,38 +65,38 @@ TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
 }
 
 TIMING_TEST_F(TimerStopWatch_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat(5), [&] {
-    iox::clock::Timer sut(TIMEOUT);
+    iox::clock::DeadlineTimer sut(TIMEOUT);
 
-    TIMING_TEST_EXPECT_FALSE(sut.hasTimerExpired());
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    TIMING_TEST_EXPECT_FALSE(sut.hasTimerExpired());
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    TIMING_TEST_EXPECT_TRUE(sut.hasTimerExpired());
+    TIMING_TEST_EXPECT_TRUE(sut.hasExpired());
 });
 
 TIMING_TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired, Repeat(5), [&] {
-    iox::clock::Timer sut(TIMEOUT);
+    iox::clock::DeadlineTimer sut(TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
-    TIMING_TEST_EXPECT_TRUE(sut.hasTimerExpired());
-    sut.resetDurationTimer();
-    TIMING_TEST_EXPECT_FALSE(sut.hasTimerExpired());
+    TIMING_TEST_EXPECT_TRUE(sut.hasExpired());
+    sut.reset();
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
 TIMING_TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired, Repeat(5), [&] {
-    iox::clock::Timer sut(TIMEOUT);
+    iox::clock::DeadlineTimer sut(TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    sut.resetDurationTimer();
+    sut.reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    TIMING_TEST_EXPECT_FALSE(sut.hasTimerExpired());
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
 TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
-    iox::clock::Timer sut(TIMEOUT);
+    iox::clock::DeadlineTimer sut(TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
 
-    TIMING_TEST_ASSERT_TRUE(sut.hasTimerExpired());
-    sut.resetDurationTimer();
-    TIMING_TEST_EXPECT_FALSE(sut.hasTimerExpired());
+    TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
+    sut.reset();
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
 TEST_F(Timer_test, EmptyCallbackInCtorLeadsToError)

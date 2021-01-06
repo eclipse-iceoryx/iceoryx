@@ -231,7 +231,7 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
         return;
     }
 
-    iox::clock::Timer timer(roudiWaitingTimeout);
+    iox::clock::DeadlineTimer timer(roudiWaitingTimeout);
 
     enum class RegState
     {
@@ -243,7 +243,7 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
 
     int64_t transmissionTimestamp{0};
     auto regState = RegState::WAIT_FOR_ROUDI;
-    while (!timer.hasTimerExpired() && regState != RegState::FINISHED)
+    while (!timer.hasExpired() && regState != RegState::FINISHED)
     {
         if (!m_RoudiMqInterface.isInitialized() || !m_RoudiMqInterface.mqMapsToFile())
         {
@@ -375,11 +375,11 @@ size_t MqRuntimeInterface::getShmTopicSize() noexcept
     return m_shmTopicSize;
 }
 
-void MqRuntimeInterface::waitForRoudi(iox::clock::Timer& timer) noexcept
+void MqRuntimeInterface::waitForRoudi(iox::clock::DeadlineTimer& timer) noexcept
 {
     bool printWaitingWarning = true;
     bool printFoundMessage = false;
-    while (!timer.hasTimerExpired() && !m_RoudiMqInterface.isInitialized())
+    while (!timer.hasExpired() && !m_RoudiMqInterface.isInitialized())
     {
         m_RoudiMqInterface.reopen();
 

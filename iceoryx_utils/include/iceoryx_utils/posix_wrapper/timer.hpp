@@ -325,23 +325,28 @@ class Timer
 // IOX-#337 Alternate Timer to replace the POSIX timer
 namespace clock
 {
-class Timer
+class DeadlineTimer
 {
-  private:
-    iox::units::Duration m_measuringDuration;
-    iox::units::Duration m_startTime;
-
-    iox::units::Duration getCurrentMonotonicTime() noexcept;
-
   public:
+    /// @brief Constructor
+    /// @param[in] timeToWait duration until the timer expires
+    DeadlineTimer(const iox::units::Duration timeToWait) noexcept;
+
     /// @brief Checks if the timer has expired compared to its start time
     /// @return Is the elapsed time larger than duration set
-    bool hasTimerExpired() noexcept;
-
-    Timer(const iox::units::Duration) noexcept;
+    bool hasExpired() noexcept;
 
     /// @brief reinitializes the starting time for the timer to the current time
-    void resetDurationTimer() noexcept;
+    void reset() noexcept;
+
+    /// @brief returns the time duration in ms available before the timer expires
+    iox::units::Duration remainingTime() noexcept;
+
+  private:
+    iox::units::Duration getCurrentMonotonicTime() noexcept;
+
+    iox::units::Duration m_timeToWait;
+    iox::units::Duration m_endTime;
 };
 
 } // namespace clock

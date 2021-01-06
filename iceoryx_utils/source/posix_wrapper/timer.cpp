@@ -613,36 +613,45 @@ cxx::error<TimerError> Timer::createErrorFromErrno(const int32_t errnum) noexcep
 
 namespace clock
 {
-Timer::Timer(const iox::units::Duration timeToWait) noexcept
-    : m_measuringDuration(timeToWait)
-    , m_startTime(getCurrentMonotonicTime())
+DeadlineTimer::DeadlineTimer(const iox::units::Duration timeToWait) noexcept
+    : m_timeToWait(timeToWait)
+    , m_endTime(getCurrentMonotonicTime() + timeToWait)
 {
 }
 
-bool Timer::hasTimerExpired() noexcept
+bool DeadlineTimer::hasExpired() noexcept
 {
-    auto currentTime = getCurrentMonotonicTime();
-    auto elpasedTime = currentTime - m_startTime;
-
-    if (elpasedTime >= m_measuringDuration)
+    if (getCurrentMonotonicTime() >= m_endTime)
     {
         return true;
     }
     return false;
 }
 
-void Timer::resetDurationTimer() noexcept
+void DeadlineTimer::reset() noexcept
 {
-    m_startTime = getCurrentMonotonicTime();
+    m_endTime = getCurrentMonotonicTime() + m_timeToWait;
 }
 
-iox::units::Duration Timer::getCurrentMonotonicTime() noexcept
+iox::units::Duration DeadlineTimer::remainingTime() noexcept
 {
-    auto currentTime =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch());
-    iox::units::Duration currentTimeinMS(currentTime);
-    return currentTimeinMS;
+    auto currentTime = getCurrentMonotonicTime();
+    if (m_endTime > currentTime)
+    {
+        return m_endTime - currentTime;
+    }
+    return iox::units::Duration(std::chrono::milliseconds(0));
 }
+
+iox::units::Duration DeadlineTimer::getCurrentMonotonicTime() noexcept
+{
+    auto currentTime_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch());
+    iox::units::Duration currentTime(currentTime_ms);
+    return currentTime;
+}
+
+
 } // namespace clock
 
 } // namespace iox
