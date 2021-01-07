@@ -321,20 +321,16 @@ if [ "$BUILD_DOC" == "ON" ]; then
     echo ">>>>>> Doxygen PDF Generation <<<<<<"
     cd $BUILD_DIR
 
-    rm -rf $WORKSPACE/build_out_of_tree
     if [ "$BUILD_ALL_FLAG" == "ON" ]; then
         COMPONENTS="${COMPONENTS} iceoryx_dds"
     fi
 
-    for dir in $COMPONENTS; do
-        echo "hier etwa?"
-        #if [ -d "$dir" ]; then
-            echo "hier auch?"
-            make doxygen_"$dir"
-            cd doc/"$dir"/latex
-            make
-            cd ../../..
-            mv -v doc/"$dir"/latex/refman.pdf doc/"$dir"_doxygen.pdf
-        #fi
+    for cmp in $COMPONENTS; do
+        make doxygen_"$cmp"
+        cd doc/"$cmp"/latex
+        make
+        cd ../../..
+        mv -v doc/"$cmp"/latex/refman.pdf doc/"$cmp"_doxygen.pdf
     done
+    echo ">>>>>> Doxygen PDF Generation complete <<<<<<"
 fi
