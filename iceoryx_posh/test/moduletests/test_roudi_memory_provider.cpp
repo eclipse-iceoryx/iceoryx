@@ -81,7 +81,7 @@ class MemoryProvider_Test : public Test
         return sut.create();
     }
 
-    static const int16_t nTestCase = 12;
+    static const int16_t nTestCase = 13;
 
     iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[nTestCase] =
     {   iox::roudi::MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED,
@@ -95,7 +95,8 @@ class MemoryProvider_Test : public Test
         iox::roudi::MemoryProviderError::MEMORY_NOT_AVAILABLE,
         iox::roudi::MemoryProviderError::MEMORY_DESTRUCTION_FAILED,
         iox::roudi::MemoryProviderError::MEMORY_DEALLOCATION_FAILED,
-        iox::roudi::MemoryProviderError::MEMORY_UNMAPPING_FAILED
+        iox::roudi::MemoryProviderError::MEMORY_UNMAPPING_FAILED,
+        iox::roudi::MemoryProviderError::SIGACTION_CALL_FAILED
     };
 
     const char* m_testResultGetErrorString[nTestCase] =
@@ -111,7 +112,8 @@ class MemoryProvider_Test : public Test
         "MEMORY_NOT_AVAILABLE",
         "MEMORY_DESTRUCTION_FAILED",
         "MEMORY_DEALLOCATION_FAILED",
-        "MEMORY_UNMAPPING_FAILED"
+        "MEMORY_UNMAPPING_FAILED",
+        "SIGACTION_CALL_FAILED"
     };
 
     MemoryBlockMock memoryBlock1;
@@ -347,7 +349,6 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)
 
 TEST_F(MemoryProvider_Test, GetErrorString)
 {
-
     for(int16_t i = 0; i < nTestCase;i++)
     {
         const char * result = MemoryProviderFailingCreation::getErrorStringMemoryProvider(m_testCombinationMemoryProviderError[i]);
