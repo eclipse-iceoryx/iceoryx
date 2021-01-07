@@ -39,11 +39,6 @@ if(BUILD_ALL)
   set(DDS_GATEWAY ON)
 endif()
 
-if(BUILD_DOC)
-  set(BUILD_TEST ON)
-  find_package(Doxygen REQUIRED)
-endif()
-
 if(COVERAGE)
   set(BUILD_TEST ON)
 endif()

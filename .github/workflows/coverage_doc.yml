@@ -33,6 +33,7 @@ jobs:
         run: |
           # add flag to include coverage
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict debug build-all out-of-tree -c unit doc
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
@@ -47,6 +48,11 @@ jobs:
             ./build/lcov/*
             !./build/lcov/*.info
           retention-days: 90
+
+      - name: Generate doxygen documentation
+        run: |
+          # add flag to include coverage
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean doc
 
       - name: Archive generated doxygen
         uses: actions/upload-artifact@v2

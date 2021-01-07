@@ -18,7 +18,6 @@ project(iceoryx_component VERSION 0.8.15)
 find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPlatform)
-include(IceoryxDoxygen)
 
 #
 ########## lib ##########

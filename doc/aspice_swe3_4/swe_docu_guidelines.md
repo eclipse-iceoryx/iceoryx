@@ -74,20 +74,20 @@ In iceoryx are also custom tags used for extended documentation like errors.
 
 ### Doxygen Generation
 For generating the documentation out of the code is CMake in combination with doxygen used.
-In iceoryx_meta is a build flag `BUILD_DOC` defined which generates for you the html and latex documentation.
+In iceoryx_meta is a build flag `BUILD_DOC` defined which generates for you the html, xml and latex documentation. There is no need to build iceoryx beforehand.
 ```bash
-cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON -DBUILD_ALL=ON
+cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
 cmake --build build
 ```
-The output ist stored under `build/doc/<iceoryx_component>` where you can find a folder `html` and `latex`.
+The output ist stored under `build/doc/<iceoryx_component>` where you can find the folders `html`, `xml` and `latex`.
 If you want to generate the pdf files then you can use the `tools/iceoryx_build_test.sh`:
 ```bash
-./tools/iceoryx_build_test.sh doc build-all
+./tools/iceoryx_build_test.sh doc
 ```
-The generated pdf files are generated into `build/doc`.
+The generated pdf files are generated into `build/doc`. Please note that iceoryx is not build
 
 Generally, you will not find any Doxygen file in our repo because we let CMake generate it.
-In [IceoryxDoxygen.cmake](../../iceoryx_utils/cmake/IceoryxDoxygen.cmake) is the command `doxygen_add_docs` which does the job.
+In [Cmake](CMakeLists.txt) is the command `doxygen_add_docs` which does the job.
 There, we are also setting some parameters and the aliases for the custom tags. Aliases with an `xrefitem` create a page where all occurrences of the corresponding tag are collected.
 ### file header
 Please see [Header](https://github.com/eclipse/iceoryx/blob/master/CONTRIBUTING.md#header).

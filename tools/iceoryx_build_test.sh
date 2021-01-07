@@ -45,7 +45,7 @@ OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset"
-COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component" 
+COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds" 
 
 while (( "$#" )); do
   case "$1" in
@@ -320,10 +320,6 @@ fi
 if [ "$BUILD_DOC" == "ON" ]; then
     echo ">>>>>> Doxygen PDF Generation <<<<<<"
     cd $BUILD_DIR
-
-    if [ "$BUILD_ALL_FLAG" == "ON" ]; then
-        COMPONENTS="${COMPONENTS} iceoryx_dds"
-    fi
 
     for cmp in $COMPONENTS; do
         make doxygen_"$cmp"
