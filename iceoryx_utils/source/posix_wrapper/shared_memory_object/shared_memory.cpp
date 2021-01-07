@@ -127,7 +127,7 @@ int32_t SharedMemory::getHandle() const
 
 bool SharedMemory::open()
 {
-    cxx::Expects(m_size <= std::numeric_limits<int>::max());
+    cxx::Expects(m_size <= std::numeric_limits<int64_t>::max());
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
@@ -159,8 +159,8 @@ bool SharedMemory::open()
 
     if (m_ownerShip == OwnerShip::mine)
     {
-        auto l_truncateCall = cxx::makeSmartC(
-            ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int>(m_size));
+        auto l_truncateCall =
+            cxx::makeSmartC(ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, m_size);
         if (l_truncateCall.hasErrors())
         {
             if (l_truncateCall.getErrNum() == ENOMEM)
