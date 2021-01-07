@@ -159,8 +159,8 @@ bool SharedMemory::open()
 
     if (m_ownerShip == OwnerShip::mine)
     {
-        auto l_truncateCall =
-            cxx::makeSmartC(ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, m_size);
+        auto l_truncateCall = cxx::makeSmartC(
+            ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int64_t>(m_size));
         if (l_truncateCall.hasErrors())
         {
             if (l_truncateCall.getErrNum() == ENOMEM)
