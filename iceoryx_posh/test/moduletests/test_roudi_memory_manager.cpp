@@ -17,12 +17,13 @@
 #include "mocks/roudi_memory_block_mock.hpp"
 #include "mocks/roudi_memory_provider_mock.hpp"
 
+#include "mocks/logger_mock.hpp"
+
 #include "test.hpp"
 
 using namespace ::testing;
 
 using namespace iox::roudi;
-/// @todo the RouDiMemoryManager changed quite much from the initial idea, check which tests makes sense
 
 class RouDiMemoryManager_Test : public Test
 {
@@ -35,10 +36,30 @@ class RouDiMemoryManager_Test : public Test
     {
     }
 
+    static const int16_t nbTestCase = 4;
+    RouDiMemoryManagerError m_testCombinationRoudiMemoryManagerError[nbTestCase] =
+    {
+        RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED,
+        RouDiMemoryManagerError::NO_MEMORY_PROVIDER_PRESENT,
+        RouDiMemoryManagerError::MEMORY_CREATION_FAILED,
+        RouDiMemoryManagerError::MEMORY_DESTRUCTION_FAILED,
+    };
+
+    const char* m_testResultOperatorMethod[nbTestCase] =
+    {
+        "MEMORY_PROVIDER_EXHAUSTED",
+        "NO_MEMORY_PROVIDER_PRESENT",
+        "MEMORY_CREATION_FAILED",
+        "MEMORY_DESTRUCTION_FAILED"
+    };
+
     MemoryBlockMock memoryBlock1;
     MemoryBlockMock memoryBlock2;
     MemoryProviderTestImpl memoryProvider1;
     MemoryProviderTestImpl memoryProvider2;
+
+    Logger_Mock loggerMock;
+    Logger_Mock loggerMockResult;
 
     RouDiMemoryManager sut;
 };
@@ -120,5 +141,17 @@ TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)
     auto expectError = sutExhausting.addMemoryProvider(&memoryProvider[iox::MAX_NUMBER_OF_MEMORY_PROVIDER]);
     ASSERT_THAT(expectError.has_error(), Eq(true));
     EXPECT_THAT(expectError.get_error(), Eq(RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED));
+}
+
+TEST_F(RouDiMemoryManager_Test, OperatorTest)
+{
+    for(int16_t i = 0; i < nbTestCase; i++)
+    {
+        iox::log::LogStream logStream(loggerMock);
+        iox::log::LogStream logStreamResult(loggerMockResult);
+        logStream << m_testCombinationRoudiMemoryManagerError[i];
+        logStreamResult << m_testResultOperatorMethod[i];
+        EXPECT_EQ(*::testing::PrintToString(logStream).c_str(), *::testing::PrintToString(logStreamResult).c_str());
+    }
 }
 
