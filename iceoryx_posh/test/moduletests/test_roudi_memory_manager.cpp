@@ -36,7 +36,8 @@ class RouDiMemoryManager_Test : public Test
     {
     }
 
-    static const int16_t nbTestCase = 4;
+    static const int32_t nbTestCase = 4;
+    
     RouDiMemoryManagerError m_testCombinationRoudiMemoryManagerError[nbTestCase] =
     {
         RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED,
@@ -91,22 +92,17 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
     sut.addMemoryProvider(&memoryProvider2);
 
     EXPECT_THAT(sut.createAndAnnounceMemory().has_error(), Eq(false));
-
-//    EXPECT_CALL(memoryBlock1, destroyMock());
-//    EXPECT_CALL(memoryBlock2, destroyMock());
 }
 
 TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderError)
 {
     sut.addMemoryProvider(&memoryProvider1);
 
+    // If no memory block is added to memory provider, Create and Announce Memory will return a error
     ASSERT_THAT(sut.createAndAnnounceMemory().has_error(), Eq(true));
     EXPECT_THAT(sut.createAndAnnounceMemory().get_error(), Eq(RouDiMemoryManagerError::MEMORY_CREATION_FAILED));
 
     sut.destroyMemory();
-
-//    ASSERT_THAT(sut.destroyMemory().has_error(), Eq(true));
-//    EXPECT_THAT(memoryProvider1.destroyMemory().get_error(), Eq(RouDiMemoryManagerError::MEMORY_DESTRUCTION_FAILED));
 }
 
 TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDestroy)
@@ -123,9 +119,7 @@ TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDest
         RouDiMemoryManager sutDestroy;
         sutDestroy.addMemoryProvider(&memoryProvider1);
         sutDestroy.createAndAnnounceMemory();
-//        EXPECT_CALL(memoryBlock1, destroyMock()).Times(1);
     }
-//    EXPECT_CALL(memoryBlock1, destroyMock()).Times(0);
 }
 
 TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)

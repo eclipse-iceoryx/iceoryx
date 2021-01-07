@@ -23,28 +23,6 @@ using namespace ::testing;
 
 using namespace iox::roudi;
 
-/*class MemoryBlockTestImpl final : public MemoryBlock
-{
-  public:
-    uint64_t size() const noexcept override
-    {
-        return MEMORY_SIZE;
-    }
-
-    uint64_t alignment() const noexcept override
-    {
-        return MEMORY_ALIGNMENT;
-    }
-
-    void destroy() noexcept override
-    {
-    }
-
-    static constexpr uint64_t MEMORY_SIZE = 1;
-    static constexpr uint64_t MEMORY_ALIGNMENT = 1;
-
-};*/
-
 class MemoryBlock_Test : public Test
 {
   public:
@@ -52,7 +30,6 @@ class MemoryBlock_Test : public Test
     {
         EXPECT_CALL(sut, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
         EXPECT_CALL(sut, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-        //EXPECT_CALL(sut, destroyMock());
     }
 
     void TearDown() override

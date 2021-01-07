@@ -39,6 +39,7 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
         return iox::cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_DESTRUCTION_FAILED);
     }
 
+    // As static function from Memoryprovider is protected, we need another method to call it in order to use it in test
     static const char* getErrorStringMemoryProvider(const MemoryProviderError error)
     {
         return MemoryProvider::getErrorString(error);
@@ -71,15 +72,12 @@ class MemoryProvider_Test : public Test
         sut.addMemoryBlock(&memoryBlock1);
         EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_SIZE));
         EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_ALIGNMENT));
-    //    EXPECT_CALL(sut, createMemoryMock(COMMON_SETUP_MEMORY_SIZE, COMMON_SETUP_MEMORY_ALIGNMENT)).Times(1);
-
-    //    EXPECT_CALL(sut, destroyMemoryMock());
         EXPECT_CALL(memoryBlock1, destroyMock());
 
         return sut.create();
     }
 
-    static const int16_t nTestCase = 13;
+    static const int32_t nTestCase = 13;
 
     iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[nTestCase] =
     {   iox::roudi::MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED,
@@ -159,7 +157,6 @@ TEST_F(MemoryProvider_Test, AddMemoryBlockExceedsCapacity)
 
 TEST_F(MemoryProvider_Test, CreateWithoutMemoryBlock)
 {
-    //EXPECT_CALL(sut, createMemoryMock(_, _)).Times(0);
     auto expectError = sut.create();
     ASSERT_THAT(expectError.has_error(), Eq(true));
     EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT));
@@ -199,7 +196,6 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithOneMemoryBlock)
 {
     commonSetup();
 
-//    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
@@ -217,19 +213,13 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
     EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
     EXPECT_CALL(memoryBlock2, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE_2));
     EXPECT_CALL(memoryBlock2, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_2));
-//    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE_1 + MEMORY_SIZE_2, std::max(MEMORY_ALIGNMENT_1, MEMORY_ALIGNMENT_2)))
-//        .Times(1);
+
     EXPECT_THAT(sut.create().has_error(), Eq(false));
 
-//    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
-//    EXPECT_CALL(memoryBlock2, memoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
 
-    //EXPECT_CALL(sut, destroyMemoryMock());
-    //EXPECT_CALL(memoryBlock1, destroyMock());
-    //EXPECT_CALL(memoryBlock2, destroyMock());
 }
 
 TEST_F(MemoryProvider_Test, AddMemoryBlockAfterCreation)
@@ -254,7 +244,6 @@ TEST_F(MemoryProvider_Test, MultipleAnnouncesAreSuppressed)
 {
     commonSetup();
 
-//    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
     sut.announceMemoryAvailable(); // this shouldn't trigger a second memoryAvailable call on memoryBlock1
 
