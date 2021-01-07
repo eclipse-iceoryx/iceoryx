@@ -28,7 +28,7 @@ struct PublisherOptions
     /// @brief The size of the history chunk queue
     uint64_t historyCapacity{0U};
 
-    /// @ brief The name of the node where the publisher should belong to
+    /// @brief The name of the node where the publisher should belong to
     iox::NodeName_t nodeName{""};
 };
 
