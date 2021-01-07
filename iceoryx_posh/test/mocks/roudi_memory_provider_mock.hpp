@@ -35,29 +35,20 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
     iox::cxx::expected<void*, iox::roudi::MemoryProviderError> createMemory(const uint64_t size,
                                                                             const uint64_t alignment) noexcept override
     {
-        /*if (m_mockCallsEnabled)
-        {
-            createMemoryMock(size, alignment);
-        }*/
+
 
         dummyMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignment, size));
         return iox::cxx::success<void*>(dummyMemory);
     }
-    //MOCK_METHOD2(createMemoryMock, void(uint64_t, uint64_t));
 
     iox::cxx::expected<iox::roudi::MemoryProviderError> destroyMemory() noexcept override
     {
-        /*if (m_mockCallsEnabled)
-        {
-            destroyMemoryMock();
-        }*/
 
         iox::cxx::alignedFree(dummyMemory);
         dummyMemory = nullptr;
 
         return iox::cxx::success<void>();
     }
-    // MOCK_METHOD0(destroyMemoryMock, void());
 
     uint8_t* dummyMemory{nullptr};
 
