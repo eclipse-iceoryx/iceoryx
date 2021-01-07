@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
@@ -20,6 +21,7 @@
 #include "iceoryx_utils/platform/unistd.hpp"
 
 #include <assert.h>
+#include <limits>
 
 namespace iox
 {
@@ -125,6 +127,8 @@ int32_t SharedMemory::getHandle() const
 
 bool SharedMemory::open()
 {
+    cxx::Expects(m_size <= std::numeric_limits<int>::max());
+
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
 
@@ -155,8 +159,8 @@ bool SharedMemory::open()
 
     if (m_ownerShip == OwnerShip::mine)
     {
-        auto l_truncateCall =
-            cxx::makeSmartC(ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int>(m_size));
+        auto l_truncateCall = cxx::makeSmartC(
+            ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int>(m_size));
         if (l_truncateCall.hasErrors())
         {
             if (l_truncateCall.getErrNum() == ENOMEM)
