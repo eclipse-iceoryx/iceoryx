@@ -51,7 +51,7 @@ A triple consisting of such strings is called a ``ServiceDescription``. The serv
 from AUTOSAR and is still used in the API with these names. The so called canonical protocol is implemented in the
 namespace ``capro``.
 
-The following tables gives an overview over the different terminologies:
+The following table gives an overview over the different terminologies:
 
 |         | Group   | Instance | Topic |
 |---------|---------|----------|-------|
