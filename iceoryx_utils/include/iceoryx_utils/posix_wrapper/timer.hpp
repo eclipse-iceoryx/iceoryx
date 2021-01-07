@@ -322,22 +322,25 @@ class Timer
 
 } // namespace posix
 
-/// @brief Class which offers the deadline timer functionality
-/// @note This class is introduced as an alternate timer functionality for the deprecated POSIX timers
+
+namespace clock
+{
+/// @brief This offers the deadline timer functionality. It has user convenient methods to reset the timer [by default
+/// it uses the intialized duration], reset timer to a customized duration, check if the timer is active and user can
+/// also get to know about the remaining time before the timer goes off
+/// @note Introduced as an alternate timer functionality for the deprecated POSIX timers
 ///
 /// @code
-///     iox::clock::DeadlineTimer dealineTimer(1000_ms);
+///     iox::clock::DeadlineTimer deadlineTimer(1000_ms);
 ///
 ///     // to check if the timer is active
 ///     if( deadlineTimer.hasExpired()){
 ///     ...
 ///     }
-///     // to reset the timer and start
-///     TiborTheTimer.reset();
+///     // to reset the timer and start again with the same duration
+///     deadlineTimer.reset();
 ///
 /// @endcode
-namespace clock
-{
 class DeadlineTimer
 {
   public:
