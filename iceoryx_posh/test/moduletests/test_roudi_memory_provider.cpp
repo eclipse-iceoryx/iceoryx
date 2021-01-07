@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//#define protected public
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
-//#undef protected
 
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
@@ -349,7 +347,7 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)
 
 TEST_F(MemoryProvider_Test, GetErrorString)
 {
-    for(int16_t i = 0; i < nTestCase;i++)
+    for(int16_t i = 0; i < nTestCase; i++)
     {
         const char * result = MemoryProviderFailingCreation::getErrorStringMemoryProvider(m_testCombinationMemoryProviderError[i]);
         EXPECT_THAT(*result, Eq(*m_testResultGetErrorString[i]));

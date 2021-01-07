@@ -59,8 +59,8 @@ class MemoryBlock_Test : public Test
     {
     }
 
-    static constexpr uint64_t MEMORY_SIZE = 1;
-    static constexpr uint64_t MEMORY_ALIGNMENT = 1;
+    static constexpr uint64_t MEMORY_SIZE = 1U;
+    static constexpr uint64_t MEMORY_ALIGNMENT = 1U;
 
     MemoryBlockMock sut;
     MemoryProviderTestImpl memoryProvider;
