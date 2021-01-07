@@ -58,7 +58,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
         return iox::cxx::success<void>();
     }
     MOCK_METHOD0(destroyMemoryMock, void());
-    
+
     uint8_t* dummyMemory{nullptr};
 
   protected:

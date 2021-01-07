@@ -91,9 +91,10 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
     sut.addMemoryProvider(&memoryProvider1);
     sut.addMemoryProvider(&memoryProvider2);
 
+    EXPECT_THAT(sut.createAndAnnounceMemory().has_error(), Eq(false));
+
     EXPECT_CALL(memoryBlock1, destroyMock());
     EXPECT_CALL(memoryBlock2, destroyMock());
-    EXPECT_THAT(sut.createAndAnnounceMemory().has_error(), Eq(false));
 }
 
 TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderError)

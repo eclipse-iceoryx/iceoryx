@@ -28,7 +28,6 @@ using namespace iox::roudi;
 class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
 {
   public:
-
     using MemoryProvider::getErrorString;
 
     iox::cxx::expected<void*, MemoryProviderError>
@@ -216,7 +215,6 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
     EXPECT_CALL(memoryBlock2, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT_2));
     EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE_1 + MEMORY_SIZE_2, std::max(MEMORY_ALIGNMENT_1, MEMORY_ALIGNMENT_2)))
         .Times(1);
-
     EXPECT_THAT(sut.create().has_error(), Eq(false));
 
     EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
