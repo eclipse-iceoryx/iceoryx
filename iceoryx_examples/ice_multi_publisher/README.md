@@ -1,7 +1,5 @@
 # Multiple publishers for the same topic
 
-<!-- Rewrite this document to re-use icedelivery -->
-
 ## Introduction
 A common use case is that often we have multiple sensors sending data of the same type, e.g. LIDAR data, and a subscriber is interested in the data of all those sensors. 
 
