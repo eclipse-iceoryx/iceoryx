@@ -25,7 +25,6 @@ using iox::roudi::RouDiEnvironment;
 class PoshRuntimeTestAccess : public PoshRuntime
 {
   public:
-    using PoshRuntime::defaultRuntimeFactory;
     using PoshRuntime::factory_t;
     /// @attention do not use the setRuntimeFactory in a test with a running RouDiEnvironment
     using PoshRuntime::setRuntimeFactory;
@@ -33,6 +32,16 @@ class PoshRuntimeTestAccess : public PoshRuntime
     PoshRuntimeTestAccess(iox::cxx::optional<const iox::ProcessName_t*> s)
         : PoshRuntime(s)
     {
+    }
+
+    static PoshRuntime& getDefaultRuntime(iox::cxx::optional<const iox::ProcessName_t*> name)
+    {
+        return PoshRuntime::defaultRuntimeFactory(name);
+    }
+
+    static void resetRuntimeFactory()
+    {
+        PoshRuntime::setRuntimeFactory(PoshRuntime::defaultRuntimeFactory);
     }
 };
 
@@ -42,7 +51,7 @@ bool callbackWasCalled = false;
 PoshRuntime& testFactory(iox::cxx::optional<const iox::ProcessName_t*> name)
 {
     callbackWasCalled = true;
-    return PoshRuntimeTestAccess::defaultRuntimeFactory(name);
+    return PoshRuntimeTestAccess::getDefaultRuntime(name);
 }
 } // namespace
 
@@ -465,7 +474,7 @@ TEST(PoshRuntimeFactory_test, DISABLED_SetValidRuntimeFactorySucceeds)
     // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
     PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
     PoshRuntimeTestAccess::initRuntime("instance");
-    PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::defaultRuntimeFactory);
+    PoshRuntimeTestAccess::resetRuntimeFactory();
 
     EXPECT_TRUE(callbackWasCalled);
 }
@@ -478,5 +487,5 @@ TEST(PoshRuntimeFactory_test, DISABLED_SetEmptyRuntimeFactoryFails)
     EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
                  "Cannot set runtime factory. Passed factory must not be empty!");
     // just in case the previous test doesn't die and breaks the following tests
-    PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::defaultRuntimeFactory);
+    PoshRuntimeTestAccess::resetRuntimeFactory();
 }
