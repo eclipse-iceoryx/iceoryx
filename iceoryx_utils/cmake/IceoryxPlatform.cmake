@@ -58,8 +58,6 @@ function(iox_create_asan_compile_time_blacklist BLACKLIST_FILE_PATH)
         file(WRITE  ${BLACKLIST_FILE_PATH} "# This file is auto-generated from iceoryx_utils/cmake/IceoryxPlatform.cmake\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "# src:*file_name.cpp*\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "# fun:*Test_Name*\n")
-        file(APPEND ${BLACKLIST_FILE_PATH} "# posh_runtime.cpp:70:12: runtime error: reference binding to null pointer of type 'iox::runtime::PoshRuntime'\n")
-        file(APPEND ${BLACKLIST_FILE_PATH} "src:*posh_runtime.cpp\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "# End of file\n")
     endif()
 endfunction()
@@ -115,7 +113,7 @@ if(SANITIZE)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls)
-        
+
         # For using LeakSanitizer in standalone mode
         # https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#stand-alone-mode
         # Using this mode was a bit unstable
