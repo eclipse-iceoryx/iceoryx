@@ -21,8 +21,7 @@ make -j12
 make install
 ```
 
-If you would like to use our Cyclone DDS Gateway you have to install Cyclone DDS first, see
-[here](https://github.com/eclipse-cyclonedds/cyclonedds).
+If you would like to use our Cyclone DDS Gateway you have to install [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) first.
 
 ### Linux
 
@@ -33,8 +32,8 @@ You will need to install the following packages:
 sudo apt install gcc g++ cmake libacl1-dev libncurses5-dev pkg-config
 ```
 
-Additionally, there is an optional dependency to the MIT licensed cpptoml library, which is used to parse a RouDi config file for the mempool config.
-[cpptoml](https://github.com/skystrife/cpptoml)
+Additionally, there is an optional dependency to the MIT licensed [cpptoml](https://github.com/skystrife/cpptoml) library, which is used to parse a RouDi config file for the mempool config.
+
 
 ## Build with CMake
 
