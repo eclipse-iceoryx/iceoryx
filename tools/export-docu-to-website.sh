@@ -36,7 +36,7 @@ mkdir -p $WORKSPACE/doc/website/API-reference/posh
 doxybook2 --input $WORKSPACE/iceoryx_posh/doc/xml/ --output $WORKSPACE/doc/website/API-reference/posh
 
 # Generate HTML and push to GitHub pages
-if [ -d "$WORKSPACE/../iceoryx-web" ]; then
+if [ ! -d "$WORKSPACE/../iceoryx-web" ]; then
     cd $WORKSPACE/../
     git clone $WEBREPO
 fi
