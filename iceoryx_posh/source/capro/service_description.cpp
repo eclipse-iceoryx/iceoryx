@@ -289,6 +289,21 @@ Interfaces ServiceDescription::getSourceInterface() const noexcept
     return m_interfaceSource;
 }
 
+bool ServiceDescription::isValid() const noexcept
+{
+    if (m_hasServiceOnlyDescription)
+    {
+        return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
+                 || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance);
+    }
+    else
+    {
+        return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
+                 || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance
+                 || m_eventString == iox::capro::InvalidIDString || m_eventID == iox::capro::AnyEvent);
+    }
+}
+
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept
 {
     return (first.getServiceID() == second.getServiceID());

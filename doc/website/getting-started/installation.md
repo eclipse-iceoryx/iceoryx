@@ -44,7 +44,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
  1. Clone the repository
     ```bash
-    git clone https://github.com/eclipse/iceoryx.git
+    git clone https://github.com/eclipse-iceoryx/iceoryx.git
     ```
 
  2. Generate the necessary build files
@@ -92,7 +92,7 @@ The script currently only works for Linux and QNX, it is planned to offer a mult
 
  1. Clone the repository
     ```
-    git clone https://github.com/eclipse/iceoryx.git
+    git clone https://github.com/eclipse-iceoryx/iceoryx.git
     ```
 
  2. Build everything
@@ -113,7 +113,7 @@ Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/
 ```
 mkdir -p iceoryx_ws/src
 cd $_
-git clone https://github.com/eclipse/iceoryx.git
+git clone https://github.com/eclipse-iceoryx/iceoryx.git
 cd ..
 colcon build
 ```
