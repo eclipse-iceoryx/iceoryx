@@ -458,7 +458,9 @@ TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
     EXPECT_THAT(0u, instanceContainer.value().size());
 }
 
-TEST(PoshRuntimeFactory_test, SetValidRuntimeFactorySucceeds)
+// disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
+// will be re-enabled with the PoshRuntime Mock from #449
+TEST(PoshRuntimeFactory_test, DISABLED_SetValidRuntimeFactorySucceeds)
 {
     // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
     PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
@@ -468,7 +470,9 @@ TEST(PoshRuntimeFactory_test, SetValidRuntimeFactorySucceeds)
     EXPECT_TRUE(callbackWasCalled);
 }
 
-TEST(PoshRuntimeFactory_test, SetEmptyRuntimeFactoryFails)
+// disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
+// will be re-enabled with the PoshRuntime Mock from #449
+TEST(PoshRuntimeFactory_test, DISABLED_SetEmptyRuntimeFactoryFails)
 {
     // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
     EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
