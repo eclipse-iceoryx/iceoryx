@@ -41,7 +41,7 @@ You can join by using this Zoom link: https://eclipse.zoom.us/j/95918504483?pwd=
 
 ### Meeting minutes
 
-Meetinges minutes are stored in the [wiki](https://github.com/eclipse/iceoryx/wiki/Developer-meetup).
+Meeting minutes are stored in the [wiki](https://github.com/eclipse-iceoryx/iceoryx/wiki/Developer-meetup).
 An Eclipse maintainer will save the meeting minutes on a new page for every meeting.
 
 If you have points that you want to discuss, please send your points to the [mailing list](mailto:iceoryx-dev@eclipse.org) a couple of days before.
@@ -64,7 +64,7 @@ If you have points that you want to discuss, please send your points to the [mai
 
 ## Agenda
 
-1. General: Introduction of new participations, 42 mins
+1. General: Introduction of new participators, 42 mins
 2. General: Are there other agenda points?, 8 mins
 3. Agenda point 1, 4 mins
 4. Agenda point 2, 4 mins

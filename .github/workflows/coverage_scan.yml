@@ -33,5 +33,15 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
-          file:  ./build/lcov/iceoryx_filter.info
+          file: ./build/lcov/iceoryx_filter.info
           name: iceoryx
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: lcov-report
+          path: |
+            ./build/lcov/*
+            !./build/lcov/*.info
+          retention-days: 90
+

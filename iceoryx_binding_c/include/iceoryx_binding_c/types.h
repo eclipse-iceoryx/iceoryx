@@ -17,7 +17,7 @@
 
 #include "internal/c2cpp_binding.h"
 
-/// The issue iox-308: https://github.com/eclipse/iceoryx/issues/308
+/// The issue iox-308: https://github.com/eclipse-iceoryx/iceoryx/issues/308
 /// was created to explore other options then a magic number to create
 /// the structs of a specific size in C.
 
