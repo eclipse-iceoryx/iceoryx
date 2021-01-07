@@ -99,6 +99,31 @@ TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5)
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
+TIMING_TEST_F(TimerStopWatch_test, ResetWithCustomizedTimeAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
+    iox::clock::DeadlineTimer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+
+    TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
+
+    sut.reset(20_s);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
+});
+
+
+TIMING_TEST_F(TimerStopWatch_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&] {
+    iox::clock::DeadlineTimer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+
+    TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
+
+    sut.reset(20_s);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+    EXPECT_THAT(sut.remainingTime(), Le(TIMEOUT));
+});
+
+
 TEST_F(Timer_test, EmptyCallbackInCtorLeadsToError)
 {
     Timer sut(1_s, std::function<void()>());

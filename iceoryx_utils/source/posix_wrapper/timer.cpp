@@ -621,11 +621,7 @@ DeadlineTimer::DeadlineTimer(const iox::units::Duration timeToWait) noexcept
 
 bool DeadlineTimer::hasExpired() noexcept
 {
-    if (getCurrentMonotonicTime() >= m_endTime)
-    {
-        return true;
-    }
-    return false;
+    return getCurrentMonotonicTime() >= m_endTime;
 }
 
 void DeadlineTimer::reset() noexcept
@@ -633,7 +629,12 @@ void DeadlineTimer::reset() noexcept
     m_endTime = getCurrentMonotonicTime() + m_timeToWait;
 }
 
-iox::units::Duration DeadlineTimer::remainingTime() noexcept
+void DeadlineTimer::reset(const iox::units::Duration timeToWait) noexcept
+{
+    m_endTime = getCurrentMonotonicTime() + timeToWait;
+}
+
+const iox::units::Duration DeadlineTimer::remainingTime() noexcept
 {
     auto currentTime = getCurrentMonotonicTime();
     if (m_endTime > currentTime)
@@ -645,8 +646,7 @@ iox::units::Duration DeadlineTimer::remainingTime() noexcept
 
 iox::units::Duration DeadlineTimer::getCurrentMonotonicTime() noexcept
 {
-    auto currentTime_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch());
+    auto currentTime_ms = std::chrono::steady_clock::now().time_since_epoch();
     iox::units::Duration currentTime(currentTime_ms);
     return currentTime;
 }

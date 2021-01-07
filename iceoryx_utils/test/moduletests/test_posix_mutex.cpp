@@ -80,7 +80,7 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
             std::thread* t;
             {
                 iox::posix::mutex mtx{false};
-                iox::clock::DeadlineTimer hold(1000_ms);
+                iox::clock::DeadlineTimer mutexTimer(1000_ms);
                 t = new std::thread([&] {
                     mtx.lock();
                     iox::clock::DeadlineTimer ct(5000_ms);
@@ -88,7 +88,7 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
                         ;
                 });
 
-                while (!hold.hasExpired())
+                while (!mutexTimer.hasExpired())
                     ;
             }
             t->join();

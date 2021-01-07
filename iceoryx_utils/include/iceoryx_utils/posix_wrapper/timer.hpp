@@ -322,7 +322,20 @@ class Timer
 
 } // namespace posix
 
-// IOX-#337 Alternate Timer to replace the POSIX timer
+/// @brief Class which offers the deadline timer functionality
+/// @note This class is introduced as an alternate timer functionality for the deprecated POSIX timers
+///
+/// @code
+///     iox::clock::DeadlineTimer dealineTimer(1000_ms);
+///
+///     // to check if the timer is active
+///     if( deadlineTimer.hasExpired()){
+///     ...
+///     }
+///     // to reset the timer and start
+///     TiborTheTimer.reset();
+///
+/// @endcode
 namespace clock
 {
 class DeadlineTimer
@@ -332,15 +345,21 @@ class DeadlineTimer
     /// @param[in] timeToWait duration until the timer expires
     DeadlineTimer(const iox::units::Duration timeToWait) noexcept;
 
-    /// @brief Checks if the timer has expired compared to its start time
-    /// @return Is the elapsed time larger than duration set
+    /// @brief Checks if the timer has expired compared to its absolute end time
+    /// @return true if the timer is still active and false if it is expired
     bool hasExpired() noexcept;
 
-    /// @brief reinitializes the starting time for the timer to the current time
+    /// @brief reinitializes the ending time for the timer. The absolute end time is calculated by adding time to wait
+    /// to the current time.
     void reset() noexcept;
 
-    /// @brief returns the time duration in ms available before the timer expires
-    iox::units::Duration remainingTime() noexcept;
+    /// @brief reinitializes the ending time for the timer to the given new time to wait. The absolute end time is
+    /// calculated by adding new time to wait to the current time.
+    void reset(const iox::units::Duration timeToWait) noexcept;
+
+    /// @brief calculates the remaining time before the timer goes off
+    /// @return the time duration before the timer expires
+    const iox::units::Duration remainingTime() noexcept;
 
   private:
     iox::units::Duration getCurrentMonotonicTime() noexcept;
