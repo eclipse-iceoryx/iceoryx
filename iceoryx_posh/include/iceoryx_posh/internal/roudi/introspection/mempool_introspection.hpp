@@ -33,14 +33,11 @@ namespace iox
 {
 namespace roudi
 {
-/**
- * @brief This class handles the mempool intropection for RouDi.
- *        It is recommended to use the MemPoolIntrospectionType alias which sets
- *        the intended template parameters required for the actual introspection.
- *
- *        The class sends snapshots of the mempool usage to the introspection
- *        client if subscribed.
- */
+/// @brief This class handles the mempool intropection for RouDi.
+///        It is recommended to use the MemPoolIntrospectionType alias which sets
+///        the intended template parameters required for the actual introspection.
+///        The class sends snapshots of the mempool usage to the introspection
+///        client if subscribed.
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 class MemPoolIntrospection
 {
@@ -53,14 +50,11 @@ class MemPoolIntrospection
     };
 
   public:
-    /**
-     * @brief The constructor for the MemPoolIntrospection.
-     *        It starts a thread and set it into a wait condition.
-     *
-     * @param rouDiInternalMemoryManager is the internal RouDi memory manager
-     * @param segmentManager contains the shared memory segments and their memory pools which will be intropected
-     * @param publisherPort is the publisher port for transmission of the introspection data
-     */
+    /// @brief The constructor for the MemPoolIntrospection.
+    ///        It starts a thread and set it into a wait condition.
+    /// @param[in] rouDiInternalMemoryManager is the internal RouDi memory manager
+    /// @param[in] segmentManager contains the shared memory segments and their memory pools which will be intropected
+    /// @param[in] publisherPort is the publisher port for transmission of the introspection data
     MemPoolIntrospection(MemoryManager& rouDiInternalMemoryManager,
                          SegmentManager& segmentManager,
                          PublisherPort&& publisherPort);
@@ -74,31 +68,23 @@ class MemPoolIntrospection
     MemPoolIntrospection(MemPoolIntrospection&&) = delete;
     MemPoolIntrospection& operator=(MemPoolIntrospection&&) = delete;
 
-    /**
-     * @brief This function sets the thread into run mode, which periodically
-     *        sends snapshots of the mempool introspecton data to the client.
-     *        The send interval can be set by @ref setSnapshotInterval "setSnapshotInterval(...)".
-     */
+    /// @brief This function sets the thread into run mode, which periodically
+    ///        sends snapshots of the mempool introspecton data to the client.
+    ///        The send interval can be set by @ref setSnapshotInterval "setSnapshotInterval(...)".
     void start() noexcept;
 
-    /**
-     * @brief This functions sets the thread into a wait state and
-     *        the transmission of the introspection data is stopped.
-     */
+    /// @brief This functions sets the thread into a wait state and
+    ///        the transmission of the introspection data is stopped.
     void wait() noexcept;
 
-    /**
-     * @brief This function stops the thread which sends the introspection data.
-     *        It is not possible to start the thread again.
-     */
+    /// @brief This function stops the thread which sends the introspection data.
+    ///        It is not possible to start the thread again.
     void terminate() noexcept;
 
-    /**
-     * @brief This function configures the interval for the transmission of the
-     *        mempool introspection data.
-     *
-     * @param snapshotInterval_ms is the interval time in milliseconds
-     */
+    /// @brief This function configures the interval for the transmission of the
+    ///        mempool introspection data.
+    ///
+    /// @param snapshotInterval_ms is the interval time in milliseconds
     void setSnapshotInterval(unsigned int snapshotInterval_ms) noexcept;
 
   protected:
@@ -128,14 +114,12 @@ class MemPoolIntrospection
                                            uint32_t id) noexcept;
     void send() noexcept;
 
-    // copy data fro internal struct into interface struct
+    /// @brief copy data fro internal struct into interface struct
     void copyMemPoolInfo(const MemoryManager& memoryManager, MemPoolInfoContainer& dest) noexcept;
 };
 
-/**
- * @brief typedef for the templated mempool introspection class that is used by RouDi for the
- * actual mempool introspection functionality.
- */
+/// @brief typedef for the templated mempool introspection class that is used by RouDi for the
+/// actual mempool introspection functionality.
 using MemPoolIntrospectionType =
     MemPoolIntrospection<mepoo::MemoryManager, mepoo::SegmentManager<>, PublisherPortUserType>;
 
