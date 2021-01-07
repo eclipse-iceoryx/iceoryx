@@ -37,7 +37,7 @@ class RouDiMemoryManager_Test : public Test
     }
 
     static const int32_t nbTestCase = 4;
-    
+
     RouDiMemoryManagerError m_testCombinationRoudiMemoryManagerError[nbTestCase] =
     {
         RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED,
@@ -91,6 +91,8 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
     sut.addMemoryProvider(&memoryProvider1);
     sut.addMemoryProvider(&memoryProvider2);
 
+    EXPECT_CALL(memoryBlock1, destroyMock());
+    EXPECT_CALL(memoryBlock2, destroyMock());
     EXPECT_THAT(sut.createAndAnnounceMemory().has_error(), Eq(false));
 }
 
@@ -119,7 +121,9 @@ TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDest
         RouDiMemoryManager sutDestroy;
         sutDestroy.addMemoryProvider(&memoryProvider1);
         sutDestroy.createAndAnnounceMemory();
+        EXPECT_CALL(memoryBlock1, destroyMock()).Times(1);
     }
+    EXPECT_CALL(memoryBlock1, destroyMock()).Times(0);
 }
 
 TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)
