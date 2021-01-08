@@ -12,7 +12,7 @@ received by subscribers of the same topic. To enable publishers to offer their t
 these offered topics, the middleware daemon, called ``RouDi``, must be running.
 
 For further information how iceoryx can be used see the [examples](../../../iceoryx_examples/README.md). The
-[conceptual-guide](../../conceptual-guide.md) provides additional information about the _Shared Memory
+[conceptual guide](../../conceptual-guide.md) provides additional information about the _Shared Memory
 communication_ that lies at the heart of iceoryx.
 
 We now briefly define the main entities of an iceoryx system before showing how they are created and used by the
@@ -111,9 +111,13 @@ For more information on how to use the Waitset see [Waitset](../../../iceoryx_ex
 
 ## API
 
-Now, we show how the API can be used to establish a publish-subscribe communication in an iceoryx system. Many parts
-of the API follow a functional programming approach and allow the user to specify functions which handle the possible
-cases, e.g. what should happen when data is received.
+Now, we show how the API can be used to establish a publish-subscribe communication in an iceoryx system.
+
+The API is offered in two languages, C and C++. In the next sections the C++ API is discussed. More information about
+the C API can be found in the [C example](../../../iceoryx_examples/icedelivery_on_c/README.md).
+
+Many parts of the C++ API follow a functional programming approach and allow the user to specify functions which handle
+the possible cases, e.g. what should happen when data is received.
 
 This is very flexible but requires using the monadic types ``cxx::expected`` and ``cxx::optional``, which we
 introduce in the following sections.
@@ -124,11 +128,8 @@ the data in an C++ idiomatic and type-safe way and should be preferred whenever 
 
 The Untyped API provides [opaque](https://en.wikipedia.org/wiki/Opaque_pointer) (i.e. void) pointers to data, which
 is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a
-type compatible to what was actually sent. This is required for interaction with other lower level APIs and integration 
+type compatible to what was actually sent. This is required for interaction with other lower level APIs and integration
 into third party frameworks such as [ROS](https://www.ros.org/). For further information see the respective header files.
-
-There also is a plain [C API](../../../iceoryx_examples/icedelivery_on_c/README.md), which can be used if C++ is not
-an option.
 
 In the following sections we describe how to use the API in iceoryx applications. We will omit namespaces in several places to keep
 the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. We also will use ``auto``
@@ -228,7 +229,7 @@ result.and_then(handleValue).or_else(handleError);
 There are more convenience functions such as ``value_or`` which provides the value or an alternative specified by the
 user. These can be found in [``expected.hpp``](../../../iceoryx_utils/include/iceoryx_utils/cxx/expected.hpp).
 
-## Using the API
+## Using the C++ API
 
 Armed with the terminology and functional concepts, we can start to use the API to send and receive data. This
 involves settting up the runtime in each application, creating publishers in applications that need to send data and

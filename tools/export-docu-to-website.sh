@@ -14,6 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Necessary tools:
+# mkdocs-awesome-pages-plugin, v2.5.0
+# mkdocs-material, v6.2.3
+# markdown-include, v0.6.0
+# mkdocs, v1.1.2
+# Doxygen, 1.8.17
+# doxybook2, v1.3.1
+
 set -e
 
 WORKSPACE=$(git rev-parse --show-toplevel)
