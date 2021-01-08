@@ -441,3 +441,37 @@ TEST_F(PoshRuntime_test, SetEmptyRuntimeFactoryFails)
     EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
                  "Cannot set runtime factory. Passed factory must not be empty!");
 }
+
+TEST_F(PoshRuntime_test, OfferDefaultServiceDescriptionIsInvalid)
+{
+    auto isServiceOffered = m_runtime->offerService(iox::capro::ServiceDescription());
+
+    EXPECT_FALSE(isServiceOffered);
+}
+
+TEST_F(PoshRuntime_test, OfferANYServiceStringIsInvalid)
+{
+    auto isServiceOffered = m_runtime->offerService(iox::capro::ServiceDescription(
+        iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString));
+
+    EXPECT_FALSE(isServiceOffered);
+}
+
+TEST_F(PoshRuntime_test, OfferANYServiceIdIsInvalid)
+{
+    auto isServiceOffered = m_runtime->offerService(
+        iox::capro::ServiceDescription(iox::capro::AnyService, iox::capro::AnyInstance, iox::capro::AnyEvent));
+
+    EXPECT_FALSE(isServiceOffered);
+}
+
+TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
+{
+    PoshRuntime* m_receiverRuntime{&iox::runtime::PoshRuntime::initRuntime("subscriber")};
+
+    m_runtime->offerService(iox::capro::ServiceDescription());
+    this->InterOpWait();
+    auto instanceContainer = m_receiverRuntime->findService(iox::capro::ServiceDescription());
+
+    EXPECT_THAT(0u, instanceContainer.value().size());
+}
