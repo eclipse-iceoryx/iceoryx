@@ -31,67 +31,44 @@ class CUnitTestContainerSoFi : public ::testing::Test
     {
     }
 
-    /**
-     * @brief returns the ID of the current test in the format "TestCaseName.TestName"
-     *
-     * @return std::string: the id of the test
-     */
+    /// @brief returns the ID of the current test in the format "TestCaseName.TestName"
+    /// @return std::string: the id of the test
     std::string testId();
 
-    /**
-     * @brief pushes some serial numbers to the SoFi with the expectation to not overflow
-     *
-     * @param serNumStart is the offset for the serial numbers to push into the SoFi
-     * @param numberOfItems is the number of items to push into the SoFi
-     * @return int: the first not pushed serial number
-     */
+    /// @brief pushes some serial numbers to the SoFi with the expectation to not overflow
+    /// @param[in] serNumStart is the offset for the serial numbers to push into the SoFi
+    /// @param[in] numberOfItems is the number of items to push into the SoFi
+    /// @return int: the first not pushed serial number
     int pushSome(int serNumStart, uint32_t numberOfItems);
 
-    /**
-     * @brief pops some items from the SoFi with the expectation of a non empty SoFi at the last pop
-     *
-     * @param serNumOldest is the oldest serial numbers in the SoFi
-     * @param numberOfItems is the number of items to pop from the SoFi
-     */
+    /// @brief pops some items from the SoFi with the expectation of a non empty SoFi at the last pop
+    /// @param[in] serNumOldest is the oldest serial numbers in the SoFi
+    /// @param[in] numberOfItems is the number of items to pop from the SoFi
     void popSome(int serNumOldest, uint32_t numberOfItems);
 
-    /**
-     * @brief pops all items from the SoFi
-     *
-     * @param serNumOldest is the oldest serial numbers in the SoFi
-     */
+
+    /// @brief pops all items from the SoFi
+    /// @param[in] serNumOldest is the oldest serial numbers in the SoFi
     void popAll(int serNumOldest);
 
-    /**
-     * @brief checks the SoFi empty behaviour; pop on empty SoFi, pushing and popping the same amount of items
-     *
-     * @param scope is the identifier for gTest SCOPED_TRACE to trace the failure when subroutines are used
-     * @param serNumStart is the offset for the serial numbers to push into the SoFi
-     */
+    /// @brief checks the SoFi empty behaviour; pop on empty SoFi, pushing and popping the same amount of items
+    /// @param[in] scope is the identifier for gTest SCOPED_TRACE to trace the failure when subroutines are used
+    /// @param[in] serNumStart is the offset for the serial numbers to push into the SoFi
     void checkEmpty(const std::string& scope, int serNumStart);
 
-    /**
-     * @brief checks the capacity ot the SoFi
-     *
-     * @param scope is the identifier for gTest SCOPED_TRACE to trace the failure when subroutines are used
-     * @param serNumStart is the offset for the serial numbers to push into the SoFi
-     */
+    /// @brief checks the capacity ot the SoFi
+    /// @param[in] scope is the identifier for gTest SCOPED_TRACE to trace the failure when subroutines are used
+    /// @param[in] serNumStart is the offset for the serial numbers to push into the SoFi
     void checkCapacity(const std::string& scope, int serNumStart);
 
-    /**
-     * @brief checks if the SoFi overflow works as expected with one overflow
-     *
-     * @param scope is the identifier for gTest SCOPED_TRACE to trace the failure when subroutines are used
-     * @param serNumStart is the offset for the serial numbers to push into the SoFi
-     */
+    /// @brief checks if the SoFi overflow works as expected with one overflow
+    /// @param[in] scope is the identifier for gTest SCOPED_TRACE to trace the failure when subroutines are used
+    /// @param[in] serNumStart is the offset for the serial numbers to push into the SoFi
     void checkOverflow(const std::string& scope, int serNumStart);
 
-    /**
-     * @brief checks if the SoFi overflow works as expected with multiple overflowing
-     *
-     * @param scope is the identifier for gTest SCOPED_TRACE to trace the failure when subroutines are used
-     * @param serNumStart is the offset for the serial numbers to push into the SoFi
-     */
+    /// @brief checks if the SoFi overflow works as expected with multiple overflowing
+    /// @param[in] scope is the identifier for gTest SCOPED_TRACE to trace the failure when subroutines are used
+    /// @param[in] serNumStart is the offset for the serial numbers to push into the SoFi
     void checkMultiOverflow(const std::string& scope, int serNumStart);
 
     static constexpr uint64_t TEST_SOFI_CAPACITY = 10;

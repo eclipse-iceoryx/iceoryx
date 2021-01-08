@@ -9,7 +9,7 @@
 [![Gitter](https://badges.gitter.im/eclipse-iceoryx/iceoryx.svg)](https://gitter.im/eclipse/iceoryx)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Codecov](https://codecov.io/gh/eclipse-iceoryx/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse-iceoryx/iceoryx?branch=master)
-
+[![Sanitize](https://github.com/eclipse/iceoryx/workflows/Sanitize/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions?query=workflow%3ASanitize)
 
 ## Introduction
 
