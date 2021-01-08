@@ -23,7 +23,7 @@ VERSION=$1
 cd $WORKSPACE
 
 # Generate doxygen
-cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC
+cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
 cd $WORKSPACE/build
 make -j8 doxygen_iceoryx_posh doxygen_iceoryx_utils doxygen_iceoryx_binding_c doxygen_iceoryx_dds doxygen_iceoryx_introspection
 
