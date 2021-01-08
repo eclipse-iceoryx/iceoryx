@@ -328,8 +328,6 @@ namespace clock
 /// @brief This offers the deadline timer functionality. It has user convenient methods to reset the timer [by default
 /// it uses the intialized duration], reset timer to a customized duration, check if the timer is active and user can
 /// also get to know about the remaining time before the timer goes off
-/// @note Introduced as an alternate timer functionality for the deprecated POSIX timers
-///
 /// @code
 ///     iox::clock::DeadlineTimer deadlineTimer(1000_ms);
 ///
@@ -358,6 +356,8 @@ class DeadlineTimer
 
     /// @brief reinitializes the ending time for the timer to the given new time to wait. The absolute end time is
     /// calculated by adding new time to wait to the current time.
+    /// @param[in] timeToWait duration until the timer expires. This value overwrites the earlier value which was set
+    /// during the timer creation.
     void reset(const iox::units::Duration timeToWait) noexcept;
 
     /// @brief calculates the remaining time before the timer goes off

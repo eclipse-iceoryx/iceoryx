@@ -113,14 +113,11 @@ TIMING_TEST_F(TimerStopWatch_test, ResetWithCustomizedTimeAfterBeingExpiredIsNot
 
 
 TIMING_TEST_F(TimerStopWatch_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&] {
-    iox::clock::DeadlineTimer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+    iox::clock::DeadlineTimer sut(20_ms);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>()));
+    int remainingTime = sut.remainingTime().milliSeconds<int>();
 
-    TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
-
-    sut.reset(20_s);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
-    EXPECT_THAT(sut.remainingTime(), Le(TIMEOUT));
+    TIMING_TEST_EXPECT_TRUE(remainingTime >= 8 && remainingTime <= 10);
 });
 
 
