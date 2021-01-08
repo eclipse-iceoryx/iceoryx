@@ -18,6 +18,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/platform/types.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -40,11 +41,11 @@ class RouDiProcess_test : public Test
 {
   public:
     const iox::ProcessName_t processname = "TestRoudiProcess";
-    int32_t pid = 200;
+    pid_t pid{200U};
     iox::mepoo::MemoryManager* payloadMemoryManager{nullptr};
     bool isMonitored = true;
-    const uint64_t payloadSegmentId = 0x654321;
-    const uint64_t sessionId = 255;
+    const uint64_t payloadSegmentId{0x654321U};
+    const uint64_t sessionId{255U};
     MqInterfaceUser_Mock mqIntrfceusermock;
 };
 
@@ -81,14 +82,20 @@ TEST_F(RouDiProcess_test, getSessionId)
 TEST_F(RouDiProcess_test, getPayloadMemoryManager)
 {
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.getPayloadMemoryManager(), Eq(nullptr));
+    EXPECT_THAT(roudiproc.getPayloadMemoryManager(), Eq(payloadMemoryManager));
 }
 
-TEST_F(RouDiProcess_test, sendToMQ)
+TEST_F(RouDiProcess_test, sendToMQPass)
 {
     iox::runtime::MqMessage data{"MESSAGE_NOT_SUPPORTED"};
     EXPECT_CALL(mqIntrfceusermock, sendToMQ(_)).Times(1);
     mqIntrfceusermock.sendToMQ(data);
+}
+TEST_F(RouDiProcess_test, sendToMQFail)
+{
+    iox::runtime::MqMessage data{""};
+    RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    EXPECT_DEATH(roudiproc.sendToMQ(data), "RouDiProcess cannot send data via MQ");
 }
 
 TEST_F(RouDiProcess_test, TimeStamp)

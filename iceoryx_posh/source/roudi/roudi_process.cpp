@@ -62,7 +62,12 @@ const ProcessName_t RouDiProcess::getName() const noexcept
 
 void RouDiProcess::sendToMQ(const runtime::MqMessage& data) noexcept
 {
-    m_mq.send(data);
+    auto sendSuccess = m_mq.send(data);
+    if (sendSuccess == false)
+    {
+        LogWarn() << "RouDiProcess cannot send data via MQ ";
+        errorHandler(Error::kPOSH__ROUDI_PROCESS_SENDMQ_FAILED, nullptr, ErrorLevel::SEVERE);
+    }
 }
 
 uint64_t RouDiProcess::getSessionId() noexcept
