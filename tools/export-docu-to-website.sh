@@ -22,18 +22,28 @@ VERSION=$1
 
 cd $WORKSPACE
 
-# Generate doxygen, replace with CMake commands later
-cd  $WORKSPACE/iceoryx_utils/doc/
-doxygen doxyfile-utils
-cd  $WORKSPACE/iceoryx_posh/doc/
-doxygen doxyfile-posh
+# Generate doxygen
+cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC
+cd $WORKSPACE/build
+make -j8 doxygen_iceoryx_posh doxygen_iceoryx_utils doxygen_iceoryx_binding_c doxygen_iceoryx_dds doxygen_iceoryx_introspection
 
 # Generate markdown from doxygen
 cd $WORKSPACE
+
 mkdir -p $WORKSPACE/doc/website/API-reference/utils
-doxybook2 --input $WORKSPACE/iceoryx_utils/doc/xml/ --output $WORKSPACE/doc/website/API-reference/utils
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_utils/xml/ --output $WORKSPACE/doc/website/API-reference/utils
+
 mkdir -p $WORKSPACE/doc/website/API-reference/posh
-doxybook2 --input $WORKSPACE/iceoryx_posh/doc/xml/ --output $WORKSPACE/doc/website/API-reference/posh
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_posh/xml/ --output $WORKSPACE/doc/website/API-reference/posh
+
+mkdir -p $WORKSPACE/doc/website/API-reference/c-binding
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_binding_c/xml/ --output $WORKSPACE/doc/website/API-reference/c-binding
+
+mkdir -p $WORKSPACE/doc/website/API-reference/DDS-gateway
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_dds/xml/ --output $WORKSPACE/doc/website/API-reference/DDS-gateway
+
+mkdir -p $WORKSPACE/doc/website/API-reference/introspection
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_introspection/xml/ --output $WORKSPACE/doc/website/API-reference/introspection
 
 # Generate HTML and push to GitHub pages
 if [ ! -d "$WORKSPACE/../iceoryx-web" ]; then
