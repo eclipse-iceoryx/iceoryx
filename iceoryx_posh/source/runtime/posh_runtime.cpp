@@ -381,8 +381,8 @@ NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
     return nullptr;
 }
 
-cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& serviceDescription,
-                                              InstanceContainer& instanceContainer) noexcept
+cxx::expected<InstanceContainer, Error>
+PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::FIND_SERVICE) << m_appName
@@ -397,6 +397,7 @@ cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& s
         return cxx::error<Error>(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ);
     }
 
+    InstanceContainer instanceContainer;
     uint32_t numberOfElements = requestResponse.getNumberOfElements();
     uint32_t capacity = static_cast<uint32_t>(instanceContainer.capacity());
 
@@ -415,13 +416,22 @@ cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& s
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<Error>(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW);
     }
-    return {cxx::success<>()};
+    return {cxx::success<InstanceContainer>(instanceContainer)};
 }
 
-void PoshRuntime::offerService(const capro::ServiceDescription& serviceDescription) noexcept
+
+bool PoshRuntime::offerService(const capro::ServiceDescription& serviceDescription) noexcept
 {
-    capro::CaproMessage msg(capro::CaproMessageType::OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
-    m_applicationPort.dispatchCaProMessage(msg);
+    if (serviceDescription.isValid())
+    {
+        capro::CaproMessage msg(
+            capro::CaproMessageType::OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
+        m_applicationPort.dispatchCaProMessage(msg);
+        return true;
+    }
+    LogWarn() << "Could not offer service " << serviceDescription.getServiceIDString() << ","
+              << " ServiceDescription is invalid\n";
+    return false;
 }
 
 void PoshRuntime::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
