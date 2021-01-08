@@ -32,8 +32,6 @@ target_include_directories(
   integrationtest PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:include>)
 
-install(TARGETS integrationtest DESTINATION lib/${PROJECT_NAME})
-
 #
 # posh roudi daemon ##########
 #
@@ -55,7 +53,7 @@ target_include_directories(
           $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
           $<INSTALL_INTERFACE:include/${PREFIX}>)
 
-install(TARGETS iox-roudi DESTINATION lib/${PROJECT_NAME})
+install(TARGETS integrationtest iox-roudi DESTINATION bin/${PROJECT_NAME})
 
 # Install launch files.
 install(DIRECTORY
