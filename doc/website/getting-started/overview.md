@@ -53,11 +53,11 @@ namespace ``capro``.
 
 The following table gives an overview over the different terminologies and the current mapping:
 
-|         | Group   | Instance         | Topic |
-|---------|---------|------------------|-------|
-| ROS2    | Type    | Namespace::Topic | -     |
-| AUTOSAR | Service | Instance         | Event |
-| DDS     | -       | Topic            | Type  |
+|         | Group   | Instance         | Topic                  |
+|---------|---------|------------------|------------------------|
+| ROS2    | Type    | Namespace::Topic | -                      |
+| AUTOSAR | Service | Instance         | Event                  |
+| DDS     | -       | -                | /Group/Instance/Topic  |
 
 Service and instance are like classes and objects in C++. So you always have a specific instance of a service during
 runtime. The mapping will be reworked with release v2.0.
