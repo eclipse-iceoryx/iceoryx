@@ -69,8 +69,10 @@ foreach(val RANGE ${cmp_len})
 
   set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/doc/${cmp})
 
-  doxygen_add_docs(doxygen_${cmp} ${cmp_dir}/include
-                   ${cmp_dir}/source ${cmp_dir}/test ALL)
+  doxygen_add_docs(doxygen_${cmp}
+                  ${cmp_dir}/include
+                  WORKING_DIRECTORY ${cmp_dir}/include
+                  ALL)
 endforeach()
 
 # create dummy install directive to generate docu also with "make install"
