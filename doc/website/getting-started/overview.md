@@ -232,7 +232,7 @@ user. These can be found in [``expected.hpp``](../../../iceoryx_utils/include/ic
 ## Using the C++ API
 
 Armed with the terminology and functional concepts, we can start to use the API to send and receive data. This
-involves settting up the runtime in each application, creating publishers in applications that need to send data and
+involves setting up the runtime in each application, creating publishers in applications that need to send data and
 subscribers in applications that want to receive said data. An application can have both, publishers and subscribers.
 It can even send data to itself, but this usually makes little sense.
 
