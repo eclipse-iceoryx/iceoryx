@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "source/example_component/example_base_class.hpp"
-#include "test.hpp"
+#include "example_base_class.hpp"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using namespace ::testing;
 using ::testing::Return;
@@ -27,27 +29,23 @@ namespace test
 /// @pre describe what needs to be done in setup()
 /// @post describe what needs to be done in teardown()
 /// @note name of the Testfixture should match to the Class you want to test
-template <typename T>
 class ExampleBaseClass_test : public Test
 {
   public:
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
+    example::ExampleBaseClass<uint32_t> sut;
 };
 
 /// @note name of the Testcase shall describe the test case in detail to avoid additional comments
 TEST_F(ExampleBaseClass_test, FirstUnitTestCase)
 {
-    ExampleBaseClass<T> sut(1, 2);
+    EXPECT_THAT(sut.simplerMethod(), Eq(99U));
+}
 
-    sut.simplerMethod();
-
-    EXPECT_THAT(sut.m_memberVariable, Eq(100u));
+/// @note name of the Testcase shall describe the test case in detail to avoid additional comments
+TEST_F(ExampleBaseClass_test, GetMemberVariableFromCtor)
+{
+    example::ExampleBaseClass<uint32_t> sut2(100);
+    EXPECT_THAT(sut2.getMemberVariable(), Eq(99U));
 }
 
 } // namespace test
