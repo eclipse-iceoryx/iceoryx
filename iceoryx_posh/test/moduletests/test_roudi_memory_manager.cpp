@@ -149,6 +149,7 @@ TEST_F(RouDiMemoryManager_Test, OperatorTest)
         iox::log::LogStream logStream(loggerMock);
         logStream << m_testCombinationRoudiMemoryManagerError[i];
         logStream.Flush();
+        ASSERT_THAT(loggerMock.m_logs.size(), Eq(i + 1U));
         EXPECT_THAT(loggerMock.m_logs[i].message, Eq(m_testResultOperatorMethod[i]));
     }
 }
