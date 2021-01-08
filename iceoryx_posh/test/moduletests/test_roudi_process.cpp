@@ -94,8 +94,19 @@ TEST_F(RouDiProcess_test, sendToMQPass)
 TEST_F(RouDiProcess_test, sendToMQFail)
 {
     iox::runtime::MqMessage data{""};
+    iox::cxx::optional<iox::Error> sendtoMQStatusFail;
+
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&sendtoMQStatusFail](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            sendtoMQStatusFail.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_DEATH(roudiproc.sendToMQ(data), "RouDiProcess cannot send data via MQ");
+    roudiproc.sendToMQ(data);
+
+    ASSERT_THAT(sendtoMQStatusFail.has_value(), Eq(true));
+    EXPECT_THAT(sendtoMQStatusFail.value(), Eq(iox::Error::kPOSH__ROUDI_PROCESS_SENDMQ_FAILED));
 }
 
 TEST_F(RouDiProcess_test, TimeStamp)
