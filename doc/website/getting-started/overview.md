@@ -51,16 +51,16 @@ A triple consisting of such strings is called a ``ServiceDescription``. The serv
 from AUTOSAR and is still used in the API with these names. The so called canonical protocol is implemented in the
 namespace ``capro``.
 
-The following table gives an overview over the different terminologies:
+The following table gives an overview over the different terminologies and the current mapping:
 
-|         | Group   | Instance | Topic |
-|---------|---------|----------|-------|
-| ROS2    | -       | Topic    | Type  |
-| AUTOSAR | Service | Instance | Event |
-| DDS     | -       | Topic    | Type  |
+|         | Group   | Instance         | Topic |
+|---------|---------|------------------|-------|
+| ROS2    | Type    | Namespace::Topic | -     |
+| AUTOSAR | Service | Instance         | Event |
+| DDS     | -       | Topic            | Type  |
 
 Service and instance are like classes and objects in C++. So you always have a specific instance of a service during
-runtime.
+runtime. The mapping will be reworked with release v2.0.
 
 Two ``ServiceDescription``s are considered matching if all these three strings are element-wise equal, i.e. group,
 instance and topic names are the same for both of them.
