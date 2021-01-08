@@ -449,9 +449,9 @@ TYPED_TEST(relativeptrtests, pointerOperator)
     EXPECT_EQ(*rp1, *baseAddr);
 }
 
-// central use case of the relative pointer:
-// it is tested that changing the (static) lookup table of a relative pointer causes existing
-// relative pointers point to changed locations relative to the new lookup table
+/// central use case of the relative pointer:
+/// it is tested that changing the (static) lookup table of a relative pointer causes existing
+/// relative pointers point to changed locations relative to the new lookup table
 TEST_F(RelativePointer_test, memoryRemapping)
 {
     constexpr size_t BLOCK_SIZE = 1024;

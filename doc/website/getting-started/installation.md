@@ -50,7 +50,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
  1. Clone the repository
     ```bash
-    git clone https://github.com/eclipse/iceoryx.git
+    git clone https://github.com/eclipse-iceoryx/iceoryx.git
     ```
 
  2. Generate the necessary build files
@@ -98,7 +98,7 @@ The script currently only works for Linux and QNX, it is planned to offer a mult
 
  1. Clone the repository
     ```
-    git clone https://github.com/eclipse/iceoryx.git
+    git clone https://github.com/eclipse-iceoryx/iceoryx.git
     ```
 
  2. Build everything
@@ -119,7 +119,7 @@ Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/
 ```
 mkdir -p iceoryx_ws/src
 cd $_
-git clone https://github.com/eclipse/iceoryx.git
+git clone https://github.com/eclipse-iceoryx/iceoryx.git
 cd ..
 colcon build
 ```
@@ -162,6 +162,15 @@ If you want to execute only individual testcases then you can use these executab
 
 Due to the fact that iceoryx works a lot with system memory it should be ensured that errors like memory leaks are not introduced.
 To prevent these, we use the clang toolchain which offers several tools for scanning the codebase. One of them is the Adress-Sanitizer which checks for example on dangling pointers: [https://clang.llvm.org/docs/AddressSanitizer.html](https://clang.llvm.org/docs/AddressSanitizer.html)
+
+In iceoryx below sanitizers are enabled at the moment.
+- [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
+AddressSanitizer is a fast memory error detector. 
+**NOTE :** AddressSanitizer exits on the first detected error, which means there could be more errors in the codebase when this error is reported.
+- [LeakSanitizer](https://clang.llvm.org/docs/LeakSanitizer.html)
+LeakSanitizer is a run-time memory leak detector. In iceoryx , it runs as part of the AdderssSanitizer.
+- [UndefinedBehaviorSanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html)
+UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. Iceoryx uses default behaviour ie `print a verbose error report and continue execution`
 
 In iceoryx are scripts available to do the scan on your own. Additionally the Scans are running on the CI in every Pull-Request.
 As Requirement you should install the clang compiler: 

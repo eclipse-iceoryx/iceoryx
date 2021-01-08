@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2019-2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2019-2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ NUM_JOBS=""
 PACKAGE="OFF"
 CLEAN_BUILD=false
 BUILD_TYPE=""
+BUILD_DOC="OFF"
 STRICT_FLAG="OFF"
 TEST_FLAG="OFF"
 COV_FLAG="OFF"
@@ -45,6 +46,7 @@ BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="ON"
 TOML_FLAG="ON"
 EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
+COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds" 
 
 while (( "$#" )); do
   case "$1" in
@@ -156,6 +158,11 @@ while (( "$#" )); do
         export CXX=$(which clang++)
         shift 1
         ;;
+    "doc")
+        echo " [i] Build and generate doxygen"
+        BUILD_DOC="ON"
+        shift 1
+        ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx, the dds gateway and the examples are built."
@@ -236,7 +243,7 @@ echo " [i] Current working directory: $(pwd)"
 if [ "$PACKAGE" == "OFF" ]; then
     echo ">>>>>> Start building iceoryx package <<<<<<"
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
-    -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG \
+    -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG -DBUILD_DOC=$BUILD_DOC \
     -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DBUILD_SHARED_LIBS=$BUILD_SHARED -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
 
     cmake --build . --target install -- -j$NUM_JOBS
@@ -253,8 +260,6 @@ else
     cpack
     echo ">>>>>> Finished building iceoryx package <<<<<<"    
 fi
-
-
 
 
 #====================================================================================================
@@ -287,7 +292,7 @@ if [ "$COV_FLAG" == "ON" ]; then
 fi
 
 #====================================================================================================
-#==== Step 2 : Run all Tests  =======================================================================
+#==== Step : Run all Tests  =========================================================================
 #====================================================================================================
 # the absolute path of the directory assigned to the build
 cd $BUILD_DIR
@@ -317,6 +322,10 @@ for COMPONENT in $COMPONENTS; do
     esac
 done
 
+#====================================================================================================
+#==== Step : Coverage ===============================================================================
+#====================================================================================================
+
 if [ "$COV_FLAG" == "ON" ]; then
     echo ">>>>>> Generate Gcov Report <<<<<<"
     cd $WORKSPACE
@@ -325,4 +334,23 @@ if [ "$COV_FLAG" == "ON" ]; then
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE remove #exclude all unnecessary files
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE genhtml #generate html
     echo ">>>>>> Report Generation complete <<<<<<"
+fi
+
+#====================================================================================================
+#==== Step : Doxygen PDF Generation =================================================================
+#====================================================================================================
+
+
+if [ "$BUILD_DOC" == "ON" ]; then
+    echo ">>>>>> Doxygen PDF Generation <<<<<<"
+    cd $BUILD_DIR
+
+    for cmp in $COMPONENTS; do
+        make doxygen_"$cmp"
+        cd doc/"$cmp"/latex
+        make
+        cd ../../..
+        mv -v doc/"$cmp"/latex/refman.pdf doc/"$cmp"_doxygen.pdf
+    done
+    echo ">>>>>> Doxygen PDF Generation complete <<<<<<"
 fi

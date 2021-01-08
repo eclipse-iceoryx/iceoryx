@@ -1,6 +1,6 @@
 # Overview
 
-This directory contains files related to building and running [Eclipse iceoryx](https://github.com/eclipse/iceoryx) using [Docker](https://www.docker.com/).
+This directory contains files related to building and running [Eclipse iceoryx](https://github.com/eclipse-iceoryx/iceoryx) using [Docker](https://www.docker.com/).
 
 # Building the iceoryx Docker Image
 
