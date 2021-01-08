@@ -53,9 +53,17 @@ set_sanitizer_options() {
     export ASAN_OPTIONS
     LSAN_OPTIONS=suppressions=$BASE_DIR/sanitizer_blacklist/lsan_runtime.txt
     export LSAN_OPTIONS
+    UBSAN_OPTIONS=print_stacktrace=1
+    export UBSAN_OPTIONS
 
     echo "ASAN_OPTIONS : $ASAN_OPTIONS"
     echo "LSAN_OPTIONS : $LSAN_OPTIONS"
+    echo "UBSAN_OPTIONS : $UBSAN_OPTIONS"
+
+    if [[ ! -f $(which llvm-symbolizer) ]]
+    then
+        echo "WARNING : llvm-symbolizer not found. Stack trace may not be symbolized!"
+    fi    
 }
 
 for arg in "$@"; do
