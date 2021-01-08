@@ -159,6 +159,15 @@ If you want to execute only individual testcases then you can use these executab
 Due to the fact that iceoryx works a lot with system memory it should be ensured that errors like memory leaks are not introduced.
 To prevent these, we use the clang toolchain which offers several tools for scanning the codebase. One of them is the [Address-Sanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) which checks for example on dangling pointers.
 
+In iceoryx below sanitizers are enabled at the moment.
+- [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
+AddressSanitizer is a fast memory error detector. 
+**NOTE :** AddressSanitizer exits on the first detected error, which means there could be more errors in the codebase when this error is reported.
+- [LeakSanitizer](https://clang.llvm.org/docs/LeakSanitizer.html)
+LeakSanitizer is a run-time memory leak detector. In iceoryx , it runs as part of the AdderssSanitizer.
+- [UndefinedBehaviorSanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html)
+UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. Iceoryx uses default behaviour ie `print a verbose error report and continue execution`
+
 In iceoryx are scripts available to do the scan on your own. Additionally the Scans are running on the CI in every Pull-Request.
 As Requirement you should install the clang compiler:
 ```
