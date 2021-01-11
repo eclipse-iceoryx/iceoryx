@@ -14,13 +14,9 @@
 
 #include "test.hpp"
 
-#define protected public
-#define private public
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
-#undef protected
-#undef private
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
@@ -568,8 +564,3 @@ TEST_F(PortManager_test, PortDestroy)
     }
 }
 
-/*TEST_F(PortManager_test, ConstMgmtMemoryProvider)
-{
-    const PosixShmMemoryProvider* result = m_roudiMemoryManager->mgmtMemoryProvider();
-    EXPECT_THAT(result, Eq(&m_roudiMemoryManager->m_defaultMemory.m_managementShm));
-}*/
