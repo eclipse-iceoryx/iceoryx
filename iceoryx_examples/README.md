@@ -20,13 +20,13 @@ cd someExample
 
 ## List of all examples
 
-| example                                                | description |
-|:-------------------------------------------------------|:------------|
-|[icecrystal](./icecrystal/)                             | Demonstrates the usage of the iceoryx introspection client. |
-|[icedelivery](./icedelivery/)                           | You are new to iceoryx then take a look at this example which demonstrates the basics of iceoryx by sending data from one process to another process. |
-|[icedelivery_on_c](./icedelivery_on_c/)                 | Shows the same use case as the ice delivery example but with the iceoryx C API  |
-|[iceperf](./iceperf/)                                   | A benchmark application which measures the latency of an IPC transmission between two applications. |
-|[singleprocess](./singleprocess/)                       | Iceoryx can also be used for inter thread communication when you would like to run everything in a single process. |
-|[ice_multi_publisher](./ice_multi_publisher/)           | Shows how multiple publishers can be used to publish on the same topic. |
-|[waitset](./waitset/)                       | Explaining the structure, usage and ideas behind the WaitSet. |
-|[waitset_on_c](./waitset_on_c/)                 | The C example of our WaitSet. |
+| Example                                                | Description |Level |
+|:-------------------------------------------------------|:------------|:----:|
+|[icedelivery](./icedelivery/)                           | You are new to iceoryx then take a look at this example which demonstrates the basics of iceoryx by sending data from one process to another process. | Beginner |
+|[icedelivery_on_c](./icedelivery_on_c/)                 | Shows the same use case as the ice delivery example but with the iceoryx C API  | Beginner |
+|[ice_multi_publisher](./ice_multi_publisher/)           | Shows how multiple publishers can be used to publish on the same topic. | Intermediate |
+|[waitset](./waitset/)                       | Explaining the structure, usage and ideas behind the WaitSet. | Intermediate |
+|[waitset_on_c](./waitset_on_c/)                 | The C example of our WaitSet. | Intermediate |
+|[singleprocess](./singleprocess/)                       | Iceoryx can also be used for inter thread communication when you would like to run everything in a single process. | Intermediate |
+|[iceperf](./iceperf/)                                   | A benchmark application which measures the latency of an IPC transmission between two applications. | Advanced |
+|[icecrystal](./icecrystal/)                             | Demonstrates the usage of the iceoryx introspection client. | Advanced |

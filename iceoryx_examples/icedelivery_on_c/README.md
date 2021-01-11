@@ -1,14 +1,18 @@
-# icedelivery in C - Transfer data between POSIX applications
+# icedelivery in C
 
 You can find a more detailled description of the C API in the [iceoryx_binding_c README.md](../../iceoryx_binding_c)
 
-## The icedelivery example
+## Introduction
 
 The behavior and structure is identical to the [icedelivery C++ example](../icedelivery/)
 so that we explain here only the C API differences and not the
 underlying mechanisms.
 
+## Expected output
+
 <!-- @todo Add expected output with asciinema recording before v1.0-->
+
+## Code walkthrough
 
 ### Subscriber
 

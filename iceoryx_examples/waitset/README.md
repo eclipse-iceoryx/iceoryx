@@ -13,7 +13,7 @@ attaches one shot events. These are events which will trigger the WaitSet only o
 
 ## Threadsafety
 The WaitSet is **not** threadsafe!
-- It is **not** allowed to attach or detach _Triggerable
+- It is **not** allowed to attach or detach _Triggerable_
    classes with `attachEvent` or `detachEvent` when another thread is currently
    waiting for events with `wait`.
 

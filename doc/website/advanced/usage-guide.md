@@ -1,10 +1,6 @@
+# Usage guide
 
-# Contents
-- [Configuring RouDi](#configuring-roudi)
-- [CaPro protocol](#capro-protocol)
-
-
-# Configuring RouDi
+## Configuring RouDi
 
 RouDi can optionally be build with support to read the mempool config from a configuration file.
 To build the feature, the cmake option `-DTOML_CONFIG=ON` must be used.
@@ -84,19 +80,7 @@ count = 100
 
 When no config file is specified, a hard-coded version similar to [default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
 
-# CaPro protocol
-
-<!-- @todo Move this section to overview.md >
-
-<!-- @todo Add table and explain different terminologies used in AUTOSAR, ROS and DDS -->
-
-This service model comes from AUTOSAR. It is maybe not the best fit for typical publish/subscribe APIs
-but it allows us a matching to different technologies. The event can be compared to a topic in other
-publish/subscribe approaches. The service is not a single request/response thing but an element
-for grouping of events and/or methods that can be discovered as a service. Service and instance are like
-classes and objects in C++. So you always have a specific instance of a service during runtime.
-
-# Iceoryx library build
+## Iceoryx library build
 
 Iceoryx consists of several libraries which have dependencies to each other. The goal is here to have self-encapsulated library packages available
 where the end-user can easily find it with the cmake command `find-package(...)`.
@@ -109,4 +93,4 @@ The alternate solution is provided for Ubuntu-users by having a build script `ic
 Per default iceoryx is build as shared libraries because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
 This is done by the flag `BUILD_SHARED_LIBS` which is set to ON per default. If you want to have static libraries, just pass `-DBUILD_SHARED_LIBS=OFF` to Cmake or use `build-static` as flag in the build script.
 
-If you want to share the iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will place it in the folder `build_package`.
+If you want to share the iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will be build it in `build_package`.

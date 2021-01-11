@@ -1,0 +1,14 @@
+site_name: iceoryx.io
+site_url: https://iceoryx.io
+repo_url: https://github.com/eclipse/iceoryx
+docs_dir: doc/website/
+remote_branch: main
+markdown_extensions:
+  - markdown_include.include:
+      base_path: doc
+  - admonition
+plugins:
+  - awesome-pages
+  - search
+theme:
+  name: 'material'
