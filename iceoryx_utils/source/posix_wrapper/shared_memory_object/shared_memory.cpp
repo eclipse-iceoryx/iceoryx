@@ -127,7 +127,7 @@ int32_t SharedMemory::getHandle() const
 
 bool SharedMemory::open()
 {
-    cxx::Expects(m_size <= std::numeric_limits<int64_t>::max());
+    cxx::Expects(static_cast<int64_t>(m_size) <= std::numeric_limits<int64_t>::max());
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
