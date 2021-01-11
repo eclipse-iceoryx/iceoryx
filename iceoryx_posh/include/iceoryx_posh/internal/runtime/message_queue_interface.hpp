@@ -86,6 +86,7 @@ enum class MqMessageErrorType : int32_t
     PUBLISHER_LIST_FULL,
     SUBSCRIBER_LIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
+    NODE_DATA_LIST_FULL,
     END,
 };
 

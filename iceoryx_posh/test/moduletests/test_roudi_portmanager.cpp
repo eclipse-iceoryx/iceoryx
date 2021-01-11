@@ -443,7 +443,7 @@ TEST_F(PortManager_test, ConditionVariablesDestroy)
     }
 }
 
-TEST_F(PortManager_test, NodesOverflow)
+TEST_F(PortManager_test, NodeDataOverflow)
 {
     std::string process = "Process";
     std::string node = "Node";
@@ -454,7 +454,7 @@ TEST_F(PortManager_test, NodesOverflow)
         iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
         iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, node + std::to_string(i));
         auto nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
-        EXPECT_THAT(nodeData, Ne(nullptr));
+        EXPECT_THAT(nodeData.has_error(), Eq(false));
     }
 
     // test if overflow errors get hit
@@ -466,8 +466,9 @@ TEST_F(PortManager_test, NodesOverflow)
             });
 
         auto nodeData = m_portManager->acquireNodeData("AnotherProcess", "AnotherNode");
-        EXPECT_THAT(nodeData, Eq(nullptr));
+        EXPECT_THAT(nodeData.has_error(), Eq(true));
         EXPECT_THAT(errorHandlerCalled, Eq(true));
+        EXPECT_THAT(nodeData.get_error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
     }
 
     // delete one and add one NodeData should be possible now
@@ -478,11 +479,11 @@ TEST_F(PortManager_test, NodesOverflow)
         m_portManager->deletePortsOfProcess(newProcessName);
 
         auto nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
-        EXPECT_THAT(nodeData, Ne(nullptr));
+        EXPECT_THAT(nodeData.has_error(), Eq(false));
     }
 }
 
-TEST_F(PortManager_test, NodesDestroy)
+TEST_F(PortManager_test, NodeDataDestroy)
 {
     iox::ProcessName_t process = "Humuhumunukunukuapua'a";
     iox::NodeName_t node = "Taumatawhakatangihangakoauauotamateaturipukakapikimaungahoronukupokaiwhenuakitanatahu";
@@ -492,14 +493,14 @@ TEST_F(PortManager_test, NodesDestroy)
     for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
     {
         auto nodeData = m_portManager->acquireNodeData(process, node);
-        EXPECT_THAT(nodeData, Ne(nullptr));
-        nodeContainer.push_back(nodeData);
+        EXPECT_THAT(nodeData.has_error(), Eq(false));
+        nodeContainer.push_back(nodeData.value());
     }
 
     // so now no NodeData should be available
     {
         auto nodeData = m_portManager->acquireNodeData(process, node);
-        EXPECT_THAT(nodeData, Eq(nullptr));
+        EXPECT_THAT(nodeData.has_error(), Eq(true));
     }
 
     // set the destroy flag and let the discovery loop take care
@@ -514,7 +515,7 @@ TEST_F(PortManager_test, NodesDestroy)
     for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
     {
         auto nodeData = m_portManager->acquireNodeData(process, node);
-        EXPECT_THAT(nodeData, Ne(nullptr));
+        EXPECT_THAT(nodeData.has_error(), Eq(false));
     }
 }
 

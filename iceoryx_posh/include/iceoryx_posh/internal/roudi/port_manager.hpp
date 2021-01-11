@@ -80,7 +80,8 @@ class PortManager
 
     popo::ApplicationPortData* acquireApplicationPortData(const ProcessName_t& processName) noexcept;
 
-    runtime::NodeData* acquireNodeData(const ProcessName_t& process, const NodeName_t& node) noexcept;
+    cxx::expected<runtime::NodeData*, PortPoolError> acquireNodeData(const ProcessName_t& process,
+                                                                     const NodeName_t& node) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     acquireConditionVariableData(const ProcessName_t& process) noexcept;

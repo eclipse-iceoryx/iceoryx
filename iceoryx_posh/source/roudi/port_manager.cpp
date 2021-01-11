@@ -662,18 +662,10 @@ void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& servic
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-/// @todo return a cxx::expected
-runtime::NodeData* PortManager::acquireNodeData(const ProcessName_t& process, const NodeName_t& node) noexcept
+cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const ProcessName_t& process,
+                                                                              const NodeName_t& node) noexcept
 {
-    auto result = m_portPool->addNodeData(process, node, 0);
-    if (!result.has_error())
-    {
-        return result.value();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_portPool->addNodeData(process, node, 0);
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>

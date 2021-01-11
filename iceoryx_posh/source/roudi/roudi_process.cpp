@@ -576,18 +576,30 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
     RouDiProcess* process = getProcessFromList(processName);
     if (nullptr != process)
     {
-        runtime::NodeData* node = m_portManager.acquireNodeData(processName, nodeName);
+        m_portManager.acquireNodeData(processName, nodeName)
+            .and_then([&](auto nodeData) {
+                auto offset = RelativePointer::getOffset(m_mgmtSegmentId, nodeData);
 
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, node);
+                runtime::MqMessage sendBuffer;
+                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_NODE_ACK)
+                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_NODE_ACK) << std::to_string(offset)
-                   << std::to_string(m_mgmtSegmentId);
+                process->sendToMQ(sendBuffer);
+                m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
+                                                NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
+                LogDebug() << "Created new node " << nodeName << " for process " << processName;
+            })
+            .or_else([&](PortPoolError error) {
+                runtime::MqMessage sendBuffer;
+                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
+                if (error == PortPoolError::NODE_DATA_LIST_FULL)
+                {
+                    sendBuffer << runtime::mqMessageErrorTypeToString(runtime::MqMessageErrorType::NODE_DATA_LIST_FULL);
+                }
+                process->sendToMQ(sendBuffer);
 
-        process->sendToMQ(sendBuffer);
-        m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
-                                        NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
-        LogDebug() << "Created new node " << nodeName << " for process " << processName;
+                LogDebug() << "Could not create new node for process " << processName;
+            });
     }
     else
     {
