@@ -5,6 +5,9 @@ install/
 clangd/
 .vscode
 /**/*.user
-iceoryx_utils/doc/html/
-iceoryx_utils/doc/latex/
+*/doc/html/
+*/doc/latex/
+*/doc/xml/
+site/
+doc/website/API-reference/
 *.project
