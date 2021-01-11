@@ -21,6 +21,8 @@
 int main(int argc, char* argv[])
 {
     using iox::roudi::IceOryxRouDiApp;
+    static constexpr uint32_t ONE_KILOBYTE = 1024U;
+    static constexpr uint32_t ONE_MEGABYTE = 1024U * 1024;
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
     cmdLineParser.parse(argc, argv);
@@ -33,12 +35,12 @@ int main(int argc, char* argv[])
 
     /// @details Format: addMemPool({Chunksize(bytes), Amount of Chunks})
     mepooConfig.addMemPool({128, 10000}); // bytes
-    mepooConfig.addMemPool({1024, 5000});
-    mepooConfig.addMemPool({1024 * 16, 1000}); // kbytes
-    mepooConfig.addMemPool({1024 * 128, 200});
-    mepooConfig.addMemPool({1024 * 512, 50});
-    mepooConfig.addMemPool({1024 * 1024, 30});
-    mepooConfig.addMemPool({1024 * 1024 * 4, 10}); // Mybtes
+    mepooConfig.addMemPool({ONE_KILOBYTE, 5000});
+    mepooConfig.addMemPool({ONE_KILOBYTE * 16, 1000});
+    mepooConfig.addMemPool({ONE_KILOBYTE * 128, 200});
+    mepooConfig.addMemPool({ONE_KILOBYTE * 512, 50});
+    mepooConfig.addMemPool({ONE_MEGABYTE, 30});
+    mepooConfig.addMemPool({ONE_MEGABYTE * 4, 10});
 
     /// We want to use the Shared Memory Segment for the current user
     auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
