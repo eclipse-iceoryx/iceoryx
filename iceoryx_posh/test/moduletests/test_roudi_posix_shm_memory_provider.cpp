@@ -104,19 +104,3 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
 
     EXPECT_THAT(shmExists(), Eq(false));
 }
-
-/*TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize)
-{
-    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{iox::posix::pageSize().value_or(iox::posix::MaxPageSize) + 8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-
-    auto memoryResult = sut.create(MEMORY_SIZE, MEMORY_ALIGNMENT);
-    ASSERT_THAT(memoryResult.has_error(), Eq(true));
-    ASSERT_THAT(memoryResult.get_error(), Eq(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE));
-
-    EXPECT_THAT(shmExists(), Eq(false));
-}*/
