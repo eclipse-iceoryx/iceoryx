@@ -47,7 +47,7 @@ cxx::expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::destroyMemory(
 
 PosixShmMemoryProvider* IceOryxRouDiMemoryManager::mgmtMemoryProvider() noexcept
 {
-    return &m_defaultMemory.m_managementShm;
+    return const_cast<PosixShmMemoryProvider*>(const_cast<const IceOryxRouDiMemoryManager*>(this)->mgmtMemoryProvider());
 }
 
 const PosixShmMemoryProvider* IceOryxRouDiMemoryManager::mgmtMemoryProvider() const noexcept
