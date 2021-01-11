@@ -117,10 +117,10 @@ constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8U;
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64U;
 
 // Message Queue
-constexpr uint64_t ROUDI_MAX_MESSAGES = 5U;
-constexpr uint64_t ROUDI_MESSAGE_SIZE = 512U;
-constexpr uint64_t APP_MAX_MESSAGES = 5U;
-constexpr uint64_t APP_MESSAGE_SIZE = 512U;
+constexpr uint32_t ROUDI_MAX_MESSAGES = 5U;
+constexpr uint32_t ROUDI_MESSAGE_SIZE = 512U;
+constexpr uint32_t APP_MAX_MESSAGES = 5U;
+constexpr uint32_t APP_MESSAGE_SIZE = 512U;
 
 
 // Processes

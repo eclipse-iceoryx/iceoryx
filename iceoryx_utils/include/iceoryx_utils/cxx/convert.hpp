@@ -38,8 +38,6 @@ namespace cxx
 ///     if ( cxx::convert::fromString("123", i) ) {}  // will succeed
 ///     if ( cxx::convert::fromString("-123", a) ) {} // will fail since -123 is not unsigned
 /// @endcode
-
-constexpr int32_t STRTOULL_BASE = 10;
 class convert
 {
   public:
@@ -49,6 +47,8 @@ class convert
         UNSIGNED_INTEGER,
         FLOAT
     };
+
+    static constexpr int32_t STRTOULL_BASE = 10;
 
     /// @brief Converts every type which is either a pod (plain old data) type or is convertable
     ///         to a string (this means that the operator std::string() is defined)
