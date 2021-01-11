@@ -568,8 +568,8 @@ TEST_F(PortManager_test, PortDestroy)
     }
 }
 
-TEST_F(PortManager_test, ConstMgmtMemoryProvider)
+/*TEST_F(PortManager_test, ConstMgmtMemoryProvider)
 {
     const PosixShmMemoryProvider* result = m_roudiMemoryManager->mgmtMemoryProvider();
     EXPECT_THAT(result, Eq(&m_roudiMemoryManager->m_defaultMemory.m_managementShm));
-}
+}*/
