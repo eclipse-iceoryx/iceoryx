@@ -1,8 +1,6 @@
+# Usage guide
 
-# Contents
-- [Configuring RouDi](#configuring-roudi)
-
-# Configuring RouDi
+## Configuring RouDi
 
 RouDi can optionally be build with support to read the mempool config from a configuration file.
 To build the feature, the cmake option `-DTOML_CONFIG=on` must be used.
@@ -81,15 +79,3 @@ count = 100
 ```
 
 When no config file is specified, a hard-coded version similar to [default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
-
-# CaPro protocol
-
-<!-- @todo Move this section to overview.md >
-
-<!-- @todo Add table and explain different terminologies used in AUTOSAR, ROS and DDS -->
-
-This service model comes from AUTOSAR. It is maybe not the best fit for typical publish/subscribe APIs
-but it allows us a matching to different technologies. The event can be compared to a topic in other
-publish/subscribe approaches. The service is not a single request/response thing but an element
-for grouping of events and/or methods that can be discovered as a service. Service and instance are like
-classes and objects in C++. So you always have a specific instance of a service during runtime.

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_DERIVED_CLASS_HPP
-#define IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_DERIVED_CLASS_HPP
+#ifndef IOX_DOC_EXAMPLE_MODULE_EXAMPLE_DERIVED_CLASS_HPP
+#define IOX_DOC_EXAMPLE_MODULE_EXAMPLE_DERIVED_CLASS_HPP
 
-#include "source/example_base_class.hpp"
+#include "example_module/example_base_class.hpp"
 
 
 namespace example
@@ -32,7 +32,8 @@ class SomeOtherClass;
 /// @brief Short description
 /// @details Detailed description
 /// @code
-///
+///     ExampleDerivedClass<uint32_t> fuu(1U, 2U);
+///     fuu.simpleMethod();
 /// @endcode
 /// @note Important note for user/developer
 /// @swcomponent cpp
@@ -75,4 +76,4 @@ class ExampleDerivedClass : public ExampleBaseClass<T>
 
 } // namespace example
 
-#endif // IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_DERIVED_CLASS_HPP
+#endif // IOX_DOC_EXAMPLE_MODULE_EXAMPLE_DERIVED_CLASS_HPP

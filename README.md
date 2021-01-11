@@ -4,11 +4,12 @@
 <img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" width="50%">
 </p>
 
-[![Build & Test](https://github.com/eclipse/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions)
-[![Gitter](https://badges.gitter.im/eclipse/iceoryx.svg)](https://gitter.im/eclipse/iceoryx)
+[![Build & Test](https://github.com/eclipse-iceoryx/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
+[![Colcon build](https://github.com/eclipse-iceoryx/iceoryx/workflows/Colcon%20build/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
+[![Gitter](https://badges.gitter.im/eclipse-iceoryx/iceoryx.svg)](https://gitter.im/eclipse/iceoryx)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Codecov](https://codecov.io/gh/eclipse/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse/iceoryx?branch=master)
-[![Colcon build](https://github.com/eclipse/iceoryx/workflows/Colcon%20build/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions)
+[![Codecov](https://codecov.io/gh/eclipse-iceoryx/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse-iceoryx/iceoryx?branch=master)
+[![Sanitize](https://github.com/eclipse/iceoryx/workflows/Sanitize/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions?query=workflow%3ASanitize)
 
 ## Introduction
 
@@ -43,7 +44,7 @@ Don't get too frighten of the API when strolling through the codebase. Think of 
 The normal use case is that iceoryx is integrated as high-performance IPC transport layer in a bigger framework with additional API layers. 
 An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
 
-### Where is Eclipse iceoryx already used?
+### Where is Eclipse iceoryx used?
 
 |Framework | Description |
 |---|---|

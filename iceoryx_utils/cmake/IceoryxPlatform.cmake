@@ -97,7 +97,7 @@ endfunction()
 
 if(SANITIZE)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        set(ICEORYX_SANITIZER_BLACKLIST_FILE ${CMAKE_BINARY_DIR}/sanitizer_blacklist/asan_compile_time.txt)
+        set(ICEORYX_SANITIZER_BLACKLIST_FILE ${CMAKE_BINARY_DIR}/sanitizer_blacklist/sanitizer_compile_time.txt)
         iox_create_asan_compile_time_blacklist(${ICEORYX_SANITIZER_BLACKLIST_FILE})
 
         set(ICEORYX_SANITIZER_BLACKLIST -fsanitize-blacklist=${ICEORYX_SANITIZER_BLACKLIST_FILE})
@@ -111,7 +111,7 @@ if(SANITIZE)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls)
-        
+
         # For using LeakSanitizer in standalone mode
         # https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#stand-alone-mode
         # Using this mode was a bit unstable
@@ -119,13 +119,18 @@ if(SANITIZE)
 
         set(ICEORYX_ADDRESS_SANITIZER_FLAGS -fsanitize=address -fsanitize-address-use-after-scope ${ICEORYX_SANITIZER_BLACKLIST})
 
+        # UndefinedBehaviorSanitizer
+        # -fno-sanitize-recover=... print a verbose error report and exit the program
+        set(ICEORYX_UB_SANITIZER_FLAGS -fsanitize=undefined -fno-sanitize-recover=undefined)
+
         # Combine different sanitizer flags to define overall sanitization
-        set(ICEORYX_SANITIZER_FLAGS ${ICEORYX_SANITIZER_COMMON_FLAGS} ${ICEORYX_ADDRESS_SANITIZER_FLAGS} CACHE INTERNAL "")
+        set(ICEORYX_SANITIZER_FLAGS ${ICEORYX_SANITIZER_COMMON_FLAGS} ${ICEORYX_ADDRESS_SANITIZER_FLAGS} ${ICEORYX_UB_SANITIZER_FLAGS} CACHE INTERNAL "")
 
         # unset local variables , to avoid polluting global space
         unset(ICEORYX_SANITIZER_BLACKLIST)
         unset(ICEORYX_SANITIZER_COMMON_FLAGS)
         unset(ICEORYX_ADDRESS_SANITIZER_FLAGS)
+        unset(ICEORYX_UB_SANITIZER_FLAGS)
     else()
         message( FATAL_ERROR "You need to run sanitize with gcc/clang compiler." )
     endif()

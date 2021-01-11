@@ -1,1 +1,0 @@
-<!-- include iceoryx_utils/README.md -->

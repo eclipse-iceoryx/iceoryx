@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_BASE_CLASS_HPP
-#define IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_BASE_CLASS_HPP
+#ifndef IOX_DOC_EXAMPLE_MODULE_EXAMPLE_BASE_CLASS_HPP
+#define IOX_DOC_EXAMPLE_MODULE_EXAMPLE_BASE_CLASS_HPP
+
+#include <stdint.h>
 
 namespace example
 {
@@ -39,18 +41,26 @@ class ExampleBaseClass
   public:
     /// @brief Short description
     /// @details Detailed description
-    /// @param[in] a Description of input parameter a
-    /// @param[in] b Description of input parameter b
-    ExampleBaseClass(const uint32_t a, const uint32_t b);
+    /// @param[in] input Description of input parameter
+    ExampleBaseClass(const uint32_t input);
 
     /// @brief Short description
-    void simplerMethod() const noexcept;
+    ExampleBaseClass() = default;
 
     /// @brief Short description
-    uint32_t m_memberVariable{0};
+    uint32_t getMemberVariable() const noexcept;
+
+    /// @brief Short description
+    uint32_t simplerMethod() const noexcept;
+
+    private:
+    /// @brief Short description
+    uint32_t m_memberVariable{0U};
 };
+
+#include "example_base_class.inl"
 
 } // namespace example
 
 
-#endif // IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_BASE_CLASS_HPP
+#endif // IOX_DOC_EXAMPLE_MODULE_EXAMPLE_BASE_CLASS_HPP
