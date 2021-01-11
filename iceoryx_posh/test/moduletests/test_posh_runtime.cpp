@@ -26,6 +26,7 @@ class PoshRuntimeTestAccess : public PoshRuntime
 {
   public:
     using PoshRuntime::factory_t;
+    /// @attention do not use the setRuntimeFactory in a test with a running RouDiEnvironment
     using PoshRuntime::setRuntimeFactory;
 
     PoshRuntimeTestAccess(iox::cxx::optional<const iox::ProcessName_t*> s)
@@ -33,20 +34,24 @@ class PoshRuntimeTestAccess : public PoshRuntime
     {
     }
 
-    static PoshRuntimeTestAccess*& getTestRuntime()
+    static PoshRuntime& getDefaultRuntime(iox::cxx::optional<const iox::ProcessName_t*> name)
     {
-        static PoshRuntimeTestAccess* testRuntime = nullptr;
-        return testRuntime;
+        return PoshRuntime::defaultRuntimeFactory(name);
+    }
+
+    static void resetRuntimeFactory()
+    {
+        PoshRuntime::setRuntimeFactory(PoshRuntime::defaultRuntimeFactory);
     }
 };
 
 namespace
 {
 bool callbackWasCalled = false;
-PoshRuntime& testFactory(iox::cxx::optional<const iox::ProcessName_t*>)
+PoshRuntime& testFactory(iox::cxx::optional<const iox::ProcessName_t*> name)
 {
     callbackWasCalled = true;
-    return *PoshRuntimeTestAccess::getTestRuntime();
+    return PoshRuntimeTestAccess::getDefaultRuntime(name);
 }
 } // namespace
 
@@ -426,20 +431,6 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
     // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);
 }
 
-TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
-{
-    PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
-    PoshRuntimeTestAccess::initRuntime("instance");
-
-    EXPECT_TRUE(callbackWasCalled);
-}
-
-TEST_F(PoshRuntime_test, SetEmptyRuntimeFactoryFails)
-{
-    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
-                 "Cannot set runtime factory. Passed factory must not be empty!");
-}
-
 TEST_F(PoshRuntime_test, OfferDefaultServiceDescriptionIsInvalid)
 {
     auto isServiceOffered = m_runtime->offerService(iox::capro::ServiceDescription());
@@ -472,4 +463,27 @@ TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
     auto instanceContainer = m_receiverRuntime->findService(iox::capro::ServiceDescription());
 
     EXPECT_THAT(0u, instanceContainer.value().size());
+}
+
+// disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
+// will be re-enabled with the PoshRuntime Mock from #449
+TEST(PoshRuntimeFactory_test, DISABLED_SetValidRuntimeFactorySucceeds)
+{
+    // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
+    PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
+    PoshRuntimeTestAccess::initRuntime("instance");
+    PoshRuntimeTestAccess::resetRuntimeFactory();
+
+    EXPECT_TRUE(callbackWasCalled);
+}
+
+// disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
+// will be re-enabled with the PoshRuntime Mock from #449
+TEST(PoshRuntimeFactory_test, DISABLED_SetEmptyRuntimeFactoryFails)
+{
+    // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
+    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
+                 "Cannot set runtime factory. Passed factory must not be empty!");
+    // just in case the previous test doesn't die and breaks the following tests
+    PoshRuntimeTestAccess::resetRuntimeFactory();
 }

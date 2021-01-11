@@ -357,11 +357,11 @@ using HalfFull3 = HalfFull<Data, Large>;
 /// need separate stress test targets and policy to run them on CI,
 /// currently only activate one suitable general configuration
 /// for this reason some less important tests are disabled for now
-/*
-typedef ::testing::
-    Types<Full1, Full2, Full3, Full4, AlmostFull1, AlmostFull2, AlmostFull3, HalfFull1, HalfFull2, HalfFull3>
-        TestConfigs;
-*/
+/// @code
+/// typedef ::testing::
+///    Types<Full1, Full2, Full3, Full4, AlmostFull1, AlmostFull2, AlmostFull3, HalfFull1, HalfFull2, HalfFull3>
+///        TestConfigs;
+/// @endcode
 typedef ::testing::Types<HalfFull2> TestConfigs;
 
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
