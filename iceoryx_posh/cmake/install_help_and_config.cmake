@@ -15,11 +15,11 @@
 
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/../doc/website/FAQ.md
-  		  ${CMAKE_CURRENT_SOURCE_DIR}/../doc/website/getting-started/overview.md
+        ${CMAKE_CURRENT_SOURCE_DIR}/../doc/website/getting-started/overview.md
         ${CMAKE_CURRENT_SOURCE_DIR}/../doc/website/advanced/installation-guide-for-contributors.md
         ${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE
-		    ${CMAKE_CURRENT_SOURCE_DIR}/../NOTICE.md
-		    ${CMAKE_CURRENT_SOURCE_DIR}/../README.md
+        ${CMAKE_CURRENT_SOURCE_DIR}/../NOTICE.md
+        ${CMAKE_CURRENT_SOURCE_DIR}/../README.md
   DESTINATION share/doc/iceoryx
   COMPONENT dev)
 

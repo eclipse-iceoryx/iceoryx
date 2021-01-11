@@ -253,7 +253,7 @@ target_link_libraries(iceoryx_posh_roudi
     PUBLIC
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
     PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}    
+    ${ICEORYX_SANITIZER_FLAGS}
     iceoryx_utils::iceoryx_utils
 )
 
@@ -375,7 +375,6 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     )
 
     target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS})
-
 endif()
 
 #
