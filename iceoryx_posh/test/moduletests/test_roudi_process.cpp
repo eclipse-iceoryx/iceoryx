@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,31 +52,31 @@ class RouDiProcess_test : public Test
 TEST_F(RouDiProcess_test, getPid)
 {
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.getPid(), Eq(200));
+    EXPECT_THAT(roudiproc.getPid(), Eq(pid));
 }
 
 TEST_F(RouDiProcess_test, getName)
 {
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.getName(), Eq(std::string("TestRoudiProcess")));
+    EXPECT_THAT(roudiproc.getName(), Eq(std::string(processname)));
 }
 
 TEST_F(RouDiProcess_test, isMonitored)
 {
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.isMonitored(), Eq(true));
+    EXPECT_THAT(roudiproc.isMonitored(), Eq(isMonitored));
 }
 
 TEST_F(RouDiProcess_test, getPayloadSegId)
 {
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.getPayloadSegmentId(), Eq(0x654321));
+    EXPECT_THAT(roudiproc.getPayloadSegmentId(), Eq(payloadSegmentId));
 }
 
 TEST_F(RouDiProcess_test, getSessionId)
 {
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.getSessionId(), Eq(255));
+    EXPECT_THAT(roudiproc.getSessionId(), Eq(sessionId));
 }
 
 TEST_F(RouDiProcess_test, getPayloadMemoryManager)
