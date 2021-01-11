@@ -1,10 +1,6 @@
+# Usage guide
 
-# Contents
-- [Configuring RouDi](#configuring-roudi)
-- [CaPro protocol](#capro-protocol)
-
-
-# Configuring RouDi
+## Configuring RouDi
 
 RouDi can optionally be build with support to read the mempool config from a configuration file.
 To build the feature, the cmake option `-DTOML_CONFIG=ON` must be used.
@@ -83,6 +79,7 @@ count = 100
 ```
 
 When no config file is specified, a hard-coded version similar to [default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
+<<<<<<< HEAD:doc/website/for-developers/usage-guide.md
 
 # CaPro protocol
 
@@ -110,3 +107,5 @@ Per default iceoryx is build as shared libraries because it is a cleaner solutio
 This is done by the flag `BUILD_SHARED_LIBS` which is set to ON per default. If you want to have static libraries, just pass `-DBUILD_SHARED_LIBS=OFF` to Cmake or use `build-static` as flag in the build script.
 
 If you want to share the iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will place it in the folder `build_package`.
+=======
+>>>>>>> origin/master:doc/website/advanced/usage-guide.md

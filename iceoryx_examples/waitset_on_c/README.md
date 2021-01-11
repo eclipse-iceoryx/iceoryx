@@ -1,4 +1,6 @@
-# WaitSet C binding
+# WaitSet in C
+
+## Introduction
 
 A detailed introduction into the WaitSet topic can be found in the 
 [waitset C++ example](../waitset). Here we will only introduce the C API and
@@ -6,9 +8,11 @@ not the WaitSet in general. For that we will take a look at the same use case
 as the [waitset C++ example](../waitset). The examples are also structured 
 in the same way as the C++ ones.
 
-## Examples
+## Expected output
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
+
+## Code walkthrough
 
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced
