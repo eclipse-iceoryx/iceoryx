@@ -26,7 +26,38 @@ int main(int argc, char* argv[])
     cmdLineParser.parse(argc, argv);
 
     iox::RouDiConfig_t roudiConfig;
-    roudiConfig.setDefaults();
+    // roudiConfig.setDefaults(); can be used if you want to use the default config only.
+
+    /// @brief Create Mempool Config
+    iox::mepoo::MePooConfig mepooConfig;
+
+    /// @details Format: addMemPool({Chunksize(bytes), Amount of Chunks})
+    mepooConfig.addMemPool({128, 10000}); // bytes
+    mepooConfig.addMemPool({1024, 5000});
+    mepooConfig.addMemPool({1024 * 16, 1000}); // kbytes
+    mepooConfig.addMemPool({1024 * 128, 200});
+    mepooConfig.addMemPool({1024 * 512, 50});
+    mepooConfig.addMemPool({1024 * 1024, 30});
+    mepooConfig.addMemPool({1024 * 1024 * 4, 10}); // Mybtes
+
+    /// We want to use the Shared Memory Segment for the current user
+    auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
+
+    /// Create an Entry for a new Shared Memory Segment from the MempoolConfig and add it to the RouDiConfig
+    roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
+
+    /// For the case that you want to give accessrights to the shm segments, you need to set groupnames as fixed string.
+    /// These names defines groups whose members are either to read/write from/to the respective shared memory segment.
+    /// @note the groups needs to be registered in /etc/groups.
+    /// @code
+    /// iox::posix::PosixGroup::string_t readerGroup{iox::cxx::TruncateToCapacity, "readerGroup"};
+    /// iox::posix::PosixGroup::string_t writerGroup{iox::cxx::TruncateToCapacity, "writerGroup"};
+    /// iox::mepoo::SegmentConfig::SegmentEntry segentry({readerGroup, writerGroup, mepooConfig});
+    /// roudiConfig.m_sharedMemorySegments.push_back(
+    /// {iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, reader),
+    ///  iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, writer),
+    ///  mempoolConfig})
+    /// @endcode
 
     cmdLineParser.printParameters();
 

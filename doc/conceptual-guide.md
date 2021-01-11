@@ -78,7 +78,7 @@ The number of segments used by an iceoryx system, along with the configuration o
 provided to the system via configuration.
 
 The configuration can be provided at compile time (as a header) or at runtime (as a toml-formatted text file).
-See the [usage guide](website/for-developers/usage-guide.md) for more details.
+See the [usage guide](website/advanced/usage-guide.md) for more details.
 
 # Communication Mechanisms
 In this section we will have a look at the concepts employed to structure the communication between
