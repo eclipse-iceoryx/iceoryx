@@ -34,8 +34,11 @@ SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
         constexpr void* BASE_ADDRESS_HINT{nullptr};
 
         // create and map the already existing shared memory region
-        m_shmObject = posix::SharedMemoryObject::create(
-            SHM_NAME, topicSize, posix::AccessMode::readWrite, posix::OwnerShip::openExisting, BASE_ADDRESS_HINT);
+        m_shmObject = posix::SharedMemoryObject::create(roudi::SHM_NAME,
+                                                        topicSize,
+                                                        posix::AccessMode::readWrite,
+                                                        posix::OwnerShip::openExisting,
+                                                        BASE_ADDRESS_HINT);
 
         if (!m_shmObject.has_value())
         {

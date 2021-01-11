@@ -25,7 +25,7 @@ iox::config::TomlGatewayConfigParser::parse()
 }
 
 iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
-iox::config::TomlGatewayConfigParser::parse(const ConfigFilePathString_t& path)
+iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t& path)
 {
     iox::config::GatewayConfig config;
 
@@ -63,9 +63,9 @@ iox::config::TomlGatewayConfigParser::parse(const ConfigFilePathString_t& path)
         auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
         auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);
         entry.m_serviceDescription =
-            iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, *serviceName),
-                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
-                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, *event));
+            iox::capro::ServiceDescription(iox::capro::IdString_t(iox::cxx::TruncateToCapacity, *serviceName),
+                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, *instance),
+                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, *event));
         config.m_configuredServices.push_back(entry);
     }
 

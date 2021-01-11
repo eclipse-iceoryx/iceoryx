@@ -14,6 +14,7 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 
 using namespace iox;
@@ -47,24 +48,5 @@ bool iox_user_trigger_has_triggered(iox_user_trigger_t const self)
 void iox_user_trigger_reset_trigger(iox_user_trigger_t const self)
 {
     self->resetTrigger();
-}
-
-iox_WaitSetResult iox_user_trigger_attach_to_waitset(iox_user_trigger_t const self,
-                                                     iox_ws_t const wait_set,
-                                                     const uint64_t trigger_id,
-                                                     void (*trigger_callback)(iox_user_trigger_t))
-{
-    auto result = self->attachTo(*wait_set, trigger_id, trigger_callback);
-    if (!result.has_error())
-    {
-        return iox_WaitSetResult::WaitSetResult_SUCCESS;
-    }
-
-    return cpp2c::WaitSetResult(result.get_error());
-}
-
-void iox_user_trigger_detach(iox_user_trigger_t const self)
-{
-    self->detach();
 }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
@@ -43,7 +43,7 @@ class TypedSubscriberTest : public Test
     }
 
   protected:
-    TestTypedSubscriber sut{{"", "", ""}};
+    TestTypedSubscriber sut{{"", "", ""}, iox::popo::SubscriberOptions()};
 };
 
 TEST_F(TypedSubscriberTest, GetsUIDViaBaseSubscriber)
@@ -99,9 +99,9 @@ TEST_F(TypedSubscriberTest, UnsubscribesViaBaseSubscriber)
 TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasNewSamples).Times(1);
+    EXPECT_CALL(sut, hasSamples).Times(1);
     // ===== Test ===== //
-    sut.hasNewSamples();
+    sut.hasSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -133,38 +133,6 @@ TEST_F(TypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
     EXPECT_CALL(sut, releaseQueuedSamples).Times(1);
     // ===== Test ===== //
     sut.releaseQueuedSamples();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(TypedSubscriberTest, SetsConditionVariableViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    auto conditionVariable = new iox::popo::ConditionVariableData();
-    // EXPECT_CALL(sut, setConditionVariable).Times(1);
-    // // ===== Test ===== //
-    // sut.setConditionVariable(conditionVariable);
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-    delete conditionVariable;
-}
-
-TEST_F(TypedSubscriberTest, UnsetsConditionVariableViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    // EXPECT_CALL(sut, unsetConditionVariable).Times(1);
-    //// ===== Test ===== //
-    // sut.unsetConditionVariable();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(TypedSubscriberTest, ChecksIfConditionIsTriggeredViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    // EXPECT_CALL(sut, hasTriggered).Times(1);
-    //// ===== Test ===== //
-    // sut.hasTriggered();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

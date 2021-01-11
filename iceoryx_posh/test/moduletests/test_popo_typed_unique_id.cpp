@@ -160,6 +160,6 @@ TYPED_TEST(TypedUniqueId_test, CreatingAnUniqueIdWithDefaultCTorIsValid)
 
 TYPED_TEST(TypedUniqueId_test, InvalidIdIsInvalid)
 {
-    typename TestFixture::UniqueIDType a(CreateInvalidId);
+    typename TestFixture::UniqueIDType a(InvalidId);
     EXPECT_FALSE(a.isValid());
 }

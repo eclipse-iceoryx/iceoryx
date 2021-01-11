@@ -55,6 +55,10 @@ mutex::mutex(bool f_isRecursive)
         !cxx::makeSmartC(pthread_mutex_init, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle, &attr)
              .hasErrors();
 
+    isInitialized &=
+        !cxx::makeSmartC(pthread_mutexattr_destroy, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &attr)
+             .hasErrors();
+
     if (!isInitialized)
     {
         std::cerr << "unable to create mutex - terminating\n";

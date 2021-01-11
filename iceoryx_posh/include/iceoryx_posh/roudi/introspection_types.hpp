@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All, Apex.AI Inc. rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ namespace iox
 namespace roudi
 {
 constexpr const char INTROSPECTION_SERVICE_ID[] = "Introspection";
-constexpr const char INTROSPECTION_APP_NAME[] = "/introspection";
+constexpr const char INTROSPECTION_APP_NAME[] = "introspection";
 const capro::ServiceDescription IntrospectionMempoolService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "MemPool");
 constexpr int MAX_GROUP_NAME_LENGTH = 32;
 
@@ -47,8 +47,8 @@ using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 struct MemPoolIntrospectionInfo
 {
     uint32_t m_id;
-    char m_writerGroupName[MAX_GROUP_NAME_LENGTH];
-    char m_readerGroupName[MAX_GROUP_NAME_LENGTH];
+    cxx::string<MAX_GROUP_NAME_LENGTH> m_writerGroupName;
+    cxx::string<MAX_GROUP_NAME_LENGTH> m_readerGroupName;
     MemPoolInfoContainer m_mempoolInfo;
 };
 
@@ -63,9 +63,9 @@ const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_I
 struct PortData
 {
     ProcessName_t m_name;
-    capro::IdString m_caproInstanceID;
-    capro::IdString m_caproServiceID;
-    capro::IdString m_caproEventMethodID;
+    capro::IdString_t m_caproInstanceID;
+    capro::IdString_t m_caproServiceID;
+    capro::IdString_t m_caproEventMethodID;
     NodeName_t m_node;
 };
 

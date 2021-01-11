@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_VERSION_VERSION_INFO_HPP
 #define IOX_POSH_VERSION_VERSION_INFO_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"
@@ -30,18 +31,6 @@ namespace version
 class VersionInfo
 {
   public:
-    static const uint64_t COMMIT_ID_STRING_SIZE = 12u;
-    static const uint64_t BUILD_DATE_STRING_SIZE = 36u;
-    static const uint64_t SERIALIZATION_STRING_SIZE = 100u;
-    using BuildDateStringType = cxx::string<BUILD_DATE_STRING_SIZE>;
-    using CommitIdStringType = cxx::string<COMMIT_ID_STRING_SIZE>;
-    using SerializationStringType = cxx::string<SERIALIZATION_STRING_SIZE>;
-
-    static_assert(COMMIT_ID_STRING_SIZE <= SERIALIZATION_STRING_SIZE, "CommitId needs to transfered completely.");
-    static_assert(COMMIT_ID_STRING_SIZE <= BUILD_DATE_STRING_SIZE, "BuildDate needs to transfered completely.");
-    static_assert(cxx::strlen2(ICEORYX_BUILDDATE) < BUILD_DATE_STRING_SIZE,
-                  "COMMIT_BUILD_DATE_STRING_SIZE needs to be bigger.");
-
     /// @brief Generates an VersionInfo initialized with the information given by the auto generated
     /// iceoryx_versions.hpp defines.
     /// @param{in] versionMajor The major version.
@@ -54,8 +43,8 @@ class VersionInfo
                 const uint16_t versionMinor,
                 const uint16_t versionPatch,
                 const uint16_t versionTweak,
-                const BuildDateStringType& buildDateString,
-                const CommitIdStringType& commitIdString) noexcept;
+                const BuildDateString_t& buildDateString,
+                const CommitIdString_t& commitIdString) noexcept;
 
     /// @brief Construction of the VersionInfo using serialized strings.
     /// @param[in] serial The serialization object from read from to initialize this object.
@@ -75,8 +64,8 @@ class VersionInfo
     /// @brief Compares this version versus another with respect to the compatibility value give.
     /// @param[in] other The other version compared with this version.
     /// @param[in] compatibilityCheckLevel Gives the level how deep it should be compared.
-    bool checkCompatibility(const VersionInfo& other, const CompatibilityCheckLevel compatibilityCheckLevel) const
-        noexcept;
+    bool checkCompatibility(const VersionInfo& other,
+                            const CompatibilityCheckLevel compatibilityCheckLevel) const noexcept;
 
     /// @brief The serialization could fail, which cause an invalid object, else true.
     /// @return Returns if the object is valid.
@@ -87,13 +76,22 @@ class VersionInfo
     static VersionInfo getCurrentVersion() noexcept;
 
   protected:
+    static const uint64_t SERIALIZATION_STRING_SIZE = 100u;
+    using SerializationString_t = cxx::string<SERIALIZATION_STRING_SIZE>;
+
+    static_assert(COMMIT_ID_STRING_SIZE <= SERIALIZATION_STRING_SIZE, "CommitId needs to transfered completely.");
+    static_assert(COMMIT_ID_STRING_SIZE <= BUILD_DATE_STRING_SIZE, "BuildDate needs to transfered completely.");
+    static_assert(cxx::strlen2(ICEORYX_BUILDDATE) < BUILD_DATE_STRING_SIZE,
+                  "COMMIT_BUILD_DATE_STRING_SIZE needs to be bigger.");
+
+  protected:
     bool m_valid{true};
     uint16_t m_versionMajor{0u};
     uint16_t m_versionMinor{0u};
     uint16_t m_versionPatch{0u};
     uint16_t m_versionTweak{0u};
-    BuildDateStringType m_buildDateString;
-    CommitIdStringType m_commitIdString;
+    BuildDateString_t m_buildDateString;
+    CommitIdString_t m_commitIdString;
 };
 
 } // namespace version

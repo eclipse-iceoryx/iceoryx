@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -33,12 +33,12 @@ int main()
 {
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-individual");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-individual");
 
-    iox::popo::WaitSet waitset;
+    iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    shutdownTrigger.attachTo(waitset);
+    waitset.attachEvent(shutdownTrigger);
 
     // create two subscribers, subscribe to the service and attach them to the waitset
     iox::popo::TypedSubscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
@@ -47,32 +47,32 @@ int main()
     subscriber1.subscribe();
     subscriber2.subscribe();
 
-    subscriber1.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-    subscriber2.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_SAMPLES);
 
     // event loop
     while (true)
     {
-        auto triggerVector = waitset.wait();
+        auto eventVector = waitset.wait();
 
-        for (auto& trigger : triggerVector)
+        for (auto& event : eventVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownTrigger))
+            if (event->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             // process sample received by subscriber1
-            else if (trigger.doesOriginateFrom(&subscriber1))
+            else if (event->doesOriginateFrom(&subscriber1))
             {
                 subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << " subscriber 1 received: " << sample->counter << std::endl;
                 });
             }
             // dismiss sample received by subscriber2
-            if (trigger.doesOriginateFrom(&subscriber2))
+            if (event->doesOriginateFrom(&subscriber2))
             {
-                // We need to release the samples to reset the trigger hasNewSamples
+                // We need to release the samples to reset the trigger hasSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.
                 subscriber2.releaseQueuedSamples();

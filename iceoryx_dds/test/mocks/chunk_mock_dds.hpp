@@ -48,7 +48,7 @@ class ChunkMockDDS
         memset(m_rawMemory, 0xFF, Size);
 
         m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader();
-        m_chunkHeader->m_info.m_payloadSize = sizeof(T);
+        m_chunkHeader->payloadSize = sizeof(T);
 
         // Set the value
         auto payloadPtr = reinterpret_cast<T*>(m_rawMemory + sizeof(iox::mepoo::ChunkHeader));

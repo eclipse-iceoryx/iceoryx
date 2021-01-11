@@ -63,10 +63,9 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
 
 TEST(cpp2c_enum_translation_test, WaitSetResult)
 {
-    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::TRIGGER_VECTOR_OVERFLOW),
-              WaitSetResult_TRIGGER_VECTOR_OVERFLOW);
-    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::TRIGGER_ALREADY_ACQUIRED),
-              WaitSetResult_TRIGGER_ALREADY_ACQUIRED);
+    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::WAIT_SET_FULL), WaitSetResult_WAIT_SET_FULL);
+    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::EVENT_ALREADY_ATTACHED),
+              WaitSetResult_EVENT_ALREADY_ATTACHED);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push

@@ -17,7 +17,7 @@
 #include <chrono>
 #include <thread>
 
-Iceoryx::Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::IdString& subscriberName) noexcept
+Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
     : m_publisher({"Comedians", publisherName, "Duo"})
     , m_subscriber({"Comedians", subscriberName, "Duo"})
 {
@@ -38,24 +38,25 @@ void Iceoryx::init() noexcept
     m_publisher.offer();
     m_subscriber.subscribe();
 
-    std::cout << "Waiting till subscribed ... " << std::endl << std::flush;
+    std::cout << "Waiting for: subscription" << std::flush;
     while (m_subscriber.getSubscriptionState() != iox::SubscribeState::SUBSCRIBED)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    std::cout << "Waiting for subscriber ... " << std::endl << std::flush;
+    std::cout << ", subscriber" << std::flush;
     while (!m_publisher.hasSubscribers())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+    std::cout << " [ success ]" << std::endl;
 }
 
 void Iceoryx::shutdown() noexcept
 {
     m_subscriber.unsubscribe();
 
-    std::cout << "Waiting for subscriber to unsubscribe ... " << std::endl << std::flush;
+    std::cout << "Waiting for: unsubscribe " << std::flush;
     while (!m_publisher.hasSubscribers())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -63,8 +64,7 @@ void Iceoryx::shutdown() noexcept
 
     // with stopOffer we disconnect all subscribers and the publisher is no more visible
     m_publisher.stopOffer();
-
-    std::cout << "Finished!" << std::endl;
+    std::cout << " [ finished ]" << std::endl;
 }
 
 void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept

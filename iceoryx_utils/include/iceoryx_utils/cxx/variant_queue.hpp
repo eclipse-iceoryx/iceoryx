@@ -45,13 +45,6 @@ enum class VariantQueueTypes : uint64_t
 //         since it should have performance benefits if resize is not actually needed
 //         for now we just use the most general variant, which allows resizing
 
-/// @brief error which can occur in the VariantQueue
-enum class VariantQueueError
-{
-    QueueIsFull,
-    InternalError
-};
-
 /// @brief wrapper of multiple fifo's
 /// @param[in] ValueType type which should be stored
 /// @param[in] Capacity capacity of the underlying fifo
@@ -84,13 +77,10 @@ class VariantQueue
 
     /// @brief pushs an element into the fifo
     /// @param[in] value value which should be added in the fifo
-    /// @return if the underlying container handles overflow (like sofi)
-    ///     the expected never contains an error, but the optional will contain
-    ///     the value which was overridden
-    ///     if the underlying container does not handle overflow (like fifo)
-    ///     the expected contains the error QueueIsFull in the overflow case
-    ///     otherwise the expected does not contain an error
-    expected<optional<ValueType>, VariantQueueError> push(const ValueType& value) noexcept;
+    /// @return if the underlying queue has an overflow the optional will contain
+    ///         the value which was overridden (SOFI) or which was dropped (FIFO)
+    ///         otherwise the optional contains nullopt_t
+    optional<ValueType> push(const ValueType& value) noexcept;
 
     /// @brief pops an element from the fifo
     /// @return if the fifo did contain an element it is returned inside the optional

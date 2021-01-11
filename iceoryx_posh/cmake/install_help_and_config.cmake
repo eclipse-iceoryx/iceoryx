@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/FAQ.md
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../doc/website/FAQ.md
 	DESTINATION share/doc/iceoryx
 	COMPONENT dev)
 
@@ -21,4 +21,4 @@ if(TOML_CONFIG)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/etc/iceoryx/roudi_config_example.toml
 		DESTINATION etc/
 		COMPONENT dev)
-endif(TOML_CONFIG)
+endif()

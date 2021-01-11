@@ -25,29 +25,27 @@ cpp2c_Subscriber::~cpp2c_Subscriber()
     }
 }
 
-iox_WaitSetResult cpp2c_Subscriber::attachTo(iox::popo::WaitSet& waitset,
-                                             const iox_SubscriberEvent subscriberEvent,
-                                             const uint64_t triggerId,
-                                             const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback) noexcept
+iox::cxx::expected<iox::popo::WaitSetError>
+cpp2c_Subscriber::enableEvent(iox::popo::WaitSet<>& waitset,
+                              const iox_SubscriberEvent subscriberEvent,
+                              const uint64_t eventId,
+                              const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback) noexcept
 {
     static_cast<void>(subscriberEvent);
 
-    auto result = std::move(
-        waitset
-            .acquireTrigger(this,
-                            {*this, &cpp2c_Subscriber::hasNewSamples},
-                            {*this, &cpp2c_Subscriber::invalidateTrigger},
-                            triggerId,
-                            callback)
-            .and_then([this](iox::popo::TriggerHandle& trigger) {
-                m_trigger = std::move(trigger);
-                iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
-            }));
-
-    return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+    return waitset
+        .acquireTriggerHandle(this,
+                              {*this, &cpp2c_Subscriber::hasSamples},
+                              {*this, &cpp2c_Subscriber::invalidateTrigger},
+                              eventId,
+                              callback)
+        .and_then([this](iox::popo::TriggerHandle& trigger) {
+            m_trigger = std::move(trigger);
+            iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
+        });
 }
 
-void cpp2c_Subscriber::detachEvent(const iox_SubscriberEvent subscriberEvent) noexcept
+void cpp2c_Subscriber::disableEvent(const iox_SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);
 
@@ -59,11 +57,11 @@ void cpp2c_Subscriber::invalidateTrigger(const uint64_t uniqueTriggerId) noexcep
     if (m_trigger.getUniqueId() == uniqueTriggerId)
     {
         iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
-        m_trigger.reset();
+        m_trigger.invalidate();
     }
 }
 
-bool cpp2c_Subscriber::hasNewSamples() const noexcept
+bool cpp2c_Subscriber::hasSamples() const noexcept
 {
     return iox::popo::SubscriberPortUser(m_portData).hasNewChunks();
 }

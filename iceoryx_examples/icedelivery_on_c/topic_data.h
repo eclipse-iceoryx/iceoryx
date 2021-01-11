@@ -17,9 +17,11 @@
 
 #include <stdint.h>
 
-struct CounterTopic
+struct RadarObject
 {
-    uint32_t counter;
+    double x;
+    double y;
+    double z;
 };
 
 #endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP

@@ -5,10 +5,11 @@
 </p>
 
 [![Build & Test](https://github.com/eclipse/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions)
+[![Colcon build](https://github.com/eclipse/iceoryx/workflows/Colcon%20build/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions)
 [![Gitter](https://badges.gitter.im/eclipse/iceoryx.svg)](https://gitter.im/eclipse/iceoryx)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Codecov](https://codecov.io/gh/eclipse/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse/iceoryx?branch=master)
-[![Colcon build](https://github.com/eclipse/iceoryx/workflows/Colcon%20build/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions)
+
 
 ## Introduction
 
@@ -54,11 +55,11 @@ An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Oth
 
 ## Build and install
 
-You can find the build and installation guidelines [here](doc/installation-guide.md).
+You can find the build and installation guidelines [here](doc/website/getting-started/installation.md).
 
 ## Examples
 
-After you've built all the necessary things, you can continue playing around with the [examples](./iceoryx_examples).
+After you've built all the necessary things, you can continue playing around with the [examples](./iceoryx_examples/README.md).
 
 ## Build and run in a Docker environment
 
@@ -68,22 +69,18 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 ## Documentation
 
+* [Getting Started](doc/website/getting-started/overview.md)
+* [Installation Guide](doc/website/getting-started/installation.md)
 * [Concepts](doc/conceptual-guide.md)
-* [Usage Guide](doc/usage-guide.md)
-* [Ice0ryx Utils Hacker Guide](iceoryx_utils/README.md)
+* [Iceoryx Utils Hacker Guide](iceoryx_utils/README.md)
 
 ### Targeted quality levels & platforms
 
-> [Quality level](./CONTRIBUTING.md#quality-levels) are 5..1, where 1 is highest
+> [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 1, where 1 is highest level.
 
 |CMake project/target                     | QNX  | Linux, Windows, MacOS | Comment                             |
 |-----------------------------------------|:----:|:---------------------:|:-----------------------------------:|
-| example_benchmark_optional_and_expected | 5    | 5                     |                                     |
-| example_icecallback_on_c                | 5    | 5                     |                                     |
-| example_icedelivery                     | 5    | 5                     |                                     |
-| example_icedelivery_on_c                | 5    | 5                     |                                     |
-| example_iceperf                         | 5    | 5                     |                                     |
-| example_singleprocess                   | 5    | 5                     |                                     |
+| iceoryx_examples                        | 5    | 5                     | All example code in this folder           |
 | iceoryx_binding_c                       | 4    | 4                     | Not final and can change in the near future |
 | iceoryx_dds                             | 4    | 4                     |                                     |
 | iceoryx_meta                            | 5    | 5                     |                                     |
@@ -107,7 +104,7 @@ Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md]
 |---|---|---|
 | [Larry.Robotics](https://gitlab.com/larry.robotics) | An iceoryx demonstrator for tinker, thinker and toddler | Demonstrator |
 | [iceoryx-rs](https://github.com/elBoberido/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
-| [IceRay](https://github.com/elBoberido/iceray) | An iceoryx instrospection client written in Rust | Rust |
+| [IceRay](https://github.com/elBoberido/iceray) | An iceoryx introspection client written in Rust | Rust |
 
 ## Governance & maintainers
 

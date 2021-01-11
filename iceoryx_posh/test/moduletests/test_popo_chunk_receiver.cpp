@@ -89,8 +89,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
         EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-        auto pushRet = m_chunkQueuePusher.tryPush(sharedChunk);
-        EXPECT_FALSE(pushRet.has_error());
+        m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
         EXPECT_FALSE(maybeChunkHeader.has_error());
@@ -115,8 +114,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
         new (sample) DummySample();
         static_cast<DummySample*>(sample)->dummy = i;
 
-        auto pushRet = m_chunkQueuePusher.tryPush(sharedChunk);
-        EXPECT_FALSE(pushRet.has_error());
+        m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
         EXPECT_FALSE(maybeChunkHeader.has_error());
@@ -147,8 +145,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
 
-        auto pushRet = m_chunkQueuePusher.tryPush(sharedChunk);
-        EXPECT_FALSE(pushRet.has_error());
+        m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
         EXPECT_FALSE(maybeChunkHeader.has_error());
@@ -159,8 +156,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
     auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
     EXPECT_TRUE(sharedChunk);
 
-    auto pushRet = m_chunkQueuePusher.tryPush(sharedChunk);
-    EXPECT_FALSE(pushRet.has_error());
+    m_chunkQueuePusher.push(sharedChunk);
 
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
     EXPECT_TRUE(maybeChunkHeader.has_error());
@@ -174,8 +170,7 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
         EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-        auto pushRet = m_chunkQueuePusher.tryPush(sharedChunk);
-        EXPECT_FALSE(pushRet.has_error());
+        m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
         EXPECT_FALSE(maybeChunkHeader.has_error());
@@ -204,8 +199,7 @@ TEST_F(ChunkReceiver_test, Cleanup)
         // MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY on user side and MAX_SUBSCRIBER_QUEUE_CAPACITY in the queue
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
-        auto pushRet = m_chunkQueuePusher.tryPush(sharedChunk);
-        EXPECT_FALSE(pushRet.has_error());
+        m_chunkQueuePusher.push(sharedChunk);
 
         if (i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY)
         {

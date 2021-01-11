@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_CPP2C_SUBSCRIBER_H
-#define IOX_BINDING_C_CPP2C_SUBSCRIBER_H
+#ifndef IOX_BINDING_C_CPP2C_SUBSCRIBER_HPP
+#define IOX_BINDING_C_CPP2C_SUBSCRIBER_HPP
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
@@ -29,16 +29,17 @@ struct cpp2c_Subscriber
     cpp2c_Subscriber& operator=(const cpp2c_Subscriber&) = delete;
     cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) = delete;
 
-    iox_WaitSetResult attachTo(iox::popo::WaitSet& waitset,
-                               const iox_SubscriberEvent event,
-                               const uint64_t triggerId,
-                               const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback = nullptr) noexcept;
+    iox::cxx::expected<iox::popo::WaitSetError>
+    enableEvent(iox::popo::WaitSet<>& waitset,
+                const iox_SubscriberEvent event,
+                const uint64_t eventId,
+                const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback) noexcept;
 
-    void detachEvent(const iox_SubscriberEvent event) noexcept;
+    void disableEvent(const iox_SubscriberEvent event) noexcept;
 
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
-    bool hasNewSamples() const noexcept;
+    bool hasSamples() const noexcept;
 
 
     iox::popo::SubscriberPortData* m_portData{nullptr};

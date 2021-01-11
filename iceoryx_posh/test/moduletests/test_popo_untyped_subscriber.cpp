@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
@@ -94,9 +94,9 @@ TEST_F(UntypedSubscriberTest, UnsubscribesViaBaseSubscriber)
 TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasNewSamples).Times(1);
+    EXPECT_CALL(sut, hasSamples).Times(1);
     // ===== Test ===== //
-    sut.hasNewSamples();
+    sut.hasSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -128,38 +128,6 @@ TEST_F(UntypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
     EXPECT_CALL(sut, releaseQueuedSamples).Times(1);
     // ===== Test ===== //
     sut.releaseQueuedSamples();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(UntypedSubscriberTest, SetsConditionVariableViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    auto conditionVariable = new iox::popo::ConditionVariableData();
-    // EXPECT_CALL(sut, setConditionVariable).Times(1);
-    //// ===== Test ===== //
-    // sut.setConditionVariable(conditionVariable);
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-    delete conditionVariable;
-}
-
-TEST_F(UntypedSubscriberTest, UnsetsConditionVariableViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    // EXPECT_CALL(sut, unsetConditionVariable).Times(1);
-    //// ===== Test ===== //
-    // sut.unsetConditionVariable();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(UntypedSubscriberTest, ChecksIfConditionIsTriggeredViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    // EXPECT_CALL(sut, hasTriggered).Times(1);
-    //// ===== Test ===== //
-    // sut.hasTriggered();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

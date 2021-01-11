@@ -24,8 +24,11 @@
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
 #include <atomic>
 #include <map>
@@ -84,27 +87,27 @@ class PoshRuntime
 
     /// @brief request the RouDi daemon to create a publisher port
     /// @param[in] serviceDescription service description for the new publisher port
-    /// @param[in] historyCapacity history capacity of a publisher
+    /// @param[in] publisherOptions like the history capacity of a publisher
     /// @param[in] nodeName name of the node where the publisher should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created publisher port user
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
-                           const uint64_t& historyCapacity = 0U,
+                           const popo::PublisherOptions& publisherOptions = popo::PublisherOptions(),
                            const NodeName_t& nodeName = "",
                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a subscriber port
     /// @param[in] serviceDescription service description for the new subscriber port
-    /// @param[in] historyRequest history requested by a subscriber
+    /// @param[in] subscriberOptions like the queue capacity and history requested by a subscriber
     /// @param[in] nodeName name of the node where the subscriber should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created subscriber port data
     SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
-                            const uint64_t& historyRequest = 0U,
+                            const popo::SubscriberOptions& subscriberOptions = popo::SubscriberOptions(),
                             const NodeName_t& nodeName = "",
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
@@ -186,8 +189,7 @@ class PoshRuntime
     cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
     requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
 
-    /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
-    /// @todo replace length check with fixedstring when its integrated
+    /// @brief checks the given application name for certain constraints like length or if is empty
     const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
 
     const ProcessName_t m_appName;
@@ -200,10 +202,11 @@ class PoshRuntime
     popo::ApplicationPort m_applicationPort;
 
     void sendKeepAlive() noexcept;
-    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > DISCOVERY_INTERVAL, "Keep alive interval too small");
+    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
 
-    /// @note the m_keepAliveTimer should always be the last member, so that it will be the first member to be detroyed
-    iox::posix::Timer m_keepAliveTimer{PROCESS_KEEP_ALIVE_INTERVAL, [&]() { this->sendKeepAlive(); }};
+    /// @note the m_keepAliveTask should always be the last member, so that it will be the first member to be destroyed
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_keepAliveTask{
+        "KeepAlive", PROCESS_KEEP_ALIVE_INTERVAL, *this, &PoshRuntime::sendKeepAlive};
 };
 
 } // namespace runtime
