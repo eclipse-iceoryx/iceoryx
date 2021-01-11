@@ -15,7 +15,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 option(BUILD_ALL "Build with all extensions and all tests" OFF)
-option(TOML_CONFIG "Activates or deactivates TOML support - without TOML RouDi will not be build" ON)
+option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
 option(BUILD_SHARED_LIBS "Build iceoryx as shared libraries" ON)

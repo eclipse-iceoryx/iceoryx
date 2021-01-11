@@ -16,7 +16,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(example_iceperf)
 
-option(TOML_CONFIG "Activates or deactivates TOML support - without TOML RouDi will not be build" ON)
+option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
