@@ -282,13 +282,6 @@ class Timer
     cxx::expected<TimerError>
     restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
 
-    /// @brief Resets the internal creation time
-    void resetCreationTime() noexcept;
-
-    /// @brief Checks if the timer has expired compared to its creation time
-    /// @return Is the elapsed time larger than timeToWait?
-    bool hasExpiredComparedToCreationTime() noexcept;
-
     // @brief Returns the time until the timer expires the next time
     /// @note Shall only be called when callback is given
     cxx::expected<units::Duration, TimerError> timeUntilExpiration() noexcept;
@@ -321,58 +314,6 @@ class Timer
 };
 
 } // namespace posix
-
-
-namespace clock
-{
-/// @brief This offers the deadline timer functionality. It has user convenient methods to reset the timer [by default
-/// it uses the intialized duration], reset timer to a customized duration, check if the timer is active and user can
-/// also get to know about the remaining time before the timer goes off
-/// @code
-///     iox::clock::DeadlineTimer deadlineTimer(1000_ms);
-///
-///     // to check if the timer is active
-///     if( deadlineTimer.hasExpired()){
-///     ...
-///     }
-///     // to reset the timer and start again with the same duration
-///     deadlineTimer.reset();
-///
-/// @endcode
-class DeadlineTimer
-{
-  public:
-    /// @brief Constructor
-    /// @param[in] timeToWait duration until the timer expires
-    DeadlineTimer(const iox::units::Duration timeToWait) noexcept;
-
-    /// @brief Checks if the timer has expired compared to its absolute end time
-    /// @return true if the timer is still active and false if it is expired
-    bool hasExpired() noexcept;
-
-    /// @brief reinitializes the ending time for the timer. The absolute end time is calculated by adding time to wait
-    /// to the current time.
-    void reset() noexcept;
-
-    /// @brief reinitializes the ending time for the timer to the given new time to wait. The absolute end time is
-    /// calculated by adding new time to wait to the current time.
-    /// @param[in] timeToWait duration until the timer expires. This value overwrites the earlier value which was set
-    /// during the timer creation.
-    void reset(const iox::units::Duration timeToWait) noexcept;
-
-    /// @brief calculates the remaining time before the timer goes off
-    /// @return the time duration before the timer expires
-    const iox::units::Duration remainingTime() noexcept;
-
-  private:
-    iox::units::Duration getCurrentMonotonicTime() noexcept;
-
-    iox::units::Duration m_timeToWait;
-    iox::units::Duration m_endTime;
-};
-
-} // namespace clock
-
 } // namespace iox
 
 #endif // IOX_UTILS_POSIX_WRAPPER_TIMER_HPP

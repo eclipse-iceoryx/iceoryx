@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_utils/cxx/deadlinetimer.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
@@ -26,7 +27,6 @@
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <cstdint>
 #include <errno.h>
@@ -353,7 +353,7 @@ class MqRuntimeInterface
 
     /// @brief
     /// @return
-    void waitForRoudi(iox::clock::DeadlineTimer& timer) noexcept;
+    void waitForRoudi(iox::cxx::DeadlineTimer& timer) noexcept;
 
     /// @brief
     /// @return
