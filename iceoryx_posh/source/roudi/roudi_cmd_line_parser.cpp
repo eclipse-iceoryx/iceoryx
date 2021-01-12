@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -96,11 +96,11 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
         {
             if (strcmp(optarg, "on") == 0)
             {
-                m_monitoringMode = MonitoringMode::ON;
+                m_monitoringMode = roudi::MonitoringMode::ON;
             }
             else if (strcmp(optarg, "off") == 0)
             {
-                m_monitoringMode = MonitoringMode::OFF;
+                m_monitoringMode = roudi::MonitoringMode::OFF;
             }
             else
             {
@@ -218,7 +218,7 @@ iox::log::LogLevel CmdLineParser::getLogLevel() const noexcept
 {
     return m_logLevel;
 }
-MonitoringMode CmdLineParser::getMonitoringMode() const noexcept
+roudi::MonitoringMode CmdLineParser::getMonitoringMode() const noexcept
 {
     return m_monitoringMode;
 }
@@ -236,6 +236,18 @@ cxx::optional<uint16_t> CmdLineParser::getUniqueRouDiId() const noexcept
 units::Duration CmdLineParser::getProcessKillDelay() const noexcept
 {
     return m_processKillDelay;
+}
+
+void CmdLineParser::printParameters() const noexcept
+{
+    LogVerbose() << "Command line parameters are..";
+    LogVerbose() << "Log level: " << m_logLevel;
+    LogVerbose() << "Monitoring mode: " << m_monitoringMode;
+    LogVerbose() << "Compatibility check level: " << m_compatibilityCheckLevel;
+    m_uniqueRouDiId.and_then([](auto& id) { LogVerbose() << "Unique RouDi ID: " << id; }).or_else([] {
+        LogVerbose() << "Unique RouDi ID: < unset >";
+    });
+    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds<uint64_t>() << " ms";
 }
 
 } // namespace config

@@ -17,6 +17,7 @@
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 #include <chrono>
@@ -58,13 +59,13 @@ int main()
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
     // Start application
-    iox::runtime::PoshRuntime::getInstance("/iox-gw-dds2iceoryx");
+    iox::runtime::PoshRuntime::initRuntime("iox-gw-dds2iceoryx");
 
     iox::dds::DDS2IceoryxGateway<> gw;
 
     iox::config::TomlGatewayConfigParser::parse()
-        .and_then([&](iox::config::GatewayConfig config) { gw.loadConfiguration(config); })
-        .or_else([&](iox::config::TomlGatewayConfigParseError err) {
+        .and_then([&](auto config) { gw.loadConfiguration(config); })
+        .or_else([&](auto err) {
             iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
                                 << iox::config::TomlGatewayConfigParseErrorString[err];
             iox::dds::LogWarn() << "[Main] Using default configuration.";

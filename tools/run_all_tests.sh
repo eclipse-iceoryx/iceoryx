@@ -14,81 +14,141 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file runs all tests for Ice0ryx
+# This file runs all tests for Iceoryx
 
-COMPONENTS="utils posh binding_c"
-GTEST_FILTER="*"
 BASE_DIR=$PWD
-GCOV_SCOPE="all"
+TEST_SCOPE="all"
+CONTINUE_ON_ERROR=false
+ASAN_ONLY=false
 
-for arg in "$@"
-do 
+set_sanitizer_options() {
+    # This script runs from build folder
+    cd ..
+    local PROJECT_ROOT=$PWD
+    cd build
+
+    echo "Project root is PROJECT_ROOT"
+
+    # new_delete_type_mismatch is disabled because of the below error
+    # ==112203==ERROR: AddressSanitizer: new-delete-type-mismatch on 0x622000021100 in thread T0:
+    #   object passed to delete has wrong type:
+    #   size of the allocated type:   5120 bytes;
+    #   size of the deallocated type: 496 bytes.
+    #     #0 0x7fd36deac9d8 in operator delete(void*, unsigned long) (/usr/lib/x86_64-linux-gnu/libasan.so.4+0xe19d8)
+    #     #1 0x55c8284bcc43 in ReceiverPort_test::~ReceiverPort_test() /home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/iceoryx_posh/test/moduletests/test_posh_receiverport.cpp:49
+    #     #2 0x55c8284c15d1 in ReceiverPort_test_newdata_Test::~ReceiverPort_test_newdata_Test() /home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/iceoryx_posh/test/moduletests/test_posh_receiverport.cpp:137
+    #     #3 0x55c8284c15ed in ReceiverPort_test_newdata_Test::~ReceiverPort_test_newdata_Test() /home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/iceoryx_posh/test/moduletests/test_posh_receiverport.cpp:137
+    #     #4 0x55c82857b2fb in testing::Test::DeleteSelf_() (/home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/build/posh/test/posh_moduletests+0x3432fb)
+    echo "OSTYPE is $OSTYPE"
+    if [[ "$OSTYPE" == "linux-gnu"* ]] && [[ $ASAN_ONLY == false ]]; then
+        echo " [i] Leaksanitizer enabled"
+        ASAN_OPTIONS=detect_leaks=1
+    else
+        # other OS (Mac here)
+        # ==23449==AddressSanitizer: detect_leaks is not supported on this platform.
+        echo " [i] Leaksanitizer disabled"
+        ASAN_OPTIONS=detect_leaks=0
+    fi
+    ASAN_OPTIONS=$ASAN_OPTIONS:detect_stack_use_after_return=1:detect_stack_use_after_scope=1:check_initialization_order=true:strict_init_order=true:new_delete_type_mismatch=0:suppressions=$BASE_DIR/sanitizer_blacklist/asan_runtime.txt
+    export ASAN_OPTIONS
+    LSAN_OPTIONS=suppressions=$BASE_DIR/sanitizer_blacklist/lsan_runtime.txt
+    export LSAN_OPTIONS
+    UBSAN_OPTIONS=print_stacktrace=1
+    export UBSAN_OPTIONS
+
+    echo "ASAN_OPTIONS : $ASAN_OPTIONS"
+    echo "LSAN_OPTIONS : $LSAN_OPTIONS"
+    echo "UBSAN_OPTIONS : $UBSAN_OPTIONS"
+
+    if [[ ! -f $(which llvm-symbolizer) ]]
+    then
+        echo "WARNING : llvm-symbolizer not found. Stack trace may not be symbolized!"
+    fi    
+}
+
+for arg in "$@"; do
     case "$arg" in
-        "with-dds-gateway-tests")
-            COMPONENTS="utils posh dds_gateway"
-            ;;
-        "disable-timing-tests")
-            GTEST_FILTER="-*.TimingTest_*"
-            ;;
-        "only-timing-tests")
-            GTEST_FILTER="*.TimingTest_*"
-            ;;
-        "all" | "component" | "unit" | "integration")
-            GCOV_SCOPE="$arg"
-            ;;
-        *)
-            echo ""
-            echo "Test script for iceoryx."
-            echo "By default all module-, integration- and componenttests are executed."
-            echo ""
-            echo "Usage: $0 [OPTIONS]"
-            echo "Options:"
-            echo "      skip-dds-tests              Skips tests for iceoryx_dds"
-            echo "      disable-timing-tests        Disables all timing tests"
-            echo "      only-timing-tests           Runs only timing tests"
-            echo ""
-            exit -1
-            ;;
+    "only-timing-tests")
+        TEST_SCOPE="timingtest"
+        ;;
+    "asan-only")
+        ASAN_ONLY=true
+        TEST_SCOPE="all"
+        ;;
+    "continue-on-error")
+        CONTINUE_ON_ERROR=true
+        ;;
+    "all" | "unit" | "integration")
+        TEST_SCOPE="$arg"
+        ;;
+    *)
+        echo ""
+        echo "Test script for iceoryx."
+        echo "By default tests on all levels are executed."
+        echo ""
+        echo "Usage: $0 [OPTIONS]"
+        echo "Options:"
+        echo "      [all, unit, integration]    Testlevel where the test shall run"
+        echo "      only-timing-tests           Runs only timing tests"
+        echo "      continue-on-error           Continue execution upon error"
+        echo "      asan-only                   Execute Adress-Sanitizer only"
+        echo ""
+        exit -1
+        ;;
     esac
-done 
+done
 
 # check if this script is sourced by another script,
 # if yes then exit properly, so the other script can use this
 # scripts definitions
 [[ "${#BASH_SOURCE[@]}" -gt "1" ]] && { return 0; }
 
-if [ -z "$TEST_RESULTS_DIR" ]
-then
+if [ -z "$TEST_RESULTS_DIR" ]; then
     TEST_RESULTS_DIR="$(pwd)/testresults"
 fi
 
 mkdir -p "$TEST_RESULTS_DIR"
 
-echo ">>>>>> Running Ice0ryx Tests <<<<<<"
+echo ">>>>>> Running Iceoryx Tests <<<<<<"
 
-set -e
+if [ $CONTINUE_ON_ERROR == true ]; then
+    # Continue executing tests , when a test fails
+    set +e
+else
+    # Stop executing tests , when a test fails
+    set -e
+fi
 
-for COMPONENT in $COMPONENTS; do
+set_sanitizer_options
+
+execute_test() {
+    local test_scope=$1
+    local test_binary=""
+
+    echo ">>>>>> executing tests for $test_scope <<<<<<"
     echo ""
-    echo "######################## executing moduletests & componenttests for $COMPONENT ########################"
-    cd $BASE_DIR/$COMPONENT/test
 
-    # Runs only tests available for the given component
+    case $test_scope in
+    "all")
+        make all_tests
+        ;;
+    "unit")
+        make module_tests
+        ;;
+    "integration")
+        make integration_tests
+        ;;
+    "timingtest")
+        make timing_tests
+        ;;
+    *)
+        echo "Wrong scope $test_scope!"
+        ;;
+    esac
+}
 
-    case $GCOV_SCOPE in    
-        "unit" | "all")
-            [ -f ./"$COMPONENT"_moduletests ] && ./"$COMPONENT"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ModuleTestResults.xml"
-            ;;
-        "component" | "all")
-            [ -f ./"$COMPONENT"_componenttests ] && ./"$COMPONENT"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ComponenttestTestResults.xml"
-            ;;
-        "integration" | "all") 
-            [ -f ./"$COMPONENT"_integrationtests ] && ./"$COMPONENT"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_IntegrationTestResults.xml"
-            ;;
-      esac
-done
+execute_test $TEST_SCOPE
 
 # do not start RouDi while the module and componenttests are running;
 # they might do things which hurts RouDi, like in the roudi_shm test where named semaphores are opened and closed
 
-echo ">>>>>> Finished Running Iceoryx Tests <<<<<<"

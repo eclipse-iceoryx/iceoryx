@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
@@ -62,14 +63,41 @@ class RelativePointer_test : public Test
   public:
     void SetUp() override
     {
-        m_fileDescriptor = shm_open("TestShm", OFlags, ShmMode);
-        ftruncate(m_fileDescriptor, ShmSize);
+        auto shmOpenC = iox::cxx::makeSmartC(
+            shm_open, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, "TestShm", OFlags, ShmMode);
+
+        if (shmOpenC.hasErrors())
+        {
+            std::cerr << "ftruncate failed with error: " << shmOpenC.getErrorString();
+            exit(EXIT_FAILURE);
+        }
+
+        m_fileDescriptor = shmOpenC.getReturnValue();
+
+        auto trunC = iox::cxx::makeSmartC(
+            ftruncate, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_fileDescriptor, ShmSize);
+
+        if (trunC.hasErrors())
+        {
+            std::cerr << "ftruncate failed with error: " << trunC.getErrorString();
+            exit(EXIT_FAILURE);
+        }
+
+
         internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        shm_unlink("TestShm");
+        auto shmUnlinkC =
+            iox::cxx::makeSmartC(shm_unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, "TestShm");
+
+        if (shmUnlinkC.hasErrors())
+        {
+            std::cerr << "ftruncate failed with error: " << shmUnlinkC.getErrorString();
+            exit(EXIT_FAILURE);
+        }
+
         iox::RelativePointer::unregisterAll();
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -77,7 +105,7 @@ class RelativePointer_test : public Test
             std::cout << output << std::endl;
         }
     }
-    int m_fileDescriptor;
+    uint32_t m_fileDescriptor{0U};
 };
 
 template <typename T>
@@ -210,6 +238,22 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 1);
         EXPECT_NE(rp, nullptr);
+    }
+
+    {
+        iox::relative_ptr<TypeParam> rp;
+        rp = memMap.getMappedAddress();
+        iox::RelativePointer basePointer(rp);
+        iox::relative_ptr<TypeParam> recovered(basePointer);
+
+        EXPECT_EQ(rp, recovered);
+        EXPECT_EQ(rp.getOffset(), recovered.getOffset());
+        EXPECT_EQ(rp.getId(), recovered.getId());
+
+        recovered = basePointer;
+        EXPECT_EQ(rp, recovered);
+        EXPECT_EQ(rp.getOffset(), recovered.getOffset());
+        EXPECT_EQ(rp.getId(), recovered.getId());
     }
 
     {
@@ -405,9 +449,9 @@ TYPED_TEST(relativeptrtests, pointerOperator)
     EXPECT_EQ(*rp1, *baseAddr);
 }
 
-// central use case of the relative pointer:
-// it is tested that changing the (static) lookup table of a relative pointer causes existing
-// relative pointers point to changed locations relative to the new lookup table
+/// central use case of the relative pointer:
+/// it is tested that changing the (static) lookup table of a relative pointer causes existing
+/// relative pointers point to changed locations relative to the new lookup table
 TEST_F(RelativePointer_test, memoryRemapping)
 {
     constexpr size_t BLOCK_SIZE = 1024;
@@ -525,4 +569,12 @@ TEST_F(RelativePointer_test, MemoryReMapping_SharedMemory)
     }
     EXPECT_EQ(iox::RelativePointer::unregisterPtr(1), true);
 }
+
+TEST_F(RelativePointer_test, compileTest)
+{
+    // No functional test. Tests if code compiles
+    iox::relative_ptr<void> p1;
+    iox::relative_ptr<const void> p2;
+}
+
 } // namespace

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
-#include "iceoryx_posh/popo/publisher.hpp"
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
 
 namespace iox
 {
@@ -28,7 +28,7 @@ namespace dds
 ///
 /// @brief DDS Gateway implementation for the DDS to iceoryx direction.
 ///
-template <typename channel_t = gw::Channel<popo::Publisher, dds::data_reader_t>,
+template <typename channel_t = gw::Channel<popo::UntypedPublisher, dds::data_reader_t>,
           typename gateway_t = gw::GatewayGeneric<channel_t>>
 class DDS2IceoryxGateway : public gateway_t
 {
@@ -43,7 +43,8 @@ class DDS2IceoryxGateway : public gateway_t
 
   private:
     void* m_reservedChunk = nullptr;
-    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service) noexcept;
+    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service,
+                                                            const popo::PublisherOptions& publisherOptions) noexcept;
 };
 
 } // namespace dds

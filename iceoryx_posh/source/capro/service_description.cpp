@@ -106,7 +106,7 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_instance
     m_hasServiceOnlyDescription = true;
 }
 
-ServiceDescription::ServiceDescription(const IdString& f_service, const IdString& f_instance) noexcept
+ServiceDescription::ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept
     : ServiceDescription(f_service, f_instance, InvalidIDString)
 {
     m_hasServiceOnlyDescription = true;
@@ -122,9 +122,9 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID,
 {
 }
 
-ServiceDescription::ServiceDescription(const IdString& f_service,
-                                       const IdString& f_instance,
-                                       const IdString& f_event,
+ServiceDescription::ServiceDescription(const IdString_t& f_service,
+                                       const IdString_t& f_instance,
+                                       const IdString_t& f_event,
                                        ClassHash f_classHash,
                                        Interfaces interfaceSource) noexcept
     : m_serviceString{f_service}
@@ -243,17 +243,17 @@ uint16_t ServiceDescription::getEventID() const noexcept
     return m_eventID;
 }
 
-IdString ServiceDescription::getServiceIDString() const noexcept
+IdString_t ServiceDescription::getServiceIDString() const noexcept
 {
     return m_serviceString;
 }
 
-IdString ServiceDescription::getInstanceIDString() const noexcept
+IdString_t ServiceDescription::getInstanceIDString() const noexcept
 {
     return m_instanceString;
 }
 
-IdString ServiceDescription::getEventIDString() const noexcept
+IdString_t ServiceDescription::getEventIDString() const noexcept
 {
     return m_eventString;
 }
@@ -287,6 +287,21 @@ ServiceDescription::ClassHash ServiceDescription::getClassHash() const noexcept
 Interfaces ServiceDescription::getSourceInterface() const noexcept
 {
     return m_interfaceSource;
+}
+
+bool ServiceDescription::isValid() const noexcept
+{
+    if (m_hasServiceOnlyDescription)
+    {
+        return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
+                 || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance);
+    }
+    else
+    {
+        return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
+                 || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance
+                 || m_eventString == iox::capro::InvalidIDString || m_eventID == iox::capro::AnyEvent);
+    }
 }
 
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept

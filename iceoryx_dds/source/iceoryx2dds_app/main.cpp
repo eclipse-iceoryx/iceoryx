@@ -21,6 +21,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 class ShutdownManager
@@ -41,7 +42,8 @@ class ShutdownManager
     static iox::posix::Semaphore s_semaphore;
     ShutdownManager() = default;
 };
-iox::posix::Semaphore ShutdownManager::s_semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).value();
+iox::posix::Semaphore ShutdownManager::s_semaphore =
+    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).value();
 
 int main()
 {
@@ -50,13 +52,13 @@ int main()
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
     // Start application
-    iox::runtime::PoshRuntime::getInstance("/iox-gw-iceoryx2dds");
+    iox::runtime::PoshRuntime::initRuntime("iox-gw-iceoryx2dds");
 
     iox::dds::Iceoryx2DDSGateway<> gw;
 
     iox::config::TomlGatewayConfigParser::parse()
-        .and_then([&](iox::config::GatewayConfig config) { gw.loadConfiguration(config); })
-        .or_else([&](iox::config::TomlGatewayConfigParseError err) {
+        .and_then([&](auto config) { gw.loadConfiguration(config); })
+        .or_else([&](auto err) {
             iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
                                 << iox::config::TomlGatewayConfigParseErrorString[err];
             iox::dds::LogWarn() << "[Main] Using default configuration.";

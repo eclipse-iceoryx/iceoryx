@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,12 @@
 
 #ifndef IOX_BINDING_C_ENUMS_H
 #define IOX_BINDING_C_ENUMS_H
+
+/// @brief describes events which can be triggered by a subscriber
+enum iox_SubscriberEvent
+{
+    SubscriberEvent_HAS_SAMPLES,
+};
 
 /// @brief describes the current state of a subscriber
 enum iox_SubscribeState
@@ -46,9 +52,8 @@ enum iox_AllocationResult
 
 enum iox_WaitSetResult
 {
-    WaitSetResult_CONDITION_VECTOR_OVERFLOW,
-    WaitSetResult_CONDITION_VARIABLE_ALREADY_SET,
-    WaitSetResult_CONDITION_VARIABLE_ATTACH_FAILED,
+    WaitSetResult_WAIT_SET_FULL,
+    WaitSetResult_EVENT_ALREADY_ATTACHED,
     WaitSetResult_UNDEFINED_ERROR,
     WaitSetResult_SUCCESS
 };

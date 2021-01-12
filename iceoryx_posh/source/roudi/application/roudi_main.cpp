@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ int main(int argc, char* argv[])
                 std::terminate();
             })
             .value();
-    /// @todo Add debug print about used RouDi params e.g. TOML file
+
+    cmdLineParser.printParameters();
+
     IceOryxRouDiApp roudi(cmdLineParser, roudiConfig);
 
-    roudi.run();
-
-    return 0;
+    return roudi.run();
 }

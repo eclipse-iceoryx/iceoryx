@@ -16,7 +16,9 @@
 #include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 
-iox::dds::CycloneDataReader::CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept
+iox::dds::CycloneDataReader::CycloneDataReader(const capro::IdString_t serviceId,
+                                               const capro::IdString_t instanceId,
+                                               const capro::IdString_t eventId) noexcept
     : m_serviceId(serviceId)
     , m_instanceId(instanceId)
     , m_eventId(eventId)
@@ -49,7 +51,7 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::optional<uint64_t> iox::dds::CycloneDataReader::peekNextSize()
+iox::cxx::optional<uint32_t> iox::dds::CycloneDataReader::peekNextSize()
 {
     // ensure to only read sample - do not take
     auto readSamples = m_impl.select().max_samples(1u).state(::dds::sub::status::SampleState::any()).read();
@@ -62,12 +64,18 @@ iox::cxx::optional<uint64_t> iox::dds::CycloneDataReader::peekNextSize()
         // Ignore samples with no payload
         if (nextSampleSize != 0)
         {
-            return iox::cxx::optional<uint64_t>(static_cast<uint64_t>(nextSampleSize));
+            return iox::cxx::optional<uint32_t>(static_cast<uint32_t>(nextSampleSize));
         }
     }
 
     // no valid samples available
     return iox::cxx::nullopt_t();
+}
+
+bool iox::dds::CycloneDataReader::hasSamples()
+{
+    auto samples = m_impl.select().max_samples(1u).state(::dds::sub::status::SampleState::any()).read();
+    return samples.length() > 0;
 }
 
 iox::cxx::expected<iox::dds::DataReaderError> iox::dds::CycloneDataReader::takeNext(uint8_t* const buffer,
@@ -176,17 +184,17 @@ iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataRea
     }
 }
 
-iox::dds::IdString iox::dds::CycloneDataReader::getServiceId() const noexcept
+iox::capro::IdString_t iox::dds::CycloneDataReader::getServiceId() const noexcept
 {
     return m_serviceId;
 }
 
-iox::dds::IdString iox::dds::CycloneDataReader::getInstanceId() const noexcept
+iox::capro::IdString_t iox::dds::CycloneDataReader::getInstanceId() const noexcept
 {
     return m_instanceId;
 }
 
-iox::dds::IdString iox::dds::CycloneDataReader::getEventId() const noexcept
+iox::capro::IdString_t iox::dds::CycloneDataReader::getEventId() const noexcept
 {
     return m_eventId;
 }

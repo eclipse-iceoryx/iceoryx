@@ -1,3 +1,17 @@
+# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_posh_VERSION)
 project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
@@ -5,17 +19,17 @@ project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
 find_package(Threads REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
-option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
+option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 
 include(cmake/iceoryxversions.cmake)
 include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
-include(IceoryxPlatformDetection)
+include(IceoryxPlatform)
 
 include(cmake/iceoryx_posh_deployment.cmake)
 
-if( clang-tidy )
+if(CLANG_TIDY)
     find_program(
         CLANG_TIDY_EXE
         NAMES "clang-tidy"
@@ -25,8 +39,8 @@ if( clang-tidy )
         set(PERFORM_CLANG_TIDY "${CLANG_TIDY_EXE}")
     else(CLANG_TIDY_EXE)
         message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
-    endif(CLANG_TIDY_EXE)
-endif( clang-tidy )
+    endif()
+endif()
 
 #
 ########## set variables for library export ##########
@@ -62,12 +76,6 @@ add_library(iceoryx_posh
     source/mepoo/segment_manager.cpp
     source/mepoo/mepoo_segment.cpp
     source/mepoo/memory_info.cpp
-    source/popo/delivery_fifo.cpp
-    source/popo/receiver_port.cpp
-    source/popo/receiver_port_data.cpp
-    source/popo/sender_port.cpp
-    source/popo/sender_port_data.cpp
-    source/popo/receiver_handler.cpp
     source/popo/ports/interface_port.cpp
     source/popo/ports/interface_port_data.cpp
     source/popo/ports/application_port.cpp
@@ -89,22 +97,24 @@ add_library(iceoryx_posh
     source/popo/ports/server_port_roudi.cpp
     source/popo/ports/server_port_user.cpp
     source/popo/building_blocks/chunk_queue_types.cpp
+    source/popo/building_blocks/condition_variable_data.cpp    
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
-    source/popo/condition.cpp
-    source/popo/guard_condition.cpp
-    source/popo/wait_set.cpp
+    source/popo/user_trigger.cpp
+    source/popo/trigger.cpp
+    source/popo/trigger_handle.cpp
+    source/popo/event_info.cpp
     source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
     source/runtime/posh_runtime_single_process.cpp
-    source/runtime/runnable.cpp
-    source/runtime/runnable_data.cpp
-    source/runtime/runnable_property.cpp
+    source/runtime/node.cpp
+    source/runtime/node_data.cpp
+    source/runtime/node_property.cpp
     source/runtime/shared_memory_user.cpp
 )
 
@@ -136,14 +146,15 @@ target_include_directories(iceoryx_posh
     source/version
     source/runtime
 )
-target_link_libraries(iceoryx_posh
+target_link_libraries(iceoryx_posh 
     PUBLIC
     iceoryx_utils::iceoryx_utils
     PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
-target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
     target_link_libraries(iceoryx_posh PRIVATE rt )
@@ -177,13 +188,16 @@ target_include_directories(iceoryx_posh_gateway
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
-target_link_libraries(iceoryx_posh_gateway
+target_link_libraries(iceoryx_posh_gateway 
     PUBLIC
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
+    PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}    
 )
 
-target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
 
 #
 ########## posh roudi lib ##########
@@ -206,7 +220,11 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
     source/roudi/service_registry.cpp
-)
+    source/roudi/iceoryx_roudi_components.cpp
+    source/roudi/roudi_cmd_line_parser.cpp
+    source/roudi/roudi_cmd_line_parser_config_file_option.cpp
+    source/roudi/roudi_config.cpp
+    )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)
 
@@ -221,7 +239,7 @@ if(PERFORM_CLANG_TIDY)
     set_target_properties(
         iceoryx_posh_roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
     )
-endif(PERFORM_CLANG_TIDY)
+endif()
 
 target_include_directories(iceoryx_posh_roudi PRIVATE
     source/runtime
@@ -235,6 +253,7 @@ target_link_libraries(iceoryx_posh_roudi
     PUBLIC
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
     PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}
     iceoryx_utils::iceoryx_utils
 )
 
@@ -242,7 +261,8 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
-target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
 
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
@@ -259,9 +279,6 @@ if(TOML_CONFIG)
         source/gateway/gateway_config.cpp
         source/gateway/toml_gateway_config_parser.cpp
         source/roudi/roudi_config_toml_file_provider.cpp
-        source/roudi/roudi_config.cpp
-        source/roudi/roudi_cmd_line_parser.cpp
-        source/roudi/roudi_cmd_line_parser_config_file_option.cpp
     )
     add_library(${PROJECT_NAMESPACE}::iceoryx_posh_config ALIAS iceoryx_posh_config)
 
@@ -280,18 +297,23 @@ if(TOML_CONFIG)
     )
 
     target_link_libraries(iceoryx_posh_config PRIVATE
+        iceoryx_posh::iceoryx_posh
         iceoryx_utils::iceoryx_utils
+        iceoryx_posh::iceoryx_posh_roudi
         cpptoml
+        ${ICEORYX_SANITIZER_FLAGS}
     )
 
-    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS})
+    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-    #
-    ######### posh roudi daemon ##########
-    #
+#
+######### posh roudi daemon ##########
+#
+
     add_executable(iox-roudi
         source/roudi/application/roudi_main.cpp
     )
+
     set_target_properties(iox-roudi PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -313,15 +335,16 @@ if(TOML_CONFIG)
     )
 
     target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
+
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
             iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
-    endif(PERFORM_CLANG_TIDY)
+    endif()
 
-endif(TOML_CONFIG)
+endif()
 
-if(roudi_environment OR test)
+if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     #
     ######### posh roudi environment ##########
     #
@@ -350,18 +373,17 @@ if(roudi_environment OR test)
     )
 
     target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS})
-
-endif(roudi_environment OR test)
+endif()
 
 #
 ########## exporting library ##########
 #
 if(TOML_CONFIG)
-    set(ROUDI_EXPORT iox-roudi)
-endif(TOML_CONFIG)
+    set(ROUDI_EXPORT iceoryx_posh_config iox-roudi)
+endif()
 
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_config iceoryx_posh_gateway ${ROUDI_EXPORT}
+    TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_gateway ${ROUDI_EXPORT}
     INCLUDE_DIRECTORY include/
 )
 
@@ -371,6 +393,6 @@ install(
     COMPONENT dev
 )
 
-if(test)
+if(BUILD_TEST)
     add_subdirectory(test)
-endif(test)
+endif()

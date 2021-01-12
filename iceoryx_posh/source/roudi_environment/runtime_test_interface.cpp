@@ -82,7 +82,7 @@ void RuntimeTestInterface::eraseRuntime(const ProcessName_t& name)
     }
 }
 
-PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(const ProcessName_t& name)
+PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(cxx::optional<const ProcessName_t*> name)
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 
@@ -93,16 +93,16 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(const ProcessName_t
         RuntimeTestInterface::t_activeRuntime = nullptr;
     }
 
-    bool isDefaultName{name.compare(PoshRuntime::defaultRuntimeInstanceName()) == 0};
-    bool invalidGetRuntimeAccess{RuntimeTestInterface::t_activeRuntime == nullptr && isDefaultName};
+    bool nameIsNullopt{!name.has_value()};
+    bool invalidGetRuntimeAccess{RuntimeTestInterface::t_activeRuntime == nullptr && nameIsNullopt};
     cxx::Expects(!invalidGetRuntimeAccess);
 
-    if (RuntimeTestInterface::t_activeRuntime != nullptr && isDefaultName)
+    if (RuntimeTestInterface::t_activeRuntime != nullptr && nameIsNullopt)
     {
         return *RuntimeTestInterface::t_activeRuntime;
     }
 
-    auto iter = RuntimeTestInterface::s_runtimes.find(name);
+    auto iter = RuntimeTestInterface::s_runtimes.find(*name.value());
     if (iter != RuntimeTestInterface::s_runtimes.end())
     {
         RuntimeTestInterface::t_activeRuntime = iter->second;
@@ -110,7 +110,7 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(const ProcessName_t
     else
     {
         auto runtimeImpl = new runtime::PoshRuntime(name, false);
-        RuntimeTestInterface::s_runtimes.insert({name, runtimeImpl});
+        RuntimeTestInterface::s_runtimes.insert({*name.value(), runtimeImpl});
 
         RuntimeTestInterface::t_activeRuntime = runtimeImpl;
     }

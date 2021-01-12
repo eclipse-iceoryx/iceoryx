@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
@@ -20,6 +21,7 @@
 #include "iceoryx_utils/platform/unistd.hpp"
 
 #include <assert.h>
+#include <limits>
 
 namespace iox
 {
@@ -54,7 +56,7 @@ SharedMemory::SharedMemory(const char* f_name,
     , m_size(f_size)
 {
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    if (f_name == nullptr || strlen(f_name) == 0u)
+    if (f_name == nullptr || strlen(f_name) == 0U)
     {
         std::cerr << "No shared memory name specified!" << std::endl;
         m_isInitialized = false;
@@ -70,11 +72,13 @@ SharedMemory::SharedMemory(const char* f_name,
     if (strlen(f_name) >= NAME_SIZE)
     {
         std::clog << "Shared memory name is too long! '" << f_name << "' will be truncated at position "
-                  << NAME_SIZE - 1u << "!" << std::endl;
+                  << NAME_SIZE - 1U << "!" << std::endl;
     }
 
+    /// @note GCC drops here a warning that the destination char buffer length is equal to the max length to copy.
+    /// This can potentially lead to a char array without null-terminator. We add the null-terminator afterwards.
     strncpy(m_name, f_name, NAME_SIZE);
-    m_name[NAME_SIZE - 1u] = '\0';
+    m_name[NAME_SIZE - 1U] = '\0';
     m_oflags |= (f_accessMode == AccessMode::readOnly) ? O_RDONLY : O_RDWR;
     m_oflags |= (f_ownerShip == OwnerShip::mine) ? O_CREAT | O_EXCL : 0;
 
@@ -123,8 +127,10 @@ int32_t SharedMemory::getHandle() const
 
 bool SharedMemory::open()
 {
+    cxx::Expects(static_cast<int64_t>(m_size) <= std::numeric_limits<int64_t>::max());
+
     // the mask will be applied to the permissions, therefore we need to set it to 0
-    mode_t umaskSaved = umask(0u);
+    mode_t umaskSaved = umask(0U);
 
     // if we create the shm, cleanup old resources
     if (m_oflags & O_CREAT)
@@ -153,8 +159,8 @@ bool SharedMemory::open()
 
     if (m_ownerShip == OwnerShip::mine)
     {
-        auto l_truncateCall =
-            cxx::makeSmartC(ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, m_size);
+        auto l_truncateCall = cxx::makeSmartC(
+            ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int64_t>(m_size));
         if (l_truncateCall.hasErrors())
         {
             if (l_truncateCall.getErrNum() == ENOMEM)

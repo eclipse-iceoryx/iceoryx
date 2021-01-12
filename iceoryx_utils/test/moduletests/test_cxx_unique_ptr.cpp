@@ -190,6 +190,7 @@ TEST_F(UniquePtrTest, ReleaseAnObjectResultsInUniquePtrBeingInvalidAndReturnOfOb
 
     EXPECT_EQ(sut.release(), object);
     EXPECT_FALSE(sut);
+    delete object;
 }
 
 TEST_F(UniquePtrTest, ReleaseNullObjectResultsInUniquePtrBeingInvalidAndReturnOfNull)

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 #include "iceoryx_introspection/introspection_app.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_versions.hpp"
@@ -289,8 +290,8 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
     wprintw(pad, "\n");
 }
 
-void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSenderPortData>& senderPortData,
-                                                  const std::vector<ComposedReceiverPortData>& receiverPortData)
+void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPublisherPortData>& publisherPortData,
+                                                  const std::vector<ComposedSubscriberPortData>& subscriberPortData)
 {
     constexpr int32_t serviceWidth{16};
     constexpr int32_t instanceWidth{16};
@@ -300,14 +301,12 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     constexpr int32_t chunkSizeWidth{12};
     constexpr int32_t chunksWidth{12};
     constexpr int32_t intervalWidth{19};
-    constexpr int32_t isFieldWidth{6};
     constexpr int32_t subscriptionStateWidth{14};
     constexpr int32_t fifoWidth{17};
-    constexpr int32_t callbackActiveWidth{8};
     constexpr int32_t scopeWidth{12};
     constexpr int32_t interfaceSourceWidth{8};
 
-    prettyPrint("Sender Ports\n", PrettyOptions::bold);
+    prettyPrint("Publisher Ports\n", PrettyOptions::bold);
 
     wprintw(pad, " %*s |", serviceWidth, "Service");
     wprintw(pad, " %*s |", instanceWidth, "Instance");
@@ -317,7 +316,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, " %*s |", chunkSizeWidth, "Chunk Size");
     wprintw(pad, " %*s |", chunksWidth, "Chunks");
     wprintw(pad, " %*s |", intervalWidth, "Last Send Interval");
-    wprintw(pad, " %*s |", isFieldWidth, "Field");
     wprintw(pad, " %*s\n", interfaceSourceWidth, "Src. Itf.");
 
     wprintw(pad, " %*s |", serviceWidth, "");
@@ -328,68 +326,71 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, " %*s |", chunkSizeWidth, "[Byte]");
     wprintw(pad, " %*s |", chunksWidth, "[/Minute]");
     wprintw(pad, " %*s |", intervalWidth, "[Milliseconds]");
-    wprintw(pad, " %*s |", isFieldWidth, "");
     wprintw(pad, " %*s\n", interfaceSourceWidth, "");
 
     wprintw(pad, "---------------------------------------------------------------------------------------------------");
     wprintw(pad, "----------------------------------------------------------------------------\n");
 
     bool needsLineBreak{false};
-    uint32_t currentLine{0};
-    auto printEntry = [&](std::uint32_t maxSize, const std::string& data) -> std::string {
+    uint32_t currentLine{0U};
+    auto printEntry = [&](int32_t maxSize, const std::string& data) -> std::string {
         std::stringstream stream;
 
-        constexpr uint32_t indentation{2};
+        constexpr int32_t indentation{2};
         constexpr char indentationString[indentation + 1] = "  ";
 
         auto stringSize = data.size();
-        if (currentLine == 0)
+        if (currentLine == 0U)
         {
-            stream << std::left << std::setw(maxSize) << data.substr(0, maxSize);
+            stream << std::left << std::setw(maxSize) << data.substr(0U, static_cast<size_t>(maxSize));
         }
-        else if (stringSize > maxSize + (currentLine - 1) * (maxSize - indentation))
+        else if (stringSize > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
         {
-            const auto startPosition = maxSize + (currentLine - 1) * (maxSize - indentation);
+            const auto startPosition = static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
 
             stream << indentationString << std::left << std::setw(maxSize - indentation)
-                   << data.substr(startPosition, maxSize - indentation);
+                   << data.substr(startPosition, static_cast<size_t>(maxSize - indentation));
         }
         else
         {
             stream << std::left << std::setw(maxSize) << "";
         }
 
-        needsLineBreak |= (stringSize > maxSize + (currentLine) * (maxSize - indentation));
+        needsLineBreak |= (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
 
         return stream.str();
     };
 
-    for (auto& sender : senderPortData)
+    for (auto& publisherPort : publisherPortData)
     {
-        std::string m_sampleSize{std::to_string(sender.throughputData->m_sampleSize)};
-        std::string m_chunkSize{std::to_string(sender.throughputData->m_chunkSize)};
-        std::string m_chunksPerMinute{std::to_string(sender.throughputData->m_chunksPerMinute)};
-        std::string sendInterval{std::to_string(sender.throughputData->m_lastSendIntervalInNanoseconds / 1000000)};
+        // std::string m_sampleSize{std::to_string(publisherPort.throughputData->m_sampleSize)};
+        // std::string m_chunkSize{std::to_string(publisherPort.throughputData->m_chunkSize)};
+        // std::string m_chunksPerMinute{std::to_string(publisherPort.throughputData->m_chunksPerMinute)};
+        // std::string sendInterval{
+        //     std::to_string(publisherPort.throughputData->m_lastSendIntervalInNanoseconds / 1000000)};
+        std::string m_sampleSize{"n/a"};
+        std::string m_chunkSize{"n/a"};
+        std::string m_chunksPerMinute{"n/a"};
+        std::string sendInterval{"n/a"};
 
         currentLine = 0;
         do
         {
             needsLineBreak = false;
-            wprintw(pad, " %s |", printEntry(serviceWidth, sender.portData->m_caproServiceID).c_str());
-            wprintw(pad, " %s |", printEntry(instanceWidth, sender.portData->m_caproInstanceID).c_str());
-            wprintw(pad, " %s |", printEntry(eventWidth, sender.portData->m_caproEventMethodID).c_str());
-            wprintw(pad, " %s |", printEntry(processNameWidth, sender.portData->m_name).c_str());
+            wprintw(pad, " %s |", printEntry(serviceWidth, publisherPort.portData->m_caproServiceID).c_str());
+            wprintw(pad, " %s |", printEntry(instanceWidth, publisherPort.portData->m_caproInstanceID).c_str());
+            wprintw(pad, " %s |", printEntry(eventWidth, publisherPort.portData->m_caproEventMethodID).c_str());
+            wprintw(pad, " %s |", printEntry(processNameWidth, publisherPort.portData->m_name).c_str());
             wprintw(pad, " %s |", printEntry(sampleSizeWidth, m_sampleSize).c_str());
             wprintw(pad, " %s |", printEntry(chunkSizeWidth, m_chunkSize).c_str());
             wprintw(pad, " %s |", printEntry(chunksWidth, m_chunksPerMinute).c_str());
             wprintw(pad, " %s |", printEntry(intervalWidth, sendInterval).c_str());
-            wprintw(pad, " %s |", printEntry(isFieldWidth, (sender.throughputData->m_isField ? "X" : "")).c_str());
             wprintw(
                 pad,
                 " %s\n",
                 printEntry(interfaceSourceWidth,
                            (iox::capro::INTERFACE_NAMES[static_cast<std::underlying_type<iox::capro::Interfaces>::type>(
-                               sender.portData->m_sourceInterface)]))
+                               publisherPort.portData->m_sourceInterface)]))
                     .c_str());
 
 
@@ -399,14 +400,13 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, "\n");
 
     constexpr int32_t processUsedWidth{-41};
-    prettyPrint("Receiver Ports\n", PrettyOptions::bold);
+    prettyPrint("Subscriber Ports\n", PrettyOptions::bold);
 
     wprintw(pad, " %*s |", serviceWidth, "Service");
     wprintw(pad, " %*s |", instanceWidth, "Instance");
     wprintw(pad, " %*s |", eventWidth, "Event");
     wprintw(pad, " %*s |", subscriptionStateWidth, "Subscription");
     wprintw(pad, " %*s |", fifoWidth, "FiFo");
-    wprintw(pad, " %*s |", callbackActiveWidth, "Callback");
     wprintw(pad, " %*s |", scopeWidth, "Propagation");
     wprintw(pad, " %*s\n", processUsedWidth, "used by process");
 
@@ -415,9 +415,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, " %*s |", eventWidth, "");
     wprintw(pad, " %*s |", subscriptionStateWidth, "State");
     wprintw(pad, " %*s |", fifoWidth, "size / capacity");
-    wprintw(pad, " %*s |", callbackActiveWidth, "");
     wprintw(pad, " %*s |", scopeWidth, "scope");
-    wprintw(pad, " %*s\n", processUsedWidth, "   ^--- connected to sender port process");
+    wprintw(pad, " %*s\n", processUsedWidth, "   ^--- connected to publisher port process");
 
     wprintw(pad, "---------------------------------------------------------------------------------------------------");
     wprintw(pad, "---------------------------------------------------\n");
@@ -445,29 +444,28 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
         }
     };
 
-    for (auto& receiver : receiverPortData)
+    for (auto& subscriber : subscriberPortData)
     {
         currentLine = 0;
         do
         {
             needsLineBreak = false;
-            wprintw(pad, " %s |", printEntry(serviceWidth, receiver.portData->m_caproServiceID).c_str());
-            wprintw(pad, " %s |", printEntry(instanceWidth, receiver.portData->m_caproInstanceID).c_str());
-            wprintw(pad, " %s |", printEntry(eventWidth, receiver.portData->m_caproEventMethodID).c_str());
+            wprintw(pad, " %s |", printEntry(serviceWidth, subscriber.portData->m_caproServiceID).c_str());
+            wprintw(pad, " %s |", printEntry(instanceWidth, subscriber.portData->m_caproInstanceID).c_str());
+            wprintw(pad, " %s |", printEntry(eventWidth, subscriber.portData->m_caproEventMethodID).c_str());
             wprintw(pad,
                     " %s |",
                     printEntry(subscriptionStateWidth,
-                               subscriptionStateToString(receiver.receiverPortChangingData->subscriptionState))
+                               subscriptionStateToString(subscriber.subscriberPortChangingData->subscriptionState))
                         .c_str());
             if (currentLine == 0)
             {
-                wprintw(
-                    pad,
-                    " %s / %s |",
-                    printEntry(((fifoWidth / 2) - 1), std::to_string(receiver.receiverPortChangingData->fifoSize))
-                        .c_str(),
-                    printEntry(((fifoWidth / 2) - 1), std::to_string(receiver.receiverPortChangingData->fifoCapacity))
-                        .c_str());
+                std::string fifoSize{"n/a"};     // std::to_string(subscriber.subscriberPortChangingData->fifoSize))
+                std::string fifoCapacity{"n/a"}; // std::to_string(subscriber.subscriberPortChangingData->fifoCapacity))
+                wprintw(pad,
+                        " %s / %s |",
+                        printEntry(((fifoWidth / 2) - 1), fifoSize).c_str(),
+                        printEntry(((fifoWidth / 2) - 1), fifoCapacity).c_str());
             }
             else
             {
@@ -475,17 +473,12 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
             }
             wprintw(pad,
                     " %s |",
-                    printEntry(callbackActiveWidth,
-                               (receiver.receiverPortChangingData->sampleSendCallbackActive) ? "X" : "")
-                        .c_str());
-            wprintw(pad,
-                    " %s |",
                     printEntry(scopeWidth,
                                std::string(capro::ScopeTypeString[static_cast<std::underlying_type<capro::Scope>::type>(
-                                   receiver.receiverPortChangingData->propagationScope)]))
+                                   subscriber.subscriberPortChangingData->propagationScope)]))
                         .c_str());
 
-            wprintw(pad, " %s\n", printEntry(processUsedWidth, receiver.portData->m_name).c_str());
+            wprintw(pad, " %s\n", printEntry(processUsedWidth, subscriber.portData->m_name).c_str());
             currentLine++;
         } while (needsLineBreak);
 
@@ -494,14 +487,13 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
         wprintw(pad, " %*s |", eventWidth, "");
         wprintw(pad, " %*s |", subscriptionStateWidth, "");
         wprintw(pad, " %*s |", fifoWidth, "");
-        wprintw(pad, " %*s |", callbackActiveWidth, "");
         wprintw(pad, " %*s |", scopeWidth, "");
         wprintw(pad, "    ^--- ");
 
-        if (receiver.correspondingSenderPort != nullptr)
+        if (subscriber.correspondingPublisherPort != nullptr)
         {
-            // use the not sorted portData, because the m_senderIndex refers to the original unsorted data
-            prettyPrint(receiver.correspondingSenderPort->m_name);
+            // use the not sorted portData, because the m_publisherIndex refers to the original unsorted data
+            prettyPrint(subscriber.correspondingPublisherPort->m_name);
         }
         else
         {
@@ -511,113 +503,120 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     }
 }
 
-bool IntrospectionApp::waitForSubscription(SubscriberType& port)
+template <typename Subscriber>
+bool IntrospectionApp::waitForSubscription(Subscriber& port)
 {
     uint32_t numberOfLoopsTillTimeout{100};
     bool subscribed{false};
-    while ((subscribed = (port.getSubscriptionState() == iox::popo::SubscriptionState::SUBSCRIBED)),
+    while ((subscribed = (port.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)),
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
     }
 
     return subscribed;
 }
 
-std::vector<ComposedSenderPortData>
-IntrospectionApp::composeSenderPortData(const PortIntrospectionFieldTopic* portData,
-                                        const PortThroughputIntrospectionFieldTopic* throughputData)
+std::vector<ComposedPublisherPortData>
+IntrospectionApp::composePublisherPortData(const PortIntrospectionFieldTopic* portData,
+                                           const PortThroughputIntrospectionFieldTopic* throughputData)
 {
-    std::vector<ComposedSenderPortData> senderPortData;
-    senderPortData.reserve(portData->m_senderList.size());
+    std::vector<ComposedPublisherPortData> publisherPortData;
+    publisherPortData.reserve(portData->m_publisherList.size());
 
     const PortThroughputData dummyThroughputData;
 
-    auto& m_senderList = portData->m_senderList;
+    auto& m_publisherList = portData->m_publisherList;
     auto& m_throughputList = throughputData->m_throughputList;
-    const bool fastLookup = (m_senderList.size() == m_throughputList.size());
-    for (uint64_t i = 0u; i < m_senderList.size(); ++i)
+    const bool fastLookup = (m_publisherList.size() == m_throughputList.size());
+    for (uint64_t i = 0u; i < m_publisherList.size(); ++i)
     {
-        bool found = (fastLookup && m_senderList[i].m_senderPortID == m_throughputList[i].m_senderPortID);
+        bool found = (fastLookup && m_publisherList[i].m_publisherPortID == m_throughputList[i].m_publisherPortID);
         if (found)
         {
-            senderPortData.push_back({m_senderList[i], m_throughputList[i]});
+            publisherPortData.push_back({m_publisherList[i], m_throughputList[i]});
             continue;
         }
         else
         {
             for (const auto& throughput : m_throughputList)
             {
-                if (m_senderList[i].m_senderPortID == throughput.m_senderPortID)
+                if (m_publisherList[i].m_publisherPortID == throughput.m_publisherPortID)
                 {
-                    senderPortData.push_back({m_senderList[i], throughput});
+                    publisherPortData.push_back({m_publisherList[i], throughput});
                     found = true;
                     break;
                 }
             }
             if (!found)
             {
-                senderPortData.push_back({m_senderList[i], dummyThroughputData});
+                publisherPortData.push_back({m_publisherList[i], dummyThroughputData});
             }
         }
     }
 
-    auto senderSortCriterion = [](const ComposedSenderPortData& sender1, const ComposedSenderPortData& sender2) {
-        std::string name1(sender1.portData->m_name.c_str());
-        std::string name2(sender2.portData->m_name.c_str());
+    auto publisherSortCriterion = [](const ComposedPublisherPortData& publisher1,
+                                     const ComposedPublisherPortData& publisher2) {
+        std::string name1(publisher1.portData->m_name.c_str());
+        std::string name2(publisher2.portData->m_name.c_str());
         return name1.compare(name2) < 0;
     };
-    std::sort(senderPortData.begin(), senderPortData.end(), senderSortCriterion);
+    std::sort(publisherPortData.begin(), publisherPortData.end(), publisherSortCriterion);
 
-    return senderPortData;
+    return publisherPortData;
 }
 
-std::vector<ComposedReceiverPortData>
-IntrospectionApp::composeReceiverPortData(const PortIntrospectionFieldTopic* portData,
-                                          const ReceiverPortChangingIntrospectionFieldTopic* receiverPortChangingData)
+std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortData(
+    const PortIntrospectionFieldTopic* portData,
+    const SubscriberPortChangingIntrospectionFieldTopic* subscriberPortChangingData)
 {
-    std::vector<ComposedReceiverPortData> receiverPortData;
-    receiverPortData.reserve(portData->m_receiverList.size());
+    std::vector<ComposedSubscriberPortData> subscriberPortData;
+    subscriberPortData.reserve(portData->m_subscriberList.size());
 
-    uint32_t i = 0u;
-    if (portData->m_receiverList.size() == receiverPortChangingData->receiverPortChangingDataList.size())
+    uint32_t i = 0U;
+    if (portData->m_subscriberList.size() == subscriberPortChangingData->subscriberPortChangingDataList.size())
     { // should be the same, else it will be soon
-        for (const auto& port : portData->m_receiverList)
+        for (const auto& port : portData->m_subscriberList)
         {
-            receiverPortData.push_back(
+            subscriberPortData.push_back(
                 {port,
-                 (port.m_senderIndex != -1) ? &portData->m_senderList[port.m_senderIndex] : nullptr,
-                 receiverPortChangingData->receiverPortChangingDataList[i++]});
+                 (port.m_publisherIndex != -1) ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)] : nullptr,
+                 subscriberPortChangingData->subscriberPortChangingDataList[i++]});
         }
     }
 
-    auto receiverSortCriterion = [](const ComposedReceiverPortData& receiver1,
-                                    const ComposedReceiverPortData& receiver2) {
-        std::string name1(receiver1.portData->m_name.c_str());
-        std::string name2(receiver2.portData->m_name.c_str());
+    auto subscriberSortCriterion = [](const ComposedSubscriberPortData& subscriber1,
+                                      const ComposedSubscriberPortData& subscriber2) {
+        std::string name1(subscriber1.portData->m_name.c_str());
+        std::string name2(subscriber2.portData->m_name.c_str());
         return name1.compare(name2) < 0;
     };
-    std::sort(receiverPortData.begin(), receiverPortData.end(), receiverSortCriterion);
+    std::sort(subscriberPortData.begin(), subscriberPortData.end(), subscriberSortCriterion);
 
-    return receiverPortData;
+    return subscriberPortData;
 }
 
 void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodMs,
                                         const IntrospectionSelection introspectionSelection)
 {
-    iox::runtime::PoshRuntime::getInstance(iox::roudi::INTROSPECTION_MQ_APP_NAME);
+    iox::runtime::PoshRuntime::initRuntime(iox::roudi::INTROSPECTION_APP_NAME);
 
     using namespace iox::roudi;
 
     initTerminal();
     prettyPrint("### Iceoryx Introspection Client ###\n\n", PrettyOptions::title);
 
+    popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 1U;
+    subscriberOptions.historyRequest = 1U;
+
     // mempool
-    SubscriberType memPoolSubscriber(IntrospectionMempoolService);
+    iox::popo::TypedSubscriber<MemPoolIntrospectionInfoContainer> memPoolSubscriber(IntrospectionMempoolService,
+                                                                                    subscriberOptions);
     if (introspectionSelection.mempool == true)
     {
-        memPoolSubscriber.subscribe(1u);
+        memPoolSubscriber.subscribe();
 
         if (waitForSubscription(memPoolSubscriber) == false)
         {
@@ -627,10 +626,11 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     }
 
     // process
-    SubscriberType processSubscriber(IntrospectionProcessService);
+    iox::popo::TypedSubscriber<ProcessIntrospectionFieldTopic> processSubscriber(IntrospectionProcessService,
+                                                                                 subscriberOptions);
     if (introspectionSelection.process == true)
     {
-        processSubscriber.subscribe(1u);
+        processSubscriber.subscribe();
 
         if (waitForSubscription(processSubscriber) == false)
         {
@@ -640,17 +640,17 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     }
 
     // port
-    SubscriberType portSubscriber(IntrospectionPortService);
-
-    SubscriberType portThroughputSubscriber(IntrospectionPortThroughputService);
-
-    SubscriberType receiverPortChangingDataSubscriber(IntrospectionReceiverPortChangingDataService);
+    iox::popo::TypedSubscriber<PortIntrospectionFieldTopic> portSubscriber(IntrospectionPortService, subscriberOptions);
+    iox::popo::TypedSubscriber<PortThroughputIntrospectionFieldTopic> portThroughputSubscriber(
+        IntrospectionPortThroughputService, subscriberOptions);
+    iox::popo::TypedSubscriber<SubscriberPortChangingIntrospectionFieldTopic> subscriberPortChangingDataSubscriber(
+        IntrospectionSubscriberPortChangingDataService, subscriberOptions);
 
     if (introspectionSelection.port == true)
     {
-        portSubscriber.subscribe(1u);
-        portThroughputSubscriber.subscribe(1u);
-        receiverPortChangingDataSubscriber.subscribe(1u);
+        portSubscriber.subscribe();
+        portThroughputSubscriber.subscribe();
+        subscriberPortChangingDataSubscriber.subscribe();
 
         if (waitForSubscription(portSubscriber) == false)
         {
@@ -661,9 +661,9 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             prettyPrint("Timeout while waiting for subscription for port throughput introspection data!\n",
                         PrettyOptions::error);
         }
-        if (waitForSubscription(receiverPortChangingDataSubscriber) == false)
+        if (waitForSubscription(subscriberPortChangingDataSubscriber) == false)
         {
-            prettyPrint("Timeout while waiting for Subscription for Receiver Port Introspection Changing Data!\n",
+            prettyPrint("Timeout while waiting for Subscription for Subscriber Port Introspection Changing Data!\n",
                         PrettyOptions::error);
         }
     }
@@ -671,17 +671,11 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     // Refresh once in case of timeout messages
     refreshTerminal();
 
-    const void* rawProcessSample{nullptr};
-    const ProcessIntrospectionFieldTopic* typedProcessSample{nullptr};
-
-    const void* rawPortSample{nullptr};
-    const PortIntrospectionFieldTopic* typedPortSample{nullptr};
-
-    const void* rawPortThroughputSample{nullptr};
-    const PortThroughputIntrospectionFieldTopic* typedPortThroughputSample{nullptr};
-
-    const void* rawReceiverPortChangingDataSamples{nullptr};
-    const ReceiverPortChangingIntrospectionFieldTopic* typedReceiverPortChangingDataSamples{nullptr};
+    cxx::optional<popo::Sample<const MemPoolIntrospectionInfoContainer>> memPoolSample;
+    cxx::optional<popo::Sample<const ProcessIntrospectionFieldTopic>> processSample;
+    cxx::optional<popo::Sample<const PortIntrospectionFieldTopic>> portSample;
+    cxx::optional<popo::Sample<const PortThroughputIntrospectionFieldTopic>> portThroughputSample;
+    cxx::optional<popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>> subscriberPortChangingDataSamples;
 
     while (true)
     {
@@ -699,110 +693,68 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            const void* rawMempoolSample{nullptr};
+            memPoolSubscriber.take().and_then(
+                [&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) { memPoolSample = sample; });
 
-            while (!rawMempoolSample)
+            if (memPoolSample)
             {
-                memPoolSubscriber.getChunk(&rawMempoolSample);
-            }
-
-            const MemPoolIntrospectionInfoContainer* mempoolSample =
-                static_cast<const MemPoolIntrospectionInfoContainer*>(rawMempoolSample);
-
-            if (mempoolSample->empty())
-            {
-                prettyPrint("Waiting for mempool introspection data ...\n");
-            }
-            else
-            {
-                for (const auto& i : *mempoolSample)
+                for (const auto& i : *(memPoolSample.value().get()))
                 {
                     printMemPoolInfo(i);
                 }
             }
-
-            memPoolSubscriber.releaseChunk(rawMempoolSample);
+            else
+            {
+                prettyPrint("Waiting for mempool introspection data ...\n");
+            }
         }
 
         // print process information
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            if (!processSubscriber.hasNewChunks())
+            processSubscriber.take().and_then(
+                [&](iox::popo::Sample<const ProcessIntrospectionFieldTopic>& sample) { processSample = sample; });
+
+            if (processSample)
             {
-                // No new data sent, hence print the old data
-                if (typedProcessSample != nullptr)
-                {
-                    printProcessIntrospectionData(typedProcessSample);
-                }
-                else
-                {
-                    prettyPrint("Waiting for process introspection data ...\n");
-                }
+                printProcessIntrospectionData(processSample.value().get());
             }
             else
             {
-                if (processSubscriber.getChunk(&rawProcessSample))
-                {
-                    typedProcessSample = static_cast<const ProcessIntrospectionFieldTopic*>(rawProcessSample);
-                    printProcessIntrospectionData(typedProcessSample);
-                    processSubscriber.releaseChunk(rawProcessSample);
-                }
+                prettyPrint("Waiting for process introspection data ...\n");
             }
         }
 
         // print port information
         if (introspectionSelection.port == true)
         {
-            bool newPortSampleArrived{false};
-            bool newPortThroughputSampleeArrived{false};
-            bool newReceiverPortChangingDataSamplesArrived{false};
+            portSubscriber.take().and_then(
+                [&](iox::popo::Sample<const PortIntrospectionFieldTopic>& sample) { portSample = sample; });
 
-            if (portSubscriber.getChunk(&rawPortSample))
-            {
-                typedPortSample = static_cast<const PortIntrospectionFieldTopic*>(rawPortSample);
-                newPortSampleArrived = true;
-            }
-            if (portThroughputSubscriber.getChunk(&rawPortThroughputSample))
-            {
-                typedPortThroughputSample =
-                    static_cast<const PortThroughputIntrospectionFieldTopic*>(rawPortThroughputSample);
-                newPortThroughputSampleeArrived = true;
-            }
-            if (receiverPortChangingDataSubscriber.getChunk(&rawReceiverPortChangingDataSamples))
-            {
-                typedReceiverPortChangingDataSamples =
-                    static_cast<const ReceiverPortChangingIntrospectionFieldTopic*>(rawReceiverPortChangingDataSamples);
-                newReceiverPortChangingDataSamplesArrived = true;
-            }
+            portThroughputSubscriber.take().and_then(
+                [&](iox::popo::Sample<const PortThroughputIntrospectionFieldTopic>& sample) {
+                    portThroughputSample = sample;
+                });
 
-            if (typedPortSample != nullptr && typedPortThroughputSample != nullptr
-                && typedReceiverPortChangingDataSamples != nullptr)
+            subscriberPortChangingDataSubscriber.take().and_then(
+                [&](iox::popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>& sample) {
+                    subscriberPortChangingDataSamples = sample;
+                });
+
+            if (portSample && portThroughputSample && subscriberPortChangingDataSamples)
             {
                 prettyPrint("### Connections ###\n\n", PrettyOptions::highlight);
+                auto composedPublisherPortData =
+                    composePublisherPortData(portSample.value().get(), portThroughputSample.value().get());
+                auto composedSubscriberPortData = composeSubscriberPortData(
+                    portSample.value().get(), subscriberPortChangingDataSamples.value().get());
 
-                auto composedSenderPortData = composeSenderPortData(typedPortSample, typedPortThroughputSample);
-                auto composedReceiverPortData =
-                    composeReceiverPortData(typedPortSample, typedReceiverPortChangingDataSamples);
-
-                printPortIntrospectionData(composedSenderPortData, composedReceiverPortData);
+                printPortIntrospectionData(composedPublisherPortData, composedSubscriberPortData);
             }
             else
             {
                 prettyPrint("Waiting for port introspection data ...\n");
-            }
-
-            if (newPortSampleArrived)
-            {
-                portSubscriber.releaseChunk(rawPortSample);
-            }
-            if (newPortThroughputSampleeArrived)
-            {
-                portThroughputSubscriber.releaseChunk(rawPortThroughputSample);
-            }
-            if (newReceiverPortChangingDataSamplesArrived)
-            {
-                receiverPortChangingDataSubscriber.releaseChunk(rawReceiverPortChangingDataSamples);
             }
         }
 

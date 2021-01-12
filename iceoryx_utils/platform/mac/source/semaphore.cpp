@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,17 +21,7 @@
 #include <iostream>
 #include <thread>
 
-static void deleteValue(std::atomic<int>*& value) noexcept
-{
-    if (value != nullptr)
-    {
-        delete value;
-        value = nullptr;
-    }
-}
-
 iox_sem_t::iox_sem_t() noexcept
-    : m_value{new std::atomic<int>}
 {
 }
 
@@ -42,25 +32,24 @@ iox_sem_t::iox_sem_t(iox_sem_t&& rhs) noexcept
 
 iox_sem_t::~iox_sem_t()
 {
-    deleteValue(m_value);
 }
 
 iox_sem_t& iox_sem_t::operator=(iox_sem_t&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        deleteValue(m_value);
+        m_value.store(rhs.m_value.load());
         m_handle = rhs.m_handle;
         m_hasPosixHandle = rhs.m_hasPosixHandle;
-        m_value = rhs.m_value;
-        rhs.m_value = nullptr;
+
+        rhs.m_value.store(0);
     }
     return *this;
 }
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
-    *sval = sem->m_value->load(std::memory_order_relaxed);
+    *sval = sem->m_value.load(std::memory_order_relaxed);
     return 0;
 }
 
@@ -72,14 +61,16 @@ int iox_sem_post(iox_sem_t* sem)
         retVal = sem_post(sem->m_handle.posix);
         if (retVal == 0)
         {
-            sem->m_value->fetch_add(1, std::memory_order_relaxed);
+            sem->m_value.fetch_add(1, std::memory_order_relaxed);
         }
     }
     else
     {
-        // dispatch semaphore always succeed
-        dispatch_semaphore_signal(sem->m_handle.dispatch);
-        sem->m_value->fetch_add(1, std::memory_order_relaxed);
+        pthread_mutex_lock(&sem->m_handle.condition.mtx);
+        sem->m_value.fetch_add(1, std::memory_order_relaxed);
+        pthread_mutex_unlock(&sem->m_handle.condition.mtx);
+
+        pthread_cond_signal(&sem->m_handle.condition.variable);
     }
     return retVal;
 }
@@ -92,14 +83,19 @@ int iox_sem_wait(iox_sem_t* sem)
         retVal = sem_wait(sem->m_handle.posix);
         if (retVal == 0)
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
         }
     }
     else
     {
-        // dispatch semaphore always succeed
-        dispatch_semaphore_wait(sem->m_handle.dispatch, DISPATCH_TIME_FOREVER);
-        sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+        pthread_mutex_lock(&sem->m_handle.condition.mtx);
+        while (sem->m_value.load(std::memory_order_relaxed) == 0)
+        {
+            pthread_cond_wait(&sem->m_handle.condition.variable, &sem->m_handle.condition.mtx);
+        }
+        sem->m_value.fetch_sub(1, std::memory_order_relaxed);
+        pthread_mutex_unlock(&sem->m_handle.condition.mtx);
+        return retVal;
     }
 
     return retVal;
@@ -113,20 +109,22 @@ int iox_sem_trywait(iox_sem_t* sem)
         retVal = sem_trywait(sem->m_handle.posix);
         if (retVal == 0)
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
         }
     }
     else
     {
-        if (dispatch_semaphore_wait(sem->m_handle.dispatch, 0) != 0)
+        pthread_mutex_lock(&sem->m_handle.condition.mtx);
+        if (sem->m_value.load(std::memory_order_relaxed) > 0)
+        {
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
+        }
+        else
         {
             errno = EAGAIN;
             retVal = -1;
         }
-        else
-        {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
-        }
+        pthread_mutex_unlock(&sem->m_handle.condition.mtx);
     }
 
     return retVal;
@@ -147,6 +145,11 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
     if (sem->m_hasPosixHandle)
     {
         int tryWaitCall = sem_trywait(sem->m_handle.posix);
+        constexpr int ETIMEDOUT_PLUS_256 = ETIMEDOUT + 256;
+        if (errno == ETIMEDOUT_PLUS_256)
+        {
+            errno &= 0xFF;
+        }
         if (tryWaitCall == -1 && errno != EAGAIN)
         {
             return -1;
@@ -158,13 +161,18 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else if (tryWaitCall == 0)
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
 
         std::this_thread::sleep_for(std::chrono::nanoseconds(timeoutInNanoSeconds));
 
         tryWaitCall = sem_trywait(sem->m_handle.posix);
+        if (errno == ETIMEDOUT_PLUS_256)
+        {
+            errno &= 0xFF;
+        }
+        errno &= 0xFF;
         if (tryWaitCall == -1 && errno == EAGAIN)
         {
             errno = ETIMEDOUT;
@@ -176,23 +184,30 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else if (tryWaitCall == 0)
         {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
+            sem->m_value.fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
     }
     else
     {
-        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, timeoutInNanoSeconds);
-        if (dispatch_semaphore_wait(sem->m_handle.dispatch, timeout) != 0)
+        pthread_mutex_lock(&sem->m_handle.condition.mtx);
+        if (sem->m_value.load(std::memory_order_relaxed) == 0)
         {
-            errno = ETIMEDOUT;
-            return -1;
+            if (pthread_cond_timedwait(&sem->m_handle.condition.variable, &sem->m_handle.condition.mtx, abs_timeout)
+                != 0)
+            {
+                constexpr int ETIMEDOUT_PLUS_256 = ETIMEDOUT + 256;
+                if (errno == ETIMEDOUT_PLUS_256)
+                {
+                    errno &= 0xFF;
+                }
+                pthread_mutex_unlock(&sem->m_handle.condition.mtx);
+                return -1;
+            }
         }
-        else
-        {
-            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
-            return 0;
-        }
+        sem->m_value.fetch_sub(1, std::memory_order_relaxed);
+        pthread_mutex_unlock(&sem->m_handle.condition.mtx);
+        return 0;
     }
 
     return -1;
@@ -202,6 +217,8 @@ int iox_sem_close(iox_sem_t* sem)
 {
     // will only be called by named semaphores which are in our case
     // posix semaphores
+    // therefor we have to call delete since we created the iox_sem_t object
+    // with new in iox_sem_open
     int retVal = sem_close(sem->m_handle.posix);
     delete sem;
     return retVal;
@@ -211,21 +228,69 @@ int iox_sem_destroy(iox_sem_t* sem)
 {
     // will only be called by unnamed semaphores which are in our
     // case dispatch semaphores
-    dispatch_release(sem->m_handle.dispatch);
+    pthread_mutex_destroy(&sem->m_handle.condition.mtx);
+    pthread_cond_destroy(&sem->m_handle.condition.variable);
+    // no delete necessary since the user is providing memory here
     return 0;
 }
 
 int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
 {
-    sem->m_hasPosixHandle = false;
-    sem->m_handle.dispatch = dispatch_semaphore_create(value);
-    sem->m_value->store(value, std::memory_order_relaxed);
-
-    if (sem->m_handle.dispatch == nullptr)
+    // init mutex attribute
+    pthread_mutexattr_t mutexAttr;
+    if (pthread_mutexattr_init(&mutexAttr) != 0)
     {
-        delete sem;
+        printf("failed to initialize mutexattr\n");
         return -1;
     }
+
+    if (pthread_mutexattr_setpshared(&mutexAttr, PTHREAD_PROCESS_SHARED) != 0)
+    {
+        pthread_mutexattr_destroy(&mutexAttr);
+        printf("unable to set the shared process mutex attribute\n");
+        return -1;
+    }
+
+    // init condition variable attribute
+    pthread_condattr_t condAttr;
+    if (pthread_condattr_init(&condAttr) != 0)
+    {
+        pthread_mutexattr_destroy(&mutexAttr);
+        printf("failed to initialize condattr\n");
+        return -1;
+    }
+
+    if (pthread_condattr_setpshared(&condAttr, PTHREAD_PROCESS_SHARED) != 0)
+    {
+        pthread_condattr_destroy(&condAttr);
+        pthread_mutexattr_destroy(&mutexAttr);
+        printf("unable to set the shared process condition variable attribute\n");
+        return -1;
+    }
+
+    if (pthread_mutex_init(&sem->m_handle.condition.mtx, &mutexAttr) != 0)
+    {
+        pthread_condattr_destroy(&condAttr);
+        pthread_mutexattr_destroy(&mutexAttr);
+        printf("failed to initialize inter process mutex\n");
+        return -1;
+    }
+
+    if (pthread_cond_init(&sem->m_handle.condition.variable, &condAttr) != 0)
+    {
+        pthread_mutex_destroy(&sem->m_handle.condition.mtx);
+        pthread_condattr_destroy(&condAttr);
+        pthread_mutexattr_destroy(&mutexAttr);
+        printf("failed to initialize inter process condition variable\n");
+        return -1;
+    }
+
+    pthread_condattr_destroy(&condAttr);
+    pthread_mutexattr_destroy(&mutexAttr);
+
+    sem->m_hasPosixHandle = false;
+    sem->m_value.store(static_cast<int>(value), std::memory_order_relaxed);
+
     return 0;
 }
 
@@ -241,6 +306,12 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
         return reinterpret_cast<iox_sem_t*>(SEM_FAILED);
     }
 
+    // sem_open creates a named semaphore which is corresponding to a file.
+    // the posix version creates also something on the heap and if you would
+    // like to share this semaphore you should open the named semaphore with
+    // sem_open in another process. Sharing this semaphore via shared memory
+    // is always wrong!
+    // Hence, it is allowed to use new/delete in this case.
     iox_sem_t* sem = new iox_sem_t;
 
     if (oflag & (O_CREAT | O_EXCL))
@@ -255,7 +326,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
         va_end(va);
 
         sem->m_handle.posix = sem_open(name, oflag, mode, value);
-        sem->m_value->store(value, std::memory_order_relaxed);
+        sem->m_value.store(static_cast<int>(value), std::memory_order_relaxed);
     }
     else
     {

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
 // limitations under the License.
 
 
+#include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 using namespace iox;
@@ -36,15 +37,19 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       uint64_t historyRequest)
+                       const uint64_t queueCapacity,
+                       const uint64_t historyRequest)
 {
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
+    SubscriberOptions options;
+    options.queueCapacity = queueCapacity;
+    options.historyRequest = historyRequest;
     me->m_portData =
-        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString(TruncateToCapacity, service),
-                                                                              IdString(TruncateToCapacity, instance),
-                                                                              IdString(TruncateToCapacity, event)},
-                                                           historyRequest);
+        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
+                                                                              IdString_t(TruncateToCapacity, instance),
+                                                                              IdString_t(TruncateToCapacity, event)},
+                                                           options);
 
     return me;
 }
@@ -54,9 +59,9 @@ void iox_sub_deinit(iox_sub_t const self)
     self->~cpp2c_Subscriber();
 }
 
-void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity)
+void iox_sub_subscribe(iox_sub_t const self)
 {
-    SubscriberPortUser(self->m_portData).subscribe(queueCapacity);
+    SubscriberPortUser(self->m_portData).subscribe();
 }
 
 void iox_sub_unsubscribe(iox_sub_t const self)
@@ -88,7 +93,7 @@ iox_ChunkReceiveResult iox_sub_get_chunk(iox_sub_t const self, const void** cons
 
 void iox_sub_release_chunk(iox_sub_t const self, const void* const chunk)
 {
-    SubscriberPortUser(self->m_portData).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
+    SubscriberPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
 }
 
 void iox_sub_release_queued_chunks(iox_sub_t const self)
@@ -96,7 +101,7 @@ void iox_sub_release_queued_chunks(iox_sub_t const self)
     SubscriberPortUser(self->m_portData).releaseQueuedChunks();
 }
 
-bool iox_sub_has_new_chunks(iox_sub_t const self)
+bool iox_sub_has_chunks(iox_sub_t const self)
 {
     return SubscriberPortUser(self->m_portData).hasNewChunks();
 }

@@ -50,7 +50,7 @@ mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const
          10});
     mempoolConfig.m_mempoolConfig.push_back(
         {static_cast<uint32_t>(
-             cxx::align(static_cast<uint64_t>(sizeof(roudi::ReceiverPortChangingIntrospectionFieldTopic)),
+             cxx::align(static_cast<uint64_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)),
                         SHARED_MEMORY_ALIGNMENT)),
          10});
 

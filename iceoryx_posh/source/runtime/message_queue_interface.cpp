@@ -60,7 +60,7 @@ std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<MqMessageErrorType>::type>(msg));
 }
 
-MqBase::MqBase(const std::string& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
+MqBase::MqBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -87,7 +87,7 @@ bool MqBase::receive(MqMessage& answer) const noexcept
 bool MqBase::timedReceive(const units::Duration timeout, MqMessage& answer) const noexcept
 {
     return !m_mq.timedReceive(timeout)
-                .and_then([&answer](std::string& message) { MqBase::setMessageFromString(message.c_str(), answer); })
+                .and_then([&answer](auto& message) { MqBase::setMessageFromString(message.c_str(), answer); })
                 .has_error()
            && answer.isValid();
 }
@@ -143,7 +143,7 @@ bool MqBase::timedSend(const MqMessage& msg, units::Duration timeout) const noex
     return !m_mq.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
-const std::string& MqBase::getInterfaceName() const noexcept
+const ProcessName_t& MqBase::getInterfaceName() const noexcept
 {
     return m_interfaceName;
 }
@@ -160,7 +160,7 @@ bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     m_channelSide = channelSide;
     IpcChannelType::create(
         m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .and_then([this](IpcChannelType& mq) { this->m_mq = std::move(mq); });
+        .and_then([this](auto& mq) { this->m_mq = std::move(mq); });
 
     return m_mq.isInitialized();
 }
@@ -185,7 +185,7 @@ bool MqBase::hasClosableMessageQueue() const noexcept
     return m_mq.isInitialized();
 }
 
-void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
+void MqBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
 {
     if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
     {
@@ -193,15 +193,17 @@ void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
     }
 }
 
-MqInterfaceUser::MqInterfaceUser(const std::string& name, const int64_t maxMessages, const int64_t messageSize) noexcept
+MqInterfaceUser::MqInterfaceUser(const ProcessName_t& name,
+                                 const uint64_t maxMessages,
+                                 const uint64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     openMessageQueue(posix::IpcChannelSide::CLIENT);
 }
 
-MqInterfaceCreator::MqInterfaceCreator(const std::string& name,
-                                       const int64_t maxMessages,
-                                       const int64_t messageSize) noexcept
+MqInterfaceCreator::MqInterfaceCreator(const ProcessName_t& name,
+                                       const uint64_t maxMessages,
+                                       const uint64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     // check if the mq is still there (e.g. because of no proper termination
@@ -216,14 +218,15 @@ void MqInterfaceCreator::cleanupResource()
     m_mq.destroy();
 }
 
-MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
-                                       const std::string& appName,
+MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
+                                       const ProcessName_t& appName,
                                        const units::Duration roudiWaitingTimeout) noexcept
     : m_appName(appName)
     , m_AppMqInterface(appName)
     , m_RoudiMqInterface(roudiName)
 {
-    if (!m_AppMqInterface.isInitialized()) {
+    if (!m_AppMqInterface.isInitialized())
+    {
         errorHandler(Error::kMQ_INTERFACE__UNABLE_TO_CREATE_APPLICATION_MQ);
         return;
     }
@@ -410,29 +413,30 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
     size_t retryCounter = 0;
     while (retryCounter++ < MAX_RETRY_COUNT)
     {
+        using namespace units::duration_literals;
         MqMessage receiveBuffer;
         // wait for MqMessageType::REG_ACK from RouDi for 1 seconds
         if (m_AppMqInterface.timedReceive(1_s, receiveBuffer))
         {
-            std::string cmd = receiveBuffer.getElementAtIndex(0);
+            std::string cmd = receiveBuffer.getElementAtIndex(0U);
 
             if (stringToMqMessageType(cmd.c_str()) == MqMessageType::REG_ACK)
             {
-                constexpr uint32_t REGISTER_ACK_PARAMETERS = 5;
+                constexpr uint32_t REGISTER_ACK_PARAMETERS = 5U;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
                     errorHandler(Error::kMQ_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
                 }
 
                 // read out the shared memory base address and save it
-                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), m_shmTopicSize);
-                RelativePointer::offset_t offset;
-                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), offset);
+                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), m_shmTopicSize);
+                RelativePointer::offset_t offset{0U};
+                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), offset);
                 m_segmentManagerAddressOffset.emplace(offset);
 
-                int64_t receivedTimestamp;
-                cxx::convert::fromString(receiveBuffer.getElementAtIndex(3).c_str(), receivedTimestamp);
-                cxx::convert::fromString(receiveBuffer.getElementAtIndex(4).c_str(), m_segmentId);
+                int64_t receivedTimestamp{0U};
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(3U).c_str(), receivedTimestamp);
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(4U).c_str(), m_segmentId);
                 if (transmissionTimestamp == receivedTimestamp)
                 {
                     return RegAckResult::SUCCESS;

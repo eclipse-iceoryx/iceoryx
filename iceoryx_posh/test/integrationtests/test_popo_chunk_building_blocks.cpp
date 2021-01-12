@@ -38,7 +38,7 @@ struct DummySample
     uint64_t m_dummy{42};
 };
 
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
+static constexpr uint32_t NUM_CHUNKS_IN_POOL = 9 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
 static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t CHUNK_META_INFO_SIZE = 256;
 static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
@@ -54,7 +54,7 @@ struct ChunkDistributorConfig
 
 struct ChunkQueueConfig
 {
-    static constexpr uint64_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
+    static constexpr uint64_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL / 3;
 };
 
 using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig, ThreadSafePolicy>;
@@ -92,7 +92,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         for (size_t i = 0; i < ITERATIONS; i++)
         {
             m_chunkSender.tryAllocate(sizeof(DummySample), iox::UniquePortId())
-                .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
+                .and_then([&](auto chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
@@ -105,7 +105,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                 });
 
             /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
+            std::this_thread::sleep_for(std::chrono::microseconds(rand() % 100));
         }
         // Signal the next threads we're done
         m_publisherRun = false;
@@ -120,10 +120,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         bool newChunkReceivedInLastIteration{true};
         while (!finished)
         {
-            ASSERT_FALSE(m_popper.hasOverflown());
-
             m_popper.tryPop()
-                .and_then([&](SharedChunk& chunk) {
+                .and_then([&](auto& chunk) {
                     auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
                     // Check if monotonically increasing
                     EXPECT_THAT(dummySample.m_dummy, Eq(forwardCounter));
@@ -158,8 +156,6 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
         while (!finished)
         {
-            ASSERT_FALSE(m_chunkReceiver.hasOverflown());
-
             m_chunkReceiver.tryGet()
                 .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
@@ -241,5 +237,7 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
         subscribingThread.join();
     }
 
+    ASSERT_FALSE(m_popper.hasOverflown());
+    ASSERT_FALSE(m_chunkReceiver.hasOverflown());
     EXPECT_EQ(m_sendCounter, m_receiveCounter);
 }

@@ -1,4 +1,4 @@
-# singleprocess - Transfer data between threads, all in one process
+# Single process
 
 ## Introduction
 
@@ -11,8 +11,10 @@ threads which are interacting without starting separately RouDi everytime.
 
 The example can be started with
 ```sh
-./build/iceoryx_examples/singleprocess/single_process
+build/iceoryx_examples/singleprocess/single_process
 ```
+
+<!-- @todo Replace this with asciinema recording before v1.0-->
 
 After you have started the example you should see an output like
 ```
@@ -22,25 +24,27 @@ Reserving 71546016 bytes in the shared memory [/iceoryx_mgmt]
 Reserving 149655680 bytes in the shared memory [/users]
 [ Reserving shared memory successful ]
 RouDi is ready for clients
-Sending: 0
-Sending: 1
-Receiving : 1
-Sending: 2
-Receiving : 2
-
+Sending   -> 0
+Sending   -> 1
+Receiving <- 0
+Receiving <- 1
+Sending   -> 2
+Receiving <- 2
+Sending   -> 3
 ...
+Finished
 ```
 
 The first lines until `RouDi is ready for clients` are coming from the RouDi
 startup in which the shared memory management segment and user data segment are
 created.
 
-Afterwards the sender and receiver thread are started and are beginning to
+Afterwards the publisher and subscriber thread are started and are beginning to
 transmit and receive data.
 
 ## Code Walkthrough
 
-### Creating a Single Process RouDi, Sender and Receiver
+### Creating a Single Process RouDi, Publisher and Subscriber
 
  1. We start by setting the log level to error since we do not want to see all the
     debug messages.
@@ -66,81 +70,95 @@ transmit and receive data.
     terminate all registered processes when he goes out of scope. If we would set it
     to `true`, our application would self terminate when the destructor is called.
     ```cpp
-    iox::roudi::RouDi roudi(
-        roudiComponents.m_rouDiMemoryManager, roudiComponents.m_portManager, iox::roudi::MonitoringMode::OFF, false);
+    iox::roudi::RouDi roudi(roudiComponents.m_rouDiMemoryManager,
+                            roudiComponents.m_portManager,
+                            iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
     ```
 
  4. Here comes a key difference to an inter process application. If you would like
     to communicate within one process you have to use `PoshRuntimeSingleProcess`.
     You can create only one at a time!
     ```cpp
-    iox::runtime::PoshRuntimeSingleProcess runtime("/singleProcessDemo");
+    iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
     ```
 
- 5. Now that everything is up and running we can start the sender and receiver
+ 5. Now that everything is up and running we can start the publisher and subscriber
     thread, wait two seconds and then stop the example.
     ```cpp
-    std::thread receiverThread(receiver), senderThread(sender);
+    std::thread publisherThread(publisher), subscriberThread(subscriber);
 
     // communicate for 2 seconds and then stop the example
     std::this_thread::sleep_for(std::chrono::seconds(2));
     keepRunning.store(false);
 
-    senderThread.join();
-    receiverThread.join();
+    publisherThread.join();
+    subscriberThread.join();
+
+    std::cout << "Finished" << std::endl;
     ```
 
-### Implementation of Sender and Receiver
+### Implementation of Publisher and Subscriber
 Since there are no differences to inter process ports you can take a look at the
-[icedelivery example](../icedelivery) for a detailled documentation. We only provide
+[icedelivery example](../icedelivery) for a detailed documentation. We only provide
 you here with a short overview.
 
-#### Sender
-We create a publisher port with the following service description
+#### Publisher
+We create a typed publisher with the following service description
 (Service = `Single`, Instance = `Process`, Event = `Demo`) and offer our service
 to the world.
 ```cpp
-iox::popo::Publisher publisher({"Single", "Process", "Demo"});
+iox::popo::PublisherOptions publisherOptions;
+publisherOptions.historyCapacity = 10U;
+iox::popo::TypedPublisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
 publisher.offer();
 ```
-After that we are sending
-incrementing numbers with an 100ms interval in a `while` loop till the
+After that we are sending numbers in ascending order with an 100ms interval in a `while` loop till the
 variable `keepRunning` is false.
 ```cpp
+uint64_t counter{0};
+std::string greenRightArrow("\033[32m->\033[m ");
 while (keepRunning.load())
 {
-    auto sample = static_cast<TransmissionData_t*>(publisher.allocateChunk(sizeof(TransmissionData_t)));
-    sample->counter = counter++;
-    consoleOutput(std::string("Sending: " + std::to_string(sample->counter)));
-    publisher.sendChunk(sample);
+    publisher.loan().and_then([&](auto& sample) {
+        sample->counter = counter++;
+        consoleOutput(std::string("Sending   " + greenRightArrow + std::to_string(sample->counter)));
+        sample.publish();
+    });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 ```
 
-#### Receiver
-Like with the sender we are creating a corresponding subscriber port with the
+#### Subscriber
+Like with the publisher we are creating a corresponding subscriber port with the
 same service description and subscribe to our service.
 ```cpp
-iox::popo::Subscriber subscriber({"Single", "Process", "Demo"});
+    iox::popo::SubscriberOptions options;
+    options.queueCapacity = 10U;
+    options.historyRequest = 5U;
+    iox::popo::TypedSubscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 
-uint64_t cacheQueueSize = 10;
-subscriber.subscribe(cacheQueueSize);
+    subscriber.subscribe();
 ```
 Now we can receive the data in a while loop till `keepRunning` is false. But we
-only try to acquire data if our `SubscriptionState` is `SUBSCRIBED`.
+only try to acquire data if our `SubscribeState` is `SUBSCRIBED`.
 ```cpp
+std::string orangeLeftArrow("\033[33m<-\033[m ");
 while (keepRunning.load())
 {
-    if (iox::popo::SubscriptionState::SUBSCRIBED == subscriber.getSubscriptionState())
+    if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
     {
-        const void* rawSample = nullptr;
-        while (subscriber.getChunk(&rawSample))
+        bool hasMoreSamples{true};
+
+        do
         {
-            auto sample = static_cast<const TransmissionData_t*>(rawSample);
-            consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
-            subscriber.releaseChunk(rawSample);
-        }
+            subscriber.take()
+                .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
+                    consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
+                })
+                .if_empty([&] { hasMoreSamples = false; })
+                .or_else([](auto) { std::cout << "Error receiving sample: " << std::endl; });
+        } while (hasMoreSamples);
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));

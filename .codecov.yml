@@ -18,3 +18,11 @@ coverage:
         target: auto # auto % coverage target
         threshold: 100%  # we allow here 100% change to unblock PRs (will be set later)
     changes: no
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: yes
+      macro: yes

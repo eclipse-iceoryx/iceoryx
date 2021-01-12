@@ -213,7 +213,7 @@ class list
 
     /// @brief remove all elements which matches the provided comparison function
     ///         requires a the template type T to have a operator== defined.
-    /// @param[in] pred unary predicate which returns ​true if the element should be removed
+    /// @param[in] pred unary predicate which returns true if the element should be removed
     /// @return the number of elements removed, return is C++20-conform
     template <typename UnaryPredicate>
     size_type remove_if(UnaryPredicate pred) noexcept;

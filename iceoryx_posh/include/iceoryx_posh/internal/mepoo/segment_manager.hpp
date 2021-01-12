@@ -28,7 +28,7 @@ namespace iox
 {
 namespace roudi
 {
-template <typename MemoryManager, typename SegmentManager, typename SenderPort>
+template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 class MemPoolIntrospection;
 }
 
@@ -50,9 +50,7 @@ class SegmentManager
     struct SegmentMapping
     {
       public:
-        using string_t = cxx::string<128>;
-
-        SegmentMapping(const string_t& sharedMemoryName,
+        SegmentMapping(const ShmName_t& sharedMemoryName,
                        void* startAddress,
                        uint64_t size,
                        bool isWritable,
@@ -68,7 +66,7 @@ class SegmentManager
         {
         }
 
-        string_t m_sharedMemoryName{""};
+        ShmName_t m_sharedMemoryName{""};
         void* m_startAddress{nullptr};
         uint64_t m_size{0};
         bool m_isWritable{false};
@@ -95,7 +93,7 @@ class SegmentManager
     bool createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry);
 
   private:
-    template <typename MemoryManger, typename SegmentManager, typename SenderPort>
+    template <typename MemoryManger, typename SegmentManager, typename PublisherPort>
     friend class roudi::MemPoolIntrospection;
 
     posix::Allocator* m_managementAllocator;

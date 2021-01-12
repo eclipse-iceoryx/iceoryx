@@ -21,30 +21,59 @@ find_package(iceoryx_posh CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatformDetection)
-endif ( NOT ICEORYX_CXX_STANDARD )
+    include(IceoryxPlatform)
+endif ()
 
-add_executable(iox-ex-publisher-waitset ./ice_publisher_waitset.cpp)
-target_link_libraries(iox-ex-publisher-waitset
+add_executable(iox-ex-waitset-publisher ./ice_waitset_publisher.cpp)
+target_link_libraries(iox-ex-waitset-publisher
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-publisher-waitset PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
+target_compile_options(iox-ex-waitset-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-waitset ./ice_subscriber_waitset.cpp)
-target_link_libraries(iox-ex-subscriber-waitset
+add_executable(iox-ex-waitset-gateway ./ice_waitset_gateway.cpp)
+target_link_libraries(iox-ex-waitset-gateway
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-subscriber-waitset PROPERTIES
+target_compile_options(iox-ex-waitset-gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+add_executable(iox-ex-waitset-grouping ./ice_waitset_grouping.cpp)
+target_link_libraries(iox-ex-waitset-grouping
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-ex-waitset-grouping PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+add_executable(iox-ex-waitset-individual ./ice_waitset_individual.cpp)
+target_link_libraries(iox-ex-waitset-individual
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-ex-waitset-individual PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+add_executable(iox-ex-waitset-sync ./ice_waitset_sync.cpp)
+target_link_libraries(iox-ex-waitset-sync
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-ex-waitset-sync PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+add_executable(iox-ex-waitset-trigger ./ice_waitset_trigger.cpp)
+target_link_libraries(iox-ex-waitset-trigger
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-ex-waitset-trigger PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+set_target_properties(
+    iox-ex-waitset-trigger 
+    iox-ex-waitset-sync
+    iox-ex-waitset-individual
+    iox-ex-waitset-grouping
+    iox-ex-waitset-gateway
+    iox-ex-waitset-publisher
+  PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
 install(
-    TARGETS iox-ex-publisher-waitset iox-ex-subscriber-waitset
+    TARGETS iox-ex-waitset-publisher iox-ex-waitset-gateway iox-ex-waitset-grouping iox-ex-waitset-individual iox-ex-waitset-sync iox-ex-waitset-trigger
     RUNTIME DESTINATION bin
 )

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,16 +70,18 @@ class PublisherPort_test : public Test
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
+    iox::popo::PublisherOptions m_publisherOptions;
 
     // publisher port w/o history
     iox::popo::PublisherPortData m_publisherPortData{
-        iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager};
+        iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, m_publisherOptions};
     iox::popo::PublisherPortRouDi m_sutRouDiSide{&m_publisherPortData};
     iox::popo::PublisherPortUser m_sutUserSide{&m_publisherPortData};
 
     // publisher port w/ history
+    iox::popo::PublisherOptions m_publisherPortOptions{iox::MAX_PUBLISHER_HISTORY};
     iox::popo::PublisherPortData m_publisherPortDataHistory{
-        iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, iox::MAX_PUBLISHER_HISTORY};
+        iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_publisherPortOptions};
     iox::popo::PublisherPortUser m_sutWithHistoryUseriSide{&m_publisherPortDataHistory};
     iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
 };
@@ -195,7 +197,7 @@ TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
     auto chunkHeader = maybeChunkHeader.value();
 
-    EXPECT_THAT(chunkHeader->m_originId, Eq(m_sutUserSide.getUniqueID()));
+    EXPECT_THAT(chunkHeader->originId, Eq(m_sutUserSide.getUniqueID()));
     m_sutUserSide.freeChunk(chunkHeader);
 }
 
@@ -370,33 +372,35 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
     EXPECT_TRUE(maybeSharedChunk.has_value());
     auto sharedChunk = maybeSharedChunk.value();
     auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getPayload());
-    EXPECT_THAT(dummySample.dummy, Eq(17));
+    EXPECT_THAT(dummySample.dummy, Eq(17U));
 }
 
 TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
 {
-    iox::popo::PublisherPortData m_publisherPortDataHistory{
-        iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, 1u}; // history = 1
-    iox::popo::PublisherPortUser m_sutWithHistoryUseriSide{&m_publisherPortDataHistory};
-    iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
+    iox::popo::PublisherOptions options;
+    options.historyCapacity = 1U;
+    iox::popo::PublisherPortData publisherPortDataHistory{
+        iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, options};
+    iox::popo::PublisherPortUser sutWithHistoryUseriSide{&publisherPortDataHistory};
+    iox::popo::PublisherPortRouDi sutWithHistoryRouDiSide{&publisherPortDataHistory};
     // do it the ara field like way
     // 1. publish a chunk to a not yet offered publisher
-    auto maybeChunkHeader = m_sutWithHistoryUseriSide.tryAllocateChunk(sizeof(DummySample));
+    auto maybeChunkHeader = sutWithHistoryUseriSide.tryAllocateChunk(sizeof(DummySample));
     auto chunkHeader = maybeChunkHeader.value();
     auto sample = chunkHeader->payload();
     new (sample) DummySample();
     static_cast<DummySample*>(sample)->dummy = 17;
-    m_sutWithHistoryUseriSide.sendChunk(chunkHeader);
+    sutWithHistoryUseriSide.sendChunk(chunkHeader);
     // 2. offer
-    m_sutWithHistoryUseriSide.offer();
-    m_sutWithHistoryRouDiSide.tryGetCaProMessage();
+    sutWithHistoryUseriSide.offer();
+    sutWithHistoryRouDiSide.tryGetCaProMessage();
     // 3. subscribe with a history request
     ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 1u; // request history of 1
-    m_sutWithHistoryRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
+    sutWithHistoryRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> m_chunkQueuePopper(&m_chunkQueueData);
 
     // 4. We get the history value on subscribe
@@ -405,7 +409,7 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     EXPECT_TRUE(maybeSharedChunk.has_value());
     auto sharedChunk = maybeSharedChunk.value();
     auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getPayload());
-    EXPECT_THAT(dummySample.dummy, Eq(17));
+    EXPECT_THAT(dummySample.dummy, Eq(17U));
 }
 
 TEST_F(PublisherPort_test, noLastChunkWhenNothingSent)

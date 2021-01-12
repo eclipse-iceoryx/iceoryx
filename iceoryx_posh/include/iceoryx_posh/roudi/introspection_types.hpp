@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All, Apex.AI Inc. rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ namespace iox
 namespace roudi
 {
 constexpr const char INTROSPECTION_SERVICE_ID[] = "Introspection";
-constexpr const char INTROSPECTION_MQ_APP_NAME[] = "/introspection";
+constexpr const char INTROSPECTION_APP_NAME[] = "introspection";
 const capro::ServiceDescription IntrospectionMempoolService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "MemPool");
 constexpr int MAX_GROUP_NAME_LENGTH = 32;
 
@@ -47,49 +47,48 @@ using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 struct MemPoolIntrospectionInfo
 {
     uint32_t m_id;
-    char m_writerGroupName[MAX_GROUP_NAME_LENGTH];
-    char m_readerGroupName[MAX_GROUP_NAME_LENGTH];
+    cxx::string<MAX_GROUP_NAME_LENGTH> m_writerGroupName;
+    cxx::string<MAX_GROUP_NAME_LENGTH> m_readerGroupName;
     MemPoolInfoContainer m_mempoolInfo;
 };
 
 /// @brief container for MemPoolInfo structs of all available mempools.
 using MemPoolIntrospectionInfoContainer = cxx::vector<MemPoolIntrospectionInfo, MAX_SHM_SEGMENTS + 1>;
 
-/// @brief sender/receiver port information consisting of a process name,a capro service description string
-/// and a runnable name
+/// @brief publisher/subscriber port information consisting of a process name,a capro service description string
+/// and a node name
 const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Port");
 
-/// @brief container for common port data which is related to the receiver port as well as the sender port
+/// @brief container for common port data which is related to the subscriber port as well as the publisher port
 struct PortData
 {
     ProcessName_t m_name;
-    capro::IdString m_caproInstanceID;
-    capro::IdString m_caproServiceID;
-    capro::IdString m_caproEventMethodID;
-    RunnableName_t m_runnable;
+    capro::IdString_t m_caproInstanceID;
+    capro::IdString_t m_caproServiceID;
+    capro::IdString_t m_caproEventMethodID;
+    NodeName_t m_node;
 };
 
-
-/// @brief container for receiver port introspection data.
-struct ReceiverPortData : public PortData
+/// @brief container for subscriber port introspection data.
+struct SubscriberPortData : public PortData
 {
-    /// @brief identifier of the sender port to which this receiver port is connected.
-    /// If no matching sender port exists, this should equal -1.
-    int32_t m_senderIndex{-1};
+    /// @brief identifier of the publisher port to which this subscriber port is connected.
+    /// If no matching publisher port exists, this should equal -1.
+    int32_t m_publisherIndex{-1};
 };
 
-/// @brief container for sender port introspection data.
-struct SenderPortData : public PortData
+/// @brief container for publisher port introspection data.
+struct PublisherPortData : public PortData
 {
-    uint64_t m_senderPortID{0};
+    uint64_t m_publisherPortID{0};
     iox::capro::Interfaces m_sourceInterface{iox::capro::Interfaces::INTERFACE_END};
 };
 
 /// @brief the topic for the port introspection that a user can subscribe to
 struct PortIntrospectionFieldTopic
 {
-    cxx::vector<ReceiverPortData, MAX_SUBSCRIBERS> m_receiverList;
-    cxx::vector<SenderPortData, MAX_PUBLISHERS> m_senderList;
+    cxx::vector<SubscriberPortData, MAX_SUBSCRIBERS> m_subscriberList;
+    cxx::vector<PublisherPortData, MAX_PUBLISHERS> m_publisherList;
 };
 
 const capro::ServiceDescription
@@ -97,7 +96,7 @@ const capro::ServiceDescription
 
 struct PortThroughputData
 {
-    uint64_t m_senderPortID{0};
+    uint64_t m_publisherPortID{0};
     uint32_t m_sampleSize{0};
     uint32_t m_chunkSize{0};
     double m_chunksPerMinute{0};
@@ -112,21 +111,20 @@ struct PortThroughputIntrospectionFieldTopic
 };
 
 const capro::ServiceDescription
-    IntrospectionReceiverPortChangingDataService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "ReceiverPortsData");
+    IntrospectionSubscriberPortChangingDataService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "SubscriberPortsData");
 
-struct ReceiverPortChangingData
+struct SubscriberPortChangingData
 {
-    // index used to identify receiver is same as in PortIntrospectionFieldTopic->receiverList
+    // index used to identify subscriber is same as in PortIntrospectionFieldTopic->subscriberList
     uint64_t fifoSize{0};
     uint64_t fifoCapacity{0};
     iox::SubscribeState subscriptionState{iox::SubscribeState::NOT_SUBSCRIBED};
-    bool sampleSendCallbackActive{false};
     capro::Scope propagationScope{capro::Scope::INVALID};
 };
 
-struct ReceiverPortChangingIntrospectionFieldTopic
+struct SubscriberPortChangingIntrospectionFieldTopic
 {
-    cxx::vector<ReceiverPortChangingData, MAX_SUBSCRIBERS> receiverPortChangingDataList;
+    cxx::vector<SubscriberPortChangingData, MAX_SUBSCRIBERS> subscriberPortChangingDataList;
 };
 
 const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Process");
@@ -135,7 +133,7 @@ struct ProcessIntrospectionData
 {
     int m_pid{0};
     ProcessName_t m_name;
-    cxx::vector<RunnableName_t, MAX_RUNNABLE_PER_PROCESS> m_runnables;
+    cxx::vector<NodeName_t, MAX_NODE_PER_PROCESS> m_nodes;
 };
 
 /// @brief the topic for the process introspection that a user can subscribe to

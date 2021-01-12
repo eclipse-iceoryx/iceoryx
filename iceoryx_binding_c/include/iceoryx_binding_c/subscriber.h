@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,18 +22,20 @@
 /// @brief Subscriber handle
 typedef struct cpp2c_Subscriber* iox_sub_t;
 
-/// @brief initialize subscriber handle in the default runtime runnable
+/// @brief initialize subscriber handle in the default runtime node
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] historyCapacity size of the history chunk queue
+/// @param[in] queueCapacity size of the receiver queue
+/// @param[in] historyRequest of chunks received after subscription if chunks are available
 /// @return handle of the subscriber
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       uint64_t historyRequest);
+                       const uint64_t queueCapacity,
+                       const uint64_t historyRequest);
 
 /// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed
@@ -41,8 +43,7 @@ void iox_sub_deinit(iox_sub_t const self);
 
 /// @brief subscribes to the service
 /// @param[in] self handle to the subscriber
-/// @param[in] queueCapacity size of the receiver queue
-void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity);
+void iox_sub_subscribe(iox_sub_t const self);
 
 /// @brief unsubscribes from a service
 /// @param[in] self handle to the subscriber
@@ -72,8 +73,8 @@ void iox_sub_release_queued_chunks(iox_sub_t const self);
 
 /// @brief are new chunks available?
 /// @param[in] self handle to the subscriber
-/// @return true if there are new chunks otherwise false
-bool iox_sub_has_new_chunks(iox_sub_t const self);
+/// @return true if there are chunks otherwise false
+bool iox_sub_has_chunks(iox_sub_t const self);
 
 /// @brief are chunks lost?
 /// @param[in] self handle to the subscriber

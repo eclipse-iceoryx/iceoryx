@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,18 +13,56 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 
-void cpp2c_Subscriber::setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept
+cpp2c_Subscriber::~cpp2c_Subscriber()
 {
-    iox::popo::SubscriberPortUser(m_portData).setConditionVariable(conditionVariableDataPtr);
+    if (m_portData)
+    {
+        iox::popo::SubscriberPortUser(m_portData).destroy();
+    }
 }
 
-bool cpp2c_Subscriber::hasTriggered() const noexcept
+iox::cxx::expected<iox::popo::WaitSetError>
+cpp2c_Subscriber::enableEvent(iox::popo::WaitSet<>& waitset,
+                              const iox_SubscriberEvent subscriberEvent,
+                              const uint64_t eventId,
+                              const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback) noexcept
+{
+    static_cast<void>(subscriberEvent);
+
+    return waitset
+        .acquireTriggerHandle(this,
+                              {*this, &cpp2c_Subscriber::hasSamples},
+                              {*this, &cpp2c_Subscriber::invalidateTrigger},
+                              eventId,
+                              callback)
+        .and_then([this](iox::popo::TriggerHandle& trigger) {
+            m_trigger = std::move(trigger);
+            iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
+        });
+}
+
+void cpp2c_Subscriber::disableEvent(const iox_SubscriberEvent subscriberEvent) noexcept
+{
+    static_cast<void>(subscriberEvent);
+
+    m_trigger.reset();
+}
+
+void cpp2c_Subscriber::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
+{
+    if (m_trigger.getUniqueId() == uniqueTriggerId)
+    {
+        iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
+        m_trigger.invalidate();
+    }
+}
+
+bool cpp2c_Subscriber::hasSamples() const noexcept
 {
     return iox::popo::SubscriberPortUser(m_portData).hasNewChunks();
 }
 
-void cpp2c_Subscriber::unsetConditionVariable() noexcept
-{
-    iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
-}

@@ -193,7 +193,7 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
         return false;
     }
 
-    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10u);
+    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, STRTOULL_BASE);
     if (call.hasErrors())
     {
         return false;
@@ -230,7 +230,7 @@ inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
         return false;
     }
 
-    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10u);
+    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, STRTOULL_BASE);
     if (call.hasErrors())
     {
         return false;

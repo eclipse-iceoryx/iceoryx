@@ -204,7 +204,6 @@ void MQ::send(const char* buffer, uint32_t length) noexcept
 
 void MQ::receive(char* buffer) noexcept
 {
-    char message[MAX_MESSAGE_SIZE];
     auto mqCall = iox::cxx::makeSmartC(mq_receive,
                                        iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                        {static_cast<ssize_t>(ERROR_CODE)},

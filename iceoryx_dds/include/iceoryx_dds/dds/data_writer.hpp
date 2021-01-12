@@ -15,7 +15,7 @@
 #ifndef IOX_DDS_DDS_DATA_WRITER_HPP
 #define IOX_DDS_DDS_DATA_WRITER_HPP
 
-#include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 #include <cstdint>
 
@@ -23,8 +23,6 @@ namespace iox
 {
 namespace dds
 {
-using IdString = iox::cxx::string<100>;
-
 ///
 /// @brief Abstraction for DDS Data Writers.
 /// Provides the minimum functionality required for posh-dds gateway implementations.
@@ -50,19 +48,19 @@ class DataWriter
     /// @brief getServiceId
     /// @return The ID of the service producing the bytes
     ///
-    virtual IdString getServiceId() const noexcept = 0;
+    virtual capro::IdString_t getServiceId() const noexcept = 0;
 
     ///
     /// @brief getInstanceId
     /// @return The ID of the instance of the service producing the bytes
     ///
-    virtual IdString getInstanceId() const noexcept = 0;
+    virtual capro::IdString_t getInstanceId() const noexcept = 0;
 
     ///
     /// @brief getEventId
     /// @return The ID of the event producing the data
     ///
-    virtual IdString getEventId() const noexcept = 0;
+    virtual capro::IdString_t getEventId() const noexcept = 0;
 
   protected:
     DataWriter() = default;

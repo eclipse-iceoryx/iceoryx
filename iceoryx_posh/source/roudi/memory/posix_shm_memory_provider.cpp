@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/system_configuration.hpp"
 
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
 
@@ -33,12 +34,12 @@ void sigbusHandler(int32_t) noexcept
         "memory. Please make sure that enough memory is available. For this, consider also the memory which is "
         "required for the [/iceoryx_mgmt] segment. Please refer to share/doc/iceoryx/FAQ.md in your release delivery.";
     size_t len = strlen(msg);
-    write(STDERR_FILENO, msg, len);
+    DISCARD_RESULT(write(STDERR_FILENO, msg, len));
     _exit(EXIT_FAILURE);
 }
 } // namespace
 
-PosixShmMemoryProvider::PosixShmMemoryProvider(const ShmNameString& shmName,
+PosixShmMemoryProvider::PosixShmMemoryProvider(const ShmName_t& shmName,
                                                const posix::AccessMode accessMode,
                                                const posix::OwnerShip ownership) noexcept
     : m_shmName(shmName)
@@ -66,8 +67,6 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
         return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
     }
 
-    /// @todo the SIGBUS handler could maybe be moved to the RouDiMemoryManager
-
     // register signal handler for SIGBUS
     struct sigaction oldAct;
     struct sigaction newAct;
@@ -78,7 +77,8 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
             .hasErrors())
     {
         LogFatal() << "Could not set signal handler for SIGBUS!";
-        std::terminate();
+        errorHandler(Error::kROUDI_MEMORY__COULD_NOT_REGISTER_SIGBUS, nullptr, ErrorLevel::FATAL);
+        return cxx::error<MemoryProviderError>(MemoryProviderError::SIGACTION_CALL_FAILED);
     }
 
     // create and map a shared memory region
@@ -89,7 +89,8 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
             .hasErrors())
     {
         LogFatal() << "Could not reset signal handler for SIGBUS!";
-        std::terminate();
+        errorHandler(Error::kROUDI_MEMORY__COULD_NOT_UNREGISTER_SIGBUS, nullptr, ErrorLevel::FATAL);
+        return cxx::error<MemoryProviderError>(MemoryProviderError::SIGACTION_CALL_FAILED);
     }
 
     if (!m_shmObject.has_value())

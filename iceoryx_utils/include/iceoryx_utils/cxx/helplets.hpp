@@ -58,6 +58,7 @@ struct not_null
     {
         Expects(t != nullptr);
     }
+
     constexpr operator T() const
     {
         return value;
@@ -186,6 +187,19 @@ static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
 {
     return SizeValue - 1;
 }
+
+/// @brief if a function has a return value which you do not want to use then you can wrap the function with that macro.
+/// Purpose is to suppress the unused compiler warning by adding an attribute to the return value
+/// @param[in] name name of the function where the return value is not used.
+/// @code
+///     uint32_t foo();
+///     DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
+/// @endcode
+// clang-format off
+#define DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix) name ## _ ## suffix
+#define DISCARD_RESULT_VARIABLE(name, suffix) DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix)
+#define DISCARD_RESULT(expr) auto DISCARD_RESULT_VARIABLE(unusedOnLine, __LINE__) [[gnu::unused]] = expr
+// clang-format on
 
 } // namespace cxx
 } // namespace iox

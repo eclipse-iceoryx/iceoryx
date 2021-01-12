@@ -1,11 +1,26 @@
+# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_utils_VERSION)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatformDetection.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
-if( clang-tidy )
+if(CLANG_TIDY)
     find_program(
         CLANG_TIDY_EXE
         NAMES "clang-tidy"
@@ -16,7 +31,7 @@ if( clang-tidy )
     else(CLANG_TIDY_EXE)
         message(WARNING "clang-tidy activated but unable to find clang-tidy executable")
     endif(CLANG_TIDY_EXE)
-endif( clang-tidy )
+endif(CLANG_TIDY)
 
 ########## find_package in source tree ##########
 #
@@ -27,19 +42,14 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 )
 
 #
-########## set variables for library export ##########
-#
-
-
-#
 ########## set util internal target, needed by tests in components ##########
 #
 # TODO: we need something like internal public for internal build dependencies
 # instead of making the whole source folder public for internal dependency resolution
 
-if(test AND NOT GTest_FOUND)
+if(BUILD_TEST AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
-endif(test AND NOT GTest_FOUND)
+endif(BUILD_TEST AND NOT GTest_FOUND)
 
 if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_utils_testing without also building the tests
 
@@ -50,6 +60,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     )
 
     add_library(iceoryx_utils_testing
+        STATIC
         testutils/mocks/mqueue_mock.cpp
         testutils/mocks/time_mock.cpp
         testutils/timing_test.cpp
@@ -95,11 +106,6 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     if(LINUX)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
     endif()
-
-    # install_target_directories_and_header(
-    # TARGETS iceoryx_utils_testing
-    # INCLUDE_DIRECTORY testutils/
-    # )
 
     setup_install_directories_and_export_package(
     TARGETS iceoryx_utils_testing
@@ -153,6 +159,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/shared_memory_object/shared_memory.cpp
     source/posix_wrapper/system_configuration.cpp
     source/posix_wrapper/posix_access_rights.cpp
+    source/posix_wrapper/thread.cpp
     source/units/duration.cpp
     source/relocatable_pointer/relative_ptr.cpp
 )
@@ -167,7 +174,7 @@ set_target_properties(iceoryx_utils PROPERTIES
 
 if(LINUX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/)
-    target_link_libraries(iceoryx_utils PRIVATE rt acl atomic ${CODE_COVERAGE_LIBS})
+    target_link_libraries(iceoryx_utils PRIVATE acl atomic ${CODE_COVERAGE_LIBS})
 elseif(QNX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/)
 elseif(APPLE)
@@ -195,7 +202,17 @@ set_target_properties(iceoryx_platform PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS})
+target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
+
+target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+if(LINUX)
+    target_link_libraries(iceoryx_platform 
+        PUBLIC 
+        rt 
+        pthread
+    )
+endif(LINUX)
 
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
@@ -204,9 +221,13 @@ if(PERFORM_CLANG_TIDY)
 endif(PERFORM_CLANG_TIDY)
 
 
-target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform)
+target_link_libraries(iceoryx_utils 
+    PUBLIC 
+    iceoryx_utils::iceoryx_platform 
+    PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS})
 
-target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils
@@ -236,10 +257,10 @@ setup_install_directories_and_export_package(
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
-        cmake/IceoryxPlatformDetection.cmake
+        cmake/IceoryxPlatform.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
-if(test)
+if(BUILD_TEST)
     add_subdirectory(test)
-endif(test)
+endif(BUILD_TEST)

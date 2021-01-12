@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,9 +35,15 @@ cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> PortPool::getApplica
     return m_portPoolData->m_applicationPortMembers.content();
 }
 
-cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> PortPool::getRunnableDataList() noexcept
+cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> PortPool::getNodeDataList() noexcept
 {
-    return m_portPoolData->m_runnableMembers.content();
+    return m_portPoolData->m_nodeMembers.content();
+}
+
+cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
+PortPool::getConditionVariableDataList() noexcept
+{
+    return m_portPoolData->m_conditionVariableMembers.content();
 }
 
 cxx::expected<popo::InterfacePortData*, PortPoolError>
@@ -70,26 +76,28 @@ PortPool::addApplicationPort(const ProcessName_t& applicationName) noexcept
     }
 }
 
-cxx::expected<runtime::RunnableData*, PortPoolError> PortPool::addRunnableData(
-    const ProcessName_t& process, const RunnableName_t& runnable, const uint64_t runnableDeviceIdentifier) noexcept
+cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const ProcessName_t& process,
+                                                                       const NodeName_t& node,
+                                                                       const uint64_t nodeDeviceIdentifier) noexcept
 {
-    if (m_portPoolData->m_runnableMembers.hasFreeSpace())
+    if (m_portPoolData->m_nodeMembers.hasFreeSpace())
     {
-        auto runnableData = m_portPoolData->m_runnableMembers.insert(process, runnable, runnableDeviceIdentifier);
-        return cxx::success<runtime::RunnableData*>(runnableData);
+        auto nodeData = m_portPoolData->m_nodeMembers.insert(process, node, nodeDeviceIdentifier);
+        return cxx::success<runtime::NodeData*>(nodeData);
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__RUNNABLELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::RUNNABLE_DATA_LIST_FULL);
+        errorHandler(Error::kPORT_POOL__NODELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::NODE_DATA_LIST_FULL);
     }
 }
 
-cxx::expected<popo::ConditionVariableData*, PortPoolError> PortPool::addConditionVariableData() noexcept
+cxx::expected<popo::ConditionVariableData*, PortPoolError>
+PortPool::addConditionVariableData(const ProcessName_t& process) noexcept
 {
     if (m_portPoolData->m_conditionVariableMembers.hasFreeSpace())
     {
-        auto conditionVariableData = m_portPoolData->m_conditionVariableMembers.insert();
+        auto conditionVariableData = m_portPoolData->m_conditionVariableMembers.insert(process);
         return cxx::success<popo::ConditionVariableData*>(conditionVariableData);
     }
     else
@@ -109,77 +117,19 @@ void PortPool::removeApplicationPort(popo::ApplicationPortData* const portData) 
     m_portPoolData->m_applicationPortMembers.erase(portData);
 }
 
-void PortPool::removeRunnableData(runtime::RunnableData* const runnableData) noexcept
+void PortPool::removeNodeData(runtime::NodeData* const nodeData) noexcept
 {
-    m_portPoolData->m_runnableMembers.erase(runnableData);
+    m_portPoolData->m_nodeMembers.erase(nodeData);
+}
+
+void PortPool::removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept
+{
+    m_portPoolData->m_conditionVariableMembers.erase(conditionVariableData);
 }
 
 std::atomic<uint64_t>* PortPool::serviceRegistryChangeCounter() noexcept
 {
     return &m_portPoolData->m_serviceRegistryChangeCounter;
-}
-
-/// @deprecated #25
-cxx::vector<SenderPortType::MemberType_t*, MAX_PUBLISHERS> PortPool::senderPortDataList() noexcept
-{
-    return m_portPoolData->m_senderPortMembers.content();
-}
-
-/// @deprecated #25
-cxx::vector<ReceiverPortType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::receiverPortDataList() noexcept
-{
-    return m_portPoolData->m_receiverPortMembers.content();
-}
-
-/// @deprecated #25
-cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
-PortPool::addSenderPort(const capro::ServiceDescription& serviceDescription,
-                        mepoo::MemoryManager* const memoryManager,
-                        const std::string& applicationName,
-                        const mepoo::MemoryInfo& memoryInfo) noexcept
-{
-    if (m_portPoolData->m_senderPortMembers.hasFreeSpace())
-    {
-        auto senderPortData =
-            m_portPoolData->m_senderPortMembers.insert(serviceDescription, memoryManager, applicationName, memoryInfo);
-        return cxx::success<SenderPortType::MemberType_t*>(senderPortData);
-    }
-    else
-    {
-        errorHandler(Error::kPORT_POOL__SENDERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::SENDER_PORT_LIST_FULL);
-    }
-}
-
-/// @deprecated #25
-cxx::expected<ReceiverPortType::MemberType_t*, PortPoolError>
-PortPool::addReceiverPort(const capro::ServiceDescription& serviceDescription,
-                          const std::string& applicationName,
-                          const mepoo::MemoryInfo& memoryInfo) noexcept
-{
-    if (m_portPoolData->m_receiverPortMembers.hasFreeSpace())
-    {
-        auto receiverPortData =
-            m_portPoolData->m_receiverPortMembers.insert(serviceDescription, applicationName, memoryInfo);
-        return cxx::success<ReceiverPortType::MemberType_t*>(receiverPortData);
-    }
-    else
-    {
-        errorHandler(Error::kPORT_POOL__RECEIVERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::RECEIVER_PORT_LIST_FULL);
-    }
-}
-
-/// @deprecated #25
-void PortPool::removeSenderPort(SenderPortType::MemberType_t* const portData) noexcept
-{
-    m_portPoolData->m_senderPortMembers.erase(portData);
-}
-
-/// @deprecated #25
-void PortPool::removeReceiverPort(ReceiverPortType::MemberType_t* const portData) noexcept
-{
-    m_portPoolData->m_receiverPortMembers.erase(portData);
 }
 
 cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> PortPool::getPublisherPortDataList() noexcept
@@ -194,15 +144,15 @@ cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::getSub
 
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
-                           const uint64_t& historyCapacity,
                            mepoo::MemoryManager* const memoryManager,
                            const ProcessName_t& applicationName,
+                           const popo::PublisherOptions& publisherOptions,
                            const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     if (m_portPoolData->m_publisherPortMembers.hasFreeSpace())
     {
         auto publisherPortData = m_portPoolData->m_publisherPortMembers.insert(
-            serviceDescription, applicationName, memoryManager, historyCapacity, memoryInfo);
+            serviceDescription, applicationName, memoryManager, publisherOptions, memoryInfo);
         return cxx::success<PublisherPortRouDiType::MemberType_t*>(publisherPortData);
     }
     else
@@ -214,14 +164,14 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
 
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
-                            const uint64_t& historyRequest,
                             const ProcessName_t& applicationName,
+                            const popo::SubscriberOptions& subscriberOptions,
                             const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     if (m_portPoolData->m_subscriberPortMembers.hasFreeSpace())
     {
         auto subscriberPortData = constructSubscriber<iox::build::CommunicationPolicy>(
-            serviceDescription, historyRequest, applicationName, memoryInfo);
+            serviceDescription, applicationName, subscriberOptions, memoryInfo);
 
         return cxx::success<SubscriberPortType::MemberType_t*>(subscriberPortData);
     }

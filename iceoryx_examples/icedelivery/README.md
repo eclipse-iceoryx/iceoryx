@@ -1,280 +1,315 @@
-# icedelivery - Transfer data between POSIX applications
+# icedelivery
 
 ## Introduction
 
-This example showcases a one-way data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
-It provides publisher and subscriber applications. They come in two API flavours (Bare-metal and simplified).
-
-### RouDi, the daemon
-
-RouDi is an abbrevation for **Rou**ting and **Di**scovery. This perfectly describes RouDi's tasks. He takes care of the
-communication setup but does not actually participate in the communication between the publisher and the subscriber.
-Think of RouDi as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
-which the applications are using to talk to each other. We currently use memory pools with different chunk sizes,
-called in literature a segregated free-list approach. RouDi is delivered with a built-in default memory config. You can
-change the memory configration using a [TOML config file](../../doc/usage-guide.md). To view the available command
-line options call `iox-roudi --help`.
-
-## Run icedelivery
-
-Create three terminals and run one command in each of them. Either choose to run the normal or simplified version.
-
-    # If installed and available in PATH environment variable
-    iox-roudi
-    # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/posh/iox-roudi
-
-
-    ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal
-    # The simplified publisher is an alternative
-    ./build/iceoryx_examples/icedelivery/ice-publisher-simple
-
-
-    ./build/iceoryx_examples/icedelivery/ice-subscriber-bare-metal
-    # The simplified subscriber is an alternative
-    ./build/iceoryx_examples/icedelivery/ice-subscriber-simple
+This example showcases a data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
+It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed).
 
 ## Expected output
 
-The counter can differ depending on startup of the applications.
+Create different terminals and run one command in each of them. Choose at least one publisher and one subscriber for having a data communication. You can also mix the typed and untyped versions. And if you feel like crazy today you start several publishers and subscribers from icedelivery and icedelivery_on_c (needs the default n:m communication, not possible if you build with the ONE_TO_MANY option)
 
-### RouDi application
+```sh
+# If installed and available in PATH environment variable
+iox-roudi
+# If build from scratch with script in tools
+$ICEORYX_ROOT/build/iox-roudi
 
-    Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
-    [ Reserving shared memory successful ]
-    Reserving 410709312 bytes in the shared memory [/username]
-    [ Reserving shared memory successful ]
 
-### Publisher application
+build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
+# The untyped publisher is an alternative
+build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
 
-    Sending: 0
-    Sending: 1
-    Sending: 2
-    Sending: 3
-    Sending: 4
-    Sending: 5
 
-### Subscriber application (bare-metal)
+build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
+# The untyped subscriber is an alternative
+build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
+```
 
-    Not subscribed
-    Receiving: 3
-    Receiving: 4
-    Receiving: 5
-
-### Subscriber application (simple)
-
-    Callback: 4
-    Callback: 5
-    Callback: 6
-    Callback: 7
+[![asciicast](https://asciinema.org/a/382036.svg)](https://asciinema.org/a/382036)
 
 ## Code walkthrough
 
-This example makes use of two kind of API flavours. With the bare-metal API you have the most flexibility. It enables us
-to put higher level APIs with different look and feel on top of iceoryx. E.g. the ara::com API of AUTOSAR Adaptive or the ROS2 API.
-It is not meant to be used by developers in daily life, we assume there will always be a higher abstraction. A simple example
-how such an abstraction could look like is given in the second step with the simplified example.
+This example makes use of two kind of API flavours. With the untyped API you have the most flexibility. It enables you
+to put higher level APIs with different look and feel on top of iceoryx. E.g. the ara::com API of AUTOSAR Adaptive or
+the ROS2 API. It is not meant to be used by developers in daily life, the assumption is that there will always be a higher
+abstraction. A simple example how such an abstraction could look like is given in the second step with the typed example.
 
-### Publisher application (bare-metal)
+### Publisher application (untyped)
 
-First off let's include the publisher and the runtime:
-
-    #include "iceoryx_posh/popo/publisher.hpp"
-    #include "iceoryx_posh/runtime/posh_runtime.hpp"
+First off, let's include the publisher and the runtime:
+```cpp
+#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+```
 
 You might be wondering what the publisher application is sending? It's this struct.
-
-    struct CounterTopic
+```cpp
+struct RadarObject
+{
+    RadarObject() noexcept
     {
-        uint32_t counter;
-    };
+    }
+    RadarObject(double x, double y, double z) noexcept
+        : x(x)
+        , y(y)
+        , z(z)
+    {
+    }
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+};
+```
 
 It is included by:
+```cpp
+#include "topic_data.hpp"
+```
 
-    #include "topic_data.hpp"
-
-For the communication with RouDi a runtime object is created. The parameter of the method `getInstance()` contains a
+For the communication with RouDi a runtime object is created. The parameter of the method `initRuntime()` contains a
 unique string identifier for this publisher.
+```cpp
+iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
+```
 
-    iox::runtime::PoshRuntime::getInstance("/publisher-bare-metal");
-
-Now that RouDi knows our publisher application is exisiting, let's create a publisher instance and offer our charming struct
+Now that RouDi knows our publisher application is existing, let's create a publisher instance and offer our charming struct
 to everyone:
-
-    iox::popo::Publisher myPublisher({"Radar", "FrontLeft", "Counter"});
-    myPublisher.offer();
+```cpp
+iox::popo::UntypedPublisher untypedPublisher({"Radar", "FrontLeft", "Object"});
+untypedPublisher.offer();
+```
 
 The strings inside the first parameter of the constructor of `iox::popo::Publisher` are of the type
 `capro::ServiceDescription`. `capro` stands for **ca**nionical **pro**tocol and is used to abstract different
-SoA protocols. `Radar` is the service name, `FrontLeft` an instance of the service `Radar` and the third string the
-specific event `Counter` of the instance. This service model comes from AUTOSAR. It is maybe not the best fit for
-typical publish/subscribe APIs but it allows us a matching to different technologies. The event can be compared to
-a topic in other publish/subscribe approaches. The service is not a single request/response thing but an element
-for grouping of events and/or methods that can be discovered as a service. Service and instance are like classes and
-objects in C++. So you always have a specific instance of a service during runtime. In iceoryx a publisher and
-a subscriber only match if all the three IDs match.
+[SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture) protocols. `Radar` is the service name, `FrontLeft`
+an instance of the service `Radar` and the third string the specific event `Object` of the instance.
+In iceoryx a publisher and a subscriber only match if all the three IDs match.
 
-Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a chunk of
-shared memory:
+Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk
+which fits our RadarObject struct
+```cpp
+auto result = untypedPublisher.loan(sizeof(RadarObject));
+```
 
-    auto sample = static_cast<CounterTopic*>(myPublisher.allocateChunk(sizeof(CounterTopic)));
+Two different ways of handling the returned `cxx::expected` are possible. Either you save the result in a variable and
+do the error check with an if-condition (#1):
+```cpp
+auto result = untypedPublisher.loan(sizeof(RadarObject));
+if (!result.has_error())
+{
+    // ...
+}
+else
+{
+    // ...
+}
+```
 
-Yep, it's bare-metal! `allocateChunk()` returns a `void*` , that needs to be casted to `CounterTopic`.
-Then we can assign the value of `ct` to our counter in the shared memory and send the chunk out to all the subscribers.
+Or try the functional way (#2) by concatenating `and_then` and `or_else`. Read it like a story in a book: "Loan memory
+and then if it succeeds, fill it with some data or else if it fails, handle the error"
+```cpp
+untypedPublisher.loan(sizeof(RadarObject))
+    .and_then([&](auto& sample)
+    {
+        // ...
+    }
+    .or_else([&](iox::popo::AllocationError error)
+    {
+        // ...
+    });
+```
 
-    sample->counter = ct;
-    myPublisher.sendChunk(sample);
+If choosing #1, please mind the additional step to unwrap the `cxx::expected` with `value()`
+```cpp
+if (!result.has_error())
+{
+    auto& sample = result.value();
+    // ...
+}
+```
+
+One might wonder what the type of the variable `sample` is? It is `iox::popo::Sample<void>`. This class behaves
+similar to a [`std::unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) and makes sure that the ownership
+handling is done automatically and memory is freed when going out of scope on subscriber side. One slight difference
+is, if you want to take the ownership of the pointer, `Sample::release()` does not return the pointer.
+
+Whichever way you choose, the untyped API will be bare-metal! A `void*` is contained inside the `iox::popo::Sample`.
+Hence, the pointer needs to be casted to `RadarObject*`
+```cpp
+auto object = static_cast<RadarObject*>(sample.get());
+```
+
+Then we can write a new RadarObject value with an incremented counter in the shared memory
+```cpp
+*object = RadarObject(ct, ct, ct);
+```
+
+Finanlly, in both ways, the value is made available to other subscribers with
+```cpp
+sample.publish();
+```
 
 The incrementation and sending of the data is done in a loop every second till the user pressed `Ctrl-C`. It is
-captured with the signal handler and stops the loop. At the very end
+captured with the signal handler and stops the loop.
 
-    myPublisher.stopOffer();
+### Subscriber application (untyped)
 
-is called to say goodbye to all subscribers who have subscribed so far.
-
-### Subscriber application (bare-metal)
-
-How can the subscriber application get the data the publisher application just transmitted?
+How can the subscriber application receive the data the publisher application just transmitted?
 
 Similar to the publisher we need to include the runtime and the subscriber as well as the topic data header:
-
-    #include "iceoryx_posh/popo/subscriber.hpp"
-    #include "iceoryx_posh/runtime/posh_runtime.hpp"
-    #include "topic_data.hpp"
+```cpp
+#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "topic_data.hpp"
+```
 
 To make RouDi aware of the subscriber an runtime object is created, once again with a unique identifier string:
+```cpp
+iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
+```
 
-    iox::runtime::PoshRuntime::getInstance("/subscriber-bare-metal");
+For quality of service a `popo::SubscriberOptions` object is created and the `queueCapacity` is set. This parameter
+specifies how many samples the queue of the subscriber object can hold. If the queue would encounter an overflow,
+the oldest sample is released to create space for the newest one, which is then stored.
+```cpp
+iox::popo::SubscriberOptions subscriberOptions;
+subscriberOptions.queueCapacity = 10U;
+```
 
 In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the publisher
-offered:
+offered. Additionally, the previously created subscriber options are passed to the constructor. If no subscriber options
+are created, a default value will be used which sets the queueCapacity to the maximum value:
+```cpp
+iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+```
 
-    iox::popo::Subscriber mySubscriber({"Radar", "FrontLeft", "Counter"});
+After the creation, the subscriber object subscribes to the offered data
+```cpp
+untypedSubscriber.subscribe();
+```
 
-After the creation the subscriber object subscribes to the offered data. The cache size is given as a parameter.
-Cache size in this case means how many samples the FiFo can hold that is present in the subscriber object.
-If the FiFo has an overflow, we release the oldest sample and store the newest one.
+When using the default n:m communication philosophy, the `SubscriptionState` is immediately `SUBSCRIBED`.
+However, when restricting iceoryx to the 1:n communication philosophy before being in the state `SUBSCRIBED`, the state is change to `SUBSCRIBE_REQUESTED`.
 
-    mySubscriber.subscribe(10);
-
-Again in a while-loop we do the following: First check whether our subscriber object has already been subscribed:
-
-    if (iox::popo::SubscriptionState::SUBSCRIBED == mySubscriber.getSubscriptionState())
+Again in a while-loop we do the following: First check for the `SubscriptionState`
+```cpp
+while (!killswitch)
+{
+    if (untypedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
     {
 
-Let's jump to the else-case beforehand. In case the subscriber is not subscribed, this information is printed to the
-terminal:
+```
 
-    else
+The `killswitch` will be used to stop the programm execution.
+
+Once the publisher has sent data, we can receive the data
+```cpp
+untypedSubscriber.take()
+    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& sample)
     {
-        std::cout << "Not subscribed" << std::endl;
-    }
-
-In case the subscriber is subscribed a local variable that stores a `void*` is created:
-
-    const void * chunk = nullptr;
-
-A nested while-loop is used to pop up to the chunks from the internal FiFo.
-
-    while (mySubscriber.getChunk(&chunk))
+        // ...
+    })
+    .if_empty([]
     {
-        // we know what we expect for the CaPro ID we provided with the subscriber c'tor. So we do a cast here
-        auto sample = static_cast<const CounterTopic*>(chunk);
-
-        std::cout << "Receiving: " << sample->counter << std::endl;
-
-        // signal the middleware that this chunk was processed and in no more accesssed by the user side
-        mySubscriber.releaseChunk(chunk);
-    }
-
-After popping the chunks from the internal FiFo the subscriber application sleeps for a second.
-
-Once the signal handler receives a `Ctrl-C` the outer while loop is exited and the subscriber object is disconnected
-by:
-
-    mySubscriber.unsubscribe();
-
-### Publisher application (simple)
-
-The simplified publisher application is an example for a high-level user API and does the same thing as the publisher
-described before. In this summary just the differences to the prior publisher application are described.
-
-Starting again with the includes, there is now an additional one:
-
-    #include "a_typed_api.hpp"
-
-The classes `TypedPublisher` and `TypedSubscriber` are defined in this file. In this section we'll take look at the `TypedPublisher`.
-
-The methods `offer()` and `stopOffer()` are called [RAII](https://en.cppreference.com/w/cpp/language/raii)-style in the
-constructor and destructor respective.
-
-    TypedPublisher(const iox::capro::ServiceDescription& id)
-        : m_publisher(id)
+        // ...
+    })
+    .or_else([](iox::popo::ChunkReceiveError error)
     {
-        m_publisher.offer();
-    }
+        std::cout << "Error receiving chunk." << std::endl;
+    });
+```
 
-    ~TypedPublisher()
-    {
-        m_publisher.stopOffer();
-    }
+Well, that's a bit of a [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Let's
+translate it into a story again: "Take the data and then if this succeeds, work with the sample, if the sample is empty
+do something different, or else if an error occured, print the string 'Error receiving chunk.'" Of course you don't
+need to take care about all cases, but it is advised to do so.
 
-Instead of instantiating an `iox::popo::Publisher` an object of the `TypedPublisher` is created on the stack:
+In the `and_then` case the content of the sample is printed to the command line:
+```cpp
+auto object = static_cast<const RadarObject*>(sample->get());
+std::cout << "Got value: " << object->x << std::endl;
+```
 
-    TypedPublisher<CounterTopic> myTypedPublisher({"Radar", "FrontRight", "Counter"});
+Please note the `static_cast` before reading out the data. It is necessary, because the untyped subscriber is unaware
+of the type of the transmitted data.
 
-The trasmitted struct `CounterTopic` has to be given as a template parameter.
+If the `untypedSubscriber` was not yet subscribed
+```cpp
+std::cout << "Not subscribed!" << std::endl;
+```
+is printed.
 
-Another difference to the prior publisher application is the simpler `allocate()` call with the casting wrapped inside
-`TypedPublisher`. Reserving shared memory becomes much simplier:
+The subscriber runs 10x times faster than the publisher, to make sure that all data samples are received.
 
-    // allocate a sample
-    auto sample = myTypedPublisher.allocate();
-    // write the data
-    sample->counter = ct;
+### Publisher application (typed)
 
-    std::cout<< "Sending: " << ct << std::endl;
+The typed publisher application is an example for a high-level user API and does the same thing as the publisher
+described before. In this summary, just the differences to the prior publisher application are described.
 
-    // pass the ownership to the middleware for sending the sample
-    myTypedPublisher.publish(std::move(sample));
+Starting again with the includes, there is now a different one:
+```cpp
+#include "iceoryx_posh/popo/typed_publisher.hpp"
+```
 
-Now `allocate()` returns a `std::unique_ptr<TopicType, SampleDeleter<TopicType>>` instead of a `void*` , which
-automatically frees the memory when going out of scope. For sening the sample the ownership must be transferred
-to the middleware with a move operation.
+When it comes to the runtime, things are the same as in the untyped publisher. However, a typed publisher object is
+created
+```cpp
+iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"});
+```
 
-### Subscriber application (simple)
+A similar while-loop is used to send the data to the subscriber. In contrast to the untyped publisher the typed one
+offers two additional possibilities
+```cpp
+// #3
+auto object = RadarObject(ct, ct, ct);
+typedPublisher.publishCopyOf(object);
+```
 
-As with the simplified publisher application there is an additional include:
+\#3 should only be used for small data types, as otherwise copies can lead to a larger runtime.
 
-    #include "a_typed_api.hpp"
+```cpp
+// #4
+typedPublisher.publishResultOf(getRadarObject, ct);
+// OR
+typedPublisher.publishResultOf([&ct](RadarObject* object) { new (object) RadarObject(ct, ct, ct); });
+```
+
+If you have a callable e.g. a function should be always called, #4 could be a good solution for you.
+
+Another difference compared to the untyped publisher, is the easier handling of `iox::popo::Sample`. There is no need
+for any casts with the typed publisher, as the type of the stored data is know. One can directly access the data with
+the `operator->()`.
+
+### Subscriber application (typed)
+
+As with the typed publisher application there is an different include compared to the untyped subscriber:
+```cpp
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
+```
 
 An instance of `TypedSubscriber` is created:
+```cpp
+iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+```
 
-    TypedSubscriber<CounterTopic> myTypedSubscriber({"Radar", "FrontRight", "Counter"}, myCallback);
+Everything else is nearly the same. However, there is one crucial difference which makes the `TypedSubscriber` typed.
 
-Additional to the `iox::capro::ServiceDescription` the second parameter is a function pointer to a callback function
-called when receiving data.
+Compare this line from the `UntypedSubscriber`
+```cpp
+.and_then([](iox::popo::Sample<const RadarObject>& object)
+{
+    // ...
+})
+```
 
-In this case the received data is printed in the callback:
+with
+```cpp
+.and_then([](iox::popo::Sample<const void>& sample)
+{
+    // ...
+})
+```
 
-    // the callback for processing the samples
-    void myCallback(const CounterTopic& sample)
-    {
-        std::cout << "Callback: " << sample.counter << std::endl;
-    }
-
-The constructor and destructor again automatically handle `subscribe()` and `unsubscribe()`:
-
-    TypedSubscriber(const iox::capro::ServiceDescription& id, OnReceiveCallback<TopicType> callback)
-        : m_subscriber(id)
-        , m_callback(callback)
-    {
-        m_subscriber.setReceiveHandler(std::bind(&TypedSubscriber::receiveHandler, this));
-        m_subscriber.subscribe();
-    }
-
-    ~TypedSubscriber()
-    {
-        m_subscriber.unsubscribe();
-        m_subscriber.unsetReceiveHandler();
-    }
+The difference is the type that is contained in `iox::popo::Sample`. In case of the `TypedSubscriber` it is a
+`const RadarObject` instead of `const void`.
