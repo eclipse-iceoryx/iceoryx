@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 # Build iceperf example
 cmake_minimum_required(VERSION 3.5)
 project(example_iceperf)
+
+option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
@@ -38,11 +40,6 @@ endif()
 
 add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 
-set_target_properties(iceperf-laurel iceperf-hardy PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
 
 target_link_libraries(iceperf-hardy
     iceoryx_posh::iceoryx_posh
@@ -54,7 +51,27 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-hardy socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
+
+add_executable(iceperf-roudi
+    roudi_main_static_config.cpp
+)
+
+target_link_libraries(iceperf-roudi
+    PRIVATE
+    iceoryx_utils::iceoryx_utils
+    iceoryx_posh::iceoryx_posh_roudi
+)
+
+target_compile_options(iceperf-roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+set_target_properties(iceperf-laurel iceperf-hardy iceperf-roudi PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+
 install(
-    TARGETS iceperf-laurel iceperf-hardy
+    TARGETS iceperf-laurel iceperf-hardy iceperf-roudi
     RUNTIME DESTINATION bin
 )

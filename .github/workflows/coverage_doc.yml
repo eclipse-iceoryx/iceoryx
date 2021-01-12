@@ -32,7 +32,7 @@ jobs:
       - name: Build, test and generate gcov report
         run: |
           # add flag to include coverage
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict debug build-all out-of-tree -c unit
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict debug build-all build-static out-of-tree -c unit
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

@@ -26,7 +26,7 @@ set -e
 WORKSPACE=$(git rev-parse --show-toplevel)
 BUILD_DIR=$WORKSPACE/build
 NUM_JOBS=""
-
+PACKAGE="OFF"
 CLEAN_BUILD=false
 BUILD_TYPE=""
 BUILD_DOC="OFF"
@@ -35,7 +35,6 @@ TEST_FLAG="OFF"
 COV_FLAG="OFF"
 TEST_SCOPE="all" #possible values for test scope: 'all', 'unit', 'integration'
 RUN_TEST=false
-INTROSPECTION_FLAG="ON"
 DDS_GATEWAY_FLAG="OFF"
 BINDING_C_FLAG="ON"
 ONE_TO_MANY_ONLY_FLAG="OFF"
@@ -44,7 +43,9 @@ ROUDI_ENV_FLAG="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
-EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset"
+BUILD_SHARED="ON"
+TOML_FLAG="ON"
+EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
 COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds" 
 
 while (( "$#" )); do
@@ -106,19 +107,23 @@ while (( "$#" )); do
         TEST_FLAG="ON"
         shift 1
         ;;
+    "package")
+        PACKAGE="ON"
+        shift 1
+        ;;
     "roudi-env")
         echo " [i] Building RouDi Environment"
         ROUDI_ENV_FLAG="ON"
         shift 1
         ;;
-    "introspection")
-        echo " [i] Building Introspection"
-        INTROSPECTION_FLAG="ON"
-        shift 1
-        ;;
     "build-all")
         echo " [i] Build complete iceoryx with all extensions and all examples"
         BUILD_ALL_FLAG="ON"
+        shift 1
+        ;;
+    "build-static")
+        echo " [i] Build iceoryx as static lib"
+        BUILD_SHARED="OFF"
         shift 1
         ;;
     "examples")
@@ -136,23 +141,28 @@ while (( "$#" )); do
         ONE_TO_MANY_ONLY_FLAG="ON"
         shift 1
         ;;
+    "toml-config-off")
+        echo " [i] Build without TOML Support"
+        TOML_FLAG="OFF"
+        shift 1
+        ;;
     "sanitize")
         echo " [i] Build with sanitizers"
         BUILD_TYPE="Debug"
         SANITIZE_FLAG="ON"
         shift 1
-    ;;
+        ;;
     "clang")
         echo " [i] Build with clang compiler"
         export CC=$(which clang)
         export CXX=$(which clang++)
         shift 1
-    ;;
+        ;;
     "doc")
         echo " [i] Build and generate doxygen"
         BUILD_DOC="ON"
         shift 1
-    ;;
+        ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx, the dds gateway and the examples are built."
@@ -171,8 +181,11 @@ while (( "$#" )); do
         echo "    build-all             Build all extensions and all examples"
         echo "    out-of-tree           Out-of-tree build for CI build"
         echo "    build-strict          Build is performed with '-Werror'"
+        echo "    build-static          Build static libs (iceoryx is build as shared lib per default)"
         echo "    build-test            Builds all tests (doesn't run)"
+        echo "    package               Creates a debian package from clean build in build_package"
         echo "    test                  Builds and runs all tests in all iceoryx components"
+        echo "    toml-config-off       Builds without TOML File support"
         echo "    dds-gateway           Builds the iceoryx dds gateway"
         echo "    binding-c             Builds the iceoryx C-Binding"
         echo "    one-to-many-only      Restricts to 1:n communication only"
@@ -227,14 +240,26 @@ mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
-echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
--DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DINTROSPECTION=$INTROSPECTION_FLAG \
--DBUILD_DOC=$BUILD_DOC \
--DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
+if [ "$PACKAGE" == "OFF" ]; then
+    echo ">>>>>> Start building iceoryx package <<<<<<"
+    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
+    -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG -DBUILD_DOC=$BUILD_DOC \
+    -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DBUILD_SHARED_LIBS=$BUILD_SHARED -DSANITIZE=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
 
-cmake --build . --target install -- -j$NUM_JOBS
-echo ">>>>>> Finished building iceoryx package <<<<<<"
+    cmake --build . --target install -- -j$NUM_JOBS
+    echo ">>>>>> Finished building iceoryx package <<<<<<"
+else
+    echo ">>>>>> Start building iceoryx package <<<<<<"
+    cd $WORKSPACE
+    rm -rf build_package
+    mkdir -p build_package
+    cd build_package 
+
+    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=build_package/install/prefix/ $WORKSPACE/iceoryx_meta
+    cmake --build . --target install -- -j$NUM_JOBS
+    cpack
+    echo ">>>>>> Finished building iceoryx package <<<<<<"    
+fi
 
 
 #====================================================================================================
@@ -251,7 +276,7 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     cd $WORKSPACE && mkdir -p build_out_of_tree && cd build_out_of_tree
         for ex in ${EXAMPLES}  ; do
             mkdir -p $ex && cd $ex
-            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/$ex
+            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=$TOML_FLAG $WORKSPACE/iceoryx_examples/$ex
             cmake --build . --target install -- -j$NUM_JOBS
             if [ $? -ne 0 ]; then
                 echo "Out of tree build failed"
@@ -262,8 +287,7 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
         echo ">>>>>> Finished Out-of-tree build<<<<<<"
 fi
 
-if [ "$COV_FLAG" == "ON" ]
-then
+if [ "$COV_FLAG" == "ON" ]; then
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
 fi
 

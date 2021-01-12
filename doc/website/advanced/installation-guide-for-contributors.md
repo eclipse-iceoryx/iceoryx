@@ -63,3 +63,18 @@ cd build
 ```
 When the tests are running without errors then it is fine, else an error report is shown with a stacktrace to find the place where the leak occurs. If the leak comes from an external dependency or shall be handled later then it is possible to set a function on a suppression list.
 This should be only rarely used and only in coordination with an iceoryx maintainer.
+
+## Iceoryx library build
+
+Iceoryx consists of several libraries which have dependencies to each other. The goal is to have self-encapsulated library packages available
+where the end-user can easily find it with the cmake command `find-package(...)`.
+In the default case the iceoryx libraries are installed by `make install` into `/usr/lib` which need root access. To avoid that cmake gives you the possibility to install the libs into a custom folder.
+This can be done by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
+
+Iceoryx_meta is a Cmake file which collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for building. 
+The alternate solution is provided for Ubuntu-users by having a build script `iceoryx_build_test.sh` in the tools folder.
+
+Per default iceoryx is build as shared libraries because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
+This is done by the flag `BUILD_SHARED_LIBS` which is set to ON per default. If you want to have static libraries, just pass `-DBUILD_SHARED_LIBS=OFF` to Cmake or use `build-static` as flag in the build script.
+
+If you want to share the iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will be build it in `build_package`.

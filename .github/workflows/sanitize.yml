@@ -27,7 +27,7 @@ jobs:
       - name: Build
         run: |
           # build tests , dont run them
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize clang
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all build-static sanitize clang
                     
       - name: Run tests
         run: |
@@ -60,7 +60,7 @@ jobs:
 
       - name: Build
         run: |
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all build-static sanitize
 
       - name: Run tests
         run: |
