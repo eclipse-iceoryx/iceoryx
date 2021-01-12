@@ -44,7 +44,6 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
 
 class MemoryProvider_Test : public Test
 {
-
   public:
     void SetUp() override
     {
