@@ -39,7 +39,9 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
 
-    iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.nodeName = "Bleistift";
+    iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
     typedPublisher.offer();
 
     double ct = 0.0;

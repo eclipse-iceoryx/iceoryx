@@ -297,6 +297,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     constexpr int32_t instanceWidth{16};
     constexpr int32_t eventWidth{21};
     constexpr int32_t processNameWidth{23};
+    constexpr int32_t nodeNameWidth{23};
     constexpr int32_t sampleSizeWidth{12};
     constexpr int32_t chunkSizeWidth{12};
     constexpr int32_t chunksWidth{12};
@@ -312,6 +313,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", instanceWidth, "Instance");
     wprintw(pad, " %*s |", eventWidth, "Event");
     wprintw(pad, " %*s |", processNameWidth, "Process");
+    wprintw(pad, " %*s |", nodeNameWidth, "Node");
     wprintw(pad, " %*s |", sampleSizeWidth, "Sample Size");
     wprintw(pad, " %*s |", chunkSizeWidth, "Chunk Size");
     wprintw(pad, " %*s |", chunksWidth, "Chunks");
@@ -322,6 +324,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", instanceWidth, "");
     wprintw(pad, " %*s |", eventWidth, "");
     wprintw(pad, " %*s |", processNameWidth, "");
+    wprintw(pad, " %*s |", nodeNameWidth, "");
     wprintw(pad, " %*s |", sampleSizeWidth, "[Byte]");
     wprintw(pad, " %*s |", chunkSizeWidth, "[Byte]");
     wprintw(pad, " %*s |", chunksWidth, "[/Minute]");
@@ -381,6 +384,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             wprintw(pad, " %s |", printEntry(instanceWidth, publisherPort.portData->m_caproInstanceID).c_str());
             wprintw(pad, " %s |", printEntry(eventWidth, publisherPort.portData->m_caproEventMethodID).c_str());
             wprintw(pad, " %s |", printEntry(processNameWidth, publisherPort.portData->m_name).c_str());
+            wprintw(pad, " %s |", printEntry(nodeNameWidth, publisherPort.portData->m_node).c_str());
             wprintw(pad, " %s |", printEntry(sampleSizeWidth, m_sampleSize).c_str());
             wprintw(pad, " %s |", printEntry(chunkSizeWidth, m_chunkSize).c_str());
             wprintw(pad, " %s |", printEntry(chunksWidth, m_chunksPerMinute).c_str());
@@ -405,6 +409,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", serviceWidth, "Service");
     wprintw(pad, " %*s |", instanceWidth, "Instance");
     wprintw(pad, " %*s |", eventWidth, "Event");
+    wprintw(pad, " %*s |", nodeNameWidth, "Node");
     wprintw(pad, " %*s |", subscriptionStateWidth, "Subscription");
     wprintw(pad, " %*s |", fifoWidth, "FiFo");
     wprintw(pad, " %*s |", scopeWidth, "Propagation");
@@ -413,6 +418,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", serviceWidth, "");
     wprintw(pad, " %*s |", instanceWidth, "");
     wprintw(pad, " %*s |", eventWidth, "");
+    wprintw(pad, " %*s |", nodeNameWidth, "");
     wprintw(pad, " %*s |", subscriptionStateWidth, "State");
     wprintw(pad, " %*s |", fifoWidth, "size / capacity");
     wprintw(pad, " %*s |", scopeWidth, "scope");
@@ -453,6 +459,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             wprintw(pad, " %s |", printEntry(serviceWidth, subscriber.portData->m_caproServiceID).c_str());
             wprintw(pad, " %s |", printEntry(instanceWidth, subscriber.portData->m_caproInstanceID).c_str());
             wprintw(pad, " %s |", printEntry(eventWidth, subscriber.portData->m_caproEventMethodID).c_str());
+            wprintw(pad, " %s |", printEntry(nodeNameWidth, subscriber.portData->m_node).c_str());
             wprintw(pad,
                     " %s |",
                     printEntry(subscriptionStateWidth,
@@ -485,6 +492,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         wprintw(pad, " %*s |", serviceWidth, "");
         wprintw(pad, " %*s |", instanceWidth, "");
         wprintw(pad, " %*s |", eventWidth, "");
+        wprintw(pad, " %*s |", nodeNameWidth, "");
         wprintw(pad, " %*s |", subscriptionStateWidth, "");
         wprintw(pad, " %*s |", fifoWidth, "");
         wprintw(pad, " %*s |", scopeWidth, "");
