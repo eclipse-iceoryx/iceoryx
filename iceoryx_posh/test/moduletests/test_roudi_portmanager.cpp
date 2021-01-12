@@ -16,11 +16,11 @@
 
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
-#include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
+#include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
@@ -38,7 +38,6 @@ using iox::popo::SubscriberPortUser;
 using iox::roudi::IceOryxRouDiMemoryManager;
 using iox::roudi::PortManager;
 using iox::roudi::PortPoolError;
-using iox::roudi::PosixShmMemoryProvider;
 using iox::runtime::PortConfigInfo;
 
 class PortManagerTester : public PortManager
@@ -563,4 +562,3 @@ TEST_F(PortManager_test, PortDestroy)
         }
     }
 }
-
