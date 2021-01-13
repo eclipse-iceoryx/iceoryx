@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ endif()
 ########## build building-block library ##########
 #
 add_library(iceoryx_dds
-    STATIC
     source/iceoryx_dds/log/logging.cpp
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
@@ -119,6 +118,8 @@ add_executable(iox-gw-iceoryx2dds
 )
 target_link_libraries(iox-gw-iceoryx2dds
     iceoryx_posh::iceoryx_posh
+    iceoryx_posh::iceoryx_posh_gateway
+    iceoryx_posh::iceoryx_posh_config
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
 
@@ -129,6 +130,8 @@ add_executable(iox-gw-dds2iceoryx
 )
 target_link_libraries(iox-gw-dds2iceoryx 
     iceoryx_posh::iceoryx_posh
+    iceoryx_posh::iceoryx_posh_gateway
+    iceoryx_posh::iceoryx_posh_config
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
 

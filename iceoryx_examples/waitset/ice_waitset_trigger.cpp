@@ -47,7 +47,7 @@ class MyTriggerClass
     MyTriggerClass& operator=(MyTriggerClass&&) = delete;
 
     // When you call this method you will trigger the ACTIVATE event
-    void activate(const int activationCode) noexcept
+    void activate(const uint64_t activationCode) noexcept
     {
         m_activationCode = activationCode;
         m_isActivated = true;
@@ -224,8 +224,8 @@ int main()
 
     // start a thread which will trigger a event every second
     std::thread triggerThread([&] {
-        int activationCode = 1;
-        for (auto i = 0; i < 10; ++i)
+        uint64_t activationCode = 1U;
+        for (auto i = 0U; i < 10; ++i)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             triggerClass->activate(activationCode++);

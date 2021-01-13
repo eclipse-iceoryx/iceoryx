@@ -17,6 +17,7 @@
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 #include <chrono>

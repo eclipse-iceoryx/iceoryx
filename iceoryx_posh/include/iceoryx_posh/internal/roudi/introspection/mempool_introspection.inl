@@ -132,7 +132,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() 
 {
     if (m_publisherPort.hasSubscribers())
     {
-        uint32_t id = 0;
+        uint32_t id = 0U;
         auto maybeChunkHeader = m_publisherPort.tryAllocateChunk(sizeof(MemPoolIntrospectionInfoContainer));
         if (maybeChunkHeader.has_error())
         {
@@ -167,7 +167,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() 
                 else
                 {
                     LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
-                              << (id + 1) << " of " << m_segmentManager->m_segmentContainer.size()
+                              << (id + 1U) << " of " << m_segmentManager->m_segmentContainer.size()
                               << " memory segments sent.";
                     errorHandler(Error::kMEPOO__INTROSPECTION_CONTAINER_FULL, nullptr, ErrorLevel::MODERATE);
                     break;
@@ -178,7 +178,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() 
         else
         {
             LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
-                      << (id + 1) << " of " << m_segmentManager->m_segmentContainer.size() << " memory segments sent.";
+                      << (id + 1U) << " of " << m_segmentManager->m_segmentContainer.size() << " memory segments sent.";
             errorHandler(Error::kMEPOO__INTROSPECTION_CONTAINER_FULL, nullptr, ErrorLevel::MODERATE);
         }
 
@@ -193,10 +193,10 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::copyMem
 {
     auto numOfMemPools = memoryManager.getNumberOfMemPools();
     dest = MemPoolInfoContainer(numOfMemPools, MemPoolInfo());
-    for (uint32_t i = 0; i < numOfMemPools; ++i)
+    for (uint32_t i = 0U; i < numOfMemPools; ++i)
     {
         auto src = memoryManager.getMemPoolInfo(i);
-        auto& dst = dest[static_cast<int>(i)];
+        auto& dst = dest[i];
         dst.m_usedChunks = src.m_usedChunks;
         dst.m_minFreeChunks = src.m_minFreeChunks;
         dst.m_numChunks = src.m_numChunks;

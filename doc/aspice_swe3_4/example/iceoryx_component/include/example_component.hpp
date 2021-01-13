@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 #define IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_COMPONENT_HPP
 
 
-#include "example_sample_class.hpp"
-#include "source/example_base_class.hpp"
+#include "example_base_class.hpp"
+#include "example_module/example_derived_class.hpp"
 
 /// @brief This is the Example Component Description
 /// @details This is the detailed Example Component Description

@@ -23,6 +23,12 @@ endif(NOT CMAKE_BUILD_TYPE)
 include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)
 
+# ===== Doxygen example
+if(BUILD_DOC)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../doc/aspice_swe3_4 ${CMAKE_BINARY_DIR}/doc)
+    return()
+endif()
+
 # ===== Dependencies
 if(TOML_CONFIG)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/cpptoml/prebuild)
@@ -60,6 +66,8 @@ if(EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
 endif()
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/package/package.cmake)
 
 message("")
 message("       Build Properties")

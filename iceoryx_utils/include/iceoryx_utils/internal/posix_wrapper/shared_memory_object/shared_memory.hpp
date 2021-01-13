@@ -66,14 +66,14 @@ class SharedMemory
     bool unlink();
     bool close();
 
-    static constexpr uint64_t NAME_SIZE = 128u;
+    static constexpr uint64_t NAME_SIZE = 128U;
 
     bool m_isInitialized{false};
     char m_name[NAME_SIZE];
     OwnerShip m_ownerShip;
     int m_oflags{0};
     mode_t m_permissions;
-    uint64_t m_size{0u};
+    uint64_t m_size{0U};
     int m_handle{-1};
 };
 } // namespace posix

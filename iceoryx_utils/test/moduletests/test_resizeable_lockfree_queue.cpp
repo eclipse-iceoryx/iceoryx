@@ -17,13 +17,11 @@
 #include "iceoryx_utils/concurrent/resizeable_lockfree_queue.hpp"
 using namespace ::testing;
 
-//*********************************************************
-// Test the added functionaility of ResizeableLockFreeQueue
-// to change the capacity (setCapacity).
-// The remaining functionality is identical to LockFreeQueue
-// and tested in test_lockfree_queue.cpp (as a typed test).
-//*********************************************************
 
+/// Test the added functionality of ResizeableLockFreeQueue
+/// to change the capacity (setCapacity).
+/// The remaining functionality is identical to LockFreeQueue
+/// and tested in test_lockfree_queue.cpp (as a typed test).
 namespace
 {
 // use a non-POD type for testing (just a boxed version of int)

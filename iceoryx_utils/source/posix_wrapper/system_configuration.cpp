@@ -28,7 +28,7 @@ cxx::optional<uint64_t> pageSize()
         return cxx::nullopt_t();
     }
 
-    return cxx::make_optional<uint64_t>(size.getReturnValue());
+    return cxx::make_optional<uint64_t>(static_cast<uint64_t>(size.getReturnValue()));
 }
 } // namespace posix
 } // namespace iox
