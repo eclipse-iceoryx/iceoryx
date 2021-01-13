@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,70 +43,66 @@ class DeadlineTimer_test : public Test
 
     std::atomic<int> numberOfCalls{0};
     static const Duration TIMEOUT;
+    static const int SLEEPTIME;
 };
 
-class DeadlineTimerStopWatch_test : public Test
-{
-  public:
-    static const Duration TIMEOUT;
-};
-const Duration DeadlineTimerStopWatch_test::TIMEOUT{10_ms};
-const Duration DeadlineTimer_test::TIMEOUT{DeadlineTimerStopWatch_test::TIMEOUT};
+const Duration DeadlineTimer_test::TIMEOUT{10_ms};
+const int DeadlineTimer_test::SLEEPTIME = DeadlineTimer_test::TIMEOUT.milliSeconds<int>();
 
-TIMING_TEST_F(DeadlineTimerStopWatch_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat(5), [&] {
+TIMING_TEST_F(DeadlineTimer_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat(5), [&] {
     Timer sut(TIMEOUT);
 
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME / 3));
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME / 3));
     TIMING_TEST_EXPECT_TRUE(sut.hasExpired());
 });
 
-TIMING_TEST_F(DeadlineTimerStopWatch_test, ResetWithDurationIsExpired, Repeat(5), [&] {
+TIMING_TEST_F(DeadlineTimer_test, ResetWithDurationIsExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
     TIMING_TEST_EXPECT_TRUE(sut.hasExpired());
     sut.reset();
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
-TIMING_TEST_F(DeadlineTimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired, Repeat(5), [&] {
+TIMING_TEST_F(DeadlineTimer_test, ResetWhenNotExpiredIsStillNotExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME / 3));
     sut.reset();
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME / 3));
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
-TIMING_TEST_F(DeadlineTimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
+TIMING_TEST_F(DeadlineTimer_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
 
     TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
     sut.reset();
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
-TIMING_TEST_F(DeadlineTimerStopWatch_test, ResetWithCustomizedTimeAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
+TIMING_TEST_F(DeadlineTimer_test, ResetWithCustomizedTimeAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
 
     TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
 
     sut.reset(20_s);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
 
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
 
-TIMING_TEST_F(DeadlineTimerStopWatch_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&] {
-    Timer sut(20_ms);
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>()));
+TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&] {
+    Timer sut(2 * TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEPTIME));
     int remainingTime = sut.remainingTime().milliSeconds<int>();
-    const int PASSED_TIMER_TIME = 10; // Already 10ms passed in sleeping out of 20ms
-    const int RANGE_APPROX = 2;       // 2ms arppoximation. This may be lost after arming the timer in execution.
-    const int EXPECTED_REMAINING_TIME = PASSED_TIMER_TIME - RANGE_APPROX;
+    constexpr int PASSED_TIMER_TIME = SLEEPTIME; // Already 10ms passed in sleeping out of 20ms
+    constexpr int RANGE_APPROX = 2; // 2ms arppoximation. This may be lost after arming the timer in execution.
+    constexpr int EXPECTED_REMAINING_TIME = PASSED_TIMER_TIME - RANGE_APPROX;
     TIMING_TEST_EXPECT_TRUE(remainingTime >= EXPECTED_REMAINING_TIME && remainingTime <= PASSED_TIMER_TIME);
 });

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #define IOX_UTILS_CXX_DEADLINETIMER_HPP
 
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -27,7 +28,7 @@ namespace cxx
 /// it uses the intialized duration], reset timer to a customized duration, check if the timer is active and user can
 /// also get to know about the remaining time before the timer goes off
 /// @code
-///     iox::clock::DeadlineTimer deadlineTimer(1000_ms);
+///     iox::cxx::DeadlineTimer deadlineTimer(1000_ms);
 ///
 ///     // to check if the timer is active
 ///     if( deadlineTimer.hasExpired()){
@@ -45,7 +46,7 @@ class DeadlineTimer
     DeadlineTimer(const iox::units::Duration timeToWait) noexcept;
 
     /// @brief Checks if the timer has expired compared to its absolute end time
-    /// @return true if the timer is still active and false if it is expired
+    /// @return false if the timer is still active and true if it is expired
     bool hasExpired() const noexcept;
 
     /// @brief reinitializes the ending time for the timer. The absolute end time is calculated by adding time to wait

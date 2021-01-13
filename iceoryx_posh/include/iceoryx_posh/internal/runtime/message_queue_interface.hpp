@@ -353,7 +353,7 @@ class MqRuntimeInterface
 
     /// @brief
     /// @return
-    void waitForRoudi(iox::cxx::DeadlineTimer& timer) noexcept;
+    void waitForRoudi(cxx::DeadlineTimer& timer) noexcept;
 
     /// @brief
     /// @return

@@ -231,7 +231,7 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
         return;
     }
 
-    iox::cxx::DeadlineTimer timer(roudiWaitingTimeout);
+    cxx::DeadlineTimer timer(roudiWaitingTimeout);
 
     enum class RegState
     {
@@ -375,7 +375,7 @@ size_t MqRuntimeInterface::getShmTopicSize() noexcept
     return m_shmTopicSize;
 }
 
-void MqRuntimeInterface::waitForRoudi(iox::cxx::DeadlineTimer& timer) noexcept
+void MqRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
 {
     bool printWaitingWarning = true;
     bool printFoundMessage = false;

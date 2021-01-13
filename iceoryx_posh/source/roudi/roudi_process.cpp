@@ -139,7 +139,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
     uint64_t i{0U};
     bool haveAllProcessesFinished{false};
-    iox::cxx::DeadlineTimer finalKillTimer(processKillDelay);
+    cxx::DeadlineTimer finalKillTimer(processKillDelay);
 
     auto awaitProcessTermination = [&]() {
         bool shouldCheckProcessState = true;
