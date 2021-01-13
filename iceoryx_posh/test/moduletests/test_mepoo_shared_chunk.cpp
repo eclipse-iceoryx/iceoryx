@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -261,3 +261,22 @@ TEST_F(SharedChunk_Test, MultipleChunksCleanup)
     EXPECT_THAT(mempool.getUsedChunks(), Eq(1));
     EXPECT_THAT(chunkMgmtPool.getUsedChunks(), Eq(1));
 }
+
+TEST_F(SharedChunk_Test, NotEqualWithAnotherMemoryChunk)
+{ 
+    iox::mepoo::SharedChunk sut2;
+    EXPECT_THAT(sut != sut2, Eq(true));
+}
+
+TEST_F(SharedChunk_Test,NotEqualToNull)
+{ 
+    iox::mepoo::SharedChunk sut2(nullptr);
+    EXPECT_THAT(sut2 != nullptr, Eq(false));
+}
+
+TEST_F(SharedChunk_Test, NoOwnerForChunk)
+{ 
+    iox::mepoo::SharedChunk sut2(nullptr);
+    EXPECT_THAT(sut2.hasNoOtherOwners(), Eq(true));
+}
+

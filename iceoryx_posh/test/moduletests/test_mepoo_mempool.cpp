@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,10 +113,19 @@ TEST_F(MemPool_test, freeChunk)
         chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
     }
 
-    for (uint32_t i = 0; i < NumberOfChunks; ++i)
+    for (uint32_t i = 0; i <= NumberOfChunks; ++i)
     {
-        EXPECT_THAT(sut.getUsedChunks(), Eq(NumberOfChunks - i));
-        sut.freeChunk(chunks[i]);
+        if(i==NumberOfChunks)
+        {
+            EXPECT_DEATH({sut.freeChunk(chunks[i-1]);}, ".*"); 
+        }
+        else
+        {
+            EXPECT_THAT(sut.getUsedChunks(), Eq(NumberOfChunks - i));
+            sut.freeChunk(chunks[i]);
+        }
+        
+        
     }
 }
 

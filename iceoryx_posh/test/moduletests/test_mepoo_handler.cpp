@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -349,3 +349,39 @@ TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)
     mempoolconf.addMemPool({32, 0});
     EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
 }
+
+TEST_F(MemoryManager_test, MempoolIndexOutOfRange)
+{
+    constexpr uint32_t ChunkCount{100};
+    mempoolconf.addMemPool({128, ChunkCount});
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+
+    std::vector<iox::mepoo::SharedChunk> chunkStore;
+    for (size_t i = 0; i < ChunkCount; i++)
+    {
+        chunkStore.push_back(sut->getChunk(50));
+        EXPECT_THAT(chunkStore.back(), Eq(true));
+    }
+
+    EXPECT_THAT(sut->getMemPoolInfo(100).m_usedChunks, Eq(0));
+}
+
+  TEST_F(MemoryManager_test, GetMemoryConfig)
+{
+    constexpr uint32_t ChunkCount{100};
+    mempoolconf.addMemPool({128, ChunkCount});
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    const iox::mepoo::MePooConfig::MePooConfigContainerType* mempoolconfptr=mempoolconf.getMemPoolConfig();
+    EXPECT_THAT((mempoolconfptr[0].data()->m_chunkCount), Eq(ChunkCount));
+} 
+
+  TEST_F(MemoryManager_test, OptimizeMemoryConfig)
+{
+    constexpr uint32_t ChunkCount{100};
+    mempoolconf.addMemPool({128, ChunkCount});
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    mempoolconf.optimize();
+    const iox::mepoo::MePooConfig::MePooConfigContainerType* mempoolconfptr=mempoolconf.getMemPoolConfig();
+    EXPECT_THAT((mempoolconfptr[0].data()->m_chunkCount), Eq(ChunkCount));
+} 
+
