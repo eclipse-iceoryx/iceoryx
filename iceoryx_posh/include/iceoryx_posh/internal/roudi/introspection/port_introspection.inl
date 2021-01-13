@@ -22,7 +22,6 @@ namespace roudi
 {
 template <typename PublisherPort, typename SubscriberPort>
 PortIntrospection<PublisherPort, SubscriberPort>::PortIntrospection()
-    : m_runThread(false)
 {
 }
 
@@ -77,31 +76,18 @@ void PortIntrospection<PublisherPort, SubscriberPort>::run()
     m_publisherPortThroughput->offer();
     m_publisherPortSubscriberPortsData->offer();
 
-    /// @todo the thread sleep mechanism needs to be redone with a trigger queue with a try_pop with timeout
-    /// functionality
-    m_runThread = true;
-    static uint32_t ct = 0u;
-    m_thread = std::thread([this] {
-        while (m_runThread)
-        {
-            if (0u == (ct % m_sendIntervalCount))
-            {
-                if (m_portData.isNew())
-                {
-                    sendPortData();
-                }
-                sendThroughputData();
-                sendSubscriberPortsData();
-            }
+    m_sender.start(m_sendInterval);
+}
 
-            ++ct;
-
-            std::this_thread::sleep_for(m_sendIntervalSleep);
-        }
-    });
-
-    // set thread name
-    posix::setThreadName(m_thread.native_handle(), "PortIntr");
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::send()
+{
+    if (m_portData.isNew())
+    {
+        sendPortData();
+    }
+    sendThroughputData();
+    sendSubscriberPortsData();
 }
 
 template <typename PublisherPort, typename SubscriberPort>
@@ -153,26 +139,20 @@ void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPortsData()
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(unsigned int interval_ms)
+void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(units::Duration interval)
 {
-    if (std::chrono::milliseconds(interval_ms) >= m_sendIntervalSleep)
+    m_sendInterval = interval;
+    if (m_sender.isActive())
     {
-        m_sendIntervalCount = static_cast<unsigned int>(std::chrono::milliseconds(interval_ms) / m_sendIntervalSleep);
-    }
-    else
-    {
-        m_sendIntervalCount = 1;
+        m_sender.stop();
+        m_sender.start(m_sendInterval);
     }
 }
 
 template <typename PublisherPort, typename SubscriberPort>
 void PortIntrospection<PublisherPort, SubscriberPort>::stop()
 {
-    m_runThread.store(false, std::memory_order_relaxed);
-    if (m_thread.joinable())
-    {
-        m_thread.join();
-    }
+    m_sender.stop();
 }
 
 template <typename PublisherPort, typename SubscriberPort>

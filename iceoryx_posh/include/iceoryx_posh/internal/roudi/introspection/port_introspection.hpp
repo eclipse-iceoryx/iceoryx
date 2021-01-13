@@ -21,11 +21,11 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/posix_wrapper/thread.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
 #include <atomic>
 #include <mutex>
-#include <thread>
 #include <vector>
 
 #include <map>
@@ -302,8 +302,8 @@ class PortIntrospection
                                PublisherPort&& publisherPortSubscriberPortsData);
 
     /// @brief set the time interval used to send new introspection data
-    /// @param[in] sendIntervalMs time interval in ms
-    void setSendInterval(unsigned int sendIntervalMs);
+    /// @param[in] interval duration between two sends
+    void setSendInterval(units::Duration interval);
 
 
     /// @brief start the internal send thread
@@ -322,6 +322,9 @@ class PortIntrospection
     /// @brief sends the subscriberport changing data, this is used from the unittests
     void sendSubscriberPortsData();
 
+    /// @brief calls the three specific send functions from above, this is used from the periodic task
+    void send();
+
   protected:
     cxx::optional<PublisherPort> m_publisherPort;
     cxx::optional<PublisherPort> m_publisherPortThroughput;
@@ -330,11 +333,8 @@ class PortIntrospection
   private:
     PortData m_portData;
 
-    std::atomic<bool> m_runThread;
-    std::thread m_thread;
-
-    unsigned int m_sendIntervalCount{10};
-    const std::chrono::milliseconds m_sendIntervalSleep{100};
+    units::Duration m_sendInterval{units::Duration::seconds<long double>(1.0)};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_sender{"PortIntr", *this, &PortIntrospection::send};
 };
 
 /// @brief typedef for the templated port introspection class that is used by RouDi for the
