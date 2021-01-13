@@ -99,6 +99,7 @@ class vector_test : public Test
     }
 
     vector<int, 10> sut;
+    vector<int, 0> sut0;
 };
 
 int vector_test::cTor;
@@ -114,16 +115,19 @@ int vector_test::classValue;
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
 {
     EXPECT_THAT(sut.empty(), Eq(true));
+    EXPECT_THAT(sut0.empty(), Eq(true));
 }
 
 TEST_F(vector_test, NewlyCreatedVectorHasSizeZero)
 {
     EXPECT_THAT(sut.size(), Eq(0));
+    EXPECT_THAT(sut0.size(), Eq(0));
 }
 
 TEST_F(vector_test, Capacity)
 {
     EXPECT_THAT(sut.capacity(), Eq(10));
+    EXPECT_THAT(sut0.capacity(), Eq(0));
 }
 
 TEST_F(vector_test, NewVectorWithElementsCTorWithZeroElements)
@@ -132,6 +136,8 @@ TEST_F(vector_test, NewVectorWithElementsCTorWithZeroElements)
     constexpr int DEFAULT_VALUE{13};
     vector<int, CAPACITY> sut(0, DEFAULT_VALUE);
     EXPECT_THAT(sut.empty(), Eq(true));
+    vector<int, 0> sut0(0, DEFAULT_VALUE);
+    EXPECT_THAT(sut0.empty(), Eq(true));
 }
 
 TEST_F(vector_test, NewVectorWithElementsCTorWithSomeElements)
@@ -184,6 +190,7 @@ TEST_F(vector_test, EmplaceBackFailsWhenSpaceNotAvailable)
         EXPECT_THAT(sut.emplace_back(5), Eq(true));
     }
     EXPECT_THAT(sut.emplace_back(5), Eq(false));
+    EXPECT_THAT(sut0.emplace_back(5), Eq(false));
 }
 
 TEST_F(vector_test, PushBackSuccessfullWhenSpaceAvailableLValue)
@@ -202,6 +209,7 @@ TEST_F(vector_test, PushBackFailsWhenSpaceNotAvailableLValue)
         EXPECT_THAT(sut.push_back(a), Eq(true));
     }
     EXPECT_THAT(sut.push_back(a), Eq(false));
+    EXPECT_THAT(sut0.push_back(a), Eq(false));
 }
 
 TEST_F(vector_test, PushBackSuccessfullWhenSpaceAvailableRValue)
@@ -218,12 +226,15 @@ TEST_F(vector_test, PushBackFailsWhenSpaceNotAvailableRValue)
         EXPECT_THAT(sut.push_back(5), Eq(true));
     }
     EXPECT_THAT(sut.push_back(5), Eq(false));
+    EXPECT_THAT(sut0.push_back(5), Eq(false));
 }
 
 TEST_F(vector_test, PopBackOnEmptyVector)
 {
     sut.pop_back();
     ASSERT_THAT(sut.size(), Eq(0u));
+    sut0.pop_back();
+    ASSERT_THAT(sut0.size(), Eq(0u));
 }
 
 TEST_F(vector_test, PopBackNonEmptyVector)
@@ -250,6 +261,7 @@ TEST_F(vector_test, SizeEqualsCapacityWheFull)
         sut.emplace_back(5);
     }
     EXPECT_THAT(sut.size(), Eq(sut.capacity()));
+    EXPECT_THAT(sut0.size(), Eq(sut0.capacity()));
 }
 
 TEST_F(vector_test, SizeUnchangedWhenEmplaceFails)
@@ -273,6 +285,8 @@ TEST_F(vector_test, EmptyAfterClear)
     sut.emplace_back(5);
     sut.clear();
     EXPECT_THAT(sut.empty(), Eq(true));
+    sut0.clear();
+    EXPECT_THAT(sut0.empty(), Eq(true));
 }
 
 TEST_F(vector_test, SizeZeroAfterClear)
@@ -280,6 +294,8 @@ TEST_F(vector_test, SizeZeroAfterClear)
     sut.emplace_back(5);
     sut.clear();
     EXPECT_THAT(sut.size(), Eq(0));
+    sut0.clear();
+    EXPECT_THAT(sut0.size(), Eq(0));
 }
 
 TEST_F(vector_test, CopyConstructor)
@@ -303,6 +319,12 @@ TEST_F(vector_test, CopyConstructorWithEmptyVector)
     EXPECT_THAT(copyCTor, Eq(0));
     EXPECT_THAT(sut2.size(), Eq(0));
     EXPECT_THAT(sut2.empty(), Eq(true));
+
+    vector<CTorTest, 0> sut0_1;
+    vector<CTorTest, 0> sut0_2(sut0_1);
+    EXPECT_THAT(copyCTor, Eq(0));
+    EXPECT_THAT(sut0_2.size(), Eq(0));
+    EXPECT_THAT(sut0_2.empty(), Eq(true));
 }
 
 TEST_F(vector_test, CopyConstructorWithFullVector)
@@ -344,6 +366,12 @@ TEST_F(vector_test, MoveConstructorWithEmptyVector)
     EXPECT_THAT(moveCTor, Eq(0));
     EXPECT_THAT(sut2.size(), Eq(0));
     EXPECT_THAT(sut2.empty(), Eq(true));
+
+    vector<CTorTest, 0> sut0_1;
+    vector<CTorTest, 0> sut0_2(sut0_1);
+    EXPECT_THAT(moveCTor, Eq(0));
+    EXPECT_THAT(sut0_2.size(), Eq(0));
+    EXPECT_THAT(sut0_2.empty(), Eq(true));
 }
 
 TEST_F(vector_test, MoveConstructorWithFullVector)
@@ -368,6 +396,10 @@ TEST_F(vector_test, DestructorWithEmptyVector)
 {
     {
         vector<CTorTest, 10> sut1;
+    }
+    EXPECT_THAT(dTor, Eq(0));
+    {
+        vector<CTorTest, 0> sut0;
     }
     EXPECT_THAT(dTor, Eq(0));
 }
@@ -561,11 +593,14 @@ TEST_F(vector_test, MoveAssignmentWithLargerSource)
 TEST_F(vector_test, BeginEndIteratorAreTheSameWhenEmpty)
 {
     EXPECT_THAT(sut.begin() == sut.end(), Eq(true));
+    EXPECT_THAT(sut0.begin() == sut0.end(), Eq(true));
 }
 
 TEST_F(vector_test, BeginEndConstIteratorAreTheSameWhenEmpty)
 {
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() == const_cast<const decltype(sut)*>(&sut)->end(),
+                Eq(true));
+    EXPECT_THAT(const_cast<const decltype(sut0)*>(&sut0)->begin() == const_cast<const decltype(sut0)*>(&sut0)->end(),
                 Eq(true));
 }
 
@@ -739,6 +774,8 @@ TEST_F(vector_test, EraseReturnsNullWhenElementIsInvalid)
 {
     auto i = sut.begin() + 5;
     EXPECT_THAT(sut.erase(i), Eq(nullptr));
+    i = sut0.begin() + 5;
+    EXPECT_THAT(sut0.erase(i), Eq(nullptr));
 }
 
 TEST_F(vector_test, ErasingElementDecreasesSize)
@@ -912,9 +949,12 @@ TEST_F(vector_test, TwoEmptyVectorOfDifferentCapacityAreEqual)
 {
     vector<int, 10> a;
     vector<int, 20> b;
+    vector<int, 0> c;
 
     EXPECT_TRUE(a == b);
+    EXPECT_TRUE(b == c);
     EXPECT_FALSE(a != b);
+    EXPECT_FALSE(b != c);
 }
 
 TEST_F(vector_test, TwoEqualVectorsWithSameCapacityAreEqual)
@@ -930,6 +970,10 @@ TEST_F(vector_test, TwoEqualVectorsWithSameCapacityAreEqual)
 
     EXPECT_TRUE(a == b);
     EXPECT_FALSE(a != b);
+
+    vector<int, 0> c, d;
+    EXPECT_TRUE(c == d);
+    EXPECT_FALSE(c != d);
 }
 
 TEST_F(vector_test, TwoEqualVectorsWithDifferentCapacityAreEqual)
@@ -971,8 +1015,12 @@ TEST_F(vector_test, TwoNonEqualVectorsWithDifferentCapacityAreNotEqual)
     b.emplace_back(2);
     b.emplace_back(3);
 
+    vector<int, 0> c;
+
     EXPECT_FALSE(a == b);
+    EXPECT_FALSE(b == c);
     EXPECT_TRUE(a != b);
+    EXPECT_TRUE(b != c);
 }
 
 TEST_F(vector_test, SubsetVectorWithSameCapacityIsNotEqual)

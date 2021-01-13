@@ -22,6 +22,7 @@ namespace iox
 {
 namespace cxx
 {
+// Generic implementation for Capacity > 0
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
 {
@@ -335,5 +336,180 @@ bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::ve
     return !(lhs == rhs);
 }
 
+namespace iox
+{
+namespace cxx
+{
+// Specialization for Capacity 0
+template <typename T>
+class vector<T, 0LLU>
+{
+  public:
+    using value_type = T;
+
+    using iterator = T*;
+    using const_iterator = const T*;
+
+    inline vector() = default;
+
+    inline vector(const uint64_t count, const T& value [[gnu::unused]])
+    {
+        if (count > 0)
+        {
+            std::cerr << "Attempting to initialize a vector with more elements than its capacity!" << std::endl;
+            std::terminate();
+        }
+    }
+
+    inline vector(const uint64_t count)
+    {
+        if (count > 0)
+        {
+            std::cerr << "Attempting to initialize a vector with more elements than its capacity!" << std::endl;
+            std::terminate();
+        }
+    }
+
+    inline vector(const vector& rhs) = default;
+
+    inline vector(vector&& rhs) = default;
+
+    inline ~vector() = default;
+
+    inline vector& operator=(const vector& rhs)
+    {
+        return rhs;
+    }
+
+    inline vector& operator=(vector&& rhs)
+    {
+        return rhs;
+    }
+
+    inline iterator begin()
+    {
+        return nullptr;
+    }
+
+    inline const_iterator begin() const
+    {
+        return nullptr;
+    }
+
+    inline iterator end()
+    {
+        return nullptr;
+    }
+
+    inline const_iterator end() const
+    {
+        return nullptr;
+    }
+
+    inline T* data() noexcept
+    {
+        return nullptr;
+    }
+
+    inline const T* data() const noexcept
+    {
+        return nullptr;
+    }
+
+    inline T& at(const uint64_t index)
+    {
+        std::cerr << "out of bounds access, current size is 0 but given index is " << index << std::endl;
+        std::terminate();
+    };
+
+    inline const T& at(const uint64_t index) const
+    {
+        std::cerr << "out of bounds access, current size is 0 but given index is " << index << std::endl;
+        std::terminate();
+    };
+
+    inline T& operator[](const uint64_t index)
+    {
+        std::cerr << "out of bounds access, current size is 0 but given index is " << index << std::endl;
+        std::terminate();
+    }
+
+    inline const T& operator[](const uint64_t index) const
+    {
+        std::cerr << "out of bounds access, current size is 0 but given index is " << index << std::endl;
+        std::terminate();
+    }
+
+    inline T& front() noexcept
+    {
+        std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
+        std::terminate();
+    }
+
+    inline const T& front() const noexcept
+    {
+        std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
+        std::terminate();
+    }
+
+    inline T& back() noexcept
+    {
+        std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
+        std::terminate();
+    }
+
+    inline const T& back() const noexcept
+    {
+        std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
+        std::terminate();
+    }
+
+    inline uint64_t capacity() const
+    {
+        return 0;
+    }
+
+    inline uint64_t size() const
+    {
+        return 0;
+    }
+
+    inline bool empty() const
+    {
+        return true;
+    }
+
+    inline void clear()
+    {
+    }
+
+    template <typename... Targs>
+    inline bool emplace_back(Targs&&... args [[gnu::unused]])
+    {
+        return false;
+    }
+
+    inline bool push_back(const T& value [[gnu::unused]])
+    {
+        return false;
+    }
+
+    inline bool push_back(T&& value [[gnu::unused]])
+    {
+        return false;
+    }
+
+    inline void pop_back()
+    {
+    }
+
+    inline iterator erase(iterator position [[gnu::unused]])
+    {
+        return nullptr;
+    }
+};
+
+} // namespace cxx
+} // namespace iox
 
 #endif // IOX_UTILS_CXX_VECTOR_INL

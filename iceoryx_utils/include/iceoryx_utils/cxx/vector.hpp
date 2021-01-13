@@ -26,6 +26,13 @@ namespace cxx
 /// @brief  C++11 compatible vector implementation. We needed to do some
 ///         adjustments in the API since we do not use exceptions and we require
 ///         a data structure which can be located fully in the shared memory.
+
+template <typename T, uint64_t Capacity>
+class vector;
+
+template <typename T>
+class vector<T, 0LLU>;
+
 template <typename T, uint64_t Capacity>
 class vector
 {
