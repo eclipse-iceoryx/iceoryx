@@ -101,8 +101,8 @@ TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&]
     Timer sut(2 * TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEPTIME));
     int remainingTime = sut.remainingTime().milliSeconds<int>();
-    constexpr int PASSED_TIMER_TIME = SLEEPTIME; // Already 10ms passed in sleeping out of 20ms
-    constexpr int RANGE_APPROX = 2; // 2ms arppoximation. This may be lost after arming the timer in execution.
-    constexpr int EXPECTED_REMAINING_TIME = PASSED_TIMER_TIME - RANGE_APPROX;
+    const int PASSED_TIMER_TIME = SLEEPTIME; // Already 10ms passed in sleeping out of 20ms
+    const int RANGE_APPROX = 2;              // 2ms arppoximation. This may be lost after arming the timer in execution.
+    const int EXPECTED_REMAINING_TIME = PASSED_TIMER_TIME - RANGE_APPROX;
     TIMING_TEST_EXPECT_TRUE(remainingTime >= EXPECTED_REMAINING_TIME && remainingTime <= PASSED_TIMER_TIME);
 });
