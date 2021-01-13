@@ -96,12 +96,20 @@ class BaseSubscriber
     ///
     bool hasMissedSamples() noexcept;
 
+    // TO_BE_REMOVED
     ///
     /// @brief take Take the a sample from the top of the receive queue.
     /// @return An expected containing populated optional if there is a sample available, otherwise empty.
     /// @details The memory loan for the sample is automatically released when it goes out of scope.
     ///
     cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> take() noexcept;
+
+    ///
+    /// @brief takeChunk Take the chunk from the top of the receive queue.
+    /// @return The header of the chunk taken.
+    /// @details No automatic cleaunp of the associated chunk is performed.
+    ///
+    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveError> takeChunk() noexcept;
 
     ///
     /// @brief releaseQueuedSamples Releases any unread queued samples.

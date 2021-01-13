@@ -26,6 +26,17 @@ inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const cap
 {
 }
 
+template <template <typename, typename, typename> class base_subscriber_t>
+inline cxx::expected<const void*, ChunkReceiveError> UntypedSubscriberImpl<base_subscriber_t>::take_1_0() noexcept
+{
+    auto result = BaseSubscriber::takeChunk();
+    if (result.has_error())
+    {
+        return result.error();
+    }
+    return result.value()->payload();
+}
+
 } // namespace popo
 } // namespace iox
 

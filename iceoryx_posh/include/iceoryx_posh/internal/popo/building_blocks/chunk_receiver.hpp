@@ -27,7 +27,8 @@ namespace popo
 {
 enum class ChunkReceiveError
 {
-    TOO_MANY_CHUNKS_HELD_IN_PARALLEL
+    TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
+    NO_CHUNK_AVAILABLE
 };
 
 /// @brief The ChunkReceiver is a building block of the shared memory communication infrastructure. It extends

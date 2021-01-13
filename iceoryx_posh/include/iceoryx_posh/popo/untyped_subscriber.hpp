@@ -55,6 +55,12 @@ class UntypedSubscriberImpl
     using BaseSubscriber::subscribe;
     using BaseSubscriber::take;
     using BaseSubscriber::unsubscribe;
+
+    // the 1_0 suffix is only used temporarily to not cause regressions in all examples and tests and keep the changes
+    // // as small as possible, it will replace the function without suffix in a follow-up pull request (which changes
+    // all examples)
+
+    cxx::expected<const void*, ChunkReceiveError> take_1_0() noexcept;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;
