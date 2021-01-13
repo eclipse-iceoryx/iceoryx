@@ -148,6 +148,13 @@ inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint6
     }
 }
 
+template <typename T, typename Subscriber, typename port_t>
+void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const void* payload) noexcept
+{
+    auto header = mepoo::ChunkHeader::fromPayload(payload);
+    m_port.get().releaseChunk(header);
+}
+
 // ============================== Sample Deleter ============================== //
 
 template <typename T, typename Subscriber, typename port_t>

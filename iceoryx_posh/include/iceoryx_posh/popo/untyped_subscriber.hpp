@@ -51,6 +51,7 @@ class UntypedSubscriberImpl
     using BaseSubscriber::hasMissedSamples;
     using BaseSubscriber::hasSamples;
     using BaseSubscriber::invalidateTrigger;
+    using BaseSubscriber::releaseChunk;
     using BaseSubscriber::releaseQueuedSamples;
     using BaseSubscriber::subscribe;
     using BaseSubscriber::take;

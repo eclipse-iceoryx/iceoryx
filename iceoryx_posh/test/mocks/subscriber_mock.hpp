@@ -86,4 +86,5 @@ class MockBaseSubscriber
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
     MOCK_METHOD1(disableEvent, void(const iox::popo::SubscriberEvent));
+    MOCK_METHOD1(releaseChunk, void(const void*));
 };

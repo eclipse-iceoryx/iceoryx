@@ -116,6 +116,8 @@ class BaseSubscriber
     ///
     void releaseQueuedSamples() noexcept;
 
+    void releaseChunk(const void* payload) noexcept;
+
     template <uint64_t Capacity>
     friend class WaitSet;
 
