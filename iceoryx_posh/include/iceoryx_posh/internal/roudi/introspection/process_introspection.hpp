@@ -18,10 +18,10 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
-#include <atomic>
 #include <mutex>
-#include <thread>
 
 namespace iox
 {
@@ -83,8 +83,8 @@ class ProcessIntrospection
 
     /// @brief This function configures the interval for the transmission of the
     ///        port introspection data.
-    /// @param[in] interval_ms is the interval time in milliseconds
-    void setSendInterval(unsigned int interval_ms);
+    /// @param[in] interval duration between two sends.
+    void setSendInterval(units::Duration interval);
 
   protected:
     cxx::optional<PublisherPort> m_publisherPort;
@@ -95,12 +95,10 @@ class ProcessIntrospection
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
 
-    std::atomic<bool> m_runThread;
-    std::thread m_thread;
     std::mutex m_mutex;
 
-    unsigned int m_sendIntervalCount{10};
-    const std::chrono::milliseconds m_sendIntervalSleep{100};
+    units::Duration m_sendInterval{units::Duration::seconds<long double>(1.0)};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_sender{"ProcessIntr", *this, &ProcessIntrospection::send};
 };
 
 /// @brief typedef for the templated process introspection class that is used by RouDi for the

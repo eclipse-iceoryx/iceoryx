@@ -27,7 +27,6 @@ namespace roudi
 {
 template <typename PublisherPort>
 ProcessIntrospection<PublisherPort>::ProcessIntrospection()
-    : m_runThread(false)
 {
 }
 
@@ -158,23 +157,7 @@ void ProcessIntrospection<PublisherPort>::run()
     send();
     m_publisherPort->offer();
 
-    m_runThread = true;
-    static uint32_t ct = 0;
-    m_thread = std::thread([this] {
-        while (m_runThread.load(std::memory_order_relaxed))
-        {
-            if (0 == (ct % m_sendIntervalCount))
-            {
-                send();
-            }
-            ++ct;
-
-            std::this_thread::sleep_for(m_sendIntervalSleep);
-        }
-    });
-
-    // set thread name
-    posix::setThreadName(m_thread.native_handle(), "ProcessIntr");
+    m_sender.start(m_sendInterval);
 }
 
 template <typename PublisherPort>
@@ -203,23 +186,17 @@ void ProcessIntrospection<PublisherPort>::send()
 template <typename PublisherPort>
 void ProcessIntrospection<PublisherPort>::stop()
 {
-    m_runThread = false;
-    if (m_thread.joinable())
-    {
-        m_thread.join();
-    }
+    m_sender.stop();
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::setSendInterval(unsigned int interval_ms)
+void ProcessIntrospection<PublisherPort>::setSendInterval(units::Duration interval)
 {
-    if (std::chrono::milliseconds(interval_ms) >= m_sendIntervalSleep)
+    m_sendInterval = interval;
+    if (m_sender.isActive())
     {
-        m_sendIntervalCount = static_cast<unsigned int>(std::chrono::milliseconds(interval_ms) / m_sendIntervalSleep);
-    }
-    else
-    {
-        m_sendIntervalCount = 1;
+        m_sender.stop();
+        m_sender.start(m_sendInterval);
     }
 }
 
