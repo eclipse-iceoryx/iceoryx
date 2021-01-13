@@ -21,23 +21,53 @@ namespace concurrent
 {
 template <typename T>
 template <typename... Args>
-PeriodicTask<T>::PeriodicTask(const posix::ThreadName_t taskName,
-                              const units::Duration interval,
+PeriodicTask<T>::PeriodicTask(const posix::ThreadName_t taskName, Args&&... args) noexcept
+    : m_callable(std::forward<Args>(args)...)
+    , m_taskName(taskName)
+{
+}
+
+template <typename T>
+template <typename... Args>
+PeriodicTask<T>::PeriodicTask(const units::Duration interval,
+                              const posix::ThreadName_t taskName,
                               Args&&... args) noexcept
     : m_callable(std::forward<Args>(args)...)
+    , m_taskName(taskName)
     , m_interval(interval)
 {
-    posix::setThreadName(m_taskExecutor.native_handle(), taskName);
+    start(interval);
 }
 
 template <typename T>
 PeriodicTask<T>::~PeriodicTask() noexcept
 {
-    m_stop.post();
+    stop();
+}
+
+template <typename T>
+void PeriodicTask<T>::start(const units::Duration interval) noexcept
+{
+    stop();
+    m_interval = interval;
+    m_taskExecutor = std::thread(&PeriodicTask::run, this);
+    posix::setThreadName(m_taskExecutor.native_handle(), m_taskName);
+}
+
+template <typename T>
+void PeriodicTask<T>::stop() noexcept
+{
     if (m_taskExecutor.joinable())
     {
+        m_stop.post();
         m_taskExecutor.join();
     }
+}
+
+template <typename T>
+bool PeriodicTask<T>::isActive() const noexcept
+{
+    return m_taskExecutor.joinable();
 }
 
 template <typename T>

@@ -105,7 +105,7 @@ TEST_F(PeriodicTask_test, MoveAssignmentIsDeleted)
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithDefaultConstructor, Repeat(3), [&] {
     {
         using namespace iox::units::duration_literals;
-        concurrent::PeriodicTask<PeriodicTaskTestType> sut("Test", 10_ms);
+        concurrent::PeriodicTask<PeriodicTaskTestType> sut(10_ms, "Test");
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -117,7 +117,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithConstructorWithArgume
     constexpr uint64_t CALL_COUNTER_OFFSET{1000ULL * 1000ULL * 1000ULL * 1000ULL};
     {
         using namespace iox::units::duration_literals;
-        concurrent::PeriodicTask<PeriodicTaskTestType> sut("Test", 10_ms, CALL_COUNTER_OFFSET);
+        concurrent::PeriodicTask<PeriodicTaskTestType> sut(10_ms, "Test", CALL_COUNTER_OFFSET);
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -130,7 +130,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference, Repeat(3), [
     {
         using namespace iox::units::duration_literals;
         PeriodicTaskTestType testType;
-        concurrent::PeriodicTask<PeriodicTaskTestType&> sut("Test", 10_ms, testType);
+        concurrent::PeriodicTask<PeriodicTaskTestType&> sut(10_ms, "Test", testType);
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -141,7 +141,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference, Repeat(3), [
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef, Repeat(3), [&] {
     {
         using namespace iox::units::duration_literals;
-        concurrent::PeriodicTask<cxx::function_ref<void()>> sut("Test", 10_ms, PeriodicTaskTestType::increment);
+        concurrent::PeriodicTask<cxx::function_ref<void()>> sut(10_ms, "Test", PeriodicTaskTestType::increment);
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -152,7 +152,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef, Repeat(3), [&] 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithStdFunction, Repeat(3), [&] {
     {
         using namespace iox::units::duration_literals;
-        concurrent::PeriodicTask<std::function<void()>> sut("Test", 10_ms, PeriodicTaskTestType::increment);
+        concurrent::PeriodicTask<std::function<void()>> sut(10_ms, "Test", PeriodicTaskTestType::increment);
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -165,7 +165,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithMethodCallback, Repeat(3), ([&]
         using namespace iox::units::duration_literals;
         PeriodicTaskTestType testType;
         concurrent::PeriodicTask<cxx::MethodCallback<void>> sut{
-            "Test", 10_ms, cxx::MethodCallback<void>{testType, &PeriodicTaskTestType::incrementMethod}};
+            10_ms, "Test", cxx::MethodCallback<void>{testType, &PeriodicTaskTestType::incrementMethod}};
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }

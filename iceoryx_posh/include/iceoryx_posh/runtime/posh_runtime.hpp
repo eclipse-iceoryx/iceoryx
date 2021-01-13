@@ -207,7 +207,7 @@ class PoshRuntime
 
     /// @note the m_keepAliveTask should always be the last member, so that it will be the first member to be destroyed
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_keepAliveTask{
-        "KeepAlive", PROCESS_KEEP_ALIVE_INTERVAL, *this, &PoshRuntime::sendKeepAlive};
+        PROCESS_KEEP_ALIVE_INTERVAL, "KeepAlive", *this, &PoshRuntime::sendKeepAlive};
 };
 
 } // namespace runtime

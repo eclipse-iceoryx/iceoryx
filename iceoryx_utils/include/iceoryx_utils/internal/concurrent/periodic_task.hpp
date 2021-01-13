@@ -33,13 +33,20 @@ template <typename T>
 class PeriodicTask
 {
   public:
-    /// @brief Creates a periodic task by spawning a thread. The specified callable is executed immediately on creation
-    /// and then periodically after the interval duration.
+    /// @brief Creates a periodic task. The specified callable is stored but not executed.
+    /// To run the task, `void start(const units::Duration interval)` must be called.
     /// @param[in] taskName will be set as thread name
-    /// @param[in] interval is the time the thread waits between two invocations of the callable
     /// @param[in] args are forwarded to the underlying callable object
     template <typename... Args>
-    PeriodicTask(const posix::ThreadName_t taskName, const units::Duration interval, Args&&... args) noexcept;
+    PeriodicTask(const posix::ThreadName_t taskName, Args&&... args) noexcept;
+
+    /// @brief Creates a periodic task by spawning a thread. The specified callable is executed immediately on creation
+    /// and then periodically after the interval duration.
+    /// @param[in] interval is the time the thread waits between two invocations of the callable
+    /// @param[in] taskName will be set as thread name
+    /// @param[in] args are forwarded to the underlying callable object
+    template <typename... Args>
+    PeriodicTask(const units::Duration interval, const posix::ThreadName_t taskName, Args&&... args) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.
     /// @note This is blocking and the blocking time depends on the callable.
@@ -51,15 +58,32 @@ class PeriodicTask
     PeriodicTask& operator=(const PeriodicTask&) = delete;
     PeriodicTask& operator=(PeriodicTask&&) = delete;
 
+    /// @brief Spawns a thread and immediately executes the callable specified with the constructor.
+    /// The execution is repeated after the specified interval is passed.
+    /// @param[in] interval is the time the thread waits between two invocations of the callable
+    /// @attention If there is already a running thread, this will be stopped and started again with the new interval.
+    /// This might take some time if a slow task is executing during this call.
+    void start(const units::Duration interval) noexcept;
+
+    /// @brief This stops the thread if it's running, otherwise does nothing. When this method returns, the thread is
+    /// stopped.
+    /// @attention This might take some time if a slow task is executing during this call.
+    void stop() noexcept;
+
+    /// @brief This method check if a thread is spawned and running, potentially executing a task.
+    /// @return true if the thread is running, false otherwise.
+    bool isActive() const noexcept;
+
   private:
     void run() noexcept;
 
   private:
     T m_callable;
-    units::Duration m_interval;
+    posix::ThreadName_t m_taskName;
+    units::Duration m_interval{units::Duration::milliseconds<long double>(0.0)};
     /// @todo use a refactored posix::Timer object once available
     posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
-    std::thread m_taskExecutor{&PeriodicTask::run, this};
+    std::thread m_taskExecutor;
 };
 
 } // namespace concurrent
