@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,11 +43,6 @@ cxx::expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnou
 cxx::expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::destroyMemory() noexcept
 {
     return m_memoryManager.destroyMemory();
-}
-
-PosixShmMemoryProvider* IceOryxRouDiMemoryManager::mgmtMemoryProvider() noexcept
-{
-    return &m_defaultMemory.m_managementShm;
 }
 
 const PosixShmMemoryProvider* IceOryxRouDiMemoryManager::mgmtMemoryProvider() const noexcept
