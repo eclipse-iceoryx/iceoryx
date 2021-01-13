@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -297,15 +297,22 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
     if (begin() <= position && position < end())
     {
         uint64_t index = static_cast<uint64_t>(position - begin()) % (sizeof(element_t) * Capacity);
-        size_t n = index;
-        for (; n + 1u < size(); ++n)
-        {
-            at(n) = std::move(at(n + 1u));
-        }
-        at(n).~T();
-        m_size--;
+        return erase(index);
     }
     return nullptr;
+}
+
+template <typename T, uint64_t Capacity>
+inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(uint64_t index)
+{
+    size_t n = index;
+    for (; n + 1u < size(); ++n)
+    {
+        at(n) = std::move(at(n + 1u));
+    }
+    at(n).~T();
+    m_size--;
+    return (index < m_size) ? reinterpret_cast<iterator>((&(m_data[0]) + index)[0]) : nullptr;
 }
 
 } // namespace cxx
@@ -504,6 +511,11 @@ class vector<T, 0LLU>
     }
 
     inline iterator erase(iterator position [[gnu::unused]])
+    {
+        return nullptr;
+    }
+
+    inline iterator erase(uint64_t index [[gnu::unused]])
     {
         return nullptr;
     }

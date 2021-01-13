@@ -778,6 +778,17 @@ TEST_F(vector_test, EraseReturnsNullWhenElementIsInvalid)
     EXPECT_THAT(sut0.erase(i), Eq(nullptr));
 }
 
+TEST_F(vector_test, EraseReturnsIteratorWhenElementIsValid)
+{
+    sut.emplace_back(3);
+    sut.emplace_back(4);
+    sut.emplace_back(5);
+    auto it = sut.begin();
+    EXPECT_THAT(*sut.erase(it), Eq(4));
+    uint64_t index = 0;
+    EXPECT_THAT(*sut.erase(index), Eq(5));
+}
+
 TEST_F(vector_test, ErasingElementDecreasesSize)
 {
     sut.emplace_back(3);

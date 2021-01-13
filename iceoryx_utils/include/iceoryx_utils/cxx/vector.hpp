@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -162,10 +162,17 @@ class vector
     /// @brief removes the last element of the vector; calling pop_back on an empty container does nothing
     void pop_back();
 
-    /// @brief removes an element at the given position. if this element is in
+    /// @brief removes an element at the given iterator position. if this element is in
     ///         the middle of the vector every element is moved one place to the
     ///         left to ensure that the elements are stored contiguously
+    /// @return iterator to the next element, returns nullptr if position is out-of-range
     iterator erase(iterator position);
+
+    /// @brief removes an element at the given vector index. if this element is in
+    ///         the middle of the vector every element is moved one place to the
+    ///         left to ensure that the elements are stored contiguously
+    /// @return iterator to the next element, returns nullptr if index is out-of-range
+    iterator erase(uint64_t index);
 
   private:
     using element_t = uint8_t[sizeof(T)];
