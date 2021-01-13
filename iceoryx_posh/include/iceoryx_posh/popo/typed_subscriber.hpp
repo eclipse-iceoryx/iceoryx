@@ -51,7 +51,7 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     // // as small as possible, it will replace the function without suffix in a follow-up pull request (which changes
     // all examples)
 
-    inline cxx::expected<Sample<const T>, ChunkReceiveError> take_1_0() noexcept;
+    inline cxx::expected<Sample<const T>, ChunkReceiveResult> take_1_0() noexcept;
 };
 
 } // namespace popo

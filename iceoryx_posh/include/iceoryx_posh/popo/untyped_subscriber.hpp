@@ -60,7 +60,7 @@ class UntypedSubscriberImpl
     // // as small as possible, it will replace the function without suffix in a follow-up pull request (which changes
     // all examples)
 
-    cxx::expected<const void*, ChunkReceiveError> take_1_0() noexcept;
+    cxx::expected<const void*, ChunkReceiveResult> take_1_0() noexcept;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;

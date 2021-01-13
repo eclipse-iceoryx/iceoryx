@@ -39,11 +39,11 @@ iox_SubscribeState SubscribeState(const iox::SubscribeState value)
     }
 }
 
-iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveError value)
+iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult value)
 {
     switch (value)
     {
-    case ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
+    case ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
         return ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL;
     default:
         return ChunkReceiveResult_UNDEFINED_ERROR;

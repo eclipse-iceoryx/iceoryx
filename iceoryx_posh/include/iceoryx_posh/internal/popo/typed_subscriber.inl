@@ -27,7 +27,7 @@ inline TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::Servi
 }
 
 template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline cxx::expected<Sample<const T>, ChunkReceiveError> TypedSubscriber<T, base_subscriber_t>::take_1_0() noexcept
+inline cxx::expected<Sample<const T>, ChunkReceiveResult> TypedSubscriber<T, base_subscriber_t>::take_1_0() noexcept
 {
     auto result = BaseSubscriber::takeChunk();
     if (result.has_error())

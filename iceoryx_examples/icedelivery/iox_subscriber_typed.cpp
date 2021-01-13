@@ -52,7 +52,7 @@ int main()
                     std::cout << "Got value: " << object->x << std::endl;
                 })
                 .if_empty([] { std::cout << std::endl; })
-                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+                .or_else([](iox::popo::ChunkReceiveResult) { std::cout << "Error receiving chunk." << std::endl; });
         }
         else
         {

@@ -406,7 +406,7 @@ while (keepRunning)
             // we received no data
         }
     } else {
-        iox::popo::ChunkReceiveError& error = result.get_error();
+        iox::popo::ChunkReceiveResult& error = result.get_error();
         //handle the error
     }
 }
@@ -435,7 +435,7 @@ while (keepRunning)
             uint32_t counter = sample->counter;
         })
         .if_empty([] { /* no data received but also no error */ })
-        .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
+        .or_else([](iox::popo::ChunkReceiveResult) { /* handle the error */ });
 }
 
 ```
@@ -468,7 +468,7 @@ while (keepRunning)
                 /* alternatively use operator-> */
                 uint32_t counter = sample->counter;
             })
-            .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
+            .or_else([](iox::popo::ChunkReceiveResult) { /* handle the error */ });
     }
     // wait for new samples (either sleep or use the waitset)
 }
@@ -569,7 +569,7 @@ while (keepRunning)
             /* process the received data using counter */
         })
         .if_empty([] { /* no data received but also no error */ })
-        .or_else([](iox::popo::ChunkReceiveError) { /* handle the error */ });
+        .or_else([](iox::popo::ChunkReceiveResult) { /* handle the error */ });
 }
 ```
 
@@ -606,7 +606,7 @@ while (keepRunning)
                 // we received no data
             }
         } else {
-            iox::popo::ChunkReceiveError& error = result.get_error();
+            iox::popo::ChunkReceiveResult& error = result.get_error();
             //handle the error
         }
     }
