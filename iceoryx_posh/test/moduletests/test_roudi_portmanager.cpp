@@ -562,3 +562,16 @@ TEST_F(PortManager_test, PortDestroy)
         }
     }
 }
+
+TEST_F(PortManager_test, IntrospectionMemoryManagerNotInitialzed)
+{
+    IceOryxRouDiMemoryManager* m_roudiMemoryManagerTest{nullptr};
+    auto config = iox::RouDiConfig_t().setDefaults();
+    m_roudiMemoryManagerTest = new IceOryxRouDiMemoryManager(config);
+
+    auto result = m_roudiMemoryManagerTest->introspectionMemoryManager();
+    EXPECT_THAT(result, Eq(iox::cxx::nullopt_t()));
+
+    auto resultTest = m_roudiMemoryManagerTest->segmentManager();
+    EXPECT_THAT(result, Eq(iox::cxx::nullopt_t()));
+}
