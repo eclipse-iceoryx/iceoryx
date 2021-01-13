@@ -46,7 +46,6 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
     /// MemoryBlocks to destroy their data
     cxx::expected<RouDiMemoryManagerError> destroyMemory() noexcept override;
 
-    PosixShmMemoryProvider* mgmtMemoryProvider() noexcept override;
     const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept override;
     cxx::optional<PortPool*> portPool() noexcept override;
     cxx::optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept override;

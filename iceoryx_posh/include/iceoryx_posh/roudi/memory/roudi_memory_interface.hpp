@@ -52,7 +52,6 @@ class RouDiMemoryInterface
     /// MemoryBlocks to destroy their data
     virtual cxx::expected<RouDiMemoryManagerError> destroyMemory() noexcept = 0;
 
-    virtual PosixShmMemoryProvider* mgmtMemoryProvider() noexcept = 0;
     virtual const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept = 0;
     virtual cxx::optional<PortPool*> portPool() noexcept = 0;
     virtual cxx::optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept = 0;
