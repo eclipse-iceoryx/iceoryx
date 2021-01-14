@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -215,7 +215,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_publisherMap.find(service);
+    auto iter = m_publisherMap.find({service, node});
     if (iter != m_publisherMap.end())
     {
         return false;
@@ -227,7 +227,8 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
         return false;
     }
 
-    m_publisherMap.insert(std::make_pair(service, index));
+    // m_publisherMap.insert(std::make_pair(service, index));
+    m_publisherMap.insert({{service, node}, index});
 
     // connect publisher to all subscribers with the same Id
     PublisherInfo* publisher = m_publisherContainer.get(index);
@@ -285,7 +286,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
 
     auto& connection = m_connectionContainer[index];
 
-    auto sendIter = m_publisherMap.find(service);
+    auto sendIter = m_publisherMap.find({service, node});
     if (sendIter != m_publisherMap.end())
     {
         auto publisher = m_publisherContainer.get(sendIter->second);
@@ -297,11 +298,11 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
 
 template <typename PublisherPort, typename SubscriberPort>
 bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(
-    const ProcessName_t& name [[gnu::unused]], const capro::ServiceDescription& service)
+    const ProcessName_t& name [[gnu::unused]], const capro::ServiceDescription& service, const NodeName_t& node)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_publisherMap.find(service);
+    auto iter = m_publisherMap.find({service, node});
     if (iter == m_publisherMap.end())
     {
         return false;
@@ -429,7 +430,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
 
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
 
-    uint32_t index{0};
+    int32_t index{0};
     for (auto& pair : m_publisherMap)
     {
         auto m_publisherIndex = pair.second;
@@ -561,9 +562,10 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename Su
 
 template <typename PublisherPort, typename SubscriberPort>
 bool PortIntrospection<PublisherPort, SubscriberPort>::removePublisher(const ProcessName_t& name,
-                                                                       const capro::ServiceDescription& service)
+                                                                       const capro::ServiceDescription& service,
+                                                                       const NodeName_t& node)
 {
-    return m_portData.removePublisher(name, service);
+    return m_portData.removePublisher(name, service, node);
 }
 
 template <typename PublisherPort, typename SubscriberPort>

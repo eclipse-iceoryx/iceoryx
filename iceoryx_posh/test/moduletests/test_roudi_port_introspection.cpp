@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -266,8 +266,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     // test removal of ports
 
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName1, service1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName1, service1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName1, service1, nodeName1), Eq(false));
 
 
     chunkWasSent = false;
@@ -281,8 +281,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         EXPECT_THAT(comparePortData(chunk->sample()->m_publisherList[0], expected2), Eq(true));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2, nodeName2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2, nodeName2), Eq(false));
 
     chunkWasSent = false;
     m_introspectionAccess.sendPortData();
@@ -293,7 +293,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         ASSERT_THAT(chunk->sample()->m_subscriberList.size(), Eq(0U));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2, nodeName2), Eq(false));
 
     chunkWasSent = false;
     m_introspectionAccess.sendPortData();

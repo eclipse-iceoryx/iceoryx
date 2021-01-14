@@ -508,7 +508,8 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
     });
 
     m_portIntrospection.removePublisher(publisherPortRoudi.getProcessName(),
-                                        publisherPortRoudi.getCaProServiceDescription());
+                                        publisherPortRoudi.getCaProServiceDescription(),
+                                        publisherPortRoudi.getNodeName());
 
     // delete publisher port from list after STOP_OFFER was processed
     m_portPool->removePublisherPort(publisherPortData);

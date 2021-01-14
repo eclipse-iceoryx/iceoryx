@@ -234,8 +234,8 @@ class MqBase
 
   protected:
     ProcessName_t m_interfaceName;
-    uint64_t m_maxMessageSize{0};
-    uint64_t m_maxMessages{0};
+    uint64_t m_maxMessageSize{0U};
+    uint64_t m_maxMessages{0U};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
     IpcChannelType m_mq;
 };
@@ -253,8 +253,8 @@ class MqInterfaceUser : public MqBase
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
     MqInterfaceUser(const ProcessName_t& name,
-                    const int64_t maxMessages = APP_MAX_MESSAGES,
-                    const int64_t messageSize = APP_MESSAGE_SIZE) noexcept;
+                    const uint64_t maxMessages = APP_MAX_MESSAGES,
+                    const uint64_t messageSize = APP_MESSAGE_SIZE) noexcept;
 
     /// @brief The copy constructor and assignment operator are deleted since
     ///         this class manages a resource (message queue) which cannot
@@ -282,8 +282,8 @@ class MqInterfaceCreator : public MqBase
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
     MqInterfaceCreator(const ProcessName_t& name,
-                       const int64_t maxMessages = ROUDI_MAX_MESSAGES,
-                       const int64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
+                       const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
+                       const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 
     /// @brief The copy constructor and assignment operator is deleted since
     ///         this class manages a resource (message queue) which cannot
@@ -365,8 +365,8 @@ class MqRuntimeInterface
     cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
     MqInterfaceCreator m_AppMqInterface;
     MqInterfaceUser m_RoudiMqInterface;
-    size_t m_shmTopicSize{0u};
-    uint64_t m_segmentId{0u};
+    size_t m_shmTopicSize{0U};
+    uint64_t m_segmentId{0U};
 };
 } // namespace runtime
 } // namespace iox

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
     /// MemoryBlocks to destroy their data
     cxx::expected<RouDiMemoryManagerError> destroyMemory() noexcept override;
 
-    PosixShmMemoryProvider* mgmtMemoryProvider() noexcept override;
     const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept override;
     cxx::optional<PortPool*> portPool() noexcept override;
     cxx::optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept override;

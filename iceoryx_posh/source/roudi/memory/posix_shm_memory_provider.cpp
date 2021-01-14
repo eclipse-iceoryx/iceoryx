@@ -17,6 +17,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/system_configuration.hpp"
 
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
 
@@ -33,7 +34,7 @@ void sigbusHandler(int32_t) noexcept
         "memory. Please make sure that enough memory is available. For this, consider also the memory which is "
         "required for the [/iceoryx_mgmt] segment. Please refer to share/doc/iceoryx/FAQ.md in your release delivery.";
     size_t len = strlen(msg);
-    size_t count [[gnu::unused]] = write(STDERR_FILENO, msg, len);
+    DISCARD_RESULT(write(STDERR_FILENO, msg, len));
     _exit(EXIT_FAILURE);
 }
 } // namespace

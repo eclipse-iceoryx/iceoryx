@@ -33,6 +33,10 @@ jobs:
          run: |
             $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree
 
+       - name: Build debian package
+         run: |
+            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh package
+
        - name: Run timeless tests
          run: |
            cd $GITHUB_WORKSPACE/build
@@ -42,6 +46,10 @@ jobs:
          run: |
            cd $GITHUB_WORKSPACE/build
            make timing_tests
+
+       - name: Build RouDi examples without TOML support
+         run: |
+           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean
 
  # This job builds & runs iceoryx tests in macos-10.15
   iceoryx-macos:
@@ -76,6 +84,10 @@ jobs:
           cd $GITHUB_WORKSPACE/build
           make all_tests
 
+      - name: Build RouDi examples without TOML support
+        run: |
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean
+
  # This job builds & runs iceoryx tests in Windows 2019
   iceoryx-windows:
     runs-on: windows-latest
@@ -89,4 +101,4 @@ jobs:
 
       - name: Build sources
         run: |
-          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON && cmake --build build
+          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DBUILD_SHARED_LIBS=OFF && cmake --build build

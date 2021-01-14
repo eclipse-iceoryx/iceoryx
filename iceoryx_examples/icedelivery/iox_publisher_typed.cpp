@@ -27,7 +27,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void getRadarObject(RadarObject* const object, const uint64_t& val) noexcept
+void getRadarObject(RadarObject* const object, const double& val) noexcept
 {
     *object = RadarObject(val, val, val);
 }

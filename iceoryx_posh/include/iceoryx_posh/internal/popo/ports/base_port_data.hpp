@@ -36,7 +36,9 @@ struct BasePortData
     /// @param[in] serviceDescription creates the service service description
     /// @param[in] portType Type of port to be created
     /// @param[in] processName Name of the process
-    BasePortData(const capro::ServiceDescription& serviceDescription, const ProcessName_t& processName) noexcept;
+    BasePortData(const capro::ServiceDescription& serviceDescription,
+                 const ProcessName_t& processName,
+                 const NodeName_t& nodeName) noexcept;
 
     BasePortData(const BasePortData&) = delete;
     BasePortData& operator=(const BasePortData&) = delete;
@@ -46,6 +48,7 @@ struct BasePortData
 
     capro::ServiceDescription m_serviceDescription;
     ProcessName_t m_processName;
+    NodeName_t m_nodeName;
 
     UniquePortId m_uniqueId;
     std::atomic_bool m_toBeDestroyed{false};

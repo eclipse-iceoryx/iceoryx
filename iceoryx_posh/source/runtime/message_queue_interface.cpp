@@ -194,16 +194,16 @@ void MqBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
 }
 
 MqInterfaceUser::MqInterfaceUser(const ProcessName_t& name,
-                                 const int64_t maxMessages,
-                                 const int64_t messageSize) noexcept
+                                 const uint64_t maxMessages,
+                                 const uint64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     openMessageQueue(posix::IpcChannelSide::CLIENT);
 }
 
 MqInterfaceCreator::MqInterfaceCreator(const ProcessName_t& name,
-                                       const int64_t maxMessages,
-                                       const int64_t messageSize) noexcept
+                                       const uint64_t maxMessages,
+                                       const uint64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     // check if the mq is still there (e.g. because of no proper termination
