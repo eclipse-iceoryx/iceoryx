@@ -65,6 +65,19 @@ inline T* Sample<T>::operator->() noexcept
 }
 
 template <typename T>
+template <typename S, typename>
+inline S& Sample<T>::operator*() noexcept
+{
+    return *get();
+}
+
+template <typename T>
+inline Sample<T>::operator bool()
+{
+    return get() != nullptr;
+}
+
+template <typename T>
 inline T* Sample<T>::get() noexcept
 {
     return m_samplePtr.get();
@@ -137,6 +150,19 @@ template <typename T>
 inline const T* Sample<const T>::operator->() noexcept
 {
     return get();
+}
+
+template <typename T>
+template <typename S, typename>
+inline const S& Sample<const T>::operator*() noexcept
+{
+    return *get();
+}
+
+template <typename T>
+inline Sample<const T>::operator bool()
+{
+    return get() != nullptr;
 }
 
 template <typename T>

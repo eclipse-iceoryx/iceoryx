@@ -49,6 +49,21 @@ class Sample
     T* operator->() noexcept;
 
     ///
+    /// @brief operator* Provide a reference to the encapsulated type.
+    /// @return A T& to the encapsulated type.
+    /// @details Only available for non void type T.
+    ///
+    template <typename S = T,
+              typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_same<S, void>::value, S>>
+    S& operator*() noexcept;
+
+    ///
+    /// @brief operator bool Indciates whether the sample is valid, i.e. refers to allocated memory.
+    /// @return true if the sample is valid, false otherwise.
+    ///
+    operator bool();
+
+    ///
     /// @brief allocation Access to the memory chunk loaned to the sample.
     /// @return
     ///
@@ -96,6 +111,13 @@ class Sample<const T>
     Sample(std::nullptr_t) noexcept;
 
     const T* operator->() noexcept;
+
+    template <typename S = T,
+              typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_same<S, void>::value, S>>
+    const S& operator*() noexcept;
+
+    operator bool();
+
     const T* get() noexcept;
     const mepoo::ChunkHeader* getHeader() noexcept;
 
