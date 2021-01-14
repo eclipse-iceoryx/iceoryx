@@ -38,6 +38,12 @@ inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publishe
 }
 
 template <typename T, typename base_publisher_t>
+inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loanUninitialized() noexcept
+{
+    return std::move(base_publisher_t::loan(sizeof(T)));
+}
+
+template <typename T, typename base_publisher_t>
 template <typename Callable, typename... ArgTypes>
 inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publishResultOf(Callable c,
                                                                                            ArgTypes... args) noexcept
