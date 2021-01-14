@@ -398,8 +398,12 @@ TEST_F(vector_test, DestructorWithEmptyVector)
         vector<CTorTest, 10> sut1;
     }
     EXPECT_THAT(dTor, Eq(0));
+}
+
+TEST_F(vector_test, DestructorWithEmptyVectorCapacity0)
+{
     {
-        vector<CTorTest, 0> sut0;
+        vector<CTorTest, 0> sut1;
     }
     EXPECT_THAT(dTor, Eq(0));
 }
