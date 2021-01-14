@@ -87,6 +87,15 @@ class Sample
     ///
     void release() noexcept;
 
+    ///
+    /// @brief emplace In place construct encapsulated type with given arguments.
+    /// @param args arguments used for consctruction
+    /// @details Will overwrite anything already there without calling a dtor.
+    ///          For use with uninitialized samples only.
+    ///
+    template <typename... Args>
+    void emplace(Args&&... args) noexcept;
+
   protected:
     cxx::unique_ptr<T> m_samplePtr{[](T* const) {}}; // Placeholder. This is overwritten on sample construction.
     std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
@@ -115,8 +124,6 @@ class Sample<const T>
     template <typename S = T,
               typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_same<S, void>::value, S>>
     const S& operator*() noexcept;
-
-    operator bool();
 
     const T* get() noexcept;
     const mepoo::ChunkHeader* getHeader() noexcept;
