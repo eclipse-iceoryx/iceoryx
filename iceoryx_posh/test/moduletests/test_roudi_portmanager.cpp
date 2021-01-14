@@ -577,4 +577,7 @@ TEST_F(PortManager_test, IntrospectionMemoryManagerNotInitialzed)
 
     auto testResult = m_roudiMemoryManagerTest->portPool();
     EXPECT_THAT(testResult, Eq(iox::cxx::nullopt_t()));
+
+    delete m_roudiMemoryManagerTest;
 }
+
