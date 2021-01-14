@@ -76,28 +76,32 @@ class vector
 
     /// @brief returns an iterator to the first element of the vector,
     ///         if the vector is empty it returns the same iterator as
-    ///         end (the first iterator which is outside of the vector)
+    ///         end (nullptr)
     iterator begin();
 
     /// @brief returns a const iterator to the first element of the vector,
     ///         if the vector is empty it returns the same iterator as
-    ///         end (the first iterator which is outside of the vector)
+    ///         end (nullptr)
     const_iterator begin() const;
 
     /// @brief returns an iterator to the element which comes after the last
-    ///         element (the first element which is outside of the vector)
+    ///         element (the first element which is outside of the vector).
+    ///         If the vector is empty it returns nullptr
     iterator end();
 
     /// @brief returns a const iterator to the element which comes after the last
-    ///         element (the first element which is outside of the vector)
+    ///         element (the first element which is outside of the vector).
+    ///         If the vector is empty it returns nullptr
     const_iterator end() const;
 
     /// @brief return the pointer to the underlying array
     /// @return pointer to underlying array
+    ///          If the vector is empty it returns nullptr
     T* data() noexcept;
 
     /// @brief return the const pointer to the underlying array
     /// @return const pointer to underlying array
+    ///          If the vector is empty it returns nullptr
     const T* data() const noexcept;
 
     /// @brief returns a reference to the element stored at index. the behavior
@@ -140,7 +144,7 @@ class vector
     ///         vector
     uint64_t size() const;
 
-    /// @brief returns true if the vector is emtpy, otherwise false
+    /// @brief returns true if the vector is empty, otherwise false
     bool empty() const;
 
     /// @brief calls the destructor of all contained elements and removes them

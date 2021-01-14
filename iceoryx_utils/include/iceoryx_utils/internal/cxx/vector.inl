@@ -184,13 +184,13 @@ void vector<T, Capacity>::pop_back()
 template <typename T, uint64_t Capacity>
 inline T* vector<T, Capacity>::data() noexcept
 {
-    return reinterpret_cast<T*>(m_data);
+    return m_size > 0 ? reinterpret_cast<T*>(m_data) : nullptr;
 }
 
 template <typename T, uint64_t Capacity>
 inline const T* vector<T, Capacity>::data() const noexcept
 {
-    return reinterpret_cast<const T*>(m_data);
+    return m_size > 0 ? reinterpret_cast<const T*>(m_data) : nullptr;
 }
 
 template <typename T, uint64_t Capacity>
@@ -270,25 +270,25 @@ const T& vector<T, Capacity>::back() const noexcept
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::begin()
 {
-    return reinterpret_cast<iterator>(&(m_data[0]));
+    return m_size > 0 ? reinterpret_cast<iterator>(&(m_data[0])) : nullptr;
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::begin() const
 {
-    return reinterpret_cast<const_iterator>(&(m_data[0]));
+    return m_size > 0 ? reinterpret_cast<const_iterator>(&(m_data[0])) : nullptr;
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::end()
 {
-    return reinterpret_cast<iterator>((&(m_data[0]) + m_size)[0]);
+    return m_size > 0 ? reinterpret_cast<iterator>((&(m_data[0]) + m_size)[0]) : nullptr;
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() const
 {
-    return reinterpret_cast<const_iterator>((&(m_data[0]) + m_size)[0]);
+    return m_size > 0 ? reinterpret_cast<const_iterator>((&(m_data[0]) + m_size)[0]) : nullptr;
 }
 
 template <typename T, uint64_t Capacity>
