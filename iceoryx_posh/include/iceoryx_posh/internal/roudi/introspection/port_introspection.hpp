@@ -174,16 +174,17 @@ class PortIntrospection
                            const NodeName_t& node);
 
         /// @brief remove a publisher port from introspection
-        /// @param[in] name name of the port to be added
-        /// @param[in] service capro service description of the port to be added
+        /// @param[in] name name of the port to be removed
+        /// @param[in] service capro service description of the port to be removed
+        /// @param[in] node name of the node to be removed
         /// @return returns false if the port could not be removed (since it did not exist)
         ///              and true otherwise
         bool
         removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service, const NodeName_t& node);
 
         /// @brief remove a subscriber port from introspection
-        /// @param[in] name name of the port to be added
-        /// @param[in] service capro service description of the port to be added
+        /// @param[in] name name of the port to be removed
+        /// @param[in] service capro service description of the port to be removed
         /// @return returns false if the port could not be removed (since it did not exist)
         ///              and true otherwise
         bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service);
@@ -221,24 +222,24 @@ class PortIntrospection
         using PublisherContainer = FixedSizeContainer<PublisherInfo, MAX_PUBLISHERS>;
         using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
 
-        /// @brief index publisher and connections by capro Ids
-        struct comparison
+        struct PublisherMapCmpCriterion
         {
-            template <typename T>
-            bool operator()(const T& l, const T& r) const
+            bool operator()(const iox::cxx::pair<capro::ServiceDescription, iox::NodeName_t>& lhs,
+                            const iox::cxx::pair<capro::ServiceDescription, iox::NodeName_t>& rhs) const
             {
-                if (l.first == r.first)
+                if (lhs.first == rhs.first)
                 {
-                    return l.second < r.second;
+                    return lhs.second < rhs.second;
                 }
-                return l.first < r.first;
+                return lhs.first < rhs.first;
             }
         };
+
+        /// @brief index publisher and connections by capro Ids and nodes
         std::map<iox::cxx::pair<capro::ServiceDescription, iox::NodeName_t>,
                  typename PublisherContainer::Index_t,
-                 comparison>
+                 PublisherMapCmpCriterion>
             m_publisherMap;
-        // std::map<capro::ServiceDescription, typename PublisherContainer::Index_t> m_publisherMap;
 
         /// @todo: replace inner map wih more appropiate structure if possible
         /// inner map maps from process names to indices in the ConnectionContainer

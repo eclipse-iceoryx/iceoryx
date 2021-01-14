@@ -227,7 +227,6 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
         return false;
     }
 
-    // m_publisherMap.insert(std::make_pair(service, index));
     m_publisherMap.insert({{service, node}, index});
 
     // connect publisher to all subscribers with the same Id
