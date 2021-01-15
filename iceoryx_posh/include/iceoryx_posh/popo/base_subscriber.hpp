@@ -116,6 +116,11 @@ class BaseSubscriber
     ///
     void releaseQueuedSamples() noexcept;
 
+    ///
+    /// @brief releaseChunk Releases the chunk provided by the payload pointer.
+    /// @details The chunk must have been previosly provided by takeChunk and
+    ///          not have been already released.
+    ///
     void releaseChunk(const void* payload) noexcept;
 
     template <uint64_t Capacity>

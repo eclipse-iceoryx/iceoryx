@@ -75,6 +75,13 @@ class BasePublisher : public PublisherInterface<T>
     cxx::expected<Sample<T>, AllocationError> loan(const uint32_t size) noexcept;
 
     ///
+    /// @brief loan Get a chunk from loaned shared memory.
+    /// @param size The expected size of the chunk.
+    /// @return A pointer to a chunk of memory with the requested size.
+    ///
+    cxx::expected<void*, AllocationError> loan_1_0(const uint32_t size) noexcept;
+
+    ///
     /// @brief publish Publishes the given sample and then releases its loan.
     /// @param sample The sample to publish.
     ///

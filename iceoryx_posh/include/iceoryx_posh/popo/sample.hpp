@@ -89,7 +89,7 @@ class Sample
 
     ///
     /// @brief emplace In place construct encapsulated type with given arguments.
-    /// @param args arguments used for consctruction
+    /// @param args Arguments used for construction
     /// @details Will overwrite anything already there without calling a dtor.
     ///          For use with uninitialized samples only.
     ///
@@ -127,6 +127,9 @@ class Sample<const T>
 
     const T* get() noexcept;
     const mepoo::ChunkHeader* getHeader() noexcept;
+
+    template <typename... Args>
+    void emplace(Args&&... args) noexcept = delete;
 
   private:
     cxx::unique_ptr<T> m_samplePtr{[](T* const) {}}; // Placeholder. This is overwritten on sample construction.
