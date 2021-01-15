@@ -307,3 +307,10 @@ This quality level is meant for all targets that need tier 1 support in ROS2.
 * Modern C++ Design: Generic Programming and Design Patterns by Andrei Alexandrescu
 * Exceptional C++ by Herb Sutter
 * C++ Concurrency in Action by Anthony Williams
+
+## Code Analysis
+
+To ensure the code quality in iceoryx we use tool for analyzing the codebase. The goal is that the developer
+detects as early as possible potential bad code to resolve it. 
+One free tool is [Deepcode](https://www.deepcode.ai) which does a semantic code analysis based on AI.
+It is scanning the Pull-Requests on Github and can be integrated easily in multiple IDEs like VS Code or Atom.
