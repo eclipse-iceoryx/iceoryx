@@ -280,7 +280,6 @@ bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
         }
         return true;
     }
-    return true;
 }
 
 void ProcessManager::evaluateKillError(const RouDiProcess& process,

@@ -104,43 +104,45 @@ bool AccessController::addPermissionEntry(const Category f_category,
     {
     case Category::SPECIFIC_USER:
     {
+        bool result{false};
         if (f_name.empty())
         {
             std::cerr << "Error: specific users must have an explicit name." << std::endl;
-            return false;
+            result = false;
         }
 
         auto id = posix::PosixUser::getUserID(f_name);
         if (!id.has_value())
         {
-            return false;
+            result = false;
         }
         else
         {
-            return addPermissionEntry(f_category, f_permission, id.value());
+            result = addPermissionEntry(f_category, f_permission, id.value());
         }
 
-        break;
+        return result;
     }
     case Category::SPECIFIC_GROUP:
     {
+        bool result{false};
         if (f_name.empty())
         {
             std::cerr << "Error: specific groups must have an explicit name." << std::endl;
-            return false;
+            result = false;
         }
 
         auto id = posix::PosixGroup::getGroupID(f_name);
         if (!id.has_value())
         {
-            return false;
+            result = false;
         }
         else
         {
-            return addPermissionEntry(f_category, f_permission, id.value());
+            result = addPermissionEntry(f_category, f_permission, id.value());
         }
 
-        break;
+        return result;
     }
     default:
     {
@@ -267,12 +269,10 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     case Permission::READ:
     {
         return addAclPermission(entryPermissionSet, ACL_READ);
-        break;
     }
     case Permission::WRITE:
     {
         return addAclPermission(entryPermissionSet, ACL_WRITE);
-        break;
     }
     case Permission::READWRITE:
     {
@@ -281,17 +281,14 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
             return false;
         }
         return addAclPermission(entryPermissionSet, ACL_WRITE);
-        break;
     }
     case Permission::NONE:
     { // don't add any permission
         return true;
-        break;
     }
     default:
     {
         return false;
-        break;
     }
     }
 }
