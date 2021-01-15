@@ -32,9 +32,7 @@ template <typename... Args>
 PeriodicTask<T>::PeriodicTask(const units::Duration interval,
                               const posix::ThreadName_t taskName,
                               Args&&... args) noexcept
-    : m_callable(std::forward<Args>(args)...)
-    , m_taskName(taskName)
-    , m_interval(interval)
+    : PeriodicTask(taskName, std::forward<Args>(args)...)
 {
     start(interval);
 }

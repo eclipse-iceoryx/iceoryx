@@ -27,6 +27,7 @@ using namespace iox;
 using namespace iox::units::duration_literals;
 
 constexpr std::chrono::milliseconds SLEEP_TIME{100};
+constexpr units::Duration INTERVAL{10_ms};
 #if defined(__APPLE__)
 constexpr uint64_t MIN_RUNS{3U};
 constexpr uint64_t MAX_RUNS{17U};
@@ -102,10 +103,50 @@ TEST_F(PeriodicTask_test, MoveAssignmentIsDeleted)
     EXPECT_FALSE(std::is_move_assignable<concurrent::PeriodicTask<PeriodicTaskTestType>>::value);
 }
 
-TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithDefaultConstructor, Repeat(3), [&] {
+TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithoutIntervalIsInactive)
+{
+    concurrent::PeriodicTask<PeriodicTaskTestType> sut("Test");
+
+    EXPECT_THAT(sut.isActive(), Eq(false));
+}
+
+TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithoutIntervalIsActiveAfterCallingStart)
+{
+    concurrent::PeriodicTask<PeriodicTaskTestType> sut("Test");
+    sut.start(INTERVAL);
+
+    EXPECT_THAT(sut.isActive(), Eq(true));
+}
+
+TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithIntervalIsActive)
+{
+    concurrent::PeriodicTask<PeriodicTaskTestType> sut(INTERVAL, "Test");
+
+    EXPECT_THAT(sut.isActive(), Eq(true));
+}
+
+TEST_F(PeriodicTask_test, PeriodicTaskConstructedWithIntervalIsInactiveAfterCallingStop)
+{
+    concurrent::PeriodicTask<PeriodicTaskTestType> sut(INTERVAL, "Test");
+    sut.stop();
+
+    EXPECT_THAT(sut.isActive(), Eq(false));
+}
+
+TEST_F(PeriodicTask_test, PeriodicTaskWhichIsInactiveDoesNotExecuteTheCallable)
+{
     {
-        using namespace iox::units::duration_literals;
-        concurrent::PeriodicTask<PeriodicTaskTestType> sut(10_ms, "Test");
+        concurrent::PeriodicTask<PeriodicTaskTestType> sut("Test");
+
+        std::this_thread::sleep_for(SLEEP_TIME);
+    }
+
+    EXPECT_THAT(PeriodicTaskTestType::callCounter, Eq(0U));
+}
+
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithDefaultConstructor, Repeat(3), [&] {
+    {
+        concurrent::PeriodicTask<PeriodicTaskTestType> sut(INTERVAL, "Test");
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -113,11 +154,10 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithDefaultConstructor, R
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 });
 
-TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithConstructorWithArguments, Repeat(3), [&] {
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithConstructorWithArguments, Repeat(3), [&] {
     constexpr uint64_t CALL_COUNTER_OFFSET{1000ULL * 1000ULL * 1000ULL * 1000ULL};
     {
-        using namespace iox::units::duration_literals;
-        concurrent::PeriodicTask<PeriodicTaskTestType> sut(10_ms, "Test", CALL_COUNTER_OFFSET);
+        concurrent::PeriodicTask<PeriodicTaskTestType> sut(INTERVAL, "Test", CALL_COUNTER_OFFSET);
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -126,11 +166,10 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectWithConstructorWithArgume
                 AllOf(Ge(CALL_COUNTER_OFFSET + MIN_RUNS), Le(CALL_COUNTER_OFFSET + MAX_RUNS)));
 });
 
-TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference, Repeat(3), [&] {
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectAsReference, Repeat(3), [&] {
     {
-        using namespace iox::units::duration_literals;
         PeriodicTaskTestType testType;
-        concurrent::PeriodicTask<PeriodicTaskTestType&> sut(10_ms, "Test", testType);
+        concurrent::PeriodicTask<PeriodicTaskTestType&> sut(INTERVAL, "Test", testType);
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -138,10 +177,9 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithObjectAsReference, Repeat(3), [
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 });
 
-TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef, Repeat(3), [&] {
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunctionRef, Repeat(3), [&] {
     {
-        using namespace iox::units::duration_literals;
-        concurrent::PeriodicTask<cxx::function_ref<void()>> sut(10_ms, "Test", PeriodicTaskTestType::increment);
+        concurrent::PeriodicTask<cxx::function_ref<void()>> sut(INTERVAL, "Test", PeriodicTaskTestType::increment);
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -149,10 +187,9 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithCxxFunctionRef, Repeat(3), [&] 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 });
 
-TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithStdFunction, Repeat(3), [&] {
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), [&] {
     {
-        using namespace iox::units::duration_literals;
-        concurrent::PeriodicTask<std::function<void()>> sut(10_ms, "Test", PeriodicTaskTestType::increment);
+        concurrent::PeriodicTask<std::function<void()>> sut(INTERVAL, "Test", PeriodicTaskTestType::increment);
 
         std::this_thread::sleep_for(SLEEP_TIME);
     }
@@ -160,15 +197,47 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithStdFunction, Repeat(3), [&] {
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 });
 
-TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWithMethodCallback, Repeat(3), ([&] {
+// clang-format off
+// due to the `()` enclosing the lambda, clang-format is messing this up
+// the `()` are needed since the `TIMING_TEST_F` macro is messing up the forwarding to the MethodCallback c'tor
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithMethodCallback, Repeat(3), ([&] {
     {
-        using namespace iox::units::duration_literals;
         PeriodicTaskTestType testType;
         concurrent::PeriodicTask<cxx::MethodCallback<void>> sut{
-            10_ms, "Test", cxx::MethodCallback<void>{testType, &PeriodicTaskTestType::incrementMethod}};
+            INTERVAL, "Test", testType, &PeriodicTaskTestType::incrementMethod};
 
-        std::this_thread::sleep_for(SLEEP_TIME);
+            std::this_thread::sleep_for(SLEEP_TIME);
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 }));
+// clang-format on
+
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfterStart, Repeat(3), [&] {
+    auto start = std::chrono::steady_clock::now();
+    {
+        constexpr units::Duration WAY_TOO_LARGE_INTERVAL{10 * MAX_RUNS * INTERVAL};
+        concurrent::PeriodicTask<PeriodicTaskTestType> sut(WAY_TOO_LARGE_INTERVAL, "Test");
+
+        sut.start(INTERVAL);
+
+        std::this_thread::sleep_for(SLEEP_TIME);
+    }
+    auto stop = std::chrono::steady_clock::now();
+    auto elapsedTime{std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
+
+    EXPECT_THAT(elapsedTime, Le(2 * SLEEP_TIME));
+    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
+});
+
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlockingOnStop, Repeat(3), [&] {
+    auto start = std::chrono::steady_clock::now();
+    concurrent::PeriodicTask<cxx::function_ref<void()>> sut(INTERVAL, "Test", [] {
+        std::this_thread::sleep_for(SLEEP_TIME);
+    });
+    sut.stop();
+    auto stop = std::chrono::steady_clock::now();
+    auto elapsedTime{std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
+
+    EXPECT_THAT(elapsedTime, Ge(SLEEP_TIME));
+});
