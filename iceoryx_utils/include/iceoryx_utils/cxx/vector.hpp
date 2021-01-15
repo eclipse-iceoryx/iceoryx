@@ -14,6 +14,8 @@
 #ifndef IOX_UTILS_CXX_VECTOR_HPP
 #define IOX_UTILS_CXX_VECTOR_HPP
 
+#include "iceoryx_utils/cxx/vector_storage.hpp"
+
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
@@ -26,21 +28,15 @@ namespace cxx
 /// @brief  C++11 compatible vector implementation. We needed to do some
 ///         adjustments in the API since we do not use exceptions and we require
 ///         a data structure which can be located fully in the shared memory.
-
 template <typename T, uint64_t Capacity>
-class vector;
-
-template <typename T>
-class vector<T, 0LLU>;
-
-template <typename T, uint64_t Capacity>
-class vector
+class vector : public VectorStorage<T, Capacity>
 {
   public:
     using value_type = T;
 
     using iterator = T*;
     using const_iterator = const T*;
+    using reference = value_type&;
 
     /// @brief creates an empty vector
     vector() = default;
@@ -94,32 +90,6 @@ class vector
     ///         If the vector is empty it returns nullptr
     const_iterator end() const;
 
-    /// @brief return the pointer to the underlying array
-    /// @return pointer to underlying array
-    ///          If the vector is empty it returns nullptr
-    T* data() noexcept;
-
-    /// @brief return the const pointer to the underlying array
-    /// @return const pointer to underlying array
-    ///          If the vector is empty it returns nullptr
-    const T* data() const noexcept;
-
-    /// @brief returns a reference to the element stored at index. the behavior
-    //          is undefined if the element at index does not exist.
-    T& at(const uint64_t index);
-
-    /// @brief returns a cost reference to the element stored at index. the
-    ///         behavior is undefined if the element at index does not exist.
-    const T& at(const uint64_t index) const;
-
-    /// @brief returns a reference to the element stored at index. the behavior
-    //          is undefined if the element at index does not exist.
-    T& operator[](const uint64_t index);
-
-    /// @brief returns a cost reference to the element stored at index. the
-    ///         behavior is undefined if the element at index does not exist.
-    const T& operator[](const uint64_t index) const;
-
     /// @brief returns a reference to the first element; terminates if the vector is empty
     /// @return reference to the first element
     T& front() noexcept;
@@ -136,13 +106,22 @@ class vector
     /// @return const reference to the last element
     const T& back() const noexcept;
 
-    /// @brief returns the capacity of the vector which was given via the template
-    ///         argument
-    uint64_t capacity() const;
 
-    /// @brief returns the number of elements which are currently stored in the
-    ///         vector
-    uint64_t size() const;
+    /// @brief returns a reference to the element stored at index. the behavior
+    //          is undefined if the element at index does not exist.
+    T& at(const uint64_t index);
+
+    /// @brief returns a cost reference to the element stored at index. the
+    ///         behavior is undefined if the element at index does not exist.
+    const T& at(const uint64_t index) const;
+
+    /// @brief returns a reference to the element stored at index. the behavior
+    //          is undefined if the element at index does not exist.
+    T& operator[](const uint64_t index);
+
+    /// @brief returns a cost reference to the element stored at index. the
+    ///         behavior is undefined if the element at index does not exist.
+    const T& operator[](const uint64_t index) const;
 
     /// @brief returns true if the vector is empty, otherwise false
     bool empty() const;
@@ -179,9 +158,7 @@ class vector
     iterator erase(uint64_t index);
 
   private:
-    using element_t = uint8_t[sizeof(T)];
-    alignas(alignof(T)) element_t m_data[Capacity];
-    uint64_t m_size = 0u;
+    using element_t = typename UninitializedArray<T, Capacity>::element_t;
 };
 } // namespace cxx
 } // namespace iox
