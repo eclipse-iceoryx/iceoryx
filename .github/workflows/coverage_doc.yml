@@ -18,6 +18,11 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+       - name: compiler versions
+         run: |
+          echo $(gcc --version)
+          echo $(clang --version)
+
       - name: Install iceoryx dependencies
         # Softwares installed in ubuntu-18.04 instance
         # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md

@@ -16,6 +16,11 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: compiler versions
+        run: |
+          echo $(gcc --version)
+          echo $(clang --version)
+
       - name: Install iceoryx dependencies
         # Softwares installed in ubuntu-20.04 instance
         # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu2004-README.md
@@ -28,12 +33,12 @@ jobs:
         run: |
           # build tests , dont run them
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all build-static sanitize clang
-                    
+
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
           ../tools/run_all_tests.sh
-          
+
  # This job builds & runs iceoryx tests (with sanitizer) in macos-10.15
   clang-sanitize-macos:
     runs-on: macos-latest
@@ -44,6 +49,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: compiler version
+        run: |
+          echo $(clang --version)
 
       - name: Build and install dependencies
       # tinfo library which is required by iceoryx_introspection isn't available in mac
