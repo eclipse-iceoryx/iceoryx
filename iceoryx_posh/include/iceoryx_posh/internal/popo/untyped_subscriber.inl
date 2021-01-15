@@ -37,6 +37,24 @@ inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base
     return result.value()->payload();
 }
 
+template <template <typename, typename, typename> class base_subscriber_t>
+bool UntypedSubscriberImpl<base_subscriber_t>::hasData() const noexcept
+{
+    return BaseSubscriber::hasSamples();
+}
+
+template <template <typename, typename, typename> class base_subscriber_t>
+bool UntypedSubscriberImpl<base_subscriber_t>::hasMissedData() noexcept
+{
+    return BaseSubscriber::hasMissedData();
+}
+
+template <template <typename, typename, typename> class base_subscriber_t>
+void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedData() noexcept
+{
+    BaseSubscriber::releaseQueuedSamples();
+}
+
 } // namespace popo
 } // namespace iox
 

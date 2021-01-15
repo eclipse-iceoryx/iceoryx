@@ -83,12 +83,14 @@ class BaseSubscriber
     ///
     void unsubscribe() noexcept;
 
+    // iox-#408 replace
     ///
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
     bool hasSamples() const noexcept;
 
+    // iox-#408 replace
     ///
     /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
     /// @return True if samples have been missed.
@@ -96,7 +98,7 @@ class BaseSubscriber
     ///
     bool hasMissedSamples() noexcept;
 
-    // TO_BE_REMOVED
+    // iox-#408 remove
     ///
     /// @brief take Take the a sample from the top of the receive queue.
     /// @return An expected containing populated optional if there is a sample available, otherwise empty.
@@ -111,6 +113,7 @@ class BaseSubscriber
     ///
     cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
 
+    // iox-#408 replace
     ///
     /// @brief releaseQueuedSamples Releases any unread queued samples.
     ///

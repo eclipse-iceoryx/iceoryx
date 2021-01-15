@@ -48,13 +48,13 @@ class UntypedSubscriberImpl
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
-    using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasSamples;
+    using BaseSubscriber::hasMissedSamples; // iox-#408 remove
+    using BaseSubscriber::hasSamples;       // iox-#408 remove
     using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseChunk;
-    using BaseSubscriber::releaseQueuedSamples;
+    using BaseSubscriber::releaseQueuedSamples; // iox-#408 remove
     using BaseSubscriber::subscribe;
-    using BaseSubscriber::take;
+    using BaseSubscriber::take; // iox-#408 replace
     using BaseSubscriber::unsubscribe;
 
     // the 1_0 suffix is only used temporarily to not cause regressions in all examples and tests and keep the changes
@@ -62,6 +62,27 @@ class UntypedSubscriberImpl
     // all examples)
 
     cxx::expected<const void*, ChunkReceiveResult> take_1_0() noexcept;
+
+    // the untyped API is supposed to deal with chunks, hence the renaming iox #408 remove comment
+    // calling it chunks looks inapproriate in the function names (use data instead of chunks?)...
+
+    ///
+    /// @brief hasData Check if chunks are available.
+    /// @return True if a new chunk is available.
+    ///
+    bool hasChunks() const noexcept;
+
+    ///
+    /// @brief hasMissedChunks Check if chunks have been missed since the last hasMissedData() call.
+    /// @return True if chunks have been missed.
+    /// @details Chunks may be missed due to overflowing receive queue.
+    ///
+    bool hasMissedChunks() noexcept;
+
+    ///
+    /// @brief releaseQueuedChunks Releases any unread queued data chunk.
+    ///
+    void releaseQueuedChunks() noexcept;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;
