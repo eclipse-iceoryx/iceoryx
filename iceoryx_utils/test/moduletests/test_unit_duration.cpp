@@ -58,6 +58,17 @@ TEST(Duration_test, ConstructDurationWithMoreNanosecondsThanOneSecond)
     EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
+TEST(Duration_test, ConstructDurationWithOneNanosecondIsNotSetToZero)
+{
+    constexpr uint64_t SECONDS{0U};
+    constexpr uint64_t NANOSECONDS{1U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{NANOSECONDS};
+
+    auto sut = Duration{SECONDS, NANOSECONDS};
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
 TEST(Duration_test, ConstructFromTimespec)
 {
     constexpr uint64_t SECONDS{123U};
