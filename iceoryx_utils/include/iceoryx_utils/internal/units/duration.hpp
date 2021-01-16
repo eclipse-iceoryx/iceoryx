@@ -19,8 +19,8 @@
 #include "iceoryx_utils/platform/time.hpp" // required for QNX
 
 #include <chrono>
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 namespace iox
 {
@@ -73,6 +73,8 @@ constexpr Duration operator"" _d(unsigned long long int); // PRQA S 48
 class Duration
 {
   public:
+    // BEGIN CREATION FROM STATIC FUNCTIONS
+
     /// @brief Constructs a new Duration object from nanoseconds
     /// @tparam T is an integer type for the value
     /// @param[in] value as nanoseconds
@@ -80,6 +82,7 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
     static constexpr Duration nanoseconds(const T value);
+
     /// @brief Constructs a new Duration object from microseconds
     /// @tparam T is an integer type for the value
     /// @param[in] value as microseconds
@@ -87,6 +90,7 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
     static constexpr Duration microseconds(const T value);
+
     /// @brief Constructs a new Duration object from milliseconds
     /// @tparam T is an integer type for the value
     /// @param[in] value as milliseconds
@@ -94,6 +98,7 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
     static constexpr Duration milliseconds(const T value);
+
     /// @brief Constructs a new Duration object from seconds
     /// @tparam T is an integer type for the value
     /// @param[in] value as seconds
@@ -101,6 +106,7 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
     static constexpr Duration seconds(const T value);
+
     /// @brief Constructs a new Duration object from minutes
     /// @tparam T is an integer type for the value
     /// @param[in] value as minutes
@@ -108,6 +114,7 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
     static constexpr Duration minutes(const T value);
+
     /// @brief Constructs a new Duration object from hours
     /// @tparam T is an integer type for the value
     /// @param[in] value as hours
@@ -115,6 +122,7 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
     static constexpr Duration hours(const T value);
+
     /// @brief Constructs a new Duration object from days
     /// @tparam T is an integer type for the value
     /// @param[in] value as days
@@ -122,6 +130,10 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
     static constexpr Duration days(const T value);
+
+    // END CREATION FROM STATIC FUNCTIONS
+
+    // BEGIN CONSTRUCTORS AND ASSIGNMENT
 
     /// @brief Constructs a Duration from seconds and nanoseconds
     /// @param[in] seconds portion of the duration
@@ -157,6 +169,10 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     Duration& operator=(const std::chrono::milliseconds& right);
 
+    // END CONSTRUCTORS AND ASSIGNMENT
+
+    // BEGIN COMPARISON
+
     /// @brief Equal to operator
     /// @param[in] right hand side of the comparison
     /// @return true if duration equal to right
@@ -187,6 +203,10 @@ class Duration
     /// @return true if duration is greater than or equal to right
     constexpr bool operator>=(const Duration& right) const;
 
+    // END COMPARISON
+
+    // BEGIN ARITHMETIC
+
     /// @brief creates Duration object by adding right
     /// @param[in] right is the second summand
     /// @return a new Duration object
@@ -212,6 +232,10 @@ class Duration
     /// @return a new Duration object
     template <typename T>
     constexpr Duration operator/(const T& right) const;
+
+    // END ARITHMETIC
+
+    // BEGIN CONVERSION
 
     /// @brief returns the duration in nanoseconds
     template <typename T>
@@ -241,17 +265,16 @@ class Duration
     template <typename T>
     constexpr T days() const;
 
+    /// @brief converts duration in a timespec c struct
+    struct timespec timespec(const TimeSpecReference& reference = TimeSpecReference::None) const;
+
     /// @brief converts duration in a timeval c struct
     ///     timeval::tv_sec = seconds since the Epoch (01.01.1970)
     ///     timeval::tv_usec = microseconds
     constexpr operator struct timeval() const;
 
-    /// @brief converts time in a timespec c struct
-    struct timespec timespec(const TimeSpecReference& reference = TimeSpecReference::None) const;
+    // END CONVERSION
 
-    template <typename T>
-    friend constexpr Duration operator*(const T& left, const Duration& right);
-    friend std::ostream& operator<<(std::ostream& stream, const Duration& t);
     friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int); // PRQA S 48
     friend constexpr Duration duration_literals::operator"" _us(unsigned long long int); // PRQA S 48
     friend constexpr Duration duration_literals::operator"" _ms(unsigned long long int); // PRQA S 48
@@ -260,15 +283,26 @@ class Duration
     friend constexpr Duration duration_literals::operator"" _h(unsigned long long int);  // PRQA S 48
     friend constexpr Duration duration_literals::operator"" _d(unsigned long long int);  // PRQA S 48
 
+    template <typename T>
+    friend constexpr Duration operator*(const T& left, const Duration& right);
+
+    friend std::ostream& operator<<(std::ostream& stream, const Duration& t);
+
   private:
-    template<typename T>
-    inline constexpr Duration multiplicateSeconds(const uint64_t seconds, const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const;
-    template<typename T>
-    inline constexpr Duration multiplicateSeconds(const uint64_t seconds, const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
-    template<typename T>
-    inline constexpr Duration multiplicateNanoseconds(const uint32_t nanoseconds, const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const;
-    template<typename T>
-    inline constexpr Duration multiplicateNanoseconds(const uint32_t nanoseconds, const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
+    template <typename T>
+    inline constexpr Duration
+    multiplySeconds(const uint64_t seconds, const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const;
+    template <typename T>
+    inline constexpr Duration multiplySeconds(const uint64_t seconds,
+                                              const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
+    template <typename T>
+    inline constexpr Duration
+    multiplyNanoseconds(const uint32_t nanoseconds,
+                        const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const;
+    template <typename T>
+    inline constexpr Duration
+    multiplyNanoseconds(const uint32_t nanoseconds,
+                        const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
 
   private:
     uint64_t m_seconds{0};

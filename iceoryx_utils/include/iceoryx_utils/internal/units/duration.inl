@@ -103,7 +103,7 @@ inline constexpr Duration::Duration(const uint64_t seconds, const uint32_t nanos
     : m_seconds(seconds)
     , m_nanoseconds(nanoseconds)
 {
-    if(nanoseconds >= 1000000000U)
+    if (nanoseconds >= 1000000000U)
     {
         m_seconds += nanoseconds / 1000000000U;
         m_nanoseconds = m_nanoseconds % 1000000000U;
@@ -289,8 +289,8 @@ inline constexpr Duration Duration::operator-(const Duration& right) const
 
 template <typename T>
 inline constexpr Duration
-Duration::multiplicateSeconds(const uint64_t seconds,
-                              const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const
+Duration::multiplySeconds(const uint64_t seconds,
+                          const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const
 {
     // specialization is needed to prevent a clang warning if `right` is a signed integer and not casted to unsigned
     // operator*(...) takes care of negative values for right
@@ -299,8 +299,8 @@ Duration::multiplicateSeconds(const uint64_t seconds,
 
 template <typename T>
 inline constexpr Duration
-Duration::multiplicateSeconds(const uint64_t seconds,
-                              const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const
+Duration::multiplySeconds(const uint64_t seconds,
+                          const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const
 {
     // operator*(...) takes care of negative values for right
     auto result = seconds * right;
@@ -312,8 +312,8 @@ Duration::multiplicateSeconds(const uint64_t seconds,
 
 template <typename T>
 inline constexpr Duration
-Duration::multiplicateNanoseconds(const uint32_t nanoseconds,
-                                  const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const
+Duration::multiplyNanoseconds(const uint32_t nanoseconds,
+                              const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const
 {
     // specialization is needed to prevent a clang warning if `right` is a signed integer and not casted to unsigned
     // operator*(...) takes care of negative values for right
@@ -322,8 +322,8 @@ Duration::multiplicateNanoseconds(const uint32_t nanoseconds,
 
 template <typename T>
 inline constexpr Duration
-Duration::multiplicateNanoseconds(const uint32_t nanoseconds,
-                                  const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const
+Duration::multiplyNanoseconds(const uint32_t nanoseconds,
+                              const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const
 {
     // operator*(...) takes care of negative values for right
     return Duration::nanoseconds(static_cast<uint64_t>(nanoseconds * right));
@@ -341,7 +341,7 @@ inline constexpr Duration Duration::operator*(const T& right) const
 
     /// @todo decide if we want an overflow or saturation
 
-    return multiplicateSeconds<T>(m_seconds, right) + multiplicateNanoseconds<T>(m_nanoseconds, right);
+    return multiplySeconds<T>(m_seconds, right) + multiplyNanoseconds<T>(m_nanoseconds, right);
 }
 
 template <typename T>

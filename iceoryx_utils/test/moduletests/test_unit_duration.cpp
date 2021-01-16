@@ -99,7 +99,7 @@ TEST(Duration_test, ConstructFromTimeval)
 
 TEST(Duration_test, ConstructFromChronoMilliseconds)
 {
-    constexpr uint64_t  EXPECTED_MILLISECONDS {1001};
+    constexpr uint64_t EXPECTED_MILLISECONDS{1001};
     Duration result{std::chrono::milliseconds(EXPECTED_MILLISECONDS)};
     EXPECT_THAT(result.milliSeconds<uint64_t>(), Eq(EXPECTED_MILLISECONDS));
 }
@@ -112,7 +112,7 @@ TEST(Duration_test, ConstructFromNegativeChronoMillisecondsIsZero)
 
 TEST(Duration_test, ConstructFromChronoNanoseconds)
 {
-    constexpr uint64_t  EXPECTED_NANOSECONDS{42U + GIGA};
+    constexpr uint64_t EXPECTED_NANOSECONDS{42U + GIGA};
     Duration result{std::chrono::milliseconds(EXPECTED_NANOSECONDS)};
     EXPECT_THAT(result.milliSeconds<uint64_t>(), Eq(EXPECTED_NANOSECONDS));
 }
@@ -129,7 +129,7 @@ TEST(Duration_test, ConstructFromNegativeChronoNanosecondsIsZero)
 
 TEST(Duration_test, AssignFromChronoMilliseconds)
 {
-    constexpr uint64_t  EXPECTED_MILLISECONDS {1001};
+    constexpr uint64_t EXPECTED_MILLISECONDS{1001};
     Duration sut = 0_ns;
     sut = std::chrono::milliseconds(EXPECTED_MILLISECONDS);
     EXPECT_THAT(sut.milliSeconds<uint64_t>(), Eq(EXPECTED_MILLISECONDS));
@@ -433,16 +433,16 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReference)
     constexpr int64_t SECONDS{4};
     constexpr int64_t NANOSECONDS{66};
 
-    auto timeSinceUnixEpoche = std::chrono::system_clock::now().time_since_epoch();
-    auto timeSinceMonotonicEpoche = std::chrono::steady_clock::now().time_since_epoch();
+    auto timeSinceUnixEpoch = std::chrono::system_clock::now().time_since_epoch();
+    auto timeSinceMonotonicEpoch = std::chrono::steady_clock::now().time_since_epoch();
 
     Duration duration{SECONDS, NANOSECONDS};
     struct timespec sut = timespec(duration.timespec(iox::units::TimeSpecReference::Monotonic));
 
-    auto secondsSinceUnixEpoche = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoche).count();
-    auto secondsSinceMonotonicEpoche = std::chrono::duration_cast<std::chrono::seconds>(timeSinceMonotonicEpoche).count();
-    EXPECT_THAT(sut.tv_sec, Lt(secondsSinceUnixEpoche));
-    EXPECT_THAT(sut.tv_sec, Gt(secondsSinceMonotonicEpoche));
+    auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
+    auto secondsSinceMonotonicEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceMonotonicEpoch).count();
+    EXPECT_THAT(sut.tv_sec, Lt(secondsSinceUnixEpoch));
+    EXPECT_THAT(sut.tv_sec, Gt(secondsSinceMonotonicEpoch));
 }
 
 TEST(Duration_test, ConvertTimespecWithEpochReference)
@@ -450,14 +450,14 @@ TEST(Duration_test, ConvertTimespecWithEpochReference)
     constexpr int64_t SECONDS{5};
     constexpr int64_t NANOSECONDS{77};
 
-    auto timeSinceUnixEpoche = std::chrono::system_clock::now().time_since_epoch();
+    auto timeSinceUnixEpoch = std::chrono::system_clock::now().time_since_epoch();
 
     Duration duration{SECONDS, NANOSECONDS};
     struct timespec sut = timespec(duration.timespec(iox::units::TimeSpecReference::Epoch));
 
-    auto secondsSinceUnixEpoche = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoche).count();
-    EXPECT_THAT(10 * SECONDS, Lt(secondsSinceUnixEpoche));
-    EXPECT_THAT(sut.tv_sec, Gt(secondsSinceUnixEpoche));
+    auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
+    EXPECT_THAT(10 * SECONDS, Lt(secondsSinceUnixEpoch));
+    EXPECT_THAT(sut.tv_sec, Gt(secondsSinceUnixEpoch));
 }
 
 // END CONVERSION FUNCTION TESTS
