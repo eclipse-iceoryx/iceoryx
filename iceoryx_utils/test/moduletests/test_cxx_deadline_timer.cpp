@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/cxx/deadlinetimer.hpp"
+#include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"

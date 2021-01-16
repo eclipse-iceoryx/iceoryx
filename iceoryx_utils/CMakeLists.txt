@@ -135,7 +135,7 @@ setup_package_name_and_create_files(
 add_library(iceoryx_utils
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
-    source/cxx/deadlinetimer.cpp
+    source/cxx/deadline_timer.cpp
     source/cxx/helplets.cpp
     source/cxx/generic_raii.cpp
     source/error_handling/error_handling.cpp
