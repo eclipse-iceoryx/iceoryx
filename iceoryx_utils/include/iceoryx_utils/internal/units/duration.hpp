@@ -38,43 +38,22 @@ class Duration;
 inline namespace duration_literals
 {
 /// @brief constructs a new Duration object in nanoseconds
-constexpr Duration operator"" _ns(long double);
-
-/// @brief constructs a new Duration object in nanoseconds
 constexpr Duration operator"" _ns(unsigned long long int); // PRQA S 48
-
-/// @brief constructs a new Duration object in microseconds
-constexpr Duration operator"" _us(long double);
 
 /// @brief constructs a new Duration object in microseconds
 constexpr Duration operator"" _us(unsigned long long int); // PRQA S 48
 
 /// @brief constructs a new Duration object in milliseconds
-constexpr Duration operator"" _ms(long double);
-
-/// @brief constructs a new Duration object in milliseconds
 constexpr Duration operator"" _ms(unsigned long long int); // PRQA S 48
-
-/// @brief constructs a new Duration object in seconds
-constexpr Duration operator"" _s(long double);
 
 /// @brief constructs a new Duration object in seconds
 constexpr Duration operator"" _s(unsigned long long int); // PRQA S 48
 
 /// @brief constructs a new Duration object in minutes
-constexpr Duration operator"" _m(long double);
-
-/// @brief constructs a new Duration object in minutes
 constexpr Duration operator"" _m(unsigned long long int); // PRQA S 48
 
 /// @brief constructs a new Duration object in hours
-constexpr Duration operator"" _h(long double);
-
-/// @brief constructs a new Duration object in hours
 constexpr Duration operator"" _h(unsigned long long int); // PRQA S 48
-
-/// @brief constructs a new Duration object in days
-constexpr Duration operator"" _d(long double);
 
 /// @brief constructs a new Duration object in days
 constexpr Duration operator"" _d(unsigned long long int); // PRQA S 48
@@ -126,17 +105,29 @@ class Duration
     /// @brief Assigns a std::chrono::milliseconds to an duration object
     Duration& operator=(const std::chrono::milliseconds& right);
 
-    /// @brief return true if durationInSeconds is larger or equal than right
+    /// @brief Equal to operator
+    /// @return true if duration equal to right
+    constexpr bool operator==(const Duration& right) const;
+
+    /// @brief Not equal to operator
+    /// @return true if duration not equal to right
+    constexpr bool operator!=(const Duration& right) const;
+
+    /// @brief Less than operator
+    /// @return true if duration is less than right
     constexpr bool operator<(const Duration& right) const;
 
-    /// @brief return true if durationInSeconds is larger or equal than right
+    /// @brief Less than or equal to operator
+    /// @return true if duration is less than or equal to right
+    constexpr bool operator<=(const Duration& right) const;
+
+    /// @brief Greater than operator
+    /// @return true if duration is greater than right
     constexpr bool operator>(const Duration& right) const;
 
-    /// @brief return true if durationInSeconds is larger or equal than right
+    /// @brief Greater than or equal to operator
+    /// @return true if duration is greater than or equal to right
     constexpr bool operator>=(const Duration& right) const;
-
-    /// @brief returns true if right is larger or equal than durationInSeconds
-    constexpr bool operator<=(const Duration& right) const;
 
     /// @brief creates Duration object by adding right and durationInSeconds
     constexpr Duration operator+(const Duration& right) const;
@@ -194,26 +185,18 @@ class Duration
     /// @brief converts time in a timespec c struct
     struct timespec timespec(const TimeSpecReference& reference = TimeSpecReference::None) const;
 
-    //@ brief Make operators accessible, that have to be defined outside the class
-    // template <typename T>
-    // friend constexpr Duration operator*(const T& left, const Duration& right);
-    // template <typename T>
-    // friend constexpr Duration operator/(const T& left, const Duration& right);
+    template <typename T>
+    friend constexpr Duration operator*(const T& left, const Duration& right);
+    template <typename T>
+    friend constexpr Duration operator/(const T& left, const Duration& right);
     friend std::ostream& operator<<(std::ostream& stream, const Duration& t);
-    friend constexpr Duration duration_literals::operator"" _ns(long double);
     friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _us(long double);
     friend constexpr Duration duration_literals::operator"" _us(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _ms(long double);
     friend constexpr Duration duration_literals::operator"" _ms(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _s(long double);
-    friend constexpr Duration duration_literals::operator"" _s(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _m(long double);
-    friend constexpr Duration duration_literals::operator"" _m(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _h(long double);
-    friend constexpr Duration duration_literals::operator"" _h(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _d(long double);
-    friend constexpr Duration duration_literals::operator"" _d(unsigned long long int); // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _s(unsigned long long int);  // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _m(unsigned long long int);  // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _h(unsigned long long int);  // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _d(unsigned long long int);  // PRQA S 48
 
   private:
     /// @brief constructor needs to be private to ensure a unit safe usage of duration
@@ -221,7 +204,7 @@ class Duration
     long double durationInSeconds{0.0};
 };
 
-/// @brief creates Duration object multplying T with durationInSeconds
+/// @brief creates Duration object multiplying T with durationInSeconds
 template <typename T>
 constexpr Duration operator*(const T& left, const Duration& right);
 

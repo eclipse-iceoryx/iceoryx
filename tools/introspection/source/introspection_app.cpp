@@ -96,10 +96,16 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
 
         case 't':
         {
-            /// @todo Calling milliseconds() should not be ambiguous, extend units::Duration?
-            iox::units::Duration l_rate =
-                iox::units::Duration::milliseconds(static_cast<long double>(std::atoi(optarg)));
-            updatePeriodMs = bounded(l_rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
+            uint64_t newUpdatePeriodMs;
+            if (cxx::convert::fromString(optarg, newUpdatePeriodMs))
+            {
+                iox::units::Duration rate = iox::units::Duration::milliseconds(newUpdatePeriodMs);
+                updatePeriodMs = bounded(rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
+            }
+            else
+            {
+                std::cout << "Invalid argument for `t`! Will be ignored!";
+            }
             break;
         }
 
@@ -781,3 +787,5 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
 } // namespace introspection
 } // namespace client
 } // namespace iox
+
+

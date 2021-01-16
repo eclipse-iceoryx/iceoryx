@@ -23,36 +23,50 @@ namespace units
 template <typename T>
 constexpr Duration Duration::nanoseconds(const T ns)
 {
+    static_assert(std::numeric_limits<T>::is_integer && std::is_unsigned<T>::value,
+                  "only unsigned integer are supported");
     return operator"" _ns(ns);
 }
 template <typename T>
 constexpr Duration Duration::microseconds(const T us)
 {
+    static_assert(std::numeric_limits<T>::is_integer && std::is_unsigned<T>::value,
+                  "only unsigned integer are supported");
     return operator"" _us(us);
 }
 template <typename T>
 constexpr Duration Duration::milliseconds(const T ms)
 {
+    static_assert(std::numeric_limits<T>::is_integer && std::is_unsigned<T>::value,
+                  "only unsigned integer are supported");
     return operator"" _ms(ms);
 }
 template <typename T>
 constexpr Duration Duration::seconds(const T seconds)
 {
+    static_assert(std::numeric_limits<T>::is_integer && std::is_unsigned<T>::value,
+                  "only unsigned integer are supported");
     return operator"" _s(seconds);
 }
 template <typename T>
 constexpr Duration Duration::minutes(const T min)
 {
+    static_assert(std::numeric_limits<T>::is_integer && std::is_unsigned<T>::value,
+                  "only unsigned integer are supported");
     return operator"" _m(min);
 }
 template <typename T>
 constexpr Duration Duration::hours(const T hours)
 {
+    static_assert(std::numeric_limits<T>::is_integer && std::is_unsigned<T>::value,
+                  "only unsigned integer are supported");
     return operator"" _h(hours);
 }
 template <typename T>
 constexpr Duration Duration::days(const T days)
 {
+    static_assert(std::numeric_limits<T>::is_integer && std::is_unsigned<T>::value,
+                  "only unsigned integer are supported");
     return operator"" _d(days);
 }
 inline constexpr Duration::Duration(const struct timeval& value)
@@ -140,9 +154,24 @@ inline constexpr Duration::operator timeval() const
     return {this->seconds<SEC_TYPE>(), this->microSeconds<USEC_TYPE>() - this->seconds<USEC_TYPE>() * 1000000};
 }
 
+inline constexpr bool Duration::operator==(const Duration& right) const
+{
+    return durationInSeconds == right.durationInSeconds;
+}
+
+inline constexpr bool Duration::operator!=(const Duration& right) const
+{
+    return !(*this == right);
+}
+
 inline constexpr bool Duration::operator<(const Duration& right) const
 {
     return durationInSeconds < right.durationInSeconds;
+}
+
+inline constexpr bool Duration::operator<=(const Duration& right) const
+{
+    return durationInSeconds <= right.durationInSeconds;
 }
 
 inline constexpr bool Duration::operator>(const Duration& right) const
@@ -153,11 +182,6 @@ inline constexpr bool Duration::operator>(const Duration& right) const
 inline constexpr bool Duration::operator>=(const Duration& right) const
 {
     return durationInSeconds >= right.durationInSeconds;
-}
-
-inline constexpr bool Duration::operator<=(const Duration& right) const
-{
-    return durationInSeconds <= right.durationInSeconds;
 }
 
 inline constexpr Duration Duration::operator+(const Duration& right) const
@@ -194,19 +218,9 @@ inline constexpr Duration Duration::operator/(const T& right) const
 
 inline namespace duration_literals
 {
-inline constexpr Duration operator"" _ns(long double value)
-{
-    return Duration{value / 1000000000.0};
-}
-
 inline constexpr Duration operator"" _ns(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) / 1000000000.0};
-}
-
-inline constexpr Duration operator"" _us(long double value)
-{
-    return Duration{value / 1000000.0};
 }
 
 inline constexpr Duration operator"" _us(unsigned long long int value) // PRQA S 48
@@ -214,19 +228,9 @@ inline constexpr Duration operator"" _us(unsigned long long int value) // PRQA S
     return Duration{static_cast<long double>(value) / 1000000.0};
 }
 
-inline constexpr Duration operator"" _ms(long double value)
-{
-    return Duration{value / 1000.0};
-}
-
 inline constexpr Duration operator"" _ms(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) / 1000.0};
-}
-
-inline constexpr Duration operator"" _s(long double value)
-{
-    return Duration{value};
 }
 
 inline constexpr Duration operator"" _s(unsigned long long int value) // PRQA S 48
@@ -234,29 +238,14 @@ inline constexpr Duration operator"" _s(unsigned long long int value) // PRQA S 
     return Duration{static_cast<long double>(value)};
 }
 
-inline constexpr Duration operator"" _m(long double value)
-{
-    return Duration{value * 60.0};
-}
-
 inline constexpr Duration operator"" _m(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) * 60.0};
 }
 
-inline constexpr Duration operator"" _h(long double value)
-{
-    return Duration{value * 3600.0};
-}
-
 inline constexpr Duration operator"" _h(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) * 3600.0};
-}
-
-inline constexpr Duration operator"" _d(long double value)
-{
-    return Duration{value * 24.0 * 3600.0};
 }
 
 inline constexpr Duration operator"" _d(unsigned long long int value) // PRQA S 48
@@ -269,13 +258,13 @@ inline constexpr Duration operator"" _d(unsigned long long int value) // PRQA S 
 template <typename T>
 inline constexpr Duration operator*(const T& left, const Duration& right)
 {
-    return Duration::seconds(static_cast<long double>(left) * right.seconds<long double>());
+    return Duration(static_cast<long double>(left) * right.seconds<long double>());
 }
 
 template <typename T>
 inline constexpr Duration operator/(const T& left, const Duration& right)
 {
-    return Duration::seconds(static_cast<long double>(left) / right.seconds<long double>());
+    return Duration(static_cast<long double>(left) / right.seconds<long double>());
 }
 
 } // namespace units

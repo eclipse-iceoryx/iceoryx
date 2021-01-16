@@ -25,7 +25,7 @@ constexpr double tenTimesEpsilon = std::numeric_limits<double>::epsilon() * 10.;
 
 TEST(Duration_test, convertDays)
 {
-    auto time = 10.0_d;
+    auto time = 10_d;
     EXPECT_DOUBLE_EQ(time.days<double>(), 10.0);
     EXPECT_DOUBLE_EQ(time.hours<double>(), 240.0);
     EXPECT_DOUBLE_EQ(time.minutes<double>(), 14400.0);
@@ -37,14 +37,14 @@ TEST(Duration_test, convertDays)
 
 TEST(Duration_test, convertHours)
 {
-    auto time = 0.5_h;
-    EXPECT_DOUBLE_EQ(time.days<double>(), 1.0 / 48.0);
-    EXPECT_DOUBLE_EQ(time.hours<double>(), 0.5);
-    EXPECT_DOUBLE_EQ(time.minutes<double>(), 30.0);
-    EXPECT_DOUBLE_EQ(time.seconds<double>(), 1800.0);
-    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 1800.0 * KILO);
-    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 1800.0 * MEGA);
-    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 1800.0 * GIGA);
+    auto time = 2_h;
+    EXPECT_DOUBLE_EQ(time.days<double>(), 1.0 / 12.0);
+    EXPECT_DOUBLE_EQ(time.hours<double>(), 2.0);
+    EXPECT_DOUBLE_EQ(time.minutes<double>(), 120.0);
+    EXPECT_DOUBLE_EQ(time.seconds<double>(), 7200.0);
+    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 7200.0 * KILO);
+    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 7200.0 * MEGA);
+    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 7200.0 * GIGA);
 }
 
 TEST(Duration_test, convertMinutes)
@@ -107,17 +107,17 @@ TEST(Duration_test, convertNanoseconds)
 TEST(Duration_test, comparison)
 {
     auto time1 = 200_us;
-    auto time2 = 200.0_us;
-    EXPECT_EQ(time1.seconds<double>(), time2.seconds<double>());
+    auto time2 = 200000_ns;
+    EXPECT_EQ(time1, time2);
 
-    auto time3 = 0.21_ms;
+    auto time3 = 200_us + 1_ns;
     EXPECT_LT(time1, time3);
     EXPECT_GT(time3, time2);
 }
 
 TEST(Duration_test, timespec)
 {
-    auto time = 2.5_s;
+    auto time = 2_s + 500_ms;
     struct timespec t3;
     t3.tv_sec = 2;
     t3.tv_nsec = 500000000;
@@ -129,7 +129,7 @@ TEST(Duration_test, timespec)
 
 TEST(Duration_test, timeval)
 {
-    auto time = 2.5_s;
+    auto time = 2_s + 500_ms;
     struct timeval t1;
     t1.tv_sec = 2;
     t1.tv_usec = 500000;
@@ -141,7 +141,7 @@ TEST(Duration_test, timeval)
 
 TEST(Duration_test, addDuration)
 {
-    auto time1 = 5.2_s;
+    auto time1 = 5_s + 200_ms;
     auto time2 = 200_ms;
     auto time3 = 300000_us;
 
@@ -153,7 +153,7 @@ TEST(Duration_test, addDuration)
 
 TEST(Duration_test, subtractDuration)
 {
-    auto time1 = 5.2_s;
+    auto time1 = 5_s + 200_ms;
     auto time2 = 200_ms;
     auto time3 = 300000_us;
 
@@ -170,7 +170,7 @@ TEST(Duration_test, subtractDuration)
 
 TEST(Duration_test, multiplyDuration)
 {
-    auto time1 = 5.2_s;
+    auto time1 = 5_s + 200_ms;
     auto time2 = 200_ms;
     auto time3 = 300000_us;
 
@@ -187,7 +187,7 @@ TEST(Duration_test, multiplyDuration)
 
 TEST(Duration_test, divideDuration)
 {
-    auto time1 = 5.2_s;
+    auto time1 = 5_s + 200_ms;
     auto time2 = 200_ms;
     auto time3 = 300000_us;
 
@@ -219,7 +219,7 @@ TEST(Duration_test, constructFromTimeval)
     value.tv_usec = 42;
 
     Duration result(value);
-    EXPECT_EQ(result.microSeconds<uint64_t>(), 42 + 1000000 * 1337);
+    EXPECT_EQ(result.microSeconds<uint64_t>(), 42U + 1000000U * 1337U);
 }
 
 TEST(Duration_test, isZeroWhenConstructedFromNegativeChronoMilliSeconds)
