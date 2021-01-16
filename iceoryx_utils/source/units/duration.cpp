@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,14 +23,11 @@ namespace units
 {
 struct timespec Duration::timespec(const TimeSpecReference& reference) const
 {
-    constexpr int64_t NanoSecondsPerSecond{1000000000};
     if (reference == TimeSpecReference::None)
     {
-        int64_t timeInNanoSeconds = this->nanoSeconds<int64_t>();
-        int64_t seconds = timeInNanoSeconds / NanoSecondsPerSecond;
-        return {seconds,
-                static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(timeInNanoSeconds
-                                                                               - seconds * NanoSecondsPerSecond)};
+        auto tv_sec = static_cast<decltype(std::declval<struct timespec>().tv_sec)>(this->m_seconds);
+        auto tv_nsec = static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(this->m_nanoseconds);
+        return {tv_sec, tv_nsec};
     }
     else
     {
@@ -47,21 +44,17 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
         }
         else
         {
-            int64_t timeInNanoSeconds = this->nanoSeconds<int64_t>();
-            int64_t remainingNanoSecondsTimeout = timeInNanoSeconds % NanoSecondsPerSecond;
-            int64_t sumOfNanoSeconds = remainingNanoSecondsTimeout + referenceTime.tv_nsec;
-            int64_t additionalSeconds = sumOfNanoSeconds / NanoSecondsPerSecond;
-            int64_t seconds = timeInNanoSeconds / NanoSecondsPerSecond + referenceTime.tv_sec + additionalSeconds;
-            int64_t nanoSeconds = sumOfNanoSeconds - additionalSeconds * NanoSecondsPerSecond;
-
-            return {seconds, static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(nanoSeconds)};
+            auto targetTime = Duration(referenceTime) + *this;
+            auto tv_sec = static_cast<decltype(std::declval<struct timespec>().tv_sec)>(targetTime.m_seconds);
+            auto tv_nsec = static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(targetTime.m_nanoseconds);
+            return {tv_sec, tv_nsec};
         }
     }
 }
 
 std::ostream& operator<<(std::ostream& stream, const units::Duration& t)
 {
-    stream << t.durationInSeconds << "s ";
+    stream << t.m_seconds << "s " << t.m_nanoseconds << "ns ";
     return stream;
 }
 

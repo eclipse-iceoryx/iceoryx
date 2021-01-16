@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,218 +18,675 @@
 using namespace ::testing;
 using namespace iox::units;
 
-constexpr int KILO = 1000;
-constexpr int MEGA = 1000000;
-constexpr int GIGA = 1000000000;
-constexpr double tenTimesEpsilon = std::numeric_limits<double>::epsilon() * 10.;
+constexpr uint64_t KILO = 1000U;
+constexpr uint64_t MEGA = 1000000U;
+constexpr uint64_t GIGA = 1000000000U;
 
-TEST(Duration_test, convertDays)
+// BEGIN CONSTRUCTOR TESTS
+
+TEST(Duration_test, ConstructDurationWithLessNanosecondsThanOneSecond)
+{
+    constexpr uint64_t SECONDS{37U};
+    constexpr uint64_t NANOSECONDS{73U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{SECONDS * GIGA + NANOSECONDS};
+
+    auto sut = Duration{SECONDS, NANOSECONDS};
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructDurationWithNanosecondsEqualToOneSecond)
+{
+    constexpr uint64_t SECONDS{13U};
+    constexpr uint64_t NANOSECONDS{GIGA};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(SECONDS + 1U) * GIGA};
+
+    auto sut = Duration{SECONDS, NANOSECONDS};
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructDurationWithMoreNanosecondsThanOneSecond)
+{
+    constexpr uint64_t SECONDS{37U};
+    constexpr uint64_t NANOSECONDS{42U};
+    constexpr uint64_t MORE_THAN_ONE_SECOND_NANOSECONDS{GIGA + NANOSECONDS};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(SECONDS + 1U) * GIGA + NANOSECONDS};
+
+    auto sut = Duration{SECONDS, MORE_THAN_ONE_SECOND_NANOSECONDS};
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructFromTimespec)
+{
+    constexpr uint64_t SECONDS{123U};
+    constexpr uint64_t NANOSECONDS{456U};
+
+    struct timespec value;
+    value.tv_sec = SECONDS;
+    value.tv_nsec = NANOSECONDS;
+
+    Duration sut{value};
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(SECONDS * GIGA + NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructFromItimerspec)
+{
+    constexpr uint64_t SECONDS{135U};
+    constexpr uint64_t NANOSECONDS{246U};
+
+    struct itimerspec value;
+    value.it_interval.tv_sec = SECONDS;
+    value.it_interval.tv_nsec = NANOSECONDS;
+
+    Duration sut{value};
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(SECONDS * GIGA + NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructFromTimeval)
+{
+    constexpr uint64_t SECONDS{1337U};
+    constexpr uint64_t MICROSECONDS{42U};
+
+    struct timeval value;
+    value.tv_sec = SECONDS;
+    value.tv_usec = MICROSECONDS;
+
+    Duration sut{value};
+    EXPECT_THAT(sut.microSeconds<uint64_t>(), Eq(SECONDS * MEGA + MICROSECONDS));
+}
+
+TEST(Duration_test, ConstructFromChronoMilliseconds)
+{
+    constexpr uint64_t  EXPECTED_MILLISECONDS {1001};
+    Duration result{std::chrono::milliseconds(EXPECTED_MILLISECONDS)};
+    EXPECT_THAT(result.milliSeconds<uint64_t>(), Eq(EXPECTED_MILLISECONDS));
+}
+
+TEST(Duration_test, ConstructFromNegativeChronoMillisecondsIsZero)
+{
+    Duration result(std::chrono::milliseconds(-1));
+    EXPECT_THAT(result.milliSeconds<uint64_t>(), Eq(0U));
+}
+
+TEST(Duration_test, ConstructFromChronoNanoseconds)
+{
+    constexpr uint64_t  EXPECTED_NANOSECONDS{42U + GIGA};
+    Duration result{std::chrono::milliseconds(EXPECTED_NANOSECONDS)};
+    EXPECT_THAT(result.milliSeconds<uint64_t>(), Eq(EXPECTED_NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructFromNegativeChronoNanosecondsIsZero)
+{
+    Duration result(std::chrono::nanoseconds(-1));
+    EXPECT_THAT(result.nanoSeconds<uint64_t>(), Eq(0U));
+}
+
+// END CONSTRUCTOR TESTS
+
+// BEGIN ASSIGNMENT TESTS
+
+TEST(Duration_test, AssignFromChronoMilliseconds)
+{
+    constexpr uint64_t  EXPECTED_MILLISECONDS {1001};
+    Duration sut = 0_ns;
+    sut = std::chrono::milliseconds(EXPECTED_MILLISECONDS);
+    EXPECT_THAT(sut.milliSeconds<uint64_t>(), Eq(EXPECTED_MILLISECONDS));
+}
+
+TEST(Duration_test, AssignFromNegativeChronoMillisecondsIsZero)
+{
+    Duration sut = 22_ns;
+    sut = std::chrono::milliseconds(-1);
+    EXPECT_THAT(sut.milliSeconds<uint64_t>(), Eq(0U));
+}
+
+// END ASSIGNMENT TESTS
+
+// BEGIN CREATION FROM LITERAL TESTS
+
+TEST(Duration_test, CreateDurationFromDaysLiteral)
+{
+    constexpr uint64_t SECONDS_PER_HOUR{3600U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{2U * 24U * SECONDS_PER_HOUR * GIGA};
+    auto sut = 2_d;
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromHoursLiteral)
+{
+    constexpr uint64_t SECONDS_PER_HOUR{3600U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{3U * SECONDS_PER_HOUR * GIGA};
+    auto sut = 3_h;
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromMinutesLiteral)
+{
+    constexpr uint64_t SECONDS_PER_MINUTE{60U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{4U * SECONDS_PER_MINUTE * GIGA};
+    auto sut = 4_m;
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromSecondsLiteral)
+{
+    constexpr uint64_t NANOSECONDS_PER_SECOND{GIGA};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{5U * NANOSECONDS_PER_SECOND};
+    auto sut = 5_s;
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromMillisecondsLiteral)
+{
+    constexpr uint64_t NANOSECONDS_PER_MILLISECOND{MEGA};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{6U * NANOSECONDS_PER_MILLISECOND};
+    auto sut = 6_ms;
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromMicrosecondsLiteral)
+{
+    constexpr uint64_t NANOSECONDS_PER_MICROSECOND{KILO};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{7U * NANOSECONDS_PER_MICROSECOND};
+    auto sut = 7_us;
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromNanosecondsLiteral)
+{
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{8U};
+    auto sut = 8_ns;
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+// END CREATION FROM LITERAL TESTS
+
+// BEGIN CREATION FROM STATIC FUNCTION TESTS
+
+TEST(Duration_test, CreateDurationFromDaysFunction)
+{
+    constexpr uint64_t SECONDS_PER_HOUR{3600U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{2U * 24U * SECONDS_PER_HOUR * GIGA};
+    auto sut1 = Duration::days(2);
+    auto sut2 = Duration::days(2U);
+
+    EXPECT_THAT(sut1.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromDaysFunctionWithNegativeValuesIsZero)
+{
+    auto sut = Duration::days(-1);
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(0U));
+}
+
+TEST(Duration_test, CreateDurationFromHoursFunction)
+{
+    constexpr uint64_t SECONDS_PER_HOUR{3600U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{3U * SECONDS_PER_HOUR * GIGA};
+    auto sut1 = Duration::hours(3);
+    auto sut2 = Duration::hours(3U);
+
+    EXPECT_THAT(sut1.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromHoursFunctionWithNegativeValueIsZero)
+{
+    auto sut = Duration::hours(-1);
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(0U));
+}
+
+TEST(Duration_test, CreateDurationFromMinutesFunction)
+{
+    constexpr uint64_t SECONDS_PER_MINUTE{60U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{4U * SECONDS_PER_MINUTE * GIGA};
+    auto sut1 = Duration::minutes(4);
+    auto sut2 = Duration::minutes(4U);
+
+    EXPECT_THAT(sut1.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromMinutesFunctionWithNegativeValueIsZero)
+{
+    auto sut = Duration::minutes(-1);
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(0U));
+}
+
+TEST(Duration_test, CreateDurationFromSecondsFunction)
+{
+    constexpr uint64_t NANOSECONDS_PER_SECOND{GIGA};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{5U * NANOSECONDS_PER_SECOND};
+    auto sut1 = Duration::seconds(5);
+    auto sut2 = Duration::seconds(5U);
+
+    EXPECT_THAT(sut1.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromSecondsFunctionWithNegativeValueIsZero)
+{
+    auto sut = Duration::seconds(-1);
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(0U));
+}
+
+TEST(Duration_test, CreateDurationFromMillisecondsFunction)
+{
+    constexpr uint64_t NANOSECONDS_PER_MILLISECOND{MEGA};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{6U * NANOSECONDS_PER_MILLISECOND};
+    auto sut1 = Duration::milliseconds(6);
+    auto sut2 = Duration::milliseconds(6U);
+
+    EXPECT_THAT(sut1.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithNegativeValueIsZero)
+{
+    auto sut = Duration::milliseconds(-1);
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(0U));
+}
+
+TEST(Duration_test, CreateDurationFromMicrosecondsFunction)
+{
+    constexpr uint64_t NANOSECONDS_PER_MICROSECOND{KILO};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{7U * NANOSECONDS_PER_MICROSECOND};
+    auto sut1 = Duration::microseconds(7);
+    auto sut2 = Duration::microseconds(7U);
+
+    EXPECT_THAT(sut1.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithNegativeValueIsZero)
+{
+    auto sut = Duration::microseconds(-1);
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(0U));
+}
+
+TEST(Duration_test, CreateDurationFromNanosecondsFunction)
+{
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{8U};
+    auto sut1 = Duration::nanoseconds(8);
+    auto sut2 = Duration::nanoseconds(8U);
+
+    EXPECT_THAT(sut1.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, CreateDurationFromNanosecondsFunctionWithNegativeValueIsZero)
+{
+    auto sut = Duration::nanoseconds(-1);
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(0U));
+}
+
+// END CREATION FROM STATIC FUNCTION TESTS
+
+// BEGIN CONVERSION FUNCTION TESTS
+
+TEST(Duration_test, ConvertDays)
 {
     auto time = 10_d;
-    EXPECT_DOUBLE_EQ(time.days<double>(), 10.0);
-    EXPECT_DOUBLE_EQ(time.hours<double>(), 240.0);
-    EXPECT_DOUBLE_EQ(time.minutes<double>(), 14400.0);
-    EXPECT_DOUBLE_EQ(time.seconds<double>(), 864000.0);
-    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 864000.0 * KILO);
-    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 864000.0 * MEGA);
-    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 864000.0 * GIGA);
+    EXPECT_EQ(time.days<uint64_t>(), 10U);
+    EXPECT_EQ(time.hours<uint64_t>(), 240U);
+    EXPECT_EQ(time.minutes<uint64_t>(), 14400U);
+    EXPECT_EQ(time.seconds<uint64_t>(), 864000U);
+    EXPECT_EQ(time.milliSeconds<uint64_t>(), 864000U * KILO);
+    EXPECT_EQ(time.microSeconds<uint64_t>(), 864000U * MEGA);
+    EXPECT_EQ(time.nanoSeconds<uint64_t>(), 864000U * GIGA);
 }
 
-TEST(Duration_test, convertHours)
+TEST(Duration_test, ConvertHours)
 {
     auto time = 2_h;
-    EXPECT_DOUBLE_EQ(time.days<double>(), 1.0 / 12.0);
-    EXPECT_DOUBLE_EQ(time.hours<double>(), 2.0);
-    EXPECT_DOUBLE_EQ(time.minutes<double>(), 120.0);
-    EXPECT_DOUBLE_EQ(time.seconds<double>(), 7200.0);
-    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 7200.0 * KILO);
-    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 7200.0 * MEGA);
-    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 7200.0 * GIGA);
+    EXPECT_EQ(time.days<uint64_t>(), 0U);
+    EXPECT_EQ(time.hours<uint64_t>(), 2U);
+    EXPECT_EQ(time.minutes<uint64_t>(), 120U);
+    EXPECT_EQ(time.seconds<uint64_t>(), 7200U);
+    EXPECT_EQ(time.milliSeconds<uint64_t>(), 7200U * KILO);
+    EXPECT_EQ(time.microSeconds<uint64_t>(), 7200U * MEGA);
+    EXPECT_EQ(time.nanoSeconds<uint64_t>(), 7200U * GIGA);
 }
 
-TEST(Duration_test, convertMinutes)
+TEST(Duration_test, ConvertMinutes)
 {
     auto time = 720_m;
-    EXPECT_DOUBLE_EQ(time.days<double>(), 0.5);
-    EXPECT_DOUBLE_EQ(time.hours<double>(), 12.0);
-    EXPECT_DOUBLE_EQ(time.minutes<double>(), 720.0);
-    EXPECT_DOUBLE_EQ(time.seconds<double>(), 43200.0);
-    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 43200.0 * KILO);
-    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 43200.0 * MEGA);
-    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 43200.0 * GIGA);
+    EXPECT_EQ(time.days<uint64_t>(), 0U);
+    EXPECT_EQ(time.hours<uint64_t>(), 12U);
+    EXPECT_EQ(time.minutes<uint64_t>(), 720U);
+    EXPECT_EQ(time.seconds<uint64_t>(), 43200U);
+    EXPECT_EQ(time.milliSeconds<uint64_t>(), 43200U * KILO);
+    EXPECT_EQ(time.microSeconds<uint64_t>(), 43200U * MEGA);
+    EXPECT_EQ(time.nanoSeconds<uint64_t>(), 43200U * GIGA);
 }
 
-TEST(Duration_test, convertSeconds)
+TEST(Duration_test, ConvertSeconds)
 {
     auto time = 28800_s;
-    EXPECT_DOUBLE_EQ(time.days<double>(), 1.0 / 3.0);
-    EXPECT_DOUBLE_EQ(time.hours<double>(), 8.0);
-    EXPECT_DOUBLE_EQ(time.minutes<double>(), 480.0);
-    EXPECT_DOUBLE_EQ(time.seconds<double>(), 28800.0);
-    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 28800.0 * KILO);
-    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 28800.0 * MEGA);
-    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 28800.0 * GIGA);
+    EXPECT_EQ(time.days<uint64_t>(), 0U);
+    EXPECT_EQ(time.hours<uint64_t>(), 8U);
+    EXPECT_EQ(time.minutes<uint64_t>(), 480U);
+    EXPECT_EQ(time.seconds<uint64_t>(), 28800U);
+    EXPECT_EQ(time.milliSeconds<uint64_t>(), 28800U * KILO);
+    EXPECT_EQ(time.microSeconds<uint64_t>(), 28800U * MEGA);
+    EXPECT_EQ(time.nanoSeconds<uint64_t>(), 28800U * GIGA);
 }
 
-TEST(Duration_test, convertMilliseconds)
+TEST(Duration_test, ConvertMilliseconds)
 {
     auto time = 28800000_ms;
-    EXPECT_DOUBLE_EQ(time.days<double>(), 1.0 / 3.0);
-    EXPECT_DOUBLE_EQ(time.hours<double>(), 8.0);
-    EXPECT_DOUBLE_EQ(time.minutes<double>(), 480.0);
-    EXPECT_DOUBLE_EQ(time.seconds<double>(), 28800.0);
-    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 28800.0 * KILO);
-    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 28800.0 * MEGA);
-    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 28800.0 * GIGA);
+    EXPECT_EQ(time.days<uint64_t>(), 0U);
+    EXPECT_EQ(time.hours<uint64_t>(), 8U);
+    EXPECT_EQ(time.minutes<uint64_t>(), 480U);
+    EXPECT_EQ(time.seconds<uint64_t>(), 28800U);
+    EXPECT_EQ(time.milliSeconds<uint64_t>(), 28800U * KILO);
+    EXPECT_EQ(time.microSeconds<uint64_t>(), 28800U * MEGA);
+    EXPECT_EQ(time.nanoSeconds<uint64_t>(), 28800U * GIGA);
 }
 
-TEST(Duration_test, convertMicroseconds)
+TEST(Duration_test, ConvertMicroseconds)
 {
     auto time = 6000000_us;
-    EXPECT_DOUBLE_EQ(time.days<double>(), 0.1 / 1440.0);
-    EXPECT_DOUBLE_EQ(time.hours<double>(), 0.1 / 60.0);
-    EXPECT_DOUBLE_EQ(time.minutes<double>(), 0.1);
-    EXPECT_DOUBLE_EQ(time.seconds<double>(), 6.0);
-    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 6.0 * KILO);
-    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 6.0 * MEGA);
-    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 6.0 * GIGA);
+    EXPECT_EQ(time.days<uint64_t>(), 0U);
+    EXPECT_EQ(time.hours<uint64_t>(), 0U);
+    EXPECT_EQ(time.minutes<uint64_t>(), 0U);
+    EXPECT_EQ(time.seconds<uint64_t>(), 6U);
+    EXPECT_EQ(time.milliSeconds<uint64_t>(), 6U * KILO);
+    EXPECT_EQ(time.microSeconds<uint64_t>(), 6U * MEGA);
+    EXPECT_EQ(time.nanoSeconds<uint64_t>(), 6U * GIGA);
 }
 
-TEST(Duration_test, convertNanoseconds)
+TEST(Duration_test, ConvertNanoseconds)
 {
     auto time = 1_ns;
-    EXPECT_DOUBLE_EQ(time.seconds<double>(), 1.0 / GIGA);
-    EXPECT_DOUBLE_EQ(time.milliSeconds<double>(), 1.0 / MEGA);
-    EXPECT_DOUBLE_EQ(time.microSeconds<double>(), 1.0 / KILO);
-    EXPECT_DOUBLE_EQ(time.nanoSeconds<double>(), 1.0);
+    EXPECT_EQ(time.seconds<uint64_t>(), 0U);
+    EXPECT_EQ(time.milliSeconds<uint64_t>(), 0U);
+    EXPECT_EQ(time.microSeconds<uint64_t>(), 0U);
+    EXPECT_EQ(time.nanoSeconds<uint64_t>(), 1U);
 }
 
-TEST(Duration_test, comparison)
+TEST(Duration_test, ConvertTimespecWithNoneReference)
+{
+    constexpr int64_t SECONDS{44};
+    constexpr int64_t NANOSECONDS{55};
+
+    Duration duration{SECONDS, NANOSECONDS};
+
+    struct timespec sut = timespec(duration.timespec(iox::units::TimeSpecReference::None));
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
+}
+
+TEST(Duration_test, ConvertTimespecWithMonotonicReference)
+{
+    constexpr int64_t SECONDS{4};
+    constexpr int64_t NANOSECONDS{66};
+
+    auto timeSinceUnixEpoche = std::chrono::system_clock::now().time_since_epoch();
+    auto timeSinceMonotonicEpoche = std::chrono::steady_clock::now().time_since_epoch();
+
+    Duration duration{SECONDS, NANOSECONDS};
+    struct timespec sut = timespec(duration.timespec(iox::units::TimeSpecReference::Monotonic));
+
+    auto secondsSinceUnixEpoche = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoche).count();
+    auto secondsSinceMonotonicEpoche = std::chrono::duration_cast<std::chrono::seconds>(timeSinceMonotonicEpoche).count();
+    EXPECT_THAT(sut.tv_sec, Lt(secondsSinceUnixEpoche));
+    EXPECT_THAT(sut.tv_sec, Gt(secondsSinceMonotonicEpoche));
+}
+
+TEST(Duration_test, ConvertTimespecWithEpochReference)
+{
+    constexpr int64_t SECONDS{5};
+    constexpr int64_t NANOSECONDS{77};
+
+    auto timeSinceUnixEpoche = std::chrono::system_clock::now().time_since_epoch();
+
+    Duration duration{SECONDS, NANOSECONDS};
+    struct timespec sut = timespec(duration.timespec(iox::units::TimeSpecReference::Epoch));
+
+    auto secondsSinceUnixEpoche = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoche).count();
+    EXPECT_THAT(10 * SECONDS, Lt(secondsSinceUnixEpoche));
+    EXPECT_THAT(sut.tv_sec, Gt(secondsSinceUnixEpoche));
+}
+
+// END CONVERSION FUNCTION TESTS
+
+// BEGIN CONVERSION OPERATOR TESTS
+
+TEST(Duration_test, OperatorTimeval)
+{
+    constexpr int64_t SECONDS{111};
+    constexpr int64_t MICROSECONDS{222};
+    constexpr int64_t ROUND_OFF_NANOSECONDS{666};
+
+    Duration duration{SECONDS, MICROSECONDS * KILO + ROUND_OFF_NANOSECONDS};
+
+    struct timeval sut = timeval(duration);
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_usec, Eq(MICROSECONDS));
+}
+
+// END CONVERSION OPERATOR TESTS
+
+// BEGIN COMPARISON TESTS
+
+TEST(Duration_test, CompareTwoEqualDurations)
 {
     auto time1 = 200_us;
     auto time2 = 200000_ns;
-    EXPECT_EQ(time1, time2);
-
-    auto time3 = 200_us + 1_ns;
-    EXPECT_LT(time1, time3);
-    EXPECT_GT(time3, time2);
+    EXPECT_TRUE(time1 == time2);
+    EXPECT_TRUE(time2 == time1);
 }
 
-TEST(Duration_test, timespec)
+TEST(Duration_test, CompareTwoNonEqualDurations)
 {
-    auto time = 2_s + 500_ms;
-    struct timespec t3;
-    t3.tv_sec = 2;
-    t3.tv_nsec = 500000000;
-
-    struct timespec t4 = timespec(time.timespec(iox::units::TimeSpecReference::None));
-
-    EXPECT_EQ(t3.tv_sec + t3.tv_nsec * 0.000000001, t4.tv_sec + t4.tv_nsec * 0.000000001);
+    auto time1 = 1_s + 200_us;
+    auto time2 = 1_ns;
+    EXPECT_TRUE(time1 != time2);
+    EXPECT_TRUE(time2 != time1);
 }
 
-TEST(Duration_test, timeval)
+TEST(Duration_test, CompareTwoEqualDurationsAreNotLessThan)
 {
-    auto time = 2_s + 500_ms;
-    struct timeval t1;
-    t1.tv_sec = 2;
-    t1.tv_usec = 500000;
-
-    struct timeval t2 = timeval(time);
-
-    EXPECT_EQ(t1.tv_sec + t1.tv_usec * 0.000001, t2.tv_sec + t2.tv_usec * 0.000001);
+    auto time1 = 1_s + 200_us;
+    auto time2 = 1_s + 200_us;
+    EXPECT_FALSE(time1 < time2);
 }
 
-TEST(Duration_test, addDuration)
+TEST(Duration_test, CompareTwoEqualDurationsAreNotGreaterThan)
+{
+    auto time1 = 1_s + 200_us;
+    auto time2 = 1_s + 200_us;
+    EXPECT_FALSE(time1 > time2);
+}
+
+TEST(Duration_test, CompareTwoEqualDurationsAreLessThanOrEqualTo)
+{
+    auto time1 = 1_s + 200_us;
+    auto time2 = 1_s + 200_us;
+    EXPECT_TRUE(time1 <= time2);
+}
+
+TEST(Duration_test, CompareTwoEqualDurationsAreGreaterThanOrEqualTo)
+{
+    auto time1 = 1_s + 200_us;
+    auto time2 = 1_s + 200_us;
+    EXPECT_TRUE(time1 >= time2);
+}
+
+TEST(Duration_test, CompareDurationIsLessThanOther)
+{
+    auto time1 = 100_us;
+    auto time2 = 400_us;
+    auto time3 = 1_s + 200_us;
+    auto time4 = 1_s + 300_us;
+    EXPECT_TRUE(time1 < time2);
+    EXPECT_TRUE(time1 < time3);
+    EXPECT_TRUE(time2 < time3);
+    EXPECT_TRUE(time3 < time4);
+}
+
+TEST(Duration_test, CompareDurationIsNotLessThanOther)
+{
+    auto time1 = 100_us;
+    auto time2 = 400_us;
+    auto time3 = 1_s + 200_us;
+    auto time4 = 1_s + 300_us;
+    EXPECT_FALSE(time2 < time1);
+    EXPECT_FALSE(time3 < time1);
+    EXPECT_FALSE(time3 < time2);
+    EXPECT_FALSE(time4 < time3);
+}
+
+TEST(Duration_test, CompareDurationIsLessThanOrEqualToOther)
+{
+    auto time1 = 100_us;
+    auto time2 = 400_us;
+    auto time3 = 1_s + 200_us;
+    auto time4 = 1_s + 300_us;
+    EXPECT_TRUE(time1 <= time2);
+    EXPECT_TRUE(time1 <= time3);
+    EXPECT_TRUE(time2 <= time3);
+    EXPECT_TRUE(time3 <= time4);
+}
+
+TEST(Duration_test, CompareDurationIsNotLessThanOrEqualToOther)
+{
+    auto time1 = 100_us;
+    auto time2 = 400_us;
+    auto time3 = 1_s + 200_us;
+    auto time4 = 1_s + 300_us;
+    EXPECT_FALSE(time2 <= time1);
+    EXPECT_FALSE(time3 <= time1);
+    EXPECT_FALSE(time3 <= time2);
+    EXPECT_FALSE(time4 <= time3);
+}
+
+TEST(Duration_test, CompareDurationIsGreaterThanOther)
+{
+    auto time1 = 1_s + 300_us;
+    auto time2 = 1_s + 200_us;
+    auto time3 = 400_us;
+    auto time4 = 100_us;
+    EXPECT_TRUE(time1 > time2);
+    EXPECT_TRUE(time1 > time3);
+    EXPECT_TRUE(time2 > time3);
+    EXPECT_TRUE(time3 > time4);
+}
+
+TEST(Duration_test, CompareDurationIsNotGreaterThanOther)
+{
+    auto time1 = 1_s + 300_us;
+    auto time2 = 1_s + 200_us;
+    auto time3 = 400_us;
+    auto time4 = 100_us;
+    EXPECT_FALSE(time2 > time1);
+    EXPECT_FALSE(time3 > time1);
+    EXPECT_FALSE(time3 > time2);
+    EXPECT_FALSE(time4 > time3);
+}
+
+TEST(Duration_test, CompareDurationIsGreaterThanOrEqualToOther)
+{
+    auto time1 = 1_s + 300_us;
+    auto time2 = 1_s + 200_us;
+    auto time3 = 400_us;
+    auto time4 = 100_us;
+    EXPECT_TRUE(time1 >= time2);
+    EXPECT_TRUE(time1 >= time3);
+    EXPECT_TRUE(time2 >= time3);
+    EXPECT_TRUE(time3 >= time4);
+}
+
+TEST(Duration_test, CompareDurationIsNotGreaterThanOrEqualToOther)
+{
+    auto time1 = 1_s + 300_us;
+    auto time2 = 1_s + 200_us;
+    auto time3 = 400_us;
+    auto time4 = 100_us;
+    EXPECT_FALSE(time2 >= time1);
+    EXPECT_FALSE(time3 >= time1);
+    EXPECT_FALSE(time3 >= time2);
+    EXPECT_FALSE(time4 >= time3);
+}
+
+// END COMPARISON TESTS
+
+// BEGIN ARITHMETIC TESTS
+
+TEST(Duration_test, AddDuration)
 {
     auto time1 = 5_s + 200_ms;
     auto time2 = 200_ms;
-    auto time3 = 300000_us;
+    auto time3 = 700000_us;
+
+    EXPECT_THAT(time1.milliSeconds<uint64_t>(), Eq(5200U));
 
     auto result = time1 + time2;
-    EXPECT_DOUBLE_EQ(result.milliSeconds<double>(), 5400.0);
+    EXPECT_EQ(result.milliSeconds<uint64_t>(), 5400U);
+
     result = result + time3;
-    EXPECT_DOUBLE_EQ(result.microSeconds<double>(), 5700000.0);
+    EXPECT_EQ(result.microSeconds<uint64_t>(), 6100000U);
 }
 
-TEST(Duration_test, subtractDuration)
+TEST(Duration_test, SubtractDuration)
 {
-    auto time1 = 5_s + 200_ms;
+    auto time1 = 6_s - 800_ms;
     auto time2 = 200_ms;
     auto time3 = 300000_us;
 
+    EXPECT_THAT(time1.milliSeconds<uint64_t>(), Eq(5200U));
+
     auto result = time1 - time2;
-    EXPECT_DOUBLE_EQ(result.milliSeconds<double>(), 5000.0);
+    EXPECT_EQ(result.milliSeconds<uint64_t>(), 5000U);
+
     result = result - time3;
-    EXPECT_DOUBLE_EQ(result.microSeconds<double>(), 4700000.0);
+    EXPECT_EQ(result.microSeconds<uint64_t>(), 4700000U);
 
     auto time4 = 10_s;
 
     result = result - time4;
-    EXPECT_EQ(result.milliSeconds<double>(), 0.0);
+    EXPECT_EQ(result.milliSeconds<uint64_t>(), 0U);
 }
 
-TEST(Duration_test, multiplyDuration)
+TEST(Duration_test, MultiplyDuration)
 {
-    auto time1 = 5_s + 200_ms;
-    auto time2 = 200_ms;
-    auto time3 = 300000_us;
+    auto time = 5_s + 800_ms;
 
-    auto result = time1 * time2;
-    EXPECT_NEAR(result.seconds<double>(), 1.04, tenTimesEpsilon);
-    result = result * time3;
-    EXPECT_NEAR(result.seconds<double>(), 0.312, tenTimesEpsilon);
+    EXPECT_THAT(time * 2, Eq(11_s + 600_ms));
+    EXPECT_THAT(time * 2U, Eq(11_s + 600_ms));
+    EXPECT_THAT(time * 2.95, Eq(17_s + 110_ms));
 
-    auto time4 = 10_s;
+    EXPECT_THAT(2 * time, Eq(11_s + 600_ms));
+    EXPECT_THAT(2U * time, Eq(11_s + 600_ms));
+    EXPECT_THAT(2.95 * time, Eq(17_s + 110_ms));
 
-    result = result * time4;
-    EXPECT_NEAR(result.seconds<double>(), 3.12, tenTimesEpsilon);
+    EXPECT_THAT(time * -1, Eq(0_s));
+    EXPECT_THAT(time * -1.0, Eq(0_s));
 }
 
-TEST(Duration_test, divideDuration)
+TEST(Duration_test, DivideDuration)
 {
-    auto time1 = 5_s + 200_ms;
-    auto time2 = 200_ms;
-    auto time3 = 300000_us;
+    auto time = 4_s + 800_ms;
 
-    auto result = time1 / time2;
-    EXPECT_NEAR(result.seconds<double>(), 26, tenTimesEpsilon);
-    result = result / time3;
-    EXPECT_NEAR(result.seconds<double>(), 86.666666666666666, tenTimesEpsilon);
+    EXPECT_THAT(time / 2, Eq(2_s + 400_ms));
+    EXPECT_THAT(time / 2U, Eq(2_s + 400_ms));
+    EXPECT_THAT(time / 2.5, Eq(1_s + 920_ms));
 
-    auto time4 = 10_s;
-
-    result = result / time4;
-    EXPECT_NEAR(result.seconds<double>(), 8.666666666666666, tenTimesEpsilon);
+    EXPECT_THAT(time / -1, Eq(0_s));
+    EXPECT_THAT(time / -1.0, Eq(0_s));
 }
 
-TEST(Duration_test, constructFromTimespec)
-{
-    struct timespec value;
-    value.tv_sec = 123;
-    value.tv_nsec = 456;
-
-    Duration result(value);
-    EXPECT_EQ(result.nanoSeconds<uint64_t>(), 456ull + 1000000000ull * 123ull);
-}
-
-TEST(Duration_test, constructFromTimeval)
-{
-    struct timeval value;
-    value.tv_sec = 1337;
-    value.tv_usec = 42;
-
-    Duration result(value);
-    EXPECT_EQ(result.microSeconds<uint64_t>(), 42U + 1000000U * 1337U);
-}
-
-TEST(Duration_test, isZeroWhenConstructedFromNegativeChronoMilliSeconds)
-{
-    Duration result(std::chrono::milliseconds(-1));
-    EXPECT_EQ(result.milliSeconds<uint64_t>(), 0u);
-}
-
-TEST(Duration_test, isZeroWhenConstructedFromNegativeChronoNanoSeconds)
-{
-    Duration result(std::chrono::nanoseconds(-1));
-    EXPECT_EQ(result.nanoSeconds<uint64_t>(), 0u);
-}
+// END ARITHMETIC TESTS

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 #include <chrono>
 #include <iostream>
-#include <time.h>
+#include <cmath>
 
 namespace iox
 {
@@ -37,25 +37,25 @@ class Duration;
 
 inline namespace duration_literals
 {
-/// @brief constructs a new Duration object in nanoseconds
+/// @brief Constructs a new Duration object from nanoseconds
 constexpr Duration operator"" _ns(unsigned long long int); // PRQA S 48
 
-/// @brief constructs a new Duration object in microseconds
+/// @brief Constructs a new Duration object from microseconds
 constexpr Duration operator"" _us(unsigned long long int); // PRQA S 48
 
-/// @brief constructs a new Duration object in milliseconds
+/// @brief Constructs a new Duration object from milliseconds
 constexpr Duration operator"" _ms(unsigned long long int); // PRQA S 48
 
-/// @brief constructs a new Duration object in seconds
+/// @brief Constructs a new Duration object from seconds
 constexpr Duration operator"" _s(unsigned long long int); // PRQA S 48
 
-/// @brief constructs a new Duration object in minutes
+/// @brief Constructs a new Duration object from minutes
 constexpr Duration operator"" _m(unsigned long long int); // PRQA S 48
 
-/// @brief constructs a new Duration object in hours
+/// @brief Constructs a new Duration object from hours
 constexpr Duration operator"" _h(unsigned long long int); // PRQA S 48
 
-/// @brief constructs a new Duration object in days
+/// @brief Constructs a new Duration object from days
 constexpr Duration operator"" _d(unsigned long long int); // PRQA S 48
 } // namespace duration_literals
 
@@ -63,89 +63,153 @@ constexpr Duration operator"" _d(unsigned long long int); // PRQA S 48
 ///   #include <iostream>
 ///   // ...
 ///   using namespace units;
-///   auto timeInDays = 12_d;
-///   auto timeInSeconds = 1.5_s;
-///   std::cout << timeInDays << std::endl;
-///   std::cout << timeInDays.nanoSeconds<int>() << " ns" << std::endl;
-///   std::cout << timeInSeconds.minutes<float>() << " min" << std::endl;
+///   using namespace units::duration_literals;
+///   auto someDays = 2 * 7_d + 5_ns;
+///   auto someSeconds = 42_s + 500_ms;
+///   std::cout << someDays << std::endl;
+///   std::cout << someDays.nanoSeconds<uint64_t>() << " ns" << std::endl;
+///   std::cout << someSeconds.milliSeconds<int64_t>() << " ms" << std::endl;
 /// @endcode
 class Duration
 {
   public:
+    /// @brief Constructs a new Duration object from nanoseconds
+    /// @tparam T is an integer type for the value
+    /// @param[in] value as nanoseconds
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration nanoseconds(const T ns);
+    static constexpr Duration nanoseconds(const T value);
+    /// @brief Constructs a new Duration object from microseconds
+    /// @tparam T is an integer type for the value
+    /// @param[in] value as microseconds
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration microseconds(const T us);
+    static constexpr Duration microseconds(const T value);
+    /// @brief Constructs a new Duration object from milliseconds
+    /// @tparam T is an integer type for the value
+    /// @param[in] value as milliseconds
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration milliseconds(const T ms);
+    static constexpr Duration milliseconds(const T value);
+    /// @brief Constructs a new Duration object from seconds
+    /// @tparam T is an integer type for the value
+    /// @param[in] value as seconds
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration seconds(const T seconds);
+    static constexpr Duration seconds(const T value);
+    /// @brief Constructs a new Duration object from minutes
+    /// @tparam T is an integer type for the value
+    /// @param[in] value as minutes
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration minutes(const T min);
+    static constexpr Duration minutes(const T value);
+    /// @brief Constructs a new Duration object from hours
+    /// @tparam T is an integer type for the value
+    /// @param[in] value as hours
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration hours(const T hours);
+    static constexpr Duration hours(const T value);
+    /// @brief Constructs a new Duration object from days
+    /// @tparam T is an integer type for the value
+    /// @param[in] value as days
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration days(const T days);
+    static constexpr Duration days(const T value);
+
+    /// @brief Constructs a Duration from seconds and nanoseconds
+    /// @param[in] seconds portion of the duration
+    /// @param[in] nanoseconds portion of the duration
+    constexpr Duration(const uint64_t seconds, const uint32_t nanoseconds);
 
     /// @brief Construct a Duration object from timeval
+    /// @param[in] value as timeval
     constexpr explicit Duration(const struct timeval& value);
 
     /// @brief Construct a Duration object from timespec
+    /// @param[in] value as timespec
     constexpr explicit Duration(const struct timespec& value);
 
     /// @brief Construct a Duration object from itimerspec
+    /// @param[in] value as itimespec
+    /// @note only it_interval from the itimerspec is used
     constexpr explicit Duration(const struct itimerspec& value);
 
     /// @brief Construct a Duration object from std::chrono::milliseconds
+    /// @param[in] value as milliseconds
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     constexpr explicit Duration(const std::chrono::milliseconds& value);
 
     /// @brief Construct a Duration object from std::chrono::nanoseconds
+    /// @param[in] value as nanoseconds
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     constexpr explicit Duration(const std::chrono::nanoseconds& value);
 
     /// @brief Assigns a std::chrono::milliseconds to an duration object
+    /// @param[in] right hand side of the assignment
+    /// @return a reference to the Duration object with the assigned millisecond value
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     Duration& operator=(const std::chrono::milliseconds& right);
 
     /// @brief Equal to operator
+    /// @param[in] right hand side of the comparison
     /// @return true if duration equal to right
     constexpr bool operator==(const Duration& right) const;
 
     /// @brief Not equal to operator
+    /// @param[in] right hand side of the comparison
     /// @return true if duration not equal to right
     constexpr bool operator!=(const Duration& right) const;
 
     /// @brief Less than operator
+    /// @param[in] right hand side of the comparison
     /// @return true if duration is less than right
     constexpr bool operator<(const Duration& right) const;
 
     /// @brief Less than or equal to operator
+    /// @param[in] right hand side of the comparison
     /// @return true if duration is less than or equal to right
     constexpr bool operator<=(const Duration& right) const;
 
     /// @brief Greater than operator
+    /// @param[in] right hand side of the comparison
     /// @return true if duration is greater than right
     constexpr bool operator>(const Duration& right) const;
 
     /// @brief Greater than or equal to operator
+    /// @param[in] right hand side of the comparison
     /// @return true if duration is greater than or equal to right
     constexpr bool operator>=(const Duration& right) const;
 
-    /// @brief creates Duration object by adding right and durationInSeconds
+    /// @brief creates Duration object by adding right
+    /// @param[in] right is the second summand
+    /// @return a new Duration object
     constexpr Duration operator+(const Duration& right) const;
 
-    /// @brief creates Duration object by subtracting right and durationInSeconds
+    /// @brief creates Duration object by subtracting right
+    /// @param[in] right is the subtrahend
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     constexpr Duration operator-(const Duration& right) const;
 
-    /// @brief creates Duration object by multiplying right and durationInSeconds
-    constexpr Duration operator*(const Duration& right) const;
-
-    /// @brief creates Duration object by dividing right and durationInSeconds
-    constexpr Duration operator/(const Duration& right) const;
-
-    /// @brief creates Duration object multplying durationInSeconds with T
+    /// @brief creates Duration object by multiplication
+    /// @tparam T is an arithmetic type for the multiplicator
+    /// @param[in] right is the multiplicator
+    /// @return a new Duration object
+    /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
     constexpr Duration operator*(const T& right) const;
 
-    /// @brief creates Duration object dividing durationInSeconds through T
+    /// @brief creates Duration object by division
+    /// @tparam T is an arithmetic type for the divisor
+    /// @param[in] right is the divisor
+    /// @return a new Duration object
     template <typename T>
     constexpr Duration operator/(const T& right) const;
 
@@ -187,8 +251,6 @@ class Duration
 
     template <typename T>
     friend constexpr Duration operator*(const T& left, const Duration& right);
-    template <typename T>
-    friend constexpr Duration operator/(const T& left, const Duration& right);
     friend std::ostream& operator<<(std::ostream& stream, const Duration& t);
     friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int); // PRQA S 48
     friend constexpr Duration duration_literals::operator"" _us(unsigned long long int); // PRQA S 48
@@ -199,18 +261,28 @@ class Duration
     friend constexpr Duration duration_literals::operator"" _d(unsigned long long int);  // PRQA S 48
 
   private:
-    /// @brief constructor needs to be private to ensure a unit safe usage of duration
-    constexpr explicit Duration(const long double durationInSeconds);
-    long double durationInSeconds{0.0};
+    template<typename T>
+    inline constexpr Duration multiplicateSeconds(const uint64_t seconds, const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const;
+    template<typename T>
+    inline constexpr Duration multiplicateSeconds(const uint64_t seconds, const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
+    template<typename T>
+    inline constexpr Duration multiplicateNanoseconds(const uint32_t nanoseconds, const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const;
+    template<typename T>
+    inline constexpr Duration multiplicateNanoseconds(const uint32_t nanoseconds, const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
+
+  private:
+    uint64_t m_seconds{0};
+    uint32_t m_nanoseconds{0};
 };
 
-/// @brief creates Duration object multiplying T with durationInSeconds
+/// @brief creates Duration object by multiplying object T with a duration
+/// @tparam T is an arithmetic type for the multiplicator
+/// @param[in] left is the multiplicator
+/// @param[in] right is the multiplicant
+/// @return a new Duration object
+/// @attention since negative durations are not allowed, the duration will be capped to 0
 template <typename T>
 constexpr Duration operator*(const T& left, const Duration& right);
-
-/// @brief creates Duration object dividing T through durationInSeconds
-template <typename T>
-constexpr Duration operator/(const T& left, const Duration& right);
 
 /// @brief stream operator for the Duration class
 std::ostream& operator<<(std::ostream& stream, const Duration& t);
