@@ -175,18 +175,6 @@ inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capaci
 
 
 template <typename T, uint64_t Capacity>
-inline bool forward_list<T, Capacity>::empty() const noexcept
-{
-    return (this->size() == 0U);
-}
-
-template <typename T, uint64_t Capacity>
-inline bool forward_list<T, Capacity>::full() const noexcept
-{
-    return (this->size() >= Capacity);
-}
-
-template <typename T, uint64_t Capacity>
 template <typename... ConstructorArgs>
 inline T& forward_list<T, Capacity>::emplace_front(ConstructorArgs&&... args) noexcept
 {
@@ -242,7 +230,7 @@ forward_list<T, Capacity>::erase_after(const_iterator toBeErasedAfterIter) noexc
     auto eraseIdx = getNextIdx(toBeErasedAfterIter);
 
     // additional validity check on to-be-erase element
-    if (!isValidElementIdx(eraseIdx) || empty())
+    if (!isValidElementIdx(eraseIdx) || this->empty())
     {
         errorMessage(__PRETTY_FUNCTION__, " iterator is end() or list is empty");
         return end();

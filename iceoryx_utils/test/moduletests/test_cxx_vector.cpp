@@ -129,7 +129,9 @@ TEST_F(vector_test, NewlyCreatedVectorHasSizeZero)
 TEST_F(vector_test, Capacity)
 {
     EXPECT_THAT(sut5.capacity(), Eq(5));
+    EXPECT_THAT(sut5.max_size(), Eq(5));
     EXPECT_THAT(sut0.capacity(), Eq(0));
+    EXPECT_THAT(sut0.max_size(), Eq(0));
 }
 
 TEST_F(vector_test, NewVectorWithElementsCTorWithZeroElements)
@@ -272,14 +274,26 @@ TEST_F(vector_test, SizeIncreasesWhenElementIsAdded)
     EXPECT_THAT(sut5.size(), Eq(1));
 }
 
-TEST_F(vector_test, SizeEqualsCapacityWheFull)
+TEST_F(vector_test, SizeEqualsCapacityIfFull)
 {
-    for (uint64_t i = 0; i < 10; ++i)
+    for (uint64_t i = 0; i < 5; ++i)
     {
         sut5.emplace_back(5);
     }
     EXPECT_THAT(sut5.size(), Eq(sut5.capacity()));
+    EXPECT_THAT(sut5.size(), Eq(sut5.max_size()));
 }
+
+TEST_F(vector_test, FullVectorIsFull)
+{
+    for (uint64_t i = 0; i < 5; ++i)
+    {
+        sut5.emplace_back(5);
+    }
+    EXPECT_THAT(sut5.full(), Eq(true));
+    EXPECT_THAT(sut0.full(), Eq(true));
+}
+
 
 TEST_F(vector_test, SizeEqualsCapacityForCapacityZeroVector)
 {
@@ -296,10 +310,11 @@ TEST_F(vector_test, SizeUnchangedWhenEmplaceFails)
     EXPECT_THAT(sut5.size(), Eq(sut5.capacity()));
 }
 
-TEST_F(vector_test, NotEmptyWhenElementWasAdded)
+TEST_F(vector_test, NotEmptyAndNotFullWhenElementWasAdded)
 {
     sut5.emplace_back(5);
     EXPECT_THAT(sut5.empty(), Eq(false));
+    EXPECT_THAT(sut5.full(), Eq(false));
 }
 
 TEST_F(vector_test, EmptyAfterClear)

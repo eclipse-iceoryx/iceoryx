@@ -43,6 +43,14 @@ class SizedUninitializedArray : public UninitializedArray<T, Capacity>
     ///         vector.
     void set_size(uint64_t newSize) noexcept;
 
+    /// @brief returns whether the data structure is empty
+    /// @return true, if it contains no elements, false otherwise
+    bool empty() const noexcept;
+
+    /// @brief returns whether the data structure is completely full
+    /// @return true, if filled with max_size() elements, false otherwise
+    bool full() const noexcept;
+
   private:
     uint64_t m_size{0u};
 };

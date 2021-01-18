@@ -34,6 +34,18 @@ inline void SizedUninitializedArray<T, Capacity>::set_size(uint64_t newSize) noe
     m_size = newSize;
 }
 
+template <typename T, uint64_t Capacity>
+inline bool SizedUninitializedArray<T, Capacity>::empty() const noexcept
+{
+    return (m_size == 0U);
+}
+
+template <typename T, uint64_t Capacity>
+inline bool SizedUninitializedArray<T, Capacity>::full() const noexcept
+{
+    return (m_size >= Capacity);
+}
+
 // Specialization for Capacity 0, where m_size is not needed
 template <typename T>
 class SizedUninitializedArray<T, 0U> : public UninitializedArray<T, 0U>
@@ -46,6 +58,16 @@ class SizedUninitializedArray<T, 0U> : public UninitializedArray<T, 0U>
 
     inline void set_size(uint64_t newSize [[gnu::unused]]) noexcept
     {
+    }
+
+    inline bool empty() const noexcept
+    {
+        return true;
+    }
+
+    inline bool full() const noexcept
+    {
+        return true;
     }
 };
 

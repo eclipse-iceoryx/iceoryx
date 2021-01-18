@@ -165,19 +165,6 @@ inline typename list<T, Capacity>::const_iterator list<T, Capacity>::cend() cons
     return const_iterator{this, BEGIN_END_LINK_INDEX};
 }
 
-
-template <typename T, uint64_t Capacity>
-inline bool list<T, Capacity>::empty() const noexcept
-{
-    return (this->size() == 0U);
-}
-
-template <typename T, uint64_t Capacity>
-inline bool list<T, Capacity>::full() const noexcept
-{
-    return (this->size() >= Capacity);
-}
-
 template <typename T, uint64_t Capacity>
 template <typename... ConstructorArgs>
 inline T& list<T, Capacity>::emplace_front(ConstructorArgs&&... args) noexcept
@@ -241,7 +228,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_itera
     auto eraseIdx = iter.m_iterListNodeIdx;
 
     // further narrow-down checks
-    if (!isValidElementIdx(eraseIdx) || empty())
+    if (!isValidElementIdx(eraseIdx) || this->empty())
     {
         errorMessage(__PRETTY_FUNCTION__, " iterator is end() or list is empty");
         return end();

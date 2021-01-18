@@ -136,14 +136,6 @@ class forward_list : public SizedUninitializedArray<T, Capacity>
     /// @return iterator to end element, does not contain data.
     const_iterator cend() const noexcept;
 
-    /// @brief list meta information on filling
-    /// @return no elements in list (true), otherwise (false)
-    bool empty() const noexcept;
-
-    /// @brief list meta information on filling
-    /// @return whether list is full (filled with 'capacity' / 'max_size' elements) (true), otherwise (false)
-    bool full() const noexcept;
-
     /// @brief Returns a reference to the first element in the container.
     ///         calling front() on an empty list will terminate() the processing
     /// @return reference to the first element
