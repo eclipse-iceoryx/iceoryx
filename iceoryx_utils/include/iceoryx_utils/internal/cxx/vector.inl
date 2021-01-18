@@ -119,14 +119,14 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs)
 }
 
 template <typename T, uint64_t Capacity>
-inline bool vector<T, Capacity>::empty() const
+inline bool vector<T, Capacity>::empty() const noexcept
 {
     return this->size() == 0u;
 }
 
 
 template <typename T, uint64_t Capacity>
-inline void vector<T, Capacity>::clear()
+inline void vector<T, Capacity>::clear() noexcept
 {
     for (uint64_t i = 0u; i < this->size(); ++i)
     {
@@ -173,14 +173,14 @@ void vector<T, Capacity>::pop_back()
 
 
 template <typename T, uint64_t Capacity>
-inline T& vector<T, Capacity>::at(const uint64_t index)
+inline typename vector<T, Capacity>::reference vector<T, Capacity>::at(const uint64_t index) noexcept
 {
     // PRQA S 3066 1 # const cast to avoid code duplication
     return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index));
 }
 
 template <typename T, uint64_t Capacity>
-inline const T& vector<T, Capacity>::at(const uint64_t index) const
+inline typename vector<T, Capacity>::const_reference vector<T, Capacity>::at(const uint64_t index) const noexcept
 {
     if (index + 1u > this->size())
     {
@@ -192,20 +192,21 @@ inline const T& vector<T, Capacity>::at(const uint64_t index) const
 }
 
 template <typename T, uint64_t Capacity>
-inline T& vector<T, Capacity>::operator[](const uint64_t index)
+inline typename vector<T, Capacity>::reference vector<T, Capacity>::operator[](const uint64_t index) noexcept
 {
     return at(index);
 }
 
 template <typename T, uint64_t Capacity>
-inline const T& vector<T, Capacity>::operator[](const uint64_t index) const
+inline typename vector<T, Capacity>::const_reference vector<T, Capacity>::operator[](const uint64_t index) const
+    noexcept
 {
     return at(index);
 }
 
 
 template <typename T, uint64_t Capacity>
-T& vector<T, Capacity>::front() noexcept
+inline typename vector<T, Capacity>::reference vector<T, Capacity>::front() noexcept
 {
     if (empty())
     {
@@ -216,7 +217,7 @@ T& vector<T, Capacity>::front() noexcept
 }
 
 template <typename T, uint64_t Capacity>
-const T& vector<T, Capacity>::front() const noexcept
+inline typename vector<T, Capacity>::const_reference vector<T, Capacity>::front() const noexcept
 {
     if (empty())
     {
@@ -227,7 +228,7 @@ const T& vector<T, Capacity>::front() const noexcept
 }
 
 template <typename T, uint64_t Capacity>
-T& vector<T, Capacity>::back() noexcept
+inline typename vector<T, Capacity>::reference vector<T, Capacity>::back() noexcept
 {
     if (empty())
     {
@@ -238,7 +239,7 @@ T& vector<T, Capacity>::back() noexcept
 }
 
 template <typename T, uint64_t Capacity>
-const T& vector<T, Capacity>::back() const noexcept
+inline typename vector<T, Capacity>::const_reference vector<T, Capacity>::back() const noexcept
 {
     if (empty())
     {
@@ -249,31 +250,31 @@ const T& vector<T, Capacity>::back() const noexcept
 }
 
 template <typename T, uint64_t Capacity>
-inline typename vector<T, Capacity>::iterator vector<T, Capacity>::begin()
+inline typename vector<T, Capacity>::iterator vector<T, Capacity>::begin() noexcept
 {
     return reinterpret_cast<iterator>(&(this->data()[0]));
 }
 
 template <typename T, uint64_t Capacity>
-inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::begin() const
+inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::begin() const noexcept
 {
     return reinterpret_cast<const_iterator>(&(this->data()[0]));
 }
 
 template <typename T, uint64_t Capacity>
-inline typename vector<T, Capacity>::iterator vector<T, Capacity>::end()
+inline typename vector<T, Capacity>::iterator vector<T, Capacity>::end() noexcept
 {
     return reinterpret_cast<iterator>(this->data() + this->size());
 }
 
 template <typename T, uint64_t Capacity>
-inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() const
+inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() const noexcept
 {
     return reinterpret_cast<const_iterator>(this->data() + this->size());
 }
 
 template <typename T, uint64_t Capacity>
-inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterator position)
+inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(const_iterator position)
 {
     if (begin() <= position && position < end())
     {

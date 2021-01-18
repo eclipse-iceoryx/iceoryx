@@ -32,11 +32,13 @@ template <typename T, uint64_t Capacity>
 class vector : public VectorStorage<T, Capacity>
 {
   public:
-    using value_type = T;
-
-    using iterator = T*;
-    using const_iterator = const T*;
-    using reference = value_type&;
+    typedef T value_type;
+    typedef value_type* pointer;
+    typedef value_type const* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef pointer iterator;
+    typedef const_pointer const_iterator;
 
     /// @brief creates an empty vector
     vector() = default;
@@ -73,61 +75,61 @@ class vector : public VectorStorage<T, Capacity>
     /// @brief returns an iterator to the first element of the vector,
     ///         if the vector is empty it returns the same iterator as
     ///         end (nullptr)
-    iterator begin();
+    iterator begin() noexcept;
 
     /// @brief returns a const iterator to the first element of the vector,
     ///         if the vector is empty it returns the same iterator as
     ///         end (nullptr)
-    const_iterator begin() const;
+    const_iterator begin() const noexcept;
 
     /// @brief returns an iterator to the element which comes after the last
     ///         element (the first element which is outside of the vector).
     ///         If the vector is empty it returns nullptr
-    iterator end();
+    iterator end() noexcept;
 
     /// @brief returns a const iterator to the element which comes after the last
     ///         element (the first element which is outside of the vector).
     ///         If the vector is empty it returns nullptr
-    const_iterator end() const;
+    const_iterator end() const noexcept;
 
     /// @brief returns a reference to the first element; terminates if the vector is empty
     /// @return reference to the first element
-    T& front() noexcept;
+    reference front() noexcept;
 
     /// @brief returns a const reference to the first element; terminates if the vector is empty
     /// @return const reference to the first element
-    const T& front() const noexcept;
+    const_reference front() const noexcept;
 
     /// @brief returns a reference to the last element; terminates if the vector is empty
     /// @return reference to the last element
-    T& back() noexcept;
+    reference back() noexcept;
 
     /// @brief returns a const reference to the last element; terminates if the vector is empty
     /// @return const reference to the last element
-    const T& back() const noexcept;
+    const_reference back() const noexcept;
 
 
-    /// @brief returns a reference to the element stored at index. the behavior
-    //          is undefined if the element at index does not exist.
-    T& at(const uint64_t index);
+    /// @brief returns a reference to the element stored at index.
+    ///         Terminates, if the element at index does not exist.
+    reference at(const uint64_t index) noexcept;
 
-    /// @brief returns a cost reference to the element stored at index. the
-    ///         behavior is undefined if the element at index does not exist.
-    const T& at(const uint64_t index) const;
+    /// @brief returns a const reference to the element stored at index.
+    ///         Terminates, if the element at index does not exist.
+    const_reference at(const uint64_t index) const noexcept;
 
-    /// @brief returns a reference to the element stored at index. the behavior
-    //          is undefined if the element at index does not exist.
-    T& operator[](const uint64_t index);
+    /// @brief returns a reference to the element stored at index.
+    ///         Terminates, if the element at index does not exist.
+    reference operator[](const uint64_t index) noexcept;
 
-    /// @brief returns a cost reference to the element stored at index. the
-    ///         behavior is undefined if the element at index does not exist.
-    const T& operator[](const uint64_t index) const;
+    /// @brief returns a const reference to the element stored at index.
+    ///         Terminates, if the element at index does not exist.
+    const_reference operator[](const uint64_t index) const noexcept;
 
     /// @brief returns true if the vector is empty, otherwise false
-    bool empty() const;
+    bool empty() const noexcept;
 
     /// @brief calls the destructor of all contained elements and removes them
-    void clear();
+    void clear() noexcept;
 
     /// @brief forwards all arguments to the constructor of the contained element
     ///         and performs a placement new
@@ -149,13 +151,13 @@ class vector : public VectorStorage<T, Capacity>
     ///         the middle of the vector every element is moved one place to the
     ///         left to ensure that the elements are stored contiguously
     /// @return iterator to the next element, returns nullptr if position is out-of-range
-    iterator erase(iterator position);
+    iterator erase(const_iterator position);
 
     /// @brief removes an element at the given vector index. if this element is in
     ///         the middle of the vector every element is moved one place to the
     ///         left to ensure that the elements are stored contiguously
     /// @return iterator to the next element, returns nullptr if index is out-of-range
-    iterator erase(uint64_t index);
+    iterator erase(const uint64_t index);
 
   private:
     using element_t = typename UninitializedArray<T, Capacity>::element_t;

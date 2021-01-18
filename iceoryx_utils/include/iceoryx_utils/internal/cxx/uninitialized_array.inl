@@ -27,7 +27,6 @@ inline uint64_t UninitializedArray<T, Capacity>::capacity() const
     return Capacity;
 }
 
-
 template <typename T, uint64_t Capacity>
 inline T* UninitializedArray<T, Capacity>::data() noexcept
 {
