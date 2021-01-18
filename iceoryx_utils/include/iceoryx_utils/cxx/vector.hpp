@@ -14,8 +14,7 @@
 #ifndef IOX_UTILS_CXX_VECTOR_HPP
 #define IOX_UTILS_CXX_VECTOR_HPP
 
-#include "iceoryx_utils/cxx/vector_storage.hpp"
-
+#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
@@ -29,7 +28,7 @@ namespace cxx
 ///         adjustments in the API since we do not use exceptions and we require
 ///         a data structure which can be located fully in the shared memory.
 template <typename T, uint64_t Capacity>
-class vector : public VectorStorage<T, Capacity>
+class vector : public SizedUninitializedArray<T, Capacity>
 {
   public:
     typedef T value_type;

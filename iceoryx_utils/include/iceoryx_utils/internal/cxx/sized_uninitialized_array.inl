@@ -11,11 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_VECTOR_STORAGE_INL
-#define IOX_UTILS_CXX_VECTOR_STORAGE_INL
+#ifndef IOX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_INL
+#define IOX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_INL
 
-#include "iceoryx_utils/cxx/vector_storage.hpp"
-
+#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
 #include <iostream>
 
 namespace iox
@@ -24,20 +23,20 @@ namespace cxx
 {
 // Generic implementation for Capacity > 0
 template <typename T, uint64_t Capacity>
-inline uint64_t VectorStorage<T, Capacity>::size() const noexcept
+inline uint64_t SizedUninitializedArray<T, Capacity>::size() const noexcept
 {
     return m_size;
 }
 
 template <typename T, uint64_t Capacity>
-inline void VectorStorage<T, Capacity>::set_size(uint64_t newSize) noexcept
+inline void SizedUninitializedArray<T, Capacity>::set_size(uint64_t newSize) noexcept
 {
     m_size = newSize;
 }
 
 // Specialization for Capacity 0, where m_size is not needed
 template <typename T>
-class VectorStorage<T, 0U> : public UninitializedArray<T, 0U>
+class SizedUninitializedArray<T, 0U> : public UninitializedArray<T, 0U>
 {
   public:
     inline uint64_t size() const noexcept
@@ -53,4 +52,4 @@ class VectorStorage<T, 0U> : public UninitializedArray<T, 0U>
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_UTILS_CXX_VECTOR_STORAGE_INL
+#endif // IOX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_INL

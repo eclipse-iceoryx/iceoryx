@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ICEORYX_UTILS_CXX_VECTOR_STORAGE_HPP
-#define ICEORYX_UTILS_CXX_VECTOR_STORAGE_HPP
+#ifndef ICEORYX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_HPP
+#define ICEORYX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_HPP
 
 #include "iceoryx_utils/cxx/uninitialized_array.hpp"
 #include <cstdint>
@@ -23,16 +23,16 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-class VectorStorage;
+class SizedUninitializedArray;
 
 template <typename T>
-class VectorStorage<T, 0U>;
+class SizedUninitializedArray<T, 0U>;
 
 template <typename T, uint64_t Capacity>
-class VectorStorage : public UninitializedArray<T, Capacity>
+class SizedUninitializedArray : public UninitializedArray<T, Capacity>
 {
   public:
-    VectorStorage() = default;
+    SizedUninitializedArray() = default;
 
     /// @brief returns the number of elements which are currently stored in the
     ///         vector
@@ -50,6 +50,6 @@ class VectorStorage : public UninitializedArray<T, Capacity>
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_utils/internal/cxx/vector_storage.inl"
+#include <iceoryx_utils/internal/cxx/sized_uninitialized_array.inl>
 
-#endif /* ICEORYX_UTILS_CXX_VECTOR_STORAGE_HPP */
+#endif /* ICEORYX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_HPP */
