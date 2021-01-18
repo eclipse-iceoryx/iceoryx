@@ -122,14 +122,11 @@ BaseSubscriber<T, Subscriber, port_t>::takeChunk() noexcept
         auto maybeHeader = result.value();
         if (maybeHeader.has_value())
         {
-            cxx::success<const mepoo::ChunkHeader*>(maybeHeader.value());
-        }
-        else
-        {
-            // could move this to a tryGetChunk but then we should remove expected<optional<>> there in the call chain
-            return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
+            return cxx::success<const mepoo::ChunkHeader*>(maybeHeader.value());
         }
     }
+    // could move this to a tryGetChunk but then we should remove expected<optional<>> there in the call chain
+    return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
 }
 
 template <typename T, typename Subscriber, typename port_t>
