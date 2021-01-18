@@ -60,6 +60,7 @@ while (( "$#" )); do
         BUILD_TYPE="Debug"
         RUN_TEST=true
         COV_FLAG="ON"
+        BUILD_SHARED="OFF"
         if [ -z "$2" ]
         then
             shift 1
@@ -150,6 +151,7 @@ while (( "$#" )); do
         echo " [i] Build with sanitizers"
         BUILD_TYPE="Debug"
         SANITIZE_FLAG="ON"
+        BUILD_SHARED="OFF"
         shift 1
         ;;
     "clang")
