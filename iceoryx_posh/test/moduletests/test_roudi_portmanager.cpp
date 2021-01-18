@@ -562,4 +562,3 @@ TEST_F(PortManager_test, PortDestroy)
         }
     }
 }
-

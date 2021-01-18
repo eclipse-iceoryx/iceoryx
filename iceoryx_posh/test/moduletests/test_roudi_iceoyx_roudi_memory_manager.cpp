@@ -20,34 +20,49 @@ using namespace ::testing;
 
 using iox::roudi::IceOryxRouDiMemoryManager;
 
+namespace iox
+{
+namespace test
+{
 
-class IceoryxRoudiMemoryMananger_test : public Test
+/// @brief This test file verifies that the BaseClass IceoryxRouDiMemoryManager is tested
+class IceoryxRoudiMemoryManager_test : public Test
 {
   public:
     IceOryxRouDiMemoryManager* m_roudiMemoryManagerTest{nullptr};
 
     void SetUp() override
     {
-    	auto config = iox::RouDiConfig_t().setDefaults();
-    	m_roudiMemoryManagerTest = new IceOryxRouDiMemoryManager(config);
+      auto config = iox::RouDiConfig_t().setDefaults();
+      m_roudiMemoryManagerTest = new IceOryxRouDiMemoryManager(config);
     }
 
     void TearDown() override
     {
- 	delete m_roudiMemoryManagerTest;
+  delete m_roudiMemoryManagerTest;
     }
 };
 
-TEST_F(IceoryxRoudiMemoryMananger_test, IntrospectionMemoryManagerNotInitialzed)
+/// @brief test to check function introspectionMemoryManager
+TEST_F(IceoryxRoudiMemoryManager_test, IntrospectionMemoryManagerNotInitialized)
 {
     auto result = m_roudiMemoryManagerTest->introspectionMemoryManager();
     EXPECT_THAT(result, Eq(iox::cxx::nullopt_t()));
+}
 
+/// @brief test to check function segmentManager
+TEST_F(IceoryxRoudiMemoryManager_test, segmentManagerNotInitialized)
+{
     auto resultTest = m_roudiMemoryManagerTest->segmentManager();
     EXPECT_THAT(resultTest, Eq(iox::cxx::nullopt_t()));
+}
 
+/// @brief test to check function portPool
+TEST_F(IceoryxRoudiMemoryManager_test, portPoolNotInitialized)
+{
     auto testResult = m_roudiMemoryManagerTest->portPool();
     EXPECT_THAT(testResult, Eq(iox::cxx::nullopt_t()));
 }
 
-
+} // namespace test 
+} // iox
