@@ -198,6 +198,10 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
     EXPECT_EQ(true, interfacePortData->m_doInitialOfferForward);
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsNotSuccessful)
+{
+    EXPECT_DEATH(m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName), ".*");
+}
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
 {
@@ -257,6 +261,19 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
     ASSERT_NE(nullptr, publisherPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), publisherPort->m_serviceDescription);
     EXPECT_EQ(publisherOptions.historyCapacity, publisherPort->m_chunkSenderData.m_historyCapacity);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherMaxCapacity)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.historyCapacity = 17U;
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
+                                                                 publisherOptions,
+                                                                 m_nodeName,
+                                                                 iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    ASSERT_NE(nullptr, publisherPort);
+    EXPECT_EQ(publisherPort->m_chunkSenderData.m_historyCapacity, 16U);
 }
 
 TEST_F(PoshRuntime_test, getMiddlewarePublisherDefaultArgs)
@@ -431,6 +448,14 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
 
     /// @todo I am passing nodeDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);
+}
+
+TEST_F(PoshRuntime_test, CreateNodeError)
+{
+    const uint32_t nodeDeviceIdentifier = 1U;
+    iox::runtime::NodeProperty nodeProperty(m_invalidNodeName, nodeDeviceIdentifier);
+
+    EXPECT_DEATH(m_runtime->createNode(nodeProperty), ".*");
 }
 
 TEST_F(PoshRuntime_test, OfferDefaultServiceDescriptionIsInvalid)
