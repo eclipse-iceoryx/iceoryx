@@ -80,6 +80,22 @@ TEST_F(ServiceDescription_test, CtorSerial)
     EXPECT_THAT((csd.getClassHash())[3], Eq(testHash[3]));
     EXPECT_THAT(csd.hasServiceOnlyDescription(), Eq(true));
     EXPECT_THAT(csd.isInternal(), Eq(true));
+    auto  serialObj2 = iox::cxx::Serialization::create(service1.c_str(),
+                                                     instance1.c_str(),
+                                                     event1.c_str(),
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd2 = ServiceDescription(serialObj2);
+    EXPECT_THAT(csd2.getSourceInterface(), Eq(Interfaces::INTERFACE_END));
+
 }
 
 TEST_F(ServiceDescription_test, CtorIDs)
@@ -191,3 +207,198 @@ TEST_F(ServiceDescription_test, CopyAssignmentClassHash)
     EXPECT_EQ(desc2.getClassHash()[2], desc1.getClassHash()[2]);
     EXPECT_EQ(desc2.getClassHash()[3], desc1.getClassHash()[3]);
 }
+
+TEST_F(ServiceDescription_test, EqualityOperatorClassHash)
+{
+    ServiceDescription desc1("TestService", "TestInstance", "TestEvent", {1, 2, 3, 4});
+    ServiceDescription desc2 = desc1;
+    ServiceDescription desc3("TestService", "TestInstance", "TestEvent", {5, 6, 7, 8});
+    EXPECT_TRUE(desc1.getClassHash()==desc2.getClassHash());
+    EXPECT_FALSE(desc1.getClassHash()==desc3.getClassHash());
+}
+
+TEST_F(ServiceDescription_test, NotEqualToOperatorClassHash)
+{
+    ServiceDescription desc1("TestService", "TestInstance", "TestEvent", {1, 2, 3, 4});
+    ServiceDescription desc2 = desc1;
+    EXPECT_FALSE(desc1.getClassHash()!=desc2.getClassHash());
+}
+
+TEST_F(ServiceDescription_test, LessThanOperatorServiceDescription)
+{
+    ServiceDescription desc1("TestService1", "TestInstance", "TestEvent");
+    ServiceDescription desc2("TestService", "TestInstance", "TestEvent");
+    ServiceDescription desc3("TestService", "TestInstance4", "TestEvent");
+    ServiceDescription desc4("TestService", "TestInstance", "TestEvent");
+    ServiceDescription desc5("TestService", "TestInstance", "TestEvent6");
+    ServiceDescription desc6("TestService", "TestInstance", "TestEvent");
+    EXPECT_TRUE(desc1<desc2);
+    EXPECT_TRUE(desc3<desc4);
+    EXPECT_TRUE(desc5<desc6);
+
+}
+
+TEST_F(ServiceDescription_test, ServiceMatchServiceDescription)
+{
+    ServiceDescription desc1 = ServiceDescription(testAnyServiceID, 2, 3);
+    ServiceDescription desc2 = ServiceDescription(testAnyServiceID, 9, 3);
+    EXPECT_TRUE(iox::capro::serviceMatch(desc1,desc2));
+}
+
+TEST_F(ServiceDescription_test, IsValidServiceDescription)
+{
+    auto  serialObj1 = iox::cxx::Serialization::create(iox::capro::InvalidIDString,
+                                                     iox::capro::InvalidIDString,
+                                                     iox::capro::InvalidIDString,
+                                                     iox::capro::AnyService,
+                                                     iox::capro::AnyInstance,
+                                                     iox::capro::AnyEvent,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     true,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd1 = ServiceDescription(serialObj1);
+    EXPECT_FALSE(csd1.isValid());
+    auto  serialObj2 = iox::cxx::Serialization::create("test1",
+                                                     "test2",
+                                                     "test3",
+                                                     iox::capro::AnyService,
+                                                     2,
+                                                     3,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     true,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd2 = ServiceDescription(serialObj2);
+    EXPECT_FALSE(csd2.isValid());
+    auto  serialObj3 = iox::cxx::Serialization::create("test1",
+                                                     iox::capro::InvalidIDString,
+                                                     "test3",
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     true,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd3 = ServiceDescription(serialObj3);
+    EXPECT_FALSE(csd3.isValid());
+    auto  serialObj4 = iox::cxx::Serialization::create("test1",
+                                                     "test2",
+                                                     "test3",
+                                                     1,
+                                                     iox::capro::AnyInstance,
+                                                     3,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     true,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd4 = ServiceDescription(serialObj4);
+    EXPECT_FALSE(csd4.isValid());
+    auto  serialObj5 = iox::cxx::Serialization::create(iox::capro::InvalidIDString,
+                                                     iox::capro::InvalidIDString,
+                                                     iox::capro::InvalidIDString,
+                                                     iox::capro::AnyService,
+                                                     iox::capro::AnyInstance,
+                                                     iox::capro::AnyEvent,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     false,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd5 = ServiceDescription(serialObj5);
+    EXPECT_FALSE(csd5.isValid());
+
+    auto  serialObj6 = iox::cxx::Serialization::create("test1",
+                                                     "test2",
+                                                     "test3",
+                                                     iox::capro::AnyService,
+                                                     2,
+                                                     3,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     false,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd6 = ServiceDescription(serialObj6);
+    EXPECT_FALSE(csd6.isValid());
+
+    auto  serialObj7 = iox::cxx::Serialization::create("test1",
+                                                     iox::capro::InvalidIDString,
+                                                     "test3",
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     false,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd7 = ServiceDescription(serialObj7);
+    EXPECT_FALSE(csd7.isValid());
+    auto  serialObj8 = iox::cxx::Serialization::create("test1",
+                                                     "test2",
+                                                     "test3",
+                                                     1,
+                                                     iox::capro::AnyInstance,
+                                                     3,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     false,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd8 = ServiceDescription(serialObj8);
+    EXPECT_FALSE(csd8.isValid());
+    auto  serialObj9 = iox::cxx::Serialization::create("test1",
+                                                     "test2",
+                                                     iox::capro::InvalidIDString,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     false,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd9 = ServiceDescription(serialObj8);
+    EXPECT_FALSE(csd9.isValid());
+
+    auto  serialObj10 = iox::cxx::Serialization::create("test1",
+                                                     "test2",
+                                                     "test3",
+                                                     1,
+                                                     2,
+                                                     iox::capro::AnyInstance,
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     4,
+                                                     false,
+                                                     static_cast<std::underlying_type<Scope>::type>(Scope::INVALID),
+                                                     10);
+    ServiceDescription csd10 = ServiceDescription(serialObj9);
+    EXPECT_FALSE(csd10.isValid());
+}
+
