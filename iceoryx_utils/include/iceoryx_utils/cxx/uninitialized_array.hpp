@@ -42,7 +42,11 @@ class UninitializedArray
 
     /// @brief returns the capacity, which was given via the template argument,
     ///         i.e., the maximum number of elements it can hold
-    uint64_t capacity() const;
+    uint64_t capacity() const noexcept;
+
+    /// @brief returns the capacity, which was given via the template argument,
+    ///         i.e., the maximum number of elements it can hold (same as capacity())
+    uint64_t max_size() const noexcept;
 
 
   protected:

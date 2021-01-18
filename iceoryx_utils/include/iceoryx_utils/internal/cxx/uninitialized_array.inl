@@ -22,7 +22,13 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-inline uint64_t UninitializedArray<T, Capacity>::capacity() const
+inline uint64_t UninitializedArray<T, Capacity>::capacity() const noexcept
+{
+    return Capacity;
+}
+
+template <typename T, uint64_t Capacity>
+inline uint64_t UninitializedArray<T, Capacity>::max_size() const noexcept
 {
     return Capacity;
 }

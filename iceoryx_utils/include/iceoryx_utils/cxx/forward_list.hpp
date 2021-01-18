@@ -144,10 +144,6 @@ class forward_list : public SizedUninitializedArray<T, Capacity>
     /// @return whether list is full (filled with 'capacity' / 'max_size' elements) (true), otherwise (false)
     bool full() const noexcept;
 
-    /// @brief list meta information, maximum number of elements the list can contain
-    /// @return list has been initialized with the following number of elements, same as capacity()
-    size_type max_size() const noexcept;
-
     /// @brief Returns a reference to the first element in the container.
     ///         calling front() on an empty list will terminate() the processing
     /// @return reference to the first element

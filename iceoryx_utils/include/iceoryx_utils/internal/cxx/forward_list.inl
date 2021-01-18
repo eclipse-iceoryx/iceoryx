@@ -187,12 +187,6 @@ inline bool forward_list<T, Capacity>::full() const noexcept
 }
 
 template <typename T, uint64_t Capacity>
-inline typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::max_size() const noexcept
-{
-    return this->capacity();
-}
-
-template <typename T, uint64_t Capacity>
 template <typename... ConstructorArgs>
 inline T& forward_list<T, Capacity>::emplace_front(ConstructorArgs&&... args) noexcept
 {
