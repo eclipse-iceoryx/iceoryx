@@ -190,7 +190,7 @@ void ProcessIntrospection<PublisherPort>::stop()
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::setSendInterval(units::Duration interval)
+void ProcessIntrospection<PublisherPort>::setSendInterval(const units::Duration interval)
 {
     m_sendInterval = interval;
     if (m_sender.isActive())

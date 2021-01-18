@@ -265,12 +265,12 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     using namespace iox::units::duration_literals;
     iox::units::Duration snapshotInterval(100_ms);
 
-    introspectionAccess.setSnapshotInterval(snapshotInterval.milliSeconds<uint64_t>());
-    introspectionAccess.start();
+    introspectionAccess.setSendInterval(snapshotInterval);
+    introspectionAccess.run();
     std::this_thread::sleep_for(std::chrono::milliseconds(
         6 * snapshotInterval.milliSeconds<uint64_t>())); // within this time, the thread should have run 6 times
-    introspectionAccess.wait();
+    introspectionAccess.run();
     std::this_thread::sleep_for(std::chrono::milliseconds(
         6 * snapshotInterval.milliSeconds<uint64_t>())); // the thread should sleep, if not, we have 12 runs
-    introspectionAccess.terminate();
+    introspectionAccess.stop();
 });

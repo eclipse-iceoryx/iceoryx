@@ -139,7 +139,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPortsData()
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(units::Duration interval)
+void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(const units::Duration interval)
 {
     m_sendInterval = interval;
     if (m_sender.isActive())

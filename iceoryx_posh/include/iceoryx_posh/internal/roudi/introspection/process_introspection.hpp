@@ -83,8 +83,8 @@ class ProcessIntrospection
 
     /// @brief This function configures the interval for the transmission of the
     ///        port introspection data.
-    /// @param[in] interval duration between two sends.
-    void setSendInterval(units::Duration interval);
+    /// @param[in] interval duration between two send invocations.
+    void setSendInterval(const units::Duration interval);
 
   protected:
     cxx::optional<PublisherPort> m_publisherPort;
@@ -97,7 +97,7 @@ class ProcessIntrospection
 
     std::mutex m_mutex;
 
-    units::Duration m_sendInterval{units::Duration::seconds<long double>(1.0)};
+    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_sender{"ProcessIntr", *this, &ProcessIntrospection::send};
 };
 

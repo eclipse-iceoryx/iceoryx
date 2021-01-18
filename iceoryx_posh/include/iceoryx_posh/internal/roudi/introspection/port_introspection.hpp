@@ -302,8 +302,8 @@ class PortIntrospection
                                PublisherPort&& publisherPortSubscriberPortsData);
 
     /// @brief set the time interval used to send new introspection data
-    /// @param[in] interval duration between two sends
-    void setSendInterval(units::Duration interval);
+    /// @param[in] interval duration between two send invocations
+    void setSendInterval(const units::Duration interval);
 
 
     /// @brief start the internal send thread
@@ -333,7 +333,7 @@ class PortIntrospection
   private:
     PortData m_portData;
 
-    units::Duration m_sendInterval{units::Duration::seconds<long double>(1.0)};
+    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_sender{"PortIntr", *this, &PortIntrospection::send};
 };
 

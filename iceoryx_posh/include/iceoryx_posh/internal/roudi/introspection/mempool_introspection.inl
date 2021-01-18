@@ -27,88 +27,38 @@ MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::MemPoolIntro
     : m_rouDiInternalMemoryManager(&rouDiInternalMemoryManager)
     , m_segmentManager(&segmentManager)
     , m_publisherPort(std::move(publisherPort))
-    , m_thread(&MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::threadMain, this)
 {
     m_publisherPort.offer();
-
-    posix::setThreadName(m_thread.native_handle(), "MemPoolIntr");
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::~MemPoolIntrospection()
 {
+    stop();
     m_publisherPort.stopOffer();
-    terminate();
-    if (m_thread.joinable())
-    {
-        m_thread.join();
-    }
-}
-
-template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::wakeUp(RunLevel newLevel) noexcept
-{
-    std::unique_lock<std::mutex> lock(m_mutex);
-    m_runLevel.store(newLevel, std::memory_order_seq_cst);
-    m_waitConditionVar.notify_one();
-}
-
-template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::start() noexcept
-{
-    wakeUp(RUN);
-}
-
-template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::wait() noexcept
-{
-    wakeUp(WAIT);
-}
-
-template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::terminate() noexcept
-{
-    wakeUp(TERMINATE);
-}
-
-template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::setSnapshotInterval(
-    unsigned int snapshotInterval_ms) noexcept
-{
-    m_snapShotInterval = std::chrono::milliseconds(snapshotInterval_ms);
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::run() noexcept
 {
-    while (m_runLevel.load(std::memory_order_seq_cst) == RUN)
-    {
-        send();
-        // TODO: could use sleep_until to avoid drift but a small drift is
-        // not critical here
-        std::this_thread::sleep_for(m_snapShotInterval);
-    }
+    m_sender.start(m_sendInterval);
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::waitForRunLevelChange() noexcept
+void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::stop() noexcept
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
-    while (m_runLevel.load(std::memory_order_seq_cst) == WAIT)
-    {
-        m_waitConditionVar.wait(lock);
-    }
+    m_sender.stop();
 }
 
-// wait until start command, run until wait or terminate, restart from wait
-// is possible  terminate call leads to exit
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::threadMain() noexcept
+void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::setSendInterval(
+    const units::Duration interval) noexcept
 {
-    while (m_runLevel.load(std::memory_order_seq_cst) != TERMINATE)
+    m_sendInterval = interval;
+    if (m_sender.isActive())
     {
-        waitForRunLevelChange();
-        run();
+        m_sender.stop();
+        m_sender.start(m_sendInterval);
     }
 }
 
