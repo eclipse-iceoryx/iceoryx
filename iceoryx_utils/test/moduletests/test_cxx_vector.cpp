@@ -19,6 +19,8 @@
 using namespace ::testing;
 using namespace iox::cxx;
 
+/// Note: Where applicable, vectors of capacity 0 are tested separately,
+///       since the vector implementation is specialized for capacity 0.
 class vector_test : public Test
 {
   public:
@@ -98,7 +100,7 @@ class vector_test : public Test
         classValue = 0;
     }
 
-    vector<int, 10> sut;
+    vector<int, 5> sut5;
     vector<int, 0> sut0;
 };
 
@@ -114,19 +116,19 @@ int vector_test::classValue;
 
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
 {
-    EXPECT_THAT(sut.empty(), Eq(true));
+    EXPECT_THAT(sut5.empty(), Eq(true));
     EXPECT_THAT(sut0.empty(), Eq(true));
 }
 
 TEST_F(vector_test, NewlyCreatedVectorHasSizeZero)
 {
-    EXPECT_THAT(sut.size(), Eq(0));
+    EXPECT_THAT(sut5.size(), Eq(0));
     EXPECT_THAT(sut0.size(), Eq(0));
 }
 
 TEST_F(vector_test, Capacity)
 {
-    EXPECT_THAT(sut.capacity(), Eq(10));
+    EXPECT_THAT(sut5.capacity(), Eq(5));
     EXPECT_THAT(sut0.capacity(), Eq(0));
 }
 
@@ -134,8 +136,8 @@ TEST_F(vector_test, NewVectorWithElementsCTorWithZeroElements)
 {
     constexpr uint64_t CAPACITY{42};
     constexpr int DEFAULT_VALUE{13};
-    vector<int, CAPACITY> sut(0, DEFAULT_VALUE);
-    EXPECT_THAT(sut.empty(), Eq(true));
+    vector<int, CAPACITY> sutC(0, DEFAULT_VALUE);
+    EXPECT_THAT(sutC.empty(), Eq(true));
     vector<int, 0> sut0(0, DEFAULT_VALUE);
     EXPECT_THAT(sut0.empty(), Eq(true));
 }
@@ -170,69 +172,85 @@ TEST_F(vector_test, NewVectorWithElementsCTorWithMoreThanCapacityElements)
     constexpr uint64_t CAPACITY{42};
     constexpr uint64_t ELEMENT_COUNT{73};
     constexpr int DEFAULT_VALUE{13};
-    vector<int, CAPACITY> sut(ELEMENT_COUNT, DEFAULT_VALUE);
-    EXPECT_THAT(sut.size(), Eq(CAPACITY));
-    for (const auto& item : sut)
+    vector<int, CAPACITY> sutC(ELEMENT_COUNT, DEFAULT_VALUE);
+    EXPECT_THAT(sutC.size(), Eq(CAPACITY));
+    for (const auto& item : sutC)
     {
         EXPECT_THAT(item, Eq(DEFAULT_VALUE));
     }
+    vector<int, 0> sut0(ELEMENT_COUNT, DEFAULT_VALUE);
+    EXPECT_THAT(sut0.size(), Eq(0));
 }
+
 
 TEST_F(vector_test, EmplaceBackSuccessfullWhenSpaceAvailable)
 {
-    EXPECT_THAT(sut.emplace_back(5), Eq(true));
+    EXPECT_THAT(sut5.emplace_back(5), Eq(true));
 }
 
 TEST_F(vector_test, EmplaceBackFailsWhenSpaceNotAvailable)
 {
-    for (uint64_t i = 0; i < 10; ++i)
+    for (uint64_t i = 0; i < 5; ++i)
     {
-        EXPECT_THAT(sut.emplace_back(5), Eq(true));
+        EXPECT_THAT(sut5.emplace_back(5), Eq(true));
     }
-    EXPECT_THAT(sut.emplace_back(5), Eq(false));
+    EXPECT_THAT(sut5.emplace_back(5), Eq(false));
+}
+
+TEST_F(vector_test, EmplaceBackFailsForCapacityZeroVector)
+{
     EXPECT_THAT(sut0.emplace_back(5), Eq(false));
 }
 
 TEST_F(vector_test, PushBackSuccessfullWhenSpaceAvailableLValue)
 {
     const int a{5};
-    EXPECT_THAT(sut.push_back(a), Eq(true));
-    ASSERT_THAT(sut.size(), Eq(1u));
-    EXPECT_THAT(sut.at(0), Eq(a));
+    EXPECT_THAT(sut5.push_back(a), Eq(true));
+    ASSERT_THAT(sut5.size(), Eq(1u));
+    EXPECT_THAT(sut5.at(0), Eq(a));
 }
 
 TEST_F(vector_test, PushBackFailsWhenSpaceNotAvailableLValue)
 {
     const int a{5};
-    for (uint64_t i = 0; i < 10; ++i)
+    for (uint64_t i = 0; i < 5; ++i)
     {
-        EXPECT_THAT(sut.push_back(a), Eq(true));
+        EXPECT_THAT(sut5.push_back(a), Eq(true));
     }
-    EXPECT_THAT(sut.push_back(a), Eq(false));
+    EXPECT_THAT(sut5.push_back(a), Eq(false));
+}
+
+TEST_F(vector_test, PushBackAlwaysFailsForVectorCapacityZero)
+{
+    const int a{5};
     EXPECT_THAT(sut0.push_back(a), Eq(false));
 }
 
 TEST_F(vector_test, PushBackSuccessfullWhenSpaceAvailableRValue)
 {
-    EXPECT_THAT(sut.push_back(5), Eq(true));
-    ASSERT_THAT(sut.size(), Eq(1u));
-    EXPECT_THAT(sut.at(0), Eq(5));
+    EXPECT_THAT(sut5.push_back(5), Eq(true));
+    ASSERT_THAT(sut5.size(), Eq(1u));
+    EXPECT_THAT(sut5.at(0), Eq(5));
 }
 
 TEST_F(vector_test, PushBackFailsWhenSpaceNotAvailableRValue)
 {
-    for (uint64_t i = 0; i < 10; ++i)
+    for (uint64_t i = 0; i < 5; ++i)
     {
-        EXPECT_THAT(sut.push_back(5), Eq(true));
+        EXPECT_THAT(sut5.push_back(5), Eq(true));
     }
-    EXPECT_THAT(sut.push_back(5), Eq(false));
+    EXPECT_THAT(sut5.push_back(5), Eq(false));
+}
+
+TEST_F(vector_test, PushBackAlwaysFailsForVectorCapacityZeroRValue)
+{
     EXPECT_THAT(sut0.push_back(5), Eq(false));
 }
 
 TEST_F(vector_test, PopBackOnEmptyVector)
 {
-    sut.pop_back();
-    ASSERT_THAT(sut.size(), Eq(0u));
+    sut5.pop_back();
+    ASSERT_THAT(sut5.size(), Eq(0u));
     sut0.pop_back();
     ASSERT_THAT(sut0.size(), Eq(0u));
 }
@@ -250,17 +268,21 @@ TEST_F(vector_test, PopBackNonEmptyVector)
 
 TEST_F(vector_test, SizeIncreasesWhenElementIsAdded)
 {
-    sut.emplace_back(5);
-    EXPECT_THAT(sut.size(), Eq(1));
+    sut5.emplace_back(5);
+    EXPECT_THAT(sut5.size(), Eq(1));
 }
 
 TEST_F(vector_test, SizeEqualsCapacityWheFull)
 {
     for (uint64_t i = 0; i < 10; ++i)
     {
-        sut.emplace_back(5);
+        sut5.emplace_back(5);
     }
-    EXPECT_THAT(sut.size(), Eq(sut.capacity()));
+    EXPECT_THAT(sut5.size(), Eq(sut5.capacity()));
+}
+
+TEST_F(vector_test, SizeEqualsCapacityForCapacityZeroVector)
+{
     EXPECT_THAT(sut0.size(), Eq(sut0.capacity()));
 }
 
@@ -268,32 +290,32 @@ TEST_F(vector_test, SizeUnchangedWhenEmplaceFails)
 {
     for (uint64_t i = 0; i < 10; ++i)
     {
-        sut.emplace_back(5);
+        sut5.emplace_back(5);
     }
-    EXPECT_THAT(sut.emplace_back(5), Eq(false));
-    EXPECT_THAT(sut.size(), Eq(sut.capacity()));
+    EXPECT_THAT(sut5.emplace_back(5), Eq(false));
+    EXPECT_THAT(sut5.size(), Eq(sut5.capacity()));
 }
 
 TEST_F(vector_test, NotEmptyWhenElementWasAdded)
 {
-    sut.emplace_back(5);
-    EXPECT_THAT(sut.empty(), Eq(false));
+    sut5.emplace_back(5);
+    EXPECT_THAT(sut5.empty(), Eq(false));
 }
 
 TEST_F(vector_test, EmptyAfterClear)
 {
-    sut.emplace_back(5);
-    sut.clear();
-    EXPECT_THAT(sut.empty(), Eq(true));
+    sut5.emplace_back(5);
+    sut5.clear();
+    EXPECT_THAT(sut5.empty(), Eq(true));
     sut0.clear();
     EXPECT_THAT(sut0.empty(), Eq(true));
 }
 
 TEST_F(vector_test, SizeZeroAfterClear)
 {
-    sut.emplace_back(5);
-    sut.clear();
-    EXPECT_THAT(sut.size(), Eq(0));
+    sut5.emplace_back(5);
+    sut5.clear();
+    EXPECT_THAT(sut5.size(), Eq(0));
     sut0.clear();
     EXPECT_THAT(sut0.size(), Eq(0));
 }
@@ -320,6 +342,15 @@ TEST_F(vector_test, CopyConstructorWithEmptyVector)
     EXPECT_THAT(sut2.size(), Eq(0));
     EXPECT_THAT(sut2.empty(), Eq(true));
 
+    vector<CTorTest, 0> sut0_1;
+    vector<CTorTest, 0> sut0_2(sut0_1);
+    EXPECT_THAT(copyCTor, Eq(0));
+    EXPECT_THAT(sut0_2.size(), Eq(0));
+    EXPECT_THAT(sut0_2.empty(), Eq(true));
+}
+
+TEST_F(vector_test, CopyConstructorWithCapacityZeroVector)
+{
     vector<CTorTest, 0> sut0_1;
     vector<CTorTest, 0> sut0_2(sut0_1);
     EXPECT_THAT(copyCTor, Eq(0));
@@ -366,7 +397,10 @@ TEST_F(vector_test, MoveConstructorWithEmptyVector)
     EXPECT_THAT(moveCTor, Eq(0));
     EXPECT_THAT(sut2.size(), Eq(0));
     EXPECT_THAT(sut2.empty(), Eq(true));
+}
 
+TEST_F(vector_test, MoveConstructorWithCapacityZeroVector)
+{
     vector<CTorTest, 0> sut0_1;
     vector<CTorTest, 0> sut0_2(sut0_1);
     EXPECT_THAT(moveCTor, Eq(0));
@@ -596,13 +630,13 @@ TEST_F(vector_test, MoveAssignmentWithLargerSource)
 
 TEST_F(vector_test, BeginEndIteratorAreTheSameWhenEmpty)
 {
-    EXPECT_THAT(sut.begin() == sut.end(), Eq(true));
+    EXPECT_THAT(sut5.begin() == sut5.end(), Eq(true));
     EXPECT_THAT(sut0.begin() == sut0.end(), Eq(true));
 }
 
 TEST_F(vector_test, BeginEndConstIteratorAreTheSameWhenEmpty)
 {
-    EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() == const_cast<const decltype(sut)*>(&sut)->end(),
+    EXPECT_THAT(const_cast<const decltype(sut5)*>(&sut5)->begin() == const_cast<const decltype(sut5)*>(&sut5)->end(),
                 Eq(true));
     EXPECT_THAT(const_cast<const decltype(sut0)*>(&sut0)->begin() == const_cast<const decltype(sut0)*>(&sut0)->end(),
                 Eq(true));
@@ -610,42 +644,42 @@ TEST_F(vector_test, BeginEndConstIteratorAreTheSameWhenEmpty)
 
 TEST_F(vector_test, BeginIteratorComesBeforeEndIteratorWhenNotEmpty)
 {
-    sut.emplace_back(1);
-    EXPECT_THAT(sut.begin() < sut.end(), Eq(true));
+    sut5.emplace_back(1);
+    EXPECT_THAT(sut5.begin() < sut5.end(), Eq(true));
 }
 
 TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenNotEmpty)
 {
-    sut.emplace_back(1);
-    EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() < const_cast<const decltype(sut)*>(&sut)->end(),
+    sut5.emplace_back(1);
+    EXPECT_THAT(const_cast<const decltype(sut5)*>(&sut5)->begin() < const_cast<const decltype(sut5)*>(&sut5)->end(),
                 Eq(true));
 }
 
 TEST_F(vector_test, BeginIteratorComesBeforeEndIteratorWhenFull)
 {
-    for (uint64_t i = 0; i < sut.capacity(); ++i)
-        sut.emplace_back(i);
-    EXPECT_THAT(sut.begin() < sut.end(), Eq(true));
+    for (uint64_t i = 0; i < sut5.capacity(); ++i)
+        sut5.emplace_back(i);
+    EXPECT_THAT(sut5.begin() < sut5.end(), Eq(true));
 }
 
 TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenFull)
 {
-    for (uint64_t i = 0; i < sut.capacity(); ++i)
-        sut.emplace_back(i);
-    EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() < const_cast<const decltype(sut)*>(&sut)->end(),
+    for (uint64_t i = 0; i < sut5.capacity(); ++i)
+        sut5.emplace_back(i);
+    EXPECT_THAT(const_cast<const decltype(sut5)*>(&sut5)->begin() < const_cast<const decltype(sut5)*>(&sut5)->end(),
                 Eq(true));
 }
 
 TEST_F(vector_test, IteratorIteratesThroughNonEmptyVector)
 {
     constexpr int INITIAL_VALUE{42};
-    sut.emplace_back(INITIAL_VALUE);
-    sut.emplace_back(INITIAL_VALUE + 1);
-    sut.emplace_back(INITIAL_VALUE + 2);
-    const int EXPECTED_END_INDEX = sut.size();
+    sut5.emplace_back(INITIAL_VALUE);
+    sut5.emplace_back(INITIAL_VALUE + 1);
+    sut5.emplace_back(INITIAL_VALUE + 2);
+    const int EXPECTED_END_INDEX = sut5.size();
 
     int count = 0;
-    for (auto& v : sut)
+    for (auto& v : sut5)
     {
         EXPECT_THAT(v, Eq(INITIAL_VALUE + count));
         ++count;
@@ -656,13 +690,13 @@ TEST_F(vector_test, IteratorIteratesThroughNonEmptyVector)
 TEST_F(vector_test, ConstIteratorIteratesThroughNonEmptyVector)
 {
     constexpr int INITIAL_VALUE{142};
-    sut.emplace_back(INITIAL_VALUE);
-    sut.emplace_back(INITIAL_VALUE + 1);
-    sut.emplace_back(INITIAL_VALUE + 2);
-    const int EXPECTED_END_COUNT = sut.size();
+    sut5.emplace_back(INITIAL_VALUE);
+    sut5.emplace_back(INITIAL_VALUE + 1);
+    sut5.emplace_back(INITIAL_VALUE + 2);
+    const int EXPECTED_END_COUNT = sut5.size();
 
     int count = 0;
-    for (auto& v : *const_cast<const decltype(sut)*>(&sut))
+    for (auto& v : *const_cast<const decltype(sut5)*>(&sut5))
     {
         EXPECT_THAT(v, Eq(INITIAL_VALUE + count));
         ++count;
@@ -672,14 +706,14 @@ TEST_F(vector_test, ConstIteratorIteratesThroughNonEmptyVector)
 
 TEST_F(vector_test, IteratorIteratesThroughFullVector)
 {
-    for (uint64_t k = 0; k < sut.capacity(); ++k)
+    for (uint64_t k = 0; k < sut5.capacity(); ++k)
     {
-        sut.emplace_back(42 * k);
+        sut5.emplace_back(42 * k);
     }
-    const int EXPECTED_END_COUNT = sut.size();
+    const int EXPECTED_END_COUNT = sut5.size();
 
     int i = 0;
-    for (auto& v : sut)
+    for (auto& v : sut5)
     {
         EXPECT_THAT(v, Eq(42 * (i++)));
     }
@@ -688,14 +722,14 @@ TEST_F(vector_test, IteratorIteratesThroughFullVector)
 
 TEST_F(vector_test, ConstIteratorIteratesThroughFullVector)
 {
-    for (uint64_t k = 0; k < sut.capacity(); ++k)
+    for (uint64_t k = 0; k < sut5.capacity(); ++k)
     {
-        sut.emplace_back(142 * k);
+        sut5.emplace_back(142 * k);
     }
-    const int EXPECTED_END_COUNT = sut.size();
+    const int EXPECTED_END_COUNT = sut5.size();
 
     int i = 0;
-    for (const auto& v : *const_cast<const decltype(sut)*>(&sut))
+    for (const auto& v : *const_cast<const decltype(sut5)*>(&sut5))
     {
         EXPECT_THAT(v, Eq(142 * (i++)));
     }
@@ -704,103 +738,133 @@ TEST_F(vector_test, ConstIteratorIteratesThroughFullVector)
 
 TEST_F(vector_test, IterateUsingData)
 {
-    sut.emplace_back(127);
-    sut.emplace_back(128);
-    sut.emplace_back(129);
+    sut5.emplace_back(127);
+    sut5.emplace_back(128);
+    sut5.emplace_back(129);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(sut.data()[k], Eq(127 + k));
+        EXPECT_THAT(sut5.data()[k], Eq(127 + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingConstData)
 {
-    sut.emplace_back(3127);
-    sut.emplace_back(3128);
-    sut.emplace_back(3129);
+    sut5.emplace_back(3127);
+    sut5.emplace_back(3128);
+    sut5.emplace_back(3129);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->data()[k], Eq(3127 + k));
+        EXPECT_THAT(const_cast<const decltype(sut5)*>(&sut5)->data()[k], Eq(3127 + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingAt)
 {
-    sut.emplace_back(127);
-    sut.emplace_back(128);
-    sut.emplace_back(129);
+    sut5.emplace_back(127);
+    sut5.emplace_back(128);
+    sut5.emplace_back(129);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(sut.at(k), Eq(127 + k));
+        EXPECT_THAT(sut5.at(k), Eq(127 + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingConstAt)
 {
-    sut.emplace_back(3127);
-    sut.emplace_back(3128);
-    sut.emplace_back(3129);
+    sut5.emplace_back(3127);
+    sut5.emplace_back(3128);
+    sut5.emplace_back(3129);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->at(k), Eq(3127 + k));
+        EXPECT_THAT(const_cast<const decltype(sut5)*>(&sut5)->at(k), Eq(3127 + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingSquareBracket)
 {
-    sut.emplace_back(2127);
-    sut.emplace_back(2128);
-    sut.emplace_back(2129);
+    sut5.emplace_back(2127);
+    sut5.emplace_back(2128);
+    sut5.emplace_back(2129);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(2127 + k));
+        EXPECT_THAT(sut5[k], Eq(2127 + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingConstSquareBracket)
 {
-    sut.emplace_back(4127);
-    sut.emplace_back(4128);
-    sut.emplace_back(4129);
+    sut5.emplace_back(4127);
+    sut5.emplace_back(4128);
+    sut5.emplace_back(4129);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT((*const_cast<const decltype(sut)*>(&sut))[k], Eq(4127 + k));
+        EXPECT_THAT((*const_cast<const decltype(sut5)*>(&sut5))[k], Eq(4127 + k));
     }
 }
 
-TEST_F(vector_test, EraseReturnsNullWhenElementIsInvalid)
+TEST_F(vector_test, EraseReturnsIteratorEndWhenElementIsInvalid)
 {
-    auto i = sut.begin() + 5;
-    EXPECT_THAT(sut.erase(i), Eq(nullptr));
-    i = sut0.begin() + 5;
-    EXPECT_THAT(sut0.erase(i), Eq(nullptr));
+    auto i = sut5.begin() + 5;
+    EXPECT_THAT(sut5.erase(i), Eq(sut5.end()));
+    i = sut0.begin() + 1;
+    EXPECT_THAT(sut0.erase(i), Eq(sut0.end()));
 }
+
+TEST_F(vector_test, EraseByIndexReturnsIteratorEndWhenElementIsInvalid)
+{
+    auto i = 5;
+    EXPECT_THAT(sut5.erase(i), Eq(sut5.end()));
+
+    i = 1;
+    EXPECT_THAT(sut0.erase(i), Eq(sut0.end()));
+}
+
+TEST_F(vector_test, EraseOfLastElementReturnsIteratorEnd)
+{
+    sut5.emplace_back(3);
+    auto it = sut5.erase(sut5.begin());
+    EXPECT_THAT(it, Eq(sut5.end()));
+
+    sut5.emplace_back(4);
+    it = sut5.erase((uint64_t)0U);
+    EXPECT_THAT(it, Eq(sut5.end()));
+}
+
+TEST_F(vector_test, TwoEmptyVectorOfZeroAreEqual)
+{
+    vector<int, 0> a, b;
+
+    EXPECT_TRUE(a == b);
+    EXPECT_FALSE(a != b);
+}
+
 
 TEST_F(vector_test, EraseReturnsIteratorWhenElementIsValid)
 {
-    sut.emplace_back(3);
-    sut.emplace_back(4);
-    sut.emplace_back(5);
-    auto it = sut.begin();
-    EXPECT_THAT(*sut.erase(it), Eq(4));
+    sut5.emplace_back(3);
+    sut5.emplace_back(4);
+    sut5.emplace_back(5);
+    auto it = sut5.begin();
+    EXPECT_THAT(*sut5.erase(it), Eq(4));
+
     uint64_t index = 0;
-    EXPECT_THAT(*sut.erase(index), Eq(5));
+    EXPECT_THAT(*sut5.erase(index), Eq(5));
 }
 
 TEST_F(vector_test, ErasingElementDecreasesSize)
 {
-    sut.emplace_back(3);
-    sut.emplace_back(4);
-    sut.emplace_back(5);
-    sut.erase(sut.begin() + 2);
-    sut.erase(sut.begin());
-    EXPECT_THAT(sut.size(), Eq(1));
+    sut5.emplace_back(3);
+    sut5.emplace_back(4);
+    sut5.emplace_back(5);
+    sut5.erase(sut5.begin() + 2);
+    sut5.erase((uint64_t)0U);
+    EXPECT_THAT(sut5.size(), Eq(1));
 }
 
 TEST_F(vector_test, EraseOfLastElementCallsDTorOnly)
@@ -811,6 +875,19 @@ TEST_F(vector_test, EraseOfLastElementCallsDTorOnly)
     sut1.emplace_back(9);
 
     sut1.erase(sut1.begin() + 2);
+
+    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(classValue, Eq(9));
+}
+
+TEST_F(vector_test, EraseByIndexOfLastElementCallsDTorOnly)
+{
+    vector<CTorTest, 5> sut1;
+    sut1.emplace_back(7);
+    sut1.emplace_back(8);
+    sut1.emplace_back(9);
+
+    sut1.erase((uint64_t)2);
 
     EXPECT_THAT(dTor, Eq(1));
     EXPECT_THAT(classValue, Eq(9));
@@ -848,94 +925,94 @@ TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
 
 TEST_F(vector_test, EraseMiddleElementDataCorrectAfterwards)
 {
-    sut.emplace_back(97);
-    sut.emplace_back(101);
-    sut.emplace_back(98);
-    sut.emplace_back(99);
+    sut5.emplace_back(97);
+    sut5.emplace_back(101);
+    sut5.emplace_back(98);
+    sut5.emplace_back(99);
 
-    sut.erase(sut.begin() + 1);
+    sut5.erase(sut5.begin() + 1);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(97 + k));
+        EXPECT_THAT(sut5[k], Eq(97 + k));
     }
 }
 
 TEST_F(vector_test, EraseFrontElementDataCorrectAfterwards)
 {
-    sut.emplace_back(6101);
-    sut.emplace_back(597);
-    sut.emplace_back(598);
-    sut.emplace_back(599);
+    sut5.emplace_back(6101);
+    sut5.emplace_back(597);
+    sut5.emplace_back(598);
+    sut5.emplace_back(599);
 
-    sut.erase(sut.begin());
+    sut5.erase(sut5.begin());
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(597 + k));
+        EXPECT_THAT(sut5[k], Eq(597 + k));
     }
 }
 
 TEST_F(vector_test, EraseLastElementDataCorrectAfterwards)
 {
-    sut.emplace_back(7597);
-    sut.emplace_back(7598);
-    sut.emplace_back(7599);
-    sut.emplace_back(7600);
-    sut.emplace_back(7601);
-    sut.emplace_back(76101);
+    sut5.emplace_back(7597);
+    sut5.emplace_back(7598);
+    sut5.emplace_back(7599);
+    sut5.emplace_back(7600);
+    sut5.emplace_back(7601);
+    sut5.emplace_back(76101);
 
-    sut.erase(sut.begin() + 5);
+    sut5.erase(sut5.begin() + 5);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(7597 + k));
+        EXPECT_THAT(sut5[k], Eq(7597 + k));
     }
 }
 
 TEST_F(vector_test, EraseLastElementOfFullVectorDataCorrectAfterwards)
 {
-    for (int i = 0; i < static_cast<int>(sut.capacity()); ++i)
-        sut.emplace_back(i * 123);
+    for (int i = 0; i < static_cast<int>(sut5.capacity()); ++i)
+        sut5.emplace_back(i * 123);
 
-    sut.erase(sut.begin() + sut.size() - 1);
+    sut5.erase(sut5.begin() + sut5.size() - 1);
 
-    for (uint64_t k = 0; k < sut.size(); ++k)
+    for (uint64_t k = 0; k < sut5.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(k * 123));
+        EXPECT_THAT(sut5[k], Eq(k * 123));
     }
 }
 
 TEST_F(vector_test, FrontPointsToFirstElement)
 {
-    sut.emplace_back(1);
-    sut.emplace_back(2);
-    sut.emplace_back(3);
-    EXPECT_THAT(sut.front(), Eq(1));
+    sut5.emplace_back(1);
+    sut5.emplace_back(2);
+    sut5.emplace_back(3);
+    EXPECT_THAT(sut5.front(), Eq(1));
 }
 
 TEST_F(vector_test, BackPointsToLastElement)
 {
-    sut.emplace_back(4);
-    sut.emplace_back(5);
-    sut.emplace_back(6);
-    EXPECT_THAT(sut.back(), Eq(6));
+    sut5.emplace_back(4);
+    sut5.emplace_back(5);
+    sut5.emplace_back(6);
+    EXPECT_THAT(sut5.back(), Eq(6));
 }
 
 TEST_F(vector_test, ConstFrontPointsToFirstElement)
 {
-    sut.emplace_back(7);
-    sut.emplace_back(8);
-    sut.emplace_back(9);
-    EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->front(), Eq(7));
+    sut5.emplace_back(7);
+    sut5.emplace_back(8);
+    sut5.emplace_back(9);
+    EXPECT_THAT(const_cast<const decltype(sut5)*>(&sut5)->front(), Eq(7));
 }
 
 TEST_F(vector_test, ConstBackPointsToLastElement)
 {
-    sut.emplace_back(10);
-    sut.emplace_back(11);
-    sut.emplace_back(12);
-    EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->back(), Eq(12));
+    sut5.emplace_back(10);
+    sut5.emplace_back(11);
+    sut5.emplace_back(12);
+    EXPECT_THAT(const_cast<const decltype(sut5)*>(&sut5)->back(), Eq(12));
 }
 
 TEST_F(vector_test, ConstructorWithSizeParameterSmallerThanCapacity)

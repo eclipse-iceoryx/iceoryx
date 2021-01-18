@@ -149,14 +149,18 @@ class vector : public VectorStorage<T, Capacity>
 
     /// @brief removes an element at the given iterator position. if this element is in
     ///         the middle of the vector every element is moved one place to the
-    ///         left to ensure that the elements are stored contiguously
-    /// @return iterator to the next element, returns nullptr if position is out-of-range
+    ///         left to ensure that the elements are stored contiguously.
+    ///         Does not throw exceptions iff the underlying data type does not throw on assignment ops.
+    ///         "noexcept" omitted intentionally to support 3rd party types with neglected "noexcept".
+    /// @return iterator to the next element, returns end() if position is out-of-range
     iterator erase(const_iterator position);
 
     /// @brief removes an element at the given vector index. if this element is in
     ///         the middle of the vector every element is moved one place to the
     ///         left to ensure that the elements are stored contiguously
-    /// @return iterator to the next element, returns nullptr if index is out-of-range
+    ///         Does not throw exceptions iff the underlying data type does not throw on assignment ops.
+    ///         "noexcept" omitted intentionally to support 3rd party types with neglected "noexcept".
+    /// @return iterator to the next element, returns end() if index is out-of-range
     iterator erase(const uint64_t index);
 
   private:

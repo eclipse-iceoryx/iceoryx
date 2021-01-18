@@ -252,19 +252,19 @@ inline typename vector<T, Capacity>::const_reference vector<T, Capacity>::back()
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::begin() noexcept
 {
-    return reinterpret_cast<iterator>(&(this->data()[0]));
+    return reinterpret_cast<iterator>(this->data());
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::begin() const noexcept
 {
-    return reinterpret_cast<const_iterator>(&(this->data()[0]));
+    return reinterpret_cast<const_iterator>(this->data());
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::end() noexcept
 {
-    return reinterpret_cast<iterator>(this->data() + this->size());
+    return this->data() + this->size();
 }
 
 template <typename T, uint64_t Capacity>
@@ -276,25 +276,29 @@ inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() c
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(const_iterator position)
 {
-    if (begin() <= position && position < end())
-    {
-        uint64_t index = static_cast<uint64_t>(position - begin()) % (sizeof(element_t) * Capacity);
-        return erase(index);
-    }
-    return nullptr;
+    /// If position < begin(), this shall return end(), which is guaranteed:
+    /// WLOG, let vector v have Capacity=(2^64-begin())/sizeof(T)-sizeof(m_size)
+    /// (note that iterators, index, and Capacity are all limited by 64 bit address space)
+    /// With position=0, position-begin()==(2^64-begin())/sizeof(T) > Capacity => returns end()
+    uint64_t index = static_cast<uint64_t>(position - begin());
+    return erase(index);
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(uint64_t index)
 {
-    size_t n = index;
+    uint64_t n = index;
+    if (n >= this->size())
+    {
+        return end();
+    }
     for (; n + 1u < this->size(); ++n)
     {
         at(n) = std::move(at(n + 1u));
     }
     at(n).~T();
     this->set_size(this->size() - 1u);
-    return reinterpret_cast<iterator>(this->data() + index);
+    return this->begin() + index;
 }
 
 } // namespace cxx
