@@ -49,4 +49,3 @@ void iox_user_trigger_reset_trigger(iox_user_trigger_t const self)
 {
     self->resetTrigger();
 }
-
