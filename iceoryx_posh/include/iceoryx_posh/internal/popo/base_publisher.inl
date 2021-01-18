@@ -80,6 +80,17 @@ inline cxx::optional<Sample<T>> BasePublisher<T, port_t>::loanPreviousSample() n
 }
 
 template <typename T, typename port_t>
+cxx::optional<void*> BasePublisher<T, port_t>::loanPreviousChunk() noexcept
+{
+    auto result = m_port.tryGetPreviousChunk();
+    if (result.has_value())
+    {
+        return result.value()->payload();
+    }
+    return cxx::nullopt;
+}
+
+template <typename T, typename port_t>
 inline void BasePublisher<T, port_t>::offer() noexcept
 {
     m_port.offer();

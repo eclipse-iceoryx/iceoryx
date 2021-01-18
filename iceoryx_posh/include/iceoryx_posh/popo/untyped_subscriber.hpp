@@ -64,10 +64,10 @@ class UntypedSubscriberImpl
     cxx::expected<const void*, ChunkReceiveResult> take_1_0() noexcept;
 
     // the untyped API is supposed to deal with chunks, hence the renaming iox #408 remove comment
-    // calling it chunks looks inapproriate in the function names (use data instead of chunks?)...
+    // calling it chunks looks inappropriate in the function names (use data instead of chunks?)...
 
     ///
-    /// @brief hasData Check if chunks are available.
+    /// @brief hasChunks Check if chunks are available.
     /// @return True if a new chunk is available.
     ///
     bool hasChunks() const noexcept;

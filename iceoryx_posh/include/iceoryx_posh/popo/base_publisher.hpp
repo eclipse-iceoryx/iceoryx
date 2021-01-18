@@ -65,6 +65,7 @@ class BasePublisher : public PublisherInterface<T>
     ///
     capro::ServiceDescription getServiceDescription() const noexcept;
 
+    // iox-#408 remove? (the typed version can use chunks and convert them to samples)
     ///
     /// @brief loan Get a sample from loaned shared memory.
     /// @param size The expected size of the sample.
@@ -87,11 +88,18 @@ class BasePublisher : public PublisherInterface<T>
     ///
     void publish(Sample<T>&& sample) noexcept override;
 
+    // iox-#408 remove?
     ///
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
     /// @return The previously loaned sample if retrieved.
     ///
     cxx::optional<Sample<T>> loanPreviousSample() noexcept;
+
+    ///
+    /// @brief loanPreviousChunk Get the previously loanded chunk if possible.
+    /// @return A pointer to the previous chunk if available, nullopt otherwise.
+    ///
+    cxx::optional<void*> loanPreviousChunk() noexcept;
 
     ///
     /// @brief offer Offer the service to be subscribed to.
