@@ -26,12 +26,12 @@ namespace iox
 namespace roudi
 {
 template <typename PublisherPort>
-ProcessIntrospection<PublisherPort>::ProcessIntrospection()
+inline ProcessIntrospection<PublisherPort>::ProcessIntrospection()
 {
 }
 
 template <typename PublisherPort>
-ProcessIntrospection<PublisherPort>::~ProcessIntrospection()
+inline ProcessIntrospection<PublisherPort>::~ProcessIntrospection()
 {
     stop();
     if (m_publisherPort.has_value())
@@ -41,7 +41,7 @@ ProcessIntrospection<PublisherPort>::~ProcessIntrospection()
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::addProcess(int f_pid, const ProcessName_t& f_name)
+inline void ProcessIntrospection<PublisherPort>::addProcess(int f_pid, const ProcessName_t& f_name)
 {
     ProcessIntrospectionData procIntrData;
     procIntrData.m_pid = f_pid;
@@ -55,7 +55,7 @@ void ProcessIntrospection<PublisherPort>::addProcess(int f_pid, const ProcessNam
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::removeProcess(int f_pid)
+inline void ProcessIntrospection<PublisherPort>::removeProcess(int f_pid)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -71,7 +71,7 @@ void ProcessIntrospection<PublisherPort>::removeProcess(int f_pid)
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_process, const NodeName_t& f_node)
+inline void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_process, const NodeName_t& f_node)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -104,7 +104,7 @@ void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_process
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_process, const NodeName_t& f_node)
+inline void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_process, const NodeName_t& f_node)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -138,7 +138,7 @@ void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_proc
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::registerPublisherPort(PublisherPort&& publisherPort)
+inline void ProcessIntrospection<PublisherPort>::registerPublisherPort(PublisherPort&& publisherPort)
 {
     // we do not want to call this twice
     if (!m_publisherPort.has_value())
@@ -148,7 +148,7 @@ void ProcessIntrospection<PublisherPort>::registerPublisherPort(PublisherPort&& 
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::run()
+inline void ProcessIntrospection<PublisherPort>::run()
 {
     // TODO: error handling for non debug builds
     cxx::Expects(m_publisherPort.has_value());
@@ -161,7 +161,7 @@ void ProcessIntrospection<PublisherPort>::run()
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::send()
+inline void ProcessIntrospection<PublisherPort>::send()
 {
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_processListNewData)
@@ -184,13 +184,13 @@ void ProcessIntrospection<PublisherPort>::send()
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::stop()
+inline void ProcessIntrospection<PublisherPort>::stop()
 {
     m_sender.stop();
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::setSendInterval(const units::Duration interval)
+inline void ProcessIntrospection<PublisherPort>::setSendInterval(const units::Duration interval)
 {
     m_sendInterval = interval;
     if (m_sender.isActive())

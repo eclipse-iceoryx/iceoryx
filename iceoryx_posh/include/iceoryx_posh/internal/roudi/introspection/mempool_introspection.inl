@@ -22,7 +22,7 @@ namespace iox
 namespace roudi
 {
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::MemPoolIntrospection(
+inline MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::MemPoolIntrospection(
     MemoryManager& rouDiInternalMemoryManager, SegmentManager& segmentManager, PublisherPort&& publisherPort)
     : m_rouDiInternalMemoryManager(&rouDiInternalMemoryManager)
     , m_segmentManager(&segmentManager)
@@ -32,26 +32,26 @@ MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::MemPoolIntro
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::~MemPoolIntrospection()
+inline MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::~MemPoolIntrospection()
 {
     stop();
     m_publisherPort.stopOffer();
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::run() noexcept
+inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::run() noexcept
 {
     m_sender.start(m_sendInterval);
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::stop() noexcept
+inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::stop() noexcept
 {
     m_sender.stop();
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::setSendInterval(
+inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::setSendInterval(
     const units::Duration interval) noexcept
 {
     m_sendInterval = interval;
@@ -63,7 +63,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::setSend
 }
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::prepareIntrospectionSample(
+inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::prepareIntrospectionSample(
     MemPoolIntrospectionInfo& sample,
     const posix::PosixGroup& readerGroup,
     const posix::PosixGroup& writerGroup,
@@ -78,7 +78,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::prepare
 
 
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() noexcept
+inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() noexcept
 {
     if (m_publisherPort.hasSubscribers())
     {
@@ -138,8 +138,9 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() 
 
 // copy data fro internal struct into interface struct
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::copyMemPoolInfo(
-    const MemoryManager& memoryManager, MemPoolInfoContainer& dest) noexcept
+inline void
+MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::copyMemPoolInfo(const MemoryManager& memoryManager,
+                                                                                    MemPoolInfoContainer& dest) noexcept
 {
     auto numOfMemPools = memoryManager.getNumberOfMemPools();
     dest = MemPoolInfoContainer(numOfMemPools, MemPoolInfo());
