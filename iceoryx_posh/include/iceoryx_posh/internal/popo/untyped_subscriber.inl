@@ -32,9 +32,9 @@ inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base
     auto result = BaseSubscriber::takeChunk();
     if (result.has_error())
     {
-        return result.error();
+        return cxx::error<ChunkReceiveResult>(result.get_error());
     }
-    return result.value()->payload();
+    return cxx::success<const void*>(result.value()->payload());
 }
 
 template <template <typename, typename, typename> class base_subscriber_t>

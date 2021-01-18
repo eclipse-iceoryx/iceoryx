@@ -66,7 +66,23 @@ int main()
             // Do something with error
         }
 
-        // API Usage #2
+        // API Usage #1
+        //  * Retrieve a typed sample from shared memory and construct data using the
+        //    arguments provided.
+        //  * Sample can be held until ready to publish.
+        //
+        result = publisher.loan_1_0(ct, ct, ct);
+        if (!result.has_error())
+        {
+            result.value().publish();
+        }
+        else
+        {
+            auto error = result.get_error();
+            // Do something with error
+        }
+
+        // API Usage #3
         //  * Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
         //
         publisher.loan_1_0()
@@ -82,13 +98,13 @@ int main()
             });
 
 
-        // API Usage #3
+        // API Usage #4
         //  * Basic copy-and-publish. Useful for smaller data types.
         //
         auto object = RadarObject(ct, ct, ct);
         publisher.publishCopyOf(object);
 
-        // API Usage #4
+        // API Usage #5
         //  * Provide a callable that will be used to populate the loaned sample.
         //  * The first argument of the callable must be T* and is the location that the callable should
         //      write its result to.
@@ -96,7 +112,7 @@ int main()
         publisher.publishResultOf(getRadarObject, ct);
         publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); });
 
-        std::cout << "Sent five times value: " << ct << std::endl;
+        std::cout << "Sent six times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

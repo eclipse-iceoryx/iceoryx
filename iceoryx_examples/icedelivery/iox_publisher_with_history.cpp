@@ -38,8 +38,8 @@ int main()
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
 
-    iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
-    typedPublisher.offer();
+    iox::popo::TypedPublisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+    publisher.offer();
 
     double ct = 0.0;
     while (!killswitch)
@@ -47,13 +47,7 @@ int main()
         ++ct;
 
         // Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
-        typedPublisher.loan().and_then([&](auto& sample) {
-            auto object = sample.get();
-            // Do some stuff leading to eventually generating the data in the samples loaned memory...
-            *object = RadarObject(ct, ct, ct);
-            // ...then publish the sample
-            sample.publish();
-        });
+        publisher.loan_1_0(ct, ct, ct).and_then([&](auto& sample) { sample.publish(); });
 
         std::cout << "Sent value: " << ct << std::endl;
 

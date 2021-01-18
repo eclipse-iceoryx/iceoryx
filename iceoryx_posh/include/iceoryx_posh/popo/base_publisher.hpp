@@ -82,11 +82,19 @@ class BasePublisher : public PublisherInterface<T>
     ///
     cxx::expected<void*, AllocationError> loan_1_0(const uint32_t size) noexcept;
 
+    // iox-#408 remove?
     ///
     /// @brief publish Publishes the given sample and then releases its loan.
     /// @param sample The sample to publish.
     ///
     void publish(Sample<T>&& sample) noexcept override;
+
+    // iox-#408 override, provide a pure virtual base and adapt tests
+    ///
+    /// @brief publish Publishes the given chunk and then releases its loan.
+    /// @param chunk The chunk to publish.
+    ///
+    void publish(const void* const chunk) noexcept;
 
     // iox-#408 remove?
     ///

@@ -50,14 +50,10 @@ int main()
             subscriber.take_1_0()
                 .and_then([](auto& sample) { std::cout << "Got value: " << sample->x << std::endl; })
                 .or_else([](auto& result) {
-                    // only has to be called if the alternative is of interest
-                    // (i.e. if nothing has to happen when no data is received and
-                    // a possible error alternative is not checked or_else is not needed)
-                    if (result == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-                    {
-                        std::cout << "No sample available" << std::endl;
-                    }
-                    else
+                    // only has to be called if the alternative is of interest,
+                    // i.e. if nothing has to happen when no data is received and
+                    // a possible error alternative is not checked or_else is not needed
+                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
                     {
                         std::cout << "Error receiving chunk." << std::endl;
                     }
