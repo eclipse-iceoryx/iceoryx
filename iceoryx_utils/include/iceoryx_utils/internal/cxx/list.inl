@@ -60,7 +60,7 @@ inline list<T, Capacity>& list<T, Capacity>::list::operator=(const list& rhs) no
         uint64_t i = 0U;
         auto iterThis = begin();
         auto citerRhs = rhs.cbegin();
-        auto startSize = size();
+        auto startSize = this->size();
         auto minOfLhsRhsSize = std::min(rhs.size(), startSize);
 
         // copy using copy assignment
@@ -95,7 +95,7 @@ inline list<T, Capacity>& list<T, Capacity>::list::operator=(list&& rhs) noexcep
         uint64_t i = 0U;
         auto iterThis = begin();
         auto citerRhs = rhs.begin();
-        auto startSize = size();
+        auto startSize = this->size();
         auto minOfLhsRhsSize = std::min(rhs.size(), startSize);
 
         // move using move assignment
@@ -169,31 +169,19 @@ inline typename list<T, Capacity>::const_iterator list<T, Capacity>::cend() cons
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::empty() const noexcept
 {
-    return (m_size == 0U);
+    return (this->size() == 0U);
 }
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::full() const noexcept
 {
-    return (m_size >= Capacity);
-}
-
-template <typename T, uint64_t Capacity>
-inline typename list<T, Capacity>::size_type list<T, Capacity>::size() const noexcept
-{
-    return m_size;
-}
-
-template <typename T, uint64_t Capacity>
-inline typename list<T, Capacity>::size_type list<T, Capacity>::capacity() const noexcept
-{
-    return Capacity;
+    return (this->size() >= Capacity);
 }
 
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::size_type list<T, Capacity>::max_size() const noexcept
 {
-    return capacity();
+    return this->capacity();
 }
 
 
@@ -221,7 +209,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::emplace(const_ite
         return end();
     }
 
-    if (m_size >= Capacity)
+    if (this->size() >= Capacity)
     {
         errorMessage(__PRETTY_FUNCTION__, " capacity exhausted ");
         return end();
@@ -243,7 +231,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::emplace(const_ite
     setNextIdx(getPrevIdx(iter), toBeAddedIdx);
     setPrevIdx(iter.m_iterListNodeIdx, toBeAddedIdx);
 
-    ++m_size;
+    this->set_size(this->size() + 1U);
 
     return iterator{this, toBeAddedIdx};
 }
@@ -280,7 +268,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_itera
     setNextIdx(eraseIdx, m_freeListHeadIdx);
     m_freeListHeadIdx = eraseIdx;
 
-    --m_size;
+    this->set_size(this->size() - 1U);
 
     // Iterator to the element following the erased one, or end() if no such element exists.
     return iterator{this, retIdx};
@@ -352,62 +340,62 @@ inline const T& list<T, Capacity>::back() const noexcept
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::push_front(const T& data) noexcept
 {
-    auto sizeBeforePush = m_size;
-    if (m_size < Capacity)
+    auto sizeBeforePush = this->size();
+    if (this->size() < Capacity)
     {
         emplace(cbegin(), data);
     }
-    return (m_size == ++sizeBeforePush);
+    return (this->size() == ++sizeBeforePush);
 }
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::push_front(T&& data) noexcept
 {
-    auto sizeBeforePush = m_size;
-    if (m_size < Capacity)
+    auto sizeBeforePush = this->size();
+    if (this->size() < Capacity)
     {
         emplace(cbegin(), std::forward<T>(data));
     }
-    return (m_size == ++sizeBeforePush);
+    return (this->size() == ++sizeBeforePush);
 }
 
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::push_back(const T& data) noexcept
 {
-    auto sizeBeforePush = m_size;
-    if (m_size < Capacity)
+    auto sizeBeforePush = this->size();
+    if (this->size() < Capacity)
     {
         emplace(cend(), data);
     }
-    return (m_size == ++sizeBeforePush);
+    return (this->size() == ++sizeBeforePush);
 }
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::push_back(T&& data) noexcept
 {
-    auto sizeBeforePush = m_size;
-    if (m_size < Capacity)
+    auto sizeBeforePush = this->size();
+    if (this->size() < Capacity)
     {
         emplace(cend(), std::forward<T>(data));
     }
-    return (m_size == ++sizeBeforePush);
+    return (this->size() == ++sizeBeforePush);
 }
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::pop_front() noexcept
 {
-    auto sizeBeforeErase = m_size;
+    auto sizeBeforeErase = this->size();
     erase(begin());
-    return ((m_size + 1U) == sizeBeforeErase);
+    return ((this->size() + 1U) == sizeBeforeErase);
 }
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::pop_back() noexcept
 {
-    auto sizeBeforeErase = m_size;
+    auto sizeBeforeErase = this->size();
     erase(--end());
-    return ((m_size + 1U) == sizeBeforeErase);
+    return ((this->size() + 1U) == sizeBeforeErase);
 }
 
 template <typename T, uint64_t Capacity>
@@ -426,7 +414,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::insert(const_iter
 template <typename T, uint64_t Capacity>
 inline void list<T, Capacity>::clear() noexcept
 {
-    while (m_size)
+    while (this->size())
     {
         erase(begin());
     }
@@ -566,7 +554,7 @@ inline void list<T, Capacity>::init() noexcept
     setNextIdx(Capacity, BEGIN_END_LINK_INDEX);
     m_freeListHeadIdx = 0U;
 
-    m_size = 0U;
+    this->set_size(0U);
 }
 
 
@@ -641,7 +629,7 @@ inline const T* list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const 
         return nullptr;
     }
 
-    return &(reinterpret_cast<const T*>(&m_data)[idx]);
+    return &(this->data()[idx]);
 }
 
 template <typename T, uint64_t Capacity>

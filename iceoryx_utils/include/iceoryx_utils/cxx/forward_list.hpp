@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
 
 namespace iox
 {
@@ -49,7 +50,7 @@ namespace cxx
 /// @param T type user data to be managed within list
 /// @param Capacity number of maximum list elements a client can push to the list. minimum value is '1'
 template <typename T, uint64_t Capacity>
-class forward_list
+class forward_list : public SizedUninitializedArray<T, Capacity>
 {
   private:
     // forward declarations, private
@@ -142,16 +143,6 @@ class forward_list
     /// @brief list meta information on filling
     /// @return whether list is full (filled with 'capacity' / 'max_size' elements) (true), otherwise (false)
     bool full() const noexcept;
-
-    /// @brief list meta information on filling
-    /// @return current number of elements in list
-    /// @min    returns min 0
-    /// @max    returns max capacity
-    size_type size() const noexcept;
-
-    /// @brief list meta information, maximum number of elements the list can contain
-    /// @return list has been initialized with the following number of elements.
-    size_type capacity() const noexcept;
 
     /// @brief list meta information, maximum number of elements the list can contain
     /// @return list has been initialized with the following number of elements, same as capacity()
@@ -348,10 +339,6 @@ class forward_list
     size_type m_freeListHeadIdx{0U};
 
     NodeLink m_links[NODE_LINK_COUNT];
-    using element_t = uint8_t[sizeof(T)];
-    alignas(alignof(T)) element_t m_data[Capacity];
-
-    size_type m_size{0U};
 }; // forward_list
 
 } // namespace cxx
