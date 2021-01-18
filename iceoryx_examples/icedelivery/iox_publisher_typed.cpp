@@ -50,7 +50,7 @@ int main()
         // API Usage #1
         //  * Retrieve a typed sample from shared memory.
         //  * Sample can be held until ready to publish.
-        //
+        //  * Data is default constructed during loan
         auto result = publisher.loan_1_0();
         if (!result.has_error())
         {
@@ -66,11 +66,10 @@ int main()
             // Do something with error
         }
 
-        // API Usage #1
-        //  * Retrieve a typed sample from shared memory and construct data using the
-        //    arguments provided.
+        // API Usage #2
+        //  * Retrieve a typed sample from shared memory and construct data in-place
         //  * Sample can be held until ready to publish.
-        //
+        //  * Data is constructed with the aruments provided.
         result = publisher.loan_1_0(ct, ct, ct);
         if (!result.has_error())
         {
