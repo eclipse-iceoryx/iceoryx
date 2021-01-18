@@ -21,7 +21,7 @@ namespace concurrent
 {
 template <typename T>
 template <typename... Args>
-PeriodicTask<T>::PeriodicTask(const posix::ThreadName_t taskName, Args&&... args) noexcept
+inline PeriodicTask<T>::PeriodicTask(const posix::ThreadName_t taskName, Args&&... args) noexcept
     : m_callable(std::forward<Args>(args)...)
     , m_taskName(taskName)
 {
@@ -29,22 +29,22 @@ PeriodicTask<T>::PeriodicTask(const posix::ThreadName_t taskName, Args&&... args
 
 template <typename T>
 template <typename... Args>
-PeriodicTask<T>::PeriodicTask(const units::Duration interval,
-                              const posix::ThreadName_t taskName,
-                              Args&&... args) noexcept
+inline PeriodicTask<T>::PeriodicTask(const units::Duration interval,
+                                     const posix::ThreadName_t taskName,
+                                     Args&&... args) noexcept
     : PeriodicTask(taskName, std::forward<Args>(args)...)
 {
     start(interval);
 }
 
 template <typename T>
-PeriodicTask<T>::~PeriodicTask() noexcept
+inline PeriodicTask<T>::~PeriodicTask() noexcept
 {
     stop();
 }
 
 template <typename T>
-void PeriodicTask<T>::start(const units::Duration interval) noexcept
+inline void PeriodicTask<T>::start(const units::Duration interval) noexcept
 {
     stop();
     m_interval = interval;
@@ -53,7 +53,7 @@ void PeriodicTask<T>::start(const units::Duration interval) noexcept
 }
 
 template <typename T>
-void PeriodicTask<T>::stop() noexcept
+inline void PeriodicTask<T>::stop() noexcept
 {
     if (m_taskExecutor.joinable())
     {
@@ -63,13 +63,13 @@ void PeriodicTask<T>::stop() noexcept
 }
 
 template <typename T>
-bool PeriodicTask<T>::isActive() const noexcept
+inline bool PeriodicTask<T>::isActive() const noexcept
 {
     return m_taskExecutor.joinable();
 }
 
 template <typename T>
-void PeriodicTask<T>::run() noexcept
+inline void PeriodicTask<T>::run() noexcept
 {
     posix::SemaphoreWaitState waitState = posix::SemaphoreWaitState::NO_TIMEOUT;
     do
