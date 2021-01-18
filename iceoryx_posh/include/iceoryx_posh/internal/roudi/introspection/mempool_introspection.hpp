@@ -73,13 +73,13 @@ class MemPoolIntrospection
     MemoryManager* m_rouDiInternalMemoryManager{nullptr}; // mempool handler needs to outlive this class (!)
     SegmentManager* m_segmentManager{nullptr};
     PublisherPort m_publisherPort{nullptr};
+    void send() noexcept;
 
   private:
     static void prepareIntrospectionSample(MemPoolIntrospectionInfo& sample,
                                            const posix::PosixGroup& readerGroup,
                                            const posix::PosixGroup& writerGroup,
                                            uint32_t id) noexcept;
-    void send() noexcept;
 
     /// @brief copy data fro internal struct into interface struct
     void copyMemPoolInfo(const MemoryManager& memoryManager, MemPoolInfoContainer& dest) noexcept;

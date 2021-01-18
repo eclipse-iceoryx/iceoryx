@@ -21,13 +21,7 @@
 using namespace ::testing;
 using ::testing::Return;
 
-#define private public
-#define protected public
-
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
-
-#undef private
-#undef protected
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -101,6 +95,9 @@ class MemPoolIntrospectionAccess
     {
         return this->m_publisherPort;
     }
+
+    using iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUserAccess>::
+        send;
 };
 
 class MemPoolIntrospection_test : public Test

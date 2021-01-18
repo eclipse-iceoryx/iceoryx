@@ -18,11 +18,7 @@
 using namespace ::testing;
 using ::testing::Return;
 
-#define private public
-#define protected public
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
-#undef private
-#undef protected
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "mocks/chunk_mock.hpp"
