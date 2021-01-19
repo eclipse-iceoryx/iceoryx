@@ -74,22 +74,20 @@ class vector : public SizedUninitializedArray<T, Capacity>
 
     /// @brief returns an iterator to the first element of the vector,
     ///         if the vector is empty it returns the same iterator as
-    ///         end (nullptr)
+    ///         end()
     iterator begin() noexcept;
 
     /// @brief returns a const iterator to the first element of the vector,
     ///         if the vector is empty it returns the same iterator as
-    ///         end (nullptr)
+    ///         end()
     const_iterator begin() const noexcept;
 
     /// @brief returns an iterator to the element which comes after the last
     ///         element (the first element which is outside of the vector).
-    ///         If the vector is empty it returns nullptr
     iterator end() noexcept;
 
     /// @brief returns a const iterator to the element which comes after the last
     ///         element (the first element which is outside of the vector).
-    ///         If the vector is empty it returns nullptr
     const_iterator end() const noexcept;
 
     /// @brief returns a reference to the first element; terminates if the vector is empty
