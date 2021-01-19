@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020,2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ using namespace iox::cxx;
 static constexpr uint64_t TESTLISTCAPACITY{10U};
 static constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
 
+/// Note: Where applicable, lists of capacity 0 are tested separately,
+///       since the list implementation is specialized for capacity 0.
 class forward_list_test : public Test
 {
   public:
@@ -122,6 +124,7 @@ class forward_list_test : public Test
     }
 
     forward_list<TestListElement, TESTLISTCAPACITY> sut;
+    forward_list<TestListElement, 0> sut0;
 };
 
 // forward_list_test statics
@@ -157,21 +160,25 @@ bool dummyFunc(bool whatever)
 TEST_F(forward_list_test, NewlyCreatedListIsEmpty)
 {
     EXPECT_THAT(sut.empty(), Eq(true));
+    EXPECT_THAT(sut0.empty(), Eq(true));
 }
 
 TEST_F(forward_list_test, NewlyCreatedListHasSizeZero)
 {
     EXPECT_THAT(sut.size(), Eq(0U));
+    EXPECT_THAT(sut0.size(), Eq(0U));
 }
 
 TEST_F(forward_list_test, ReadCapacityOnList)
 {
     EXPECT_THAT(sut.capacity(), Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(sut0.capacity(), Eq(0U));
 }
 
 TEST_F(forward_list_test, ReadMax_sizeOnList)
 {
     EXPECT_THAT(sut.max_size(), Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(sut0.max_size(), Eq(0U));
 }
 
 TEST_F(forward_list_test, NewListCTorWithZeroElements)
@@ -186,35 +193,43 @@ TEST_F(forward_list_test, NewListCTorWithZeroElements)
 TEST_F(forward_list_test, CbeginCendAreTheSameWhenEmpty)
 {
     EXPECT_THAT(sut.cbegin() == sut.cend(), Eq(true));
+    EXPECT_THAT(sut0.cbegin() == sut0.cend(), Eq(true));
 }
 TEST_F(forward_list_test, BeginEndAreTheSameWhenEmpty)
 {
     EXPECT_THAT(sut.begin() == sut.end(), Eq(true));
+    EXPECT_THAT(sut0.begin() == sut0.end(), Eq(true));
 }
 TEST_F(forward_list_test, CbeginEndAreTheSameWhenEmpty)
 {
     EXPECT_THAT(sut.cbegin() == sut.end(), Eq(true));
+    EXPECT_THAT(sut0.cbegin() == sut0.end(), Eq(true));
 }
 TEST_F(forward_list_test, BeginCendAreTheSameWhenEmpty)
 {
     EXPECT_THAT(sut.begin() == sut.cend(), Eq(true));
+    EXPECT_THAT(sut0.begin() == sut0.cend(), Eq(true));
 }
 
 TEST_F(forward_list_test, CbeforebeginAndCbeginAreDifferentWhenEmpty)
 {
     EXPECT_THAT(sut.cbefore_begin() != sut.cbegin(), Eq(true));
+    EXPECT_THAT(sut0.cbefore_begin() != sut0.cbegin(), Eq(true));
 }
 TEST_F(forward_list_test, beforebeginAndBeginAreDifferentWhenEmpty)
 {
     EXPECT_THAT(sut.before_begin() != sut.begin(), Eq(true));
+    EXPECT_THAT(sut0.before_begin() != sut0.begin(), Eq(true));
 }
 TEST_F(forward_list_test, CbeforeBeginAndBeginAreDifferentWhenEmpty)
 {
     EXPECT_THAT(sut.cbefore_begin() != sut.begin(), Eq(true));
+    EXPECT_THAT(sut0.cbefore_begin() != sut0.begin(), Eq(true));
 }
 TEST_F(forward_list_test, beforeBeginAndCbeginAreDifferentWhenEmpty)
 {
     EXPECT_THAT(sut.before_begin() != sut.cbegin(), Eq(true));
+    EXPECT_THAT(sut0.before_begin() != sut0.cbegin(), Eq(true));
 }
 
 TEST_F(forward_list_test, CbeginCendAreDifferentWhenFilled)
@@ -261,6 +276,10 @@ TEST_F(forward_list_test, FullWhenFilledWithCapacityElements)
         EXPECT_THAT(sut.emplace_front().m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     }
     EXPECT_THAT(sut.full(), Eq(true));
+}
+TEST_F(forward_list_test, CapacityZeroListIsFull)
+{
+    EXPECT_THAT(sut0.full(), Eq(true));
 }
 TEST_F(forward_list_test, FullWhenFilledWithMoreThanCapacityElements)
 {
@@ -731,6 +750,7 @@ TEST_F(forward_list_test, PopFrontOnEmptyList)
     EXPECT_FALSE(sut.pop_front());
     ASSERT_THAT(sut.size(), Eq(0U));
     EXPECT_THAT(isSetupState(), Eq(true));
+    EXPECT_FALSE(sut0.pop_front());
 }
 
 TEST_F(forward_list_test, PopFrontNonEmptyList)

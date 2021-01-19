@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020,2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace cxx
 /// @details Adjustments in the API were done to not use exceptions and serve the requirement of
 ///         a data structure movable over shared memory.
 ///         attempt to add elements to a full list will be ignored.
-///         Capacity must at least be 1, (unintended) negative initialization is rejected with compile assertion
+///         (Unintended) negative initialization is rejected with compile assertion
 ///         limitation: concurrency concerns have to be handled by client side.
 ///
 ///         overview of cxx::forward_list deviations to std::forward_list(C++11)
@@ -49,7 +49,7 @@ namespace cxx
 ///
 ///
 /// @param T type user data to be managed within list
-/// @param Capacity number of maximum list elements a client can push to the list. minimum value is '1'
+/// @param Capacity number of maximum list elements a client can push to the list.
 template <typename T, uint64_t Capacity>
 class list : public SizedUninitializedArray<T, Capacity>
 {

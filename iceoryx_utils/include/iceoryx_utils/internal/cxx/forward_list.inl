@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020,2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -452,15 +452,17 @@ inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator
 template <typename T, uint64_t Capacity>
 inline void forward_list<T, Capacity>::init() noexcept
 {
-    for (size_type i = m_freeListHeadIdx; i < (Capacity - 1U); ++i)
+    if (Capacity > 0)
     {
-        setInvalidElement(i, true);
-        setNextIdx(i, i + 1U);
+        for (size_type i = m_freeListHeadIdx; i < (Capacity - 1U); ++i)
+        {
+            setInvalidElement(i, true);
+            setNextIdx(i, i + 1U);
+        }
+        // last of concatenated indices with a counterpart data-element in m_data
+        setInvalidElement(Capacity - 1U, true);
+        setNextIdx(Capacity - 1U, END_INDEX);
     }
-    // last of concatenated indices with a counterpart data-element in m_data
-    setInvalidElement(Capacity - 1U, true);
-    setNextIdx(Capacity - 1U, END_INDEX);
-
     // 'before_begin' element, pointing to 'begin' element or 'end' when list is empty
     setInvalidElement(Capacity, false);
     setNextIdx(Capacity, END_INDEX);

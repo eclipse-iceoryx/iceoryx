@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020,2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -519,14 +519,16 @@ inline void list<T, Capacity>::init() noexcept
     // all list elements are concatenated and become accessible via the 'freeListHead'
     setPrevIdx(0U, INVALID_INDEX);
     setNextIdx(0U, 1U);
-
-    for (size_type i = 1U; i < (BEGIN_END_LINK_INDEX - 1U); ++i)
+    if (Capacity > 0)
     {
-        setPrevIdx(i, INVALID_INDEX);
-        setNextIdx(i, i + 1U);
+        for (size_type i = 1U; i < (BEGIN_END_LINK_INDEX - 1U); ++i)
+        {
+            setPrevIdx(i, INVALID_INDEX);
+            setNextIdx(i, i + 1U);
+        }
+        setPrevIdx(Capacity - 1U, INVALID_INDEX);
+        setNextIdx(Capacity - 1U, BEGIN_END_LINK_INDEX);
     }
-    setPrevIdx(Capacity - 1U, INVALID_INDEX);
-    setNextIdx(Capacity - 1U, BEGIN_END_LINK_INDEX);
     // reset Heads
     // index '(Capacity)' is the 'end' element of the list which does not have a m_data value (payload), instead
     // it will only provide a link to the first and last _used_-element of the list
