@@ -493,20 +493,34 @@ TEST(Duration_test, OperatorTimeval)
 
 // BEGIN COMPARISON TESTS
 
-TEST(Duration_test, CompareTwoEqualDurations)
+TEST(Duration_test, CompareTwoEqualDurationsForEquality)
 {
     auto time1 = 200_us;
     auto time2 = 200000_ns;
     EXPECT_TRUE(time1 == time2);
-    EXPECT_TRUE(time2 == time1);
 }
 
-TEST(Duration_test, CompareTwoNonEqualDurations)
+TEST(Duration_test, CompareTwoNonEqualDurationsForEquality)
+{
+    auto time1 = 1_s + 200_us;
+    auto time2 = 1_ns;
+    EXPECT_FALSE(time1 == time2);
+    EXPECT_FALSE(time2 == time1);
+}
+
+TEST(Duration_test, CompareTwoNonEqualDurationsForInequality)
 {
     auto time1 = 1_s + 200_us;
     auto time2 = 1_ns;
     EXPECT_TRUE(time1 != time2);
     EXPECT_TRUE(time2 != time1);
+}
+
+TEST(Duration_test, CompareTwoEqualDurationsForInequality)
+{
+    auto time1 = 200_us;
+    auto time2 = 200000_ns;
+    EXPECT_FALSE(time1 != time2);
 }
 
 TEST(Duration_test, CompareTwoEqualDurationsAreNotLessThan)

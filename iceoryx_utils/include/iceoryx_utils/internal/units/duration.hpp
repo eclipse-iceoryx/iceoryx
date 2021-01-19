@@ -149,7 +149,7 @@ class Duration
     constexpr explicit Duration(const struct timespec& value);
 
     /// @brief Construct a Duration object from itimerspec
-    /// @param[in] value as itimespec
+    /// @param[in] value as itimerspec
     /// @note only it_interval from the itimerspec is used
     constexpr explicit Duration(const struct itimerspec& value);
 
