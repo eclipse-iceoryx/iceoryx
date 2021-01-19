@@ -76,7 +76,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::run()
     m_publisherPortThroughput->offer();
     m_publisherPortSubscriberPortsData->offer();
 
-    m_sender.start(m_sendInterval);
+    m_publishingTask.start(m_sendInterval);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
@@ -142,17 +142,17 @@ template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(const units::Duration interval)
 {
     m_sendInterval = interval;
-    if (m_sender.isActive())
+    if (m_publishingTask.isActive())
     {
-        m_sender.stop();
-        m_sender.start(m_sendInterval);
+        m_publishingTask.stop();
+        m_publishingTask.start(m_sendInterval);
     }
 }
 
 template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::stop()
 {
-    m_sender.stop();
+    m_publishingTask.stop();
 }
 
 template <typename PublisherPort, typename SubscriberPort>

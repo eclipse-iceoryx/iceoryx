@@ -98,7 +98,8 @@ class ProcessIntrospection
     std::mutex m_mutex;
 
     units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
-    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_sender{"ProcessIntr", *this, &ProcessIntrospection::send};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
+        "ProcessIntr", *this, &ProcessIntrospection::send};
 };
 
 /// @brief typedef for the templated process introspection class that is used by RouDi for the

@@ -157,7 +157,7 @@ inline void ProcessIntrospection<PublisherPort>::run()
     send();
     m_publisherPort->offer();
 
-    m_sender.start(m_sendInterval);
+    m_publishingTask.start(m_sendInterval);
 }
 
 template <typename PublisherPort>
@@ -186,17 +186,17 @@ inline void ProcessIntrospection<PublisherPort>::send()
 template <typename PublisherPort>
 inline void ProcessIntrospection<PublisherPort>::stop()
 {
-    m_sender.stop();
+    m_publishingTask.stop();
 }
 
 template <typename PublisherPort>
 inline void ProcessIntrospection<PublisherPort>::setSendInterval(const units::Duration interval)
 {
     m_sendInterval = interval;
-    if (m_sender.isActive())
+    if (m_publishingTask.isActive())
     {
-        m_sender.stop();
-        m_sender.start(m_sendInterval);
+        m_publishingTask.stop();
+        m_publishingTask.start(m_sendInterval);
     }
 }
 

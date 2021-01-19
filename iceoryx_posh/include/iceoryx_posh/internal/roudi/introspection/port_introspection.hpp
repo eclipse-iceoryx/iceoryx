@@ -334,7 +334,7 @@ class PortIntrospection
     PortData m_portData;
 
     units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
-    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_sender{"PortIntr", *this, &PortIntrospection::send};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{"PortIntr", *this, &PortIntrospection::send};
 };
 
 /// @brief typedef for the templated port introspection class that is used by RouDi for the
