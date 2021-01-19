@@ -6,6 +6,8 @@
 
 
 ## Usage
+
+### General
 The usage should be similar to the _WaitSet_ with a key difference - it should 
 be **event driven** and not a mixture of event and state driven, depending on
 which event is attached, like in the _WaitSet_.
@@ -16,7 +18,7 @@ It should have the following behavior:
     immediately.
  - If an event occurs multiple times before the callback was called, the callback
     should be called **once**.
- - If an event occurs while the callback is executed the callback should be 
+ - If an event occurs while the callback is being executed the callback should be 
     called again **once**.
 
 The following use cases and behaviors should be implemented.
@@ -44,18 +46,19 @@ The following use cases and behaviors should be implemented.
     - Detaching a callback from within a callback.
     - [robust] When the detach call returns we guarantee that the callback is never called
       again. E.g. blocks till the callback is removed, if the callback is concurrently 
-      running it blocks until the callback is finished and removed.
+      running it will block until the callback is finished and removed.
       Exception: If a callback detaches itself it blocks until the callback is removed 
                  and not until the callback is finished.
     - Calling detach means that after that call the callback is no longer attached
       even when it was not attached in the first place. Therefore it will always succeed.
 
  - When the ReactAl goes out of scope it should detach itself from every class 
-     to which it was attached via a callback.
+     to which it was attached via a provided callback (like in the WaitSet).
 
  - When the class which is attached to the ReactAl goes out of scope it should 
-    detach itself from the ReactAl
+    detach itself from the ReactAl via a provided callback (like in the WaitSet).
 
+### Code Example
 ```cpp
 ReactAl myCallbackReactal;
 iox::popo::UntypedSubscriber mySubscriber;
@@ -94,7 +97,7 @@ int main() {
     **Reason:**
       - The reactal will iterate through this array to know who was triggering it 
       - It is cache local so very fast to iterate.
-      - WaitSet approach are callbacks which have some overhead implementation 
+      - WaitSet approach are callbacks which have overhead implementation 
         and performance wise.
 
     **Alternative:**
@@ -115,6 +118,10 @@ class ConditionVariableIdSignaler {
     void notifyOne(const uint64_t id); 
 };
 ```
+
+We maybe introduce some abstraction for this. One thought is to introduce a 
+`SignalVector` where you can acquire a `Notifyier` which then signals the 
+`ConditionVariable` and with the correct id.
 
 ### ReactAl 
 ```cpp
