@@ -12,9 +12,11 @@
   <build_depend>iceoryx_posh</build_depend>
   <build_depend>iceoryx_binding_c</build_depend>
   <build_depend>iceoryx_introspection</build_depend>
+  <build_depend>ros_testing</build_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>ros_testing</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

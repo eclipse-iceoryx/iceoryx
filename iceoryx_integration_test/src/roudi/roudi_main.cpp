@@ -31,9 +31,8 @@ int main(int argc, char* argv[])
     iox::RouDiConfig_t roudiConfig =
         configFileProvider.parse()
             .or_else([](iox::roudi::RouDiConfigFileParseError& parseResult) {
-                iox::LogFatal() << "Couldn't parse config file. Error: "
-                                << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                                 parseResult);
+iox::LogFatal() << "Couldn't parse config file. Error: "
+<< iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS, parseResult);
                 std::terminate();
             })
             .value();
