@@ -110,15 +110,15 @@ inline constexpr Duration::Duration(const uint64_t seconds, const uint32_t nanos
     : m_seconds(seconds)
     , m_nanoseconds(nanoseconds)
 {
-    if (nanoseconds >= 1000000000U)
+    if (nanoseconds >= NANOSECS_PER_SEC)
     {
-        m_seconds += nanoseconds / 1000000000U;
-        m_nanoseconds = m_nanoseconds % 1000000000U;
+        m_seconds += nanoseconds / NANOSECS_PER_SEC;
+        m_nanoseconds = m_nanoseconds % NANOSECS_PER_SEC;
     }
 }
 
 inline constexpr Duration::Duration(const struct timeval& value)
-    : Duration(static_cast<uint64_t>(value.tv_sec), static_cast<uint32_t>(value.tv_usec) * 1000U)
+    : Duration(static_cast<uint64_t>(value.tv_sec), static_cast<uint32_t>(value.tv_usec) * NANOSECS_PER_MICROSEC)
 {
 }
 
@@ -154,7 +154,7 @@ inline constexpr T Duration::nanoSeconds() const
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    return static_cast<T>(m_seconds * 1000000000U + m_nanoseconds);
+    return static_cast<T>(m_seconds * NANOSECS_PER_SEC + m_nanoseconds);
 }
 
 template <typename T>
@@ -163,7 +163,7 @@ inline constexpr T Duration::microSeconds() const
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    return static_cast<T>(m_seconds * 1000000U + m_nanoseconds / 1000U);
+    return static_cast<T>(m_seconds * MICROSECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MICROSEC);
 }
 
 template <typename T>
@@ -172,7 +172,7 @@ inline constexpr T Duration::milliSeconds() const
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    return static_cast<T>(m_seconds * 1000U + m_nanoseconds / 1000000U);
+    return static_cast<T>(m_seconds * MILLISECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MILLISEC);
 }
 
 template <typename T>
@@ -192,7 +192,7 @@ inline constexpr T Duration::minutes() const
 
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
     // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
-    return static_cast<T>(m_seconds / 60U);
+    return static_cast<T>(m_seconds / SECS_PER_MINUTE);
 }
 
 template <typename T>
@@ -202,7 +202,7 @@ inline constexpr T Duration::hours() const
 
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
     // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
-    return static_cast<T>(m_seconds / 3600U);
+    return static_cast<T>(m_seconds / SECS_PER_HOUR);
 }
 
 template <typename T>
@@ -212,14 +212,14 @@ inline constexpr T Duration::days() const
 
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
     // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
-    return static_cast<T>(m_seconds / (24U * 3600U));
+    return static_cast<T>(m_seconds / (HOURS_PER_DAY * SECS_PER_HOUR));
 }
 
 inline constexpr Duration::operator timeval() const
 {
     using SEC_TYPE = decltype(timeval::tv_sec);
     using USEC_TYPE = decltype(timeval::tv_usec);
-    return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / 1000U)};
+    return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
 }
 
 inline constexpr bool Duration::operator==(const Duration& right) const
@@ -258,10 +258,10 @@ inline constexpr Duration Duration::operator+(const Duration& right) const
 
     auto seconds = m_seconds + right.m_seconds;
     auto nanoseconds = m_nanoseconds + right.m_nanoseconds;
-    if (nanoseconds >= 1000000000U)
+    if (nanoseconds >= NANOSECS_PER_SEC)
     {
         ++seconds;
-        nanoseconds -= 1000000000U;
+        nanoseconds -= NANOSECS_PER_SEC;
     }
     return Duration{seconds, nanoseconds};
 }
@@ -274,14 +274,14 @@ inline constexpr Duration Duration::operator-(const Duration& right) const
         return Duration(0U, 0U);
     }
     auto seconds = m_seconds - right.m_seconds;
-    uint32_t nanoseconds{0};
+    uint32_t nanoseconds{0U};
     if (m_nanoseconds >= right.m_nanoseconds)
     {
         nanoseconds = m_nanoseconds - right.m_nanoseconds;
     }
     else
     {
-        nanoseconds = 1000000000U - right.m_nanoseconds - m_nanoseconds;
+        nanoseconds = NANOSECS_PER_SEC - right.m_nanoseconds - m_nanoseconds;
         --seconds;
     }
     return Duration{seconds, nanoseconds};
@@ -307,7 +307,7 @@ Duration::multiplySeconds(const uint64_t seconds,
     double resultSeconds{0.0};
     double secondsFraction = modf(result, &resultSeconds);
     return Duration(static_cast<uint64_t>(resultSeconds), 0U)
-           + Duration::nanoseconds(static_cast<uint64_t>(secondsFraction * 1000000000U));
+           + Duration::nanoseconds(static_cast<uint64_t>(secondsFraction * NANOSECS_PER_SEC));
 }
 
 template <typename T>
@@ -361,7 +361,7 @@ inline constexpr Duration Duration::operator/(const T& right) const
     double seconds{0.0};
     double secondsFraction = modf(result, &seconds);
     auto nanoseconds =
-        static_cast<uint64_t>(secondsFraction * 1000000000U) + static_cast<uint64_t>(m_nanoseconds / right);
+        static_cast<uint64_t>(secondsFraction * NANOSECS_PER_SEC) + static_cast<uint64_t>(m_nanoseconds / right);
     return Duration(static_cast<uint64_t>(seconds), 0U) + Duration::nanoseconds(nanoseconds);
 }
 
@@ -369,22 +369,22 @@ inline namespace duration_literals
 {
 inline constexpr Duration operator"" _ns(unsigned long long int value) // PRQA S 48
 {
-    auto seconds = static_cast<uint64_t>(value / 1000000000U);
-    auto nanoseconds = static_cast<uint32_t>(value % 1000000000U);
+    auto seconds = static_cast<uint64_t>(value / Duration::NANOSECS_PER_SEC);
+    auto nanoseconds = static_cast<uint32_t>(value % Duration::NANOSECS_PER_SEC);
     return Duration{seconds, nanoseconds};
 }
 
 inline constexpr Duration operator"" _us(unsigned long long int value) // PRQA S 48
 {
-    auto seconds = static_cast<uint64_t>(value / 1000000U);
-    auto nanoseconds = static_cast<uint32_t>(value % 1000000U) * 1000U;
+    auto seconds = static_cast<uint64_t>(value / Duration::MICROSECS_PER_SEC);
+    auto nanoseconds = static_cast<uint32_t>((value % Duration::MICROSECS_PER_SEC) * Duration::NANOSECS_PER_MICROSEC);
     return Duration{seconds, nanoseconds};
 }
 
 inline constexpr Duration operator"" _ms(unsigned long long int value) // PRQA S 48
 {
-    auto seconds = static_cast<uint64_t>(value / 1000U);
-    auto nanoseconds = static_cast<uint32_t>(value % 1000U) * 1000000U;
+    auto seconds = static_cast<uint64_t>(value / Duration::MILLISECS_PER_SEC);
+    auto nanoseconds = static_cast<uint32_t>((value % Duration::MILLISECS_PER_SEC) * Duration::NANOSECS_PER_MILLISEC);
     return Duration{seconds, nanoseconds};
 }
 
@@ -395,17 +395,17 @@ inline constexpr Duration operator"" _s(unsigned long long int value) // PRQA S 
 
 inline constexpr Duration operator"" _m(unsigned long long int value) // PRQA S 48
 {
-    return Duration{static_cast<uint64_t>(value * 60U), 0U};
+    return Duration{static_cast<uint64_t>(value * Duration::SECS_PER_MINUTE), 0U};
 }
 
 inline constexpr Duration operator"" _h(unsigned long long int value) // PRQA S 48
 {
-    return Duration{static_cast<uint64_t>(value * 3600U), 0U};
+    return Duration{static_cast<uint64_t>(value * Duration::SECS_PER_HOUR), 0U};
 }
 
 inline constexpr Duration operator"" _d(unsigned long long int value) // PRQA S 48
 {
-    return Duration{static_cast<uint64_t>(value * 24U * 3600U), 0U};
+    return Duration{static_cast<uint64_t>(value * Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR), 0U};
 }
 
 } // namespace duration_literals

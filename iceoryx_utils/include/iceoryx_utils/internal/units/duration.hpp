@@ -304,9 +304,22 @@ class Duration
     multiplyNanoseconds(const uint32_t nanoseconds,
                         const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
 
+    static constexpr uint32_t SECS_PER_MINUTE{60U};
+    static constexpr uint32_t SECS_PER_HOUR{3600U};
+    static constexpr uint32_t HOURS_PER_DAY{24U};
+
+    static constexpr uint32_t MILLISECS_PER_SEC{1000U};
+    static constexpr uint32_t MICROSECS_PER_SEC{MILLISECS_PER_SEC * 1000U};
+
+    static constexpr uint32_t NANOSECS_PER_MICROSEC{1000U};
+    static constexpr uint32_t NANOSECS_PER_MILLISEC{NANOSECS_PER_MICROSEC * 1000U};
+    static constexpr uint32_t NANOSECS_PER_SEC{NANOSECS_PER_MILLISEC * 1000U};
+
+    static_assert(NANOSECS_PER_SEC == 1000U * MICROSECS_PER_SEC, "Mismatch in calculation for conversion constants!");
+
   private:
-    uint64_t m_seconds{0};
-    uint32_t m_nanoseconds{0};
+    uint64_t m_seconds{0U};
+    uint32_t m_nanoseconds{0U};
 };
 
 /// @brief creates Duration object by multiplying object T with a duration
