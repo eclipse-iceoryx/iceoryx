@@ -27,7 +27,8 @@ namespace iox
 namespace concurrent
 {
 /// @brief This class periodically executes a callable specified by the template parameter.
-///        This can be a struct with a `operator()()` overload, a `cxx::function_ref<void()>` or `std::fuction<void()>`
+///        This can be a struct with a `operator()()` overload, a `cxx::function_ref<void()>` or `std::fuction<void()>`.
+/// @note Currently execution time of the callable is added to the interval.
 /// @tparam T is a callable type without function parameters
 template <typename T>
 class PeriodicTask
