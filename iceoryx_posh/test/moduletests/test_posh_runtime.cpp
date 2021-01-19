@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -265,13 +265,17 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherMaxCapacity)
 {
+    // arrange
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 17U;
+
+    // act
     const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
                                                                  publisherOptions,
                                                                  m_nodeName,
                                                                  iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
+    // assert
     ASSERT_NE(nullptr, publisherPort);
     EXPECT_EQ(publisherPort->m_chunkSenderData.m_historyCapacity, 16U);
 }
