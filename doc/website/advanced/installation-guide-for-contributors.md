@@ -48,21 +48,24 @@ UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. Iceory
 
 In iceoryx are scripts available to do the scan on your own. Additionally the Scans are running on the CI in every Pull-Request.
 As Requirement you should install the clang compiler:
-```
+```bash
 sudo apt install clang
 ```
 
 Then you need to compile the iceoryx with the sanitizer flags:
-```
+```bash
 ./tools/iceoryx_build_test.sh build-strict build-all sanitize clang clean
 ```
 After that we can run the tests with enabled sanitizer options:
-```
+```bash
 cd build
 ../tools/run_all_tests.sh
 ```
 When the tests are running without errors then it is fine, else an error report is shown with a stacktrace to find the place where the leak occurs. If the leak comes from an external dependency or shall be handled later then it is possible to set a function on a suppression list.
 This should be only rarely used and only in coordination with an iceoryx maintainer.
+
+**NOTE**
+Iceoryx needs to be build as static library for working with sanitizer flags. The script does it automatically.
 
 ## Iceoryx library build
 
