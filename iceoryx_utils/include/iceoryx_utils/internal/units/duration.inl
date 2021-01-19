@@ -27,9 +27,10 @@ constexpr Duration Duration::nanoseconds(const T value)
 
     if (value < 0)
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
         return Duration{0U, 0U};
     }
-    return operator"" _ns(value);
+    return operator"" _ns(static_cast<unsigned long long int>(value));
 }
 template <typename T>
 constexpr Duration Duration::microseconds(const T value)
@@ -38,9 +39,10 @@ constexpr Duration Duration::microseconds(const T value)
 
     if (value < 0)
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
         return Duration{0U, 0U};
     }
-    return operator"" _us(value);
+    return operator"" _us(static_cast<unsigned long long int>(value));
 }
 template <typename T>
 constexpr Duration Duration::milliseconds(const T value)
@@ -49,9 +51,10 @@ constexpr Duration Duration::milliseconds(const T value)
 
     if (value < 0)
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
         return Duration{0U, 0U};
     }
-    return operator"" _ms(value);
+    return operator"" _ms(static_cast<unsigned long long int>(value));
 }
 template <typename T>
 constexpr Duration Duration::seconds(const T value)
@@ -60,9 +63,10 @@ constexpr Duration Duration::seconds(const T value)
 
     if (value < 0)
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
         return Duration{0U, 0U};
     }
-    return operator"" _s(value);
+    return operator"" _s(static_cast<unsigned long long int>(value));
 }
 template <typename T>
 constexpr Duration Duration::minutes(const T value)
@@ -71,9 +75,10 @@ constexpr Duration Duration::minutes(const T value)
 
     if (value < 0)
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
         return Duration{0U, 0U};
     }
-    return operator"" _m(value);
+    return operator"" _m(static_cast<unsigned long long int>(value));
 }
 template <typename T>
 constexpr Duration Duration::hours(const T value)
@@ -82,9 +87,10 @@ constexpr Duration Duration::hours(const T value)
 
     if (value < 0)
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
         return Duration{0U, 0U};
     }
-    return operator"" _h(value);
+    return operator"" _h(static_cast<unsigned long long int>(value));
 }
 template <typename T>
 constexpr Duration Duration::days(const T value)
@@ -93,9 +99,10 @@ constexpr Duration Duration::days(const T value)
 
     if (value < 0)
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
         return Duration{0U, 0U};
     }
-    return operator"" _d(value);
+    return operator"" _d(static_cast<unsigned long long int>(value));
 }
 
 
@@ -127,20 +134,12 @@ inline constexpr Duration::Duration(const struct itimerspec& value)
 
 inline constexpr Duration::Duration(const std::chrono::milliseconds& value)
 {
-    auto milliseconds = value.count();
-    if (milliseconds > 0)
-    {
-        *this = operator"" _ms(static_cast<unsigned long long int>(milliseconds));
-    }
+    *this = Duration::milliseconds(value.count());
 }
 
 inline constexpr Duration::Duration(const std::chrono::nanoseconds& value)
 {
-    auto nanoseconds = value.count();
-    if (nanoseconds > 0)
-    {
-        *this = operator"" _ns(static_cast<unsigned long long int>(nanoseconds));
-    }
+    *this = Duration::nanoseconds(value.count());
 }
 
 inline Duration& Duration::operator=(const std::chrono::milliseconds& right)
@@ -271,6 +270,7 @@ inline constexpr Duration Duration::operator-(const Duration& right) const
 {
     if (*this <= right)
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of subtraction would be negative, clamping to zero!" << std::endl;
         return Duration(0U, 0U);
     }
     auto seconds = m_seconds - right.m_seconds;
@@ -336,6 +336,8 @@ inline constexpr Duration Duration::operator*(const T& right) const
 
     if (right < static_cast<T>(0))
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
+                  << std::endl;
         return Duration{0U, 0U};
     }
 
@@ -351,6 +353,7 @@ inline constexpr Duration Duration::operator/(const T& right) const
 
     if (right < static_cast<T>(0))
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of division would be negative, clamping to zero!" << std::endl;
         return Duration{0U, 0U};
     }
 
@@ -414,6 +417,8 @@ inline constexpr Duration operator*(const T& left, const Duration& right)
 
     if (left < static_cast<T>(0))
     {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
+                  << std::endl;
         return Duration{0U, 0U};
     }
 
