@@ -21,7 +21,7 @@ namespace iox
 {
 namespace units
 {
-struct timespec Duration::timespec(const TimeSpecReference& reference) const
+struct timespec Duration::timespec(const TimeSpecReference& reference) const noexcept
 {
     if (reference == TimeSpecReference::None)
     {
@@ -52,7 +52,7 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
     }
 }
 
-std::ostream& operator<<(std::ostream& stream, const units::Duration& t)
+std::ostream& operator<<(std::ostream& stream, const units::Duration& t) noexcept
 {
     stream << t.m_seconds << "s " << t.m_nanoseconds << "ns ";
     return stream;

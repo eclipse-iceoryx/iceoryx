@@ -38,25 +38,25 @@ class Duration;
 inline namespace duration_literals
 {
 /// @brief Constructs a new Duration object from nanoseconds
-constexpr Duration operator"" _ns(unsigned long long int); // PRQA S 48
+constexpr Duration operator"" _ns(unsigned long long int) noexcept; // PRQA S 48
 
 /// @brief Constructs a new Duration object from microseconds
-constexpr Duration operator"" _us(unsigned long long int); // PRQA S 48
+constexpr Duration operator"" _us(unsigned long long int) noexcept; // PRQA S 48
 
 /// @brief Constructs a new Duration object from milliseconds
-constexpr Duration operator"" _ms(unsigned long long int); // PRQA S 48
+constexpr Duration operator"" _ms(unsigned long long int) noexcept; // PRQA S 48
 
 /// @brief Constructs a new Duration object from seconds
-constexpr Duration operator"" _s(unsigned long long int); // PRQA S 48
+constexpr Duration operator"" _s(unsigned long long int) noexcept; // PRQA S 48
 
 /// @brief Constructs a new Duration object from minutes
-constexpr Duration operator"" _m(unsigned long long int); // PRQA S 48
+constexpr Duration operator"" _m(unsigned long long int) noexcept; // PRQA S 48
 
 /// @brief Constructs a new Duration object from hours
-constexpr Duration operator"" _h(unsigned long long int); // PRQA S 48
+constexpr Duration operator"" _h(unsigned long long int) noexcept; // PRQA S 48
 
 /// @brief Constructs a new Duration object from days
-constexpr Duration operator"" _d(unsigned long long int); // PRQA S 48
+constexpr Duration operator"" _d(unsigned long long int) noexcept; // PRQA S 48
 } // namespace duration_literals
 
 /// @code
@@ -81,7 +81,7 @@ class Duration
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration nanoseconds(const T value);
+    static constexpr Duration nanoseconds(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from microseconds
     /// @tparam T is an integer type for the value
@@ -89,7 +89,7 @@ class Duration
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration microseconds(const T value);
+    static constexpr Duration microseconds(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from milliseconds
     /// @tparam T is an integer type for the value
@@ -97,7 +97,7 @@ class Duration
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration milliseconds(const T value);
+    static constexpr Duration milliseconds(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from seconds
     /// @tparam T is an integer type for the value
@@ -105,7 +105,7 @@ class Duration
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration seconds(const T value);
+    static constexpr Duration seconds(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from minutes
     /// @tparam T is an integer type for the value
@@ -113,7 +113,7 @@ class Duration
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration minutes(const T value);
+    static constexpr Duration minutes(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from hours
     /// @tparam T is an integer type for the value
@@ -121,7 +121,7 @@ class Duration
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration hours(const T value);
+    static constexpr Duration hours(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from days
     /// @tparam T is an integer type for the value
@@ -129,7 +129,7 @@ class Duration
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    static constexpr Duration days(const T value);
+    static constexpr Duration days(const T value) noexcept;
 
     // END CREATION FROM STATIC FUNCTIONS
 
@@ -138,36 +138,36 @@ class Duration
     /// @brief Constructs a Duration from seconds and nanoseconds
     /// @param[in] seconds portion of the duration
     /// @param[in] nanoseconds portion of the duration
-    constexpr Duration(const uint64_t seconds, const uint32_t nanoseconds);
+    constexpr Duration(const uint64_t seconds, const uint32_t nanoseconds) noexcept;
 
     /// @brief Construct a Duration object from timeval
     /// @param[in] value as timeval
-    constexpr explicit Duration(const struct timeval& value);
+    constexpr explicit Duration(const struct timeval& value) noexcept;
 
     /// @brief Construct a Duration object from timespec
     /// @param[in] value as timespec
-    constexpr explicit Duration(const struct timespec& value);
+    constexpr explicit Duration(const struct timespec& value) noexcept;
 
     /// @brief Construct a Duration object from itimerspec
     /// @param[in] value as itimerspec
     /// @note only it_interval from the itimerspec is used
-    constexpr explicit Duration(const struct itimerspec& value);
+    constexpr explicit Duration(const struct itimerspec& value) noexcept;
 
     /// @brief Construct a Duration object from std::chrono::milliseconds
     /// @param[in] value as milliseconds
     /// @attention since negative durations are not allowed, the duration will be capped to 0
-    constexpr explicit Duration(const std::chrono::milliseconds& value);
+    constexpr explicit Duration(const std::chrono::milliseconds& value) noexcept;
 
     /// @brief Construct a Duration object from std::chrono::nanoseconds
     /// @param[in] value as nanoseconds
     /// @attention since negative durations are not allowed, the duration will be capped to 0
-    constexpr explicit Duration(const std::chrono::nanoseconds& value);
+    constexpr explicit Duration(const std::chrono::nanoseconds& value) noexcept;
 
     /// @brief Assigns a std::chrono::milliseconds to an duration object
     /// @param[in] right hand side of the assignment
     /// @return a reference to the Duration object with the assigned millisecond value
     /// @attention since negative durations are not allowed, the duration will be capped to 0
-    Duration& operator=(const std::chrono::milliseconds& right);
+    Duration& operator=(const std::chrono::milliseconds& right) noexcept;
 
     // END CONSTRUCTORS AND ASSIGNMENT
 
@@ -176,32 +176,32 @@ class Duration
     /// @brief Equal to operator
     /// @param[in] right hand side of the comparison
     /// @return true if duration equal to right
-    constexpr bool operator==(const Duration& right) const;
+    constexpr bool operator==(const Duration& right) const noexcept;
 
     /// @brief Not equal to operator
     /// @param[in] right hand side of the comparison
     /// @return true if duration not equal to right
-    constexpr bool operator!=(const Duration& right) const;
+    constexpr bool operator!=(const Duration& right) const noexcept;
 
     /// @brief Less than operator
     /// @param[in] right hand side of the comparison
     /// @return true if duration is less than right
-    constexpr bool operator<(const Duration& right) const;
+    constexpr bool operator<(const Duration& right) const noexcept;
 
     /// @brief Less than or equal to operator
     /// @param[in] right hand side of the comparison
     /// @return true if duration is less than or equal to right
-    constexpr bool operator<=(const Duration& right) const;
+    constexpr bool operator<=(const Duration& right) const noexcept;
 
     /// @brief Greater than operator
     /// @param[in] right hand side of the comparison
     /// @return true if duration is greater than right
-    constexpr bool operator>(const Duration& right) const;
+    constexpr bool operator>(const Duration& right) const noexcept;
 
     /// @brief Greater than or equal to operator
     /// @param[in] right hand side of the comparison
     /// @return true if duration is greater than or equal to right
-    constexpr bool operator>=(const Duration& right) const;
+    constexpr bool operator>=(const Duration& right) const noexcept;
 
     // END COMPARISON
 
@@ -210,13 +210,13 @@ class Duration
     /// @brief creates Duration object by adding right
     /// @param[in] right is the second summand
     /// @return a new Duration object
-    constexpr Duration operator+(const Duration& right) const;
+    constexpr Duration operator+(const Duration& right) const noexcept;
 
     /// @brief creates Duration object by subtracting right
     /// @param[in] right is the subtrahend
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
-    constexpr Duration operator-(const Duration& right) const;
+    constexpr Duration operator-(const Duration& right) const noexcept;
 
     /// @brief creates Duration object by multiplication
     /// @tparam T is an arithmetic type for the multiplicator
@@ -224,14 +224,14 @@ class Duration
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     template <typename T>
-    constexpr Duration operator*(const T& right) const;
+    constexpr Duration operator*(const T& right) const noexcept;
 
     /// @brief creates Duration object by division
     /// @tparam T is an arithmetic type for the divisor
     /// @param[in] right is the divisor
     /// @return a new Duration object
     template <typename T>
-    constexpr Duration operator/(const T& right) const;
+    constexpr Duration operator/(const T& right) const noexcept;
 
     // END ARITHMETIC
 
@@ -239,70 +239,72 @@ class Duration
 
     /// @brief returns the duration in nanoseconds
     template <typename T>
-    constexpr T nanoSeconds() const;
+    constexpr T nanoSeconds() const noexcept;
 
     /// @brief returns the duration in microseconds
     template <typename T>
-    constexpr T microSeconds() const;
+    constexpr T microSeconds() const noexcept;
 
     /// @brief returns the duration in milliseconds
     template <typename T>
-    constexpr T milliSeconds() const;
+    constexpr T milliSeconds() const noexcept;
 
     /// @brief returns the duration in seconds
     template <typename T>
-    constexpr T seconds() const;
+    constexpr T seconds() const noexcept;
 
     /// @brief returns the duration in minutes
     template <typename T>
-    constexpr T minutes() const;
+    constexpr T minutes() const noexcept;
 
     /// @brief returns the duration in hours
     template <typename T>
-    constexpr T hours() const;
+    constexpr T hours() const noexcept;
 
     /// @brief returns the duration in days
     template <typename T>
-    constexpr T days() const;
+    constexpr T days() const noexcept;
 
     /// @brief converts duration in a timespec c struct
-    struct timespec timespec(const TimeSpecReference& reference = TimeSpecReference::None) const;
+    struct timespec timespec(const TimeSpecReference& reference = TimeSpecReference::None) const noexcept;
 
     /// @brief converts duration in a timeval c struct
     ///     timeval::tv_sec = seconds since the Epoch (01.01.1970)
     ///     timeval::tv_usec = microseconds
-    constexpr operator struct timeval() const;
+    constexpr operator struct timeval() const noexcept;
 
     // END CONVERSION
 
-    friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _us(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _ms(unsigned long long int); // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _s(unsigned long long int);  // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _m(unsigned long long int);  // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _h(unsigned long long int);  // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _d(unsigned long long int);  // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int) noexcept; // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _us(unsigned long long int) noexcept; // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _ms(unsigned long long int) noexcept; // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _s(unsigned long long int) noexcept;  // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _m(unsigned long long int) noexcept;  // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _h(unsigned long long int) noexcept;  // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _d(unsigned long long int) noexcept;  // PRQA S 48
 
     template <typename T>
-    friend constexpr Duration operator*(const T& left, const Duration& right);
+    friend constexpr Duration operator*(const T& left, const Duration& right) noexcept;
 
-    friend std::ostream& operator<<(std::ostream& stream, const Duration& t);
+    friend std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
 
   private:
     template <typename T>
     inline constexpr Duration
-    multiplySeconds(const uint64_t seconds, const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const;
+    multiplySeconds(const uint64_t seconds,
+                    const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const noexcept;
     template <typename T>
-    inline constexpr Duration multiplySeconds(const uint64_t seconds,
-                                              const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
+    inline constexpr Duration
+    multiplySeconds(const uint64_t seconds,
+                    const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const noexcept;
     template <typename T>
     inline constexpr Duration
     multiplyNanoseconds(const uint32_t nanoseconds,
-                        const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const;
+                        const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const noexcept;
     template <typename T>
     inline constexpr Duration
     multiplyNanoseconds(const uint32_t nanoseconds,
-                        const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const;
+                        const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const noexcept;
 
     static constexpr uint32_t SECS_PER_MINUTE{60U};
     static constexpr uint32_t SECS_PER_HOUR{3600U};
@@ -329,10 +331,10 @@ class Duration
 /// @return a new Duration object
 /// @attention since negative durations are not allowed, the duration will be capped to 0
 template <typename T>
-constexpr Duration operator*(const T& left, const Duration& right);
+constexpr Duration operator*(const T& left, const Duration& right) noexcept;
 
 /// @brief stream operator for the Duration class
-std::ostream& operator<<(std::ostream& stream, const Duration& t);
+std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
 
 } // namespace units
 } // namespace iox

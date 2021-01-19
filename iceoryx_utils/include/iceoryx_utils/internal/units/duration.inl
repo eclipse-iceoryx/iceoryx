@@ -21,7 +21,7 @@ namespace iox
 namespace units
 {
 template <typename T>
-constexpr Duration Duration::nanoseconds(const T value)
+constexpr Duration Duration::nanoseconds(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -33,7 +33,7 @@ constexpr Duration Duration::nanoseconds(const T value)
     return operator"" _ns(static_cast<unsigned long long int>(value));
 }
 template <typename T>
-constexpr Duration Duration::microseconds(const T value)
+constexpr Duration Duration::microseconds(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -45,7 +45,7 @@ constexpr Duration Duration::microseconds(const T value)
     return operator"" _us(static_cast<unsigned long long int>(value));
 }
 template <typename T>
-constexpr Duration Duration::milliseconds(const T value)
+constexpr Duration Duration::milliseconds(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -57,7 +57,7 @@ constexpr Duration Duration::milliseconds(const T value)
     return operator"" _ms(static_cast<unsigned long long int>(value));
 }
 template <typename T>
-constexpr Duration Duration::seconds(const T value)
+constexpr Duration Duration::seconds(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -69,7 +69,7 @@ constexpr Duration Duration::seconds(const T value)
     return operator"" _s(static_cast<unsigned long long int>(value));
 }
 template <typename T>
-constexpr Duration Duration::minutes(const T value)
+constexpr Duration Duration::minutes(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -81,7 +81,7 @@ constexpr Duration Duration::minutes(const T value)
     return operator"" _m(static_cast<unsigned long long int>(value));
 }
 template <typename T>
-constexpr Duration Duration::hours(const T value)
+constexpr Duration Duration::hours(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -93,7 +93,7 @@ constexpr Duration Duration::hours(const T value)
     return operator"" _h(static_cast<unsigned long long int>(value));
 }
 template <typename T>
-constexpr Duration Duration::days(const T value)
+constexpr Duration Duration::days(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -106,7 +106,7 @@ constexpr Duration Duration::days(const T value)
 }
 
 
-inline constexpr Duration::Duration(const uint64_t seconds, const uint32_t nanoseconds)
+inline constexpr Duration::Duration(const uint64_t seconds, const uint32_t nanoseconds) noexcept
     : m_seconds(seconds)
     , m_nanoseconds(nanoseconds)
 {
@@ -117,39 +117,39 @@ inline constexpr Duration::Duration(const uint64_t seconds, const uint32_t nanos
     }
 }
 
-inline constexpr Duration::Duration(const struct timeval& value)
+inline constexpr Duration::Duration(const struct timeval& value) noexcept
     : Duration(static_cast<uint64_t>(value.tv_sec), static_cast<uint32_t>(value.tv_usec) * NANOSECS_PER_MICROSEC)
 {
 }
 
-inline constexpr Duration::Duration(const struct timespec& value)
+inline constexpr Duration::Duration(const struct timespec& value) noexcept
     : Duration(static_cast<uint64_t>(value.tv_sec), static_cast<uint32_t>(value.tv_nsec))
 {
 }
 
-inline constexpr Duration::Duration(const struct itimerspec& value)
+inline constexpr Duration::Duration(const struct itimerspec& value) noexcept
     : Duration(value.it_interval)
 {
 }
 
-inline constexpr Duration::Duration(const std::chrono::milliseconds& value)
+inline constexpr Duration::Duration(const std::chrono::milliseconds& value) noexcept
 {
     *this = Duration::milliseconds(value.count());
 }
 
-inline constexpr Duration::Duration(const std::chrono::nanoseconds& value)
+inline constexpr Duration::Duration(const std::chrono::nanoseconds& value) noexcept
 {
     *this = Duration::nanoseconds(value.count());
 }
 
-inline Duration& Duration::operator=(const std::chrono::milliseconds& right)
+inline Duration& Duration::operator=(const std::chrono::milliseconds& right) noexcept
 {
     *this = Duration(right);
     return *this;
 }
 
 template <typename T>
-inline constexpr T Duration::nanoSeconds() const
+inline constexpr T Duration::nanoSeconds() const noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -158,7 +158,7 @@ inline constexpr T Duration::nanoSeconds() const
 }
 
 template <typename T>
-inline constexpr T Duration::microSeconds() const
+inline constexpr T Duration::microSeconds() const noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -167,7 +167,7 @@ inline constexpr T Duration::microSeconds() const
 }
 
 template <typename T>
-inline constexpr T Duration::milliSeconds() const
+inline constexpr T Duration::milliSeconds() const noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -176,7 +176,7 @@ inline constexpr T Duration::milliSeconds() const
 }
 
 template <typename T>
-inline constexpr T Duration::seconds() const
+inline constexpr T Duration::seconds() const noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -186,7 +186,7 @@ inline constexpr T Duration::seconds() const
 }
 
 template <typename T>
-inline constexpr T Duration::minutes() const
+inline constexpr T Duration::minutes() const noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -196,7 +196,7 @@ inline constexpr T Duration::minutes() const
 }
 
 template <typename T>
-inline constexpr T Duration::hours() const
+inline constexpr T Duration::hours() const noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -206,7 +206,7 @@ inline constexpr T Duration::hours() const
 }
 
 template <typename T>
-inline constexpr T Duration::days() const
+inline constexpr T Duration::days() const noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
@@ -215,44 +215,44 @@ inline constexpr T Duration::days() const
     return static_cast<T>(m_seconds / (HOURS_PER_DAY * SECS_PER_HOUR));
 }
 
-inline constexpr Duration::operator timeval() const
+inline constexpr Duration::operator timeval() const noexcept
 {
     using SEC_TYPE = decltype(timeval::tv_sec);
     using USEC_TYPE = decltype(timeval::tv_usec);
     return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
 }
 
-inline constexpr bool Duration::operator==(const Duration& right) const
+inline constexpr bool Duration::operator==(const Duration& right) const noexcept
 {
     return (m_seconds == right.m_seconds) && (m_nanoseconds == right.m_nanoseconds);
 }
 
-inline constexpr bool Duration::operator!=(const Duration& right) const
+inline constexpr bool Duration::operator!=(const Duration& right) const noexcept
 {
     return !(*this == right);
 }
 
-inline constexpr bool Duration::operator<(const Duration& right) const
+inline constexpr bool Duration::operator<(const Duration& right) const noexcept
 {
     return (m_seconds < right.m_seconds) || ((m_seconds == right.m_seconds) && (m_nanoseconds < right.m_nanoseconds));
 }
 
-inline constexpr bool Duration::operator<=(const Duration& right) const
+inline constexpr bool Duration::operator<=(const Duration& right) const noexcept
 {
     return (m_seconds < right.m_seconds) || ((m_seconds == right.m_seconds) && (m_nanoseconds <= right.m_nanoseconds));
 }
 
-inline constexpr bool Duration::operator>(const Duration& right) const
+inline constexpr bool Duration::operator>(const Duration& right) const noexcept
 {
     return (m_seconds > right.m_seconds) || ((m_seconds == right.m_seconds) && (m_nanoseconds > right.m_nanoseconds));
 }
 
-inline constexpr bool Duration::operator>=(const Duration& right) const
+inline constexpr bool Duration::operator>=(const Duration& right) const noexcept
 {
     return (m_seconds > right.m_seconds) || ((m_seconds == right.m_seconds) && (m_nanoseconds >= right.m_nanoseconds));
 }
 
-inline constexpr Duration Duration::operator+(const Duration& right) const
+inline constexpr Duration Duration::operator+(const Duration& right) const noexcept
 {
     /// @todo decide if we want an overflow or saturation
 
@@ -266,7 +266,7 @@ inline constexpr Duration Duration::operator+(const Duration& right) const
     return Duration{seconds, nanoseconds};
 }
 
-inline constexpr Duration Duration::operator-(const Duration& right) const
+inline constexpr Duration Duration::operator-(const Duration& right) const noexcept
 {
     if (*this <= right)
     {
@@ -290,7 +290,7 @@ inline constexpr Duration Duration::operator-(const Duration& right) const
 template <typename T>
 inline constexpr Duration
 Duration::multiplySeconds(const uint64_t seconds,
-                          const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const
+                          const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const noexcept
 {
     // specialization is needed to prevent a clang warning if `right` is a signed integer and not casted to unsigned
     // operator*(...) takes care of negative values for right
@@ -300,7 +300,7 @@ Duration::multiplySeconds(const uint64_t seconds,
 template <typename T>
 inline constexpr Duration
 Duration::multiplySeconds(const uint64_t seconds,
-                          const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const
+                          const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const noexcept
 {
     // operator*(...) takes care of negative values for right
     auto result = seconds * right;
@@ -313,7 +313,7 @@ Duration::multiplySeconds(const uint64_t seconds,
 template <typename T>
 inline constexpr Duration
 Duration::multiplyNanoseconds(const uint32_t nanoseconds,
-                              const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const
+                              const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const noexcept
 {
     // specialization is needed to prevent a clang warning if `right` is a signed integer and not casted to unsigned
     // operator*(...) takes care of negative values for right
@@ -323,14 +323,14 @@ Duration::multiplyNanoseconds(const uint32_t nanoseconds,
 template <typename T>
 inline constexpr Duration
 Duration::multiplyNanoseconds(const uint32_t nanoseconds,
-                              const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const
+                              const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const noexcept
 {
     // operator*(...) takes care of negative values for right
     return Duration::nanoseconds(static_cast<uint64_t>(nanoseconds * right));
 }
 
 template <typename T>
-inline constexpr Duration Duration::operator*(const T& right) const
+inline constexpr Duration Duration::operator*(const T& right) const noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
@@ -347,7 +347,7 @@ inline constexpr Duration Duration::operator*(const T& right) const
 }
 
 template <typename T>
-inline constexpr Duration Duration::operator/(const T& right) const
+inline constexpr Duration Duration::operator/(const T& right) const noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
@@ -367,43 +367,43 @@ inline constexpr Duration Duration::operator/(const T& right) const
 
 inline namespace duration_literals
 {
-inline constexpr Duration operator"" _ns(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept // PRQA S 48
 {
     auto seconds = static_cast<uint64_t>(value / Duration::NANOSECS_PER_SEC);
     auto nanoseconds = static_cast<uint32_t>(value % Duration::NANOSECS_PER_SEC);
     return Duration{seconds, nanoseconds};
 }
 
-inline constexpr Duration operator"" _us(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _us(unsigned long long int value) noexcept // PRQA S 48
 {
     auto seconds = static_cast<uint64_t>(value / Duration::MICROSECS_PER_SEC);
     auto nanoseconds = static_cast<uint32_t>((value % Duration::MICROSECS_PER_SEC) * Duration::NANOSECS_PER_MICROSEC);
     return Duration{seconds, nanoseconds};
 }
 
-inline constexpr Duration operator"" _ms(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept // PRQA S 48
 {
     auto seconds = static_cast<uint64_t>(value / Duration::MILLISECS_PER_SEC);
     auto nanoseconds = static_cast<uint32_t>((value % Duration::MILLISECS_PER_SEC) * Duration::NANOSECS_PER_MILLISEC);
     return Duration{seconds, nanoseconds};
 }
 
-inline constexpr Duration operator"" _s(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _s(unsigned long long int value) noexcept // PRQA S 48
 {
     return Duration{static_cast<uint64_t>(value), 0U};
 }
 
-inline constexpr Duration operator"" _m(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _m(unsigned long long int value) noexcept // PRQA S 48
 {
     return Duration{static_cast<uint64_t>(value * Duration::SECS_PER_MINUTE), 0U};
 }
 
-inline constexpr Duration operator"" _h(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _h(unsigned long long int value) noexcept // PRQA S 48
 {
     return Duration{static_cast<uint64_t>(value * Duration::SECS_PER_HOUR), 0U};
 }
 
-inline constexpr Duration operator"" _d(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _d(unsigned long long int value) noexcept // PRQA S 48
 {
     return Duration{static_cast<uint64_t>(value * Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR), 0U};
 }
@@ -411,7 +411,7 @@ inline constexpr Duration operator"" _d(unsigned long long int value) // PRQA S 
 } // namespace duration_literals
 
 template <typename T>
-inline constexpr Duration operator*(const T& left, const Duration& right)
+inline constexpr Duration operator*(const T& left, const Duration& right) noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
