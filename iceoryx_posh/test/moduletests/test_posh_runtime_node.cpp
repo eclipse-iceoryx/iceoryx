@@ -55,7 +55,7 @@ class PoshRuntimeNode_test : public Test
     {
     };
 
-    const ProcessName_t m_runtimeName{"publisher"};
+    const ProcessName_t m_runtimeName{"App"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
 };
@@ -71,9 +71,7 @@ TEST_F(PoshRuntimeNode_test, CreateNode)
 TEST_F(PoshRuntimeNode_test, NodeOperator)
 {
     const NodeName_t& nodeNewName{"NewNode"};
-//    const NodeName_t& nodeNewNameTest{"NewNodeTest"};
     Node m_node("Node");
-
     m_node = Node("NewNode");
 
     EXPECT_THAT(m_node.getNodeName(), Eq(nodeNewName));
