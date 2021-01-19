@@ -42,25 +42,38 @@ class IceoryxRoudiMemoryManager_test : public Test
     }
 };
 
+/// @brief test to check constructor
+TEST_F(IceoryxRoudiMemoryManager_test, ConstructorSuccess)
+{
+    EXPECT_THAT(m_roudiMemoryManagerTest, Not(Eq(nullptr)));
+}
+
 /// @brief test to check function introspectionMemoryManager
-TEST_F(IceoryxRoudiMemoryManager_test, IntrospectionMemoryManagerNotInitialized)
+TEST_F(IceoryxRoudiMemoryManager_test, IntrospectionMemoryManagerNulloptWhenNotPresent)
 {
     auto result = m_roudiMemoryManagerTest->introspectionMemoryManager();
     EXPECT_THAT(result, Eq(iox::cxx::nullopt_t()));
 }
 
 /// @brief test to check function segmentManager
-TEST_F(IceoryxRoudiMemoryManager_test, segmentManagerNotInitialized)
+TEST_F(IceoryxRoudiMemoryManager_test, segmentManagerNulloptWhenNotPresent)
 {
     auto resultTest = m_roudiMemoryManagerTest->segmentManager();
     EXPECT_THAT(resultTest, Eq(iox::cxx::nullopt_t()));
 }
 
 /// @brief test to check function portPool
-TEST_F(IceoryxRoudiMemoryManager_test, portPoolNotInitialized)
+TEST_F(IceoryxRoudiMemoryManager_test, portPoolNulloptWhenNotPresent)
 {
     auto testResult = m_roudiMemoryManagerTest->portPool();
     EXPECT_THAT(testResult, Eq(iox::cxx::nullopt_t()));
+}
+
+/// @brief test to check function createAndAnnouceMemory
+TEST_F(IceoryxRoudiMemoryManager_test, createAndAnnouceMemorySuccess)
+{
+    auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+    EXPECT_THAT(testResult.has_error(), Eq(false));
 }
 
 } // namespace test 
