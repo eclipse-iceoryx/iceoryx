@@ -16,10 +16,10 @@
 #define IOX_UTILS_CXX_FORWARD_LIST_HPP
 
 #include <cstdint>
+#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
 #include <iostream>
 
 #include "iceoryx_utils/platform/platform_correction.hpp"
-#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
 
 namespace iox
 {

@@ -1189,3 +1189,9 @@ TEST_F(vector_test, PartiallyEqualVectorsWithDifferentCapacityAreNotEqual)
     EXPECT_FALSE(a == b);
     EXPECT_TRUE(a != b);
 }
+
+TEST_F(vector_test, MemoryEfficientImplementation)
+{
+    vector<uint8_t, 0> sut0;
+    EXPECT_THAT(sizeof(sut0), Eq(1U));
+}

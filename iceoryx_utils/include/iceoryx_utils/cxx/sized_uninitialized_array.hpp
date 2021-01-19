@@ -15,7 +15,7 @@
 #ifndef ICEORYX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_HPP
 #define ICEORYX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_HPP
 
-#include "iceoryx_utils/cxx/uninitialized_array.hpp"
+#include "iceoryx_utils/cxx/sized_container.hpp"
 #include <cstdint>
 
 namespace iox
@@ -23,36 +23,38 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-class SizedUninitializedArray;
-
-template <typename T>
-class SizedUninitializedArray<T, 0U>;
-
-template <typename T, uint64_t Capacity>
-class SizedUninitializedArray : public UninitializedArray<T, Capacity>
+class SizedUninitializedArray : public SizedContainer<T, Capacity>
 {
   public:
+    using value_type = T;
+    using size_type = decltype(Capacity);
+
     SizedUninitializedArray() = default;
 
-    /// @brief returns the number of elements which are currently stored in the
-    ///         vector
-    uint64_t size() const noexcept;
+    /// @brief return the pointer to the underlying array
+    /// @return pointer to underlying array
+    ///          If the vector is empty it returns nullptr
+    T* data() noexcept;
 
-    /// @brief update the size
-    /// @param [in] newSize new number of elements which are currently stored in the
-    ///         vector.
-    void set_size(uint64_t newSize) noexcept;
+    /// @brief return the const pointer to the underlying array
+    /// @return const pointer to underlying array
+    const T* data() const noexcept;
 
-    /// @brief returns whether the data structure is empty
-    /// @return true, if it contains no elements, false otherwise
-    bool empty() const noexcept;
 
-    /// @brief returns whether the data structure is completely full
-    /// @return true, if filled with max_size() elements, false otherwise
-    bool full() const noexcept;
+    /// @brief returns the capacity, which was given via the template argument,
+    ///         i.e., the maximum number of elements it can hold
+    uint64_t capacity() const noexcept;
+
+    /// @brief returns the capacity, which was given via the template argument,
+    ///         i.e., the maximum number of elements it can hold (same as capacity())
+    uint64_t max_size() const noexcept;
+
+
+  protected:
+    using element_t = uint8_t[Capacity == 0 ? 1 : sizeof(T)];
 
   private:
-    uint64_t m_size{0u};
+    alignas(Capacity == 0 ? 1 : alignof(T)) element_t m_data[Capacity == 0 ? 1 : Capacity];
 };
 
 } // namespace cxx

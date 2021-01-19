@@ -14,10 +14,10 @@
 #ifndef IOX_UTILS_CXX_VECTOR_HPP
 #define IOX_UTILS_CXX_VECTOR_HPP
 
-#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
+#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
 #include <utility>
 
 namespace iox
@@ -38,6 +38,7 @@ class vector : public SizedUninitializedArray<T, Capacity>
     typedef const value_type& const_reference;
     typedef pointer iterator;
     typedef const_pointer const_iterator;
+    typedef decltype(Capacity) size_type;
 
     /// @brief creates an empty vector
     vector() = default;
@@ -163,7 +164,7 @@ class vector : public SizedUninitializedArray<T, Capacity>
     iterator erase(const uint64_t index);
 
   private:
-    using element_t = typename UninitializedArray<T, Capacity>::element_t;
+    using element_t = typename SizedUninitializedArray<T, Capacity>::element_t;
 };
 } // namespace cxx
 } // namespace iox

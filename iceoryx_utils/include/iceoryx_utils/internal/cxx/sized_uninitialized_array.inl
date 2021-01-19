@@ -21,55 +21,30 @@ namespace iox
 {
 namespace cxx
 {
-// Generic implementation for Capacity > 0
 template <typename T, uint64_t Capacity>
-inline uint64_t SizedUninitializedArray<T, Capacity>::size() const noexcept
+inline uint64_t SizedUninitializedArray<T, Capacity>::capacity() const noexcept
 {
-    return m_size;
+    return Capacity;
 }
 
 template <typename T, uint64_t Capacity>
-inline void SizedUninitializedArray<T, Capacity>::set_size(uint64_t newSize) noexcept
+inline uint64_t SizedUninitializedArray<T, Capacity>::max_size() const noexcept
 {
-    m_size = newSize;
+    return Capacity;
 }
 
 template <typename T, uint64_t Capacity>
-inline bool SizedUninitializedArray<T, Capacity>::empty() const noexcept
+inline T* SizedUninitializedArray<T, Capacity>::data() noexcept
 {
-    return (m_size == 0U);
+    return reinterpret_cast<T*>(m_data);
 }
 
 template <typename T, uint64_t Capacity>
-inline bool SizedUninitializedArray<T, Capacity>::full() const noexcept
+inline const T* SizedUninitializedArray<T, Capacity>::data() const noexcept
 {
-    return (m_size >= Capacity);
+    return reinterpret_cast<const T*>(m_data);
 }
 
-// Specialization for Capacity 0, where m_size is not needed
-template <typename T>
-class SizedUninitializedArray<T, 0U> : public UninitializedArray<T, 0U>
-{
-  public:
-    inline uint64_t size() const noexcept
-    {
-        return 0u;
-    }
-
-    inline void set_size(uint64_t newSize [[gnu::unused]]) noexcept
-    {
-    }
-
-    inline bool empty() const noexcept
-    {
-        return true;
-    }
-
-    inline bool full() const noexcept
-    {
-        return true;
-    }
-};
 
 } // namespace cxx
 } // namespace iox
