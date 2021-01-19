@@ -223,15 +223,10 @@ class Duration
     /// @param[in] right is the multiplicator
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @note there is no explicit division operator, if you want a fraction of of a Duration, either multiply with the
+    /// inverse of the divisor
     template <typename T>
     constexpr Duration operator*(const T& right) const noexcept;
-
-    /// @brief creates Duration object by division
-    /// @tparam T is an arithmetic type for the divisor
-    /// @param[in] right is the divisor
-    /// @return a new Duration object
-    template <typename T>
-    constexpr Duration operator/(const T& right) const noexcept;
 
     // END ARITHMETIC
 

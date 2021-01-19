@@ -346,25 +346,6 @@ inline constexpr Duration Duration::operator*(const T& right) const noexcept
     return multiplySeconds<T>(m_seconds, right) + multiplyNanoseconds<T>(m_nanoseconds, right);
 }
 
-template <typename T>
-inline constexpr Duration Duration::operator/(const T& right) const noexcept
-{
-    static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
-
-    if (right < static_cast<T>(0))
-    {
-        std::clog << __PRETTY_FUNCTION__ << ": Result of division would be negative, clamping to zero!" << std::endl;
-        return Duration{0U, 0U};
-    }
-
-    auto result = m_seconds / right;
-    double seconds{0.0};
-    double secondsFraction = modf(result, &seconds);
-    auto nanoseconds =
-        static_cast<uint64_t>(secondsFraction * NANOSECS_PER_SEC) + static_cast<uint64_t>(m_nanoseconds / right);
-    return Duration(static_cast<uint64_t>(seconds), 0U) + Duration::nanoseconds(nanoseconds);
-}
-
 inline namespace duration_literals
 {
 inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept // PRQA S 48

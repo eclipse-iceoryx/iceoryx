@@ -702,16 +702,4 @@ TEST(Duration_test, MultiplyDuration)
     EXPECT_THAT(time * -1.0, Eq(0_s));
 }
 
-TEST(Duration_test, DivideDuration)
-{
-    auto time = 4_s + 800_ms;
-
-    EXPECT_THAT(time / 2, Eq(2_s + 400_ms));
-    EXPECT_THAT(time / 2U, Eq(2_s + 400_ms));
-    EXPECT_THAT(time / 2.5, Eq(1_s + 920_ms));
-
-    EXPECT_THAT(time / -1, Eq(0_s));
-    EXPECT_THAT(time / -1.0, Eq(0_s));
-}
-
 // END ARITHMETIC TESTS
