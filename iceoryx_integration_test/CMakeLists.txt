@@ -24,8 +24,9 @@ find_package(cpptoml REQUIRED)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in further dependencies
-# manually. find_package(<dependency> REQUIRED)
+find_package(launch_testing_ament_cmake)
+
+add_launch_test(test/simple_roudi_test.py)
 
 add_executable(integrationtest src/integrationtest.cpp)
 target_include_directories(
@@ -53,7 +54,8 @@ target_include_directories(
           $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
           $<INSTALL_INTERFACE:include/${PREFIX}>)
 
-install(TARGETS integrationtest iox-roudi DESTINATION bin/${PROJECT_NAME})
+# We need to install it in lib folder because ros2 search in this folder for executables
+install(TARGETS integrationtest iox-roudi DESTINATION lib/${PROJECT_NAME})
 
 # Install launch files.
 install(DIRECTORY
@@ -63,11 +65,6 @@ install(DIRECTORY
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights uncomment
-  # the line when a copyright and license is not present in all source files
-  # set(ament_cmake_copyright_FOUND TRUE) the following line skips cpplint (only
-  # works in a git repo) uncomment the line when this package is not in a git
-  # repo set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 
