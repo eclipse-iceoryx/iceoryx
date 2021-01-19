@@ -111,7 +111,14 @@ bool AccessController::addPermissionEntry(const Category f_category,
         }
 
         auto id = posix::PosixUser::getUserID(f_name);
-        id.has_value() ? return addPermissionEntry(f_category, f_permission, id.value()) : return false;
+        if (!id.has_value())
+        {
+            return false;
+        }
+        else
+        {
+            return addPermissionEntry(f_category, f_permission, id.value());
+        }
 
         break;
     }
@@ -124,7 +131,14 @@ bool AccessController::addPermissionEntry(const Category f_category,
         }
 
         auto id = posix::PosixGroup::getGroupID(f_name);
-        id.has_value() ? return addPermissionEntry(f_category, f_permission, id.value()) : return false;
+        if (!id.has_value())
+        {
+            return false;
+        }
+        else
+        {
+            return addPermissionEntry(f_category, f_permission, id.value());
+        }
 
         break;
     }
