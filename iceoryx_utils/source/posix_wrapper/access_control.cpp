@@ -104,45 +104,29 @@ bool AccessController::addPermissionEntry(const Category f_category,
     {
     case Category::SPECIFIC_USER:
     {
-        bool result{false};
         if (f_name.empty())
         {
             std::cerr << "Error: specific users must have an explicit name." << std::endl;
-            result = false;
+            return false;
         }
 
         auto id = posix::PosixUser::getUserID(f_name);
-        if (!id.has_value())
-        {
-            result = false;
-        }
-        else
-        {
-            result = addPermissionEntry(f_category, f_permission, id.value());
-        }
+        id.has_value() ? return addPermissionEntry(f_category, f_permission, id.value()) : return false;
 
-        return result;
+        break;
     }
     case Category::SPECIFIC_GROUP:
     {
-        bool result{false};
         if (f_name.empty())
         {
             std::cerr << "Error: specific groups must have an explicit name." << std::endl;
-            result = false;
+            return false;
         }
 
         auto id = posix::PosixGroup::getGroupID(f_name);
-        if (!id.has_value())
-        {
-            result = false;
-        }
-        else
-        {
-            result = addPermissionEntry(f_category, f_permission, id.value());
-        }
+        id.has_value() ? return addPermissionEntry(f_category, f_permission, id.value()) : return false;
 
-        return result;
+        break;
     }
     default:
     {

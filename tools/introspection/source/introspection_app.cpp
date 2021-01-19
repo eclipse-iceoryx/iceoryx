@@ -339,13 +339,12 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         constexpr int32_t indentation{2};
         constexpr char indentationString[indentation + 1] = "  ";
 
-        auto stringSize = data.size();
+        auto strSize = data.size();
         if (currentLine == 0U)
         {
             stream << std::left << std::setw(maxSize) << data.substr(0U, static_cast<size_t>(maxSize));
         }
-        else if (stringSize
-                 > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
+        else if (strSize > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
         {
             const auto startPosition =
                 static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
@@ -358,19 +357,13 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             stream << std::left << std::setw(maxSize) << "";
         }
 
-        needsLineBreak |=
-            (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
+        needsLineBreak |= (strSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
 
         return stream.str();
     };
 
     for (auto& publisherPort : publisherPortData)
     {
-        // std::string m_sampleSize{std::to_string(publisherPort.throughputData->m_sampleSize)};
-        // std::string m_chunkSize{std::to_string(publisherPort.throughputData->m_chunkSize)};
-        // std::string m_chunksPerMinute{std::to_string(publisherPort.throughputData->m_chunksPerMinute)};
-        // std::string sendInterval{
-        //     std::to_string(publisherPort.throughputData->m_lastSendIntervalInNanoseconds / 1000000)};
         std::string m_sampleSize{"n/a"};
         std::string m_chunkSize{"n/a"};
         std::string m_chunksPerMinute{"n/a"};

@@ -51,6 +51,10 @@ class FileReader_test : public Test
         {
             fs << TestFileContent;
         }
+        else
+        {
+            ASSERT_STREQ("expected open fstream", "fstream not open");
+        }
         fs.close();
     }
     void TearDown()
