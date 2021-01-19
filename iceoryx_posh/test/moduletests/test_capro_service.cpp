@@ -38,15 +38,22 @@ class ServiceDescription_test : public Test
     ServiceDescription csd1 = ServiceDescription(1, 2, 3);
     ServiceDescription csd1Eq = ServiceDescription(testAnyServiceID, 2, 3);
     ServiceDescription csd1Ne = ServiceDescription(testAnyServiceID, 9, 3);
-    ServiceDescription csd2 = ServiceDescription(1, testAnyEventID, 3);
-    ServiceDescription csd2Eq = ServiceDescription(1, 2, 3);
-    ServiceDescription csd2Ne = ServiceDescription(1, 2, 9);
-    ServiceDescription csd3 = ServiceDescription(1, 2, testAnyInstanceID);
+    ServiceDescription csd2 = ServiceDescription(1, 2, 3);
+    ServiceDescription csd2Eq = ServiceDescription(1, testAnyEventID, 3);
+    ServiceDescription csd2Ne = ServiceDescription(9, testAnyEventID,3);
+    ServiceDescription csd3 = ServiceDescription(1, 2, 3);
     ServiceDescription csd3Eq = ServiceDescription(1, 2, testAnyInstanceID);
-    ServiceDescription csd3Ne = ServiceDescription(9, 2, testAnyInstanceID);
+    ServiceDescription csd3Ne = ServiceDescription(1, 9, testAnyInstanceID);
     ServiceDescription csd4 = ServiceDescription(1, 2, 3);
     ServiceDescription csd4Eq = ServiceDescription(1, 2, 3);
     ServiceDescription csd4Ne = ServiceDescription(9, 9, 9);
+    ServiceDescription csd5 = ServiceDescription(testAnyServiceID, testAnyEventID, testAnyInstanceID);
+    ServiceDescription csd6 = ServiceDescription(testAnyServiceID, testAnyEventID, testAnyInstanceID);
+    ServiceDescription csd6Eq = ServiceDescription(testAnyServiceID, testAnyEventID, testAnyServiceID);
+    ServiceDescription csd7 = ServiceDescription(1, 2, 3);
+    ServiceDescription csd7Eq = ServiceDescription(4, 5, 6);
+    ServiceDescription csd8 = ServiceDescription(1, 7, 8);
+    ServiceDescription csd9 = ServiceDescription(1, 7, 9);
     ServiceDescription csdIdStr = ServiceDescription(service1, instance1, event1);
     void SetUp(){};
     void TearDown(){};
@@ -130,32 +137,69 @@ TEST_F(ServiceDescription_test, CtorNoParams)
 
 TEST_F(ServiceDescription_test, CtorIDStrings)
 {
-    IdString_t testService("Service");
-    IdString_t testInstance("Instance");
-    IdString_t testEvent("Event");
+    IdString_t testService1("Service");
+    IdString_t testInstance1("Instance");
+    IdString_t testEvent1("Event");
+    IdString_t testService2("65536");
+    IdString_t testInstance2("65536");
+    IdString_t testEvent2("65536");
     ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
-    ServiceDescription csd = ServiceDescription(testService, testInstance, testEvent, testHash);
-
-    EXPECT_THAT(csd.getServiceIDString(), StrEq("Service"));
-    EXPECT_THAT(csd.getInstanceIDString(), StrEq("Instance"));
-    EXPECT_THAT(csd.getEventIDString(), StrEq("Event"));
-    EXPECT_EQ(uint32_t(1), csd.getClassHash()[0]);
-    EXPECT_EQ(uint32_t(2), csd.getClassHash()[1]);
-    EXPECT_EQ(uint32_t(3), csd.getClassHash()[2]);
-    EXPECT_EQ(uint32_t(4), csd.getClassHash()[3]);
+    ServiceDescription csd1 = ServiceDescription(testService1, testInstance1, testEvent1, testHash);
+    ServiceDescription csd2 = ServiceDescription(testService2, testInstance2, testEvent2, testHash);
+    EXPECT_THAT(csd1.getServiceIDString(), StrEq("Service"));
+    EXPECT_THAT(csd1.getInstanceIDString(), StrEq("Instance"));
+    EXPECT_THAT(csd1.getEventIDString(), StrEq("Event"));
+    EXPECT_EQ(uint32_t(1), csd1.getClassHash()[0]);
+    EXPECT_EQ(uint32_t(2), csd1.getClassHash()[1]);
+    EXPECT_EQ(uint32_t(3), csd1.getClassHash()[2]);
+    EXPECT_EQ(uint32_t(4), csd1.getClassHash()[3]);
+    EXPECT_THAT(csd2.getServiceIDString(), StrEq("65536"));
+    EXPECT_THAT(csd2.getInstanceIDString(), StrEq("65536"));
+    EXPECT_THAT(csd2.getEventIDString(), StrEq("65536"));
+    EXPECT_EQ(uint32_t(1), csd2.getClassHash()[0]);
+    EXPECT_EQ(uint32_t(2), csd2.getClassHash()[1]);
+    EXPECT_EQ(uint32_t(3), csd2.getClassHash()[2]);
+    EXPECT_EQ(uint32_t(4), csd2.getClassHash()[3]);
 }
 
 TEST_F(ServiceDescription_test, operatorEq)
 {
-    EXPECT_TRUE(csd1 == csd1Eq);
-    EXPECT_TRUE(csd2 == csd2Eq);
-    EXPECT_TRUE(csd3 == csd3Eq);
-    EXPECT_TRUE(csd4 == csd4Eq);
+    ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
+    auto serialObj1 = iox::cxx::Serialization::create("1",
+                                                     instance1.c_str(),
+                                                     event1.c_str(),
+                                                     1,
+                                                     3,
+                                                     2,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
+    auto serialObj2 = iox::cxx::Serialization::create("1",
+                                                     "3",
+                                                     event1.c_str(),
+                                                     1,
+                                                     3,
+                                                     2,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);   
+    ServiceDescription csd10 = ServiceDescription(serialObj1);                                              
+    ServiceDescription csd11 = ServiceDescription(serialObj2);
 
-    EXPECT_FALSE(csd1 == csd1Ne);
-    EXPECT_FALSE(csd2 == csd2Ne);
-    EXPECT_FALSE(csd3 == csd3Ne);
-    EXPECT_FALSE(csd4 == csd4Ne);
+    EXPECT_TRUE(csd6 == csd6Eq);
+    EXPECT_TRUE(csd6 == csd7);
+    EXPECT_TRUE(csd7 == csd6);
+    EXPECT_FALSE(csd7 == csd7Eq);
+    EXPECT_FALSE(csd7 == csd8);
+    EXPECT_FALSE(csd8 == csd7);
+    EXPECT_FALSE(csd7 == csd9);
+    EXPECT_FALSE(csd9 == csd7);
+    EXPECT_FALSE(csd7 == csd11);
+    EXPECT_FALSE(csd7 == csd10);
 }
 
 TEST_F(ServiceDescription_test, operatorNe)
