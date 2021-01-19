@@ -29,17 +29,16 @@ namespace test
 class IceoryxRoudiMemoryManager_test : public Test
 {
   public:
-    IceOryxRouDiMemoryManager* m_roudiMemoryManagerTest{nullptr};
+    std::unique_ptr<IceOryxRouDiMemoryManager> m_roudiMemoryManagerTest;
 
     void SetUp() override
     {
       auto config = iox::RouDiConfig_t().setDefaults();
-      m_roudiMemoryManagerTest = new IceOryxRouDiMemoryManager(config);
+      m_roudiMemoryManagerTest = std::unique_ptr<IceOryxRouDiMemoryManager>(new IceOryxRouDiMemoryManager(config));
     }
 
     void TearDown() override
     {
-  delete m_roudiMemoryManagerTest;
     }
 };
 
