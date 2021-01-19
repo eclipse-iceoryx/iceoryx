@@ -183,7 +183,7 @@ while (( "$#" )); do
         echo "    build-all             Build all extensions and all examples"
         echo "    out-of-tree           Out-of-tree build for CI build"
         echo "    build-strict          Build is performed with '-Werror'"
-        echo "    bbuild-shared         Build shared libs (iceoryx is build as static lib per default)"
+        echo "    build-shared         Build shared libs (iceoryx is build as static lib per default)"
         echo "    build-test            Builds all tests (doesn't run)"
         echo "    package               Creates a debian package from clean build in build_package"
         echo "    test                  Builds and runs all tests in all iceoryx components"
