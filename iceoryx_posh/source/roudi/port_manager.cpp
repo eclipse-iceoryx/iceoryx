@@ -507,9 +507,7 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
         sendToAllMatchingInterfacePorts(caproMessage);
     });
 
-    m_portIntrospection.removePublisher(publisherPortRoudi.getProcessName(),
-                                        publisherPortRoudi.getCaProServiceDescription(),
-                                        publisherPortRoudi.getNodeName());
+    m_portIntrospection.removePublisher(publisherPortUser);
 
     // delete publisher port from list after STOP_OFFER was processed
     m_portPool->removePublisherPort(publisherPortData);
@@ -534,8 +532,7 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
         sendToAllMatchingPublisherPorts(caproMessage, subscriberPortRoudi);
     });
 
-    m_portIntrospection.removeSubscriber(subscriberPortRoudi.getProcessName(),
-                                         subscriberPortRoudi.getCaProServiceDescription());
+    m_portIntrospection.removeSubscriber(subscriberPortUser);
     // delete subscriber port from list after UNSUB was processed
     m_portPool->removeSubscriberPort(subscriberPortData);
 
@@ -595,8 +592,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         service, payloadMemoryManager, processName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
-        m_portIntrospection.addPublisher(
-            maybePublisherPortData.value(), processName, service, publisherOptions.nodeName);
+        m_portIntrospection.addPublisher(maybePublisherPortData.value());
     }
 
     return maybePublisherPortData;
@@ -612,8 +608,7 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
         m_portPool->addSubscriberPort(service, processName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
-        m_portIntrospection.addSubscriber(
-            maybeSubscriberPortData.value(), processName, service, subscriberOptions.nodeName);
+        m_portIntrospection.addSubscriber(maybeSubscriberPortData.value());
     }
 
     return maybeSubscriberPortData;

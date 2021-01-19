@@ -61,6 +61,7 @@ class MockSubscriberPortUser
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
     MOCK_METHOD1(disableEvent, void(const iox::popo::SubscriberEvent));
+    MOCK_CONST_METHOD0(getUniqueID, iox::UniquePortId());
 };
 
 template <typename T, typename Child, typename Port>
