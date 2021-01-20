@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019,2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -429,5 +429,14 @@ TEST_F(MqMessage_test, setMessage)
 
     message1.setMessage("1,2,3,4");
     EXPECT_THAT(message1.isValid(), Eq(false));
+}
+
+TEST_F(MqMessage_test, equalOperator)
+{
+    MqMessage message1;
+    MqMessage message2;
+    message1.setMessage("asd1,asd2,asd3,asd4,");
+    message2.setMessage("asd1,asd2,asd3,asd4,");
+    EXPECT_TRUE(message1==message2);
 }
 #endif
