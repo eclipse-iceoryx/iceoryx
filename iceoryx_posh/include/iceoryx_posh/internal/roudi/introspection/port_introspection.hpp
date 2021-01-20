@@ -140,13 +140,11 @@ class PortIntrospection
         PortData();
 
         /// @brief add a publisher port to be tracked by introspection
-        /// there cannot be multiple publisher ports with the same capro id and the same node name
         /// @param[in] port to be added
         /// @return returns false if the port could not be added and true otherwise
         bool addPublisher(typename PublisherPort::MemberType_t* const port);
 
         /// @brief add a subscriber port to be tracked by introspection
-        /// multiple subscribers with the same capro id are possible as long as the names are different
         /// @param[in] portData to be added
         /// @return returns false if the port could not be added and true otherwise
         bool addSubscriber(typename SubscriberPort::MemberType_t* const portData);
@@ -196,23 +194,8 @@ class PortIntrospection
         using PublisherContainer = FixedSizeContainer<PublisherInfo, MAX_PUBLISHERS>;
         using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
 
-        struct PublisherMapCmpCriterion
-        {
-            bool operator()(const iox::cxx::pair<capro::ServiceDescription, NodeName_t>& lhs,
-                            const iox::cxx::pair<capro::ServiceDescription, NodeName_t>& rhs) const
-            {
-                if (lhs.first == rhs.first)
-                {
-                    return lhs.second < rhs.second;
-                }
-                return lhs.first < rhs.first;
-            }
-        };
-
-        /// @brief index publisher and connections by capro Ids and nodes
-        std::map<iox::cxx::pair<capro::ServiceDescription, NodeName_t>,
-                 typename PublisherContainer::Index_t,
-                 PublisherMapCmpCriterion>
+        /// @brief inner map maps from unique port IDs to indices in the PublisherContainer
+        std::map<capro::ServiceDescription, std::map<UniquePortId, typename PublisherContainer::Index_t>>
             m_publisherMap;
 
         /// @todo: replace inner map wih more appropiate structure if possible
@@ -245,13 +228,11 @@ class PortIntrospection
     PortIntrospection& operator=(PortIntrospection&&) = delete;
 
     /// @brief add a publisher port to be tracked by introspection
-    ///    there cannot be multiple publisher ports with the same capro id and the same node name
     /// @param[in] port to be added
     /// @return returns false if the port could not be added and true otherwise
     bool addPublisher(typename PublisherPort::MemberType_t* port);
 
     /// @brief add a subscriber port to be tracked by introspection
-    /// multiple subscribers with the same capro id are possible as long as the names are different
     /// @param[in] port to be added
     /// @return returns false if the port could not be added and true otherwise
     bool addSubscriber(typename SubscriberPort::MemberType_t* port);

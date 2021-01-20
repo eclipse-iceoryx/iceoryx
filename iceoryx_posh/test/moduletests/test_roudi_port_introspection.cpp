@@ -271,7 +271,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     // test removal of ports
     EXPECT_CALL(port1, getServiceDescription()).WillRepeatedly(Return(portData1.m_serviceDescription));
-    EXPECT_CALL(port1, getNodeName()).WillRepeatedly(Return(portData1.m_nodeName));
+    EXPECT_CALL(port1, getUniqueID()).WillRepeatedly(Return(portData1.m_uniqueId));
     EXPECT_THAT(m_introspectionAccess.removePublisher(port1), Eq(true));
     EXPECT_THAT(m_introspectionAccess.removePublisher(port1), Eq(false));
 
@@ -288,7 +288,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     }
 
     EXPECT_CALL(port2, getServiceDescription()).WillRepeatedly(Return(portData2.m_serviceDescription));
-    EXPECT_CALL(port2, getNodeName()).WillRepeatedly(Return(portData2.m_nodeName));
+    EXPECT_CALL(port2, getUniqueID()).WillRepeatedly(Return(portData2.m_uniqueId));
     EXPECT_THAT(m_introspectionAccess.removePublisher(port2), Eq(true));
     EXPECT_THAT(m_introspectionAccess.removePublisher(port2), Eq(false));
 
@@ -356,7 +356,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     subscriberOptions2.nodeName = nodeName2;
 
     // test adding of ports
-    // remark: duplicate subscriber insertions are possible but will not be transmitted via send
+    // remark: duplicate subscriber insertions are not possible
     iox::popo::SubscriberPortData recData1{
         service1, processName1, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions1};
     MockSubscriberPortUser port1(&recData1);
@@ -364,9 +364,9 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         service2, processName2, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions2};
     MockSubscriberPortUser port2(&recData2);
     EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1), Eq(false));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2), Eq(false));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(

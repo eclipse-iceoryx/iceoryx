@@ -213,13 +213,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
     std::lock_guard<std::mutex> lock(m_mutex);
 
     auto service = port->m_serviceDescription;
-    auto node = port->m_nodeName;
-
-    auto iter = m_publisherMap.find({service, node});
-    if (iter != m_publisherMap.end())
-    {
-        return false;
-    }
+    auto uniqueId = port->m_uniqueId;
 
     auto index = m_publisherContainer.add(PublisherInfo(port));
     if (index < 0)
@@ -227,7 +221,28 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
         return false;
     }
 
-    m_publisherMap.insert({{service, node}, index});
+    auto iter = m_publisherMap.find(service);
+    if (iter == m_publisherMap.end())
+    {
+        // service is new, create new map
+        std::map<UniquePortId, typename PublisherContainer::Index_t> map;
+        map.insert(std::make_pair(uniqueId, index));
+        m_publisherMap.insert(std::make_pair(service, map));
+    }
+    else
+    {
+        // service exists, add new entry
+        auto& map = iter->second;
+        auto iter = map.find(uniqueId);
+        if (iter == map.end())
+        {
+            map.insert(std::make_pair(uniqueId, index));
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     // connect publisher to all subscribers with the same Id
     PublisherInfo* publisher = m_publisherContainer.get(index);
@@ -278,19 +293,28 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
     else
     {
         // service exists, add new entry
-        // TODO: check existence of key (name)
         auto& map = iter->second;
-        map.insert(std::make_pair(uniqueId, index));
+        auto iter = map.find(uniqueId);
+        if (iter == map.end())
+        {
+            map.insert(std::make_pair(uniqueId, index));
+        }
+        else
+        {
+            return false;
+        }
     }
 
     auto& connection = m_connectionContainer[index];
 
-    for (auto& kv : m_publisherMap)
+    auto sendIter = m_publisherMap.find(service);
+    if (sendIter != m_publisherMap.end())
     {
-        if (kv.first.first == service)
+        auto& map = sendIter->second;
+        for (auto& i : map)
         {
-            auto publisher = m_publisherContainer.get(kv.second);
-            connection.publisherInfo = publisher; // set corresponding publisher if it exists
+            auto publisher = m_publisherContainer.get(i.second);
+            connection.publisherInfo = publisher; // set corresponding publisher if exists
         }
     }
 
@@ -302,13 +326,19 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_publisherMap.find({port.getCaProServiceDescription(), port.getNodeName()});
+    auto iter = m_publisherMap.find(port.getCaProServiceDescription());
     if (iter == m_publisherMap.end())
     {
         return false;
     }
 
-    auto m_publisherIndex = iter->second;
+    auto& map = iter->second;
+    auto iterInnerMap = map.find(port.getUniqueID());
+    if (iterInnerMap == map.end())
+    {
+        return false;
+    }
+    auto m_publisherIndex = iterInnerMap->second;
     auto& publisher = m_publisherContainer[m_publisherIndex];
 
     // disconnect publisher from all its subscribers
@@ -318,7 +348,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher
         pair.second->state = ConnectionState::DEFAULT; // connection state is now default
     }
 
-    m_publisherMap.erase(iter);
+    map.erase(iterInnerMap);
     m_publisherContainer.remove(m_publisherIndex);
     setNew(true); // indicates we have to send new data because
                   // something changed
@@ -430,25 +460,29 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
 
     int32_t index{0};
-    for (auto& pair : m_publisherMap)
+    for (auto& pub : m_publisherMap)
     {
-        auto m_publisherIndex = pair.second;
-        if (m_publisherIndex >= 0)
+        auto& map = pub.second;
+        for (auto& pair : map)
         {
-            auto& publisherInfo = m_publisherContainer[m_publisherIndex];
-            PublisherPortData publisherData;
-            PublisherPort port(publisherInfo.portData);
-            publisherData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
-            publisherData.m_sourceInterface = publisherInfo.service.getSourceInterface();
-            publisherData.m_name = publisherInfo.name;
-            publisherData.m_node = publisherInfo.node;
+            auto m_publisherIndex = pair.second;
+            if (m_publisherIndex >= 0)
+            {
+                auto& publisherInfo = m_publisherContainer[m_publisherIndex];
+                PublisherPortData publisherData;
+                PublisherPort port(publisherInfo.portData);
+                publisherData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
+                publisherData.m_sourceInterface = publisherInfo.service.getSourceInterface();
+                publisherData.m_name = publisherInfo.name;
+                publisherData.m_node = publisherInfo.node;
 
-            publisherData.m_caproInstanceID = publisherInfo.service.getInstanceIDString();
-            publisherData.m_caproServiceID = publisherInfo.service.getServiceIDString();
-            publisherData.m_caproEventMethodID = publisherInfo.service.getEventIDString();
+                publisherData.m_caproInstanceID = publisherInfo.service.getInstanceIDString();
+                publisherData.m_caproServiceID = publisherInfo.service.getServiceIDString();
+                publisherData.m_caproEventMethodID = publisherInfo.service.getEventIDString();
 
-            m_publisherList.emplace_back(publisherData);
-            publisherInfo.index = index++;
+                m_publisherList.emplace_back(publisherData);
+                publisherInfo.index = index++;
+            }
         }
     }
 
