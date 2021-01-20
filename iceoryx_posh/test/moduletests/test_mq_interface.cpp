@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019,2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -228,6 +228,24 @@ void CMqInterface_StringCTor()
     EXPECT_THAT(base.getInterfaceName(), Eq(ifName));
 }
 
+template <typename T>
+void CMqInterface_close(T& base)
+{
+    EXPECT_THAT(base.closeMessageQueue(), Eq(true));
+}
+
+template <typename T>
+void CMqInterface_hasclosable(T& base)
+{
+    EXPECT_THAT(base.hasClosableMessageQueue(), Eq(false));
+}
+
+template <typename T>
+void CMqInterface_cleanupResource(T& base)
+{
+    base.cleanupResource();
+    EXPECT_FALSE(base.isInitialized());
+}
 
 ////////////////////////////////
 // UnitTests: MqBase
@@ -278,6 +296,18 @@ TEST_F(CMqInterface_test, MqBase_IsInitialized)
     MqBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
     CMqInterface_IsInitialized<MqBase>(base);
+}
+
+TEST_F(CMqInterface_test, MqBase_close)
+{
+    MqBase base(ifName, maxMessages, messageSize);
+    CMqInterface_close(base);
+}
+
+TEST_F(CMqInterface_test, MqBase_hasclosable)
+{
+    MqBase base(ifName, maxMessages, messageSize);
+    CMqInterface_hasclosable(base);
 }
 
 ////////////////////////////////
@@ -380,5 +410,11 @@ TEST_F(CMqInterface_test, MqInterfaceCreator_IsInitialized)
     MqInterfaceCreator base(ifName);
     CMqInterface_Open(base);
     CMqInterface_IsInitialized<MqInterfaceCreator>(base);
+}
+
+TEST_F(CMqInterface_test, MqInterfaceCreator_cleanupResource)
+{
+    MqInterfaceCreator base(ifName);
+    CMqInterface_cleanupResource(base);
 }
 #endif
