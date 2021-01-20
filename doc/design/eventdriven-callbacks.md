@@ -113,7 +113,8 @@ int main() {
 ### Solution
 #### Condition Variable
 
-  - add member `std::atomic_bool m_triggeredBy[MAX_CALLBACKS];`
+  - Create from `ConditionVariableWithOriginTracing` (yeah we need a better name) has `ConditionVariableData` 
+    as a member and adds: `std::atomic_bool m_triggeredBy[MAX_CALLBACKS];`
 
     **Reason:**
       - The reactal will iterate through this array to find out by which event it was triggered 
@@ -128,24 +129,39 @@ int main() {
             object is called (the object has to be loaded again into the cpu cache, cache miss for 
             every member which is not used by the method).
 
-    **Alternative:**
-      - Create a new class or provide a template bool array size argument to the 
-        ConditionVariable to be more flexible and memory efficient.
+    **Adjustments:**
+      - Create the class with a template bool array size argument to be more flexible and memory efficient.
 
     **Note:**
       - Sadly, we cannot pursue this approach in the WaitSet since it is event 
         and state based at the same time and this approach supports only event 
         driven triggering.
 
-  - add class `ConditionVariableIdSignaler`
-```cpp
-class ConditionVariableIdSignaler {
-  public:
-    // id = corresponds to the id in the ConditionVariable atomic_bool array to 
-    // identify the trigger origin easily
-    void notifyOne(const uint64_t id); 
-};
-```
+  - add class `ConditionVariableWithOriginTracingSignaler` (I know, better name)
+  
+    **Reason:** it behaves quiete differently then the `ConditionVariable`. The `ConditionVariable` tells you:
+    someone has signalled you and you have to find out who it was. The `ConditionVariableWithOriginTracing`
+    would tell you: A, B and C have signalled you.
+
+    ```cpp
+    class ConditionVariableWithOriginTracingSignaler {
+      public:
+        // id = corresponds to the id in the ConditionVariable atomic_bool array to 
+        // identify the trigger origin easily
+        void notifyOne(const uint64_t id); 
+    };
+    ```
+
+  - add class `ConditionVariableWithOriginTracingWaiter`
+  ```cpp
+  class ConditionVariableWithOriginTracingWaiter {
+    public:
+      // returns a list of ids which have notified the conditionVariable
+      cxx::vector<uint64_t> wait(); 
+      // sets the atomic bool to false in m_triggeredBy[id]
+      void resetWaitState(const uint64_t id) noexcept; 
+  };
+  ```
 
 We maybe introduce some abstraction for this. One thought is to introduce a 
 `SignalVector` where you can acquire a `Notifyier` which then signals the 
