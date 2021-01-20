@@ -85,9 +85,23 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringIntrospectionMemoryManagerAfterC
 
     auto result = m_roudiMemoryManagerTest->introspectionMemoryManager();
     EXPECT_THAT(result, Not(Eq(iox::cxx::nullopt_t())));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, AcquiringSegmentManagerAfterCreateAndAnnounceMemoryIsSuccessful)
+{
+    auto tr = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+
+    EXPECT_THAT(tr.has_error(), Eq(false));
 
     auto resultTest = m_roudiMemoryManagerTest->segmentManager();
     EXPECT_THAT(resultTest, Not(Eq(iox::cxx::nullopt_t())));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, AcquiringPortPoolAfterCreateAndAnnounceMemoryIsSuccessful)
+{
+    auto tr = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+
+    EXPECT_THAT(tr.has_error(), Eq(false));
 
     auto testResult = m_roudiMemoryManagerTest->portPool();
     EXPECT_THAT(testResult, Not(Eq(iox::cxx::nullopt_t())));
