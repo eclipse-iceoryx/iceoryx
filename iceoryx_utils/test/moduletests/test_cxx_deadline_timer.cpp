@@ -102,24 +102,6 @@ TIMING_TEST_F(DeadlineTimer_test, ResetWithCustomizedTimeAfterBeingExpiredIsNotE
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
 });
 
-TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfExpired, Repeat(5), [&] {
-    Timer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
-    int remainingTime = sut.remainingTime().milliSeconds<int>();
-    const int EXPECTED_REMAINING_TIME = 0; // the timer is expired the remaining wait time is Zero
-    TIMING_TEST_EXPECT_TRUE(remainingTime == EXPECTED_REMAINING_TIME);
-});
-
-TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&] {
-    Timer sut(2 * TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEPTIME));
-    int remainingTime = sut.remainingTime().milliSeconds<int>();
-    const int PASSED_TIMER_TIME = SLEEPTIME; // Already 10ms passed in sleeping out of 20ms
-    const int RANGE_APPROX = 2;              // 2ms arppoximation. This may be lost after arming the timer in execution.
-    const int EXPECTED_REMAINING_TIME = PASSED_TIMER_TIME - RANGE_APPROX;
-    TIMING_TEST_EXPECT_TRUE(remainingTime >= EXPECTED_REMAINING_TIME && remainingTime <= PASSED_TIMER_TIME);
-});
-
 TIMING_TEST_F(DeadlineTimer_test, ResetWithCustomizedTimeAfterBeingExpiredIsExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
@@ -130,4 +112,29 @@ TIMING_TEST_F(DeadlineTimer_test, ResetWithCustomizedTimeAfterBeingExpiredIsExpi
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
 
     TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
+});
+
+TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfExpired, Repeat(5), [&] {
+    Timer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
+
+    TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
+
+    int remainingTime = sut.remainingTime().milliSeconds<int>();
+    const int EXPECTED_REMAINING_TIME = 0; // the timer is expired the remaining wait time is Zero
+    TIMING_TEST_EXPECT_TRUE(remainingTime == EXPECTED_REMAINING_TIME);
+});
+
+TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&] {
+    Timer sut(2 * TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEPTIME));
+
+    TIMING_TEST_ASSERT_FALSE(sut.hasExpired());
+
+    int remainingTime = sut.remainingTime().milliSeconds<int>();
+    const int PASSED_TIMER_TIME = SLEEPTIME; // Already 10ms passed in sleeping out of 20ms
+    const int RANGE_APPROX = 2;              // 2ms arppoximation. This may be lost after arming the timer in execution.
+    const int EXPECTED_REMAINING_TIME = PASSED_TIMER_TIME - RANGE_APPROX;
+
+    TIMING_TEST_EXPECT_TRUE(remainingTime >= EXPECTED_REMAINING_TIME && remainingTime <= PASSED_TIMER_TIME);
 });
