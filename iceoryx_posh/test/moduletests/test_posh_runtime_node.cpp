@@ -53,18 +53,20 @@ class PoshRuntimeNode_test : public Test
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
 };
 
-TEST_F(PoshRuntimeNode_test, CreateNode)
+TEST_F(PoshRuntimeNode_test, ConstructorNodeIsSuccess)
 {
     const NodeName_t& nodeName{"Node"};
+
     Node m_node("Node");
 
     EXPECT_THAT(m_node.getNodeName(),Eq(nodeName));
 }
 
-TEST_F(PoshRuntimeNode_test, NodeOperator)
+TEST_F(PoshRuntimeNode_test, UseNodeOperatorEqualIsSuccess)
 {
     const NodeName_t& nodeNewName{"NewNode"};
     Node m_node("Node");
+
     m_node = Node("NewNode");
 
     EXPECT_THAT(m_node.getNodeName(), Eq(nodeNewName));

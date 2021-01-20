@@ -67,7 +67,6 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
   const ProcessName_t& m_runtimeName{"App"};
 
   EXPECT_DEATH({PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName);}, ".*");
-  //PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName);
 }
 
 } // namespace test
