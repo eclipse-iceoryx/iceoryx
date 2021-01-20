@@ -29,13 +29,6 @@ namespace test
 {
 /// @brief Test goal: This test suit verifies class node
 
-//bool callbackWasCalled = false;
-//PoshRuntime& testFactory(iox::cxx::optional<const iox::ProcessName_t*> name)
-//{
-//    callbackWasCalled = true;
-//    return PoshRuntime::defaultRuntimeFactory(name);
-//}
-
 class PoshRuntimeNode_test : public Test
 {
   public:
