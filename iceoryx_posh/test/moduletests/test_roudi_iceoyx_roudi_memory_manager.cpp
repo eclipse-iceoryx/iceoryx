@@ -42,49 +42,42 @@ class IceoryxRoudiMemoryManager_test : public Test
     }
 };
 
-/// @brief test to check constructor
 TEST_F(IceoryxRoudiMemoryManager_test, ConstructorSuccess)
 {
     EXPECT_THAT(m_roudiMemoryManagerTest, Not(Eq(nullptr)));
 }
 
-/// @brief test to check function introspectionMemoryManager
 TEST_F(IceoryxRoudiMemoryManager_test, IntrospectionMemoryManagerNulloptWhenNotPresent)
 {
     auto result = m_roudiMemoryManagerTest->introspectionMemoryManager();
     EXPECT_THAT(result, Eq(iox::cxx::nullopt_t()));
 }
 
-/// @brief test to check function segmentManager
 TEST_F(IceoryxRoudiMemoryManager_test, segmentManagerNulloptWhenNotPresent)
 {
     auto resultTest = m_roudiMemoryManagerTest->segmentManager();
     EXPECT_THAT(resultTest, Eq(iox::cxx::nullopt_t()));
 }
 
-/// @brief test to check function portPool
 TEST_F(IceoryxRoudiMemoryManager_test, portPoolNulloptWhenNotPresent)
 {
     auto testResult = m_roudiMemoryManagerTest->portPool();
     EXPECT_THAT(testResult, Eq(iox::cxx::nullopt_t()));
 }
 
-/// @brief test to check function createAndAnnouceMemory
-TEST_F(IceoryxRoudiMemoryManager_test, createAndAnnouceMemorySuccess)
+TEST_F(IceoryxRoudiMemoryManager_test, CreateAndAnnouceMemoryHasNoError)
 {
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
     EXPECT_THAT(testResult.has_error(), Eq(false));
 }
 
-/// @brief test to check function MgmtMemoryProviderSuccess
-TEST_F(IceoryxRoudiMemoryManager_test, MgmtMemoryProviderSuccess)
+TEST_F(IceoryxRoudiMemoryManager_test, MgmtMemoryProviderReturnNonNullPtr)
 {
     auto testResult = m_roudiMemoryManagerTest->mgmtMemoryProvider();
     EXPECT_THAT(testResult, Not(Eq(nullptr)));
 }
 
-/// @brief test to check function NullOptCheck
-TEST_F(IceoryxRoudiMemoryManager_test, NullOptCheck)
+TEST_F(IceoryxRoudiMemoryManager_test, AcquiringIntrospectionMemoryManagerAfterCreateAndAnnounceMemoryIsSuccessful)
 {
     auto tr = m_roudiMemoryManagerTest->createAndAnnounceMemory();
 
@@ -100,8 +93,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, NullOptCheck)
     EXPECT_THAT(testResult, Not(Eq(iox::cxx::nullopt_t())));
 }
 
-/// @brief test to check Destroy segmentation fault
-TEST_F(IceoryxRoudiMemoryManager_test, DestroySegFault)
+TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryIntrospectionMemoryManagerReturnNullOpt)
 {
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
     
@@ -113,6 +105,17 @@ TEST_F(IceoryxRoudiMemoryManager_test, DestroySegFault)
 
     auto res = m_roudiMemoryManagerTest->introspectionMemoryManager();
     EXPECT_THAT(res, Eq(iox::cxx::nullopt_t()));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemorySegmentManagerReturnNullOpt)
+{
+    auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+    
+    EXPECT_THAT(testResult.has_error(), Eq(false));
+
+    auto result = m_roudiMemoryManagerTest->destroyMemory();
+
+    EXPECT_THAT(result.has_error(), Eq(false));
 
     auto resultTest = m_roudiMemoryManagerTest->segmentManager();
     EXPECT_THAT(resultTest, Eq(iox::cxx::nullopt_t()));
