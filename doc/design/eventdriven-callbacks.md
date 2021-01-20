@@ -1,11 +1,32 @@
-## Name proposals
+## Problem Description
+
+We require a public API so that a developer can register callbacks for certain
+events like the arrival of a sample.
+
+## Name of the design element
 
  - ReactAl = React And Listen
  - Reactor
  - Eventler
+ - LiAR - Listen And React
 
 
-## Usage
+## Terminology
+
+ - **event driven** a one time reaction which is caused directly by an event.
+      Example: a new sample has been delivered to a subscriber.
+ - **state driven** a repeating reaction which is caused by a specific structural 
+      state until the state changes.
+      Example: a subscriber has stored samples which were not inspected by the user.
+ - **robust API** we use this term to describe an API which is nearly impossible 
+      to misuse. Important in concurrent code since a misuse can lead to race 
+      conditions, Heisenbugs and in general hard to debug problems.
+ - **robust API feature** a feature we only support to increase the robustness 
+      of the API and bugs caused by misuse.
+ - (Reactor pattern)[https://en.wikipedia.org/wiki/Reactor_pattern]
+ - (Condition Variable)[https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables_2]
+ 
+## Design
 
 ### General
 The usage should be similar to the _WaitSet_ with a key difference - it should 
@@ -25,7 +46,7 @@ The following use cases and behaviors should be implemented.
 
  - The API and ReactAl should be robust this means that it should be impossible 
     to use the API in the wrong way. Since ReactAl is working concurrently a 
-    wrong usage could lead to Race Conditions, extremely hard to debug bug reports 
+    wrong usage could lead to race conditions, extremely hard to debug bug reports 
     (HeisenBugs) and can be frustrating to the user.
     We list here features marked with [robust] which are only supported to 
     increase this kind of the robustness.
@@ -58,7 +79,7 @@ The following use cases and behaviors should be implemented.
  - When the class which is attached to the ReactAl goes out of scope it should 
     detach itself from the ReactAl via a provided callback (like in the WaitSet).
 
-### Code Example
+### Usage Code Example
 ```cpp
 ReactAl myCallbackReactal;
 iox::popo::UntypedSubscriber mySubscriber;
@@ -69,36 +90,43 @@ void sampleReceived(iox::popo::UntypedSubscriber & subscriber) {
   });
 }
 
-void waitForSubscribtion(iox::popo::UntypedSubscriber & subscriber) {
+void waitForSubscription(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "subscribed!\n";
   myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, sampleReceived);
-  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, waitForSubscribtion);
+  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, waitForSubscription);
   myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED);
 }
 
 void waitForUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "unsubscribed from publisher\n";
-  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, waitForSubscribtion);
+  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, waitForSubscription);
   myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED);
   myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED);
 }
 
 int main() {
-  myCallbackReactal.attachEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, waitForSubscribtion);
+  myCallbackReactal.attachEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, waitForSubscription);
 }
 
 ```
 
-## Overall changes
-### Condition Variable
+### Solution
+#### Condition Variable
 
   - add member `std::atomic_bool m_triggeredBy[MAX_CALLBACKS];`
 
     **Reason:**
-      - The reactal will iterate through this array to know who was triggering it 
-      - It is cache local so very fast to iterate.
-      - WaitSet approach are callbacks which have overhead implementation 
+      - The reactal will iterate through this array to find out by which event it was triggered 
+      - It is cache local, since it is one piece of contiguous memory which can be put directly 
+        into the CPU cache when it is being iterated. Therefore it is very performant.
+      - WaitSet approach are callbacks which have an overhead implementation 
         and performance wise.
+        * implementation, since we have to manage set and reset all the callbacks 
+        * performance, when we call a callback with every iteration, we have to first load the 
+            callback into the cpu cache (generates cache misses for all the other callback 
+            elements in the vector which is being iterated). In the callback a method in an 
+            object is called (the object has to be loaded again into the cpu cache, cache miss for 
+            every member which is not used by the method).
 
     **Alternative:**
       - Create a new class or provide a template bool array size argument to the 
@@ -123,7 +151,7 @@ We maybe introduce some abstraction for this. One thought is to introduce a
 `SignalVector` where you can acquire a `Notifyier` which then signals the 
 `ConditionVariable` and with the correct id.
 
-### ReactAl 
+#### ReactAl 
 ```cpp
 enum class ReactAlErrors {
   CALLBACK_CAPACITY_EXCEEDED
@@ -148,7 +176,7 @@ class ReactAl {
     bool array. If an entry is true, set it to false and then call the 
     corresponding callback.
 
-### Class which is attachable to ReactAl 
+#### Class which is attachable to ReactAl 
 
 ```cpp
 class SomeSubscriber {
