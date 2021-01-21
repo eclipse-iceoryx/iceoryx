@@ -78,7 +78,7 @@ class PortManager
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const ProcessName_t& processName,
-                                                      const NodeName_t& node = "") noexcept;
+                                                      const NodeName_t& node = NodeName_t(cxx::TruncateToCapacity, "")) noexcept;
 
     popo::ApplicationPortData* acquireApplicationPortData(const ProcessName_t& processName) noexcept;
 
