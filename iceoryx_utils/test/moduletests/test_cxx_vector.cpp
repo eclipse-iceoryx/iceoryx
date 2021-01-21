@@ -889,14 +889,14 @@ TEST_F(vector_test, ConstBackPointsToLastElement)
 TEST_F(vector_test, ConstructorWithSizeParameterSmallerThanCapacity)
 {
     vector<CTorTest, 5> sut(2);
-    EXPECT_THAT(vector_test::copyCTor, Eq(2));
+    EXPECT_THAT(vector_test::cTor, Eq(2));
     ASSERT_THAT(sut.size(), Eq(2));
 }
 
 TEST_F(vector_test, ConstructorWithSizeParameterGreaterThanCapacity)
 {
     vector<CTorTest, 5> sut(7);
-    EXPECT_THAT(vector_test::copyCTor, Eq(5));
+    EXPECT_THAT(vector_test::cTor, Eq(5));
     ASSERT_THAT(sut.size(), Eq(5));
 }
 

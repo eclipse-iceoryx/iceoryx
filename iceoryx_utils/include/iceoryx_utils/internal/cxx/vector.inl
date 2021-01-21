@@ -37,8 +37,16 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
 
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count)
-    : vector(count, T())
 {
+    if (count > Capacity)
+    {
+        std::cerr << "Attemting to initialize a vector with more elements than its capacity!" << std::endl;
+    }
+    m_size = std::min(count, Capacity);
+    for (uint64_t i = 0U; i < m_size; ++i)
+    {
+        new (&at(i)) T();
+    }
 }
 
 template <typename T, uint64_t Capacity>
