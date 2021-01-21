@@ -347,9 +347,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         {
             stream << std::left << std::setw(maxSize) << data.substr(0U, static_cast<size_t>(maxSize));
         }
-        else if (stringSize > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
+        else if (stringSize
+                 > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
         {
-            const auto startPosition = static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
+            const auto startPosition =
+                static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
 
             stream << indentationString << std::left << std::setw(maxSize - indentation)
                    << data.substr(startPosition, static_cast<size_t>(maxSize - indentation));
@@ -359,7 +361,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             stream << std::left << std::setw(maxSize) << "";
         }
 
-        needsLineBreak |= (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
+        needsLineBreak |=
+            (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
 
         return stream.str();
     };
@@ -587,10 +590,11 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
     { // should be the same, else it will be soon
         for (const auto& port : portData->m_subscriberList)
         {
-            subscriberPortData.push_back(
-                {port,
-                 (port.m_publisherIndex != -1) ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)] : nullptr,
-                 subscriberPortChangingData->subscriberPortChangingDataList[i++]});
+            subscriberPortData.push_back({port,
+                                          (port.m_publisherIndex != -1)
+                                              ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)]
+                                              : nullptr,
+                                          subscriberPortChangingData->subscriberPortChangingDataList[i++]});
         }
     }
 

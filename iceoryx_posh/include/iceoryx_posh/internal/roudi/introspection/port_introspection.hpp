@@ -21,7 +21,6 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/cxx/pair.hpp"
 #include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 #include <atomic>
@@ -208,7 +207,6 @@ class PortIntrospection
         std::map<capro::ServiceDescription, std::map<UniquePortId, typename PublisherContainer::Index_t>>
             m_publisherMap;
 
-        /// @todo: replace inner map wih more appropiate structure if possible
         /// inner map maps from unique port IDs to indices in the ConnectionContainer
         std::map<capro::ServiceDescription, std::map<UniquePortId, typename ConnectionContainer::Index_t>>
             m_connectionMap;

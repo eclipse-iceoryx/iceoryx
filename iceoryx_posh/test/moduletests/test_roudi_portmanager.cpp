@@ -476,6 +476,7 @@ TEST_F(PortManager_test, NodeDataOverflow)
 
         auto nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
         EXPECT_THAT(nodeData.has_error(), Eq(false));
+        EXPECT_THAT(nodeData.value()->m_node, StrEq(newNodeName));
     }
 }
 
