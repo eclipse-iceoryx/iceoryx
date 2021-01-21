@@ -147,18 +147,24 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
     constexpr uint64_t MAX_HISTORY_CAPACITY =
         PublisherPortUserType::MemberType_t::ChunkSenderData_t::ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
 
-    auto historyCapacity = publisherOptions.historyCapacity;
-    if (historyCapacity > MAX_HISTORY_CAPACITY)
+    auto options = publisherOptions;
+    if (options.historyCapacity > MAX_HISTORY_CAPACITY)
     {
-        LogWarn() << "Requested history capacity " << historyCapacity
+        LogWarn() << "Requested history capacity " << options.historyCapacity
                   << " exceeds the maximum possible one for this publisher"
                   << ", limiting from " << publisherOptions.historyCapacity << " to " << MAX_HISTORY_CAPACITY;
-        historyCapacity = MAX_HISTORY_CAPACITY;
+        options.historyCapacity = MAX_HISTORY_CAPACITY;
     }
+
+    if (options.nodeName.empty())
+    {
+        options.nodeName = m_appName;
+    }
+
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyCapacity)
-               << publisherOptions.nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
+               << options.nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
     if (maybePublisher.has_error())
@@ -248,10 +254,15 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
         options.queueCapacity = MAX_QUEUE_CAPACITY;
     }
 
+    if (options.nodeName.empty())
+    {
+        options.nodeName = m_appName;
+    }
+
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << subscriberOptions.nodeName
+               << std::to_string(options.queueCapacity) << options.nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
