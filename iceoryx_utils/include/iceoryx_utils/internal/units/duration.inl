@@ -142,9 +142,9 @@ inline constexpr Duration::Duration(const std::chrono::nanoseconds& value) noexc
     *this = Duration::nanoseconds(value.count());
 }
 
-inline Duration& Duration::operator=(const std::chrono::milliseconds& right) noexcept
+inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexcept
 {
-    *this = Duration(right);
+    *this = Duration(rhs);
     return *this;
 }
 
@@ -222,42 +222,42 @@ inline constexpr Duration::operator timeval() const noexcept
     return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
 }
 
-inline constexpr bool Duration::operator==(const Duration& right) const noexcept
+inline constexpr bool Duration::operator==(const Duration& rhs) const noexcept
 {
-    return (m_seconds == right.m_seconds) && (m_nanoseconds == right.m_nanoseconds);
+    return (m_seconds == rhs.m_seconds) && (m_nanoseconds == rhs.m_nanoseconds);
 }
 
-inline constexpr bool Duration::operator!=(const Duration& right) const noexcept
+inline constexpr bool Duration::operator!=(const Duration& rhs) const noexcept
 {
-    return !(*this == right);
+    return !(*this == rhs);
 }
 
-inline constexpr bool Duration::operator<(const Duration& right) const noexcept
+inline constexpr bool Duration::operator<(const Duration& rhs) const noexcept
 {
-    return (m_seconds < right.m_seconds) || ((m_seconds == right.m_seconds) && (m_nanoseconds < right.m_nanoseconds));
+    return (m_seconds < rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds < rhs.m_nanoseconds));
 }
 
-inline constexpr bool Duration::operator<=(const Duration& right) const noexcept
+inline constexpr bool Duration::operator<=(const Duration& rhs) const noexcept
 {
-    return (m_seconds < right.m_seconds) || ((m_seconds == right.m_seconds) && (m_nanoseconds <= right.m_nanoseconds));
+    return (m_seconds < rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds <= rhs.m_nanoseconds));
 }
 
-inline constexpr bool Duration::operator>(const Duration& right) const noexcept
+inline constexpr bool Duration::operator>(const Duration& rhs) const noexcept
 {
-    return (m_seconds > right.m_seconds) || ((m_seconds == right.m_seconds) && (m_nanoseconds > right.m_nanoseconds));
+    return (m_seconds > rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds > rhs.m_nanoseconds));
 }
 
-inline constexpr bool Duration::operator>=(const Duration& right) const noexcept
+inline constexpr bool Duration::operator>=(const Duration& rhs) const noexcept
 {
-    return (m_seconds > right.m_seconds) || ((m_seconds == right.m_seconds) && (m_nanoseconds >= right.m_nanoseconds));
+    return (m_seconds > rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds >= rhs.m_nanoseconds));
 }
 
-inline constexpr Duration Duration::operator+(const Duration& right) const noexcept
+inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcept
 {
     /// @todo decide if we want an overflow or saturation
 
-    auto seconds = m_seconds + right.m_seconds;
-    auto nanoseconds = m_nanoseconds + right.m_nanoseconds;
+    auto seconds = m_seconds + rhs.m_seconds;
+    auto nanoseconds = m_nanoseconds + rhs.m_nanoseconds;
     if (nanoseconds >= NANOSECS_PER_SEC)
     {
         ++seconds;
@@ -266,22 +266,22 @@ inline constexpr Duration Duration::operator+(const Duration& right) const noexc
     return Duration{seconds, nanoseconds};
 }
 
-inline constexpr Duration Duration::operator-(const Duration& right) const noexcept
+inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcept
 {
-    if (*this <= right)
+    if (*this <= rhs)
     {
         std::clog << __PRETTY_FUNCTION__ << ": Result of subtraction would be negative, clamping to zero!" << std::endl;
         return Duration(0U, 0U);
     }
-    auto seconds = m_seconds - right.m_seconds;
+    auto seconds = m_seconds - rhs.m_seconds;
     uint32_t nanoseconds{0U};
-    if (m_nanoseconds >= right.m_nanoseconds)
+    if (m_nanoseconds >= rhs.m_nanoseconds)
     {
-        nanoseconds = m_nanoseconds - right.m_nanoseconds;
+        nanoseconds = m_nanoseconds - rhs.m_nanoseconds;
     }
     else
     {
-        nanoseconds = NANOSECS_PER_SEC - right.m_nanoseconds - m_nanoseconds;
+        nanoseconds = NANOSECS_PER_SEC - rhs.m_nanoseconds - m_nanoseconds;
         --seconds;
     }
     return Duration{seconds, nanoseconds};
@@ -290,20 +290,20 @@ inline constexpr Duration Duration::operator-(const Duration& right) const noexc
 template <typename T>
 inline constexpr Duration
 Duration::multiplySeconds(const uint64_t seconds,
-                          const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const noexcept
+                          const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
-    // specialization is needed to prevent a clang warning if `right` is a signed integer and not casted to unsigned
-    // operator*(...) takes care of negative values for right
-    return Duration(seconds * static_cast<uint64_t>(right), 0U);
+    // specialization is needed to prevent a clang warning if `rhs` is a signed integer and not casted to unsigned
+    // operator*(...) takes care of negative values for rhs
+    return Duration(seconds * static_cast<uint64_t>(rhs), 0U);
 }
 
 template <typename T>
 inline constexpr Duration
 Duration::multiplySeconds(const uint64_t seconds,
-                          const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const noexcept
+                          const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
-    // operator*(...) takes care of negative values for right
-    auto result = seconds * right;
+    // operator*(...) takes care of negative values for rhs
+    auto result = seconds * rhs;
     double resultSeconds{0.0};
     double secondsFraction = modf(result, &resultSeconds);
     return Duration(static_cast<uint64_t>(resultSeconds), 0U)
@@ -313,28 +313,28 @@ Duration::multiplySeconds(const uint64_t seconds,
 template <typename T>
 inline constexpr Duration
 Duration::multiplyNanoseconds(const uint32_t nanoseconds,
-                              const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const noexcept
+                              const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
-    // specialization is needed to prevent a clang warning if `right` is a signed integer and not casted to unsigned
-    // operator*(...) takes care of negative values for right
-    return Duration::nanoseconds(nanoseconds * static_cast<uint64_t>(right));
+    // specialization is needed to prevent a clang warning if `rhs` is a signed integer and not casted to unsigned
+    // operator*(...) takes care of negative values for rhs
+    return Duration::nanoseconds(nanoseconds * static_cast<uint64_t>(rhs));
 }
 
 template <typename T>
 inline constexpr Duration
 Duration::multiplyNanoseconds(const uint32_t nanoseconds,
-                              const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const noexcept
+                              const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
-    // operator*(...) takes care of negative values for right
-    return Duration::nanoseconds(static_cast<uint64_t>(nanoseconds * right));
+    // operator*(...) takes care of negative values for rhs
+    return Duration::nanoseconds(static_cast<uint64_t>(nanoseconds * rhs));
 }
 
 template <typename T>
-inline constexpr Duration Duration::operator*(const T& right) const noexcept
+inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
-    if (right < static_cast<T>(0))
+    if (rhs < static_cast<T>(0))
     {
         std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
                   << std::endl;
@@ -343,7 +343,7 @@ inline constexpr Duration Duration::operator*(const T& right) const noexcept
 
     /// @todo decide if we want an overflow or saturation
 
-    return multiplySeconds<T>(m_seconds, right) + multiplyNanoseconds<T>(m_nanoseconds, right);
+    return multiplySeconds<T>(m_seconds, rhs) + multiplyNanoseconds<T>(m_nanoseconds, rhs);
 }
 
 inline namespace duration_literals
@@ -392,18 +392,18 @@ inline constexpr Duration operator"" _d(unsigned long long int value) noexcept /
 } // namespace duration_literals
 
 template <typename T>
-inline constexpr Duration operator*(const T& left, const Duration& right) noexcept
+inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
-    if (left < static_cast<T>(0))
+    if (lhs < static_cast<T>(0))
     {
         std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
                   << std::endl;
         return Duration{0U, 0U};
     }
 
-    return right * left;
+    return rhs * lhs;
 }
 
 } // namespace units

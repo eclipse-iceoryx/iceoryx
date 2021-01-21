@@ -164,69 +164,69 @@ class Duration
     constexpr explicit Duration(const std::chrono::nanoseconds& value) noexcept;
 
     /// @brief Assigns a std::chrono::milliseconds to an duration object
-    /// @param[in] right hand side of the assignment
+    /// @param[in] rhs is the right hand side of the assignment
     /// @return a reference to the Duration object with the assigned millisecond value
     /// @attention since negative durations are not allowed, the duration will be capped to 0
-    Duration& operator=(const std::chrono::milliseconds& right) noexcept;
+    Duration& operator=(const std::chrono::milliseconds& rhs) noexcept;
 
     // END CONSTRUCTORS AND ASSIGNMENT
 
     // BEGIN COMPARISON
 
     /// @brief Equal to operator
-    /// @param[in] right hand side of the comparison
-    /// @return true if duration equal to right
-    constexpr bool operator==(const Duration& right) const noexcept;
+    /// @param[in] rhs is the right hand side of the comparison
+    /// @return true if duration equal to rhs
+    constexpr bool operator==(const Duration& rhs) const noexcept;
 
     /// @brief Not equal to operator
-    /// @param[in] right hand side of the comparison
-    /// @return true if duration not equal to right
-    constexpr bool operator!=(const Duration& right) const noexcept;
+    /// @param[in] rhs is the right hand side of the comparison
+    /// @return true if duration not equal to rhs
+    constexpr bool operator!=(const Duration& rhs) const noexcept;
 
     /// @brief Less than operator
-    /// @param[in] right hand side of the comparison
-    /// @return true if duration is less than right
-    constexpr bool operator<(const Duration& right) const noexcept;
+    /// @param[in] rhs is the right hand side of the comparison
+    /// @return true if duration is less than rhs
+    constexpr bool operator<(const Duration& rhs) const noexcept;
 
     /// @brief Less than or equal to operator
-    /// @param[in] right hand side of the comparison
-    /// @return true if duration is less than or equal to right
-    constexpr bool operator<=(const Duration& right) const noexcept;
+    /// @param[in] rhs is the right hand side of the comparison
+    /// @return true if duration is less than or equal to rhs
+    constexpr bool operator<=(const Duration& rhs) const noexcept;
 
     /// @brief Greater than operator
-    /// @param[in] right hand side of the comparison
-    /// @return true if duration is greater than right
-    constexpr bool operator>(const Duration& right) const noexcept;
+    /// @param[in] rhs is the right hand side of the comparison
+    /// @return true if duration is greater than rhs
+    constexpr bool operator>(const Duration& rhs) const noexcept;
 
     /// @brief Greater than or equal to operator
-    /// @param[in] right hand side of the comparison
-    /// @return true if duration is greater than or equal to right
-    constexpr bool operator>=(const Duration& right) const noexcept;
+    /// @param[in] rhs is the right hand side of the comparison
+    /// @return true if duration is greater than or equal to rhs
+    constexpr bool operator>=(const Duration& rhs) const noexcept;
 
     // END COMPARISON
 
     // BEGIN ARITHMETIC
 
-    /// @brief Creates Duration object by adding right
-    /// @param[in] right is the second summand
+    /// @brief Creates Duration object by addition
+    /// @param[in] rhs is the second summand
     /// @return a new Duration object
-    constexpr Duration operator+(const Duration& right) const noexcept;
+    constexpr Duration operator+(const Duration& rhs) const noexcept;
 
-    /// @brief Creates Duration object by subtracting right
-    /// @param[in] right is the subtrahend
+    /// @brief Creates Duration object by subtraction
+    /// @param[in] rhs is the subtrahend
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
-    constexpr Duration operator-(const Duration& right) const noexcept;
+    constexpr Duration operator-(const Duration& rhs) const noexcept;
 
     /// @brief Creates Duration object by multiplication
     /// @tparam T is an arithmetic type for the multiplicator
-    /// @param[in] right is the multiplicator
+    /// @param[in] rhs is the multiplicator
     /// @return a new Duration object
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     /// @note There is no explicit division operator! This can be achieved by multiplication with the inverse of the
     /// divisor.
     template <typename T>
-    constexpr Duration operator*(const T& right) const noexcept;
+    constexpr Duration operator*(const T& rhs) const noexcept;
 
     // END ARITHMETIC
 
@@ -279,7 +279,7 @@ class Duration
     friend constexpr Duration duration_literals::operator"" _d(unsigned long long int) noexcept;  // PRQA S 48
 
     template <typename T>
-    friend constexpr Duration operator*(const T& left, const Duration& right) noexcept;
+    friend constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 
     friend std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
 
@@ -287,19 +287,19 @@ class Duration
     template <typename T>
     inline constexpr Duration
     multiplySeconds(const uint64_t seconds,
-                    const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const noexcept;
+                    const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept;
     template <typename T>
     inline constexpr Duration
     multiplySeconds(const uint64_t seconds,
-                    const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const noexcept;
+                    const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
     template <typename T>
     inline constexpr Duration
     multiplyNanoseconds(const uint32_t nanoseconds,
-                        const std::enable_if_t<!std::is_floating_point<T>::value, T>& right) const noexcept;
+                        const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept;
     template <typename T>
     inline constexpr Duration
     multiplyNanoseconds(const uint32_t nanoseconds,
-                        const std::enable_if_t<std::is_floating_point<T>::value, T>& right) const noexcept;
+                        const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
 
     static constexpr uint32_t SECS_PER_MINUTE{60U};
     static constexpr uint32_t SECS_PER_HOUR{3600U};
@@ -321,12 +321,12 @@ class Duration
 
 /// @brief creates Duration object by multiplying object T with a duration
 /// @tparam T is an arithmetic type for the multiplicator
-/// @param[in] left is the multiplicator
-/// @param[in] right is the multiplicant
+/// @param[in] lhs is the multiplicator
+/// @param[in] rhs is the multiplicant
 /// @return a new Duration object
 /// @attention since negative durations are not allowed, the duration will be capped to 0
 template <typename T>
-constexpr Duration operator*(const T& left, const Duration& right) noexcept;
+constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 
 /// @brief stream operator for the Duration class
 std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
