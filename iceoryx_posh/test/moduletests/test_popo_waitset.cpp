@@ -93,61 +93,20 @@ class WaitSet_test : public Test
         iox::popo::TriggerHandle m_handle;
         mutable std::atomic_bool m_hasTriggered{false};
         static uint64_t m_invalidateTriggerId;
+
+        SimpleEventClass* m_triggerCallbackArgument1 = nullptr;
+        SimpleEventClass* m_triggerCallbackArgument2 = nullptr;
     };
 
-    std::vector<std::unique_ptr<expected<TriggerHandle, WaitSetError>>> m_triggerHandle;
     ConditionVariableData m_condVarData{"Horscht"};
     WaitSetMock m_sut{&m_condVarData};
-    uint64_t m_resetTriggerId = 0U;
-    WaitSet_test* m_triggerCallbackArgument1 = nullptr;
-    WaitSet_test* m_triggerCallbackArgument2 = nullptr;
-    mutable uint64_t m_returnTrueCounter = 0U;
 
-    bool hasTriggered() const
-    {
-        if (m_returnTrueCounter == 0U)
-        {
-            return false;
-        }
-        else
-        {
-            --m_returnTrueCounter;
-            return true;
-        }
-    }
-
-    void resetCallback(const uint64_t uniqueTriggerId)
-    {
-        m_resetTriggerId = uniqueTriggerId;
-        for (uint64_t i = 0U; i < m_triggerHandle.size(); ++i)
-        {
-            if (m_triggerHandle[i]->value().getUniqueId() == uniqueTriggerId)
-            {
-                m_triggerHandle[i]->value().invalidate();
-                m_triggerHandle.erase(m_triggerHandle.begin() + i);
-                return;
-            }
-        }
-    }
-
-    void removeTrigger(const uint64_t uniqueTriggerId)
-    {
-        m_resetTriggerId = uniqueTriggerId;
-        for (uint64_t i = 0U; i < m_triggerHandle.size(); ++i)
-        {
-            if (m_triggerHandle[i]->value().getUniqueId() == uniqueTriggerId)
-            {
-                m_triggerHandle.erase(m_triggerHandle.begin() + i);
-            }
-        }
-    }
-
-    static void triggerCallback1(WaitSet_test* const waitset)
+    static void triggerCallback1(WaitSet_test::SimpleEventClass* const waitset)
     {
         waitset->m_triggerCallbackArgument1 = waitset;
     }
 
-    static void triggerCallback2(WaitSet_test* const waitset)
+    static void triggerCallback2(WaitSet_test::SimpleEventClass* const waitset)
     {
         waitset->m_triggerCallbackArgument2 = waitset;
     }
@@ -288,8 +247,6 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
     }
 
     std::thread t([&] {
-        m_returnTrueCounter = 0U;
-
         doStartWaiting.store(true);
         auto triggerVector = m_sut.wait();
         isThreadFinished.store(true);
@@ -302,7 +259,6 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_FALSE(isThreadFinished.load());
 
-    m_returnTrueCounter = 1U;
     m_simpleEvents[0].trigger();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_TRUE(isThreadFinished.load());
@@ -318,7 +274,6 @@ TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
         m_sut.attachEvent(m_simpleEvents[i], 5U + i);
     }
 
-    m_returnTrueCounter = 0U;
 
     auto triggerVector = m_sut.timedWait(10_ms);
     ASSERT_THAT(triggerVector.size(), Eq(0U));
@@ -332,7 +287,6 @@ void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
         test->m_sut.attachEvent(test->m_simpleEvents[i], 5U + i);
     }
 
-    test->m_returnTrueCounter = 1U;
     test->m_simpleEvents[0].trigger();
 
     auto triggerVector = waitCall();
@@ -352,18 +306,18 @@ TEST_F(WaitSet_test, TimedWaitReturnsTheOneTriggeredCondition)
     WaitReturnsTheOneTriggeredCondition(this, [&] { return m_sut.timedWait(10_ms); });
 }
 
-#if 0
 void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
     WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        trigger.emplace_back(test->acquireTriggerHandle(test->m_sut, 100U + i));
+        test->m_sut.attachEvent(test->m_simpleEvents[i], 100U + i);
     }
 
-    test->m_returnTrueCounter = 24U;
-    trigger.front()->value().trigger();
+    for (uint64_t i = 0U; i < 24U; ++i)
+    {
+        test->m_simpleEvents[i].trigger();
+    }
 
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(24U));
@@ -371,8 +325,8 @@ void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
     for (uint64_t i = 0U; i < 24U; ++i)
     {
         EXPECT_THAT(triggerVector[i]->getEventId(), 100U + i);
-        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(test));
-        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test>(), test);
+        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(&test->m_simpleEvents[i]));
+        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test::SimpleEventClass>(), &test->m_simpleEvents[i]);
     }
 }
 
@@ -390,14 +344,15 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenMultipleAreTrigger
 void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
                                                          const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        trigger.emplace_back(test->acquireTriggerHandle(test->m_sut, i * 3U + 2U));
+        test->m_sut.attachEvent(test->m_simpleEvents[i], i * 3U + 2U);
     }
 
-    test->m_returnTrueCounter = iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET;
-    trigger.front()->value().trigger();
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    {
+        test->m_simpleEvents[i].trigger();
+    }
 
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET));
@@ -405,8 +360,8 @@ void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         EXPECT_THAT(triggerVector[i]->getEventId(), i * 3U + 2U);
-        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(test));
-        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test>(), test);
+        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(&test->m_simpleEvents[i]));
+        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test::SimpleEventClass>(), &test->m_simpleEvents[i]);
     }
 }
 
@@ -423,25 +378,24 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
 void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
                                              const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    auto trigger1 = test->acquireTriggerHandle(test->m_sut, 1U, WaitSet_test::triggerCallback1);
-    auto trigger2 = test->acquireTriggerHandle(test->m_sut, 2U, WaitSet_test::triggerCallback2);
+    auto result1 = test->m_sut.attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
+    auto result2 = test->m_sut.attachEvent(test->m_simpleEvents[1], 2U, &WaitSet_test::triggerCallback2);
 
-    ASSERT_THAT(trigger1->has_error(), Eq(false));
-    ASSERT_THAT(trigger2->has_error(), Eq(false));
+    ASSERT_THAT(result1.has_error(), Eq(false));
+    ASSERT_THAT(result2.has_error(), Eq(false));
 
-    test->m_returnTrueCounter = 2U;
-    trigger1->value().trigger();
+    test->m_simpleEvents[0].trigger();
+    test->m_simpleEvents[1].trigger();
+
 
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(2U));
 
-    test->m_triggerCallbackArgument1 = nullptr;
     (*triggerVector[0U])();
-    EXPECT_THAT(test->m_triggerCallbackArgument1, Eq(test));
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
 
-    test->m_triggerCallbackArgument2 = nullptr;
     (*triggerVector[1U])();
-    EXPECT_THAT(test->m_triggerCallbackArgument2, Eq(test));
+    EXPECT_THAT(test->m_simpleEvents[1].m_triggerCallbackArgument2, Eq(&test->m_simpleEvents[1]));
 }
 
 TEST_F(WaitSet_test, WaitReturnsTriggersWithCorrectCallbacks)
@@ -466,50 +420,30 @@ TEST_F(WaitSet_test, WaitSetCapacity)
 
 TEST_F(WaitSet_test, OneAcquireTriggerIncreasesSizeByOne)
 {
-    auto trigger1 = acquireTriggerHandle(m_sut, 0U);
-    static_cast<void>(trigger1);
+    m_sut.attachEvent(m_simpleEvents[0]);
 
     EXPECT_EQ(m_sut.size(), 1U);
 }
 
 TEST_F(WaitSet_test, MultipleAcquireTriggerIncreasesSizeCorrectly)
 {
-    acquireTriggerHandle(m_sut, 5U);
-    acquireTriggerHandle(m_sut, 6U);
-    acquireTriggerHandle(m_sut, 7U);
-    acquireTriggerHandle(m_sut, 8U);
+    m_sut.attachEvent(m_simpleEvents[0]);
+    m_sut.attachEvent(m_simpleEvents[1]);
+    m_sut.attachEvent(m_simpleEvents[2]);
+    m_sut.attachEvent(m_simpleEvents[4]);
 
     EXPECT_EQ(m_sut.size(), 4U);
 }
 
 TEST_F(WaitSet_test, TriggerGoesOutOfScopeReducesSize)
 {
-    acquireTriggerHandle(m_sut, 1U);
-    acquireTriggerHandle(m_sut, 2U);
+    m_sut.attachEvent(m_simpleEvents[0]);
+    m_sut.attachEvent(m_simpleEvents[1]);
     {
-        auto trigger3 = acquireTriggerHandle(m_sut, 3U);
-        auto trigger4 = acquireTriggerHandle(m_sut, 4U);
-        removeTrigger(trigger3->value().getUniqueId());
-        removeTrigger(trigger4->value().getUniqueId());
+        SimpleEventClass simpleEvent1, simpleEvent2;
+        m_sut.attachEvent(simpleEvent1);
+        m_sut.attachEvent(simpleEvent2);
     }
 
     EXPECT_EQ(m_sut.size(), 2U);
 }
-
-TEST_F(WaitSet_test, MovingAssignTriggerReducesSize)
-{
-    auto trigger1 = acquireTriggerHandle(m_sut, 0U);
-    TriggerHandle trigger2;
-    trigger2 = std::move(trigger1->value());
-
-    EXPECT_EQ(m_sut.size(), 1U);
-}
-
-TEST_F(WaitSet_test, MoveCTorTriggerDoesNotChangeSize)
-{
-    auto trigger1 = acquireTriggerHandle(m_sut, 0U);
-    auto trigger2(std::move(*trigger1));
-
-    EXPECT_EQ(m_sut.size(), 1U);
-}
-#endif
