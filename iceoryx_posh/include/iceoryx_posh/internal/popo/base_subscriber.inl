@@ -142,8 +142,8 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
 
 template <typename T, typename Subscriber, typename port_t>
 inline void
-BaseSubscriber<T, Subscriber, port_t>::enableEventNEW(iox::popo::TriggerHandle&& triggerHandle,
-                                                      [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
+                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
 {
     m_trigger = std::move(triggerHandle);
     m_port.setConditionVariable(m_trigger.getConditionVariableData());
@@ -159,35 +159,6 @@ inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHas
         return {*this, &SelfType::hasSamples};
     }
     return {};
-}
-
-template <typename T, typename Subscriber, typename port_t>
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                                   const uint64_t eventId,
-                                                   const EventInfo::Callback<Subscriber> callback) noexcept
-{
-    Subscriber* self = reinterpret_cast<Subscriber*>(this);
-
-    return waitset
-        .acquireTriggerHandle(
-            self, {*this, &SelfType::hasSamples}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
-        .and_then([this](TriggerHandle& trigger) {
-            m_trigger = std::move(trigger);
-            m_port.setConditionVariable(m_trigger.getConditionVariableData());
-        });
-}
-
-template <typename T, typename Subscriber, typename port_t>
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                                   const EventInfo::Callback<Subscriber> callback) noexcept
-{
-    return enableEvent(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
 }
 
 template <typename T, typename Subscriber, typename port_t>

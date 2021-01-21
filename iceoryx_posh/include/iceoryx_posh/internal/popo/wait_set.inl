@@ -40,19 +40,12 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 }
 
 template <uint64_t Capacity>
-template <typename T, typename... Targs>
-inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin, const Targs&... args) noexcept
-{
-    return eventOrigin.enableEvent(*this, args...);
-}
-
-template <uint64_t Capacity>
-template <typename T, typename EventType>
-inline cxx::expected<WaitSetError>
-WaitSet<Capacity>::attachEventNEW(T& eventOrigin,
-                                  const EventType eventType,
-                                  const uint64_t eventId,
-                                  const EventInfo::Callback<T>& eventCallback) noexcept
+template <typename T>
+inline cxx::expected<uint64_t, WaitSetError>
+WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
+                                   const WaitSetHasTriggeredCallback& hasTriggeredCallback,
+                                   const uint64_t eventId,
+                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
     static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
                       && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
@@ -60,12 +53,6 @@ WaitSet<Capacity>::attachEventNEW(T& eventOrigin,
                   "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
                   "a callback inside of Trigger.");
 
-    // check method disableEvent(EventType)
-    //    getHasTriggeredCallbackForEvent
-    //    enableEvent
-    //    invalidateTrigger
-
-    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(eventType);
     if (!hasTriggeredCallback)
     {
         return cxx::error<WaitSetError>(WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET);
@@ -91,13 +78,59 @@ WaitSet<Capacity>::attachEventNEW(T& eventOrigin,
         return cxx::error<WaitSetError>(WaitSetError::WAIT_SET_FULL);
     }
 
-    eventOrigin.enableEventNEW(
-        TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, m_triggerList.back().getUniqueId()),
-        eventType);
-
-    return cxx::success<>();
+    return cxx::success<uint64_t>(m_triggerList.back().getUniqueId());
 }
 
+template <uint64_t Capacity>
+template <typename T, typename EventType, typename>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const EventType eventType,
+                                                                  const uint64_t eventId,
+                                                                  const EventInfo::Callback<T>& eventCallback) noexcept
+{
+    static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
+                      && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
+                  "At the moment only non copyable and non movable origin types are supported! To implement this we "
+                  "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
+                  "a callback inside of Trigger.");
+
+    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(eventType);
+
+    return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
+        eventOrigin.enableEvent(TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
+                                eventType);
+    });
+}
+
+template <uint64_t Capacity>
+template <typename T, typename EventType, typename>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const EventType eventType,
+                                                                  const EventInfo::Callback<T>& eventCallback) noexcept
+{
+    return attachEvent(eventOrigin, eventType, EventInfo::INVALID_ID, eventCallback);
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const uint64_t eventId,
+                                                                  const EventInfo::Callback<T>& eventCallback) noexcept
+{
+    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent();
+
+    return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
+        eventOrigin.enableEvent(TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+    });
+}
+
+template <uint64_t Capacity>
+template <typename T>
+cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                           const EventInfo::Callback<T>& eventCallback) noexcept
+{
+    return attachEvent(eventOrigin, EventInfo::INVALID_ID, eventCallback);
+}
 
 template <uint64_t Capacity>
 template <typename T, typename... Targs>
@@ -198,44 +231,6 @@ template <uint64_t Capacity>
 inline uint64_t WaitSet<Capacity>::capacity() const noexcept
 {
     return m_triggerList.capacity();
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline cxx::expected<TriggerHandle, WaitSetError>
-WaitSet<Capacity>::acquireTriggerHandle(T* const origin,
-                                        const cxx::ConstMethodCallback<bool>& triggerCallback,
-                                        const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                                        const uint64_t eventId,
-                                        const EventInfo::Callback<T> callback) noexcept
-{
-    static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
-                      && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
-                  "At the moment only non copyable and non movable origin types are supported! To implement this we "
-                  "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
-                  "a callback inside of Trigger.");
-
-    Trigger possibleLogicallyEqualTrigger(
-        origin, triggerCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>());
-
-    // it is not allowed to have to logical equal trigger in the same waitset
-    // otherwise when we call removeTrigger(Trigger) we do not know which trigger
-    // we should remove if the trigger is attached multiple times.
-    for (auto& currentTrigger : m_triggerList)
-    {
-        if (currentTrigger.isLogicalEqualTo(possibleLogicallyEqualTrigger))
-        {
-            return cxx::error<WaitSetError>(WaitSetError::EVENT_ALREADY_ATTACHED);
-        }
-    }
-
-    if (!m_triggerList.push_back(Trigger{origin, triggerCallback, invalidationCallback, eventId, callback}))
-    {
-        return cxx::error<WaitSetError>(WaitSetError::WAIT_SET_FULL);
-    }
-
-    return iox::cxx::success<TriggerHandle>(TriggerHandle(
-        m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, m_triggerList.back().getUniqueId()));
 }
 
 template <uint64_t Capacity>

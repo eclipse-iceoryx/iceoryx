@@ -48,5 +48,15 @@ void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
     }
 }
 
+WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent() const noexcept
+{
+    return {*this, &UserTrigger::hasTriggered};
+}
+
+void UserTrigger::enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept
+{
+    m_trigger = std::move(triggerHandle);
+}
+
 } // namespace popo
 } // namespace iox

@@ -105,48 +105,22 @@ class MyTriggerClass
     // This method attaches an event of the class to a waitset.
     // The event is choosen by the event parameter. Additionally, you can
     // set a eventId to group multiple instances and a custom callback.
-    iox::cxx::expected<iox::popo::WaitSetError>
-    enableEvent(iox::popo::WaitSet<>& waitset,
-                const MyTriggerClassEvents event,
-                const uint64_t eventId,
-                const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassEvents event) noexcept
     {
         switch (event)
         {
         case MyTriggerClassEvents::PERFORMED_ACTION:
-        {
-            return waitset
-                .acquireTriggerHandle(this,
-                                      // trigger calls this method to ask if it was triggered
-                                      {*this, &MyTriggerClass::hasPerformedAction},
-                                      // method which will be called when the waitset goes out of scope
-                                      {*this, &MyTriggerClass::disableEvent},
-                                      eventId,
-                                      callback)
-                // assigning the acquired trigger from the waitset to m_actionTrigger
-                .and_then([this](iox::popo::TriggerHandle& trigger) { m_actionTrigger = std::move(trigger); });
-        }
+            m_actionTrigger = std::move(triggerHandle);
+            break;
         case MyTriggerClassEvents::ACTIVATE:
-        {
-            return waitset
-                .acquireTriggerHandle(this,
-                                      // trigger calls this method to ask if it was triggered
-                                      {*this, &MyTriggerClass::isActivated},
-                                      // method which will be called when the waitset goes out of scope
-                                      {*this, &MyTriggerClass::disableEvent},
-                                      eventId,
-                                      callback)
-                // assigning the acquired trigger from the waitset to m_activateTrigger
-                .and_then([this](iox::popo::TriggerHandle& trigger) { m_activateTrigger = std::move(trigger); });
+            m_activateTrigger = std::move(triggerHandle);
+            break;
         }
-        }
-
-        return iox::cxx::success<>();
     }
 
     // we offer the waitset a method to invalidate trigger if it goes
     // out of scope
-    void disableEvent(const uint64_t uniqueTriggerId)
+    void invalidateTrigger(const uint64_t uniqueTriggerId)
     {
         if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
         {
@@ -156,6 +130,18 @@ class MyTriggerClass
         {
             m_activateTrigger.invalidate();
         }
+    }
+
+    iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
+    {
+        switch (event)
+        {
+        case MyTriggerClassEvents::PERFORMED_ACTION:
+            return {*this, &MyTriggerClass::hasPerformedAction};
+        case MyTriggerClassEvents::ACTIVATE:
+            return {*this, &MyTriggerClass::isActivated};
+        }
+        return {};
     }
 
   private:
@@ -185,7 +171,7 @@ void eventLoop()
     while (true)
     {
         auto eventVector = waitset->wait();
-        for (auto& event: eventVector)
+        for (auto& event : eventVector)
         {
             if (event->getEventId() == ACTIVATE_ID)
             {
@@ -215,9 +201,9 @@ int main()
     triggerClass.emplace();
 
     // attach both events to a waitset and assign a callback
-    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, &callOnActivate);
     waitset->attachEvent(
-        *triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
+        *triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction);
 
     // start the event loop which is handling the events
     std::thread eventLoopThread(eventLoop);

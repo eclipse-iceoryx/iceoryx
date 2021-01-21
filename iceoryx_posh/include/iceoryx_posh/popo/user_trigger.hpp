@@ -52,25 +52,9 @@ class UserTrigger
   private:
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
-    /// @brief enables the trigger event
-    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] eventId optional parameter, the id of the corresponding event
-    /// @param[in] callback optional parameter, the callback of the event
-    /// @return if the event could not be attached to the given waitset the expected contains the error, otherwise
-    /// the expected signals success
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const uint64_t eventId = EventInfo::INVALID_ID,
-                                            const EventInfo::Callback<UserTrigger> callback = nullptr) noexcept;
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent() const noexcept;
 
-    /// @brief enables the trigger event
-    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] callback optional parameter, the callback of the event
-    /// @return if the event could not be attached to the given waitset the expected contains the error, otherwise
-    /// the expected signals success
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const EventInfo::Callback<UserTrigger> callback) noexcept;
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
 
     /// @brief disables the trigger event. If it was not enabled nothing happens
     /// happens.
@@ -83,7 +67,5 @@ class UserTrigger
 
 } // namespace popo
 } // namespace iox
-
-#include "iceoryx_posh/internal/popo/user_trigger.inl"
 
 #endif // IOX_POSH_POPO_USER_TRIGGER_HPP

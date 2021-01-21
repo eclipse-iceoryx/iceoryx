@@ -26,9 +26,9 @@ extern "C" {
 }
 
 static uint64_t event_info_vector_to_c_array(const WaitSet<>::EventInfoVector& triggerVector,
-                                          iox_event_info_t* eventInfoArray,
-                                          const uint64_t eventInfoArrayCapacity,
-                                          uint64_t* missedElements)
+                                             iox_event_info_t* eventInfoArray,
+                                             const uint64_t eventInfoArrayCapacity,
+                                             uint64_t* missedElements)
 {
     uint64_t eventInfoArraySize = 0U;
     uint64_t triggerVectorSize = triggerVector.size();

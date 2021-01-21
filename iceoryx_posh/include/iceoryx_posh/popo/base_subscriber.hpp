@@ -117,34 +117,7 @@ class BaseSubscriber
 
     void invalidateTrigger(const uint64_t trigger) noexcept;
 
-    /// @brief attaches a WaitSet to the subscriber
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
-    /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
-    ///            identify an event uniquely or to group multiple events together when they share the same eventId
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const SubscriberEvent subscriberEvent,
-                                            const uint64_t eventId = EventInfo::INVALID_ID,
-                                            const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
-
-    /// @brief attaches a WaitSet to the subscriber
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
-    /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const SubscriberEvent subscriberEvent,
-                                            const EventInfo::Callback<Subscriber> callback) noexcept;
-
-    void enableEventNEW(iox::popo::TriggerHandle&& triggerHandle, const SubscriberEvent subscriberEvent) noexcept;
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const SubscriberEvent subscriberEvent) noexcept;
 
     WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const SubscriberEvent subscriberEvent) const noexcept;
 
