@@ -144,6 +144,10 @@ class BaseSubscriber
                                             const SubscriberEvent subscriberEvent,
                                             const EventInfo::Callback<Subscriber> callback) noexcept;
 
+    void enableEventNEW(iox::popo::TriggerHandle&& triggerHandle, const SubscriberEvent subscriberEvent) noexcept;
+
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const SubscriberEvent subscriberEvent) const noexcept;
+
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached
     void disableEvent(const SubscriberEvent subscriberEvent) noexcept;

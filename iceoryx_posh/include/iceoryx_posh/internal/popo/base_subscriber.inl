@@ -139,6 +139,28 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
     m_port.get().releaseChunk(header);
 }
 
+
+template <typename T, typename Subscriber, typename port_t>
+inline void
+BaseSubscriber<T, Subscriber, port_t>::enableEventNEW(iox::popo::TriggerHandle&& triggerHandle,
+                                                      [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
+{
+    m_trigger = std::move(triggerHandle);
+    m_port.setConditionVariable(m_trigger.getConditionVariableData());
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHasTriggeredCallbackForEvent(
+    const SubscriberEvent subscriberEvent) const noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::HAS_SAMPLES:
+        return {*this, &SelfType::hasSamples};
+    }
+    return {};
+}
+
 template <typename T, typename Subscriber, typename port_t>
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>

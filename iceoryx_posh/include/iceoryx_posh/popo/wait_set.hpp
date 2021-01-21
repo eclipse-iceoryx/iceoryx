@@ -35,7 +35,10 @@ enum class WaitSetError : uint8_t
 {
     WAIT_SET_FULL,
     EVENT_ALREADY_ATTACHED,
+    PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET,
 };
+
+using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
 
 /// @brief Logical disjunction of a certain number of Triggers
 ///
@@ -67,6 +70,13 @@ class WaitSet
     /// @return when an error occurs an enum which is describing the error is returned
     template <typename T, typename... Targs>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const Targs&... args) noexcept;
+
+    template <typename T, typename EventType>
+    cxx::expected<WaitSetError> attachEventNEW(T& eventOrigin,
+                                               const EventType eventType,
+                                               const uint64_t eventId,
+                                               const EventInfo::Callback<T>& eventCallback) noexcept;
+
 
     /// @brief detaches an event from the WaitSet
     /// @param[in] eventOrigin the origin of the event that should be detached
