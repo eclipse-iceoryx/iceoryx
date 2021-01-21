@@ -112,8 +112,19 @@ inline constexpr Duration::Duration(const uint64_t seconds, const uint32_t nanos
 {
     if (nanoseconds >= NANOSECS_PER_SEC)
     {
-        m_seconds += nanoseconds / NANOSECS_PER_SEC;
-        m_nanoseconds = m_nanoseconds % NANOSECS_PER_SEC;
+        auto additionalSeconds = nanoseconds / NANOSECS_PER_SEC;
+        if (std::numeric_limits<uint64_t>::max() - additionalSeconds < m_seconds)
+        {
+            std::clog << __PRETTY_FUNCTION__
+                      << ": Applied values are out of range and would overflow, clamping to max value!" << std::endl;
+            m_seconds = std::numeric_limits<uint64_t>::max();
+            m_nanoseconds = NANOSECS_PER_SEC - 1U;
+        }
+        else
+        {
+            m_seconds += additionalSeconds;
+            m_nanoseconds = m_nanoseconds % NANOSECS_PER_SEC;
+        }
     }
 }
 
@@ -153,7 +164,17 @@ inline constexpr T Duration::nanoSeconds() const noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
 
-    /// @todo decide if we want an overflow or saturation if the result is out of range for T
+    constexpr uint64_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<T>::max() / NANOSECS_PER_SEC};
+    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{std::numeric_limits<T>::max() % NANOSECS_PER_SEC};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
+
+    if (*this > MAX_DURATION_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                  << std::endl;
+        return std::numeric_limits<T>::max();
+    }
+
     return static_cast<T>(m_seconds * NANOSECS_PER_SEC + m_nanoseconds);
 }
 

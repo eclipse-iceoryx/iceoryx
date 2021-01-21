@@ -93,7 +93,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsMaxValue)
     EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
-TEST(Duration_test, ConstructDurationWithSecondsAndNanosecondsMaxValue)
+TEST(Duration_test, ConstructDurationWithSecondsAndNanosecondsMaxValues)
 {
     constexpr uint64_t MAX_SECONDS_FOR_CTOR{std::numeric_limits<uint64_t>::max()};
     constexpr uint64_t MAX_NANOSECONDS_FOR_CTOR{std::numeric_limits<uint32_t>::max()};
