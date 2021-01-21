@@ -96,7 +96,7 @@ class PoshRuntime
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
                            const popo::PublisherOptions& publisherOptions = popo::PublisherOptions(),
-                           const NodeName_t& nodeName = NodeName_t(cxx::TruncateToCapacity, ""),
+                           const NodeName_t& nodeName = {""},
                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a subscriber port
@@ -109,7 +109,7 @@ class PoshRuntime
     SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
                             const popo::SubscriberOptions& subscriberOptions = popo::SubscriberOptions(),
-                            const NodeName_t& nodeName = NodeName_t(cxx::TruncateToCapacity, ""),
+                            const NodeName_t& nodeName = {""},
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create an interface port
@@ -117,8 +117,7 @@ class PoshRuntime
     /// @param[in] nodeName name of the node where the interface should belong to
     /// @return pointer to a created interface port data
     popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
-                                                    const NodeName_t& nodeName = NodeName_t(cxx::TruncateToCapacity,
-                                                                                            "default")) noexcept;
+                                                    const NodeName_t& nodeName = {""}) noexcept;
 
     /// @brief request the RouDi daemon to create an application port
     /// @return pointer to a created application port data

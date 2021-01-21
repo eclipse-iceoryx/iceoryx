@@ -78,8 +78,7 @@ class PortManager
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const ProcessName_t& processName,
-                                                      const NodeName_t& node = NodeName_t(cxx::TruncateToCapacity,
-                                                                                          "default")) noexcept;
+                                                      const NodeName_t& node = {""}) noexcept;
 
     popo::ApplicationPortData* acquireApplicationPortData(const ProcessName_t& processName) noexcept;
 
@@ -121,10 +120,8 @@ class PortManager
     void addEntryToServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
     void removeEntryFromServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
 
-    // clang-format off
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept;
-    // clang-format on
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service
