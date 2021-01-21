@@ -45,6 +45,13 @@ void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro
 }
 
 template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro::CaproMessage& message,
+                                                                     const UniquePortId& id)
+{
+    m_portData.updateConnectionState(message, id);
+}
+
+template <typename PublisherPort, typename SubscriberPort>
 bool PortIntrospection<PublisherPort, SubscriberPort>::registerPublisherPort(
     PublisherPort&& publisherPortGeneric,
     PublisherPort&& publisherPortThroughput,
@@ -195,12 +202,38 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateConnectio
     for (auto& pair : map)
     {
         auto& connection = m_connectionContainer[pair.second];
-        if (service == connection.subscriberInfo.service)
-        {
-            // should always be true if its in the map stored at this service key
-            connection.state = getNextState(connection.state, messageType);
-        }
+        connection.state = getNextState(connection.state, messageType);
     }
+
+    setNew(true);
+    return true;
+}
+
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateConnectionState(
+    const capro::CaproMessage& message, const UniquePortId& id)
+{
+    const capro::ServiceDescription& service = message.m_serviceDescription;
+    capro::CaproMessageType messageType = message.m_type;
+
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    auto iter = m_connectionMap.find(service);
+    if (iter == m_connectionMap.end())
+    {
+        return false; // no corresponding capro Id ...
+    }
+
+    auto& map = iter->second;
+
+    auto iterInnerMap = map.find(id);
+    if (iterInnerMap == map.end())
+    {
+        return false;
+    }
+
+    auto& connection = m_connectionContainer[iterInnerMap->second];
+    connection.state = getNextState(connection.state, messageType);
 
     setNew(true);
     return true;
@@ -311,9 +344,9 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
     if (sendIter != m_publisherMap.end())
     {
         auto& map = sendIter->second;
-        for (auto& i : map)
+        for (auto& iter : map)
         {
-            auto publisher = m_publisherContainer.get(i.second);
+            auto publisher = m_publisherContainer.get(iter.second);
             connection.publisherInfo = publisher; // set corresponding publisher if exists
         }
     }
@@ -506,8 +539,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
                 subscriberData.m_caproServiceID = subscriberInfo.service.getServiceIDString();
                 subscriberData.m_caproEventMethodID = subscriberInfo.service.getEventIDString();
                 if (connected)
-                { // publisherInfo is not nullptr, otherwise we would not be
-                    // connected
+                { // publisherInfo is not nullptr, otherwise we would not be connected
                     subscriberData.m_publisherIndex = connection.publisherInfo->index;
                 } // remark: index is -1 for not connected
                 m_subscriberList.emplace_back(subscriberData);

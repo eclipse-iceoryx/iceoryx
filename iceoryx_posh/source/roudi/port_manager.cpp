@@ -134,6 +134,7 @@ void PortManager::handlePublisherPorts() noexcept
         PublisherPortRouDiType publisherPort(publisherPortData);
 
         publisherPort.tryGetCaProMessage().and_then([&](auto caproMessage) {
+            m_portIntrospection.reportMessage(caproMessage);
             if (capro::CaproMessageType::OFFER == caproMessage.m_type)
             {
                 addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
@@ -152,7 +153,6 @@ void PortManager::handlePublisherPorts() noexcept
                              iox::ErrorLevel::MODERATE);
             }
 
-            m_portIntrospection.reportMessage(caproMessage);
             sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
             // forward to interfaces
             sendToAllMatchingInterfacePorts(caproMessage);
@@ -177,6 +177,7 @@ void PortManager::handleSubscriberPorts() noexcept
             if ((capro::CaproMessageType::SUB == caproMessage.m_type)
                 || (capro::CaproMessageType::UNSUB == caproMessage.m_type))
             {
+                m_portIntrospection.reportMessage(caproMessage, subscriberPort.getUniqueID());
                 if (!sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
                 {
                     LogDebug() << "capro::SUB/UNSUB, no matching publisher!!";
@@ -194,8 +195,6 @@ void PortManager::handleSubscriberPorts() noexcept
                              nullptr,
                              iox::ErrorLevel::MODERATE);
             }
-
-            m_portIntrospection.reportMessage(caproMessage);
         });
 
         // check if we have to destroy this subscriber port
@@ -368,7 +367,7 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
                 cxx::Ensures(!returnMessage.has_value());
 
                 // inform introspection
-                m_portIntrospection.reportMessage(publisherResponse.value());
+                m_portIntrospection.reportMessage(publisherResponse.value(), subscriberSource.getUniqueID());
             }
             publisherFound = true;
         }
