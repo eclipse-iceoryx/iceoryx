@@ -125,7 +125,8 @@ BaseSubscriber<T, Subscriber, port_t>::takeChunk() noexcept
             return cxx::success<const mepoo::ChunkHeader*>(maybeHeader.value());
         }
     }
-    // could move this to a tryGetChunk but then we should remove expected<optional<>> there in the call chain
+    ///@todo: optimization - we could move this to a tryGetChunk but then we should remove expected<optional<>> there in
+    /// the call chain
     return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
 }
 
@@ -149,7 +150,7 @@ template <typename T, typename Subscriber, typename port_t>
 void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const void* payload) noexcept
 {
     auto header = mepoo::ChunkHeader::fromPayload(payload);
-    m_port.get().releaseChunk(header);
+    m_port.releaseChunk(header);
 }
 
 // ============================== Sample Deleter ============================== //

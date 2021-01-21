@@ -48,9 +48,13 @@ int main()
         if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
             subscriber.take_1_0()
-                .and_then([](const void* data) {
+                .and_then([&](const void* data) {
                     auto object = static_cast<const RadarObject*>(data);
                     std::cout << "Got value: " << object->x << std::endl;
+
+                    // note that we explicitly have to release the data
+                    // and afterwards the pointer access is undefined behavior
+                    subscriber.releaseChunk(object);
                 })
                 .or_else([](auto& result) {
                     if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)

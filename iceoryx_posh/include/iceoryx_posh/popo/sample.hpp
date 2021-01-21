@@ -49,6 +49,12 @@ class Sample
     T* operator->() noexcept;
 
     ///
+    /// @brief operator -> Transparent read-only access to the encapsulated type.
+    /// @return
+    ///
+    const T* operator->() const noexcept;
+
+    ///
     /// @brief operator* Provide a reference to the encapsulated type.
     /// @return A T& to the encapsulated type.
     /// @details Only available for non void type T.
@@ -58,16 +64,31 @@ class Sample
     S& operator*() noexcept;
 
     ///
+    /// @brief operator* Provide a const reference to the encapsulated type.
+    /// @return A T& to the encapsulated type.
+    /// @details Only available for non void type T.
+    ///
+    template <typename S = T,
+              typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_same<S, void>::value, S>>
+    const S& operator*() const noexcept;
+
+    ///
     /// @brief operator bool Indciates whether the sample is valid, i.e. refers to allocated memory.
     /// @return true if the sample is valid, false otherwise.
     ///
-    operator bool();
+    operator bool() const;
 
     ///
     /// @brief allocation Access to the memory chunk loaned to the sample.
     /// @return
     ///
     T* get() noexcept;
+
+    ///
+    /// @brief allocation Read-only access to the memory chunk loaned to the sample.
+    /// @return
+    ///
+    const T* get() const noexcept;
 
     ///
     /// @brief header Retrieve the header of the underlying memory chunk loaned to the sample.
@@ -86,15 +107,6 @@ class Sample
     /// @details This prevents the sample from automatically releasing ownership on destruction.
     ///
     void release() noexcept;
-
-    ///
-    /// @brief emplace In place construct encapsulated type with given arguments.
-    /// @param args Arguments used for construction
-    /// @details Will overwrite anything already there without calling a dtor.
-    ///          For use with uninitialized samples only.
-    ///
-    template <typename... Args>
-    void emplace(Args&&... args) noexcept;
 
   protected:
     cxx::unique_ptr<T> m_samplePtr{[](T* const) {}}; // Placeholder. This is overwritten on sample construction.

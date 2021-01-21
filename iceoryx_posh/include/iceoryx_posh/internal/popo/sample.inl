@@ -65,6 +65,12 @@ inline T* Sample<T>::operator->() noexcept
 }
 
 template <typename T>
+inline const T* Sample<T>::operator->() const noexcept
+{
+    return get();
+}
+
+template <typename T>
 template <typename S, typename>
 inline S& Sample<T>::operator*() noexcept
 {
@@ -72,13 +78,26 @@ inline S& Sample<T>::operator*() noexcept
 }
 
 template <typename T>
-inline Sample<T>::operator bool()
+template <typename S, typename>
+inline const S& Sample<T>::operator*() const noexcept
+{
+    return *get();
+}
+
+template <typename T>
+inline Sample<T>::operator bool() const
 {
     return get() != nullptr;
 }
 
 template <typename T>
 inline T* Sample<T>::get() noexcept
+{
+    return m_samplePtr.get();
+}
+
+template <typename T>
+inline const T* Sample<T>::get() const noexcept
 {
     return m_samplePtr.get();
 }
@@ -107,16 +126,6 @@ template <typename T>
 inline void Sample<T>::release() noexcept
 {
     m_samplePtr.release();
-}
-
-template <typename T>
-template <typename... Args>
-inline void Sample<T>::emplace(Args&&... args) noexcept
-{
-    // to discuss overwrite unchecked (requires expert use) or keept track with a bool
-    // whether it needs to be destroyed before?
-
-    new (get()) T(std::forward<Args>(args)...);
 }
 
 // ============================== Sample<const T> ========================= //
