@@ -46,19 +46,19 @@ class UserTrigger
     /// @brief Resets the UserTrigger state to not triggered
     void resetTrigger() noexcept;
 
-    template <uint64_t>
-    friend class WaitSet;
-
-  private:
+    /// @brief Only usable by the WaitSet, not for public use
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent() const noexcept;
+    /// @brief Only usable by the WaitSet, not for public use
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const WaitSetAccessor) const noexcept;
 
-    void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
+    /// @brief Only usable by the WaitSet, not for public use
+    void enableEvent(const WaitSetAccessor, iox::popo::TriggerHandle&& triggerHandle) noexcept;
 
+    /// @brief Only usable by the WaitSet, not for public use
     /// @brief disables the trigger event. If it was not enabled nothing happens
     /// happens.
-    void disableEvent() noexcept;
+    void disableEvent(const WaitSetAccessor) noexcept;
 
   private:
     TriggerHandle m_trigger;

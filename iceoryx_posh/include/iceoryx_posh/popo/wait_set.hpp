@@ -40,6 +40,15 @@ enum class WaitSetError : uint8_t
 
 using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
 
+class WaitSetAccessor
+{
+    template <uint64_t>
+    class WaitSet;
+
+  private:
+    constexpr WaitSetAccessor() noexcept = default;
+};
+
 /// @brief Logical disjunction of a certain number of Triggers
 ///
 /// The WaitSet stores Triggers and allows the user to wait till one or more of those Triggers are triggered. It works
@@ -103,6 +112,8 @@ class WaitSet
     uint64_t capacity() const noexcept;
 
   protected:
+    static constexpr WaitSetAccessor WAIT_SET_ACCESSOR{};
+
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:

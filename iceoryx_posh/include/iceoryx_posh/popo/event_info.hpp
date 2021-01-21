@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_TRIGGER_INFO_HPP
-#define IOX_POSH_POPO_TRIGGER_INFO_HPP
+#ifndef IOX_POSH_POPO_EVENT_INFO_HPP
+#define IOX_POSH_POPO_EVENT_INFO_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"

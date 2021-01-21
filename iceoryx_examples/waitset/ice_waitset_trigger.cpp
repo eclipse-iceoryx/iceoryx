@@ -98,14 +98,13 @@ class MyTriggerClass
     }
 
 
-    template <uint64_t>
-    friend class iox::popo::WaitSet;
-
-  private:
+    /// @brief Only usable by the WaitSet, not for public use
     // This method attaches an event of the class to a waitset.
     // The event is choosen by the event parameter. Additionally, you can
     // set a eventId to group multiple instances and a custom callback.
-    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassEvents event) noexcept
+    void enableEvent(const iox::popo::WaitSetAccessor,
+                     iox::popo::TriggerHandle&& triggerHandle,
+                     const MyTriggerClassEvents event) noexcept
     {
         switch (event)
         {
@@ -118,6 +117,7 @@ class MyTriggerClass
         }
     }
 
+    /// @brief Only usable by the WaitSet, not for public use
     // we offer the waitset a method to invalidate trigger if it goes
     // out of scope
     void invalidateTrigger(const uint64_t uniqueTriggerId)
@@ -132,7 +132,9 @@ class MyTriggerClass
         }
     }
 
-    iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
+    /// @brief Only usable by the WaitSet, not for public use
+    iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const iox::popo::WaitSetAccessor,
+                                                                        const MyTriggerClassEvents event) const noexcept
     {
         switch (event)
         {

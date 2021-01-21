@@ -108,22 +108,28 @@ class BaseSubscriber
     ///
     void releaseQueuedSamples() noexcept;
 
-    template <uint64_t Capacity>
-    friend class WaitSet;
+  public:
+    /// @brief Only usable by the WaitSet, not for public use
+    void invalidateTrigger(const uint64_t trigger) noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use
+    void enableEvent(const WaitSetAccessor,
+                     iox::popo::TriggerHandle&& triggerHandle,
+                     const SubscriberEvent subscriberEvent) noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const WaitSetAccessor,
+                                                                const SubscriberEvent subscriberEvent) const noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use
+    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
+    /// @param[in] subscriberEvent the event which should be detached
+    void disableEvent(const WaitSetAccessor, const SubscriberEvent subscriberEvent) noexcept;
+
 
   protected:
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions) noexcept;
-
-    void invalidateTrigger(const uint64_t trigger) noexcept;
-
-    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const SubscriberEvent subscriberEvent) noexcept;
-
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const SubscriberEvent subscriberEvent) const noexcept;
-
-    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
-    /// @param[in] subscriberEvent the event which should be detached
-    void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
 
   private:
     ///

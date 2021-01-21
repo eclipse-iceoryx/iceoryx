@@ -23,6 +23,8 @@ class WaitSetMock : public iox::popo::WaitSet<>
         : WaitSet(condVarDataPtr)
     {
     }
+
+    using WaitSet::WAIT_SET_ACCESSOR;
 };
 
 
