@@ -21,24 +21,24 @@ namespace iox
 namespace roudi
 {
 template <typename PublisherPort, typename SubscriberPort>
-inline PortIntrospection<PublisherPort, SubscriberPort>::PortIntrospection()
+inline PortIntrospection<PublisherPort, SubscriberPort>::PortIntrospection() noexcept
 {
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline PortIntrospection<PublisherPort, SubscriberPort>::PortData::PortData()
+inline PortIntrospection<PublisherPort, SubscriberPort>::PortData::PortData() noexcept
     : m_newData(true)
 {
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline PortIntrospection<PublisherPort, SubscriberPort>::~PortIntrospection()
+inline PortIntrospection<PublisherPort, SubscriberPort>::~PortIntrospection() noexcept
 {
     stop();
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro::CaproMessage& message)
+inline void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro::CaproMessage& message) noexcept
 {
     m_portData.updateConnectionState(message);
 }
@@ -47,7 +47,7 @@ template <typename PublisherPort, typename SubscriberPort>
 inline bool PortIntrospection<PublisherPort, SubscriberPort>::registerPublisherPort(
     PublisherPort&& publisherPortGeneric,
     PublisherPort&& publisherPortThroughput,
-    PublisherPort&& publisherPortSubscriberPortsData)
+    PublisherPort&& publisherPortSubscriberPortsData) noexcept
 {
     if (m_publisherPort || m_publisherPortThroughput || m_publisherPortSubscriberPortsData)
     {
@@ -62,7 +62,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::registerPublisherP
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::run()
+inline void PortIntrospection<PublisherPort, SubscriberPort>::run() noexcept
 {
     cxx::Expects(m_publisherPort.has_value());
     cxx::Expects(m_publisherPortThroughput.has_value());
@@ -80,7 +80,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::run()
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::send()
+inline void PortIntrospection<PublisherPort, SubscriberPort>::send() noexcept
 {
     if (m_portData.isNew())
     {
@@ -91,7 +91,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::send()
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::sendPortData()
+inline void PortIntrospection<PublisherPort, SubscriberPort>::sendPortData() noexcept
 {
     auto maybeChunkHeader = m_publisherPort->tryAllocateChunk(sizeof(PortIntrospectionFieldTopic));
     if (!maybeChunkHeader.has_error())
@@ -106,7 +106,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::sendPortData()
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData()
+inline void PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData() noexcept
 {
     auto maybeChunkHeader = m_publisherPortThroughput->tryAllocateChunk(sizeof(PortThroughputIntrospectionFieldTopic));
     if (!maybeChunkHeader.has_error())
@@ -122,7 +122,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPortsData()
+inline void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPortsData() noexcept
 {
     auto maybeChunkHeader =
         m_publisherPortSubscriberPortsData->tryAllocateChunk(sizeof(SubscriberPortChangingIntrospectionFieldTopic));
@@ -139,7 +139,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPort
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(const units::Duration interval)
+inline void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(const units::Duration interval) noexcept
 {
     m_sendInterval = interval;
     if (m_publishingTask.isActive())
@@ -150,14 +150,14 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(co
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::stop()
+inline void PortIntrospection<PublisherPort, SubscriberPort>::stop() noexcept
 {
     m_publishingTask.stop();
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool
-PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateConnectionState(const capro::CaproMessage& message)
+inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateConnectionState(
+    const capro::CaproMessage& message) noexcept
 {
     const capro::ServiceDescription& service = message.m_serviceDescription;
     capro::CaproMessageType messageType = message.m_type;
@@ -191,7 +191,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPubli
     typename PublisherPort::MemberType_t* const port,
     const ProcessName_t& name,
     const capro::ServiceDescription& service,
-    const NodeName_t& node)
+    const NodeName_t& node) noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -236,7 +236,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
     typename SubscriberPort::MemberType_t* const portData,
     const ProcessName_t& name,
     const capro::ServiceDescription& service,
-    const NodeName_t& node)
+    const NodeName_t& node) noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -276,9 +276,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool
-PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(const ProcessName_t& name [[gnu::unused]],
-                                                                            const capro::ServiceDescription& service)
+inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(
+    const ProcessName_t& name [[gnu::unused]], const capro::ServiceDescription& service) noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -307,9 +306,8 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(cons
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool
-PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSubscriber(const ProcessName_t& name,
-                                                                             const capro::ServiceDescription& service)
+inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSubscriber(
+    const ProcessName_t& name, const capro::ServiceDescription& service) noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -351,7 +349,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSubscriber(con
 template <typename PublisherPort, typename SubscriberPort>
 inline typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
 PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
-                                                                         capro::CaproMessageType messageType)
+                                                                         capro::CaproMessageType messageType) noexcept
 {
     ConnectionState nextState = currentState; // stay in currentState as default transition
 
@@ -405,7 +403,8 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(Connect
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortIntrospectionTopic& topic)
+inline void
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortIntrospectionTopic& topic) noexcept
 {
     auto& m_publisherList = topic.m_publisherList;
 
@@ -470,14 +469,14 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareT
 template <typename PublisherPort, typename SubscriberPort>
 inline void
 PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic
-                                                                         [[gnu::unused]])
+                                                                         [[gnu::unused]]) noexcept
 {
     /// @todo #402 re-add port throughput
 }
 
 template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(
-    SubscriberPortChangingIntrospectionFieldTopic& topic)
+    SubscriberPortChangingIntrospectionFieldTopic& topic) noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     for (auto& connPair : m_connectionMap)
@@ -513,13 +512,13 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareT
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::isNew()
+inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::isNew() const noexcept
 {
     return m_newData.load(std::memory_order_acquire);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(bool value)
+inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(bool value) noexcept
 {
     m_newData.store(value, std::memory_order_release);
 }
@@ -528,7 +527,7 @@ template <typename PublisherPort, typename SubscriberPort>
 inline bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* port,
                                                                            const ProcessName_t& name,
                                                                            const capro::ServiceDescription& service,
-                                                                           const NodeName_t& node)
+                                                                           const NodeName_t& node) noexcept
 {
     return m_portData.addPublisher(std::move(port), name, service, node);
 }
@@ -537,21 +536,23 @@ template <typename PublisherPort, typename SubscriberPort>
 inline bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t* port,
                                                                             const ProcessName_t& name,
                                                                             const capro::ServiceDescription& service,
-                                                                            const NodeName_t& node)
+                                                                            const NodeName_t& node) noexcept
 {
     return m_portData.addSubscriber(std::move(port), name, service, node);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::removePublisher(const ProcessName_t& name,
-                                                                              const capro::ServiceDescription& service)
+inline bool
+PortIntrospection<PublisherPort, SubscriberPort>::removePublisher(const ProcessName_t& name,
+                                                                  const capro::ServiceDescription& service) noexcept
 {
     return m_portData.removePublisher(name, service);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::removeSubscriber(const ProcessName_t& name,
-                                                                               const capro::ServiceDescription& service)
+inline bool
+PortIntrospection<PublisherPort, SubscriberPort>::removeSubscriber(const ProcessName_t& name,
+                                                                   const capro::ServiceDescription& service) noexcept
 {
     return m_portData.removeSubscriber(name, service);
 }

@@ -62,12 +62,12 @@ class PortIntrospection
 
         struct PublisherInfo
         {
-            PublisherInfo() = default;
+            PublisherInfo() noexcept = default;
 
             PublisherInfo(typename PublisherPort::MemberType_t* const portData,
                           const ProcessName_t& name,
                           const capro::ServiceDescription& service,
-                          const NodeName_t& node)
+                          const NodeName_t& node) noexcept
                 : portData(portData)
                 , name(name)
                 , service(service)
@@ -92,14 +92,12 @@ class PortIntrospection
 
         struct SubscriberInfo
         {
-            SubscriberInfo()
-            {
-            }
+            SubscriberInfo() noexcept = default;
 
             SubscriberInfo(typename SubscriberPort::MemberType_t* const portData,
                            const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const NodeName_t& node)
+                           const NodeName_t& node) noexcept
                 : portData(portData)
                 , name(name)
                 , service(service)
@@ -115,20 +113,18 @@ class PortIntrospection
 
         struct ConnectionInfo
         {
-            ConnectionInfo()
-            {
-            }
+            ConnectionInfo() noexcept = default;
 
             ConnectionInfo(typename SubscriberPort::MemberType_t* const portData,
                            const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const NodeName_t& node)
+                           const NodeName_t& node) noexcept
                 : subscriberInfo(portData, name, service, node)
                 , state(ConnectionState::DEFAULT)
             {
             }
 
-            ConnectionInfo(SubscriberInfo& subscriberInfo)
+            ConnectionInfo(SubscriberInfo& subscriberInfo) noexcept
                 : subscriberInfo(subscriberInfo)
                 , state(ConnectionState::DEFAULT)
             {
@@ -138,14 +134,14 @@ class PortIntrospection
             PublisherInfo* publisherInfo{nullptr};
             ConnectionState state{ConnectionState::DEFAULT};
 
-            bool isConnected()
+            bool isConnected() const noexcept
             {
                 return publisherInfo && state == ConnectionState::CONNECTED;
             }
         };
 
       public:
-        PortData();
+        PortData() noexcept;
 
         /// @brief add a publisher port to be tracked by introspection
         /// there cannot be multiple publisher ports with the same capro id
@@ -158,7 +154,7 @@ class PortIntrospection
         bool addPublisher(typename PublisherPort::MemberType_t* const port,
                           const ProcessName_t& name,
                           const capro::ServiceDescription& service,
-                          const NodeName_t& node);
+                          const NodeName_t& node) noexcept;
 
         /// @brief add a subscriber port to be tracked by introspection
         /// multiple subscribers with the same capro id are possible as long as the names are different
@@ -170,50 +166,50 @@ class PortIntrospection
         bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
                            const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const NodeName_t& node);
+                           const NodeName_t& node) noexcept;
 
         /// @brief remove a publisher port from introspection
         /// @param[in] name name of the port to be added
         /// @param[in] service capro service description of the port to be added
         /// @return returns false if the port could not be removed (since it did not exist)
         ///              and true otherwise
-        bool removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service);
+        bool removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept;
 
         /// @brief remove a subscriber port from introspection
         /// @param[in] name name of the port to be added
         /// @param[in] service capro service description of the port to be added
         /// @return returns false if the port could not be removed (since it did not exist)
         ///              and true otherwise
-        bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service);
+        bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept;
 
         /// @brief update the state of any connection identified by the capro id of a given message
         ///        according to the message type (e.g. capro:SUB for a subscription request)
         /// @param[in] message capro message to be processed
         /// @return returns false there is no corresponding capro service and true otherwise
-        bool updateConnectionState(const capro::CaproMessage& message);
+        bool updateConnectionState(const capro::CaproMessage& message) noexcept;
 
         /// @brief prepare the topic to be send based on the internal connection state of all tracked ports
         /// @param[out] topic data structure to be prepared for sending
-        void prepareTopic(PortIntrospectionTopic& topic);
+        void prepareTopic(PortIntrospectionTopic& topic) noexcept;
 
-        void prepareTopic(PortThroughputIntrospectionTopic& topic);
+        void prepareTopic(PortThroughputIntrospectionTopic& topic) noexcept;
 
-        void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic);
+        void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic) noexcept;
 
         /// @brief compute the next connection state based on the current connection state and a capro message type
         /// @param[in] currentState current connection state (e.g. CONNECTED)
         /// @param[in] messageType capro message type
         /// @return returns the new connection state
         PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
-                                                        capro::CaproMessageType messageType);
+                                                        capro::CaproMessageType messageType) noexcept;
 
         /// @brief indicates whether the logical object state has changed (i.e. the data is new)
         /// @return returns true if the data is new(e.g. new connections were established), false otherwise
-        bool isNew();
+        bool isNew() const noexcept;
 
         /// @brief sets the internal flag indicating new data
         /// @param[in] value value to be set
-        void setNew(bool value);
+        void setNew(bool value) noexcept;
 
       private:
         using PublisherContainer = FixedSizeContainer<PublisherInfo, MAX_PUBLISHERS>;
@@ -240,9 +236,9 @@ class PortIntrospection
     // end of helper classes
 
   public:
-    PortIntrospection();
+    PortIntrospection() noexcept;
 
-    ~PortIntrospection();
+    ~PortIntrospection() noexcept;
 
     // delete copy constructor and assignment operator
     PortIntrospection(PortIntrospection const&) = delete;
@@ -261,7 +257,7 @@ class PortIntrospection
     bool addPublisher(typename PublisherPort::MemberType_t* port,
                       const ProcessName_t& name,
                       const capro::ServiceDescription& service,
-                      const NodeName_t& node);
+                      const NodeName_t& node) noexcept;
 
     /// @brief add a subscriber port to be tracked by introspection
     /// multiple subscribers with the same capro id are possible as long as the names are different
@@ -273,7 +269,7 @@ class PortIntrospection
     bool addSubscriber(typename SubscriberPort::MemberType_t* port,
                        const ProcessName_t& name,
                        const capro::ServiceDescription& service,
-                       const NodeName_t& node);
+                       const NodeName_t& node) noexcept;
 
 
     /// @brief remove a publisher port from introspection
@@ -281,49 +277,49 @@ class PortIntrospection
     /// @param[in] service capro service description of the port to be added
     /// @return returns false if the port could not be removed (since it did not exist)
     ///              and true otherwise
-    bool removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service);
+    bool removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept;
 
     /// @brief remove a subscriber port from introspection
     /// @param[in] name name of the port to be added
     /// @param[in] service capro service description of the port to be added
     /// @return returns false if the port could not be removed (since it did not exist)
     ///              and true otherwise
-    bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service);
+    bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept;
 
     /// @brief report a capro message to introspection (since this could change the state of active connections)
     /// @param[in] message capro message to be processed
-    void reportMessage(const capro::CaproMessage& message);
+    void reportMessage(const capro::CaproMessage& message) noexcept;
 
     /// @brief register publisher port used to send introspection
     /// @param[in] publisherPort publisher port to be registered
     /// @return true if registration was successful, false otherwise
     bool registerPublisherPort(PublisherPort&& publisherPortGeneric,
                                PublisherPort&& publisherPortThroughput,
-                               PublisherPort&& publisherPortSubscriberPortsData);
+                               PublisherPort&& publisherPortSubscriberPortsData) noexcept;
 
     /// @brief set the time interval used to send new introspection data
     /// @param[in] interval duration between two send invocations
-    void setSendInterval(const units::Duration interval);
+    void setSendInterval(const units::Duration interval) noexcept;
 
 
     /// @brief start the internal send thread
-    void run();
+    void run() noexcept;
 
     /// @brief stop the internal send thread
-    void stop();
+    void stop() noexcept;
 
   protected:
     /// @brief sends the port data; this is used from the unittests
-    void sendPortData();
+    void sendPortData() noexcept;
 
     /// @brief sends the throughput data; this is used from the unittests
-    void sendThroughputData();
+    void sendThroughputData() noexcept;
 
     /// @brief sends the subscriberport changing data, this is used from the unittests
-    void sendSubscriberPortsData();
+    void sendSubscriberPortsData() noexcept;
 
     /// @brief calls the three specific send functions from above, this is used from the periodic task
-    void send();
+    void send() noexcept;
 
   protected:
     cxx::optional<PublisherPort> m_publisherPort;
