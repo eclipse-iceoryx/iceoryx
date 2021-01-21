@@ -40,7 +40,7 @@ class MqInterfaceUser_Mock : public iox::roudi::RouDiProcess
 class RouDiProcess_test : public Test
 {
   public:
-    const iox::ProcessName_t processname = "TestRoudiProcess";
+    const iox::ProcessName_t processname = iox::ProcessName_t(iox::cxx::TruncateToCapacity, "TestRoudiProcess");
     pid_t pid{200U};
     iox::mepoo::MemoryManager* payloadMemoryManager{nullptr};
     bool isMonitored = true;
