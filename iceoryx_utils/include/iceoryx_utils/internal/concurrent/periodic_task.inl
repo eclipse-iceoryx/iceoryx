@@ -21,7 +21,9 @@ namespace concurrent
 {
 template <typename T>
 template <typename... Args>
-inline PeriodicTask<T>::PeriodicTask(const posix::ThreadName_t taskName, Args&&... args) noexcept
+inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskManualStart_t,
+                                     const posix::ThreadName_t taskName,
+                                     Args&&... args) noexcept
     : m_callable(std::forward<Args>(args)...)
     , m_taskName(taskName)
 {
@@ -29,10 +31,11 @@ inline PeriodicTask<T>::PeriodicTask(const posix::ThreadName_t taskName, Args&&.
 
 template <typename T>
 template <typename... Args>
-inline PeriodicTask<T>::PeriodicTask(const units::Duration interval,
+inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskAutoStart_t,
+                                     const units::Duration interval,
                                      const posix::ThreadName_t taskName,
                                      Args&&... args) noexcept
-    : PeriodicTask(taskName, std::forward<Args>(args)...)
+    : PeriodicTask(PeriodicTaskManualStart, taskName, std::forward<Args>(args)...)
 {
     start(interval);
 }

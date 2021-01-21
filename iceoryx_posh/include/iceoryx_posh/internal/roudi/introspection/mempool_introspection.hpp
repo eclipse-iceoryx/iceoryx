@@ -87,7 +87,7 @@ class MemPoolIntrospection
   private:
     units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
-        "MemPoolIntr", *this, &MemPoolIntrospection::send};
+        concurrent::PeriodicTaskManualStart, "MemPoolIntr", *this, &MemPoolIntrospection::send};
 };
 
 /// @brief typedef for the templated mempool introspection class that is used by RouDi for the
