@@ -31,6 +31,7 @@ using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::units::duration_literals;
 
+#if 0
 class WaitSet_test : public Test
 {
   public:
@@ -42,12 +43,13 @@ class WaitSet_test : public Test
     WaitSet_test* m_triggerCallbackArgument2 = nullptr;
     mutable uint64_t m_returnTrueCounter = 0U;
 
-    expected<TriggerHandle, WaitSetError>* acquireTriggerHandle(
+     expected<TriggerHandle, WaitSetError>* acquireTriggerHandle(
         WaitSetMock& waitset, const uint64_t eventId, Trigger::Callback<WaitSet_test> callback = triggerCallback1)
     {
         m_triggerHandle.emplace_back(
             std::make_unique<expected<TriggerHandle, WaitSetError>>(waitset.acquireTriggerHandle(
-                this, {*this, &WaitSet_test::hasTriggered}, {*this, &WaitSet_test::resetCallback}, eventId, callback)));
+                this, {*this, &WaitSet_test::hasTriggered}, {*this, &WaitSet_test::resetCallback}, eventId,
+                callback)));
         return m_triggerHandle.back().get();
     }
 
@@ -453,3 +455,5 @@ TEST_F(WaitSet_test, MoveCTorTriggerDoesNotChangeSize)
 
     EXPECT_EQ(m_sut.size(), 1U);
 }
+
+#endif
