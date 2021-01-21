@@ -120,11 +120,11 @@ class BaseSubscriber
     void releaseQueuedSamples() noexcept;
 
     ///
-    /// @brief releaseChunk Releases the chunk provided by the payload pointer.
+    /// @brief releaseChunk Releases the chunk associated with the header pointer.
     /// @details The chunk must have been previosly provided by takeChunk and
     ///          not have been already released.
     ///
-    void releaseChunk(const void* payload) noexcept;
+    void releaseChunk(const mepoo::ChunkHeader* header) noexcept;
 
     template <uint64_t Capacity>
     friend class WaitSet;

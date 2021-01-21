@@ -55,6 +55,13 @@ void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedChunks() noexcept
     BaseSubscriber::releaseQueuedSamples();
 }
 
+template <template <typename, typename, typename> class base_subscriber_t>
+void UntypedSubscriberImpl<base_subscriber_t>::releaseChunk(void* payload) noexcept
+{
+    auto header = mepoo::ChunkHeader::fromPayload(payload);
+    BaseSubscriber::releaseChunk(header);
+}
+
 } // namespace popo
 } // namespace iox
 

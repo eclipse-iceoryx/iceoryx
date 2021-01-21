@@ -51,7 +51,6 @@ class UntypedSubscriberImpl
     using BaseSubscriber::hasMissedSamples; // iox-#408 remove
     using BaseSubscriber::hasSamples;       // iox-#408 remove
     using BaseSubscriber::invalidateTrigger;
-    using BaseSubscriber::releaseChunk;
     using BaseSubscriber::releaseQueuedSamples; // iox-#408 remove
     using BaseSubscriber::subscribe;
     using BaseSubscriber::take; // iox-#408 replace
@@ -85,6 +84,14 @@ class UntypedSubscriberImpl
     /// @brief releaseQueuedChunks Releases any unread queued data chunk.
     ///
     void releaseQueuedChunks() noexcept;
+
+    ///
+    /// @brief releaseChunk Releases the chunk provided by the payload pointer.
+    /// @param payload pointer to the payload of the chunk to be released
+    /// @details The chunk must have been previosly provided by take_1_0 and
+    ///          not have been already released.
+    ///
+    void releaseChunk(void* payload) noexcept;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;
