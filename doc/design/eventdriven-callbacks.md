@@ -18,8 +18,8 @@ events like the arrival of a sample.
  - **state driven** a repeating reaction which is caused by a specific structural 
       state until the state changes.
       Example: a subscriber has stored samples which were not inspected by the user.
- - **robust API** we use this term to describe an API which is nearly impossible 
-      to misuse. Important in concurrent code since a misuse can lead to race 
+ - **robust API** we use this term to describe an API which is hard 
+      to misuse. Especially important in concurrent code since a misuse can lead to race 
       conditions, Heisenbugs and in general hard to debug problems.
  - **robust API feature** a feature we only support to increase the robustness 
       of the API and bugs caused by misuse.
@@ -44,7 +44,7 @@ It should have the following behavior:
 
 The following use cases and behaviors should be implemented.
 
- - The API and ReactAl should be robust this means that it should be impossible 
+ - The API and ReactAl should be robust this means that it should be very hard 
     to use the API in the wrong way. Since ReactAl is working concurrently a 
     wrong usage could lead to race conditions, extremely hard to debug bug reports 
     (HeisenBugs) and can be frustrating to the user.
@@ -55,14 +55,17 @@ The following use cases and behaviors should be implemented.
     - Attaching a callback from within a callback.
     - [robust] Updating a callback from within the same callback 
       ```cpp
-      void sampleReceived2(iox::popo::UntypedSubscriber & subscriber) {}
+      void onSampleReceived2(iox::popo::UntypedSubscriber & subscriber) {}
 
-      void sampleReceived(iox::popo::UntypedSubscriber & subscriber) {
-        myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, sampleReceived2);
+      void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
+        myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived2);
       }
 
-      myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, sampleReceived);
+      myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
       ```
+ - One can attach at most one callback to a specific event of an object.
+    - Attaching a callback to an event where a callback has been already attached overrides
+      the existing callback with the new one.
  - concurrently: detach a callback at any time from anywhere. This means in particular
     - Detaching a callback from within a callback.
     - [robust] When the detach call returns we guarantee that the callback is never called
@@ -84,34 +87,46 @@ The following use cases and behaviors should be implemented.
 ReactAl myCallbackReactal;
 iox::popo::UntypedSubscriber mySubscriber;
 
-void sampleReceived(iox::popo::UntypedSubscriber & subscriber) {
+void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
   subscriber.take().and_then([&](auto & sample){
     std::cout << "received " << std::hex << sample->payload() << std::endl;
   });
 }
 
-void waitForSubscription(iox::popo::UntypedSubscriber & subscriber) {
+void onWaitForSubscription(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "subscribed!\n";
-  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, sampleReceived);
-  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, waitForSubscription);
+  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
+  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, onWaitForSubscription);
   myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED);
 }
 
-void waitForUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
+void onWaitForUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "unsubscribed from publisher\n";
-  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, waitForSubscription);
+  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onWaitForSubscription);
   myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED);
   myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED);
 }
 
 int main() {
-  myCallbackReactal.attachEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, waitForSubscription);
+  myCallbackReactal.attachEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onWaitForSubscription);
 }
-
 ```
 
 ### Solution
 #### Condition Variable
+
+  - Alternative names: `EventVariable`, `EventSignaler`, `EventWaiter`
+  
+  - **Problem:** The ReactAl would like to know by whom it was triggered. The WaitSet has a 
+                  big list of callbacks where it can ask the object if it triggered the WaitSet. This has 
+                  certain disadvantages.
+              - Cache misses and low performance 
+              - The object could lie due to a bug.
+              - Implementation overhead since we have to manage callbacks.
+
+  - **Solution:** The condition variable tracks by whom it was triggered. To realize this every signaler
+      gets provided with an id. When the condition variable is notified a corresponding bool array entry is set to true 
+      to trace the trigger origin.
 
   - Create from `ConditionVariableWithOriginTracing` (yeah we need a better name) has `ConditionVariableData` 
     as a member and adds: `std::atomic_bool m_triggeredBy[MAX_CALLBACKS];`
@@ -128,6 +143,11 @@ int main() {
             elements in the vector which is being iterated). In the callback a method in an 
             object is called (the object has to be loaded again into the cpu cache, cache miss for 
             every member which is not used by the method).
+
+    **Potential optimization:**
+      - Create an additional bool member `m_wasTriggered` which is true when at least 
+        one bool in `m_triggerdBy` is true. This would spare us from iterating over the array 
+        when it was not triggered at all.
 
     **Adjustments:**
       - Create the class with a template bool array size argument to be more flexible and memory efficient.
@@ -146,9 +166,13 @@ int main() {
     ```cpp
     class ConditionVariableWithOriginTracingSignaler {
       public:
-        // id = corresponds to the id in the ConditionVariable atomic_bool array to 
+        // originId = corresponds to the id in the ConditionVariable atomic_bool array to 
         // identify the trigger origin easily
-        void notifyOne(const uint64_t id); 
+        void notify(const uint64_t originId); 
+
+        // alternative: origin is set in the ctor and we just call notify
+        ConditionVariableWithOriginTracingSignaler(const uint64_t originId);
+        void notify();
     };
     ```
 
@@ -162,10 +186,6 @@ int main() {
       void resetWaitState(const uint64_t id) noexcept; 
   };
   ```
-
-We maybe introduce some abstraction for this. One thought is to introduce a 
-`SignalVector` where you can acquire a `Notifyier` which then signals the 
-`ConditionVariable` and with the correct id.
 
 #### ReactAl 
 ```cpp
@@ -203,13 +223,25 @@ class SomeSubscriber {
   // OutOfScopeCallback_t - callback which should be called when SomeSubscriber
   //                        goes out of scope and has to deregister itself from 
   //                        the reactal
-  void attachCallback(SubscriberEvent event, ConditionVariable & cv, ConditionVariable::index_t & index
-                      const OutOfScopeCallback_t & callback);
+  friend class ReactAl;
+  private:
+    void attachCallback(SubscriberEvent event, ConditionVariable & cv, ConditionVariable::index_t & index
+                        const OutOfScopeCallback_t & callback);
 
-  void detachCallback(SubscriberEvent event);
+    void detachCallback(SubscriberEvent event);
   //...
 };
 ```
 
 The `ReactAl` will call the methods above to attach or detach a condition 
-variable to a class.
+variable to a class. The methods should be private and the `ReactAl` must then 
+be declared as a friend.
+
+## Open Points
+
+ - Maybe introduce some abstraction Condition Variable tracing handling. 
+    One thought is to introduce a `SignalVector` where you can acquire a 
+    `Notifyier` which then signals the `ConditionVariable` and with the 
+    correct id.
+
+
