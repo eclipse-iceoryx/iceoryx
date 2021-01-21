@@ -24,7 +24,29 @@ constexpr uint64_t GIGA = 1000000000U;
 
 // BEGIN CONSTRUCTOR TESTS
 
-TEST(Duration_test, ConstructDurationWithLessNanosecondsThanOneSecond)
+TEST(Duration_test, ConstructDurationWithZeroTime)
+{
+    constexpr uint64_t SECONDS{0U};
+    constexpr uint64_t NANOSECONDS{0U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{0U};
+
+    auto sut = Duration{SECONDS, NANOSECONDS};
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructDurationWithResultOfLessNanosecondsThanOneSecond)
+{
+    constexpr uint64_t SECONDS{0U};
+    constexpr uint64_t NANOSECONDS{7337U};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{NANOSECONDS};
+
+    auto sut = Duration{SECONDS, NANOSECONDS};
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructDurationWithNanosecondsLessThanOneSecond)
 {
     constexpr uint64_t SECONDS{37U};
     constexpr uint64_t NANOSECONDS{73U};
@@ -46,7 +68,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsEqualToOneSecond)
     EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
-TEST(Duration_test, ConstructDurationWithMoreNanosecondsThanOneSecond)
+TEST(Duration_test, ConstructDurationWithNanosecondsMoreThanOneSecond)
 {
     constexpr uint64_t SECONDS{37U};
     constexpr uint64_t NANOSECONDS{42U};
@@ -58,7 +80,31 @@ TEST(Duration_test, ConstructDurationWithMoreNanosecondsThanOneSecond)
     EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
-TEST(Duration_test, ConstructDurationWithOneNanosecondIsNotSetToZero)
+TEST(Duration_test, ConstructDurationWithNanosecondsMaxValue)
+{
+    constexpr uint64_t SECONDS{37U};
+    constexpr uint64_t MAX_NANOSECONDS_FOR_CTOR{std::numeric_limits<uint32_t>::max()};
+    constexpr uint64_t EXPECTED_SECONDS = SECONDS + MAX_NANOSECONDS_FOR_CTOR / GIGA;
+    constexpr uint64_t REMAINING_NANOSECONDS = MAX_NANOSECONDS_FOR_CTOR % GIGA;
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(EXPECTED_SECONDS)*GIGA + REMAINING_NANOSECONDS};
+
+    auto sut = Duration{SECONDS, MAX_NANOSECONDS_FOR_CTOR};
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructDurationWithSecondsAndNanosecondsMaxValue)
+{
+    constexpr uint64_t MAX_SECONDS_FOR_CTOR{std::numeric_limits<uint64_t>::max()};
+    constexpr uint64_t MAX_NANOSECONDS_FOR_CTOR{std::numeric_limits<uint32_t>::max()};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{std::numeric_limits<uint64_t>::max()};
+
+    auto sut = Duration{MAX_SECONDS_FOR_CTOR, MAX_NANOSECONDS_FOR_CTOR};
+
+    EXPECT_THAT(sut.nanoSeconds<uint64_t>(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+}
+
+TEST(Duration_test, ConstructDurationWithOneNanosecondResultsNotInZeroNanoseconds)
 {
     constexpr uint64_t SECONDS{0U};
     constexpr uint64_t NANOSECONDS{1U};
