@@ -164,10 +164,13 @@ inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHas
 template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
 {
-    static_cast<void>(subscriberEvent);
-
-    m_trigger.reset();
-    m_port.unsetConditionVariable();
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::HAS_SAMPLES:
+        m_trigger.reset();
+        m_port.unsetConditionVariable();
+        break;
+    }
 }
 
 
