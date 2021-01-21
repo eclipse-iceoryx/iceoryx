@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,11 +23,6 @@ using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::roudi;
 
-const bool doMapSharedMemoryIntoThread{"TRUE"};
-const size_t topicSize{1U};
-const uint64_t segmentId{1U};
-iox::RelativePointer::offset_t segmentManagerAddressOffset{0U};
-
 namespace iox
 {
 namespace test
@@ -45,6 +40,10 @@ class shared_memory_user_test : public Test
 
     virtual void SetUp()
     {
+        const bool doMapSharedMemoryIntoThread{"TRUE"};
+        const size_t topicSize{1U};
+        const uint64_t segmentId{1U};
+        iox::RelativePointer::offset_t segmentManagerAddressOffset{0U};
         SharedMemoryUser ShmUser(doMapSharedMemoryIntoThread, topicSize, segmentId, segmentManagerAddressOffset);
     };
 
