@@ -91,7 +91,7 @@ class UntypedSubscriberImpl
     /// @details The chunk must have been previosly provided by take_1_0 and
     ///          not have been already released.
     ///
-    void releaseChunk(void* payload) noexcept;
+    void releaseChunk(const void* payload) noexcept;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;

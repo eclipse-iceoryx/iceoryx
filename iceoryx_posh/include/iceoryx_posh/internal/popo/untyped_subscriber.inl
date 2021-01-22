@@ -56,7 +56,7 @@ void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedChunks() noexcept
 }
 
 template <template <typename, typename, typename> class base_subscriber_t>
-void UntypedSubscriberImpl<base_subscriber_t>::releaseChunk(void* payload) noexcept
+void UntypedSubscriberImpl<base_subscriber_t>::releaseChunk(const void* payload) noexcept
 {
     auto header = mepoo::ChunkHeader::fromPayload(payload);
     BaseSubscriber::releaseChunk(header);
