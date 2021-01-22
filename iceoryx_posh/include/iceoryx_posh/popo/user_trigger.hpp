@@ -30,7 +30,7 @@ namespace popo
 class UserTrigger
 {
   public:
-    UserTrigger() noexcept = default;
+    UserTrigger() noexcept;
     UserTrigger(const UserTrigger& rhs) = delete;
     UserTrigger(UserTrigger&& rhs) = delete;
     UserTrigger& operator=(const UserTrigger& rhs) = delete;

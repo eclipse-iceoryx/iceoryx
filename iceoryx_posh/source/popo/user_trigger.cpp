@@ -19,6 +19,11 @@ namespace iox
 {
 namespace popo
 {
+// explicitly implemented for MSVC
+UserTrigger::UserTrigger() noexcept
+{
+}
+
 void UserTrigger::disableEvent(const EventAccessor) noexcept
 {
     m_trigger.reset();

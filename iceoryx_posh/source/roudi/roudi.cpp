@@ -47,7 +47,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
         PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, MQ_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
-    m_mempoolIntrospection.start();
+    m_mempoolIntrospection.run();
 
     // since RouDi offers the introspection services, also add it to the list of processes
     m_processIntrospection.addProcess(getpid(), MQ_ROUDI_NAME);
