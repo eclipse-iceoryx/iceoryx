@@ -28,6 +28,17 @@ enum class REQUIRES
     Placeholder
 };
 
+/// @brief verifies that the class T satisfies the following interface
+///     class T {
+///       public:
+///         void enableEvent(const EventAccessor,
+///                          iox::popo::TriggerHandle&&,
+///                          const T_DefinedEventEnum) noexcept;
+///         void disableEvent(const EventAccessor, const T_DefinedEventEnum) noexcept;
+///         WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const EventAccessor,
+///                                                                     const T_DefinedEventEnum ) const noexcept;
+///         void invalidateTrigger(const EventAccessor, const uint64_t trigger) noexcept;
+///     }
 template <typename T>
 struct EventAttachableConcept
 {
@@ -101,7 +112,15 @@ struct EventAttachableConcept
     static constexpr REQUIRES VALUE = REQUIRES::Placeholder;
 };
 
-
+/// @brief verifies that the class T satisfies the following interface
+///     class T {
+///       public:
+///         void enableEvent(const EventAccessor,
+///                          iox::popo::TriggerHandle&&) noexcept;
+///         void disableEvent(const EventAccessor) noexcept;
+///         WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const EventAccessor ) const noexcept;
+///         void invalidateTrigger(const EventAccessor, const uint64_t trigger) noexcept;
+///     }
 template <typename T>
 struct SingleEventAttachableConcept
 {
