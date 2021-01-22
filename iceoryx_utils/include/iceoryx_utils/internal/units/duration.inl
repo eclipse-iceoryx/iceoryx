@@ -159,81 +159,60 @@ inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexc
     return *this;
 }
 
-template <typename T>
-inline constexpr T Duration::nanoSeconds() const noexcept
+inline constexpr uint64_t Duration::nanoSeconds() const noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
-    constexpr uint64_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<T>::max() / NANOSECS_PER_SEC};
-    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{std::numeric_limits<T>::max() % NANOSECS_PER_SEC};
+    constexpr uint64_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / NANOSECS_PER_SEC};
+    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() % NANOSECS_PER_SEC};
     constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
         std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
                   << std::endl;
-        return std::numeric_limits<T>::max();
+        return std::numeric_limits<uint64_t>::max();
     }
 
-    return static_cast<T>(m_seconds * NANOSECS_PER_SEC + m_nanoseconds);
+    return m_seconds * NANOSECS_PER_SEC + m_nanoseconds;
 }
 
-template <typename T>
-inline constexpr T Duration::microSeconds() const noexcept
+inline constexpr uint64_t Duration::microSeconds() const noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    return static_cast<T>(m_seconds * MICROSECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MICROSEC);
+    return m_seconds * MICROSECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MICROSEC;
 }
 
-template <typename T>
-inline constexpr T Duration::milliSeconds() const noexcept
+inline constexpr uint64_t Duration::milliSeconds() const noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    return static_cast<T>(m_seconds * MILLISECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MILLISEC);
+    return m_seconds * MILLISECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MILLISEC;
 }
 
-template <typename T>
-inline constexpr T Duration::seconds() const noexcept
+inline constexpr uint64_t Duration::seconds() const noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
     // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
-    return static_cast<T>(m_seconds);
+    return m_seconds;
 }
 
-template <typename T>
-inline constexpr T Duration::minutes() const noexcept
+inline constexpr uint64_t Duration::minutes() const noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
     // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
-    return static_cast<T>(m_seconds / SECS_PER_MINUTE);
+    return m_seconds / SECS_PER_MINUTE;
 }
 
-template <typename T>
-inline constexpr T Duration::hours() const noexcept
+inline constexpr uint64_t Duration::hours() const noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
     // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
-    return static_cast<T>(m_seconds / SECS_PER_HOUR);
+    return m_seconds / SECS_PER_HOUR;
 }
 
-template <typename T>
-inline constexpr T Duration::days() const noexcept
+inline constexpr uint64_t Duration::days() const noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
     /// @todo decide if we want an overflow or saturation if the result is out of range for T
     // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
-    return static_cast<T>(m_seconds / (HOURS_PER_DAY * SECS_PER_HOUR));
+    return m_seconds / (HOURS_PER_DAY * SECS_PER_HOUR);
 }
 
 inline constexpr Duration::operator timeval() const noexcept

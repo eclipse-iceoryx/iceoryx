@@ -234,32 +234,25 @@ class Duration
     // BEGIN CONVERSION
 
     /// @brief returns the duration in nanoseconds
-    template <typename T>
-    constexpr T nanoSeconds() const noexcept;
+    constexpr uint64_t nanoSeconds() const noexcept;
 
     /// @brief returns the duration in microseconds
-    template <typename T>
-    constexpr T microSeconds() const noexcept;
+    constexpr uint64_t microSeconds() const noexcept;
 
     /// @brief returns the duration in milliseconds
-    template <typename T>
-    constexpr T milliSeconds() const noexcept;
+    constexpr uint64_t milliSeconds() const noexcept;
 
     /// @brief returns the duration in seconds
-    template <typename T>
-    constexpr T seconds() const noexcept;
+    constexpr uint64_t seconds() const noexcept;
 
     /// @brief returns the duration in minutes
-    template <typename T>
-    constexpr T minutes() const noexcept;
+    constexpr uint64_t minutes() const noexcept;
 
     /// @brief returns the duration in hours
-    template <typename T>
-    constexpr T hours() const noexcept;
+    constexpr uint64_t hours() const noexcept;
 
     /// @brief returns the duration in days
-    template <typename T>
-    constexpr T days() const noexcept;
+    constexpr uint64_t days() const noexcept;
 
     /// @brief converts duration in a timespec c struct
     struct timespec timespec(const TimeSpecReference& reference = TimeSpecReference::None) const noexcept;

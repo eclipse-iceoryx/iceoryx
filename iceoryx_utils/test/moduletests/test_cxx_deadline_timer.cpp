@@ -47,7 +47,7 @@ class DeadlineTimer_test : public Test
 };
 
 const Duration DeadlineTimer_test::TIMEOUT{10_ms};
-const int DeadlineTimer_test::SLEEPTIME = DeadlineTimer_test::TIMEOUT.milliSeconds<int>();
+const int DeadlineTimer_test::SLEEPTIME = DeadlineTimer_test::TIMEOUT.milliSeconds();
 
 TIMING_TEST_F(DeadlineTimer_test, ZeroTimeoutTest, Repeat(5), [&] {
     Timer sut(0_s);
@@ -120,7 +120,7 @@ TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfExpired, Repeat(5), [&] {
 
     TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
 
-    int remainingTime = sut.remainingTime().milliSeconds<int>();
+    int remainingTime = sut.remainingTime().milliSeconds();
     const int EXPECTED_REMAINING_TIME = 0; // the timer is expired the remaining wait time is Zero
     TIMING_TEST_EXPECT_TRUE(remainingTime == EXPECTED_REMAINING_TIME);
 });
@@ -131,7 +131,7 @@ TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&]
 
     TIMING_TEST_ASSERT_FALSE(sut.hasExpired());
 
-    int remainingTime = sut.remainingTime().milliSeconds<int>();
+    int remainingTime = sut.remainingTime().milliSeconds();
     const int PASSED_TIMER_TIME = SLEEPTIME; // Already 10ms passed in sleeping out of 20ms
     const int RANGE_APPROX = 2;              // 2ms arppoximation. This may be lost after arming the timer in execution.
     const int EXPECTED_REMAINING_TIME = PASSED_TIMER_TIME - RANGE_APPROX;

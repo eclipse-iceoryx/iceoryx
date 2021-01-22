@@ -54,8 +54,8 @@ void IntrospectionApp::printHelp() noexcept
                  "  -h, --help        Display help and exit.\n"
                  "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
                  "                    [min: "
-              << MIN_UPDATE_PERIOD.milliSeconds<uint32_t>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<uint32_t>()
-              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<uint32_t>()
+              << MIN_UPDATE_PERIOD.milliSeconds() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds()
+              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds()
               << "]\n"
                  "  -v, --version     Display latest official iceoryx release version and exit.\n"
                  "\nSubscription:\n"
@@ -350,9 +350,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         {
             stream << std::left << std::setw(maxSize) << data.substr(0U, static_cast<size_t>(maxSize));
         }
-        else if (stringSize > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
+        else if (stringSize
+                 > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
         {
-            const auto startPosition = static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
+            const auto startPosition =
+                static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
 
             stream << indentationString << std::left << std::setw(maxSize - indentation)
                    << data.substr(startPosition, static_cast<size_t>(maxSize - indentation));
@@ -362,7 +364,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             stream << std::left << std::setw(maxSize) << "";
         }
 
-        needsLineBreak |= (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
+        needsLineBreak |=
+            (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
 
         return stream.str();
     };
@@ -518,7 +521,7 @@ bool IntrospectionApp::waitForSubscription(Subscriber& port)
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
-        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds()));
     }
 
     return subscribed;
@@ -585,10 +588,11 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
     { // should be the same, else it will be soon
         for (const auto& port : portData->m_subscriberList)
         {
-            subscriberPortData.push_back(
-                {port,
-                 (port.m_publisherIndex != -1) ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)] : nullptr,
-                 subscriberPortChangingData->subscriberPortChangingDataList[i++]});
+            subscriberPortData.push_back({port,
+                                          (port.m_publisherIndex != -1)
+                                              ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)]
+                                              : nullptr,
+                                          subscriberPortChangingData->subscriberPortChangingDataList[i++]});
         }
     }
 
@@ -769,13 +773,13 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         refreshTerminal();
 
         // Watch user input for updatePeriodMs
-        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds<uint64_t>());
+        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds());
         auto tWaitBegin = std::chrono::system_clock::now();
         while (tWaitRemaining.count() >= 0)
         {
             waitForUserInput(static_cast<int32_t>(tWaitRemaining.count()));
             auto tWaitElapsed = std::chrono::system_clock::now() - tWaitBegin;
-            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds<uint64_t>())
+            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds())
                              - std::chrono::duration_cast<std::chrono::milliseconds>(tWaitElapsed);
         }
     }
@@ -787,5 +791,3 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
 } // namespace introspection
 } // namespace client
 } // namespace iox
-
-
