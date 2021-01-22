@@ -109,20 +109,29 @@ class BaseSubscriber
     void releaseQueuedSamples() noexcept;
 
   public:
+    /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
+    /// @param[in] EventAccessor class constructable only by types which should have access to this method
+    /// @param[in] uniqueTriggerId the id of the corresponding trigger
     /// @brief Only usable by the WaitSet, not for public use
     void invalidateTrigger(const EventAccessor, const uint64_t trigger) noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use
+    /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
+    /// @param[in] EventAccessor class constructable only by types which should have access to this method
+    /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
+    /// @param[in] subscriberEvent the event which should be attached
     void enableEvent(const EventAccessor,
                      iox::popo::TriggerHandle&& triggerHandle,
                      const SubscriberEvent subscriberEvent) noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use
+    /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to the event corresponding
+    /// hasTriggered method callback
+    /// @param[in] EventAccessor class constructable only by types which should have access to this method
+    /// @param[in] subscriberEvent the event to which the hasTriggeredCallback is required
     WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const EventAccessor,
                                                                 const SubscriberEvent subscriberEvent) const noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use
-    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
+    /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
+    /// @param[in] EventAccessor class constructable only by types which should have access to this method
     /// @param[in] subscriberEvent the event which should be detached
     void disableEvent(const EventAccessor, const SubscriberEvent subscriberEvent) noexcept;
 

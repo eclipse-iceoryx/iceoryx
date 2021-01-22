@@ -66,6 +66,12 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
+    /// @brief attaches an event of a given class to the WaitSet.
+    /// @param[in] eventOrigin the class from which the event originates. eventOrigin has to satisfy the
+    /// EventAttachableConcept
+    /// @param[in] eventType the event specified by the class
+    /// @param[in] eventId an arbitrary user defined id for the event
+    /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T,
               typename EventType,
               typename = std::enable_if_t<std::is_enum<EventType>::value>,
@@ -75,6 +81,11 @@ class WaitSet
                                             const uint64_t eventId = 0U,
                                             const EventInfo::Callback<T>& eventCallback = {}) noexcept;
 
+    /// @brief attaches an event of a given class to the WaitSet.
+    /// @param[in] eventOrigin the class from which the event originates. eventOrigin has to satisfy the
+    /// EventAttachableConcept
+    /// @param[in] eventType the event specified by the class
+    /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T,
               typename EventType,
               typename = std::enable_if_t<std::is_enum<EventType>::value, void>,
@@ -82,10 +93,19 @@ class WaitSet
     cxx::expected<WaitSetError>
     attachEvent(T& eventOrigin, const EventType eventType, const EventInfo::Callback<T>& eventCallback) noexcept;
 
+    /// @brief attaches an event of a given class to the WaitSet.
+    /// @param[in] eventOrigin the class from which the event originates. eventOrigin has to satisfy the
+    /// SingleEventAttachableConcept
+    /// @param[in] eventId an arbitrary user defined id for the event
+    /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T, REQUIRES = SingleEventAttachableConcept<T>::VALUE>
     cxx::expected<WaitSetError>
     attachEvent(T& eventOrigin, const uint64_t eventId = 0U, const EventInfo::Callback<T>& eventCallback = {}) noexcept;
 
+    /// @brief attaches an event of a given class to the WaitSet.
+    /// @param[in] eventOrigin the class from which the event originates. eventOrigin has to satisfy the
+    /// SingleEventAttachableConcept
+    /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T, REQUIRES = SingleEventAttachableConcept<T>::VALUE>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const EventInfo::Callback<T>& eventCallback) noexcept;
 

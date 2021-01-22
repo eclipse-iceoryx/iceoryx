@@ -21,6 +21,8 @@ namespace iox
 {
 namespace popo
 {
+/// @brief Class which allows to restrict public methods to be used only by
+///         friends of EventAccessor. Used for example by the WaitSet and Trigger
 class EventAccessor
 {
     template <uint64_t>
@@ -28,6 +30,7 @@ class EventAccessor
     class Trigger;
     class TriggerHandle;
 
+    /// only friends of EventAccessor should be able to construct this class
   private:
     constexpr EventAccessor() noexcept = default;
 };
