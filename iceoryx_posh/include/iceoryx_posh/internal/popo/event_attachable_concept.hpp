@@ -15,12 +15,14 @@
 #ifndef IOX_POSH_POPO_EVENT_ATTACHABLE_CONCEPT_HPP
 #define IOX_POSH_POPO_EVENT_ATTACHABLE_CONCEPT_HPP
 
+#include <cstdint>
 #include <type_traits>
 
 namespace iox
 {
 namespace popo
 {
+class EventAccessor;
 enum class REQUIRES
 {
     Placeholder
@@ -34,6 +36,7 @@ struct EventAttachableConcept
     {
     };
 
+    ///@brief verifies the signature void disableEvent(...)
     template <typename C>
     struct HasDisableEvent<C, std::void_t<decltype(&C::disableEvent)>> : std::true_type
     {
@@ -44,6 +47,7 @@ struct EventAttachableConcept
     {
     };
 
+    ///@brief verifies the signature void enableEvent(...)
     template <typename C>
     struct HasEnableEvent<C, std::void_t<decltype(&C::enableEvent)>> : std::true_type
     {
@@ -54,6 +58,7 @@ struct EventAttachableConcept
     {
     };
 
+    ///@brief verifies the signature void getHasTriggeredCallbackForEvent(...)
     template <typename C>
     struct HasGetHasTriggeredCallbackForEvent<C, std::void_t<decltype(&C::getHasTriggeredCallbackForEvent)>>
         : std::true_type
@@ -65,17 +70,24 @@ struct EventAttachableConcept
     {
     };
 
+    ///@brief verifies the signature void invalidateTrigger(EventAccessor, uint64_t)
     template <typename C>
-    struct HasInvalidateTrigger<C, std::void_t<decltype(&C::invalidateTrigger)>> : std::true_type
+    struct HasInvalidateTrigger<
+        C,
+        std::enable_if_t<std::is_same<void,
+                                      decltype(std::declval<C>().invalidateTrigger(std::declval<EventAccessor>(),
+                                                                                   std::declval<uint64_t>()))>::value,
+                         void>> : std::true_type
     {
     };
 
-    static_assert(HasDisableEvent<T>::value, "Type requires void T::disableEvent(EventType) method");
+    static_assert(HasDisableEvent<T>::value, "Type requires void T::disableEvent(EventAccessor, EventType) method");
     static_assert(HasEnableEvent<T>::value,
-                  "Type requires void T::enableEvent(iox::popo::TriggerHandle&&, EventType) method");
+                  "Type requires void T::enableEvent(EventAccessor, iox::popo::TriggerHandle&&, EventType) method");
     static_assert(HasGetHasTriggeredCallbackForEvent<T>::value,
-                  "Type requires void T::getHasTriggeredCallbackForEvent(EventType) method");
-    static_assert(HasInvalidateTrigger<T>::value, "Type requires void T::invalidateTrigger(uint64_t) method");
+                  "Type requires void T::getHasTriggeredCallbackForEvent(EventAccessor, EventType) method");
+    static_assert(HasInvalidateTrigger<T>::value,
+                  "Type requires void T::invalidateTrigger(EventAccessor, uint64_t) method");
 
     static_assert(!std::is_copy_constructible<T>::value,
                   "Type is not allowed to be copy constructible. Declare T(const T&) = delete;");
@@ -98,6 +110,7 @@ struct SingleEventAttachableConcept
     {
     };
 
+    ///@brief verifies the signature void disableEvent(...)
     template <typename C>
     struct HasDisableEvent<C, std::void_t<decltype(&C::disableEvent)>> : std::true_type
     {
@@ -108,6 +121,7 @@ struct SingleEventAttachableConcept
     {
     };
 
+    ///@brief verifies the signature void enableEvent(...)
     template <typename C>
     struct HasEnableEvent<C, std::void_t<decltype(&C::enableEvent)>> : std::true_type
     {
@@ -118,6 +132,7 @@ struct SingleEventAttachableConcept
     {
     };
 
+    ///@brief verifies the signature void getHasTriggeredCallbackForEvent(...)
     template <typename C>
     struct HasGetHasTriggeredCallbackForEvent<C, std::void_t<decltype(&C::getHasTriggeredCallbackForEvent)>>
         : std::true_type
@@ -129,16 +144,24 @@ struct SingleEventAttachableConcept
     {
     };
 
+    ///@brief verifies the signature void invalidateTrigger(EventAccessor, uint64_t)
     template <typename C>
-    struct HasInvalidateTrigger<C, std::void_t<decltype(&C::invalidateTrigger)>> : std::true_type
+    struct HasInvalidateTrigger<
+        C,
+        std::enable_if_t<std::is_same<void,
+                                      decltype(std::declval<C>().invalidateTrigger(std::declval<EventAccessor>(),
+                                                                                   std::declval<uint64_t>()))>::value,
+                         void>> : std::true_type
     {
     };
 
-    static_assert(HasDisableEvent<T>::value, "Type requires void T::disableEvent() method");
-    static_assert(HasEnableEvent<T>::value, "Type requires void T::enableEvent(iox::popo::TriggerHandle&&) method");
+    static_assert(HasDisableEvent<T>::value, "Type requires void T::disableEvent(EVENT_ACCESSOR) method");
+    static_assert(HasEnableEvent<T>::value,
+                  "Type requires void T::enableEvent(EVENT_ACCESSOR, iox::popo::TriggerHandle&&) method");
     static_assert(HasGetHasTriggeredCallbackForEvent<T>::value,
-                  "Type requires void T::getHasTriggeredCallbackForEvent() method");
-    static_assert(HasInvalidateTrigger<T>::value, "Type requires void T::invalidateTrigger(uint64_t) method");
+                  "Type requires void T::getHasTriggeredCallbackForEvent(EVENT_ACCESSOR) method");
+    static_assert(HasInvalidateTrigger<T>::value,
+                  "Type requires void T::invalidateTrigger(EVENT_ACCESSOR, uint64_t) method");
 
     static_assert(!std::is_copy_constructible<T>::value,
                   "Type is not allowed to be copy constructible. Declare T(const T&) = delete;");
