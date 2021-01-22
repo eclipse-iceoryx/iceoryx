@@ -271,15 +271,13 @@ bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
     {
         return false;
     }
-    else
+
+    if (checkCommand.hasErrors())
     {
-        if (checkCommand.hasErrors())
-        {
-            evaluateKillError(
-                process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
-        }
-        return true;
+        evaluateKillError(process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
     }
+
+    return true;
 }
 
 void ProcessManager::evaluateKillError(const RouDiProcess& process,
