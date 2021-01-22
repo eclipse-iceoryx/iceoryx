@@ -19,6 +19,7 @@ namespace iox
 {
 namespace popo
 {
+constexpr EventAccessor Trigger::EVENT_ACCESSOR;
 std::atomic<uint64_t> Trigger::uniqueIdCounter{0U};
 
 Trigger::~Trigger()

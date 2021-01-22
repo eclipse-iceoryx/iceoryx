@@ -20,6 +20,9 @@ namespace iox
 namespace popo
 {
 template <uint64_t Capacity>
+constexpr EventAccessor WaitSet<Capacity>::EVENT_ACCESSOR;
+
+template <uint64_t Capacity>
 inline WaitSet<Capacity>::WaitSet() noexcept
     : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
 {
