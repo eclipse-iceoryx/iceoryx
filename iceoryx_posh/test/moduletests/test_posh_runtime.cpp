@@ -187,7 +187,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
+TEST_F(PoshRuntime_test, MiddlewareInterfaceIsSuccessful)
 {
     const auto interfacePortData = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_nodeName);
 
@@ -198,7 +198,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
     EXPECT_EQ(true, interfacePortData->m_doInitialOfferForward);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsNotSuccessful)
+TEST_F(PoshRuntime_test, MiddlewareInterfaceGetInvalidNodeNameIsNotSuccessful)
 {
     EXPECT_DEATH(m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName), ".*");
 }
@@ -454,7 +454,7 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
     // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);
 }
 
-TEST_F(PoshRuntime_test, CreateNodeError)
+TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
 {
     const uint32_t nodeDeviceIdentifier = 1U;
     iox::runtime::NodeProperty nodeProperty(m_invalidNodeName, nodeDeviceIdentifier);
