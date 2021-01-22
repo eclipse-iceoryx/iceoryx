@@ -50,15 +50,15 @@ class UserTrigger
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const WaitSetAccessor) const noexcept;
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const EventAccessor) const noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
-    void enableEvent(const WaitSetAccessor, iox::popo::TriggerHandle&& triggerHandle) noexcept;
+    void enableEvent(const EventAccessor, iox::popo::TriggerHandle&& triggerHandle) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
     /// @brief disables the trigger event. If it was not enabled nothing happens
     /// happens.
-    void disableEvent(const WaitSetAccessor) noexcept;
+    void disableEvent(const EventAccessor) noexcept;
 
   private:
     TriggerHandle m_trigger;

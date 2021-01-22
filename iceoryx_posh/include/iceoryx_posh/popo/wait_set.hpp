@@ -17,6 +17,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/popo/event_accessor.hpp"
 #include "iceoryx_posh/popo/event_attachable_concept.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
@@ -40,15 +41,6 @@ enum class WaitSetError : uint8_t
 };
 
 using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
-
-class WaitSetAccessor
-{
-    template <uint64_t>
-    class WaitSet;
-
-  private:
-    constexpr WaitSetAccessor() noexcept = default;
-};
 
 /// @brief Logical disjunction of a certain number of Triggers
 ///
@@ -119,7 +111,7 @@ class WaitSet
     uint64_t capacity() const noexcept;
 
   protected:
-    static constexpr WaitSetAccessor WAIT_SET_ACCESSOR{};
+    static constexpr EventAccessor EVENT_ACCESSOR{};
 
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 

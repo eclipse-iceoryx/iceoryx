@@ -94,10 +94,10 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                   "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
                   "a callback inside of Trigger.");
 
-    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(WAIT_SET_ACCESSOR, eventType);
+    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(EVENT_ACCESSOR, eventType);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
-        eventOrigin.enableEvent(WAIT_SET_ACCESSOR,
+        eventOrigin.enableEvent(EVENT_ACCESSOR,
                                 TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
                                 eventType);
     });
@@ -118,10 +118,10 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(WAIT_SET_ACCESSOR);
+    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(EVENT_ACCESSOR);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
-        eventOrigin.enableEvent(WAIT_SET_ACCESSOR,
+        eventOrigin.enableEvent(EVENT_ACCESSOR,
                                 TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
     });
 }
@@ -138,7 +138,7 @@ template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
-    eventOrigin.disableEvent(WAIT_SET_ACCESSOR, args...);
+    eventOrigin.disableEvent(EVENT_ACCESSOR, args...);
 }
 
 template <uint64_t Capacity>

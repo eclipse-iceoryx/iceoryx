@@ -19,7 +19,7 @@ namespace iox
 {
 namespace popo
 {
-void UserTrigger::disableEvent(const WaitSetAccessor) noexcept
+void UserTrigger::disableEvent(const EventAccessor) noexcept
 {
     m_trigger.reset();
 }
@@ -48,12 +48,12 @@ void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
     }
 }
 
-WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent(const WaitSetAccessor) const noexcept
+WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent(const EventAccessor) const noexcept
 {
     return {*this, &UserTrigger::hasTriggered};
 }
 
-void UserTrigger::enableEvent(const WaitSetAccessor, iox::popo::TriggerHandle&& triggerHandle) noexcept
+void UserTrigger::enableEvent(const EventAccessor, iox::popo::TriggerHandle&& triggerHandle) noexcept
 {
     m_trigger = std::move(triggerHandle);
 }

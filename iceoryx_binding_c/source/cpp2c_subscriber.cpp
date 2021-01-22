@@ -25,7 +25,7 @@ cpp2c_Subscriber::~cpp2c_Subscriber()
     }
 }
 
-void cpp2c_Subscriber::enableEvent(const iox::popo::WaitSetAccessor,
+void cpp2c_Subscriber::enableEvent(const iox::popo::EventAccessor,
                                    iox::popo::TriggerHandle&& triggerHandle,
                                    const iox_SubscriberEvent subscriberEvent) noexcept
 {
@@ -36,7 +36,7 @@ void cpp2c_Subscriber::enableEvent(const iox::popo::WaitSetAccessor,
 }
 
 iox::popo::WaitSetHasTriggeredCallback
-cpp2c_Subscriber::getHasTriggeredCallbackForEvent(const iox::popo::WaitSetAccessor,
+cpp2c_Subscriber::getHasTriggeredCallbackForEvent(const iox::popo::EventAccessor,
                                                   const iox_SubscriberEvent subscriberEvent) const noexcept
 {
     switch (subscriberEvent)
@@ -48,8 +48,7 @@ cpp2c_Subscriber::getHasTriggeredCallbackForEvent(const iox::popo::WaitSetAccess
     return {};
 }
 
-void cpp2c_Subscriber::disableEvent(const iox::popo::WaitSetAccessor,
-                                    const iox_SubscriberEvent subscriberEvent) noexcept
+void cpp2c_Subscriber::disableEvent(const iox::popo::EventAccessor, const iox_SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);
 

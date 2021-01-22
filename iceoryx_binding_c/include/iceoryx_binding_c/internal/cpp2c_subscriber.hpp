@@ -29,18 +29,18 @@ struct cpp2c_Subscriber
     cpp2c_Subscriber& operator=(const cpp2c_Subscriber&) = delete;
     cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) = delete;
 
-    void enableEvent(const iox::popo::WaitSetAccessor,
+    void enableEvent(const iox::popo::EventAccessor,
                      iox::popo::TriggerHandle&& triggerHandle,
                      const iox_SubscriberEvent subscriberEvent) noexcept;
 
-    void disableEvent(const iox::popo::WaitSetAccessor, const iox_SubscriberEvent event) noexcept;
+    void disableEvent(const iox::popo::EventAccessor, const iox_SubscriberEvent event) noexcept;
 
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
     bool hasSamples() const noexcept;
 
     iox::popo::WaitSetHasTriggeredCallback
-    getHasTriggeredCallbackForEvent(const iox::popo::WaitSetAccessor,
+    getHasTriggeredCallbackForEvent(const iox::popo::EventAccessor,
                                     const iox_SubscriberEvent subscriberEvent) const noexcept;
 
 

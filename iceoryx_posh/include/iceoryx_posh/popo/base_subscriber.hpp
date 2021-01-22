@@ -113,18 +113,18 @@ class BaseSubscriber
     void invalidateTrigger(const uint64_t trigger) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
-    void enableEvent(const WaitSetAccessor,
+    void enableEvent(const EventAccessor,
                      iox::popo::TriggerHandle&& triggerHandle,
                      const SubscriberEvent subscriberEvent) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const WaitSetAccessor,
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const EventAccessor,
                                                                 const SubscriberEvent subscriberEvent) const noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached
-    void disableEvent(const WaitSetAccessor, const SubscriberEvent subscriberEvent) noexcept;
+    void disableEvent(const EventAccessor, const SubscriberEvent subscriberEvent) noexcept;
 
 
   protected:

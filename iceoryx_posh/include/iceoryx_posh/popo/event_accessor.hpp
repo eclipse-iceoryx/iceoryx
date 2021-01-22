@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,21 +11,26 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_MOCKS_WAITSET_MOCK_HPP
-#define IOX_POSH_MOCKS_WAITSET_MOCK_HPP
 
-#include "iceoryx_posh/popo/wait_set.hpp"
+#ifndef IOX_POSH_POPO_EVENT_ACCESSOR_HPP
+#define IOX_POSH_POPO_EVENT_ACCESSOR_HPP
 
-class WaitSetMock : public iox::popo::WaitSet<>
+#include <cstdint>
+
+namespace iox
 {
-  public:
-    WaitSetMock(iox::popo::ConditionVariableData* condVarDataPtr) noexcept
-        : WaitSet(condVarDataPtr)
-    {
-    }
+namespace popo
+{
+class EventAccessor
+{
+    template <uint64_t>
+    class WaitSet;
 
-    using WaitSet::EVENT_ACCESSOR;
+  private:
+    constexpr EventAccessor() noexcept = default;
 };
 
 
+} // namespace popo
+} // namespace iox
 #endif

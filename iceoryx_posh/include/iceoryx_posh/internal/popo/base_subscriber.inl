@@ -141,7 +141,7 @@ inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint6
 
 template <typename T, typename Subscriber, typename port_t>
 inline void
-BaseSubscriber<T, Subscriber, port_t>::enableEvent(const WaitSetAccessor,
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(const EventAccessor,
                                                    iox::popo::TriggerHandle&& triggerHandle,
                                                    [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
 {
@@ -151,7 +151,7 @@ BaseSubscriber<T, Subscriber, port_t>::enableEvent(const WaitSetAccessor,
 
 template <typename T, typename Subscriber, typename port_t>
 inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHasTriggeredCallbackForEvent(
-    const WaitSetAccessor, const SubscriberEvent subscriberEvent) const noexcept
+    const EventAccessor, const SubscriberEvent subscriberEvent) const noexcept
 {
     switch (subscriberEvent)
     {
@@ -162,7 +162,7 @@ inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHas
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const WaitSetAccessor,
+inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const EventAccessor,
                                                                 const SubscriberEvent subscriberEvent) noexcept
 {
     switch (subscriberEvent)

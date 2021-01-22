@@ -240,7 +240,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     waitSet->attachEvent(sut, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
-    sut.disableEvent(WaitSetMock::WAIT_SET_ACCESSOR, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    sut.disableEvent(WaitSetMock::EVENT_ACCESSOR, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     // ===== Cleanup ===== //
