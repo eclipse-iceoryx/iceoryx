@@ -55,7 +55,7 @@ void cpp2c_Subscriber::disableEvent(const iox::popo::EventAccessor, const iox_Su
     m_trigger.reset();
 }
 
-void cpp2c_Subscriber::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
+void cpp2c_Subscriber::invalidateTrigger(const iox::popo::EventAccessor, const uint64_t uniqueTriggerId) noexcept
 {
     if (m_trigger.getUniqueId() == uniqueTriggerId)
     {

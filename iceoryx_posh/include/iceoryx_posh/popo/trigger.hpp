@@ -16,6 +16,7 @@
 #define IOX_POSH_POPO_TRIGGER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/popo/event_accessor.hpp"
 #include "iceoryx_posh/popo/event_info.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
@@ -54,7 +55,7 @@ class Trigger
     /// trigger.
     Trigger(T* const origin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-            const cxx::MethodCallback<void, uint64_t>& resetCallback,
+            const cxx::MethodCallback<void, EventAccessor, uint64_t>& resetCallback,
             const uint64_t eventId,
             const Callback<T> callback) noexcept;
 
@@ -105,10 +106,11 @@ class Trigger
     EventInfo m_eventInfo;
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
-    cxx::MethodCallback<void, uint64_t> m_resetCallback;
+    cxx::MethodCallback<void, EventAccessor, uint64_t> m_resetCallback;
     uint64_t m_uniqueId = 0U;
 
     static std::atomic<uint64_t> uniqueIdCounter; // = 0U;
+    static constexpr EventAccessor EVENT_ACCESSOR{};
 };
 
 

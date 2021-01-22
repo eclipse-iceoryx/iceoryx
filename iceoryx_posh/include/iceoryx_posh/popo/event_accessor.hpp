@@ -25,6 +25,8 @@ class EventAccessor
 {
     template <uint64_t>
     class WaitSet;
+    class Trigger;
+    class TriggerHandle;
 
   private:
     constexpr EventAccessor() noexcept = default;

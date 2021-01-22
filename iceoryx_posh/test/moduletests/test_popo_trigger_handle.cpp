@@ -26,7 +26,7 @@ using namespace ::testing;
 class TriggerHandle_test : public Test
 {
   public:
-    void resetCallback(const uint64_t id)
+    void resetCallback(const EventAccessor, const uint64_t id)
     {
         m_resetCallbackId = id;
     }

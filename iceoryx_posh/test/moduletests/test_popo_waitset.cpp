@@ -53,7 +53,7 @@ class WaitSet_test : public Test
             m_handle = std::move(handle);
         }
 
-        void invalidateTrigger(const uint64_t id)
+        void invalidateTrigger(const EventAccessor, const uint64_t id)
         {
             m_invalidateTriggerId = id;
             m_handle.invalidate();

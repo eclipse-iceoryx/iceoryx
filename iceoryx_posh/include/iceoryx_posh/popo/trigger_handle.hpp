@@ -41,7 +41,7 @@ class TriggerHandle
     /// @param[in] uniqueTriggerId the unique trigger id of the Trigger which corresponds to the TriggerHandle. Usually
     /// stored in a Notifyable. It is required for the resetCallback
     TriggerHandle(ConditionVariableData* const conditionVariableDataPtr,
-                  const cxx::MethodCallback<void, uint64_t> resetCallback,
+                  const cxx::MethodCallback<void, EventAccessor, uint64_t> resetCallback,
                   const uint64_t uniqueTriggerId) noexcept;
     TriggerHandle(const TriggerHandle&) = delete;
     TriggerHandle& operator=(const TriggerHandle&) = delete;
@@ -76,9 +76,11 @@ class TriggerHandle
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
-    cxx::MethodCallback<void, uint64_t> m_resetCallback;
+    cxx::MethodCallback<void, EventAccessor, uint64_t> m_resetCallback;
     uint64_t m_uniqueTriggerId = 0U;
     mutable std::recursive_mutex m_mutex;
+
+    static constexpr EventAccessor EVENT_ACCESSOR{};
 };
 } // namespace popo
 } // namespace iox

@@ -130,7 +130,7 @@ class WaitSet
     template <typename T>
     void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
 
-    void removeTrigger(const uint64_t uniqueTriggerId) noexcept;
+    void removeTrigger(const EventAccessor, const uint64_t uniqueTriggerId) noexcept;
     void removeAllTriggers() noexcept;
 
   private:

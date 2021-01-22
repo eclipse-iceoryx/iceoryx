@@ -52,8 +52,11 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
         return cxx::error<WaitSetError>(WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET);
     }
 
-    Trigger possibleLogicallyEqualTrigger(
-        &eventOrigin, hasTriggeredCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>());
+    Trigger possibleLogicallyEqualTrigger(&eventOrigin,
+                                          hasTriggeredCallback,
+                                          cxx::MethodCallback<void, EventAccessor, uint64_t>(),
+                                          eventId,
+                                          Trigger::Callback<T>());
 
     for (auto& currentTrigger : m_triggerList)
     {
@@ -63,8 +66,9 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
         }
     }
 
-    cxx::MethodCallback<void, uint64_t> invalidationCallback(
-        eventOrigin, static_cast<cxx::MethodCallback<void, uint64_t>::MethodPointer<T>>(&T::invalidateTrigger));
+    cxx::MethodCallback<void, EventAccessor, uint64_t> invalidationCallback(
+        eventOrigin,
+        static_cast<cxx::MethodCallback<void, EventAccessor, uint64_t>::MethodPointer<T>>(&T::invalidateTrigger));
 
     if (!m_triggerList.push_back(
             Trigger{&eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback}))
@@ -130,7 +134,7 @@ inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args)
 }
 
 template <uint64_t Capacity>
-inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noexcept
+inline void WaitSet<Capacity>::removeTrigger(const EventAccessor, const uint64_t uniqueTriggerId) noexcept
 {
     for (auto currentTrigger = m_triggerList.begin(); currentTrigger != m_triggerList.end(); ++currentTrigger)
     {

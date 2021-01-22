@@ -130,7 +130,8 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const EventAccessor,
+                                                                     const uint64_t uniqueTriggerId) noexcept
 {
     if (m_trigger.getUniqueId() == uniqueTriggerId)
     {

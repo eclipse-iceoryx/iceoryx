@@ -40,7 +40,7 @@ void UserTrigger::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
+void UserTrigger::invalidateTrigger(const EventAccessor, const uint64_t uniqueTriggerId) noexcept
 {
     if (uniqueTriggerId == m_trigger.getUniqueId())
     {

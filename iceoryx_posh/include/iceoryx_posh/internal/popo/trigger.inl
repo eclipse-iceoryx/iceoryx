@@ -23,7 +23,7 @@ namespace popo
 template <typename T>
 inline Trigger::Trigger(T* const eventOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-                        const cxx::MethodCallback<void, uint64_t>& resetCallback,
+                        const cxx::MethodCallback<void, EventAccessor, uint64_t>& resetCallback,
                         const uint64_t eventId,
                         const Callback<T> callback) noexcept
     : m_eventInfo(eventOrigin, eventId, callback)

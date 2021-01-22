@@ -35,7 +35,7 @@ struct cpp2c_Subscriber
 
     void disableEvent(const iox::popo::EventAccessor, const iox_SubscriberEvent event) noexcept;
 
-    void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
+    void invalidateTrigger(const iox::popo::EventAccessor, const uint64_t uniqueTriggerId) noexcept;
 
     bool hasSamples() const noexcept;
 

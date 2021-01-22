@@ -110,7 +110,7 @@ class BaseSubscriber
 
   public:
     /// @brief Only usable by the WaitSet, not for public use
-    void invalidateTrigger(const uint64_t trigger) noexcept;
+    void invalidateTrigger(const EventAccessor, const uint64_t trigger) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
     void enableEvent(const EventAccessor,

@@ -47,7 +47,7 @@ class UserTrigger
     void resetTrigger() noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
-    void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
+    void invalidateTrigger(const EventAccessor, const uint64_t uniqueTriggerId) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use
     WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const EventAccessor) const noexcept;

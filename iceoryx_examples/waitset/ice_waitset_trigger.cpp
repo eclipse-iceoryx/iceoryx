@@ -120,7 +120,7 @@ class MyTriggerClass
     /// @brief Only usable by the WaitSet, not for public use
     // we offer the waitset a method to invalidate trigger if it goes
     // out of scope
-    void invalidateTrigger(const uint64_t uniqueTriggerId)
+    void invalidateTrigger(const iox::popo::EventAccessor, const uint64_t uniqueTriggerId)
     {
         if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
         {
