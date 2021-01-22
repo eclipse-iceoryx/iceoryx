@@ -139,7 +139,7 @@ Integration tests are composition of more than one class and test their interact
 
 To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with lcov and htmlgen.
 You will need to install the following packages:
-```
+```bash
 sudo apt install lcov
 ```
 
@@ -148,16 +148,19 @@ The coverage scan applies to Quality level 3 and partly level 2 with branch cove
 
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
 You can do this with one command in iceroyx folder like this:
-```
+```bash
 ./tools/iceoryx_build_test.sh clean build-all -c <testlevel>
 ```
 Optionally you can use build-all option to get coverage for extensions like DDS or C-Binding.
 The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
 example:
+```bash
+./tools/iceoryx_build_test.sh debug build-all -c unit
 ```
-./tools/iceoryx_build_test.sh build-all clean -c unit
-```
-For having only reports for unit-test. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
+**NOTE**
+Iceoryx needs to be build as static library for working with gcov flags. The script does it automatically.
+
+The flag `-c unit` is for having only reports for unit-tests. In the script `tools/gcov/lcov_generate.sh` is the initial scan, filtering and report generation automatically done.
 
 All reports are stored locally in build/lcov as html report (index.html). In Github we are using for codecov for a general reporting of the code coverage. 
 Codecov gives a brief overview over the code coverage and also indicates in Pull-Requests if new added code is not covered by tests.
