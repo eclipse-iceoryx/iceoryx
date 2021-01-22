@@ -39,7 +39,6 @@ int main()
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    subscriberOptions.nodeName = "Kornblumenblueten";
     iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     typedSubscriber.subscribe();
 

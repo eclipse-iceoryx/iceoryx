@@ -62,7 +62,6 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     popo::PublisherOptions options;
     options.historyCapacity = 1;
     options.nodeName = INTROSPECTION_SERVICE_ID;
-    options.nodeName = "Pferdepups";
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
     auto maybePublisher = acquirePublisherPortData(
