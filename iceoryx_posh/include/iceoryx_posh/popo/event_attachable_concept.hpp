@@ -21,6 +21,11 @@ namespace iox
 {
 namespace popo
 {
+enum class REQUIRES
+{
+    Placeholder
+};
+
 template <typename T>
 struct EventAttachableConcept
 {
@@ -65,17 +70,86 @@ struct EventAttachableConcept
     {
     };
 
-    static_assert(HasDisableEvent<T>::value && HasEnableEvent<T>::value && HasGetHasTriggeredCallbackForEvent<T>::value
-                      && HasInvalidateTrigger<T>::value,
-                  "\n\n  EventAttachables are not allowed to be copy- or movable and "
-                  "they are requiring the following methods:\n"
-                  "    void T::disableEvent(EventType)\n "
-                  "    void T::enableEvent(iox::popo::TriggerHandle&&, EventType)\n "
-                  "    void T::invalidateTrigger(uint64_t)\n "
-                  "    WaitSetHasTriggeredCallback "
-                  "T::getHasTriggeredCallbackForEvent(EventType)\n\n");
+    static_assert(HasDisableEvent<T>::value, "Type requires void T::disableEvent(EventType) method");
+    static_assert(HasEnableEvent<T>::value,
+                  "Type requires void T::enableEvent(iox::popo::TriggerHandle&&, EventType) method");
+    static_assert(HasGetHasTriggeredCallbackForEvent<T>::value,
+                  "Type requires void T::getHasTriggeredCallbackForEvent(EventType) method");
+    static_assert(HasInvalidateTrigger<T>::value, "Type requires void T::invalidateTrigger(uint64_t) method");
 
-    using verify = bool;
+    static_assert(!std::is_copy_constructible<T>::value,
+                  "Type is not allowed to be copy constructible. Declare T(const T&) = delete;");
+    static_assert(!std::is_copy_assignable<T>::value,
+                  "Type is not allowed to be copy assignable. Declare T& operator=(const T&) =delete;");
+    static_assert(!std::is_move_assignable<T>::value,
+                  "Type is not allowed to be move assignable. Declare T& operator=(T&&) =delete;");
+    static_assert(!std::is_move_constructible<T>::value,
+                  "Type is not allowed to be move constructible. Declare T(T&&) =delete;");
+
+    static constexpr REQUIRES VALUE = REQUIRES::Placeholder;
+};
+
+
+template <typename T>
+struct SingleEventAttachableConcept
+{
+    template <typename C, class = void>
+    struct HasDisableEvent : std::false_type
+    {
+    };
+
+    template <typename C>
+    struct HasDisableEvent<C, std::void_t<decltype(&C::disableEvent)>> : std::true_type
+    {
+    };
+
+    template <typename C, class = void>
+    struct HasEnableEvent : std::false_type
+    {
+    };
+
+    template <typename C>
+    struct HasEnableEvent<C, std::void_t<decltype(&C::enableEvent)>> : std::true_type
+    {
+    };
+
+    template <typename C, class = void>
+    struct HasGetHasTriggeredCallbackForEvent : std::false_type
+    {
+    };
+
+    template <typename C>
+    struct HasGetHasTriggeredCallbackForEvent<C, std::void_t<decltype(&C::getHasTriggeredCallbackForEvent)>>
+        : std::true_type
+    {
+    };
+
+    template <typename C, class = void>
+    struct HasInvalidateTrigger : std::false_type
+    {
+    };
+
+    template <typename C>
+    struct HasInvalidateTrigger<C, std::void_t<decltype(&C::invalidateTrigger)>> : std::true_type
+    {
+    };
+
+    static_assert(HasDisableEvent<T>::value, "Type requires void T::disableEvent() method");
+    static_assert(HasEnableEvent<T>::value, "Type requires void T::enableEvent(iox::popo::TriggerHandle&&) method");
+    static_assert(HasGetHasTriggeredCallbackForEvent<T>::value,
+                  "Type requires void T::getHasTriggeredCallbackForEvent() method");
+    static_assert(HasInvalidateTrigger<T>::value, "Type requires void T::invalidateTrigger(uint64_t) method");
+
+    static_assert(!std::is_copy_constructible<T>::value,
+                  "Type is not allowed to be copy constructible. Declare T(const T&) = delete;");
+    static_assert(!std::is_copy_assignable<T>::value,
+                  "Type is not allowed to be copy assignable. Declare T& operator=(const T&) =delete;");
+    static_assert(!std::is_move_assignable<T>::value,
+                  "Type is not allowed to be move assignable. Declare T& operator=(T&&) =delete;");
+    static_assert(!std::is_move_constructible<T>::value,
+                  "Type is not allowed to be move constructible. Declare T(T&&) =delete;");
+
+    static constexpr REQUIRES VALUE = REQUIRES::Placeholder;
 };
 
 

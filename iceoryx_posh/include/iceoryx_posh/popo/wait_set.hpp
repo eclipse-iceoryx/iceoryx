@@ -17,6 +17,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/popo/event_attachable_concept.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -73,21 +74,27 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
-    template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
+    template <typename T,
+              typename EventType,
+              typename = std::enable_if_t<std::is_enum<EventType>::value>,
+              REQUIRES = EventAttachableConcept<T>::VALUE>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
                                             const EventType eventType,
                                             const uint64_t eventId = 0U,
                                             const EventInfo::Callback<T>& eventCallback = {}) noexcept;
 
-    template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value, void>>
+    template <typename T,
+              typename EventType,
+              typename = std::enable_if_t<std::is_enum<EventType>::value, void>,
+              REQUIRES = EventAttachableConcept<T>::VALUE>
     cxx::expected<WaitSetError>
     attachEvent(T& eventOrigin, const EventType eventType, const EventInfo::Callback<T>& eventCallback) noexcept;
 
-    template <typename T>
+    template <typename T, REQUIRES = SingleEventAttachableConcept<T>::VALUE>
     cxx::expected<WaitSetError>
     attachEvent(T& eventOrigin, const uint64_t eventId = 0U, const EventInfo::Callback<T>& eventCallback = {}) noexcept;
 
-    template <typename T>
+    template <typename T, REQUIRES = SingleEventAttachableConcept<T>::VALUE>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const EventInfo::Callback<T>& eventCallback) noexcept;
 
     /// @brief detaches an event from the WaitSet

@@ -82,7 +82,7 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
 }
 
 template <uint64_t Capacity>
-template <typename T, typename EventType, typename>
+template <typename T, typename EventType, typename, REQUIRES>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                                                   const EventType eventType,
                                                                   const uint64_t eventId,
@@ -104,7 +104,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
 }
 
 template <uint64_t Capacity>
-template <typename T, typename EventType, typename>
+template <typename T, typename EventType, typename, REQUIRES>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                                                   const EventType eventType,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
@@ -113,7 +113,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
 }
 
 template <uint64_t Capacity>
-template <typename T>
+template <typename T, REQUIRES>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
@@ -127,7 +127,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
 }
 
 template <uint64_t Capacity>
-template <typename T>
+template <typename T, REQUIRES>
 cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                                            const EventInfo::Callback<T>& eventCallback) noexcept
 {

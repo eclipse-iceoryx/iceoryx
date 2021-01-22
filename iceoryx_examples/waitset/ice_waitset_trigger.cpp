@@ -132,6 +132,19 @@ class MyTriggerClass
         }
     }
 
+    void disableEvent(const iox::popo::WaitSetAccessor, const MyTriggerClassEvents event) noexcept
+    {
+        switch (event)
+        {
+        case MyTriggerClassEvents::PERFORMED_ACTION:
+            m_actionTrigger.reset();
+            break;
+        case MyTriggerClassEvents::ACTIVATE:
+            m_activateTrigger.reset();
+            break;
+        }
+    }
+
     /// @brief Only usable by the WaitSet, not for public use
     iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const iox::popo::WaitSetAccessor,
                                                                         const MyTriggerClassEvents event) const noexcept
