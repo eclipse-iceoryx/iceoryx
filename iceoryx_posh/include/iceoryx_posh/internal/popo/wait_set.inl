@@ -47,12 +47,6 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
                                    const uint64_t eventId,
                                    const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
-                      && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
-                  "At the moment only non copyable and non movable origin types are supported! To implement this we "
-                  "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
-                  "a callback inside of Trigger.");
-
     if (!hasTriggeredCallback)
     {
         return cxx::error<WaitSetError>(WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET);
@@ -88,12 +82,6 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
-                      && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
-                  "At the moment only non copyable and non movable origin types are supported! To implement this we "
-                  "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
-                  "a callback inside of Trigger.");
-
     auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(EVENT_ACCESSOR, eventType);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
