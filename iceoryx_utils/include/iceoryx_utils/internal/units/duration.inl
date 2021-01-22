@@ -178,13 +178,14 @@ inline constexpr uint64_t Duration::nanoSeconds() const noexcept
 inline constexpr uint64_t Duration::microSeconds() const noexcept
 {
     constexpr uint64_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MICROSECS_PER_SEC};
-    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MICROSECS_PER_SEC) * NANOSECS_PER_MICROSEC};
+    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MICROSECS_PER_SEC)
+                                                       * NANOSECS_PER_MICROSEC};
     constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
         std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
-        << std::endl;
+                  << std::endl;
         return std::numeric_limits<uint64_t>::max();
     }
 
@@ -194,13 +195,14 @@ inline constexpr uint64_t Duration::microSeconds() const noexcept
 inline constexpr uint64_t Duration::milliSeconds() const noexcept
 {
     constexpr uint64_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MILLISECS_PER_SEC};
-    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MILLISECS_PER_SEC) * NANOSECS_PER_MILLISEC};
+    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MILLISECS_PER_SEC)
+                                                       * NANOSECS_PER_MILLISEC};
     constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
         std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
-        << std::endl;
+                  << std::endl;
         return std::numeric_limits<uint64_t>::max();
     }
 
@@ -266,8 +268,6 @@ inline constexpr bool Duration::operator>=(const Duration& rhs) const noexcept
 
 inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcept
 {
-    /// @todo decide if we want an overflow or saturation
-
     auto seconds = m_seconds + rhs.m_seconds;
     auto nanoseconds = m_nanoseconds + rhs.m_nanoseconds;
     if (nanoseconds >= NANOSECS_PER_SEC)
@@ -275,7 +275,14 @@ inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcep
         ++seconds;
         nanoseconds -= NANOSECS_PER_SEC;
     }
-    return Duration{seconds, nanoseconds};
+
+    auto sum = Duration{seconds, nanoseconds};
+    if (sum < *this)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of addition would overflow, clamping to max value!" << std::endl;
+        return Duration{std::numeric_limits<uint64_t>::max(), NANOSECS_PER_SEC - 1U};
+    }
+    return sum;
 }
 
 inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcept
@@ -406,15 +413,6 @@ inline constexpr Duration operator"" _d(unsigned long long int value) noexcept /
 template <typename T>
 inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 {
-    static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
-
-    if (lhs < static_cast<T>(0))
-    {
-        std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
-                  << std::endl;
-        return Duration{0U, 0U};
-    }
-
     return rhs * lhs;
 }
 
