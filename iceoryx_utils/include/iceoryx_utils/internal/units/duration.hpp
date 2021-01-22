@@ -234,24 +234,36 @@ class Duration
     // BEGIN CONVERSION
 
     /// @brief returns the duration in nanoseconds
+    /// @note If the duration in nanoseconds is larger than an uint64_t can represent, it will be clamped to the
+    /// uint64_t max value.
     constexpr uint64_t nanoSeconds() const noexcept;
 
     /// @brief returns the duration in microseconds
+    /// @note If the duration in microseconds is larger than an uint64_t can represent, it will be clamped to the
+    /// uint64_t max value.
+    /// @note The remaining nanoseconds are truncated, similar to the casting behavior of a float to an int.
     constexpr uint64_t microSeconds() const noexcept;
 
     /// @brief returns the duration in milliseconds
+    /// @note If the duration in milliseconds is larger than an uint64_t can represent, it will be clamped to the
+    /// uint64_t max value.
+    /// @note The remaining microseconds are truncated, similar to the casting behavior of a float to an int.
     constexpr uint64_t milliSeconds() const noexcept;
 
     /// @brief returns the duration in seconds
+    /// @note The remaining milliseconds are truncated, similar to the casting behavior of a float to an int.
     constexpr uint64_t seconds() const noexcept;
 
     /// @brief returns the duration in minutes
+    /// @note The remaining seconds are truncated, similar to the casting behavior of a float to an int.
     constexpr uint64_t minutes() const noexcept;
 
     /// @brief returns the duration in hours
+    /// @note The remaining minutes are truncated, similar to the casting behavior of a float to an int.
     constexpr uint64_t hours() const noexcept;
 
     /// @brief returns the duration in days
+    /// @note The remaining hours are truncated, similar to the casting behavior of a float to an int.
     constexpr uint64_t days() const noexcept;
 
     /// @brief converts duration in a timespec c struct

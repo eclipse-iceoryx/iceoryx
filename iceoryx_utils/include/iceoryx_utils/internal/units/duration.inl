@@ -177,41 +177,53 @@ inline constexpr uint64_t Duration::nanoSeconds() const noexcept
 
 inline constexpr uint64_t Duration::microSeconds() const noexcept
 {
-    /// @todo decide if we want an overflow or saturation if the result is out of range for T
+    constexpr uint64_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MICROSECS_PER_SEC};
+    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MICROSECS_PER_SEC) * NANOSECS_PER_MICROSEC};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
+
+    if (*this > MAX_DURATION_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+        << std::endl;
+        return std::numeric_limits<uint64_t>::max();
+    }
+
     return m_seconds * MICROSECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MICROSEC;
 }
 
 inline constexpr uint64_t Duration::milliSeconds() const noexcept
 {
-    /// @todo decide if we want an overflow or saturation if the result is out of range for T
+    constexpr uint64_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MILLISECS_PER_SEC};
+    constexpr uint64_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MILLISECS_PER_SEC) * NANOSECS_PER_MILLISEC};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
+
+    if (*this > MAX_DURATION_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+        << std::endl;
+        return std::numeric_limits<uint64_t>::max();
+    }
+
     return m_seconds * MILLISECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MILLISEC;
 }
 
 inline constexpr uint64_t Duration::seconds() const noexcept
 {
-    /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
     return m_seconds;
 }
 
 inline constexpr uint64_t Duration::minutes() const noexcept
 {
-    /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
     return m_seconds / SECS_PER_MINUTE;
 }
 
 inline constexpr uint64_t Duration::hours() const noexcept
 {
-    /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
     return m_seconds / SECS_PER_HOUR;
 }
 
 inline constexpr uint64_t Duration::days() const noexcept
 {
-    /// @todo decide if we want an overflow or saturation if the result is out of range for T
-    // since currently only integers are supported, the nanoseconds would be rounded off and can be omitted
     return m_seconds / (HOURS_PER_DAY * SECS_PER_HOUR);
 }
 
