@@ -140,16 +140,16 @@ void PortManager::handlePublisherPorts() noexcept
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
 
-        publisherPort.tryGetCaProMessage().and_then([&](auto caproMessage) {
+        publisherPort.tryGetCaProMessage().and_then([this, &publisherPort](auto caproMessage) {
             if (capro::CaproMessageType::OFFER == caproMessage.m_type)
             {
-                addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                          caproMessage.m_serviceDescription.getInstanceIDString());
+                this->addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                                caproMessage.m_serviceDescription.getInstanceIDString());
             }
             else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
             {
-                removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                               caproMessage.m_serviceDescription.getInstanceIDString());
+                this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                                     caproMessage.m_serviceDescription.getInstanceIDString());
             }
             else
             {
@@ -160,9 +160,9 @@ void PortManager::handlePublisherPorts() noexcept
             }
 
             m_portIntrospection.reportMessage(caproMessage);
-            sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
+            this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
             // forward to interfaces
-            sendToAllMatchingInterfacePorts(caproMessage);
+            this->sendToAllMatchingInterfacePorts(caproMessage);
         });
 
         // check if we have to destroy this publisher port
@@ -180,11 +180,11 @@ void PortManager::handleSubscriberPorts() noexcept
     {
         SubscriberPortType subscriberPort(subscriberPortData);
 
-        subscriberPort.tryGetCaProMessage().and_then([&](auto caproMessage) {
+        subscriberPort.tryGetCaProMessage().and_then([this, &subscriberPort](auto caproMessage) {
             if ((capro::CaproMessageType::SUB == caproMessage.m_type)
                 || (capro::CaproMessageType::UNSUB == caproMessage.m_type))
             {
-                if (!sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
+                if (!this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
                 {
                     LogDebug() << "capro::SUB/UNSUB, no matching publisher!!";
                     capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
@@ -504,14 +504,14 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
     publisherPortUser.stopOffer();
 
     // process STOP_OFFER for this publisher in RouDi and distribute it
-    publisherPortRoudi.tryGetCaProMessage().and_then([&](auto caproMessage) {
+    publisherPortRoudi.tryGetCaProMessage().and_then([this, &publisherPortRoudi](auto caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
 
         m_portIntrospection.reportMessage(caproMessage);
-        removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                       caproMessage.m_serviceDescription.getInstanceIDString());
-        sendToAllMatchingSubscriberPorts(caproMessage, publisherPortRoudi);
-        sendToAllMatchingInterfacePorts(caproMessage);
+        this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                             caproMessage.m_serviceDescription.getInstanceIDString());
+        this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPortRoudi);
+        this->sendToAllMatchingInterfacePorts(caproMessage);
     });
 
     m_portIntrospection.removePublisher(publisherPortRoudi.getProcessName(),
@@ -533,11 +533,11 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     subscriberPortUser.unsubscribe();
 
     // process UNSUB for this subscriber in RouDi and distribute it
-    subscriberPortRoudi.tryGetCaProMessage().and_then([&](auto caproMessage) {
+    subscriberPortRoudi.tryGetCaProMessage().and_then([this, &subscriberPortRoudi](auto caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::UNSUB);
 
         m_portIntrospection.reportMessage(caproMessage);
-        sendToAllMatchingPublisherPorts(caproMessage, subscriberPortRoudi);
+        this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPortRoudi);
     });
 
     m_portIntrospection.removeSubscriber(subscriberPortRoudi.getProcessName(),
