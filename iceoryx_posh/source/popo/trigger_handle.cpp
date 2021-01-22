@@ -19,6 +19,8 @@ namespace iox
 {
 namespace popo
 {
+constexpr EventAccessor TriggerHandle::EVENT_ACCESSOR;
+
 TriggerHandle::TriggerHandle(ConditionVariableData* const conditionVariableDataPtr,
                              const cxx::MethodCallback<void, EventAccessor, uint64_t> resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
