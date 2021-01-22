@@ -140,9 +140,6 @@ class Sample<const T>
     const T* get() noexcept;
     const mepoo::ChunkHeader* getHeader() noexcept;
 
-    template <typename... Args>
-    void emplace(Args&&... args) noexcept = delete;
-
   private:
     cxx::unique_ptr<T> m_samplePtr{[](T* const) {}}; // Placeholder. This is overwritten on sample construction.
 };
