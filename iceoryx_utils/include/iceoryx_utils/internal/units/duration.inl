@@ -325,8 +325,7 @@ Duration::multiplySeconds(const uint64_t seconds,
     auto result = seconds * rhs;
     double resultSeconds{0.0};
     double secondsFraction = modf(result, &resultSeconds);
-    return Duration(static_cast<uint64_t>(resultSeconds), 0U)
-           + Duration::nanoseconds(static_cast<uint64_t>(secondsFraction * NANOSECS_PER_SEC));
+    return Duration(static_cast<uint64_t>(resultSeconds), static_cast<uint32_t>(secondsFraction * NANOSECS_PER_SEC));
 }
 
 template <typename T>
@@ -345,7 +344,18 @@ Duration::multiplyNanoseconds(const uint32_t nanoseconds,
                               const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
     // operator*(...) takes care of negative values for rhs
-    return Duration::nanoseconds(static_cast<uint64_t>(nanoseconds * rhs));
+    auto result = nanoseconds * rhs;
+    auto resultAsFixedPoint = static_cast<uint64_t>(result);
+    if (resultAsFixedPoint < std::numeric_limits<uint64_t>::max())
+    {
+        return Duration::nanoseconds(resultAsFixedPoint);
+    }
+    // the multiplication result of nanoseconds would exceed the value an uint64_t can represent
+    // -> convert result to seconds and and calculate duration
+    result /= NANOSECS_PER_SEC;
+    double resultSeconds{0.0};
+    double secondsFraction = modf(result, &resultSeconds);
+    return Duration(static_cast<uint64_t>(resultSeconds), static_cast<uint32_t>(secondsFraction * NANOSECS_PER_SEC));
 }
 
 template <typename T>
@@ -353,10 +363,13 @@ inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
-    if (rhs < static_cast<T>(0))
+    if (rhs <= static_cast<T>(0))
     {
-        std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
-                  << std::endl;
+        if (rhs < static_cast<T>(0))
+        {
+            std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
+                      << std::endl;
+        }
         return Duration{0U, 0U};
     }
 
