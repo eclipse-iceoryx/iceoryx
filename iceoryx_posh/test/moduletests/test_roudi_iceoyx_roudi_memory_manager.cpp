@@ -107,15 +107,20 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringPortPoolAfterCreateAndAnnounceMe
     EXPECT_THAT(testResult, Not(Eq(iox::cxx::nullopt_t())));
 }
 
-TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryIntrospectionMemoryManagerReturnNullOpt)
+TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryReturnNoError)
 {
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
-    
-    EXPECT_THAT(testResult.has_error(), Eq(false));
 
     auto result = m_roudiMemoryManagerTest->destroyMemory();
 
     EXPECT_THAT(result.has_error(), Eq(false));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryIntrospectionMemoryManagerReturnNullOpt)
+{
+    auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+
+    auto result = m_roudiMemoryManagerTest->destroyMemory();
 
     auto res = m_roudiMemoryManagerTest->introspectionMemoryManager();
     EXPECT_THAT(res, Eq(iox::cxx::nullopt_t()));
@@ -124,15 +129,18 @@ TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryIntrospectionMemoryManagerRe
 TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemorySegmentManagerReturnNullOpt)
 {
     auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
-    
-    EXPECT_THAT(testResult.has_error(), Eq(false));
 
     auto result = m_roudiMemoryManagerTest->destroyMemory();
 
-    EXPECT_THAT(result.has_error(), Eq(false));
-
     auto resultTest = m_roudiMemoryManagerTest->segmentManager();
     EXPECT_THAT(resultTest, Eq(iox::cxx::nullopt_t()));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryReturnError)
+{
+    auto result = m_roudiMemoryManagerTest->destroyMemory();
+
+    EXPECT_THAT(result.has_error(), Eq(true));
 }
 
 } // namespace test 
