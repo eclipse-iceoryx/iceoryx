@@ -10,7 +10,6 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Codecov](https://codecov.io/gh/eclipse-iceoryx/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse-iceoryx/iceoryx?branch=master)
 [![Sanitize](https://github.com/eclipse/iceoryx/workflows/Sanitize/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions?query=workflow%3ASanitize)
-[![deepcode](https://www.deepcode.ai/api/gh/badge?key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwbGF0Zm9ybTEiOiJnaCIsIm93bmVyMSI6ImVjbGlwc2UtaWNlb3J5eCIsInJlcG8xIjoiaWNlb3J5eCIsImluY2x1ZGVMaW50IjpmYWxzZSwiYXV0aG9ySWQiOjIwNzA0LCJpYXQiOjE2MTA3MjM3NTJ9.I3jdVbuipG9myKr1li5FJ_pIdicYYhylpIe2bZStrg8)](https://www.deepcode.ai/app/gh/eclipse-iceoryx/iceoryx/_/dashboard?utm_content=gh%2Feclipse-iceoryx%2Ficeoryx)
 
 ## Introduction
 
