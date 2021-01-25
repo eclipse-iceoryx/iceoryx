@@ -43,7 +43,7 @@ ChunkReceiver<ChunkReceiverDataType>::getMembers() noexcept
 }
 
 template <typename ChunkReceiverDataType>
-inline cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError>
+inline cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveResult>
 ChunkReceiver<ChunkReceiverDataType>::tryGet() noexcept
 {
     auto popRet = this->tryPop();
@@ -62,7 +62,7 @@ ChunkReceiver<ChunkReceiverDataType>::tryGet() noexcept
         {
             // release the chunk
             sharedChunk = nullptr;
-            return cxx::error<ChunkReceiveError>(ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+            return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
         }
     }
     else

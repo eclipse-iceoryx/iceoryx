@@ -26,6 +26,19 @@ inline TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::Servi
 {
 }
 
+template <typename T, template <typename, typename, typename> class base_subscriber_t>
+inline cxx::expected<Sample<const T>, ChunkReceiveResult> TypedSubscriber<T, base_subscriber_t>::take_1_0() noexcept
+{
+    auto result = BaseSubscriber::takeChunk();
+    if (result.has_error())
+    {
+        return cxx::error<ChunkReceiveResult>(result.get_error());
+    }
+    auto payloadPtr = static_cast<T*>(result.value()->payload());
+    auto samplePtr = cxx::unique_ptr<T>(static_cast<T*>(payloadPtr), BaseSubscriber::m_sampleDeleter);
+    return cxx::success<Sample<const T>>(std::move(samplePtr));
+}
+
 } // namespace popo
 } // namespace iox
 

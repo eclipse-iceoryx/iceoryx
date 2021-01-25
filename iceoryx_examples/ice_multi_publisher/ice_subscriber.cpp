@@ -43,7 +43,7 @@ void receive()
                 .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << "Received: " << *sample.get() << std::endl;
                 })
-                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
+                .or_else([](iox::popo::ChunkReceiveResult) { std::cout << "Error while receiving." << std::endl; });
         };
         std::cout << "Waiting for data ... " << std::endl;
     }
