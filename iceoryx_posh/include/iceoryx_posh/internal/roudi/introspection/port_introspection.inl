@@ -593,13 +593,13 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(b
 template <typename PublisherPort, typename SubscriberPort>
 inline bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* port)
 {
-    return m_portData.addPublisher(std::move(port));
+    return m_portData.addPublisher(port);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
 inline bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t* port)
 {
-    return m_portData.addSubscriber(std::move(port));
+    return m_portData.addSubscriber(port);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
