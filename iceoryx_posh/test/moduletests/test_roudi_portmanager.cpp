@@ -562,3 +562,114 @@ TEST_F(PortManager_test, PortDestroy)
         }
     }
 }
+
+TEST_F(PortManager_test, Nodeoverflow)
+{
+    std::string nodename = "nodeName";
+
+    for (unsigned int i = 0; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        auto newNodeName = nodename + std::to_string(i);
+        auto newNodeData = m_portManager->acquireNodeData(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName),iox::NodeName_t(iox::cxx::TruncateToCapacity,newNodeName));
+        EXPECT_THAT(newNodeData, Ne(nullptr));
+    }
+
+    { // test if overflow errors get hit
+
+        auto errorHandlerCalled{false};
+        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+            [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+                errorHandlerCalled = true;
+            });
+
+        auto nodePointer = m_portManager->acquireNodeData("Processnode","node");
+        EXPECT_THAT(nodePointer, Eq(nullptr));
+        EXPECT_TRUE(errorHandlerCalled);
+    }
+
+    // delete one and add one should be possible now
+    {
+        unsigned int testi = 0;
+        auto newNodeName = nodename + std::to_string(testi);
+        m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName));
+
+        auto nodePointer = m_portManager->acquireNodeData(
+            iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName),iox::NodeName_t(iox::cxx::TruncateToCapacity,newNodeName));
+        EXPECT_THAT(nodePointer, Ne(nullptr));
+    }
+}
+
+TEST_F(PortManager_test, NodeDestroy)
+{
+    std::vector<iox::runtime::NodeData*> nodeContainer;
+    std::string nodeName = "nodeName";
+
+    // first aquire all possible condition variables
+    for (unsigned int i = 0; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        auto newnodeName = nodeName + std::to_string(i);
+        auto nodeDataResult = m_portManager->acquireNodeData("Process",iox::NodeName_t(iox::cxx::TruncateToCapacity,newnodeName));
+        EXPECT_THAT(nodeDataResult, Ne(nullptr));
+        nodeContainer.push_back(nodeDataResult);
+    }
+
+    // so now no one should be available
+    {
+        auto nodeDataResult = m_portManager->acquireNodeData("Process","node");
+        EXPECT_THAT(nodeDataResult, Eq(nullptr));
+    }
+
+    // set the destroy flag and let the discovery loop take care
+    for (unsigned int i = 0; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        nodeContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    }
+    m_portManager->doDiscovery();
+    nodeContainer.clear(); // These pointers are dangling now
+
+    // so we should able to get some more now
+    for (unsigned int i = 0; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        auto nodeDataResult = m_portManager->acquireNodeData("Process","node");
+        EXPECT_THAT(nodeDataResult, Ne(nullptr));
+    }
+}
+
+TEST_F(PortManager_test, InterfaceDestroy)
+{
+    std::vector<iox::popo::InterfacePortData*> interfaceContainer;
+
+    std::string process = "process";
+
+    std::string itf = "itf";
+
+    // first aquire all possible condition variables
+    for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
+    {
+        auto newItfName = itf + std::to_string(i);
+        auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "process");
+        EXPECT_THAT(interp, Ne(nullptr));
+        interfaceContainer.push_back(interp);
+    }
+
+    // so now no one should be available
+    {
+        auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL,"process");
+        EXPECT_THAT(interp, Eq(nullptr));
+    }
+
+    // set the destroy flag and let the discovery loop take care
+    for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
+    {
+        interfaceContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    }
+    m_portManager->doDiscovery();
+    interfaceContainer.clear(); // These pointers are dangling now
+
+    // so we should able to get some more now
+    for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
+    {
+        auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL,"process");
+        EXPECT_THAT(interp, Ne(nullptr));
+    }
+}
