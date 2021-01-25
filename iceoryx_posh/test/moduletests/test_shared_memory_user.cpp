@@ -15,7 +15,6 @@
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include "test.hpp"
 

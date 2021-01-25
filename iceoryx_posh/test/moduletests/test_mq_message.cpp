@@ -431,7 +431,7 @@ TEST_F(MqMessage_test, setMessage)
     EXPECT_THAT(message1.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, equalOperator)
+TEST_F(MqMessage_test, checkEqualMessagesOperator)
 {
     MqMessage message1;
     MqMessage message2;
