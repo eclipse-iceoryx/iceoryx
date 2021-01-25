@@ -267,7 +267,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherMaxCapacity)
 {
     // arrange
     iox::popo::PublisherOptions publisherOptions;
-    publisherOptions.historyCapacity = 17U;
+    publisherOptions.historyCapacity = iox::MAX_PUBLISHER_HISTORY + 1U;
 
     // act
     const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
