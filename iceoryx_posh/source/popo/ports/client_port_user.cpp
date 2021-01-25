@@ -66,7 +66,7 @@ ConnectionState ClientPortUser::getConnectionState() const noexcept
     return getMembers()->m_connectionState;
 }
 
-cxx::expected<cxx::optional<const ResponseHeader*>, ChunkReceiveError> ClientPortUser::getResponse() noexcept
+cxx::expected<cxx::optional<const ResponseHeader*>, ChunkReceiveResult> ClientPortUser::getResponse() noexcept
 {
     /// @todo
     return cxx::success<cxx::optional<const ResponseHeader*>>(cxx::nullopt_t());

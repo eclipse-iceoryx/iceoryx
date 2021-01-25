@@ -160,7 +160,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
 
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
     EXPECT_TRUE(maybeChunkHeader.has_error());
-    EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
+    EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
 }
 
 TEST_F(ChunkReceiver_test, releaseInvalidChunk)

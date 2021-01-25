@@ -21,11 +21,11 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/posix_wrapper/thread.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
 #include <atomic>
 #include <mutex>
-#include <thread>
 #include <vector>
 
 #include <map>
@@ -62,7 +62,7 @@ class PortIntrospection
 
         struct PublisherInfo
         {
-            PublisherInfo() = default;
+            PublisherInfo() noexcept {};
 
             PublisherInfo(typename PublisherPort::MemberType_t* const portData)
                 : portData(portData)
@@ -89,9 +89,7 @@ class PortIntrospection
 
         struct SubscriberInfo
         {
-            SubscriberInfo()
-            {
-            }
+            SubscriberInfo() noexcept = default;
 
             SubscriberInfo(typename SubscriberPort::MemberType_t* const portData)
                 : portData(portData)
@@ -109,9 +107,7 @@ class PortIntrospection
 
         struct ConnectionInfo
         {
-            ConnectionInfo()
-            {
-            }
+            ConnectionInfo() noexcept = default;
 
             ConnectionInfo(typename SubscriberPort::MemberType_t* const portData)
                 : subscriberInfo(portData)
@@ -119,7 +115,7 @@ class PortIntrospection
             {
             }
 
-            ConnectionInfo(SubscriberInfo& subscriberInfo)
+            ConnectionInfo(SubscriberInfo& subscriberInfo) noexcept
                 : subscriberInfo(subscriberInfo)
                 , state(ConnectionState::DEFAULT)
             {
@@ -129,14 +125,14 @@ class PortIntrospection
             PublisherInfo* publisherInfo{nullptr};
             ConnectionState state{ConnectionState::DEFAULT};
 
-            bool isConnected()
+            bool isConnected() const noexcept
             {
                 return publisherInfo && state == ConnectionState::CONNECTED;
             }
         };
 
       public:
-        PortData();
+        PortData() noexcept;
 
         /// @brief add a publisher port to be tracked by introspection
         /// @param[in] port to be added
@@ -164,7 +160,7 @@ class PortIntrospection
         ///        according to the message type (e.g. capro::SUB for a subscription request)
         /// @param[in] message capro message to be processed
         /// @return returns false there is no corresponding capro service and true otherwise
-        bool updateConnectionState(const capro::CaproMessage& message);
+        bool updateConnectionState(const capro::CaproMessage& message) noexcept;
 
         /// @brief update the connection state identified by the unique port id and the capro id of a given message
         /// according to the message type (e.g. capro::SUB for a subscription request)
@@ -178,26 +174,26 @@ class PortIntrospection
 
         /// @brief prepare the topic to be send based on the internal connection state of all tracked ports
         /// @param[out] topic data structure to be prepared for sending
-        void prepareTopic(PortIntrospectionTopic& topic);
+        void prepareTopic(PortIntrospectionTopic& topic) noexcept;
 
-        void prepareTopic(PortThroughputIntrospectionTopic& topic);
+        void prepareTopic(PortThroughputIntrospectionTopic& topic) noexcept;
 
-        void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic);
+        void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic) noexcept;
 
         /// @brief compute the next connection state based on the current connection state and a capro message type
         /// @param[in] currentState current connection state (e.g. CONNECTED)
         /// @param[in] messageType capro message type
         /// @return returns the new connection state
         PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
-                                                        capro::CaproMessageType messageType);
+                                                        capro::CaproMessageType messageType) noexcept;
 
         /// @brief indicates whether the logical object state has changed (i.e. the data is new)
         /// @return returns true if the data is new(e.g. new connections were established), false otherwise
-        bool isNew();
+        bool isNew() const noexcept;
 
         /// @brief sets the internal flag indicating new data
         /// @param[in] value value to be set
-        void setNew(bool value);
+        void setNew(bool value) noexcept;
 
       private:
         using PublisherContainer = FixedSizeContainer<PublisherInfo, MAX_PUBLISHERS>;
@@ -224,9 +220,9 @@ class PortIntrospection
     // end of helper classes
 
   public:
-    PortIntrospection();
+    PortIntrospection() noexcept;
 
-    ~PortIntrospection();
+    ~PortIntrospection() noexcept;
 
     // delete copy constructor and assignment operator
     PortIntrospection(PortIntrospection const&) = delete;
@@ -259,7 +255,7 @@ class PortIntrospection
 
     /// @brief report a capro message to introspection (since this could change the state of active connections)
     /// @param[in] message capro message to be processed
-    void reportMessage(const capro::CaproMessage& message);
+    void reportMessage(const capro::CaproMessage& message) noexcept;
 
     /// @brief report a capro message to introspection (since this could change the state of active connections)
     /// @param[in] message capro message to be processed
@@ -274,28 +270,31 @@ class PortIntrospection
     /// @return true if registration was successful, false otherwise
     bool registerPublisherPort(PublisherPort&& publisherPortGeneric,
                                PublisherPort&& publisherPortThroughput,
-                               PublisherPort&& publisherPortSubscriberPortsData);
+                               PublisherPort&& publisherPortSubscriberPortsData) noexcept;
 
     /// @brief set the time interval used to send new introspection data
-    /// @param[in] sendIntervalMs time interval in ms
-    void setSendInterval(unsigned int sendIntervalMs);
+    /// @param[in] interval duration between two send invocations
+    void setSendInterval(const units::Duration interval) noexcept;
 
 
     /// @brief start the internal send thread
-    void run();
+    void run() noexcept;
 
     /// @brief stop the internal send thread
-    void stop();
+    void stop() noexcept;
 
   protected:
     /// @brief sends the port data; this is used from the unittests
-    void sendPortData();
+    void sendPortData() noexcept;
 
     /// @brief sends the throughput data; this is used from the unittests
-    void sendThroughputData();
+    void sendThroughputData() noexcept;
 
     /// @brief sends the subscriberport changing data, this is used from the unittests
-    void sendSubscriberPortsData();
+    void sendSubscriberPortsData() noexcept;
+
+    /// @brief calls the three specific send functions from above, this is used from the periodic task
+    void send() noexcept;
 
   protected:
     cxx::optional<PublisherPort> m_publisherPort;
@@ -305,11 +304,9 @@ class PortIntrospection
   private:
     PortData m_portData;
 
-    std::atomic<bool> m_runThread;
-    std::thread m_thread;
-
-    unsigned int m_sendIntervalCount{10};
-    const std::chrono::milliseconds m_sendIntervalSleep{100};
+    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
+        concurrent::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
 };
 
 /// @brief typedef for the templated port introspection class that is used by RouDi for the

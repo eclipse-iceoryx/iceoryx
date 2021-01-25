@@ -692,7 +692,8 @@ TEST_F(PortIntrospection_test, DISABLED_thread)
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(AtLeast(4));
 
     // we use the deliverChunk call to check how often the thread calls the send method
-    m_introspectionAccess.setSendInterval(10);
+    using namespace iox::units::duration_literals;
+    m_introspectionAccess.setSendInterval(10_ms);
     m_introspectionAccess.run();
     /// @todo this time can be reduced when the sleep mechanism of the port introspection thread is replace by a trigger
     /// queue

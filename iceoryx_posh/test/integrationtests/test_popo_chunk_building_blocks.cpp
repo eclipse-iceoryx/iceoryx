@@ -180,7 +180,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                         }
                     }
                 })
-                .or_else([](ChunkReceiveError) {
+                .or_else([](ChunkReceiveResult) {
                     // Errors shall never occur
                     FAIL();
                 });
