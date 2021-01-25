@@ -748,4 +748,46 @@ TEST(Duration_test, MultiplyDuration)
     EXPECT_THAT(time * -1.0, Eq(0_s));
 }
 
+TEST(Duration_test, MultiplyDurationLessThanOneSecondResultsInMoreNanosecondsThan64BitCanRepresent)
+{
+    constexpr uint64_t MULTIPLICATOR{(1ULL << 32U) * 42U + 73U};
+    constexpr Duration DURATION = 473_ms + 578_us + 511_ns;
+    auto EXPECTED_RESULT = Duration {85428177141U, 573034055U};
+
+    auto result = MULTIPLICATOR * DURATION;
+    EXPECT_THAT(result, Eq(EXPECTED_RESULT));
+    EXPECT_THAT(result.nanoSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_RESULT));
+}
+
+TEST(Duration_test, MultiplyDurationResultsNotYetInSaturation)
+{
+    constexpr uint64_t MULTIPLICATOR{1343535617188545796U};
+    constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
+    auto EXPECTED_RESULT = Duration {std::numeric_limits<uint64_t>::max(), 56194452U};
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(EXPECTED_RESULT));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_RESULT));
+}
+
+TEST(Duration_test, MultiplyDurationResultsInSaturation)
+{
+    constexpr uint64_t MULTIPLICATOR{1343535617188545797U};
+    constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
+    auto EXPECTED_RESULT = Duration {std::numeric_limits<uint64_t>::max(), GIGA - 1U};
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(EXPECTED_RESULT));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_RESULT));
+}
+
+TEST(Duration_test, MultiplyDurationWithMinimalDoubleResultsInZero)
+{
+    constexpr double MULTIPLICATOR{std::numeric_limits<double>::min()};
+    constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
+    auto EXPECTED_RESULT = Duration {0U, 0U};
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(EXPECTED_RESULT));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_RESULT));
+}
+
 // END ARITHMETIC TESTS

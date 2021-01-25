@@ -308,54 +308,105 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
 
 template <typename T>
 inline constexpr Duration
-Duration::multiplySeconds(const uint64_t seconds,
-                          const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept
+Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
-    // specialization is needed to prevent a clang warning if `rhs` is a signed integer and not casted to unsigned
-    // operator*(...) takes care of negative values for rhs
-    return Duration(seconds * static_cast<uint64_t>(rhs), 0U);
-}
+    // operator*(...) takes care of negative values and 0 for rhs
 
-template <typename T>
-inline constexpr Duration
-Duration::multiplySeconds(const uint64_t seconds,
-                          const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
-{
-    // operator*(...) takes care of negative values for rhs
-    auto result = seconds * rhs;
-    double resultSeconds{0.0};
-    double secondsFraction = modf(result, &resultSeconds);
-    return Duration(static_cast<uint64_t>(resultSeconds), static_cast<uint32_t>(secondsFraction * NANOSECS_PER_SEC));
-}
+    static_assert(sizeof(T) * 8U <= 64U,
+                  "only integer types with less or equal to 64 bits are allowed for multiplication");
+    const auto multiplicator = static_cast<uint64_t>(rhs);
 
-template <typename T>
-inline constexpr Duration
-Duration::multiplyNanoseconds(const uint32_t nanoseconds,
-                              const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept
-{
-    // specialization is needed to prevent a clang warning if `rhs` is a signed integer and not casted to unsigned
-    // operator*(...) takes care of negative values for rhs
-    return Duration::nanoseconds(nanoseconds * static_cast<uint64_t>(rhs));
-}
+    auto maxBeforeOverflow = std::numeric_limits<uint64_t>::max() / multiplicator;
 
-template <typename T>
-inline constexpr Duration
-Duration::multiplyNanoseconds(const uint32_t nanoseconds,
-                              const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
-{
-    // operator*(...) takes care of negative values for rhs
-    auto result = nanoseconds * rhs;
-    auto resultAsFixedPoint = static_cast<uint64_t>(result);
-    if (resultAsFixedPoint < std::numeric_limits<uint64_t>::max())
+    // check if the result of the m_seconds multiplication would already overflow
+    if (m_seconds > maxBeforeOverflow)
     {
-        return Duration::nanoseconds(resultAsFixedPoint);
+        std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would overflow, clamping to max value!"
+                  << std::endl;
+        return Duration{std::numeric_limits<uint64_t>::max(), NANOSECS_PER_SEC - 1U};
     }
+    auto durationFromSeconds = Duration(m_seconds * multiplicator, 0U);
+
+    // the m_nanoseconds multiplication cannot exceed the limits of a Duration, since m_nanoseconds is always less than
+    // a second and m_seconds can hold 64 bits and the multiplicator is at max 64 bits
+
+    // check if the result of the m_nanoseconds multiplication can easily be converted into a Duration
+    if (m_nanoseconds <= maxBeforeOverflow)
+    {
+        return durationFromSeconds + Duration::nanoseconds(m_nanoseconds * multiplicator);
+    }
+
+    // when we reach this, the multiplicator must be larger than 2^32, since smaller values multiplied with the
+    // m_nanoseconds(uint32_t) would fit into 64 bits;
+    // to accurately determine the result, the calculation is split into a multiplication with the lower 32 bits of the
+    // multiplicator and another one with the upper 32 bits;
+
+    // this is the easy part with the lower 32 bits
+    uint64_t multiplicatorLow = static_cast<uint32_t>(multiplicator);
+    auto durationFromNanosecondsLow = Duration::nanoseconds(m_nanoseconds * multiplicatorLow);
+
+    // this is the complicated part with the upper 32 bits;
+    // the m_nanoseconds are multiplied with the upper 32 bits of the multiplicator shifted by 32 bit to the left, thus
+    // having again a multiplication of two 32 bit values whose result fits into a 64 bit variable;
+    // one bit of the result represents 2^32 nanoseconds;
+    // just shifting left by 32 bits would result in an overflow, therefore blocks of full seconds must be extracted of
+    // the result;
+    // this cannot be done by dividing through NANOSECS_PER_SEC, since that one is base 1_000_000_000 and the result is
+    // base 2^32, therefore the least common multiple must be used to get blocks of full seconds represented as 2^32
+    // nanoseconds per bit;
+    // this can then safely be converted to seconds as well as nanoseconds without loosing precision
+
+    // least common multiple of 2^32 and NANOSECONDS_PER_SECOND
+    constexpr uint64_t LEAST_COMMON_MULTIPLE{8388608000000000};
+    static_assert(LEAST_COMMON_MULTIPLE % (1ULL << 32) == 0, "invalid multiple");
+    static_assert(LEAST_COMMON_MULTIPLE % NANOSECS_PER_SEC == 0, "invalid multiple");
+
+    constexpr uint64_t ONE_FULL_BLOCK_OF_SECONDS_ONLY{LEAST_COMMON_MULTIPLE >> 32};
+    constexpr uint64_t SECONDS_PER_FULL_BLOCK{LEAST_COMMON_MULTIPLE / NANOSECS_PER_SEC};
+
+    uint64_t multiplicatorHigh = static_cast<uint32_t>(multiplicator >> 32U);
+    auto nanosecondsFromHigh = m_nanoseconds * multiplicatorHigh;
+    auto fullBlocksOfSecondsOnly = nanosecondsFromHigh / ONE_FULL_BLOCK_OF_SECONDS_ONLY;
+    auto remainingBlockWithFullAndFractionalSeconds = nanosecondsFromHigh % ONE_FULL_BLOCK_OF_SECONDS_ONLY;
+
+    auto durationFromNanosecondsHigh = Duration{fullBlocksOfSecondsOnly * SECONDS_PER_FULL_BLOCK, 0U}
+                                       + Duration::nanoseconds(remainingBlockWithFullAndFractionalSeconds << 32);
+
+    return durationFromSeconds + durationFromNanosecondsLow + durationFromNanosecondsHigh;
+}
+
+template <typename T>
+inline constexpr Duration Duration::fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept
+{
+    static_assert(std::is_floating_point<T>::value, "only floating point is allowed");
+
+    double secondsFull{0.0};
+    double secondsFraction = modf(floatingPointSeconds, &secondsFull);
+    return Duration{static_cast<uint64_t>(secondsFull), static_cast<uint32_t>(secondsFraction * NANOSECS_PER_SEC)};
+}
+
+template <typename T>
+inline constexpr Duration
+Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
+{
+    // operator*(...) takes care of negative values for rhs
+
+    auto durationFromSeconds = fromFloatingPointSeconds(m_seconds * rhs);
+
+    auto resultNanoseconds = m_nanoseconds * rhs;
+    auto nanosecondsAsFixedPoint = static_cast<uint64_t>(resultNanoseconds);
+
+    // check if the Duration::nanoseconds method can be used to convert the nanoseconds multiplication into a Duration
+    if (nanosecondsAsFixedPoint < std::numeric_limits<uint64_t>::max())
+    {
+        return durationFromSeconds + Duration::nanoseconds(nanosecondsAsFixedPoint);
+    }
+
     // the multiplication result of nanoseconds would exceed the value an uint64_t can represent
     // -> convert result to seconds and and calculate duration
-    result /= NANOSECS_PER_SEC;
-    double resultSeconds{0.0};
-    double secondsFraction = modf(result, &resultSeconds);
-    return Duration(static_cast<uint64_t>(resultSeconds), static_cast<uint32_t>(secondsFraction * NANOSECS_PER_SEC));
+    auto durationFromNanoseconds = fromFloatingPointSeconds(resultNanoseconds /= NANOSECS_PER_SEC);
+
+    return durationFromSeconds + durationFromNanoseconds;
 }
 
 template <typename T>
@@ -373,9 +424,7 @@ inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
         return Duration{0U, 0U};
     }
 
-    /// @todo decide if we want an overflow or saturation
-
-    return multiplySeconds<T>(m_seconds, rhs) + multiplyNanoseconds<T>(m_nanoseconds, rhs);
+    return multiplyWith<T>(rhs);
 }
 
 inline namespace duration_literals

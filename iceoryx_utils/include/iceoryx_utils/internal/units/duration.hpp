@@ -291,21 +291,15 @@ class Duration
 
   private:
     template <typename T>
-    inline constexpr Duration
-    multiplySeconds(const uint64_t seconds,
-                    const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept;
+    inline constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
+
     template <typename T>
     inline constexpr Duration
-    multiplySeconds(const uint64_t seconds,
-                    const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
+    multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept;
+
     template <typename T>
     inline constexpr Duration
-    multiplyNanoseconds(const uint32_t nanoseconds,
-                        const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept;
-    template <typename T>
-    inline constexpr Duration
-    multiplyNanoseconds(const uint32_t nanoseconds,
-                        const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
+    multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
 
     static constexpr uint32_t SECS_PER_MINUTE{60U};
     static constexpr uint32_t SECS_PER_HOUR{3600U};
