@@ -62,7 +62,9 @@ class PortIntrospection
 
         struct PublisherInfo
         {
-            PublisherInfo() noexcept {};
+            PublisherInfo() noexcept
+            {
+            }
 
             PublisherInfo(typename PublisherPort::MemberType_t* const portData,
                           const ProcessName_t& name,
