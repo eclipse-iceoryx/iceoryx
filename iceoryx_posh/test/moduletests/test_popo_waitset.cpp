@@ -48,18 +48,18 @@ class WaitSet_test : public Test
         {
         }
 
-        void enableEvent(const EventAccessor, iox::popo::TriggerHandle&& handle) noexcept
+        void enableEvent(iox::popo::TriggerHandle&& handle) noexcept
         {
             m_handle = std::move(handle);
         }
 
-        void invalidateTrigger(const EventAccessor, const uint64_t id)
+        void invalidateTrigger(const uint64_t id)
         {
             m_invalidateTriggerId = id;
             m_handle.invalidate();
         }
 
-        iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const EventAccessor) const noexcept
+        iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent() const noexcept
         {
             return {*this, &SimpleEventClass::hasTriggered};
         }
@@ -69,7 +69,7 @@ class WaitSet_test : public Test
             return m_hasTriggered.exchange(false);
         }
 
-        void disableEvent(const EventAccessor)
+        void disableEvent()
         {
             m_handle.reset();
         }

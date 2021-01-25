@@ -17,7 +17,6 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
-#include "iceoryx_posh/internal/popo/event_attachable_concept.hpp"
 #include "iceoryx_posh/popo/event_accessor.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
@@ -67,46 +66,36 @@ class WaitSet
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
     /// @brief attaches an event of a given class to the WaitSet.
-    /// @param[in] eventOrigin the class from which the event originates. eventOrigin has to satisfy the
-    /// EventAttachableConcept
+    /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventType the event specified by the class
     /// @param[in] eventId an arbitrary user defined id for the event
     /// @param[in] eventCallback a callback which should be assigned to the event
-    template <typename T,
-              typename EventType,
-              typename = std::enable_if_t<std::is_enum<EventType>::value>,
-              REQUIRES = EventAttachableConcept<T>::VALUE>
+    template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
                                             const EventType eventType,
                                             const uint64_t eventId = 0U,
                                             const EventInfo::Callback<T>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
-    /// @param[in] eventOrigin the class from which the event originates. eventOrigin has to satisfy the
-    /// EventAttachableConcept
+    /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventType the event specified by the class
     /// @param[in] eventCallback a callback which should be assigned to the event
-    template <typename T,
-              typename EventType,
-              typename = std::enable_if_t<std::is_enum<EventType>::value, void>,
-              REQUIRES = EventAttachableConcept<T>::VALUE>
+    template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value, void>>
     cxx::expected<WaitSetError>
     attachEvent(T& eventOrigin, const EventType eventType, const EventInfo::Callback<T>& eventCallback) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
-    /// @param[in] eventOrigin the class from which the event originates. eventOrigin has to satisfy the
-    /// SingleEventAttachableConcept
+    /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventId an arbitrary user defined id for the event
     /// @param[in] eventCallback a callback which should be assigned to the event
-    template <typename T, REQUIRES = SingleEventAttachableConcept<T>::VALUE>
+    template <typename T>
     cxx::expected<WaitSetError>
     attachEvent(T& eventOrigin, const uint64_t eventId = 0U, const EventInfo::Callback<T>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
-    /// @param[in] eventOrigin the class from which the event originates. eventOrigin has to satisfy the
-    /// SingleEventAttachableConcept
+    /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventCallback a callback which should be assigned to the event
-    template <typename T, REQUIRES = SingleEventAttachableConcept<T>::VALUE>
+    template <typename T>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const EventInfo::Callback<T>& eventCallback) noexcept;
 
     /// @brief detaches an event from the WaitSet
@@ -131,8 +120,6 @@ class WaitSet
     uint64_t capacity() const noexcept;
 
   protected:
-    static constexpr EventAccessor EVENT_ACCESSOR{};
-
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
@@ -150,7 +137,7 @@ class WaitSet
     template <typename T>
     void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
 
-    void removeTrigger(const EventAccessor, const uint64_t uniqueTriggerId) noexcept;
+    void removeTrigger(const uint64_t uniqueTriggerId) noexcept;
     void removeAllTriggers() noexcept;
 
   private:

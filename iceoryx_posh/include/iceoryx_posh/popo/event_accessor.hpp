@@ -15,27 +15,38 @@
 #ifndef IOX_POSH_POPO_EVENT_ACCESSOR_HPP
 #define IOX_POSH_POPO_EVENT_ACCESSOR_HPP
 
+#include "iceoryx_utils/cxx/method_callback.hpp"
+
 #include <cstdint>
 
 namespace iox
 {
 namespace popo
 {
-/// @brief Class which allows to restrict public methods to be used only by
-///         friends of EventAccessor. Used for example by the WaitSet and Trigger
+/// @brief Class which allows accessing private methods to
+///         friends of EventAccessor. Used for example by the WaitSet.
 class EventAccessor
 {
     template <uint64_t>
-    class WaitSet;
-    class Trigger;
-    class TriggerHandle;
+    friend class WaitSet;
 
-    /// only friends of EventAccessor should be able to construct this class
   private:
-    constexpr EventAccessor() noexcept = default;
+    template <typename T, typename... Targs>
+    static void enableEvent(T& eventOrigin, Targs&&... args) noexcept;
+
+    template <typename T, typename... Targs>
+    static void disableEvent(T& eventOrigin, Targs&&... args) noexcept;
+
+    template <typename T>
+    static cxx::MethodCallback<void, uint64_t> getInvalidateTriggerMethod(T& eventOrigin) noexcept;
+
+    template <typename T, typename... Targs>
+    static cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(T& eventOrigin, Targs&&... args) noexcept;
 };
 
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/event_accessor.inl"
 #endif

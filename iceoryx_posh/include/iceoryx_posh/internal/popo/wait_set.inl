@@ -20,9 +20,6 @@ namespace iox
 namespace popo
 {
 template <uint64_t Capacity>
-constexpr EventAccessor WaitSet<Capacity>::EVENT_ACCESSOR;
-
-template <uint64_t Capacity>
 inline WaitSet<Capacity>::WaitSet() noexcept
     : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
 {
@@ -55,11 +52,8 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
         return cxx::error<WaitSetError>(WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET);
     }
 
-    Trigger possibleLogicallyEqualTrigger(&eventOrigin,
-                                          hasTriggeredCallback,
-                                          cxx::MethodCallback<void, EventAccessor, uint64_t>(),
-                                          eventId,
-                                          Trigger::Callback<T>());
+    Trigger possibleLogicallyEqualTrigger(
+        &eventOrigin, hasTriggeredCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>());
 
     for (auto& currentTrigger : m_triggerList)
     {
@@ -69,9 +63,7 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
         }
     }
 
-    cxx::MethodCallback<void, EventAccessor, uint64_t> invalidationCallback(
-        eventOrigin,
-        static_cast<cxx::MethodCallback<void, EventAccessor, uint64_t>::MethodPointer<T>>(&T::invalidateTrigger));
+    cxx::MethodCallback<void, uint64_t> invalidationCallback = EventAccessor::getInvalidateTriggerMethod(eventOrigin);
 
     if (!m_triggerList.push_back(
             Trigger{&eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback}))
@@ -83,23 +75,24 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
 }
 
 template <uint64_t Capacity>
-template <typename T, typename EventType, typename, REQUIRES>
+template <typename T, typename EventType, typename>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                                                   const EventType eventType,
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(EVENT_ACCESSOR, eventType);
+    auto hasTriggeredCallback = EventAccessor::getHasTriggeredCallbackForEvent(eventOrigin, eventType);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
-        eventOrigin.enableEvent(EVENT_ACCESSOR,
-                                TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
-                                eventType);
+        EventAccessor::enableEvent(
+            eventOrigin,
+            TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
+            eventType);
     });
 }
 
 template <uint64_t Capacity>
-template <typename T, typename EventType, typename, REQUIRES>
+template <typename T, typename EventType, typename>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                                                   const EventType eventType,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
@@ -108,21 +101,21 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
 }
 
 template <uint64_t Capacity>
-template <typename T, REQUIRES>
+template <typename T>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = eventOrigin.getHasTriggeredCallbackForEvent(EVENT_ACCESSOR);
+    auto hasTriggeredCallback = EventAccessor::getHasTriggeredCallbackForEvent(eventOrigin);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
-        eventOrigin.enableEvent(EVENT_ACCESSOR,
-                                TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+        EventAccessor::enableEvent(
+            eventOrigin, TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
     });
 }
 
 template <uint64_t Capacity>
-template <typename T, REQUIRES>
+template <typename T>
 cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                                            const EventInfo::Callback<T>& eventCallback) noexcept
 {
@@ -133,11 +126,11 @@ template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
-    eventOrigin.disableEvent(EVENT_ACCESSOR, args...);
+    EventAccessor::disableEvent(eventOrigin, args...);
 }
 
 template <uint64_t Capacity>
-inline void WaitSet<Capacity>::removeTrigger(const EventAccessor, const uint64_t uniqueTriggerId) noexcept
+inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noexcept
 {
     for (auto currentTrigger = m_triggerList.begin(); currentTrigger != m_triggerList.end(); ++currentTrigger)
     {

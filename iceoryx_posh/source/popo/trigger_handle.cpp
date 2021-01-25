@@ -19,10 +19,8 @@ namespace iox
 {
 namespace popo
 {
-constexpr EventAccessor TriggerHandle::EVENT_ACCESSOR;
-
 TriggerHandle::TriggerHandle(ConditionVariableData* const conditionVariableDataPtr,
-                             const cxx::MethodCallback<void, EventAccessor, uint64_t> resetCallback,
+                             const cxx::MethodCallback<void, uint64_t> resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
     : m_conditionVariableDataPtr(conditionVariableDataPtr)
     , m_resetCallback(resetCallback)
@@ -91,7 +89,7 @@ void TriggerHandle::reset() noexcept
         return;
     }
 
-    m_resetCallback(EVENT_ACCESSOR, m_uniqueTriggerId);
+    m_resetCallback(m_uniqueTriggerId);
 
     invalidate();
 }
@@ -101,7 +99,7 @@ void TriggerHandle::invalidate() noexcept
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     m_conditionVariableDataPtr = nullptr;
-    m_resetCallback = cxx::MethodCallback<void, EventAccessor, uint64_t>();
+    m_resetCallback = cxx::MethodCallback<void, uint64_t>();
     m_uniqueTriggerId = 0U;
 }
 

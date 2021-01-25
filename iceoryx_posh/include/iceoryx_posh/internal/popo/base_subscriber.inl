@@ -143,8 +143,7 @@ void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const mepoo::ChunkHeade
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const EventAccessor,
-                                                                     const uint64_t uniqueTriggerId) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
     if (m_trigger.getUniqueId() == uniqueTriggerId)
     {
@@ -155,8 +154,7 @@ inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const Event
 
 template <typename T, typename Subscriber, typename port_t>
 inline void
-BaseSubscriber<T, Subscriber, port_t>::enableEvent(const EventAccessor,
-                                                   iox::popo::TriggerHandle&& triggerHandle,
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
                                                    [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
 {
     m_trigger = std::move(triggerHandle);
@@ -165,7 +163,7 @@ BaseSubscriber<T, Subscriber, port_t>::enableEvent(const EventAccessor,
 
 template <typename T, typename Subscriber, typename port_t>
 inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHasTriggeredCallbackForEvent(
-    const EventAccessor, const SubscriberEvent subscriberEvent) const noexcept
+    const SubscriberEvent subscriberEvent) const noexcept
 {
     switch (subscriberEvent)
     {
@@ -176,8 +174,7 @@ inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHas
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const EventAccessor,
-                                                                const SubscriberEvent subscriberEvent) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
 {
     switch (subscriberEvent)
     {

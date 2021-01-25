@@ -24,7 +24,7 @@ UserTrigger::UserTrigger() noexcept
 {
 }
 
-void UserTrigger::disableEvent(const EventAccessor) noexcept
+void UserTrigger::disableEvent() noexcept
 {
     m_trigger.reset();
 }
@@ -45,7 +45,7 @@ void UserTrigger::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-void UserTrigger::invalidateTrigger(const EventAccessor, const uint64_t uniqueTriggerId) noexcept
+void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
     if (uniqueTriggerId == m_trigger.getUniqueId())
     {
@@ -53,12 +53,12 @@ void UserTrigger::invalidateTrigger(const EventAccessor, const uint64_t uniqueTr
     }
 }
 
-WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent(const EventAccessor) const noexcept
+WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent() const noexcept
 {
     return {*this, &UserTrigger::hasTriggered};
 }
 
-void UserTrigger::enableEvent(const EventAccessor, iox::popo::TriggerHandle&& triggerHandle) noexcept
+void UserTrigger::enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept
 {
     m_trigger = std::move(triggerHandle);
 }

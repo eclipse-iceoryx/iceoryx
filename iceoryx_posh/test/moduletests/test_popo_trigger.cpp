@@ -34,7 +34,7 @@ class Trigger_test : public Test
             return m_hasTriggered;
         }
 
-        void resetCall(const EventAccessor, const uint64_t trigger)
+        void resetCall(const uint64_t trigger)
         {
             m_resetCallTriggerArg = trigger;
         }
@@ -148,7 +148,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallIsValid)
     uint64_t eventId = 0U;
     Trigger sut(&m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::MethodCallback<void, EventAccessor, uint64_t>(),
+                cxx::MethodCallback<void, uint64_t>(),
                 eventId,
                 TriggerClass::callback);
 
@@ -187,7 +187,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     uint64_t eventId = 0U;
     Trigger sut(&m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::MethodCallback<void, EventAccessor, uint64_t>(),
+                cxx::MethodCallback<void, uint64_t>(),
                 eventId,
                 TriggerClass::callback);
 

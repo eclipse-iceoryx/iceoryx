@@ -46,23 +46,26 @@ class UserTrigger
     /// @brief Resets the UserTrigger state to not triggered
     void resetTrigger() noexcept;
 
+    friend class EventAccessor;
+
+  private:
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
     /// @param[in] EventAccessor class constructable only by types which should have access to this method
     /// @param[in] uniqueTriggerId the id of the corresponding trigger
-    void invalidateTrigger(const EventAccessor, const uint64_t uniqueTriggerId) noexcept;
+    void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to UserTrigger::hasTriggered
     /// @param[in] EventAccessor class constructable only by types which should have access to this method
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const EventAccessor) const noexcept;
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent() const noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
     /// @param[in] EventAccessor class constructable only by types which should have access to this method
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
-    void enableEvent(const EventAccessor, iox::popo::TriggerHandle&& triggerHandle) noexcept;
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
     /// @param[in] EventAccessor class constructable only by types which should have access to this method
-    void disableEvent(const EventAccessor) noexcept;
+    void disableEvent() noexcept;
 
   private:
     TriggerHandle m_trigger;

@@ -19,7 +19,6 @@ namespace iox
 {
 namespace popo
 {
-constexpr EventAccessor Trigger::EVENT_ACCESSOR;
 std::atomic<uint64_t> Trigger::uniqueIdCounter{0U};
 
 Trigger::~Trigger()
@@ -41,7 +40,7 @@ void Trigger::reset() noexcept
 
     if (m_resetCallback)
     {
-        m_resetCallback(EVENT_ACCESSOR, m_uniqueId);
+        m_resetCallback(m_uniqueId);
     }
 
     invalidate();
@@ -55,7 +54,7 @@ const EventInfo& Trigger::getEventInfo() const noexcept
 void Trigger::invalidate() noexcept
 {
     m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
-    m_resetCallback = cxx::MethodCallback<void, EventAccessor, uint64_t>();
+    m_resetCallback = cxx::MethodCallback<void, uint64_t>();
 }
 
 Trigger::operator bool() const noexcept
