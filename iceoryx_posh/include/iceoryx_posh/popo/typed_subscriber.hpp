@@ -46,6 +46,13 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     using BaseSubscriber::subscribe;
     using BaseSubscriber::take;
     using BaseSubscriber::unsubscribe;
+
+    // iox-#408
+    // the _1_0 suffix is only used temporarily to not cause regressions in all examples and tests and keep the changes
+    // as small as possible, it will replace the function without suffix in a follow-up pull request (which changes
+    // all examples)
+
+    inline cxx::expected<Sample<const T>, ChunkReceiveResult> take_1_0() noexcept;
 };
 
 } // namespace popo

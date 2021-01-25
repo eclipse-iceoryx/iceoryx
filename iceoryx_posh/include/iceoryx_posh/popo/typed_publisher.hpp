@@ -47,7 +47,20 @@ class TypedPublisher : public base_publisher_t
     using base_publisher_t::publish;
     using base_publisher_t::stopOffer;
 
+    // iox-#408 replace with loan_1_0
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
+
+
+    ///
+    /// @brief loan Get a sample from loaned shared memory and consctruct the data with the given arguments.
+    /// @param args Arguments used to construct the data.
+    /// @return An instance of the sample that resides in shared memory or an error if unable ot allocate memory to
+    /// loan.
+    /// @details The loaned sample is automatically released when it goes out of scope.
+    ///
+    template <typename... Args>
+    cxx::expected<Sample<T>, AllocationError> loan_1_0(Args&&... args) noexcept;
+
     ///
     /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
     /// @param val Value to copy.

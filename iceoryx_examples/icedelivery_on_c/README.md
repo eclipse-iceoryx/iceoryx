@@ -65,7 +65,7 @@ Let's take a look at the `receiving` function which comes with the
          if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
          {
              const void* chunk = NULL;
-             while (ChunkReceiveError_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
+             while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
              {
                  const struct RadarObject* sample = (const struct RadarObject*)(chunk);
                  printf("Got value: %.0f\n", sample->x);

@@ -82,8 +82,8 @@ class ClientPortUser : public BasePort
     /// @brief Tries to get the next response from the queue. If there is a new one, the ChunkHeader of the oldest
     /// response in the queue is returned (FiFo queue)
     /// @return optional that has a new chunk header or no value if there are no new responses in the underlying queue,
-    /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const ResponseHeader*>, ChunkReceiveError> getResponse() noexcept;
+    /// ChunkReceiveResult on error
+    cxx::expected<cxx::optional<const ResponseHeader*>, ChunkReceiveResult> getResponse() noexcept;
 
     /// @brief Release a response that was obtained with getResponseChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

@@ -38,13 +38,21 @@ inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publishe
 }
 
 template <typename T, typename base_publisher_t>
+template <typename... Args>
+inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loan_1_0(Args&&... args) noexcept
+{
+    return std::move(base_publisher_t::loan(sizeof(T)).and_then(
+        [&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); }));
+}
+
+template <typename T, typename base_publisher_t>
 template <typename Callable, typename... ArgTypes>
 inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publishResultOf(Callable c,
                                                                                            ArgTypes... args) noexcept
 {
-    static_assert(
-        cxx::is_invocable<Callable, T*, ArgTypes...>::value,
-        "TypedPublisher<T>::publishResultOf expects a valid callable with a specific signature as the first argument");
+    static_assert(cxx::is_invocable<Callable, T*, ArgTypes...>::value,
+                  "TypedPublisher<T>::publishResultOf expects a valid callable with a specific signature as the "
+                  "first argument");
     static_assert(cxx::has_signature<Callable, void(T*, ArgTypes...)>::value,
                   "callable provided to TypedPublisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 

@@ -36,13 +36,13 @@ TEST(cpp2c_enum_translation_test, SubscribeState)
 
 TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
 {
-    EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL),
+    EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL),
               ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::ChunkReceiveResult(static_cast<iox::popo::ChunkReceiveError>(-1)),
+    EXPECT_EQ(cpp2c::ChunkReceiveResult(static_cast<iox::popo::ChunkReceiveResult>(-1)),
               ChunkReceiveResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
