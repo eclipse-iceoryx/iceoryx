@@ -461,20 +461,26 @@ the two const methods `hasPerformedAction` and `isActivated`.
     }
 ```
 
+Since the following methods should not be accessible by the public but must be 
+accessible by any _Notifyable_ like the _WaitSet_ and to avoid that 
+we have to befriend every possible _Notifyable_ we created the `EventAccessor`.
+Every _Triggerable_ has to befriend the `EventAccessor` which provides access 
+to the private methods `enableEvent`, `disableEvent`, `invalidateTrigger` and 
+`getHasTriggeredCallbackForEvent` to all _Notifyables_.
+
+```cpp
+    friend iox::popo::EventAccessor;
+```
+
 The method `enableEvent` is called by the _WaitSet_ when `MyTriggerClass`
 is being attached to it. During that process the _WaitSet_ creates a `triggerHandle`
-and forwards the `event` to which this handle belongs. Since this method 
-is not intended for public usage and we would like to avoid that every user 
-class has to befriend the _WaitSet_ we introduced the `EventAccessor` which 
-is only creatable by the _WaitSet_ to ensure that no one besides the _WaitSet_
-is using `enableEvent`.
+and forwards the `event` to which this handle belongs. 
 
 In the switch case statement we assign the `triggerHandle` to the corresponding
 internal trigger handle.
 
 ```cpp
-    void enableEvent(const iox::popo::EventAccessor,
-                     iox::popo::TriggerHandle&& triggerHandle,
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle,
                      const MyTriggerClassEvents event) noexcept
     {
         switch (event)
@@ -494,7 +500,7 @@ to reset the _Trigger_ when it goes out of scope. Therefore we look up the
 correct unique trigger id first and then `invalidate` it to make them unusable 
 in the future.
 ```cpp
-    void invalidateTrigger(const iox::popo::EventAccessor, const uint64_t uniqueTriggerId)
+    void invalidateTrigger(const uint64_t uniqueTriggerId)
     {
         if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
         {
@@ -512,7 +518,7 @@ our class. In this case we have to `reset` the corresponding trigger to invalida
 and release it from the _WaitSet_. Like before we use a switch case statement to 
 find the to the event corresponding trigger.
 ```cpp
-    void disableEvent(const iox::popo::EventAccessor, const MyTriggerClassEvents event) noexcept
+    void disableEvent(const MyTriggerClassEvents event) noexcept
     {
         switch (event)
         {
@@ -533,8 +539,7 @@ where it happened. This is the `hasTriggerCallback`. In our case we either retur
 the method pointer to `hasPerformedAction` or `isActivated` depending on which 
 event was requested.
 ```cpp
-    iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const iox::popo::EventAccessor,
-                                                                        const MyTriggerClassEvents event) const noexcept
+    iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
     {
         switch (event)
         {
