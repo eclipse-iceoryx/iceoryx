@@ -27,8 +27,11 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
 {
     if (count > Capacity)
     {
-        std::cerr << "Attemting to initialize a vector with more elements than its capacity!" << std::endl;
+        std::cerr << "Attemting to initialize a vector of capacity " << Capacity << " with " << count
+                  << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!"
+                  << std::endl;
     }
+
     for (uint64_t i = 0u; i < count && i < Capacity; ++i)
     {
         emplace_back(value);
@@ -40,8 +43,11 @@ inline vector<T, Capacity>::vector(const uint64_t count)
 {
     if (count > Capacity)
     {
-        std::cerr << "Attemting to initialize a vector with more elements than its capacity!" << std::endl;
+        std::cerr << "Attemting to initialize a vector of capacity " << Capacity << " with " << count
+                  << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!"
+                  << std::endl;
     }
+
     m_size = std::min(count, Capacity);
     for (uint64_t i = 0U; i < m_size; ++i)
     {

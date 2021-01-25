@@ -461,8 +461,8 @@ the two const methods `hasPerformedAction` and `isActivated`.
     }
 ```
 
-The method `enableEvent` is used by the _WaitSet_ to when `MyTriggerClass`
-is attached to it. During that process the _WaitSet_ creates a `triggerHandle`
+The method `enableEvent` is called by the _WaitSet_ when `MyTriggerClass`
+is being attached to it. During that process the _WaitSet_ creates a `triggerHandle`
 and forwards the `event` to which this handle belongs. Since this method 
 is not intended for public usage and we would like to avoid that every user 
 class has to befriend the _WaitSet_ we introduced the `EventAccessor` which 
