@@ -1183,9 +1183,12 @@ TEST(Duration_test, CompareTwoEqualDurationsForEquality)
 TEST(Duration_test, CompareTwoNonEqualDurationsForEquality)
 {
     auto time1 = 1_s + 200_us;
-    auto time2 = 1_ns;
+    auto time2 = 1_s + 1_ns;
+    auto time3 = 1_ns;
     EXPECT_FALSE(time1 == time2);
     EXPECT_FALSE(time2 == time1);
+    EXPECT_FALSE(time2 == time3);
+    EXPECT_FALSE(time3 == time2);
 }
 
 TEST(Duration_test, CompareTwoNonEqualDurationsForInequality)
@@ -1331,19 +1334,104 @@ TEST(Duration_test, CompareDurationIsNotGreaterThanOrEqualToOther)
 
 // BEGIN ARITHMETIC TESTS
 
-TEST(Duration_test, AddDuration)
+TEST(Duration_test, AddDurationWithTwoZeroDurationsResultsInZeroDuration)
 {
-    auto time1 = 5_s + 200_ms;
-    auto time2 = 200_ms;
-    auto time3 = 700000_us;
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration1 = 0_s;
+    auto duration2 = 0_s;
 
-    EXPECT_THAT(time1.milliSeconds(), Eq(5200U));
+    auto sut = duration1 + duration2;
 
-    auto result = time1 + time2;
-    EXPECT_EQ(result.milliSeconds(), 5400U);
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
 
-    result = result + time3;
-    EXPECT_EQ(result.microSeconds(), 6100000U);
+TEST(Duration_test, AddDurationWithOneZeroDurationsResultsInNoneZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{10_ns};
+    auto duration1 = 0_s;
+    auto duration2 = 10_ns;
+
+    auto sut1 = duration1 + duration2;
+    auto sut2 = duration2 + duration1;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, AddDurationWithSumOfDurationsLessThanOneSecondsResultsInLessThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{0U, 100 * KILO + 10U};
+    auto duration1 = 100_us;
+    auto duration2 = 10_ns;
+
+    auto sut1 = duration1 + duration2;
+    auto sut2 = duration2 + duration1;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, AddDurationWithSumOfDurationsMoreThanOneSecondsResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{1U, 700 * MEGA};
+    auto duration1 = 800_ms;
+    auto duration2 = 900_ms;
+
+    auto sut1 = duration1 + duration2;
+    auto sut2 = duration2 + duration1;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, AddDurationWithOneDurationMoreThanOneSecondsResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{2U, 700 * MEGA};
+    auto duration1 = Duration{1U, 800 * MEGA};
+    auto duration2 = 900_ms;
+
+    auto sut1 = duration1 + duration2;
+    auto sut2 = duration2 + duration1;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, AddDurationWithDurationsMoreThanOneSecondsResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{3U, 700 * MEGA};
+    auto duration1 = Duration{1U, 800 * MEGA};
+    auto duration2 = Duration{1U, 900 * MEGA};
+
+    auto sut1 = duration1 + duration2;
+    auto sut2 = duration2 + duration1;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, AddDurationWithDurationsResultsNotYetInSaturation)
+{
+    constexpr Duration EXPECTED_DURATION {std::numeric_limits<uint64_t>::max(), GIGA - 2U};
+    auto duration1 = Duration{std::numeric_limits<uint64_t>::max()-1U, GIGA - 1U};
+    auto duration2 = Duration{0U, GIGA - 1U};;
+
+    auto sut1 = duration1 + duration2;
+    auto sut2 = duration2 + duration1;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, AddDurationWithDurationsResultsInSaturation)
+{
+    auto duration = Duration{0U, 1U};;
+
+    auto sut1 = duration + MAX_DURATION;
+    auto sut2 = MAX_DURATION + duration;
+
+    EXPECT_THAT(sut1, Eq(MAX_DURATION));
+    EXPECT_THAT(sut2, Eq(MAX_DURATION));
 }
 
 TEST(Duration_test, SubtractDuration)
