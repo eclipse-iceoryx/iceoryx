@@ -575,9 +575,9 @@ TEST_F(PortManager_test, CheckNodeOverflowErrorReturnsnullptrForAcquireNodeData)
     for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; i++)
     {
         auto newNodeName = nodename + std::to_string(i);
-        auto newNodeData = m_portManager->acquireNodeData(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName),
+        auto nodePointer = m_portManager->acquireNodeData(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName),
                                                           iox::NodeName_t(iox::cxx::TruncateToCapacity, newNodeName));
-        EXPECT_THAT(newNodeData, Ne(nullptr));
+        EXPECT_NE(nodePointer, nullptr);
     }
 
     { // test if overflow errors get hit
@@ -589,7 +589,7 @@ TEST_F(PortManager_test, CheckNodeOverflowErrorReturnsnullptrForAcquireNodeData)
             });
 
         auto nodePointer = m_portManager->acquireNodeData("Processnode", "node");
-        EXPECT_THAT(nodePointer, Eq(nullptr));
+        EXPECT_EQ(nodePointer, nullptr);
         EXPECT_TRUE(errorHandlerCalled);
     }
 
@@ -601,7 +601,7 @@ TEST_F(PortManager_test, CheckNodeOverflowErrorReturnsnullptrForAcquireNodeData)
 
         auto nodePointer = m_portManager->acquireNodeData(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName),
                                                           iox::NodeName_t(iox::cxx::TruncateToCapacity, newNodeName));
-        EXPECT_THAT(nodePointer, Ne(nullptr));
+        EXPECT_NE(nodePointer, nullptr);
     }
 }
 
@@ -616,14 +616,14 @@ TEST_F(PortManager_test, UseDestroyNodeReturnsNotNullPtrToAcquireNodeData)
         auto newnodeName = nodeName + std::to_string(i);
         auto nodeDataResult =
             m_portManager->acquireNodeData("Process", iox::NodeName_t(iox::cxx::TruncateToCapacity, newnodeName));
-        EXPECT_THAT(nodeDataResult, Ne(nullptr));
+        EXPECT_NE(nodeDataResult, nullptr);
         nodeContainer.push_back(nodeDataResult);
     }
 
     // so now no one should be available
     {
         auto nodeDataResult = m_portManager->acquireNodeData("Process", "node");
-        EXPECT_THAT(nodeDataResult, Eq(nullptr));
+        EXPECT_EQ(nodeDataResult, nullptr);
     }
 
     // set the destroy flag and let the discovery loop take care
@@ -638,7 +638,7 @@ TEST_F(PortManager_test, UseDestroyNodeReturnsNotNullPtrToAcquireNodeData)
     for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; i++)
     {
         auto nodeDataResult = m_portManager->acquireNodeData("Process", "node");
-        EXPECT_THAT(nodeDataResult, Ne(nullptr));
+        EXPECT_NE(nodeDataResult, nullptr);
     }
 }
 
@@ -655,14 +655,14 @@ TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfaceP
     {
         auto newItfName = itf + std::to_string(i);
         auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "process");
-        EXPECT_THAT(interp, Ne(nullptr));
+        EXPECT_NE(interp, nullptr);
         interfaceContainer.push_back(interp);
     }
 
     // so now no one should be available
     {
         auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "process");
-        EXPECT_THAT(interp, Eq(nullptr));
+        EXPECT_EQ(interp, nullptr);
     }
 
     // set the destroy flag and let the discovery loop take care
@@ -677,7 +677,7 @@ TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfaceP
     for (uint32_t i = 0U; i < iox::MAX_INTERFACE_NUMBER; i++)
     {
         auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "process");
-        EXPECT_THAT(interp, Ne(nullptr));
+        EXPECT_NE(interp, nullptr);
     }
 }
 
