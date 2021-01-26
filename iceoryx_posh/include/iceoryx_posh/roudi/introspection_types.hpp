@@ -25,6 +25,7 @@ namespace roudi
 {
 constexpr const char INTROSPECTION_SERVICE_ID[] = "Introspection";
 constexpr const char INTROSPECTION_APP_NAME[] = "introspection";
+constexpr const char INTROSPECTION_NODE_NAME[] = "introspection";
 const capro::ServiceDescription IntrospectionMempoolService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "MemPool");
 constexpr int MAX_GROUP_NAME_LENGTH = 32;
 

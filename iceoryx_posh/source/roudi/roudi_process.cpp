@@ -769,7 +769,7 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
 
     popo::PublisherOptions options;
     options.historyCapacity = 1;
-    options.nodeName = "node";
+    options.nodeName = INTROSPECTION_NODE_NAME;
     auto maybePublisher = m_portManager.acquirePublisherPortData(
         service, options, process_name, m_introspectionMemoryManager, PortConfigInfo());
 
