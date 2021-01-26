@@ -785,95 +785,267 @@ TEST(Duration_test, CreateDurationFromNanosecondsFunctionWithNegativeValueIsZero
 
 // BEGIN CONVERSION FUNCTION TESTS
 
-TEST(Duration_test, ConvertDays)
+TEST(Duration_test, ConvertDaysFromZeroDuration)
 {
-    auto time = 10_d;
-    EXPECT_EQ(time.days(), 10U);
-    EXPECT_EQ(time.hours(), 240U);
-    EXPECT_EQ(time.minutes(), 14400U);
-    EXPECT_EQ(time.seconds(), 864000U);
-    EXPECT_EQ(time.milliSeconds(), 864000U * KILO);
-    EXPECT_EQ(time.microSeconds(), 864000U * MEGA);
-    EXPECT_EQ(time.nanoSeconds(), 864000U * GIGA);
+    auto sut = 0_s;
+    EXPECT_THAT(sut.days(), Eq(0U));
 }
 
-TEST(Duration_test, ConvertHours)
+TEST(Duration_test, ConvertDaysFromDurationLessThanOneDay)
 {
-    auto time = 2_h;
-    EXPECT_EQ(time.days(), 0U);
-    EXPECT_EQ(time.hours(), 2U);
-    EXPECT_EQ(time.minutes(), 120U);
-    EXPECT_EQ(time.seconds(), 7200U);
-    EXPECT_EQ(time.milliSeconds(), 7200U * KILO);
-    EXPECT_EQ(time.microSeconds(), 7200U * MEGA);
-    EXPECT_EQ(time.nanoSeconds(), 7200U * GIGA);
+    auto sut = 3473_s;
+    EXPECT_THAT(sut.days(), Eq(0U));
 }
 
-TEST(Duration_test, ConvertMinutes)
+TEST(Duration_test, ConvertDaysFromDurationMoreThanOneDay)
 {
-    auto time = 720_m;
-    EXPECT_EQ(time.days(), 0U);
-    EXPECT_EQ(time.hours(), 12U);
-    EXPECT_EQ(time.minutes(), 720U);
-    EXPECT_EQ(time.seconds(), 43200U);
-    EXPECT_EQ(time.milliSeconds(), 43200U * KILO);
-    EXPECT_EQ(time.microSeconds(), 43200U * MEGA);
-    EXPECT_EQ(time.nanoSeconds(), 43200U * GIGA);
+    auto sut = 7_d + 3066_s;
+    EXPECT_THAT(sut.days(), Eq(7U));
 }
 
-TEST(Duration_test, ConvertSeconds)
+TEST(Duration_test, ConvertDaysFromMaxDuration)
 {
-    auto time = 28800_s;
-    EXPECT_EQ(time.days(), 0U);
-    EXPECT_EQ(time.hours(), 8U);
-    EXPECT_EQ(time.minutes(), 480U);
-    EXPECT_EQ(time.seconds(), 28800U);
-    EXPECT_EQ(time.milliSeconds(), 28800U * KILO);
-    EXPECT_EQ(time.microSeconds(), 28800U * MEGA);
-    EXPECT_EQ(time.nanoSeconds(), 28800U * GIGA);
+    constexpr uint64_t SECONDS_PER_DAY{60U * 60U * 24U};
+    constexpr uint64_t EXPECTED_DAYS{std::numeric_limits<uint64_t>::max() / SECONDS_PER_DAY};
+    auto sut = MAX_DURATION;
+    EXPECT_THAT(sut.days(), Eq(EXPECTED_DAYS));
 }
 
-TEST(Duration_test, ConvertMilliseconds)
+TEST(Duration_test, ConvertHoursFromZeroDuration)
 {
-    auto time = 28800000_ms;
-    EXPECT_EQ(time.days(), 0U);
-    EXPECT_EQ(time.hours(), 8U);
-    EXPECT_EQ(time.minutes(), 480U);
-    EXPECT_EQ(time.seconds(), 28800U);
-    EXPECT_EQ(time.milliSeconds(), 28800U * KILO);
-    EXPECT_EQ(time.microSeconds(), 28800U * MEGA);
-    EXPECT_EQ(time.nanoSeconds(), 28800U * GIGA);
+    auto sut = 0_s;
+    EXPECT_THAT(sut.hours(), Eq(0U));
 }
 
-TEST(Duration_test, ConvertMicroseconds)
+TEST(Duration_test, ConvertHoursFromDurationLessThanOneHour)
 {
-    auto time = 6000000_us;
-    EXPECT_EQ(time.days(), 0U);
-    EXPECT_EQ(time.hours(), 0U);
-    EXPECT_EQ(time.minutes(), 0U);
-    EXPECT_EQ(time.seconds(), 6U);
-    EXPECT_EQ(time.milliSeconds(), 6U * KILO);
-    EXPECT_EQ(time.microSeconds(), 6U * MEGA);
-    EXPECT_EQ(time.nanoSeconds(), 6U * GIGA);
+    auto sut = 37_m;
+    EXPECT_THAT(sut.hours(), Eq(0U));
 }
 
-TEST(Duration_test, ConvertNanoseconds)
+TEST(Duration_test, ConvertHoursFromDurationMoreThanOneHour)
 {
-    auto time = 1_ns;
-    EXPECT_EQ(time.seconds(), 0U);
-    EXPECT_EQ(time.milliSeconds(), 0U);
-    EXPECT_EQ(time.microSeconds(), 0U);
-    EXPECT_EQ(time.nanoSeconds(), 1U);
+    auto sut = 73_h + 42_m;
+    EXPECT_THAT(sut.hours(), Eq(73U));
 }
 
-TEST(Duration_test, ConvertTimespecWithNoneReference)
+TEST(Duration_test, ConvertHoursFromMaxDuration)
+{
+    constexpr uint64_t SECONDS_PER_HOUR{60U * 60U};
+    constexpr uint64_t EXPECTED_HOURS{std::numeric_limits<uint64_t>::max() / SECONDS_PER_HOUR};
+    auto sut = MAX_DURATION;
+    EXPECT_THAT(sut.hours(), Eq(EXPECTED_HOURS));
+}
+
+TEST(Duration_test, ConvertMinutesFromZeroDuration)
+{
+    auto sut = 0_s;
+    EXPECT_THAT(sut.minutes(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertMinutesFromDurationLessThanOneMinute)
+{
+    auto sut = 34_s;
+    EXPECT_THAT(sut.minutes(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertMinutesFromDurationMoreThanOneMinute)
+{
+    auto sut = 13_m + 42_s;
+    EXPECT_THAT(sut.minutes(), Eq(13U));
+}
+
+TEST(Duration_test, ConvertMinutesFromMaxDuration)
+{
+    constexpr uint64_t SECONDS_PER_MINUTE{60U};
+    constexpr uint64_t EXPECTED_MINUTES{std::numeric_limits<uint64_t>::max() / SECONDS_PER_MINUTE};
+    auto sut = MAX_DURATION;
+    EXPECT_THAT(sut.minutes(), Eq(EXPECTED_MINUTES));
+}
+
+TEST(Duration_test, ConvertSecondsFromZeroDuration)
+{
+    auto sut = 0_s;
+    EXPECT_THAT(sut.seconds(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertSecondsFromDurationLessThanOneSecond)
+{
+    auto sut = 737_ms;
+    EXPECT_THAT(sut.seconds(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertSecondsFromDurationMoreThanOneSecond)
+{
+    auto sut = 7_s + 833_ms;
+    EXPECT_THAT(sut.seconds(), Eq(7U));
+}
+
+TEST(Duration_test, ConvertSecondsFromMaxSecondsMinusOne)
+{
+    constexpr uint64_t EXPECTED_SECONDS{std::numeric_limits<uint64_t>::max() - 1U};
+    auto sut = MAX_DURATION - 1_s;
+    EXPECT_THAT(sut.seconds(), Eq(EXPECTED_SECONDS));
+}
+
+TEST(Duration_test, ConvertSecondsFromMaxDuration)
+{
+    constexpr uint64_t EXPECTED_SECONDS{std::numeric_limits<uint64_t>::max()};
+    auto sut = MAX_DURATION;
+    EXPECT_THAT(sut.seconds(), Eq(EXPECTED_SECONDS));
+}
+
+TEST(Duration_test, ConvertMillisecondsFromZeroDuration)
+{
+    auto sut = 0_s;
+    EXPECT_THAT(sut.milliSeconds(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertMillisecondsFromDurationLessThanOneMillisecond)
+{
+    auto sut = 637_us;
+    EXPECT_THAT(sut.milliSeconds(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertMilliecondsFromDurationMoreThanOneMillisecond)
+{
+    auto sut = 55_ms + 633_us;
+    EXPECT_THAT(sut.milliSeconds(), Eq(55U));
+}
+
+TEST(Duration_test, ConvertMillisecondsFromDurationResultsNotYetInSaturation)
+{
+    constexpr uint64_t EXPECTED_MILLISECONDS{std::numeric_limits<uint64_t>::max() - 1U};
+    auto sut = Duration::milliseconds(EXPECTED_MILLISECONDS);
+    EXPECT_THAT(sut.milliSeconds(), Eq(EXPECTED_MILLISECONDS));
+}
+
+TEST(Duration_test, ConvertMillisecondsFromMaxDurationResultsInSaturation)
+{
+    auto sut = MAX_DURATION;
+    EXPECT_THAT(sut.milliSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
+}
+
+TEST(Duration_test, ConvertMicrosecondsFromZeroDuration)
+{
+    auto sut = 0_s;
+    EXPECT_THAT(sut.microSeconds(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertMicrosecondsFromDurationLessThanOneMicrosecond)
+{
+    auto sut = 733_ns;
+    EXPECT_THAT(sut.microSeconds(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertMicrosecondsFromDurationMoreThanOneMicrosecond)
+{
+    auto sut = 555_us + 733_ns;
+    EXPECT_THAT(sut.microSeconds(), Eq(555U));
+}
+
+TEST(Duration_test, ConvertMicrosecondsFromDurationResultsNotYetInSaturation)
+{
+    constexpr uint64_t EXPECTED_MICROSECONDS{std::numeric_limits<uint64_t>::max() - 1U};
+    auto sut = Duration::microseconds(EXPECTED_MICROSECONDS);
+    EXPECT_THAT(sut.microSeconds(), Eq(EXPECTED_MICROSECONDS));
+}
+
+TEST(Duration_test, ConvertMicroecondsFromMaxDurationResultsInSaturation)
+{
+    auto sut = MAX_DURATION;
+    EXPECT_THAT(sut.microSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
+}
+
+TEST(Duration_test, ConvertNanosecondsFromZeroDuration)
+{
+    auto sut = 0_s;
+    EXPECT_THAT(sut.microSeconds(), Eq(0U));
+}
+
+TEST(Duration_test, ConvertNanosecondsFromDurationOfOneNanosecond)
+{
+    auto sut = 1_ns;
+    EXPECT_THAT(sut.nanoSeconds(), Eq(1U));
+}
+
+TEST(Duration_test, ConvertNanosecondsFromDurationMultipleNanoseconds)
+{
+    auto sut = 42_ns;
+    EXPECT_THAT(sut.nanoSeconds(), Eq(42U));
+}
+
+TEST(Duration_test, ConvertNanosecondsFromDurationResultsNotYetInSaturation)
+{
+    constexpr uint64_t EXPECTED_NANOSECONDS{std::numeric_limits<uint64_t>::max() - 1U};
+    auto sut = Duration::nanoseconds(EXPECTED_NANOSECONDS);
+    EXPECT_THAT(sut.nanoSeconds(), Eq(EXPECTED_NANOSECONDS));
+}
+
+TEST(Duration_test, ConvertNanoecondsFromMaxDurationResultsInSaturation)
+{
+    auto sut = MAX_DURATION;
+    EXPECT_THAT(sut.nanoSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
+}
+
+TEST(Duration_test, ConvertTimespecWithNoneReferenceFromZeroDuration)
+{
+    constexpr int64_t SECONDS{0};
+    constexpr int64_t NANOSECONDS{0};
+
+    Duration duration{SECONDS, NANOSECONDS};
+
+    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
+}
+
+TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationLessThanOneSecond)
+{
+    constexpr int64_t SECONDS{0};
+    constexpr int64_t NANOSECONDS{55};
+
+    Duration duration{SECONDS, NANOSECONDS};
+
+    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
+}
+
+TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationMoreThanOneSecond)
 {
     constexpr int64_t SECONDS{44};
     constexpr int64_t NANOSECONDS{55};
 
     Duration duration{SECONDS, NANOSECONDS};
 
-    struct timespec sut = timespec(duration.timespec(iox::units::TimeSpecReference::None));
+    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
+}
+
+TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationResultsNotYetInSaturation)
+{
+    constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
+    constexpr int64_t NANOSECONDS{GIGA - 1U};
+
+    Duration duration{SECONDS, NANOSECONDS};
+
+    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
+}
+
+TEST(Duration_test, ConvertTimespecWithNoneReferenceFromMaxDurationResultsInSaturation)
+{
+    constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
+    constexpr int64_t NANOSECONDS{GIGA - 1U};
+
+    struct timespec sut = MAX_DURATION.timespec(iox::units::TimeSpecReference::None);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -896,6 +1068,17 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReference)
     EXPECT_THAT(sut.tv_sec, Gt(secondsSinceMonotonicEpoch));
 }
 
+TEST(Duration_test, ConvertTimespecWithMonotonicReferenceFromMaxDurationResultsInSaturation)
+{
+    constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
+    constexpr int64_t NANOSECONDS{GIGA - 1U};
+
+    struct timespec sut = MAX_DURATION.timespec(iox::units::TimeSpecReference::Monotonic);
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
+}
+
 TEST(Duration_test, ConvertTimespecWithEpochReference)
 {
     constexpr int64_t SECONDS{5};
@@ -909,6 +1092,17 @@ TEST(Duration_test, ConvertTimespecWithEpochReference)
     auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
     EXPECT_THAT(10 * SECONDS, Lt(secondsSinceUnixEpoch));
     EXPECT_THAT(sut.tv_sec, Gt(secondsSinceUnixEpoch));
+}
+
+TEST(Duration_test, ConvertTimespecWithEpochReferenceFromMaxDurationResultsInSaturation)
+{
+    constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
+    constexpr int64_t NANOSECONDS{GIGA - 1U};
+
+    struct timespec sut = MAX_DURATION.timespec(iox::units::TimeSpecReference::Epoch);
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
 }
 
 // END CONVERSION FUNCTION TESTS

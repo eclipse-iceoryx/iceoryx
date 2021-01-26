@@ -23,10 +23,21 @@ namespace units
 {
 struct timespec Duration::timespec(const TimeSpecReference& reference) const noexcept
 {
+    using SECONDS_TYPE = decltype(std::declval<struct timespec>().tv_sec);
+    using NANOSECONDS_TYPE = decltype(std::declval<struct timespec>().tv_nsec);
+
     if (reference == TimeSpecReference::None)
     {
-        auto tv_sec = static_cast<decltype(std::declval<struct timespec>().tv_sec)>(this->m_seconds);
-        auto tv_nsec = static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(this->m_nanoseconds);
+        static_assert(sizeof(uint64_t) >= sizeof(SECONDS_TYPE), "casting might alter result");
+        if (this->m_seconds > static_cast<uint64_t>(std::numeric_limits<SECONDS_TYPE>::max()))
+        {
+            std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                      << std::endl;
+            return {std::numeric_limits<SECONDS_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+        }
+
+        auto tv_sec = static_cast<SECONDS_TYPE>(this->m_seconds);
+        auto tv_nsec = static_cast<NANOSECONDS_TYPE>(this->m_nanoseconds);
         return {tv_sec, tv_nsec};
     }
     else
@@ -45,8 +56,17 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
         else
         {
             auto targetTime = Duration(referenceTime) + *this;
-            auto tv_sec = static_cast<decltype(std::declval<struct timespec>().tv_sec)>(targetTime.m_seconds);
-            auto tv_nsec = static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(targetTime.m_nanoseconds);
+
+            static_assert(sizeof(uint64_t) >= sizeof(SECONDS_TYPE), "casting might alter result");
+            if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SECONDS_TYPE>::max()))
+            {
+                std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                          << std::endl;
+                return {std::numeric_limits<SECONDS_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+            }
+
+            auto tv_sec = static_cast<SECONDS_TYPE>(targetTime.m_seconds);
+            auto tv_nsec = static_cast<NANOSECONDS_TYPE>(targetTime.m_nanoseconds);
             return {tv_sec, tv_nsec};
         }
     }
