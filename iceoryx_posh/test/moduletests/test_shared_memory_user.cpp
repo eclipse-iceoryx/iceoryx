@@ -52,7 +52,7 @@ class shared_memory_user_test : public Test
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
 };
 
-TEST_F(shared_memory_user_test, ConstructorShmObjectIsSuccess)
+TEST_F(shared_memory_user_test, ConstructorShmObjectReturnsHasValueTrue)
 {
     auto sut = iox::posix::SharedMemoryObject::create(
        "/validShmMem", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);

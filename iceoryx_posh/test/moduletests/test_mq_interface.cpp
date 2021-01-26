@@ -298,13 +298,13 @@ TEST_F(CMqInterface_test, MqBase_IsInitialized)
     CMqInterface_IsInitialized<MqBase>(base);
 }
 
-TEST_F(CMqInterface_test, MqBase_close)
+TEST_F(CMqInterface_test, DestroyMessageQueueReturnsHasErrorFalse)
 {
     MqBase base(ifName, maxMessages, messageSize);
     CMqInterface_close(base);
 }
 
-TEST_F(CMqInterface_test, MqBase_hasclosable)
+TEST_F(CMqInterface_test, CheckMessageQueueReturnsIsInitialisedFalse)
 {
     MqBase base(ifName, maxMessages, messageSize);
     CMqInterface_hasclosable(base);
@@ -412,7 +412,7 @@ TEST_F(CMqInterface_test, MqInterfaceCreator_IsInitialized)
     CMqInterface_IsInitialized<MqInterfaceCreator>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceCreator_cleanupResource)
+TEST_F(CMqInterface_test, DestroyMessagequeueReturnsIsInitialisedFalse)
 {
     MqInterfaceCreator base(ifName);
     CMqInterface_cleanupResource(base);
