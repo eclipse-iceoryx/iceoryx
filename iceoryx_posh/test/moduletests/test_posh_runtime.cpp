@@ -200,7 +200,17 @@ TEST_F(PoshRuntime_test, MiddlewareInterfaceIsSuccessful)
 
 TEST_F(PoshRuntime_test, MiddlewareInterfaceGetInvalidNodeNameIsNotSuccessful)
 {
-    EXPECT_DEATH(m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName), ".*");
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+    
+    m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
@@ -459,7 +469,17 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
     const uint32_t nodeDeviceIdentifier = 1U;
     iox::runtime::NodeProperty nodeProperty(m_invalidNodeName, nodeDeviceIdentifier);
 
-    EXPECT_DEATH(m_runtime->createNode(nodeProperty), ".*");
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+    
+    m_runtime->createNode(nodeProperty);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_MESSAGE_QUEUE_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, OfferDefaultServiceDescriptionIsInvalid)
