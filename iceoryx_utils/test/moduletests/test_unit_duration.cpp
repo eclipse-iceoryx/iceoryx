@@ -1060,7 +1060,7 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReference)
     auto timeSinceMonotonicEpoch = std::chrono::steady_clock::now().time_since_epoch();
 
     Duration duration{SECONDS, NANOSECONDS};
-    struct timespec sut = timespec(duration.timespec(iox::units::TimeSpecReference::Monotonic));
+    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::Monotonic);
 
     auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
     auto secondsSinceMonotonicEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceMonotonicEpoch).count();
@@ -1087,7 +1087,7 @@ TEST(Duration_test, ConvertTimespecWithEpochReference)
     auto timeSinceUnixEpoch = std::chrono::system_clock::now().time_since_epoch();
 
     Duration duration{SECONDS, NANOSECONDS};
-    struct timespec sut = timespec(duration.timespec(iox::units::TimeSpecReference::Epoch));
+    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::Epoch);
 
     auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
     EXPECT_THAT(10 * SECONDS, Lt(secondsSinceUnixEpoch));
@@ -1109,7 +1109,31 @@ TEST(Duration_test, ConvertTimespecWithEpochReferenceFromMaxDurationResultsInSat
 
 // BEGIN CONVERSION OPERATOR TESTS
 
-TEST(Duration_test, OperatorTimeval)
+TEST(Duration_test, OperatorTimevalFromZeroDuration)
+{
+    Duration duration{0U, 0U};
+
+    struct timeval sut = timeval(duration);
+
+    EXPECT_THAT(sut.tv_sec, Eq(0U));
+    EXPECT_THAT(sut.tv_usec, Eq(0U));
+}
+
+TEST(Duration_test, OperatorTimevalFromDurationWithLessThanOneSecond)
+{
+    constexpr int64_t SECONDS{0};
+    constexpr int64_t MICROSECONDS{222};
+    constexpr int64_t ROUND_OFF_NANOSECONDS{666};
+
+    Duration duration{SECONDS, MICROSECONDS * KILO + ROUND_OFF_NANOSECONDS};
+
+    struct timeval sut = timeval(duration);
+
+    EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
+    EXPECT_THAT(sut.tv_usec, Eq(MICROSECONDS));
+}
+
+TEST(Duration_test, OperatorTimevalFromDurationWithMoreThanOneSecond)
 {
     constexpr int64_t SECONDS{111};
     constexpr int64_t MICROSECONDS{222};
@@ -1121,6 +1145,28 @@ TEST(Duration_test, OperatorTimeval)
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_usec, Eq(MICROSECONDS));
+}
+
+TEST(Duration_test, OperatorTimevalFromDurationResultsNotYetInSaturation)
+{
+    using SEC_TYPE = decltype(timeval::tv_sec);
+    auto duration = Duration::seconds(std::numeric_limits<SEC_TYPE>::max());
+
+    struct timeval sut = timeval(duration);
+
+    EXPECT_THAT(sut.tv_sec, Eq(std::numeric_limits<SEC_TYPE>::max()));
+    EXPECT_THAT(sut.tv_usec, Eq(0));
+}
+
+TEST(Duration_test, OperatorTimevalFromMaxDurationResultsInSaturation)
+{
+    using SEC_TYPE = decltype(timeval::tv_sec);
+    using USEC_TYPE = decltype(timeval::tv_usec);
+
+    struct timeval sut = timeval(MAX_DURATION);
+
+    EXPECT_THAT(sut.tv_sec, Eq(std::numeric_limits<SEC_TYPE>::max()));
+    EXPECT_THAT(sut.tv_usec, Eq(static_cast<USEC_TYPE>(MEGA - 1U)));
 }
 
 // END CONVERSION OPERATOR TESTS

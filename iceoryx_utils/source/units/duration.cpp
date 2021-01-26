@@ -23,21 +23,21 @@ namespace units
 {
 struct timespec Duration::timespec(const TimeSpecReference& reference) const noexcept
 {
-    using SECONDS_TYPE = decltype(std::declval<struct timespec>().tv_sec);
-    using NANOSECONDS_TYPE = decltype(std::declval<struct timespec>().tv_nsec);
+    using SEC_TYPE = decltype(std::declval<struct timespec>().tv_sec);
+    using NSEC_TYPE = decltype(std::declval<struct timespec>().tv_nsec);
 
     if (reference == TimeSpecReference::None)
     {
-        static_assert(sizeof(uint64_t) >= sizeof(SECONDS_TYPE), "casting might alter result");
-        if (this->m_seconds > static_cast<uint64_t>(std::numeric_limits<SECONDS_TYPE>::max()))
+        static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
+        if (this->m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
         {
             std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
                       << std::endl;
-            return {std::numeric_limits<SECONDS_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+            return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
         }
 
-        auto tv_sec = static_cast<SECONDS_TYPE>(this->m_seconds);
-        auto tv_nsec = static_cast<NANOSECONDS_TYPE>(this->m_nanoseconds);
+        auto tv_sec = static_cast<SEC_TYPE>(this->m_seconds);
+        auto tv_nsec = static_cast<NSEC_TYPE>(this->m_nanoseconds);
         return {tv_sec, tv_nsec};
     }
     else
@@ -57,16 +57,16 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
         {
             auto targetTime = Duration(referenceTime) + *this;
 
-            static_assert(sizeof(uint64_t) >= sizeof(SECONDS_TYPE), "casting might alter result");
-            if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SECONDS_TYPE>::max()))
+            static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
+            if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
             {
                 std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
                           << std::endl;
-                return {std::numeric_limits<SECONDS_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+                return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
             }
 
-            auto tv_sec = static_cast<SECONDS_TYPE>(targetTime.m_seconds);
-            auto tv_nsec = static_cast<NANOSECONDS_TYPE>(targetTime.m_nanoseconds);
+            auto tv_sec = static_cast<SEC_TYPE>(targetTime.m_seconds);
+            auto tv_nsec = static_cast<NSEC_TYPE>(targetTime.m_nanoseconds);
             return {tv_sec, tv_nsec};
         }
     }

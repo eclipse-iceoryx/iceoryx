@@ -233,6 +233,13 @@ inline constexpr Duration::operator timeval() const noexcept
 {
     using SEC_TYPE = decltype(timeval::tv_sec);
     using USEC_TYPE = decltype(timeval::tv_usec);
+    static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
+    if (m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                  << std::endl;
+        return {std::numeric_limits<SEC_TYPE>::max(), MICROSECS_PER_SEC - 1U};
+    }
     return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
 }
 
