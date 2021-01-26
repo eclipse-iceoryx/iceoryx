@@ -16,9 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
-#include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
-#include "iceoryx_posh/version/compatibility_check_level.hpp"
+#include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_utils/log/logcommon.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
@@ -39,7 +37,7 @@ class RouDiApp
     /// @brief C'tor with command line parser, which has already parsed the command line parameters
     /// @param[in] cmdLineParser reference to a command line parser object
     /// @param[in] config the configuration to use
-    RouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& config) noexcept;
+    RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& config) noexcept;
 
     virtual ~RouDiApp() noexcept {};
 
@@ -54,17 +52,6 @@ class RouDiApp
 
     /// @brief Tells the OS which signals shall be hooked
     void registerSigHandler() noexcept;
-
-    void parseCmdLineArguments(int argc,
-                               char* argv[],
-                               config::CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode =
-                                   config::CmdLineParser::CmdLineArgumentParsingMode::ALL) noexcept;
-
-    /// @brief Extracts from CmdLineParser and sets them
-    void setCmdLineParserResults(const config::CmdLineParser& cmdLineParser) noexcept;
-
-    /// @brief initialize the RouDi daemon
-    void init() noexcept;
 
     /// @brief waits for the next signal to RouDi daemon
     bool waitForSignal() const noexcept;

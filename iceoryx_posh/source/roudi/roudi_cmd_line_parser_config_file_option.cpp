@@ -23,9 +23,9 @@ namespace iox
 {
 namespace config
 {
-void CmdLineParserConfigFileOption::parse(int argc,
-                                          char* argv[],
-                                          const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
+CmdLineArgs_t CmdLineParserConfigFileOption::parse(int argc,
+                                                   char* argv[],
+                                                   const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
     constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
                                       {"config-file", required_argument, nullptr, 'c'},
@@ -72,16 +72,17 @@ void CmdLineParserConfigFileOption::parse(int argc,
             break;
         }
     }
+    return CmdLineArgs_t{m_monitoringMode,
+                         m_logLevel,
+                         m_compatibilityCheckLevel,
+                         m_processKillDelay,
+                         m_uniqueRouDiId,
+                         m_run,
+                         m_customConfigFilePath};
 }
 roudi::ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
 {
     return m_customConfigFilePath;
-}
-
-void CmdLineParserConfigFileOption::printParameters() noexcept
-{
-    CmdLineParser::printParameters();
-    LogVerbose() << "Config file used is: " << m_customConfigFilePath;
 }
 
 } // namespace config

@@ -28,12 +28,12 @@ namespace iox
 {
 namespace config
 {
-TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(CmdLineParserConfigFileOption& cmdLineParser)
+TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& cmdLineArgs)
 {
     /// don't print additional output if not running
-    if (cmdLineParser.getRun())
+    if (cmdLineArgs.run)
     {
-        if (cmdLineParser.getConfigFilePath().size() == 0)
+        if (cmdLineArgs.configFilePath.size() == 0)
         {
             /// @todo Replace with C++17 std::filesystem::exists()
             cxx::FileReader configFile(defaultConfigFilePath, "", cxx::FileReader::ErrorMode::Ignore);
@@ -49,7 +49,7 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(CmdLineParserConfigFile
                           << "'. Falling back to built-in config.";
             }
         }
-        m_customConfigFilePath = cmdLineParser.getConfigFilePath();
+        m_customConfigFilePath = cmdLineArgs.configFilePath;
     }
 }
 

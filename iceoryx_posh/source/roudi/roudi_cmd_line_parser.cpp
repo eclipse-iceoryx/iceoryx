@@ -24,7 +24,7 @@ namespace iox
 {
 namespace config
 {
-void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
+CmdLineArgs_t CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
     constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
                                       {"version", no_argument, nullptr, 'v'},
@@ -209,6 +209,8 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             break;
         }
     }
+    return CmdLineArgs_t{
+        m_monitoringMode, m_logLevel, m_compatibilityCheckLevel, m_processKillDelay, m_uniqueRouDiId, m_run, ""};
 } // namespace roudi
 bool CmdLineParser::getRun() const noexcept
 {
@@ -236,18 +238,6 @@ cxx::optional<uint16_t> CmdLineParser::getUniqueRouDiId() const noexcept
 units::Duration CmdLineParser::getProcessKillDelay() const noexcept
 {
     return m_processKillDelay;
-}
-
-void CmdLineParser::printParameters() const noexcept
-{
-    LogVerbose() << "Command line parameters are..";
-    LogVerbose() << "Log level: " << m_logLevel;
-    LogVerbose() << "Monitoring mode: " << m_monitoringMode;
-    LogVerbose() << "Compatibility check level: " << m_compatibilityCheckLevel;
-    m_uniqueRouDiId.and_then([](auto& id) { LogVerbose() << "Unique RouDi ID: " << id; }).or_else([] {
-        LogVerbose() << "Unique RouDi ID: < unset >";
-    });
-    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds<uint64_t>() << " ms";
 }
 
 } // namespace config
