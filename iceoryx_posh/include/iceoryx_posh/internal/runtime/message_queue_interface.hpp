@@ -49,6 +49,7 @@ enum class MqMessageType : int32_t
     NOTYPE = 0,
     REG, // register app
     REG_ACK,
+    REG_FAIL_APP_ALREADY_REGISTERED,
     CREATE_PUBLISHER,
     CREATE_PUBLISHER_ACK,
     CREATE_SUBSCRIBER,

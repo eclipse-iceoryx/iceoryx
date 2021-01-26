@@ -317,7 +317,7 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
     switch (regState)
     {
     case RegState::WAIT_FOR_ROUDI:
-        LogError() << "Timeout reaching RouDi. Either no RouDi is running or an app with the name '" << m_appName
+        LogError() << "Timeout registering at RouDi. Either no RouDi is running or an app with the name '" << m_appName
                    << "' is already registered.";
         errorHandler(Error::kMQ_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
@@ -447,6 +447,11 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
                 {
                     LogWarn() << "Received a REG_ACK with an outdated timestamp!";
                 }
+            }
+            else if (stringToMqMessageType(cmd.c_str()) == MqMessageType::REG_FAIL_APP_ALREADY_REGISTERED)
+            {
+                LogError() << "An application with the name '" << m_appName << "' is already registered at RouDi.";
+                errorHandler(Error::kMQ_INTERFACE__APP_ALREADY_REGISTERED, nullptr, ErrorLevel::SEVERE);
             }
             else
             {

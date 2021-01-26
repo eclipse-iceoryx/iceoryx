@@ -317,9 +317,10 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
 {
     bool wasPreviouslyMonitored = false; // must be in outer scope but is only initialized before use
     bool processExists = false;
+    RouDiProcess* process{nullptr};
     {
         std::lock_guard<std::mutex> g(m_mutex);
-        auto process = getProcessFromList(name); // process existence check
+        process = getProcessFromList(name); // process existence check
         if (process)
         {
             processExists = true;
@@ -357,6 +358,10 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
     {
         // process exists and is monitored - we rely on monitoring for removal
         LogWarn() << "Received REG from " << name << ", but another application with this name is already registered";
+
+        runtime::MqMessage sendBuffer;
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::REG_FAIL_APP_ALREADY_REGISTERED);
+        process->sendToMQ(sendBuffer);
     }
     else
     {
