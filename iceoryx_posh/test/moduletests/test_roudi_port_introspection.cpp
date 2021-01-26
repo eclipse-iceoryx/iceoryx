@@ -230,10 +230,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     MockPublisherPortUser port2(&portData2);
     // test adding of ports
     // remark: duplicate publisher port insertions are not possible
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1), Eq(false));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(portData1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(portData1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(false));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
@@ -363,10 +363,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     iox::popo::SubscriberPortData recData2{
         service2, processName2, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions2};
     MockSubscriberPortUser port2(&recData2);
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1), Eq(false));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(false));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
@@ -487,12 +487,12 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     // test adding of publisher or subscriber port of same service to establish a connection (requires same service id)
     iox::popo::SubscriberPortData recData1{
         service, nameSubscriber, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions};
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(true));
     iox::mepoo::MemoryManager memoryManager;
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.nodeName = nodeName;
     iox::popo::PublisherPortData publisherPortData{service, namePublisher, &memoryManager, publisherOptions};
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&publisherPortData), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(publisherPortData), Eq(true));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(

@@ -220,15 +220,15 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateSu
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
-    typename PublisherPort::MemberType_t* const port)
+inline bool
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(typename PublisherPort::MemberType_t& port)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto service = port->m_serviceDescription;
-    auto uniqueId = port->m_uniqueId;
+    auto service = port.m_serviceDescription;
+    auto uniqueId = port.m_uniqueId;
 
-    auto index = m_publisherContainer.add(PublisherInfo(port));
+    auto index = m_publisherContainer.add(PublisherInfo(&port));
     if (index < 0)
     {
         return false;
@@ -281,14 +281,14 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPubli
 
 template <typename PublisherPort, typename SubscriberPort>
 inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
-    typename SubscriberPort::MemberType_t* const portData)
+    typename SubscriberPort::MemberType_t& portData)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto service = portData->m_serviceDescription;
-    auto uniqueId = portData->m_uniqueId;
+    auto service = portData.m_serviceDescription;
+    auto uniqueId = portData.m_uniqueId;
 
-    auto index = m_connectionContainer.add(ConnectionInfo(portData));
+    auto index = m_connectionContainer.add(ConnectionInfo(&portData));
     if (index < 0)
     {
         return false;
@@ -590,13 +590,13 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(b
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* port)
+inline bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t& port)
 {
     return m_portData.addPublisher(port);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t* port)
+inline bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t& port)
 {
     return m_portData.addSubscriber(port);
 }

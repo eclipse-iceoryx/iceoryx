@@ -30,7 +30,7 @@ static void sigHandler(int sig [[gnu::unused]])
 void receive()
 {
     iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.nodeName = "Node";
+    subscriberOptions.nodeName = "uMgungundlovu";
 
     iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"}, subscriberOptions);
 

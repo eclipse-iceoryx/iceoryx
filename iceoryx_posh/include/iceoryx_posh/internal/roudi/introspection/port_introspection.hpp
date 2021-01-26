@@ -137,12 +137,12 @@ class PortIntrospection
         /// @brief add a publisher port to be tracked by introspection
         /// @param[in] port to be added
         /// @return returns false if the port could not be added and true otherwise
-        bool addPublisher(typename PublisherPort::MemberType_t* const port);
+        bool addPublisher(typename PublisherPort::MemberType_t& port);
 
         /// @brief add a subscriber port to be tracked by introspection
         /// @param[in] portData to be added
         /// @return returns false if the port could not be added and true otherwise
-        bool addSubscriber(typename SubscriberPort::MemberType_t* const portData);
+        bool addSubscriber(typename SubscriberPort::MemberType_t& portData);
 
         /// @brief remove a publisher port from introspection
         /// @param[in] port publisher port to be removed
@@ -234,12 +234,12 @@ class PortIntrospection
     /// @brief add a publisher port to be tracked by introspection
     /// @param[in] port to be added
     /// @return returns false if the port could not be added and true otherwise
-    bool addPublisher(typename PublisherPort::MemberType_t* port);
+    bool addPublisher(typename PublisherPort::MemberType_t& port);
 
     /// @brief add a subscriber port to be tracked by introspection
     /// @param[in] port to be added
     /// @return returns false if the port could not be added and true otherwise
-    bool addSubscriber(typename SubscriberPort::MemberType_t* port);
+    bool addSubscriber(typename SubscriberPort::MemberType_t& port);
 
     /// @brief remove a publisher port from introspection
     /// @param[in] port publisher port to be removed

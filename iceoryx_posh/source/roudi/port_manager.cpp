@@ -590,7 +590,11 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         service, payloadMemoryManager, processName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
-        m_portIntrospection.addPublisher(maybePublisherPortData.value());
+        auto publisherPortData = maybePublisherPortData.value();
+        if (publisherPortData)
+        {
+            m_portIntrospection.addPublisher(*publisherPortData);
+        }
     }
 
     return maybePublisherPortData;
@@ -606,7 +610,11 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
         m_portPool->addSubscriberPort(service, processName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
-        m_portIntrospection.addSubscriber(maybeSubscriberPortData.value());
+        auto subscriberPortData = maybeSubscriberPortData.value();
+        if (subscriberPortData)
+        {
+            m_portIntrospection.addSubscriber(*subscriberPortData);
+        }
     }
 
     return maybeSubscriberPortData;
