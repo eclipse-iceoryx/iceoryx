@@ -1512,6 +1512,17 @@ TEST(Duration_test, SubstractDurationWithTwoZeroDurationsResultsInZeroDuration)
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
+TEST(Duration_test, SubstractDurationWithDurationsWithSameValueResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration1 = DurationFactory{10U, 123U};
+    auto duration2 = DurationFactory{10U, 123U};
+
+    auto sut = duration1 - duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
 TEST(Duration_test, SubstractDurationFromZeroDurationsResultsInZeroDuration)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
@@ -1586,6 +1597,17 @@ TEST(Duration_test, SubstractDurationMoreThanOneSecondWithMoreThanOneSecondResul
     constexpr DurationFactory EXPECTED_DURATION{0U, 36U};
     auto duration1 = DurationFactory{1U, 73U};
     auto duration2 = DurationFactory{1U, 37U};
+
+    auto sut = duration1 - duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationWithSecondsAndNanosecondsCausingReductionOfSeconds)
+{
+    constexpr DurationFactory EXPECTED_DURATION{0U, NANOSECS_PER_SECOND - 36U};
+    auto duration1 = DurationFactory{2U, 37U};
+    auto duration2 = DurationFactory{1U, 73U};
 
     auto sut = duration1 - duration2;
 
