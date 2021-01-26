@@ -61,6 +61,10 @@ class PortManager_test : public Test
     PortManagerTester* m_portManager{nullptr};
 
     uint16_t m_instIdCounter, m_eventIdCounter, m_sIdCounter;
+
+    iox::ProcessName_t m_Process{"TestProcess"};
+    iox::NodeName_t m_Node{"TestNode"};
+
     void SetUp() override
     {
         testing::internal::CaptureStderr();
@@ -588,7 +592,7 @@ TEST_F(PortManager_test, CheckNodeOverflowErrorReturnsnullptrForAcquireNodeData)
                 errorHandlerCalled = true;
             });
 
-        auto nodePointer = m_portManager->acquireNodeData("Processnode", "node");
+        auto nodePointer = m_portManager->acquireNodeData(m_Process, m_Node);
         EXPECT_EQ(nodePointer, nullptr);
         EXPECT_TRUE(errorHandlerCalled);
     }
@@ -615,14 +619,14 @@ TEST_F(PortManager_test, UseDestroyNodeReturnsNotNullPtrToAcquireNodeData)
     {
         auto newnodeName = nodeName + std::to_string(i);
         auto nodeDataResult =
-            m_portManager->acquireNodeData("Process", iox::NodeName_t(iox::cxx::TruncateToCapacity, newnodeName));
+            m_portManager->acquireNodeData(m_Process, iox::NodeName_t(iox::cxx::TruncateToCapacity, newnodeName));
         EXPECT_NE(nodeDataResult, nullptr);
         nodeContainer.push_back(nodeDataResult);
     }
 
     // so now no one should be available
     {
-        auto nodeDataResult = m_portManager->acquireNodeData("Process", "node");
+        auto nodeDataResult = m_portManager->acquireNodeData(m_Process, m_Node);
         EXPECT_EQ(nodeDataResult, nullptr);
     }
 
@@ -637,7 +641,7 @@ TEST_F(PortManager_test, UseDestroyNodeReturnsNotNullPtrToAcquireNodeData)
     // so we should able to get some more now
     for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; i++)
     {
-        auto nodeDataResult = m_portManager->acquireNodeData("Process", "node");
+        auto nodeDataResult = m_portManager->acquireNodeData(m_Process, m_Node);
         EXPECT_NE(nodeDataResult, nullptr);
     }
 }
@@ -645,23 +649,21 @@ TEST_F(PortManager_test, UseDestroyNodeReturnsNotNullPtrToAcquireNodeData)
 TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfacePortData)
 {
     std::vector<iox::popo::InterfacePortData*> interfaceContainer;
-
-    std::string process = "process";
-
     std::string itf = "itf";
 
     // first aquire all possible condition variables
     for (uint32_t i = 0U; i < iox::MAX_INTERFACE_NUMBER; i++)
     {
         auto newItfName = itf + std::to_string(i);
-        auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "process");
+        auto interp = m_portManager->acquireInterfacePortData(
+            iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
         EXPECT_NE(interp, nullptr);
         interfaceContainer.push_back(interp);
     }
 
     // so now no one should be available
     {
-        auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "process");
+        auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, m_Process);
         EXPECT_EQ(interp, nullptr);
     }
 
@@ -676,7 +678,7 @@ TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfaceP
     // so we should able to get some more now
     for (uint32_t i = 0U; i < iox::MAX_INTERFACE_NUMBER; i++)
     {
-        auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "process");
+        auto interp = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, m_Process);
         EXPECT_NE(interp, nullptr);
     }
 }
@@ -690,7 +692,7 @@ TEST_F(PortManager_test, OfferPublisherServiceReturnsServiceRegistryChangeCounte
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, "node", PortConfigInfo())
+                {1, 1, 1}, publisherOptions, m_Process, m_payloadMemoryManager, m_Node, PortConfigInfo())
             .value());
 
     publisher.offer();
