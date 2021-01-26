@@ -1,14 +1,18 @@
 ## Problem Description
 
 We require a public API so that a developer can register callbacks for certain
-events like the arrival of a sample.
+events like the arrival of a sample. These callbacks should be executed in a 
+background thread.
 
 ## Name of the design element
 
- - ReactAl = React And Listen
- - Reactor
+ - ReactAL = React And Listen
  - Eventler
  - LiAR - Listen And React
+ - Wait And React -> WAR
+ - Listen and Execute -> LEx
+ - Robust Event Awaiting Concurrent Taken On Run -> REACTOR
+ - event listening for execution -> ELFE
 
 
 ## Terminology
@@ -23,20 +27,21 @@ events like the arrival of a sample.
       conditions, Heisenbugs and in general hard to debug problems.
  - **robust API feature** a feature we only support to increase the robustness 
       of the API and bugs caused by misuse.
- - (Reactor pattern)[https://en.wikipedia.org/wiki/Reactor_pattern]
- - (Condition Variable)[https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables_2]
+ - [Reactor pattern](https://en.wikipedia.org/wiki/Reactor_pattern)
+ - [Condition Variable](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables_2)
+ - [Heisenbug](https://en.wikipedia.org/wiki/Heisenbug)
  
 ## Design
 
 ### General
 The usage should be similar to the _WaitSet_ with a key difference - it should 
 be **event driven** and not a mixture of event and state driven, depending on
-which event is attached, like in the _WaitSet_.
+which event is assigned, like in the _WaitSet_.
 
 It should have the following behavior:
 
  - Whenever an event occurs the corresponding callback should be called **once**
-    immediately.
+    as soon as possible.
  - If an event occurs multiple times before the callback was called, the callback
     should be called **once**.
  - If an event occurs while the callback is being executed the callback should be 
@@ -44,27 +49,27 @@ It should have the following behavior:
 
 The following use cases and behaviors should be implemented.
 
- - The API and ReactAl should be robust this means that it should be very hard 
-    to use the API in the wrong way. Since ReactAl is working concurrently a 
-    wrong usage could lead to race conditions, extremely hard to debug bug reports 
-    (HeisenBugs) and can be frustrating to the user.
+ - The API and ReactAL should be robust. Since ReactAL is working concurrently a 
+    wrong usage could lead to race conditions, extremely hard to debug bug reports
+    (Heisenbugs) and can be frustrating to the user.
     We list here features marked with [robust] which are only supported to 
     increase this kind of the robustness.
 
- - concurrently: attaching a callback at any time from anywhere. This means in particular
+ - concurrently: assigning a callback at any time from anywhere. This means in particular
     - Attaching a callback from within a callback.
     - [robust] Updating a callback from within the same callback 
       ```cpp
       void onSampleReceived2(iox::popo::UntypedSubscriber & subscriber) {}
 
       void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
-        myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived2);
+        myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived2);
       }
 
-      myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
+      myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
       ```
- - One can attach at most one callback to a specific event of an object.
-    - Attaching a callback to an event where a callback has been already attached overrides
+ - One can assign at most one callback to a specific event of an object. The event is usually defined 
+    with an enum by the developer. One example is `SubscriberEvent::HAS_SAMPLE_RECEIVED`.
+    - Attaching a callback to an event where a callback has been already assigned overrides
       the existing callback with the new one.
  - concurrently: detach a callback at any time from anywhere. This means in particular
     - Detaching a callback from within a callback.
@@ -72,19 +77,20 @@ The following use cases and behaviors should be implemented.
       again. E.g. blocks till the callback is removed, if the callback is concurrently 
       running it will block until the callback is finished and removed.
       Exception: If a callback detaches itself it blocks until the callback is removed 
-                 and not until the callback is finished.
-    - Calling detach means that after that call the callback is no longer attached
-      even when it was not attached in the first place. Therefore it will always succeed.
+                 and not until the callback is finished. After the successful removal the 
+                 callback will continue and will not be called again.
+    - Calling detach means that after that call the callback is no longer assigned
+      even when it was not assigned in the first place. Therefore it will always succeed.
 
- - When the ReactAl goes out of scope it should detach itself from every class 
-     to which it was attached via a provided callback (like in the WaitSet).
+ - When the ReactAL goes out of scope it should detach itself from every class 
+     to which it was assigned via a callback provided by the attached class (like in the WaitSet).
 
- - When the class which is attached to the ReactAl goes out of scope it should 
-    detach itself from the ReactAl via a provided callback (like in the WaitSet).
+ - When the class which is assigned to the ReactAL goes out of scope it should 
+    detach itself from the ReactAL via a callback provided by the ReactAL (like in the WaitSet).
 
 ### Usage Code Example
 ```cpp
-ReactAl myCallbackReactal;
+ReactAL myCallbackReactAL;
 iox::popo::UntypedSubscriber mySubscriber;
 
 void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
@@ -95,30 +101,43 @@ void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
 
 void onWaitForSubscription(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "subscribed!\n";
-  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
-  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, onWaitForSubscription);
-  myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED);
+  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
+  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, onWaitForUnsubscription);
+  myCallbackReactAL.cancelEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED);
 }
 
 void onWaitForUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "unsubscribed from publisher\n";
-  myCallbackReactal.attachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onWaitForSubscription);
-  myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED);
-  myCallbackReactal.detachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED);
+  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onWaitForSubscription);
+  myCallbackReactAL.cancelEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED);
+  myCallbackReactAL.cancelEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED);
 }
 
 int main() {
-  myCallbackReactal.attachEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onWaitForSubscription);
+  myCallbackReactAL.assignEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onWaitForSubscription);
 }
 ```
 
 ### Solution
+#### Class Interactions
+
+  - **Creating ReactAL:** an `EventVariable` is created in the shared memory. 
+      The `ReactAL` uses the `EventWaiter` to wait for incoming events.
+  - **Attaching Subscriber Event (sampleReceived) to ReactAL:** The subscriber attaches the `EventSignaler`
+      appropriately and signals the `ReactAL` via the `EventSignaler` about the occurrence 
+      of the event (sampleReceived).
+  - **Signal an event from subscriber:** `EventSignaler.notify()` is called which sets an, to the subscriber 
+      assigned flag, to true and `EventWaiter` will wake up.
+  - **ReactAL reacting to events:** `EventWaiter.wait()` will provide a complete list of all `EventSignaler`
+      which were notifying the `EventWaiter` till the last `wait()` call. The ReactAL uses this list 
+      to call the corresponding callbacks.
+
 #### Condition Variable
 
   - Alternative names: `EventVariable`, `EventSignaler`, `EventWaiter`
   
-  - **Problem:** The ReactAl would like to know by whom it was triggered. The WaitSet has a 
-                  big list of callbacks where it can ask the object if it triggered the WaitSet. This has 
+  - **Problem:** The ReactAL would like to know by whom it was triggered. The WaitSet has a 
+                  list of callbacks where it can ask the object if it triggered the WaitSet. This has 
                   certain disadvantages.
               - Cache misses and low performance 
               - The object could lie due to a bug.
@@ -128,7 +147,7 @@ int main() {
       gets provided with an id. When the condition variable is notified a corresponding bool array entry is set to true 
       to trace the trigger origin.
 
-  - Create from `ConditionVariableWithOriginTracing` (yeah we need a better name) has `ConditionVariableData` 
+  - Create from `ConditionVariableWithOriginTracing`/ `EventVariable` (yeah we need a better name) has `ConditionVariableData` 
     as a member and adds: `std::atomic_bool m_triggeredBy[MAX_CALLBACKS];`
 
     **Reason:**
@@ -148,6 +167,8 @@ int main() {
       - Create an additional bool member `m_wasTriggered` which is true when at least 
         one bool in `m_triggerdBy` is true. This would spare us from iterating over the array 
         when it was not triggered at all.
+        - Reserve the last/first element in the bool array for `m_wasTriggered`
+          to may gain even more cache efficiency.
 
     **Adjustments:**
       - Create the class with a template bool array size argument to be more flexible and memory efficient.
@@ -157,26 +178,29 @@ int main() {
         and state based at the same time and this approach supports only event 
         driven triggering.
 
-  - add class `ConditionVariableWithOriginTracingSignaler` (I know, better name)
+  - add class `ConditionVariableWithOriginTracingSignaler` / `EventSignaler` (I know, better name)
   
-    **Reason:** it behaves quiete differently then the `ConditionVariable`. The `ConditionVariable` tells you:
-    someone has signalled you and you have to find out who it was. The `ConditionVariableWithOriginTracing`
-    would tell you: A, B and C have signalled you.
+    **Reason:** it behaves quite differently then the `ConditionVariable`. The `ConditionVariable` notifies the user
+    that it was signalled and the user has to find the origin  manually. The `ConditionVariableWithOriginTracing`
+    would notify the user by which origin it was signalled.
 
     ```cpp
     class ConditionVariableWithOriginTracingSignaler {
       public:
-        // originId = corresponds to the id in the ConditionVariable atomic_bool array to 
         // identify the trigger origin easily
-        void notify(const uint64_t originId); 
+        void notify(); 
 
         // alternative: origin is set in the ctor and we just call notify
         ConditionVariableWithOriginTracingSignaler(const uint64_t originId);
         void notify();
+
+      private:
+        // originId = corresponds to the id in the ConditionVariable atomic_bool array to 
+        m_originId;
     };
     ```
 
-  - add class `ConditionVariableWithOriginTracingWaiter`
+  - add class `ConditionVariableWithOriginTracingWaiter` / `EventWaiter`
   ```cpp
   class ConditionVariableWithOriginTracingWaiter {
     public:
@@ -187,23 +211,23 @@ int main() {
   };
   ```
 
-#### ReactAl 
+#### ReactAL 
 ```cpp
-enum class ReactAlErrors {
+enum class ReactALErrors {
   CALLBACK_CAPACITY_EXCEEDED
 };
 
 template<uint64_t CallbackCapacity>
-class ReactAl {
+class ReactAL {
   public:
     template<typename EventOrigin, typename EventType>
-    cxx::expected<ReactAlErrors> attachEvent(
+    cxx::expected<ReactALErrors> assignEvent(
       EventOrigin & origin, const EventType & eventType,
       const cxx::function_ref<void(EventOrigin&)> & callback
     ) noexcept;
 
     template<typename EventOrigin, typename EventType>
-    void detachEvent( EventOrigin & origin, const EventType & eventType );
+    void cancelEvent( EventOrigin & origin, const EventType & eventType );
 };
 
 ```
@@ -212,7 +236,7 @@ class ReactAl {
     bool array. If an entry is true, set it to false and then call the 
     corresponding callback.
 
-#### Class which is attachable to ReactAl 
+#### Class which is attachable to ReactAL 
 
 ```cpp
 class SomeSubscriber {
@@ -223,18 +247,18 @@ class SomeSubscriber {
   // OutOfScopeCallback_t - callback which should be called when SomeSubscriber
   //                        goes out of scope and has to deregister itself from 
   //                        the reactal
-  friend class ReactAl;
+  friend class ReactAL;
   private:
-    void attachCallback(SubscriberEvent event, ConditionVariable & cv, ConditionVariable::index_t & index
+    void enableEvent(SubscriberEvent event, ConditionVariable & cv, ConditionVariable::index_t & index
                         const OutOfScopeCallback_t & callback);
 
-    void detachCallback(SubscriberEvent event);
+    void disableEvent(SubscriberEvent event);
   //...
 };
 ```
 
-The `ReactAl` will call the methods above to attach or detach a condition 
-variable to a class. The methods should be private and the `ReactAl` must then 
+The `ReactAL` will call the methods above to enable or disable a specific event by 
+providing a condition variable. The methods should be private and the `ReactAL` must then 
 be declared as a friend.
 
 ## Open Points
