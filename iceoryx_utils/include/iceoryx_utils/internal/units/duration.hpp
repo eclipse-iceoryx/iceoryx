@@ -308,6 +308,9 @@ class Duration
     inline static constexpr Duration max();
 
   private:
+    template <typename T, typename String>
+    inline static constexpr unsigned long long int positiveValueOrClampToZero(const T value, const String fromMethod);
+
     template <typename T>
     inline constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
     template <typename From, typename To>

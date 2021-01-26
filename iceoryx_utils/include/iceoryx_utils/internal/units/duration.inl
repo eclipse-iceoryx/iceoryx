@@ -20,91 +20,55 @@ namespace iox
 {
 namespace units
 {
-template <typename T>
-constexpr Duration Duration::nanoseconds(const T value) noexcept
+template <typename T, typename String>
+inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value, const String fromMethod)
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
+    static_assert(std::numeric_limits<T>::is_integer, "only integer types are supported");
 
     if (value < 0)
     {
-        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
-        return Duration{0U, 0U};
+        std::clog << fromMethod << ": Clamping negative value '" << value << "' to zero!" << std::endl;
+        return 0U;
     }
-    return operator"" _ns(static_cast<unsigned long long int>(value));
+
+    return static_cast<unsigned long long int>(value);
+}
+
+template <typename T>
+constexpr Duration Duration::nanoseconds(const T value) noexcept
+{
+    return operator"" _ns(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::microseconds(const T value) noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
-    if (value < 0)
-    {
-        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
-        return Duration{0U, 0U};
-    }
-    return operator"" _us(static_cast<unsigned long long int>(value));
+    return operator"" _us(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::milliseconds(const T value) noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
-    if (value < 0)
-    {
-        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
-        return Duration{0U, 0U};
-    }
-    return operator"" _ms(static_cast<unsigned long long int>(value));
+    return operator"" _ms(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::seconds(const T value) noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
-    if (value < 0)
-    {
-        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
-        return Duration{0U, 0U};
-    }
-    return operator"" _s(static_cast<unsigned long long int>(value));
+    return operator"" _s(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::minutes(const T value) noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
-    if (value < 0)
-    {
-        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
-        return Duration{0U, 0U};
-    }
-    return operator"" _m(static_cast<unsigned long long int>(value));
+    return operator"" _m(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::hours(const T value) noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
-    if (value < 0)
-    {
-        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
-        return Duration{0U, 0U};
-    }
-    return operator"" _h(static_cast<unsigned long long int>(value));
+    return operator"" _h(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
 constexpr Duration Duration::days(const T value) noexcept
 {
-    static_assert(std::numeric_limits<T>::is_integer, "only integer are supported");
-
-    if (value < 0)
-    {
-        std::clog << __PRETTY_FUNCTION__ << ": Clampling negative value '" << value << "' to zero!" << std::endl;
-        return Duration{0U, 0U};
-    }
-    return operator"" _d(static_cast<unsigned long long int>(value));
+    return operator"" _d(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
-
 
 inline constexpr Duration::Duration(const SECONDS_TYPE seconds, const NANOSECONDS_TYPE nanoseconds) noexcept
     : m_seconds(seconds)
