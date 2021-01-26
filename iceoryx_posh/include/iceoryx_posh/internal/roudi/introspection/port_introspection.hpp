@@ -162,15 +162,15 @@ class PortIntrospection
         /// @return returns false there is no corresponding capro service and true otherwise
         bool updateConnectionState(const capro::CaproMessage& message) noexcept;
 
-        /// @brief update the connection state identified by the unique port id and the capro id of a given message
-        /// according to the message type (e.g. capro::SUB for a subscription request)
+        /// @brief update the subscriber connection state identified by the unique port id and the capro id of a given
+        /// message according to the message type (e.g. capro::SUB for a subscription request)
         /// @param[in] message capro message to be processed
         /// @param[in] id unique port id
         /// @return false if there is no corresponding capro service or unique port id, otherwise true
         /// @note introduced for identifying the subscriber port whose connection state has to be updated, e.g. if a
         /// subscriber unsubscribes only its connection state should be updated - not the states of all subscribers
         /// which are subscribed to the same topic
-        bool updateConnectionState(const capro::CaproMessage& message, const UniquePortId& id);
+        bool updateSubscriberConnectionState(const capro::CaproMessage& message, const UniquePortId& id);
 
         /// @brief prepare the topic to be send based on the internal connection state of all tracked ports
         /// @param[out] topic data structure to be prepared for sending

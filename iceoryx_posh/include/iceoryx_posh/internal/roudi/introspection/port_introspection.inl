@@ -47,7 +47,7 @@ template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro::CaproMessage& message,
                                                                             const UniquePortId& id)
 {
-    m_portData.updateConnectionState(message, id);
+    m_portData.updateSubscriberConnectionState(message, id);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
@@ -190,9 +190,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateCo
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-inline bool
-PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateConnectionState(const capro::CaproMessage& message,
-                                                                                  const UniquePortId& id)
+inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateSubscriberConnectionState(
+    const capro::CaproMessage& message, const UniquePortId& id)
 {
     const capro::ServiceDescription& service = message.m_serviceDescription;
     capro::CaproMessageType messageType = message.m_type;
