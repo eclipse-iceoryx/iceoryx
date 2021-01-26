@@ -301,7 +301,7 @@ inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcep
 
 inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcept
 {
-    if (*this <= rhs)
+    if (*this < rhs)
     {
         std::clog << __PRETTY_FUNCTION__ << ": Result of subtraction would be negative, clamping to zero!" << std::endl;
         return Duration(0U, 0U);
@@ -314,7 +314,7 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
     }
     else
     {
-        nanoseconds = NANOSECS_PER_SEC - rhs.m_nanoseconds - m_nanoseconds;
+        nanoseconds = NANOSECS_PER_SEC - rhs.m_nanoseconds + m_nanoseconds;
         --seconds;
     }
     return Duration{seconds, nanoseconds};

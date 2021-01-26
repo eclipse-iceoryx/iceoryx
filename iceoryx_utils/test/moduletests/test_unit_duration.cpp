@@ -1446,7 +1446,7 @@ TEST(Duration_test, AddDurationWithDurationsMoreThanOneSecondsResultsInMoreThanO
     EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, AddDurationWithDurationsResultsNotYetInSaturation)
+TEST(Duration_test, AddDurationResultsNotYetInSaturation)
 {
     constexpr DurationFactory EXPECTED_DURATION{std::numeric_limits<DurationFactory::SECONDS_TYPE>::max(),
                                                 NANOSECS_PER_SECOND - 2U};
@@ -1461,35 +1461,135 @@ TEST(Duration_test, AddDurationWithDurationsResultsNotYetInSaturation)
     EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, AddDurationWithDurationsResultsInSaturation)
+TEST(Duration_test, AddDurationResultsInSaturationFromNanoseconds)
 {
-    auto duration = DurationFactory{0U, 1U};
+    auto duration1 =
+        DurationFactory{std::numeric_limits<DurationFactory::SECONDS_TYPE>::max(), NANOSECS_PER_SECOND - 2U};
+    auto duration2 = DurationFactory{0U, 2U};
 
-    auto sut1 = duration + DurationFactory::max();
-    auto sut2 = DurationFactory::max() + duration;
+    auto sut1 = duration1 + duration2;
+    auto sut2 = duration2 + duration1;
 
     EXPECT_THAT(sut1, Eq(DurationFactory::max()));
     EXPECT_THAT(sut2, Eq(DurationFactory::max()));
 }
 
-TEST(Duration_test, SubtractDuration)
+TEST(Duration_test, AddDurationResultsInSaturationFromSeconds)
 {
-    auto time1 = 6_s - 800_ms;
-    auto time2 = 200_ms;
-    auto time3 = 300000_us;
+    auto duration1 =
+        DurationFactory{std::numeric_limits<DurationFactory::SECONDS_TYPE>::max() - 2U, NANOSECS_PER_SECOND - 1U};
+    auto duration2 = DurationFactory{2U, 0U};
 
-    EXPECT_THAT(time1.milliSeconds(), Eq(5200U));
+    auto sut1 = duration1 + duration2;
+    auto sut2 = duration2 + duration1;
 
-    auto result = time1 - time2;
-    EXPECT_EQ(result.milliSeconds(), 5000U);
+    EXPECT_THAT(sut1, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut2, Eq(DurationFactory::max()));
+}
 
-    result = result - time3;
-    EXPECT_EQ(result.microSeconds(), 4700000U);
+TEST(Duration_test, SubstractDurationDoesNotChangeOriginalObject)
+{
+    constexpr Duration EXPECTED_DURATION{13_s + 42_ns};
 
-    auto time4 = 10_s;
+    auto sut1 = EXPECTED_DURATION;
+    auto result1 [[gnu::unused]] = sut1 - 5_s;
 
-    result = result - time4;
-    EXPECT_EQ(result.milliSeconds(), 0U);
+    auto sut2 = EXPECTED_DURATION;
+    auto result2 [[gnu::unused]] = 35_s + sut1;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationWithTwoZeroDurationsResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration1 = 0_s;
+    auto duration2 = 0_s;
+
+    auto sut = duration1 - duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationFromZeroDurationsResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration0 = 0_s;
+    auto duration1 = 10_ns;
+    auto duration2 = 10_s;
+
+    auto sut1 = duration0 - duration1;
+    auto sut2 = duration0 - duration2;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFromNanoseconds)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration1 = 10_ns;
+    auto duration2 = 110_ns;
+
+    auto sut = duration1 - duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFromSeconds)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration1 = DurationFactory{10U, 123U};
+    auto duration2 = DurationFactory{100U, 123U};
+
+    auto sut = duration1 - duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationWithZeroDurationsResultsInOriginaDuration)
+{
+    constexpr DurationFactory EXPECTED_DURATION{10U, 42U};
+    auto duration1 = EXPECTED_DURATION;
+    auto duration2 = 0_s;
+
+    auto sut = duration1 + duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResultsInMoreThanOneSecond)
+{
+    constexpr DurationFactory EXPECTED_DURATION{1U, 36U};
+    auto duration1 = DurationFactory{1U, 73U};
+    auto duration2 = DurationFactory{0U, 37U};
+
+    auto sut = duration1 - duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResultsInLessThanOneSecond)
+{
+    constexpr DurationFactory EXPECTED_DURATION{0U, NANOSECS_PER_SECOND - 36U};
+    auto duration1 = DurationFactory{1U, 37U};
+    auto duration2 = DurationFactory{0U, 73U};
+
+    auto sut = duration1 - duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubstractDurationMoreThanOneSecondWithMoreThanOneSecondResultsInLessThanOneSecond)
+{
+    constexpr DurationFactory EXPECTED_DURATION{0U, 36U};
+    auto duration1 = DurationFactory{1U, 73U};
+    auto duration2 = DurationFactory{1U, 37U};
+
+    auto sut = duration1 - duration2;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
 TEST(Duration_test, MultiplyDurationDoesNotChangeOriginalObject)
