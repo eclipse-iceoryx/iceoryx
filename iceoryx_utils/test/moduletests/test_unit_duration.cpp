@@ -1356,6 +1356,20 @@ TEST(Duration_test, CompareDurationIsNotGreaterThanOrEqualToOther)
 
 // BEGIN ARITHMETIC TESTS
 
+TEST(Duration_test, AddDurationDoesNotChangeOriginalObject)
+{
+    constexpr Duration EXPECTED_DURATION{13_s + 42_ns};
+
+    auto sut1 = EXPECTED_DURATION;
+    auto result1 [[gnu::unused]] = sut1 + 15_s;
+
+    auto sut2 = EXPECTED_DURATION;
+    auto result2 [[gnu::unused]] = 15_s + sut1;
+
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
 TEST(Duration_test, AddDurationWithTwoZeroDurationsResultsInZeroDuration)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
@@ -1439,7 +1453,6 @@ TEST(Duration_test, AddDurationWithDurationsResultsNotYetInSaturation)
     auto duration1 =
         DurationFactory{std::numeric_limits<DurationFactory::SECONDS_TYPE>::max() - 1U, NANOSECS_PER_SECOND - 1U};
     auto duration2 = DurationFactory{0U, NANOSECS_PER_SECOND - 1U};
-    ;
 
     auto sut1 = duration1 + duration2;
     auto sut2 = duration2 + duration1;
@@ -1451,7 +1464,6 @@ TEST(Duration_test, AddDurationWithDurationsResultsNotYetInSaturation)
 TEST(Duration_test, AddDurationWithDurationsResultsInSaturation)
 {
     auto duration = DurationFactory{0U, 1U};
-    ;
 
     auto sut1 = duration + DurationFactory::max();
     auto sut2 = DurationFactory::max() + duration;
@@ -1480,20 +1492,165 @@ TEST(Duration_test, SubtractDuration)
     EXPECT_EQ(result.milliSeconds(), 0U);
 }
 
-TEST(Duration_test, MultiplyDuration)
+TEST(Duration_test, MultiplyDurationDoesNotChangeOriginalObject)
 {
-    auto time = 5_s + 800_ms;
+    constexpr Duration EXPECTED_DURATION{13_s + 42_ns};
 
-    EXPECT_THAT(time * 2, Eq(11_s + 600_ms));
-    EXPECT_THAT(time * 2U, Eq(11_s + 600_ms));
-    EXPECT_THAT(time * 2.95, Eq(17_s + 110_ms));
+    auto sut1 = EXPECTED_DURATION;
+    auto result1 [[gnu::unused]] = sut1 * 0;
 
-    EXPECT_THAT(2 * time, Eq(11_s + 600_ms));
-    EXPECT_THAT(2U * time, Eq(11_s + 600_ms));
-    EXPECT_THAT(2.95 * time, Eq(17_s + 110_ms));
+    auto sut2 = EXPECTED_DURATION;
+    auto result2 [[gnu::unused]] = sut2 * 0;
 
-    EXPECT_THAT(time * -1, Eq(0_s));
-    EXPECT_THAT(time * -1.0, Eq(0_s));
+    EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
+}
+
+template <typename T>
+void multiply(Duration duration, T multiplicator, const Duration expectedDuration)
+{
+    auto sut1 = duration * multiplicator;
+    auto sut2 = multiplicator * duration;
+
+    EXPECT_THAT(sut1, Eq(expectedDuration));
+    EXPECT_THAT(sut2, Eq(expectedDuration));
+}
+
+TEST(Duration_test, MultiplyZeroDurationWithZeroSignedMultiplicatorResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration = 0_s;
+
+    multiply(duration, 0, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyZeroDurationWithZeroUnsignedMultiplicatorResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration = 0_s;
+
+    multiply(duration, 0U, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyZeroDurationWithZeroFloatMultiplicatorResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration = 0_s;
+
+    multiply(duration, 0.0, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationWithZeroSignedMultiplicatorResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration = 1_s + 12_ns;
+
+    multiply(duration, 0, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationWithZeroUnsignedMultiplicatorResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration = 1_s + 12_ns;
+
+    multiply(duration, 0U, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationWithZeroFloatMultiplicatorResultsInZeroDuration)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration = 1_s + 12_ns;
+
+    multiply(duration, 0.0, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationLessThanOneSecondWithSignedResultsInLessThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{36_ns};
+    auto duration = 12_ns;
+
+    multiply(duration, 3, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationLessThanOneSecondWithUnsignedResultsInLessThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{36_ns};
+    auto duration = 12_ns;
+
+    multiply(duration, 3U, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationLessThanOneSecondWithFloatResultsInLessThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{42_ns};
+    auto duration = 12_ns;
+
+    multiply(duration, 3.5, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationLessThanOneSecondWithSignedResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{1_s + 800_ms};
+    auto duration = 600_ms;
+
+    multiply(duration, 3, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationLessThanOneSecondWithUnsignedResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{1_s + 800_ms};
+    auto duration = 600_ms;
+
+    multiply(duration, 3U, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationLessThanOneSecondWithFloatResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{2_s + 100_ms};
+    auto duration = 600_ms;
+
+    multiply(duration, 3.5, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationMoreThanOneSecondWithSignedResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{13_s + 800_ms};
+    auto duration = 4_s + 600_ms;
+
+    multiply(duration, 3, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationMoreThanOneSecondWithUnsignedResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{13_s + 800_ms};
+    auto duration = 4_s + 600_ms;
+
+    multiply(duration, 3U, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationMoreThanOneSecondWithFloatResultsInMoreThanOneSecond)
+{
+    constexpr Duration EXPECTED_DURATION{16_s + 100_ms};
+    auto duration = 4_s + 600_ms;
+
+    multiply(duration, 3.5, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationWithFractionalFloat)
+{
+    constexpr Duration EXPECTED_DURATION{2_s + 300_ms};
+    auto duration = 4_s + 600_ms;
+
+    multiply(duration, 0.5, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, MultiplyDurationWithNegativMultiplicatorResultsInZero)
+{
+    constexpr Duration EXPECTED_DURATION{0_s};
+    auto duration = 4_s + 600_ms;
+
+    multiply(duration, -1, EXPECTED_DURATION);
+    multiply(duration, -1.0, EXPECTED_DURATION);
 }
 
 TEST(Duration_test, MultiplyDurationLessThanOneSecondResultsInMoreNanosecondsThan64BitCanRepresent)
@@ -1520,13 +1677,47 @@ TEST(Duration_test, MultiplyDurationResultsNotYetInSaturation)
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, MultiplyDurationResultsInSaturation)
+TEST(Duration_test, MultiplyDurationResultsInSaturationDueToSeconds)
+{
+    constexpr uint64_t MULTIPLICATOR{1343535617188545797U};
+    constexpr Duration DURATION = 14_s;
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyDurationResultsInSaturationDueToNanoseconds)
 {
     constexpr uint64_t MULTIPLICATOR{1343535617188545797U};
     constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyMaxDurationWithNaNDoubleResultsInMaxDuration)
+{
+    EXPECT_THAT(DurationFactory::max() * NAN, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyMaxDurationWithPosInfDoubleResultsInMaxDuration)
+{
+    EXPECT_THAT(DurationFactory::max() * INFINITY, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyMaxDurationWithNegInfDoubleResultsInZeroDuration)
+{
+    EXPECT_THAT(DurationFactory::max() * (INFINITY * -1.0), Eq(0_ns));
+}
+
+TEST(Duration_test, MultiplyDurationWithMinimalFloatResultsInZero)
+{
+    constexpr float MULTIPLICATOR{std::numeric_limits<float>::min()};
+    constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
+    auto EXPECTED_DURATION = DurationFactory{0U, 0U};
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(EXPECTED_DURATION));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_DURATION));
 }
 
 TEST(Duration_test, MultiplyDurationWithMinimalDoubleResultsInZero)
@@ -1537,6 +1728,52 @@ TEST(Duration_test, MultiplyDurationWithMinimalDoubleResultsInZero)
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(EXPECTED_DURATION));
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, MultiplyMaxDurationWithFloatOneResultsInMaxDuration)
+{
+    EXPECT_THAT(DurationFactory::max() * 1.0, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyMaxDurationWithDoubleOneResultsInMaxDuration)
+{
+    EXPECT_THAT(DurationFactory::max() * 1.0, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToSeconds)
+{
+    constexpr float MULTIPLICATOR{1343535617188545797.0};
+    constexpr Duration DURATION = 14_s;
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToSeconds)
+{
+    constexpr double MULTIPLICATOR{1343535617188545797.0};
+    constexpr Duration DURATION = 14_s;
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToNanoseconds)
+{
+    constexpr float MULTIPLICATOR{1343535617188545797.0};
+    constexpr Duration DURATION = 13_s + 930_ms + 37_ns;
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToNanoseconds)
+{
+    constexpr double MULTIPLICATOR{1343535617188545797.0};
+    constexpr Duration DURATION = 13_s + 930_ms + 37_ns;
+
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
 }
 
 TEST(Duration_test, StreamingOperator)

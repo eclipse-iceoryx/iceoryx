@@ -310,6 +310,8 @@ class Duration
   private:
     template <typename T>
     inline constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
+    template <typename From, typename To>
+    inline constexpr bool wouldCastFromFloatingPointProbablyOverflow(const From floatingPoint) const noexcept;
 
     template <typename T>
     inline constexpr Duration

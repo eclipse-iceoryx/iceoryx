@@ -389,13 +389,41 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     return durationFromSeconds + durationFromNanosecondsLow + durationFromNanosecondsHigh;
 }
 
+
+template <typename From, typename To>
+inline constexpr bool Duration::wouldCastFromFloatingPointProbablyOverflow(const From floatingPoint) const noexcept
+{
+    static_assert(std::is_floating_point<From>::value, "only floating point is allowed");
+
+    // depending on the internal representation this could be either the last value to not cause an overflow
+    // or the first one which causes an overflow;
+    // to be safe, this is handled like causing an overflow which would result in undefined behavior when casting to
+    // SECONDS_TYPE
+    constexpr To SECONDS_BEFORE_LIKELY_OVERFLOW = static_cast<To>(std::numeric_limits<SECONDS_TYPE>::max());
+    return floatingPoint >= SECONDS_BEFORE_LIKELY_OVERFLOW;
+}
+
 template <typename T>
 inline constexpr Duration Duration::fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept
 {
     static_assert(std::is_floating_point<T>::value, "only floating point is allowed");
 
+    if (std::isinf(floatingPointSeconds))
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Multiplication with Inf, clamping to max value!" << std::endl;
+        return Duration::max();
+    }
+
     double secondsFull{0.0};
     double secondsFraction = modf(floatingPointSeconds, &secondsFull);
+
+    if (wouldCastFromFloatingPointProbablyOverflow<T, SECONDS_TYPE>(secondsFull))
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would overflow, clamping to max value!"
+                  << std::endl;
+        return Duration::max();
+    }
+
     return Duration{static_cast<SECONDS_TYPE>(secondsFull),
                     static_cast<NANOSECONDS_TYPE>(secondsFraction * NANOSECS_PER_SEC)};
 }
@@ -406,15 +434,19 @@ Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, 
 {
     // operator*(...) takes care of negative values for rhs
 
+    if (std::isnan(rhs))
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Multiplication with NaN, clamping to max value!" << std::endl;
+        return Duration::max();
+    }
+
     auto durationFromSeconds = fromFloatingPointSeconds(m_seconds * rhs);
 
     auto resultNanoseconds = m_nanoseconds * rhs;
-    auto nanosecondsAsFixedPoint = static_cast<uint64_t>(resultNanoseconds);
 
-    // check if the Duration::nanoseconds method can be used to convert the nanoseconds multiplication into a Duration
-    if (nanosecondsAsFixedPoint < std::numeric_limits<uint64_t>::max())
+    if (!wouldCastFromFloatingPointProbablyOverflow<T, uint64_t>(resultNanoseconds))
     {
-        return durationFromSeconds + Duration::nanoseconds(nanosecondsAsFixedPoint);
+        return durationFromSeconds + Duration::nanoseconds(static_cast<uint64_t>(resultNanoseconds));
     }
 
     // the multiplication result of nanoseconds would exceed the value an uint64_t can represent
