@@ -71,7 +71,7 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeEmptyNodeNameIsSuccess)
     EXPECT_THAT(m_node.getNodeName(),Eq(nodeName));
 }
 
-TEST_F(PoshRuntimeNode_test, VerifyAssignmentOperatorAssignsCorrectNodeName)
+TEST_F(PoshRuntimeNode_test, VerifyAssignmentEqualOperatorAssignsCorrectNodeName)
 {
     const NodeName_t& nodeNewName{"@!~*"};
     Node m_node("Node");
@@ -79,6 +79,15 @@ TEST_F(PoshRuntimeNode_test, VerifyAssignmentOperatorAssignsCorrectNodeName)
     m_node = Node("@!~*");
 
     EXPECT_THAT(m_node.getNodeName(), Eq(nodeNewName));
+}
+
+TEST_F(PoshRuntimeNode_test, VerifyAssignmentMoveOperatorAssignsCorrectNodeName)
+{
+    const NodeName_t& nodeNewName{"Node"};
+
+    Node m_nodeTest = Node("Node");
+
+    EXPECT_THAT(m_nodeTest.getNodeName(), Eq(nodeNewName));
 }
 
 } // namespace test
