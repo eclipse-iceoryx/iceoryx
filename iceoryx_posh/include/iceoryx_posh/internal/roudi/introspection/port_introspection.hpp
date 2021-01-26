@@ -64,11 +64,11 @@ class PortIntrospection
         {
             PublisherInfo() noexcept {};
 
-            PublisherInfo(typename PublisherPort::MemberType_t* const portData)
-                : portData(portData)
-                , process(portData->m_processName)
-                , service(portData->m_serviceDescription)
-                , node(portData->m_nodeName)
+            PublisherInfo(typename PublisherPort::MemberType_t& portData)
+                : portData(&portData)
+                , process(portData.m_processName)
+                , service(portData.m_serviceDescription)
+                , node(portData.m_nodeName)
             {
             }
 
@@ -91,11 +91,11 @@ class PortIntrospection
         {
             SubscriberInfo() noexcept = default;
 
-            SubscriberInfo(typename SubscriberPort::MemberType_t* const portData)
-                : portData(portData)
-                , process(portData->m_processName)
-                , service(portData->m_serviceDescription)
-                , node(portData->m_nodeName)
+            SubscriberInfo(typename SubscriberPort::MemberType_t& portData)
+                : portData(&portData)
+                , process(portData.m_processName)
+                , service(portData.m_serviceDescription)
+                , node(portData.m_nodeName)
             {
             }
 
@@ -109,7 +109,7 @@ class PortIntrospection
         {
             ConnectionInfo() noexcept = default;
 
-            ConnectionInfo(typename SubscriberPort::MemberType_t* const portData)
+            ConnectionInfo(typename SubscriberPort::MemberType_t& portData)
                 : subscriberInfo(portData)
                 , state(ConnectionState::DEFAULT)
             {

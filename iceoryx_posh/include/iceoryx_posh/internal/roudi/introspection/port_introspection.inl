@@ -228,7 +228,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(typenam
     auto service = port.m_serviceDescription;
     auto uniqueId = port.m_uniqueId;
 
-    auto index = m_publisherContainer.add(PublisherInfo(&port));
+    auto index = m_publisherContainer.add(PublisherInfo(port));
     if (index < 0)
     {
         return false;
@@ -288,7 +288,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
     auto service = portData.m_serviceDescription;
     auto uniqueId = portData.m_uniqueId;
 
-    auto index = m_connectionContainer.add(ConnectionInfo(&portData));
+    auto index = m_connectionContainer.add(ConnectionInfo(portData));
     if (index < 0)
     {
         return false;
