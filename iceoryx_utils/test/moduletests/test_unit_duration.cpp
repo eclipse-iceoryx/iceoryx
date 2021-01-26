@@ -1513,4 +1513,25 @@ TEST(Duration_test, MultiplyDurationWithMinimalDoubleResultsInZero)
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_DURATION));
 }
 
+TEST(Duration_test, StreamingOperator)
+{
+    std::stringstream capture;
+    auto clogBuffer = std::clog.rdbuf();
+    std::clog.rdbuf(capture.rdbuf());
+
+    capture.str("");
+    std::clog << 0_s;
+    EXPECT_STREQ(capture.str().c_str(), "0s 0ns");
+
+    capture.str("");
+    std::clog << 42_ns;
+    EXPECT_STREQ(capture.str().c_str(), "0s 42ns");
+
+    capture.str("");
+    std::clog << (13_s + 73_ms + 37_us + 42_ns);
+    EXPECT_STREQ(capture.str().c_str(), "13s 73037042ns");
+
+    std::clog.rdbuf(clogBuffer);
+}
+
 // END ARITHMETIC TESTS

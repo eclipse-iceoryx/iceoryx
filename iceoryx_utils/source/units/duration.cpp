@@ -74,7 +74,7 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
 
 std::ostream& operator<<(std::ostream& stream, const units::Duration& t) noexcept
 {
-    stream << t.m_seconds << "s " << t.m_nanoseconds << "ns ";
+    stream << t.m_seconds << "s " << t.m_nanoseconds << "ns";
     return stream;
 }
 
