@@ -452,22 +452,51 @@ inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept 
 
 inline constexpr Duration operator"" _s(unsigned long long int value) noexcept // PRQA S 48
 {
+    constexpr uint64_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max()};
+    if (value > MAX_SECONDS_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Amount of seconds would overflow Duration, clamping to max value!"
+                  << std::endl;
+        return Duration{std::numeric_limits<uint64_t>::max(), Duration::NANOSECS_PER_SEC - 1U};
+    }
     return Duration{static_cast<uint64_t>(value), 0U};
 }
 
 inline constexpr Duration operator"" _m(unsigned long long int value) noexcept // PRQA S 48
 {
+    constexpr uint64_t MAX_MINUTES_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_MINUTE};
+    if (value > MAX_MINUTES_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Amount of minutes would overflow Duration, clamping to max value!"
+                  << std::endl;
+        return Duration{std::numeric_limits<uint64_t>::max(), Duration::NANOSECS_PER_SEC - 1U};
+    }
     return Duration{static_cast<uint64_t>(value * Duration::SECS_PER_MINUTE), 0U};
 }
 
 inline constexpr Duration operator"" _h(unsigned long long int value) noexcept // PRQA S 48
 {
+    constexpr uint64_t MAX_HOURS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_HOUR};
+    if (value > MAX_HOURS_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Amount of hours would overflow Duration, clamping to max value!"
+                  << std::endl;
+        return Duration{std::numeric_limits<uint64_t>::max(), Duration::NANOSECS_PER_SEC - 1U};
+    }
     return Duration{static_cast<uint64_t>(value * Duration::SECS_PER_HOUR), 0U};
 }
 
 inline constexpr Duration operator"" _d(unsigned long long int value) noexcept // PRQA S 48
 {
-    return Duration{static_cast<uint64_t>(value * Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR), 0U};
+    constexpr uint64_t SECS_PER_DAY{Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR};
+    constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / SECS_PER_DAY};
+    if (value > MAX_DAYS_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Amount of days would overflow Duration, clamping to max value!"
+                  << std::endl;
+        return Duration{std::numeric_limits<uint64_t>::max(), Duration::NANOSECS_PER_SEC - 1U};
+    }
+    return Duration{static_cast<uint64_t>(value * SECS_PER_DAY), 0U};
 }
 
 } // namespace duration_literals
