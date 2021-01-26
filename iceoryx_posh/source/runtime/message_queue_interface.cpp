@@ -317,6 +317,8 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
     switch (regState)
     {
     case RegState::WAIT_FOR_ROUDI:
+        LogError() << "Timeout reaching RouDi. Either no RouDi is running or an app with the name '" << m_appName
+                   << "' is already registered.";
         errorHandler(Error::kMQ_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
     case RegState::SEND_REGISTER_REQUEST:
