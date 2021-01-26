@@ -437,6 +437,6 @@ TEST_F(MqMessage_test, CheckEqualMessageOperatorReturnsTrue)
     MqMessage message2;
     message1.setMessage("asd1,asd2,asd3,asd4,");
     message2.setMessage("asd1,asd2,asd3,asd4,");
-    EXPECT_TRUE(message1==message2);
+    EXPECT_TRUE(message1 == message2);
 }
 #endif

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 
 #include "test.hpp"
 
@@ -28,7 +28,7 @@ namespace test
 {
 class shared_memory_user_test : public Test
 {
-   public:
+  public:
     shared_memory_user_test()
     {
     }
@@ -46,17 +46,15 @@ class shared_memory_user_test : public Test
         SharedMemoryUser ShmUser(doMapSharedMemoryIntoThread, topicSize, segmentId, segmentManagerAddressOffset);
     };
 
-    virtual void TearDown()
-    {
-    };
+    virtual void TearDown(){};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
 };
 
 TEST_F(shared_memory_user_test, ConstructorShmObjectReturnsHasValueTrue)
 {
     auto sut = iox::posix::SharedMemoryObject::create(
-       "/validShmMem", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
-    EXPECT_THAT(sut.has_value(), Eq(true));  
+        "/validShmMem", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
+    EXPECT_THAT(sut.has_value(), Eq(true));
 }
 } // namespace test
 } // namespace iox
