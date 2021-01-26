@@ -480,7 +480,7 @@ TEST_F(PortManager_test, NodeDataOverflow)
     }
 }
 
-TEST_F(PortManager_test, NodeDataDestroy)
+TEST_F(PortManager_test, DestroyNodeDataAndAddNewNodeDataSucceeds)
 {
     iox::ProcessName_t process = "Humuhumunukunukuapua'a";
     iox::NodeName_t node = "Taumatawhakatangihangakoauauotamateaturipukakapikimaungahoronukupokaiwhenuakitanatahu";
@@ -506,7 +506,7 @@ TEST_F(PortManager_test, NodeDataDestroy)
         nodeContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     }
     m_portManager->doDiscovery();
-    nodeContainer.clear(); // These pointers are dangling now
+    nodeContainer.clear();
 
     // so we should be able to get some more now
     for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
