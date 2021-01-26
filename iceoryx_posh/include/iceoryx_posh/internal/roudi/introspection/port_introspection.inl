@@ -177,9 +177,9 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateCo
         return false; // no corresponding capro Id ...
     }
 
-    auto& map = iter->second;
+    auto& innerConnectionMap = iter->second;
 
-    for (auto& pair : map)
+    for (auto& pair : innerConnectionMap)
     {
         auto& connection = m_connectionContainer[pair.second];
         connection.state = getNextState(connection.state, messageType);
@@ -204,10 +204,10 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateSu
         return false; // no corresponding capro Id ...
     }
 
-    auto& map = iter->second;
+    auto& innerConnectionMap = iter->second;
 
-    auto iterInnerMap = map.find(id);
-    if (iterInnerMap == map.end())
+    auto iterInnerMap = innerConnectionMap.find(id);
+    if (iterInnerMap == innerConnectionMap.end())
     {
         return false;
     }
@@ -238,18 +238,18 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(typenam
     if (iter == m_publisherMap.end())
     {
         // service is new, create new map
-        std::map<UniquePortId, typename PublisherContainer::Index_t> map;
-        map.insert(std::make_pair(uniqueId, index));
-        m_publisherMap.insert(std::make_pair(service, map));
+        std::map<UniquePortId, typename PublisherContainer::Index_t> innerPublisherMap;
+        innerPublisherMap.insert(std::make_pair(uniqueId, index));
+        m_publisherMap.insert(std::make_pair(service, innerPublisherMap));
     }
     else
     {
         // service exists, add new entry
-        auto& map = iter->second;
-        auto iter = map.find(uniqueId);
-        if (iter == map.end())
+        auto& innerPublisherMap = iter->second;
+        auto iter = innerPublisherMap.find(uniqueId);
+        if (iter == innerPublisherMap.end())
         {
-            map.insert(std::make_pair(uniqueId, index));
+            innerPublisherMap.insert(std::make_pair(uniqueId, index));
         }
         else
         {
@@ -264,8 +264,8 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(typenam
     auto connIter = m_connectionMap.find(service);
     if (connIter != m_connectionMap.end())
     {
-        auto& map = connIter->second;
-        for (auto& pair : map)
+        auto& innerConnectionMap = connIter->second;
+        for (auto& pair : innerConnectionMap)
         {
             auto& connection = m_connectionContainer[pair.second];
             if (service == connection.subscriberInfo.service)
@@ -299,18 +299,18 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
     if (iter == m_connectionMap.end())
     {
         // service is new, create new map
-        std::map<UniquePortId, typename ConnectionContainer::Index_t> map;
-        map.insert(std::make_pair(uniqueId, index));
-        m_connectionMap.insert(std::make_pair(service, map));
+        std::map<UniquePortId, typename ConnectionContainer::Index_t> innerConnectionMap;
+        innerConnectionMap.insert(std::make_pair(uniqueId, index));
+        m_connectionMap.insert(std::make_pair(service, innerConnectionMap));
     }
     else
     {
         // service exists, add new entry
-        auto& map = iter->second;
-        auto iter = map.find(uniqueId);
-        if (iter == map.end())
+        auto& innerConnectionMap = iter->second;
+        auto iter = innerConnectionMap.find(uniqueId);
+        if (iter == innerConnectionMap.end())
         {
-            map.insert(std::make_pair(uniqueId, index));
+            innerConnectionMap.insert(std::make_pair(uniqueId, index));
         }
         else
         {
@@ -323,8 +323,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
     auto sendIter = m_publisherMap.find(service);
     if (sendIter != m_publisherMap.end())
     {
-        auto& map = sendIter->second;
-        for (auto& iter : map)
+        auto& innerPublisherMap = sendIter->second;
+        for (auto& iter : innerPublisherMap)
         {
             auto publisher = m_publisherContainer.get(iter.second);
             connection.publisherInfo = publisher; // set corresponding publisher if exists
@@ -345,9 +345,9 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePu
         return false;
     }
 
-    auto& map = iter->second;
-    auto iterInnerMap = map.find(port.getUniqueID());
-    if (iterInnerMap == map.end())
+    auto& innerPublisherMap = iter->second;
+    auto iterInnerMap = innerPublisherMap.find(port.getUniqueID());
+    if (iterInnerMap == innerPublisherMap.end())
     {
         return false;
     }
@@ -361,7 +361,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePu
         pair.second->state = ConnectionState::DEFAULT; // connection state is now default
     }
 
-    map.erase(iterInnerMap);
+    innerPublisherMap.erase(iterInnerMap);
     m_publisherContainer.remove(m_publisherIndex);
     setNew(true); // indicates we have to send new data because
                   // something changed
@@ -380,10 +380,10 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSu
         return false; // not found and therefore not removed
     }
 
-    auto& map = iter->second;
-    auto mapIter = map.find(port.getUniqueID());
+    auto& innerConnectionMap = iter->second;
+    auto mapIter = innerConnectionMap.find(port.getUniqueID());
 
-    if (mapIter == map.end())
+    if (mapIter == innerConnectionMap.end())
     {
         return false; // not found and therefore not removed
     }
@@ -402,7 +402,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSu
         }
     }
 
-    map.erase(mapIter);
+    innerConnectionMap.erase(mapIter);
     m_connectionContainer.remove(connectionIndex);
 
     setNew(true);
@@ -476,8 +476,8 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
     int32_t index{0};
     for (auto& pub : m_publisherMap)
     {
-        auto& map = pub.second;
-        for (auto& pair : map)
+        auto& innerPublisherMap = pub.second;
+        for (auto& pair : innerPublisherMap)
         {
             auto m_publisherIndex = pair.second;
             if (m_publisherIndex >= 0)
