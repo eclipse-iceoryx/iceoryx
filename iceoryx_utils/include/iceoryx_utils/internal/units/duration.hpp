@@ -136,11 +136,6 @@ class Duration
 
     // BEGIN CONSTRUCTORS AND ASSIGNMENT
 
-    /// @brief Constructs a Duration from seconds and nanoseconds
-    /// @param[in] seconds portion of the duration
-    /// @param[in] nanoseconds portion of the duration
-    constexpr Duration(const uint64_t seconds, const uint32_t nanoseconds) noexcept;
-
     /// @brief Construct a Duration object from timeval
     /// @param[in] value as timeval
     constexpr explicit Duration(const struct timeval& value) noexcept;
@@ -289,6 +284,29 @@ class Duration
 
     friend std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
 
+    static constexpr uint32_t SECS_PER_MINUTE{60U};
+    static constexpr uint32_t SECS_PER_HOUR{3600U};
+    static constexpr uint32_t HOURS_PER_DAY{24U};
+
+    static constexpr uint32_t MILLISECS_PER_SEC{1000U};
+    static constexpr uint32_t MICROSECS_PER_SEC{MILLISECS_PER_SEC * 1000U};
+
+    static constexpr uint32_t NANOSECS_PER_MICROSEC{1000U};
+    static constexpr uint32_t NANOSECS_PER_MILLISEC{NANOSECS_PER_MICROSEC * 1000U};
+    static constexpr uint32_t NANOSECS_PER_SEC{NANOSECS_PER_MILLISEC * 1000U};
+
+  protected:
+    using SECONDS_TYPE = uint64_t;
+    using NANOSECONDS_TYPE = uint32_t;
+
+    /// @brief Constructs a Duration from seconds and nanoseconds
+    /// @param[in] seconds portion of the duration
+    /// @param[in] nanoseconds portion of the duration
+    /// @note this is protected to be able to use it in unit tests
+    constexpr Duration(const SECONDS_TYPE seconds, const NANOSECONDS_TYPE nanoseconds) noexcept;
+
+    inline static constexpr Duration max();
+
   private:
     template <typename T>
     inline constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
@@ -301,22 +319,9 @@ class Duration
     inline constexpr Duration
     multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
 
-    static constexpr uint32_t SECS_PER_MINUTE{60U};
-    static constexpr uint32_t SECS_PER_HOUR{3600U};
-    static constexpr uint32_t HOURS_PER_DAY{24U};
-
-    static constexpr uint32_t MILLISECS_PER_SEC{1000U};
-    static constexpr uint32_t MICROSECS_PER_SEC{MILLISECS_PER_SEC * 1000U};
-
-    static constexpr uint32_t NANOSECS_PER_MICROSEC{1000U};
-    static constexpr uint32_t NANOSECS_PER_MILLISEC{NANOSECS_PER_MICROSEC * 1000U};
-    static constexpr uint32_t NANOSECS_PER_SEC{NANOSECS_PER_MILLISEC * 1000U};
-
-    static_assert(NANOSECS_PER_SEC == 1000U * MICROSECS_PER_SEC, "Mismatch in calculation for conversion constants!");
-
   private:
-    uint64_t m_seconds{0U};
-    uint32_t m_nanoseconds{0U};
+    SECONDS_TYPE m_seconds{0U};
+    NANOSECONDS_TYPE m_nanoseconds{0U};
 };
 
 /// @brief creates Duration object by multiplying object T with a duration
