@@ -77,21 +77,21 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCtorCreatesServic
                                                      static_cast<uint16_t>(testScope),
                                                      static_cast<uint16_t>(testInterfaceSource));
 
-    ServiceDescription ServiceDescription1 = ServiceDescription(serialObj);
+    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
 
-    EXPECT_THAT(ServiceDescription1.getServiceIDString(), Eq(testService));
-    EXPECT_THAT(ServiceDescription1.getInstanceIDString(), Eq(testInstance));
-    EXPECT_THAT(ServiceDescription1.getEventIDString(), Eq(testEvent));
-    EXPECT_THAT(ServiceDescription1.getServiceID(), Eq(testServiceID));
-    EXPECT_THAT(ServiceDescription1.getInstanceID(), Eq(testInstanceID));
-    EXPECT_THAT(ServiceDescription1.getEventID(), Eq(testEventID));
-    EXPECT_THAT((ServiceDescription1.getClassHash())[0], Eq(testHash[0]));
-    EXPECT_THAT((ServiceDescription1.getClassHash())[1], Eq(testHash[1]));
-    EXPECT_THAT((ServiceDescription1.getClassHash())[2], Eq(testHash[2]));
-    EXPECT_THAT((ServiceDescription1.getClassHash())[3], Eq(testHash[3]));
-    EXPECT_THAT(ServiceDescription1.hasServiceOnlyDescription(), Eq(true));
-    EXPECT_THAT(ServiceDescription1.getScope(), Eq(Scope::INTERNAL));
-    EXPECT_THAT(ServiceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
+    EXPECT_THAT(serviceDescription1.getServiceIDString(), Eq(testService));
+    EXPECT_THAT(serviceDescription1.getInstanceIDString(), Eq(testInstance));
+    EXPECT_THAT(serviceDescription1.getEventIDString(), Eq(testEvent));
+    EXPECT_THAT(serviceDescription1.getServiceID(), Eq(testServiceID));
+    EXPECT_THAT(serviceDescription1.getInstanceID(), Eq(testInstanceID));
+    EXPECT_THAT(serviceDescription1.getEventID(), Eq(testEventID));
+    EXPECT_THAT((serviceDescription1.getClassHash())[0], Eq(testHash[0]));
+    EXPECT_THAT((serviceDescription1.getClassHash())[1], Eq(testHash[1]));
+    EXPECT_THAT((serviceDescription1.getClassHash())[2], Eq(testHash[2]));
+    EXPECT_THAT((serviceDescription1.getClassHash())[3], Eq(testHash[3]));
+    EXPECT_THAT(serviceDescription1.hasServiceOnlyDescription(), Eq(true));
+    EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INTERNAL));
+    EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeSetsTheScopeToInvalid)
@@ -117,9 +117,9 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfB
                                                      true,
                                                      invalidScope);
 
-    ServiceDescription ServiceDescription1 = ServiceDescription(serialObj);
+    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
 
-    EXPECT_THAT(ServiceDescription1.getScope(), Eq(Scope::INVALID));
+    EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INVALID));
 }
 
 TEST_F(ServiceDescription_test,
@@ -148,57 +148,85 @@ TEST_F(ServiceDescription_test,
                                                      static_cast<uint16_t>(testScope),
                                                      invalidInterfaceSource);
 
-    ServiceDescription ServiceDescription1 = ServiceDescription(serialObj);
+    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
 
-    EXPECT_THAT(ServiceDescription1.getSourceInterface(), Eq(Interfaces::INTERFACE_END));
+    EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERFACE_END));
 }
 
-TEST_F(ServiceDescription_test, CtorIDs)
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionCtorWithOnlyIDsCreatesServiceDescriptionWithTheSameServiceEventAndInstanceStringsAsIDs)
 {
-    uint16_t testServiceID = 1;
-    uint16_t testEventID = 2;
-    uint16_t testInstanceID = 3;
-    ServiceDescription csd = ServiceDescription(testServiceID, testEventID, testInstanceID);
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 2U;
+    uint16_t testInstanceID = 3U;
 
-    EXPECT_EQ(csd.getServiceID(), 1);
-    EXPECT_EQ(csd.getEventID(), 2);
-    EXPECT_EQ(csd.getInstanceID(), 3);
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 
-    EXPECT_THAT(csd.getServiceIDString(), StrEq("1"));
-    EXPECT_THAT(csd.getEventIDString(), StrEq("2"));
-    EXPECT_THAT(csd.getInstanceIDString(), StrEq("3"));
-    EXPECT_THAT(csd.isInternal(), Eq(false)); // default should be not internal (backward compatible)
+    EXPECT_THAT(std::to_string(serviceDescription1.getServiceID()), serviceDescription1.getServiceIDString());
+    EXPECT_THAT(std::to_string(serviceDescription1.getEventID()), serviceDescription1.getEventIDString());
+    EXPECT_THAT(std::to_string(serviceDescription1.getInstanceID()), serviceDescription1.getInstanceIDString());
 }
 
-TEST_F(ServiceDescription_test, CtorNoParams)
+TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheIDsAndStringsToZero)
 {
-    ServiceDescription csd = ServiceDescription();
+    ServiceDescription serviceDescription1 = ServiceDescription();
 
-    EXPECT_EQ(csd.getServiceID(), 0);
-    EXPECT_EQ(csd.getEventID(), 0);
-    EXPECT_EQ(csd.getInstanceID(), 0);
-
-    EXPECT_THAT(csd.getServiceIDString(), StrEq("0"));
-    EXPECT_THAT(csd.getEventIDString(), StrEq("0"));
-    EXPECT_THAT(csd.getInstanceIDString(), StrEq("0"));
+    EXPECT_EQ(serviceDescription1.getServiceID(), 0);
+    EXPECT_EQ(serviceDescription1.getEventID(), 0);
+    EXPECT_EQ(serviceDescription1.getInstanceID(), 0);
+    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq("0"));
+    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq("0"));
+    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq("0"));
 }
 
-TEST_F(ServiceDescription_test, CtorIDStrings)
+TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescriptionWithValuesPassedToTheCtor)
+{
+    IdString_t testService("1");
+    IdString_t testInstance("2");
+    IdString_t testEvent("3");
+    ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
+
+    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq("1"));
+    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq("2"));
+    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq("3"));
+    EXPECT_EQ(uint16_t(1), serviceDescription1.getServiceID());
+    EXPECT_EQ(uint16_t(2), serviceDescription1.getInstanceID());
+    EXPECT_EQ(uint16_t(3), serviceDescription1.getEventID());
+    EXPECT_EQ(uint32_t(1), serviceDescription1.getClassHash()[0]);
+    EXPECT_EQ(uint32_t(2), serviceDescription1.getClassHash()[1]);
+    EXPECT_EQ(uint32_t(3), serviceDescription1.getClassHash()[2]);
+    EXPECT_EQ(uint32_t(4), serviceDescription1.getClassHash()[3]);
+}
+TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithNonIntegerStringValuesSetTheIDsToInvalid)
 {
     IdString_t testService("Service");
     IdString_t testInstance("Instance");
     IdString_t testEvent("Event");
     ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
-    ServiceDescription csd = ServiceDescription(testService, testInstance, testEvent, testHash);
 
-    EXPECT_THAT(csd.getServiceIDString(), StrEq("Service"));
-    EXPECT_THAT(csd.getInstanceIDString(), StrEq("Instance"));
-    EXPECT_THAT(csd.getEventIDString(), StrEq("Event"));
-    EXPECT_EQ(uint32_t(1), csd.getClassHash()[0]);
-    EXPECT_EQ(uint32_t(2), csd.getClassHash()[1]);
-    EXPECT_EQ(uint32_t(3), csd.getClassHash()[2]);
-    EXPECT_EQ(uint32_t(4), csd.getClassHash()[3]);
+    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
+
+    EXPECT_EQ(InvalidID, serviceDescription1.getServiceID());
+    EXPECT_EQ(InvalidID, serviceDescription1.getInstanceID());
+    EXPECT_EQ(InvalidID, serviceDescription1.getEventID());
 }
+
+TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithOutOfBoundaryIntegerStringValuesSetTheIDsToInvalid)
+{
+    IdString_t testService("65536");
+    IdString_t testInstance("65536");
+    IdString_t testEvent("65536");
+    ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
+
+    EXPECT_EQ(InvalidID, serviceDescription1.getServiceID());
+    EXPECT_EQ(InvalidID, serviceDescription1.getInstanceID());
+    EXPECT_EQ(InvalidID, serviceDescription1.getEventID());
+}
+
 
 TEST_F(ServiceDescription_test, operatorEq)
 {
