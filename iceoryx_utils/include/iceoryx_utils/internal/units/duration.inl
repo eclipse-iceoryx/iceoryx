@@ -20,6 +20,38 @@ namespace iox
 {
 namespace units
 {
+inline constexpr Duration::Duration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
+    : m_seconds(seconds)
+    , m_nanoseconds(nanoseconds)
+{
+    if (nanoseconds >= NANOSECS_PER_SEC)
+    {
+        auto additionalSeconds = nanoseconds / NANOSECS_PER_SEC;
+        if (std::numeric_limits<Seconds_t>::max() - additionalSeconds < m_seconds)
+        {
+            std::clog << __PRETTY_FUNCTION__
+                      << ": Applied values are out of range and would overflow, clamping to max value!" << std::endl;
+            m_seconds = std::numeric_limits<Seconds_t>::max();
+            m_nanoseconds = NANOSECS_PER_SEC - 1U;
+        }
+        else
+        {
+            m_seconds += additionalSeconds;
+            m_nanoseconds = m_nanoseconds % NANOSECS_PER_SEC;
+        }
+    }
+}
+
+inline constexpr Duration Duration::createDuration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
+{
+    return Duration(seconds, nanoseconds);
+}
+
+inline constexpr Duration Duration::max() noexcept
+{
+    return Duration{std::numeric_limits<Seconds_t>::max(), NANOSECS_PER_SEC - 1U};
+}
+
 template <typename T, typename String>
 inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value,
                                                                              const String fromMethod) noexcept
@@ -71,33 +103,6 @@ constexpr Duration Duration::days(const T value) noexcept
     return operator"" _d(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 
-inline constexpr Duration::Duration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
-    : m_seconds(seconds)
-    , m_nanoseconds(nanoseconds)
-{
-    if (nanoseconds >= NANOSECS_PER_SEC)
-    {
-        auto additionalSeconds = nanoseconds / NANOSECS_PER_SEC;
-        if (std::numeric_limits<Seconds_t>::max() - additionalSeconds < m_seconds)
-        {
-            std::clog << __PRETTY_FUNCTION__
-                      << ": Applied values are out of range and would overflow, clamping to max value!" << std::endl;
-            m_seconds = std::numeric_limits<Seconds_t>::max();
-            m_nanoseconds = NANOSECS_PER_SEC - 1U;
-        }
-        else
-        {
-            m_seconds += additionalSeconds;
-            m_nanoseconds = m_nanoseconds % NANOSECS_PER_SEC;
-        }
-    }
-}
-
-inline constexpr Duration Duration::max() noexcept
-{
-    return Duration{std::numeric_limits<Seconds_t>::max(), NANOSECS_PER_SEC - 1U};
-}
-
 inline constexpr Duration::Duration(const struct timeval& value) noexcept
     : Duration(static_cast<Seconds_t>(value.tv_sec), static_cast<Nanoseconds_t>(value.tv_usec) * NANOSECS_PER_MICROSEC)
 {
@@ -129,11 +134,6 @@ inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexc
     return *this;
 }
 
-inline constexpr Duration Duration::createDuration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
-{
-    return Duration(seconds, nanoseconds);
-}
-
 inline constexpr uint64_t Duration::nanoSeconds() const noexcept
 {
     constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Seconds_t>::max() / NANOSECS_PER_SEC};
@@ -156,7 +156,8 @@ inline constexpr uint64_t Duration::microSeconds() const noexcept
     constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Seconds_t>::max() / MICROSECS_PER_SEC};
     constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<Seconds_t>::max() % MICROSECS_PER_SEC)
                                                             * NANOSECS_PER_MICROSEC};
-    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
+        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
@@ -173,7 +174,8 @@ inline constexpr uint64_t Duration::milliSeconds() const noexcept
     constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Seconds_t>::max() / MILLISECS_PER_SEC};
     constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<Seconds_t>::max() % MILLISECS_PER_SEC)
                                                             * NANOSECS_PER_MILLISEC};
-    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
+        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
