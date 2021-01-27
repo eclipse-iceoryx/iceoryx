@@ -81,11 +81,23 @@ TEST_F(PoshRuntimeNode_test, VerifyAssignmentEqualOperatorAssignsCorrectNodeName
     EXPECT_THAT(m_node.getNodeName(), Eq(nodeNewName));
 }
 
+TEST_F(PoshRuntimeNode_test, VerifyAssignmentEqualOperatorAssignsSameNodeName)
+{
+    const NodeName_t& nodeNewName{"Node"};
+    Node m_node("Node");
+
+    m_node = std::move(m_node);
+
+    EXPECT_THAT(m_node.getNodeName(), Eq(nodeNewName));
+}
+
 TEST_F(PoshRuntimeNode_test, VerifyAssignmentMoveOperatorAssignsCorrectNodeName)
 {
     const NodeName_t& nodeNewName{"Node"};
 
-    Node m_nodeTest = Node("Node");
+    Node m_node("Node");
+
+    Node m_nodeTest (std::move(m_node));
 
     EXPECT_THAT(m_nodeTest.getNodeName(), Eq(nodeNewName));
 }
