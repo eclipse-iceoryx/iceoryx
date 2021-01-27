@@ -305,6 +305,8 @@ class Duration
     /// @note this is protected to be able to use it in unit tests
     constexpr Duration(const SECONDS_TYPE seconds, const NANOSECONDS_TYPE nanoseconds) noexcept;
 
+    static constexpr Duration createDuration(const SECONDS_TYPE seconds, const NANOSECONDS_TYPE nanoseconds) noexcept;
+
     inline static constexpr Duration max();
 
   private:
@@ -317,12 +319,12 @@ class Duration
     inline constexpr bool wouldCastFromFloatingPointProbablyOverflow(const From floatingPoint) const noexcept;
 
     template <typename T>
-    inline constexpr Duration
-    multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept;
+    inline constexpr Duration multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const
+        noexcept;
 
     template <typename T>
-    inline constexpr Duration
-    multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
+    inline constexpr Duration multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const
+        noexcept;
 
   private:
     SECONDS_TYPE m_seconds{0U};

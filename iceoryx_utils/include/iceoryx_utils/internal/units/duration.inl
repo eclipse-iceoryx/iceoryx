@@ -129,12 +129,19 @@ inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexc
     return *this;
 }
 
+inline constexpr Duration Duration::createDuration(const SECONDS_TYPE seconds,
+                                                   const NANOSECONDS_TYPE nanoseconds) noexcept
+{
+    return Duration(seconds, nanoseconds);
+}
+
 inline constexpr uint64_t Duration::nanoSeconds() const noexcept
 {
     constexpr SECONDS_TYPE MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<SECONDS_TYPE>::max() / NANOSECS_PER_SEC};
     constexpr NANOSECONDS_TYPE MAX_NANOSECONDS_BEFORE_OVERFLOW{std::numeric_limits<SECONDS_TYPE>::max()
                                                                % NANOSECS_PER_SEC};
-    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
+        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
@@ -393,8 +400,8 @@ inline constexpr Duration Duration::fromFloatingPointSeconds(const T floatingPoi
 }
 
 template <typename T>
-inline constexpr Duration
-Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
+inline constexpr Duration Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const
+    noexcept
 {
     // operator*(...) takes care of negative values for rhs
 
