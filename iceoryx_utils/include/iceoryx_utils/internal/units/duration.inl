@@ -21,7 +21,7 @@ namespace iox
 namespace units
 {
 template <typename T, typename String>
-inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value, const String fromMethod)
+inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value, const String fromMethod) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer types are supported");
 
@@ -92,7 +92,7 @@ inline constexpr Duration::Duration(const SECONDS_TYPE seconds, const NANOSECOND
     }
 }
 
-inline constexpr Duration Duration::max()
+inline constexpr Duration Duration::max() noexcept
 {
     return Duration{std::numeric_limits<SECONDS_TYPE>::max(), NANOSECS_PER_SEC - 1U};
 }

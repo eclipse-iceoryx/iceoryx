@@ -221,6 +221,7 @@ class Duration
     /// @attention since negative durations are not allowed, the duration will be capped to 0
     /// @note There is no explicit division operator! This can be achieved by multiplication with the inverse of the
     /// divisor.
+    /// @note Multiplication with NaN and +Inf results in a saturated max duration
     template <typename T>
     constexpr Duration operator*(const T& rhs) const noexcept;
 
@@ -305,26 +306,26 @@ class Duration
     /// @note this is protected to be able to use it in unit tests
     constexpr Duration(const SECONDS_TYPE seconds, const NANOSECONDS_TYPE nanoseconds) noexcept;
 
+    /// @note this is factory method is necessary to build with msvc due to issues calling a protected constexpr ctor
+    /// from public methods
     static constexpr Duration createDuration(const SECONDS_TYPE seconds, const NANOSECONDS_TYPE nanoseconds) noexcept;
 
-    inline static constexpr Duration max();
+    static constexpr Duration max() noexcept;
 
   private:
     template <typename T, typename String>
-    inline static constexpr unsigned long long int positiveValueOrClampToZero(const T value, const String fromMethod);
+    static constexpr unsigned long long int positiveValueOrClampToZero(const T value, const String fromMethod) noexcept;
 
     template <typename T>
-    inline constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
+    constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
     template <typename From, typename To>
-    inline constexpr bool wouldCastFromFloatingPointProbablyOverflow(const From floatingPoint) const noexcept;
+    constexpr bool wouldCastFromFloatingPointProbablyOverflow(const From floatingPoint) const noexcept;
 
     template <typename T>
-    inline constexpr Duration multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const
-        noexcept;
+    constexpr Duration multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept;
 
     template <typename T>
-    inline constexpr Duration multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const
-        noexcept;
+    constexpr Duration multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
 
   private:
     SECONDS_TYPE m_seconds{0U};

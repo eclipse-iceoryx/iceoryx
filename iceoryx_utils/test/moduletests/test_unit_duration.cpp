@@ -1760,8 +1760,8 @@ TEST(Duration_test, MultiplyDurationMoreThanOneSecondWithFloatResultsInMoreThanO
 
 TEST(Duration_test, MultiplyDurationWithFractionalFloat)
 {
-    constexpr Duration EXPECTED_DURATION{2_s + 300_ms};
-    auto duration = 4_s + 600_ms;
+    constexpr Duration EXPECTED_DURATION{2_s + 800_ms};
+    auto duration = 5_s + 600_ms;
 
     multiply(duration, 0.5, EXPECTED_DURATION);
 }
