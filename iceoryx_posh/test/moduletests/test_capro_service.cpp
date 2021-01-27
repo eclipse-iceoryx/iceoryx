@@ -247,18 +247,134 @@ TEST_F(ServiceDescription_test, ServiceDescriptionCtorWithServiceStringAndInstan
     EXPECT_TRUE(serviceDescription1.hasServiceOnlyDescription());
 }
 
-
-TEST_F(ServiceDescription_test, operatorEq)
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithAnyServiceAnyInstanceAnyEventIDsAreEqual)
 {
-    EXPECT_TRUE(csd1 == csd1Eq);
-    EXPECT_TRUE(csd2 == csd2Eq);
-    EXPECT_TRUE(csd3 == csd3Eq);
-    EXPECT_TRUE(csd4 == csd4Eq);
+    uint16_t testServiceID = iox::capro::AnyService;
+    uint16_t testEventID = iox::capro::AnyEvent;
+    uint16_t testInstanceID = iox::capro::AnyInstance;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+    ServiceDescription serviceDescription2 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 
-    EXPECT_FALSE(csd1 == csd1Ne);
-    EXPECT_FALSE(csd2 == csd2Ne);
-    EXPECT_FALSE(csd3 == csd3Ne);
-    EXPECT_FALSE(csd4 == csd4Ne);
+    EXPECT_TRUE(serviceDescription1 == serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionWithAnyServiceAnyInstanceAnyEventIDAndServiceDescriptionWithValidIDsAreEqual)
+{
+    uint16_t testServiceID1 = 1U;
+    uint16_t testEventID1 = 2U;
+    uint16_t testInstanceID1 = 3U;
+    uint16_t testServiceID2 = iox::capro::AnyService;
+    uint16_t testEventID2 = iox::capro::AnyEvent;
+    uint16_t testInstanceID2 = iox::capro::AnyInstance;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID1, testEventID1, testInstanceID1);
+    ServiceDescription serviceDescription2 = ServiceDescription(testServiceID2, testEventID2, testInstanceID2);
+
+    EXPECT_TRUE(serviceDescription1 == serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidServiceIDsAreNotEqual)
+{
+    uint16_t testServiceID1 = 1U;
+    uint16_t testEventID1 = 2U;
+    uint16_t testInstanceID1 = 3U;
+    uint16_t testServiceID2 = 4U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID1, testEventID1, testInstanceID1);
+    ServiceDescription serviceDescription2 = ServiceDescription(testServiceID2, testEventID1, testInstanceID1);
+
+    EXPECT_FALSE(serviceDescription1 == serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidEventIDsAreNotEqual)
+{
+    uint16_t testServiceID1 = 1U;
+    uint16_t testEventID1 = 2U;
+    uint16_t testInstanceID1 = 3U;
+    uint16_t testEventID2 = 4U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID1, testEventID1, testInstanceID1);
+    ServiceDescription serviceDescription2 = ServiceDescription(testServiceID1, testEventID2, testInstanceID1);
+
+    EXPECT_FALSE(serviceDescription1 == serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentButValidInstanceIDsAreNotEqual)
+{
+    uint16_t testServiceID1 = 1U;
+    uint16_t testEventID1 = 2U;
+    uint16_t testInstanceID1 = 3U;
+    uint16_t testInstanceID2 = 4U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID1, testEventID1, testInstanceID1);
+    ServiceDescription serviceDescription2 = ServiceDescription(testServiceID1, testEventID1, testInstanceID2);
+
+    EXPECT_FALSE(serviceDescription1 == serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentAndValidServiceInstanceEventIDsAreNotEqual)
+{
+    uint16_t testServiceID1 = 1U;
+    uint16_t testEventID1 = 2U;
+    uint16_t testInstanceID1 = 3U;
+    uint16_t testServiceID2 = 4U;
+    uint16_t testEventID2 = 5U;
+    uint16_t testInstanceID2 = 6U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID1, testEventID1, testInstanceID1);
+    ServiceDescription serviceDescription2 = ServiceDescription(testServiceID2, testEventID2, testInstanceID2);
+
+    EXPECT_FALSE(serviceDescription1 == serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentInstanceStringsAreNotEqual)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 2U;
+    uint16_t testInstanceID = 3U;
+    IdString_t testService = "1";
+    IdString_t testEvent = "2";
+    IdString_t testInstance = "instance";
+    ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
+    auto serialObj = iox::cxx::Serialization::create(testService,
+                                                     testInstance,
+                                                     testEvent,
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+    ServiceDescription serviceDescription2 = ServiceDescription(serialObj);
+
+    EXPECT_FALSE(serviceDescription1 == serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentEventStringsAreNotEqual)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 2U;
+    uint16_t testInstanceID = 3U;
+    IdString_t testService = "1";
+    IdString_t testEvent = "event";
+    IdString_t testInstance = "3";
+    ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
+    auto serialObj = iox::cxx::Serialization::create(testService,
+                                                     testInstance,
+                                                     testEvent,
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+    ServiceDescription serviceDescription2 = ServiceDescription(serialObj);
+
+    EXPECT_FALSE(serviceDescription1 == serviceDescription2);
 }
 
 TEST_F(ServiceDescription_test, operatorNe)
