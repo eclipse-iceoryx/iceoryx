@@ -52,34 +52,105 @@ class ServiceDescription_test : public Test
     void TearDown(){};
 };
 
-TEST_F(ServiceDescription_test, CtorSerial)
+TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCtorCreatesServiceDescriptionWithValuesPassedToTheCtor)
 {
     ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
-    auto serialObj = iox::cxx::Serialization::create(service1.c_str(),
-                                                     instance1.c_str(),
-                                                     event1.c_str(),
-                                                     1,
-                                                     2,
-                                                     3,
+    IdString_t testService{"Service"};
+    IdString_t testInstance{"Instance"};
+    IdString_t testEvent{"Event"};
+    uint16_t testServiceID = 1U;
+    uint16_t testInstanceID = 2U;
+    uint16_t testEventID = 3U;
+    Scope testScope = Scope::INTERNAL;
+    Interfaces testInterfaceSource = Interfaces::INTERNAL;
+    auto serialObj = iox::cxx::Serialization::create(testService.c_str(),
+                                                     testInstance.c_str(),
+                                                     testEvent.c_str(),
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
                                                      testHash[0],
                                                      testHash[1],
                                                      testHash[2],
                                                      testHash[3],
-                                                     true);
-    ServiceDescription csd = ServiceDescription(serialObj);
-    csd.setInternal();
-    EXPECT_THAT(csd.getServiceIDString(), Eq(service1));
-    EXPECT_THAT(csd.getInstanceIDString(), Eq(instance1));
-    EXPECT_THAT(csd.getEventIDString(), Eq(event1));
-    EXPECT_THAT(csd.getServiceID(), Eq(1));
-    EXPECT_THAT(csd.getInstanceID(), Eq(2));
-    EXPECT_THAT(csd.getEventID(), Eq(3));
-    EXPECT_THAT((csd.getClassHash())[0], Eq(testHash[0]));
-    EXPECT_THAT((csd.getClassHash())[1], Eq(testHash[1]));
-    EXPECT_THAT((csd.getClassHash())[2], Eq(testHash[2]));
-    EXPECT_THAT((csd.getClassHash())[3], Eq(testHash[3]));
-    EXPECT_THAT(csd.hasServiceOnlyDescription(), Eq(true));
-    EXPECT_THAT(csd.isInternal(), Eq(true));
+                                                     true,
+                                                     static_cast<uint16_t>(testScope),
+                                                     static_cast<uint16_t>(testInterfaceSource));
+
+    ServiceDescription ServiceDescription1 = ServiceDescription(serialObj);
+
+    EXPECT_THAT(ServiceDescription1.getServiceIDString(), Eq(testService));
+    EXPECT_THAT(ServiceDescription1.getInstanceIDString(), Eq(testInstance));
+    EXPECT_THAT(ServiceDescription1.getEventIDString(), Eq(testEvent));
+    EXPECT_THAT(ServiceDescription1.getServiceID(), Eq(testServiceID));
+    EXPECT_THAT(ServiceDescription1.getInstanceID(), Eq(testInstanceID));
+    EXPECT_THAT(ServiceDescription1.getEventID(), Eq(testEventID));
+    EXPECT_THAT((ServiceDescription1.getClassHash())[0], Eq(testHash[0]));
+    EXPECT_THAT((ServiceDescription1.getClassHash())[1], Eq(testHash[1]));
+    EXPECT_THAT((ServiceDescription1.getClassHash())[2], Eq(testHash[2]));
+    EXPECT_THAT((ServiceDescription1.getClassHash())[3], Eq(testHash[3]));
+    EXPECT_THAT(ServiceDescription1.hasServiceOnlyDescription(), Eq(true));
+    EXPECT_THAT(ServiceDescription1.getScope(), Eq(Scope::INTERNAL));
+    EXPECT_THAT(ServiceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeSetsTheScopeToInvalid)
+{
+    ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
+    IdString_t testService{"Service"};
+    IdString_t testInstance{"Instance"};
+    IdString_t testEvent{"Event"};
+    uint16_t testServiceID = 1U;
+    uint16_t testInstanceID = 2U;
+    uint16_t testEventID = 3U;
+    uint16_t invalidScope = 3U;
+    auto serialObj = iox::cxx::Serialization::create(testService.c_str(),
+                                                     testInstance.c_str(),
+                                                     testEvent.c_str(),
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true,
+                                                     invalidScope);
+
+    ServiceDescription ServiceDescription1 = ServiceDescription(serialObj);
+
+    EXPECT_THAT(ServiceDescription1.getScope(), Eq(Scope::INVALID));
+}
+
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceSetsTheInterfaceSourceToInterfaceEnd)
+{
+    ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
+    IdString_t testService{"Service"};
+    IdString_t testInstance{"Instance"};
+    IdString_t testEvent{"Event"};
+    uint16_t testServiceID = 1U;
+    uint16_t testInstanceID = 2U;
+    uint16_t testEventID = 3U;
+    uint16_t testScope = 2U;
+    uint16_t invalidInterfaceSource = 10U;
+    auto serialObj = iox::cxx::Serialization::create(testService.c_str(),
+                                                     testInstance.c_str(),
+                                                     testEvent.c_str(),
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true,
+                                                     static_cast<uint16_t>(testScope),
+                                                     invalidInterfaceSource);
+
+    ServiceDescription ServiceDescription1 = ServiceDescription(serialObj);
+
+    EXPECT_THAT(ServiceDescription1.getSourceInterface(), Eq(Interfaces::INTERFACE_END));
 }
 
 TEST_F(ServiceDescription_test, CtorIDs)
