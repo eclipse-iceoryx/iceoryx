@@ -227,6 +227,26 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithOutOfBoundaryInt
     EXPECT_EQ(InvalidID, serviceDescription1.getEventID());
 }
 
+TEST_F(ServiceDescription_test, ServiceDescriptionCtorWithServiceIDAndInstanceIDSetsHasServiceDescriptionTrue)
+{
+    uint16_t testService = 1U;
+    uint16_t testInstance = 2U;
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance);
+
+    EXPECT_TRUE(serviceDescription1.hasServiceOnlyDescription());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionCtorWithServiceStringAndInstanceStringSetsHasServiceDescriptionTrue)
+{
+    IdString_t testService("Service");
+    IdString_t testInstance("Instance");
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance);
+
+    EXPECT_TRUE(serviceDescription1.hasServiceOnlyDescription());
+}
+
 
 TEST_F(ServiceDescription_test, operatorEq)
 {
