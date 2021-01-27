@@ -156,8 +156,8 @@ TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::cxx::error<iox::popo::ChunkReceiveError>(
-            iox::popo::ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
+        .WillOnce(Return(ByMove(iox::cxx::error<iox::popo::ChunkReceiveResult>(
+            iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
     // ===== Test ===== //
     auto result = sut.take();
     // ===== Verify ===== //

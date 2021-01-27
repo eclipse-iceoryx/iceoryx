@@ -45,7 +45,7 @@ class MockSubscriberPortUser
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
     MOCK_METHOD0(
         tryGetChunk,
-        iox::cxx::expected<iox::cxx::optional<const iox::mepoo::ChunkHeader*>, iox::popo::ChunkReceiveError>());
+        iox::cxx::expected<iox::cxx::optional<const iox::mepoo::ChunkHeader*>, iox::popo::ChunkReceiveResult>());
     MOCK_METHOD1(releaseChunk, void(iox::mepoo::ChunkHeader*));
     MOCK_METHOD0(releaseQueuedChunks, void());
     MOCK_CONST_METHOD0(hasNewChunks, bool());
@@ -76,7 +76,7 @@ class MockBaseSubscriber
     MOCK_CONST_METHOD0(hasSamples, bool());
     MOCK_METHOD0(hasMissedSamples, bool());
     MOCK_METHOD0_T(take,
-                   iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError>());
+                   iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveResult>());
     MOCK_METHOD0(releaseQueuedSamples, void());
     MOCK_METHOD1(invalidateTrigger, bool(const uint64_t));
     MOCK_METHOD4(
@@ -86,4 +86,5 @@ class MockBaseSubscriber
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
     MOCK_METHOD1(disableEvent, void(const iox::popo::SubscriberEvent));
+    MOCK_METHOD1(releaseChunk, void(const void*));
 };
