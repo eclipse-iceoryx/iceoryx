@@ -287,7 +287,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherMaxCapacity)
 
     // assert
     ASSERT_NE(nullptr, publisherPort);
-    EXPECT_EQ(publisherPort->m_chunkSenderData.m_historyCapacity, 16U);
+    EXPECT_EQ(publisherPort->m_chunkSenderData.m_historyCapacity, iox::MAX_PUBLISHER_HISTORY);
 }
 
 TEST_F(PoshRuntime_test, getMiddlewarePublisherDefaultArgs)
