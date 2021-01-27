@@ -83,12 +83,14 @@ class BaseSubscriber
     ///
     void unsubscribe() noexcept;
 
+    // iox-#408 replace
     ///
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
     bool hasSamples() const noexcept;
 
+    // iox-#408 replace
     ///
     /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
     /// @return True if samples have been missed.
@@ -96,17 +98,33 @@ class BaseSubscriber
     ///
     bool hasMissedSamples() noexcept;
 
+    // iox-#408 remove
     ///
     /// @brief take Take the a sample from the top of the receive queue.
     /// @return An expected containing populated optional if there is a sample available, otherwise empty.
     /// @details The memory loan for the sample is automatically released when it goes out of scope.
     ///
-    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> take() noexcept;
+    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveResult> take() noexcept;
 
+    ///
+    /// @brief takeChunk Take the chunk from the top of the receive queue.
+    /// @return The header of the chunk taken.
+    /// @details No automatic cleaunp of the associated chunk is performed.
+    ///
+    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
+
+    // iox-#408 replace
     ///
     /// @brief releaseQueuedSamples Releases any unread queued samples.
     ///
     void releaseQueuedSamples() noexcept;
+
+    ///
+    /// @brief releaseChunk Releases the chunk associated with the header pointer.
+    /// @details The chunk must have been previosly provided by takeChunk and
+    ///          not have been already released.
+    ///
+    void releaseChunk(const mepoo::ChunkHeader* header) noexcept;
 
     template <uint64_t Capacity>
     friend class WaitSet;

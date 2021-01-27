@@ -18,11 +18,7 @@
 using namespace ::testing;
 using ::testing::Return;
 
-#define private public
-#define protected public
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
-#undef private
-#undef protected
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "mocks/chunk_mock.hpp"
@@ -169,11 +165,8 @@ TEST_F(ProcessIntrospection_test, thread)
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), offer()).Times(1);
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(Between(2, 8));
 
-        std::chrono::milliseconds& sendIntervalSleep =
-            const_cast<std::chrono::milliseconds&>(introspectionAccess.m_sendIntervalSleep);
-        sendIntervalSleep = std::chrono::milliseconds(10);
-
-        introspectionAccess.setSendInterval(10);
+        using namespace iox::units::duration_literals;
+        introspectionAccess.setSendInterval(10_ms);
         introspectionAccess.run();
 
         for (size_t i = 0; i < 3; ++i)

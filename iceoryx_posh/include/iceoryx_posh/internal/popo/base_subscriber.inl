@@ -83,13 +83,13 @@ inline bool BaseSubscriber<T, Subscriber, port_t>::hasMissedSamples() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError>
+inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveResult>
 BaseSubscriber<T, Subscriber, port_t>::take() noexcept
 {
     auto result = m_port.tryGetChunk();
     if (result.has_error())
     {
-        return cxx::error<ChunkReceiveError>(result.get_error());
+        return cxx::error<ChunkReceiveResult>(result.get_error());
     }
     else
     {
@@ -109,6 +109,28 @@ BaseSubscriber<T, Subscriber, port_t>::take() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
+inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult>
+BaseSubscriber<T, Subscriber, port_t>::takeChunk() noexcept
+{
+    auto result = m_port.tryGetChunk();
+    if (result.has_error())
+    {
+        return cxx::error<ChunkReceiveResult>(result.get_error());
+    }
+    else
+    {
+        auto maybeHeader = result.value();
+        if (maybeHeader.has_value())
+        {
+            return cxx::success<const mepoo::ChunkHeader*>(maybeHeader.value());
+        }
+    }
+    ///@todo: optimization - we could move this to a tryGetChunk but then we should remove expected<optional<>> there in
+    /// the call chain
+    return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
+}
+
+template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexcept
 {
     m_port.releaseQueuedChunks();
@@ -122,6 +144,12 @@ inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint6
         m_port.unsetConditionVariable();
         m_trigger.invalidate();
     }
+}
+
+template <typename T, typename Subscriber, typename port_t>
+void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const mepoo::ChunkHeader* header) noexcept
+{
+    m_port.releaseChunk(header);
 }
 
 // ============================== Sample Deleter ============================== //

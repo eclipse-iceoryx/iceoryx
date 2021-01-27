@@ -39,21 +39,29 @@ int main()
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
-    untypedSubscriber.subscribe();
+    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        if (untypedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
+        if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            untypedSubscriber.take()
-                .and_then([](iox::popo::Sample<const void>& sample) {
-                    auto object = static_cast<const RadarObject*>(sample.get());
+            subscriber.take_1_0()
+                .and_then([&](const void* data) {
+                    auto object = static_cast<const RadarObject*>(data);
                     std::cout << "Got value: " << object->x << std::endl;
+
+                    // note that we explicitly have to release the data
+                    // and afterwards the pointer access is undefined behavior
+                    subscriber.releaseChunk(object);
                 })
-                .if_empty([] { std::cout << std::endl; })
-                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+                .or_else([](auto& result) {
+                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                    {
+                        std::cout << "Error receiving chunk." << std::endl;
+                    }
+                });
         }
         else
         {
@@ -63,7 +71,7 @@ int main()
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    untypedSubscriber.unsubscribe();
+    subscriber.unsubscribe();
 
     return (EXIT_SUCCESS);
 }

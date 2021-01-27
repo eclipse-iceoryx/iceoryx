@@ -24,26 +24,26 @@ iox_SubscribeState SubscribeState(const iox::SubscribeState value)
 {
     switch (value)
     {
-    case SubscribeState::NOT_SUBSCRIBED:
+    case iox::SubscribeState::NOT_SUBSCRIBED:
         return iox_SubscribeState::SubscribeState_NOT_SUBSCRIBED;
-    case SubscribeState::SUBSCRIBE_REQUESTED:
+    case iox::SubscribeState::SUBSCRIBE_REQUESTED:
         return iox_SubscribeState::SubscribeState_SUBSCRIBE_REQUESTED;
-    case SubscribeState::SUBSCRIBED:
+    case iox::SubscribeState::SUBSCRIBED:
         return iox_SubscribeState::SubscribeState_SUBSCRIBED;
-    case SubscribeState::UNSUBSCRIBE_REQUESTED:
+    case iox::SubscribeState::UNSUBSCRIBE_REQUESTED:
         return iox_SubscribeState::SubscribeState_UNSUBSCRIBE_REQUESTED;
-    case SubscribeState::WAIT_FOR_OFFER:
+    case iox::SubscribeState::WAIT_FOR_OFFER:
         return iox_SubscribeState::SubscribeState_WAIT_FOR_OFFER;
     default:
         return iox_SubscribeState::SubscribeState_UNDEFINED_ERROR;
     }
 }
 
-iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveError value)
+iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult value)
 {
     switch (value)
     {
-    case ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
+    case ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
         return ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL;
     default:
         return ChunkReceiveResult_UNDEFINED_ERROR;
