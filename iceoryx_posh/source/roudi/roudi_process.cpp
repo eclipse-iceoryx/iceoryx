@@ -17,13 +17,13 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/wait.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <chrono>
 #include <thread>
@@ -144,15 +144,15 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
     uint64_t i{0U};
     bool haveAllProcessesFinished{false};
-    posix::Timer finalKillTimer(processKillDelay);
+    cxx::DeadlineTimer finalKillTimer(processKillDelay);
 
     auto awaitProcessTermination = [&]() {
         bool shouldCheckProcessState = true;
-        finalKillTimer.resetCreationTime();
+        finalKillTimer.reset();
 
         // try to shut down all processes until either all processes have terminated or a timer set to processKillDelay
         // has expired
-        while (!haveAllProcessesFinished && !finalKillTimer.hasExpiredComparedToCreationTime())
+        while (!haveAllProcessesFinished && !finalKillTimer.hasExpired())
         {
             i = 0;
 
@@ -197,7 +197,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     awaitProcessTermination();
 
     // any processes still alive? Time to send SIG_KILL to kill.
-    if (finalKillTimer.hasExpiredComparedToCreationTime())
+    if (finalKillTimer.hasExpired())
     {
         i = 0;
         for (auto& process : m_processList)
@@ -216,7 +216,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
         awaitProcessTermination();
 
         // any processes still alive? Time to ignore them.
-        if (finalKillTimer.hasExpiredComparedToCreationTime())
+        if (finalKillTimer.hasExpired())
         {
             i = 0;
             for (auto& process : m_processList)
