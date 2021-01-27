@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 
@@ -353,6 +354,20 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     {
         ASSERT_NE(nullptr, publisherPort2);
     }
+}
+
+TEST_F(PoshRuntime_test, MiddlewareSubscriberMaxCapacityExceededReturnMaxCapacity)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
+    subscriberOptions.historyRequest = 13U;
+    subscriberOptions.queueCapacity = MAX_QUEUE_CAPACITY + 1U;
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
+                                                             subscriberOptions,
+                                                             m_nodeName,
+                                                             iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_EQ(MAX_QUEUE_CAPACITY, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
