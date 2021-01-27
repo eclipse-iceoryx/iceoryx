@@ -176,7 +176,7 @@ The displayed counters are monotonically increasing for each id but between diff
 
 We also handle potential errors
 ```cpp
-    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
+    .or_else([](iox::popo::ChunkReceiveResult) { std::cout << "Error while receiving." << std::endl; });
 ```
 
 and wait for some time before looking for data again.

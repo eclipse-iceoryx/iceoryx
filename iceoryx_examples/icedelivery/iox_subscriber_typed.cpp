@@ -39,20 +39,25 @@ int main()
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
-    typedSubscriber.subscribe();
+    iox::popo::TypedSubscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        if (typedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
+        if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            typedSubscriber.take()
-                .and_then([](iox::popo::Sample<const RadarObject>& object) {
-                    std::cout << "Got value: " << object->x << std::endl;
-                })
-                .if_empty([] { std::cout << std::endl; })
-                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+            subscriber.take_1_0()
+                .and_then([](auto& sample) { std::cout << "Got value: " << sample->x << std::endl; })
+                .or_else([](auto& result) {
+                    // only has to be called if the alternative is of interest,
+                    // i.e. if nothing has to happen when no data is received and
+                    // a possible error alternative is not checked or_else is not needed
+                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                    {
+                        std::cout << "Error receiving chunk." << std::endl;
+                    }
+                });
         }
         else
         {
@@ -62,7 +67,7 @@ int main()
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    typedSubscriber.unsubscribe();
+    subscriber.unsubscribe();
 
     return (EXIT_SUCCESS);
 }
