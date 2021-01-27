@@ -421,7 +421,7 @@ cxx::expected<uint64_t, TimerError> Timer::OsTimer::getOverruns() noexcept
     {
         return createErrorFromErrno(result.getErrNum());
     }
-    return cxx::success<uint64_t>(result.getReturnValue());
+    return cxx::success<uint64_t>(static_cast<uint64_t>(result.getReturnValue()));
 }
 
 bool Timer::OsTimer::hasError() const noexcept

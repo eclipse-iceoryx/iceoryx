@@ -31,7 +31,7 @@ void setThreadName(pthread_t thread, const ThreadName_t& name)
 
 ThreadName_t getThreadName(pthread_t thread)
 {
-    char tempName[MAX_THREAD_NAME_LENGTH + 1];
+    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
     auto result = cxx::makeSmartC(pthread_getname_np,
                                   cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
@@ -39,7 +39,7 @@ ThreadName_t getThreadName(pthread_t thread)
                                   {},
                                   thread,
                                   tempName,
-                                  MAX_THREAD_NAME_LENGTH + 1);
+                                  MAX_THREAD_NAME_LENGTH + 1U);
 
     // String length limit is ensured through MAX_THREAD_NAME_LENGTH
     // ERANGE (string too small) intentionally not handled to avoid untestable and dead code

@@ -391,13 +391,13 @@ class ObjectPool
             return NO_INDEX;
         }
         auto delta = p - m_first;
-        if (delta % sizeof(T) != 0)
+        if (static_cast<uint64_t>(delta) % sizeof(T) != 0)
         {
             return NO_INDEX;
         }
 
         // if the cell is valid and contains data we expect the pointer to equal data (alignment has to match)
-        auto index = static_cast<Index_t>(delta / sizeof(T));
+        auto index = static_cast<Index_t>(static_cast<uint64_t>(delta) / sizeof(T));
         if (m_cellInfo[index].isValid && m_cellInfo[index].data)
         {
             if (m_cellInfo[index].data == ptr)

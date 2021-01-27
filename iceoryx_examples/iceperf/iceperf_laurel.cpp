@@ -31,7 +31,7 @@ constexpr char PUBLISHER[] = "Laurel";
 constexpr char SUBSCRIBER[] = "Hardy";
 
 
-void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
+void leaderDo(IcePerfBase& ipcTechnology, uint64_t numRoundtrips)
 {
     ipcTechnology.initLeader();
 
@@ -63,7 +63,7 @@ void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
     std::cout << std::endl;
     std::cout << "| Payload Size [kB] | Average Latency [µs] |" << std::endl;
     std::cout << "|------------------:|---------------------:|" << std::endl;
-    for (size_t i = 0; i < latencyInMicroSeconds.size(); ++i)
+    for (size_t i = 0U; i < latencyInMicroSeconds.size(); ++i)
     {
         std::cout << "| " << std::setw(17) << payloadSizesInKB.at(i) << " | " << std::setw(20) << std::setprecision(2)
                   << latencyInMicroSeconds.at(i) << " |" << std::endl;

@@ -289,7 +289,7 @@ int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
     pthread_mutexattr_destroy(&mutexAttr);
 
     sem->m_hasPosixHandle = false;
-    sem->m_value.store(value, std::memory_order_relaxed);
+    sem->m_value.store(static_cast<int>(value), std::memory_order_relaxed);
 
     return 0;
 }
@@ -326,7 +326,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
         va_end(va);
 
         sem->m_handle.posix = sem_open(name, oflag, mode, value);
-        sem->m_value.store(value, std::memory_order_relaxed);
+        sem->m_value.store(static_cast<int>(value), std::memory_order_relaxed);
     }
     else
     {

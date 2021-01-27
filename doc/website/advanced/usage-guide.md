@@ -2,15 +2,41 @@
 
 ## Configuring RouDi
 
-RouDi can optionally be build with support to read the mempool config from a configuration file.
-To build the feature, the cmake option `-DTOML_CONFIG=on` must be used.
+RouDi support several shared memory segments with different access rights, to limit the read and write access between different applications. Inside of these segments reside mempools where the user payload data for transfer is stored.
+Based on the [conceptual guide](../../conceptual-guide.md) the end-user may want to configure the mempools with the amount of chunks and their size.
 
-The file must be passed to RouDi with the `-c` command line option.
+Iceoryx ships a library for RouDi named in cmake `iceoryx_posh_roudi`. This lib gives you an API for compiling your own RouDi application if needed and is part of `iceoryx_posh`. 
+
+**NOTE**
+The chunk size for the mempool needs to follow these restrictions:
+1. Chunksize needs to be greater than the alignment
+2. Chunksize needs to be a multiple of alignment
+
+The value for the alignment is set to 32.
+
+### Dynamic configuration
+
+One way is to read a configuration dynamically at RouDi runtime (startup).
+Using TOML Config in RouDi is not mandatory for configuring segments and mempools, but a comfortable alternative.
+
+RouDi can optionally be build with support to read the mempool config from a configuration file.
+To build the feature in iceoryx, the cmake option `-DTOML_CONFIG=ON` must be used. 
+The `iox-roudi` build by iceoryx is with TOML support and can be used out of the box.
+
+If you create your own RouDi application you need to link against `iceoryx_posh_config`:
+```cmake
+target_link_libraries(custom-roudi
+    PRIVATE
+    iceoryx_posh::iceoryx_posh_roudi
+    iceoryx_posh::iceoryx_posh_config
+)
+```
+
+The TOML config file can be passed to RouDi with the `-c` command line option.
 ```
 ./iox-roudi -c /absolute/path/to/config/file.toml
 ```
 
-RouDi support several shared memory segments with different access right, to limit the read and write access between different applications.
 This is a common config file with format version 1:
 ```TOML
 [general]
@@ -79,3 +105,11 @@ count = 100
 ```
 
 When no config file is specified, a hard-coded version similar to [default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
+
+### Static configuration
+
+Another way is to have a static config which is compile-time dependent, this means that you have to recompile your RouDi application if you want to change your config (not the iceoryx_posh_roudi lib).
+You can have your own sourcefile with `main()` method where you can create your custom configuration and pass it to a RouDi instantiation. 
+In your CMake file for you custom RouDi you need to ensure that it is **not** linking against `iceoryx_posh_config` to have a static config.
+
+A good example how a static config could look like can be found [here](../../../iceoryx_examples/iceperf/roudi_main_static_config.cpp).

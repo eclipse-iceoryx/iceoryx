@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,29 +18,26 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
-#include <atomic>
 #include <mutex>
-#include <thread>
 
 namespace iox
 {
 namespace roudi
 {
-/**
- * @brief This class handles the process intropection for RouDi.
- *        It is recommended to use the ProcessIntrospectionType alias which sets
- *        the intended template parameter.
- *
- *        The class tracks the adding and removal of processes and sends it to
- *        the introspection client if subscribed.
- */
+/// @brief This class handles the process intropection for RouDi.
+///        It is recommended to use the ProcessIntrospectionType alias which sets
+///        the intended template parameter.
+///        The class tracks the adding and removal of processes and sends it to
+///        the introspection client if subscribed.
 template <typename PublisherPort>
 class ProcessIntrospection
 {
   public:
-    ProcessIntrospection();
-    ~ProcessIntrospection();
+    ProcessIntrospection() noexcept;
+    ~ProcessIntrospection() noexcept;
 
     // delete copy constructor and assignment operator
     ProcessIntrospection(ProcessIntrospection const&) = delete;
@@ -49,88 +46,64 @@ class ProcessIntrospection
     ProcessIntrospection(ProcessIntrospection&&) = delete;
     ProcessIntrospection& operator=(ProcessIntrospection&&) = delete;
 
-    /*!
-     * @brief This function is used to add a process to the process introspection
-     *
-     * @param f_pid is the PID of the process to add
-     * @param f_name is the name of the process
-     */
-    void addProcess(int f_pid, const ProcessName_t& f_name);
 
-    /*!
-     * @brief This function is used to remove process to the process introspection
-     *
-     * @param f_pid is the PID of the process to remove
-     */
-    void removeProcess(int f_pid);
+    /// @brief This function is used to add a process to the process introspection
+    /// @param[in] f_pid is the PID of the process to add
+    /// @param[in] f_name is the name of the process
+    void addProcess(const int f_pid, const ProcessName_t& f_name) noexcept;
 
-    /*!
-     * @brief This function is used to add a node to the process introspection
-     *
-     * @param f_processName is the name of the proces
-     * @param f_nodeName is the name of the node to add
-     */
-    void addNode(const ProcessName_t& f_process, const NodeName_t& f_node);
+    /// @brief This function is used to remove process to the process introspection
+    /// @param[in] f_pid is the PID of the process to remove
+    void removeProcess(const int f_pid) noexcept;
 
-    /*!
-     * @brief This function is used to remove a node to the process introspection
-     *
-     * @param f_processName is the name of the proces
-     * @param f_nodeName is the name of the node to remove
-     */
-    void removeNode(const ProcessName_t& f_process, const NodeName_t& f_node);
+    /// @brief This function is used to add a node to the process introspection
+    /// @param[in] f_processName is the name of the proces
+    /// @param[in] f_nodeName is the name of the node to add
+    void addNode(const ProcessName_t& f_process, const NodeName_t& f_node) noexcept;
 
-    /*!
-     * @brief This functions registers the POSH publisher port which is used
-     *        to send the data to the instrospcetion client
-     *
-     * @param publisherPort is the publisher port for transmission
-     */
-    void registerPublisherPort(PublisherPort&& publisherPort);
+    /// @brief This function is used to remove a node to the process introspection
+    /// @param[in] f_processName is the name of the proces
+    /// @param[in] f_nodeName is the name of the node to remove
+    void removeNode(const ProcessName_t& f_process, const NodeName_t& f_node) noexcept;
 
-    /**
-     * @brief This function starts a thread which periodically sends
-     *        the introspection data to the client. The send interval
-     *        can be set by @ref setSendInterval "setSendInterval(...)".
-     *        Before this function is called, the publisher port hast to be
-     *        registerd with @ref registerPublisherPort "registerPublisherPort()".
-     */
-    void run();
-    /**
-     * @brief This function stops the thread previously started by @ref run "run()"
-     *
-     */
-    void stop();
+    /// @brief This functions registers the POSH publisher port which is used
+    ///        to send the data to the instrospcetion client
+    /// @param publisherPort is the publisher port for transmission
+    void registerPublisherPort(PublisherPort&& publisherPort) noexcept;
 
-    /**
-     * @brief This function configures the interval for the transmission of the
-     *        port introspection data.
-     *
-     * @param interval_ms is the interval time in milliseconds
-     */
-    void setSendInterval(unsigned int interval_ms);
+    /// @brief This function starts a thread which periodically sends
+    ///        the introspection data to the client. The send interval
+    ///        can be set by @ref setSendInterval "setSendInterval(...)".
+    ///        Before this function is called, the publisher port hast to be
+    ///        registered with @ref registerPublisherPort "registerPublisherPort()".
+    void run() noexcept;
+
+    /// @brief This function stops the thread previously started by @ref run "run()"
+    void stop() noexcept;
+
+    /// @brief This function configures the interval for the transmission of the
+    ///        port introspection data.
+    /// @param[in] interval duration between two send invocations.
+    void setSendInterval(const units::Duration interval) noexcept;
 
   protected:
     cxx::optional<PublisherPort> m_publisherPort;
-    void send();
+    void send() noexcept;
 
   private:
     using ProcessList_t = cxx::list<ProcessIntrospectionData, MAX_PROCESS_NUMBER>;
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
 
-    std::atomic<bool> m_runThread;
-    std::thread m_thread;
     std::mutex m_mutex;
 
-    unsigned int m_sendIntervalCount{10};
-    const std::chrono::milliseconds m_sendIntervalSleep{100};
+    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
+        concurrent::PeriodicTaskManualStart, "ProcessIntr", *this, &ProcessIntrospection::send};
 };
 
-/**
- * @brief typedef for the templated process introspection class that is used by RouDi for the
- * actual process introspection functionality.
- */
+/// @brief typedef for the templated process introspection class that is used by RouDi for the
+/// actual process introspection functionality.
 using ProcessIntrospectionType = ProcessIntrospection<PublisherPortUserType>;
 
 } // namespace roudi

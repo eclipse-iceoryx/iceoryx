@@ -43,24 +43,22 @@ int main()
     // publisher has send. The history ensures that we at least get the last 5
     // samples sent by the publisher when we subscribe (if at least 5 were already sent).
     subscriberOptions.historyRequest = 5U;
-    iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
-    typedSubscriber.subscribe();
+    iox::popo::TypedSubscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        if (typedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
+        if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
             bool hasMoreSamples = true;
             // Since we are checking only every second but the publisher is sending every
             // 400ms a new sample we will receive here more then one sample.
             do
             {
-                typedSubscriber.take()
-                    .and_then([](iox::popo::Sample<const RadarObject>& object) {
-                        std::cout << "Got value: " << object->x << std::endl;
-                    })
-                    .if_empty([&] { hasMoreSamples = false; });
+                subscriber.take_1_0()
+                    .and_then([](auto& object) { std::cout << "Got value: " << object->x << std::endl; })
+                    .or_else([&](auto&) { hasMoreSamples = false; });
             } while (hasMoreSamples);
         }
         std::cout << std::endl;
@@ -68,7 +66,7 @@ int main()
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    typedSubscriber.unsubscribe();
+    subscriber.unsubscribe();
 
     return (EXIT_SUCCESS);
 }

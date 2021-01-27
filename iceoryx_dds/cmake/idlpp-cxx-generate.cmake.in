@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,12 +24,17 @@ find_package(CycloneDDS CONFIG REQUIRED)
 find_package(Idlpp-cxx CONFIG REQUIRED)
 find_package(CycloneDDS-CXX CONFIG REQUIRED)
 
-add_library(iceoryx_dds_messages
-    STATIC
-)
+add_library(iceoryx_dds_messages)
+
 idl_ddscxx_generate(mempool_messages "${MESSAGE_DEFINITION_DIR}/Mempool.idl")
 target_link_libraries(iceoryx_dds_messages
     PUBLIC
     CycloneDDS-CXX::ddscxx
     mempool_messages
+)
+
+set_target_properties(iceoryx_dds_messages PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD 14
+    POSITION_INDEPENDENT_CODE ON
 )
