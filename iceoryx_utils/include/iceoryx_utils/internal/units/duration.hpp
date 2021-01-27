@@ -297,18 +297,18 @@ class Duration
     static constexpr uint32_t NANOSECS_PER_SEC{NANOSECS_PER_MILLISEC * 1000U};
 
   protected:
-    using SECONDS_TYPE = uint64_t;
-    using NANOSECONDS_TYPE = uint32_t;
+    using Seconds_t = uint64_t;
+    using Nanoseconds_t = uint32_t;
 
     /// @brief Constructs a Duration from seconds and nanoseconds
     /// @param[in] seconds portion of the duration
     /// @param[in] nanoseconds portion of the duration
     /// @note this is protected to be able to use it in unit tests
-    constexpr Duration(const SECONDS_TYPE seconds, const NANOSECONDS_TYPE nanoseconds) noexcept;
+    constexpr Duration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept;
 
     /// @note this is factory method is necessary to build with msvc due to issues calling a protected constexpr ctor
     /// from public methods
-    static constexpr Duration createDuration(const SECONDS_TYPE seconds, const NANOSECONDS_TYPE nanoseconds) noexcept;
+    static constexpr Duration createDuration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept;
 
     static constexpr Duration max() noexcept;
 
@@ -328,8 +328,8 @@ class Duration
     constexpr Duration multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept;
 
   private:
-    SECONDS_TYPE m_seconds{0U};
-    NANOSECONDS_TYPE m_nanoseconds{0U};
+    Seconds_t m_seconds{0U};
+    Nanoseconds_t m_nanoseconds{0U};
 };
 
 /// @brief creates Duration object by multiplying object T with a duration
