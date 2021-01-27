@@ -46,10 +46,6 @@ class RouDiApp
     virtual uint8_t run() noexcept = 0;
 
   protected:
-    /// @brief this is needed for the child classes for custom CmdLineParser
-    /// @param[in] config the configuration to use
-    RouDiApp(const RouDiConfig_t& config) noexcept;
-
     /// @brief Tells the OS which signals shall be hooked
     void registerSigHandler() noexcept;
 
