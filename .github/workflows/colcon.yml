@@ -23,8 +23,8 @@ jobs:
           os: [ubuntu-20.04]
 
     steps:
-       - name: compiler versions
-         run: |
+      - name: compiler versions
+        run: |
           echo $(gcc --version)
           echo $(clang --version)
 

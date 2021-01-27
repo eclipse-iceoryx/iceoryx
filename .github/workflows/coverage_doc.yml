@@ -18,8 +18,8 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-       - name: compiler versions
-         run: |
+      - name: compiler versions
+        run: |
           echo $(gcc --version)
           echo $(clang --version)
 
