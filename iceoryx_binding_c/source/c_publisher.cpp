@@ -32,12 +32,14 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* service,
                        const char* instance,
                        const char* event,
-                       const uint64_t historyCapacity)
+                       const uint64_t historyCapacity,
+                       const char* nodeName)
 {
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
     iox::popo::PublisherOptions options;
     options.historyCapacity = historyCapacity;
+    options.nodeName = NodeName_t(TruncateToCapacity, nodeName);
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
         ServiceDescription{
             IdString_t(TruncateToCapacity, service),

@@ -36,7 +36,8 @@ void sending()
 
     const uint64_t historyRequest = 10U;
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest);
+    iox_pub_t publisher =
+        iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest, "iox-c-publisher-node");
 
     iox_pub_offer(publisher);
 

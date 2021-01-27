@@ -75,8 +75,13 @@ int main()
     const uint64_t queueCapacity = 256U;
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_t subscriber =
-            iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+        iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]),
+                                            "Radar",
+                                            "FrontLeft",
+                                            "Counter",
+                                            queueCapacity,
+                                            historyRequest,
+                                            "iox-c-ex-waitSet-gateway-node");
 
         iox_sub_subscribe(subscriber);
         iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);

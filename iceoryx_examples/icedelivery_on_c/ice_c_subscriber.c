@@ -42,8 +42,8 @@ void receiving()
     const uint64_t queueCapacity = 5U;
     iox_sub_storage_t subscriberStorage;
 
-    iox_sub_t subscriber =
-        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest);
+    iox_sub_t subscriber = iox_sub_init(
+        &subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest, "iox-c-subscriber-node");
     iox_sub_subscribe(subscriber);
 
     while (!killswitch)

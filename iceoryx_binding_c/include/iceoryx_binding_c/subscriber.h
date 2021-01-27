@@ -22,12 +22,13 @@
 /// @brief Subscriber handle
 typedef struct cpp2c_Subscriber* iox_sub_t;
 
-/// @brief initialize subscriber handle in the default runtime node
+/// @brief initialize subscriber handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
 /// @param[in] queueCapacity size of the receiver queue
+/// @param[in] nodeName name of the node where the subscriber should belong to
 /// @param[in] historyRequest of chunks received after subscription if chunks are available
 /// @return handle of the subscriber
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
@@ -35,7 +36,8 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const instance,
                        const char* const event,
                        const uint64_t queueCapacity,
-                       const uint64_t historyRequest);
+                       const uint64_t historyRequest,
+                       const char* nodeName);
 
 /// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed

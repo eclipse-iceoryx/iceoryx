@@ -62,8 +62,13 @@ int main()
     const uint64_t queueCapacity = 256U;
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        subscriber[i] =
-            iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+        subscriber[i] = iox_sub_init(&(subscriberStorage[i]),
+                                     "Radar",
+                                     "FrontLeft",
+                                     "Counter",
+                                     queueCapacity,
+                                     historyRequest,
+                                     "iox-c-ex-waitset-grouping-node");
 
         iox_sub_subscribe(subscriber[i]);
     }

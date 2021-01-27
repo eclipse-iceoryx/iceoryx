@@ -37,7 +37,8 @@ void sending()
 
     uint64_t historyRequest = 0U;
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
+    iox_pub_t publisher = iox_pub_init(
+        &publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest, "iox-c-ex-waitset-publisher-node");
 
     iox_pub_offer(publisher);
 

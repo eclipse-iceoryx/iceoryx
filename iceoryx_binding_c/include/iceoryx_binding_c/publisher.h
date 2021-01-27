@@ -22,18 +22,20 @@
 /// @brief publisher handle
 typedef struct cpp2c_Publisher* iox_pub_t;
 
-/// @brief creates a publisher handle in the default runtime node
+/// @brief creates a publisher handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_pub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
 /// @param[in] historyCapacity size of the history chunk queue
+/// @param[in] nodeName name of the node where the publisher should belong to
 /// @return handle of the publisher
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* service,
                        const char* instance,
                        const char* event,
-                       const uint64_t historyCapacity);
+                       const uint64_t historyCapacity,
+                       const char* nodeName);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed
