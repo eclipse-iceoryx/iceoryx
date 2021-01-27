@@ -146,5 +146,16 @@ TEST_F(IceoryxRoudiMemoryManager_test, CreateAndAnnouceMemoryFailingAfterCalledT
     EXPECT_THAT(result.get_error(), Eq(iox::roudi::RouDiMemoryManagerError::MEMORY_CREATION_FAILED));
 }
 
+TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryNotFailingAfterCalledTwoTimes)
+{
+    auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+
+    auto result = m_roudiMemoryManagerTest->destroyMemory();
+
+    auto res = m_roudiMemoryManagerTest->destroyMemory();
+
+    EXPECT_THAT(res.has_error(), Eq(false));
+}
+
 } // namespace test 
 } // iox
