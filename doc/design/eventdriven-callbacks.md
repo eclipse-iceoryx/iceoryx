@@ -129,18 +129,77 @@ int main() {
 ```
 
 ### Solution
+#### Class diagram
+
+```
++-----------------------+                          +----------------------------------+
+| ConditionVariableData |                          | EventVariableData                |
+|   - m_semaphore       | <----------------------- |   - m_activeNotifications : bool |
+|   - m_process         |                          +----------------------------------+
+|   - m_toBeDestroyed   |                        / 1            | 1
++-----------------------+                       /               |
+                                               / 1              | 1
++-----------------------------------------------+ +----------------------------------------------+
+| EventListener                                 | | EventNotifier                                |
+|   EventListener(EventVariableData & dataPtr); | |   EventNotifier(EventVariableData & dataPtr, |
+|                                               | |                 uint64_t notificationIndex); |
+|   vector<bool> wait();                        | |   void notify();                             |
+|   vector<bool> timedWait();                   | |                                              |
++-----------------------------------------------+ |   - m_notificationIndex;                     |
+        | 1                                       +----------------------------------------------+
+        |                                                       | m
+        | 1                                                     | 1  [one EventNotifier per Event]
++--------------------------------------------------+  +-----------------------------------+
+| ReactAL                                          |  | EventAssignable (e.g. Subscriber) |
+|   assignEvent(EventOrigin, EventType, Callback); |  +-----------------------------------+
+|   detachEvent(EventOrigin, EventType);           |
+|                                                  |
+|   - m_callbacks                                  |
++--------------------------------------------------+
+```
+
 #### Class Interactions
 
-  - **Creating ReactAL:** an `EventVariable` is created in the shared memory. 
+  - **Creating ReactAL:** an `EventVariableData` is created in the shared memory. 
       The `ReactAL` uses the `EventListener` to wait for incoming events.
+```
+                                      PoshRuntime
+  ReactAL                                 |
+    |   getMiddlewareEventVariable : var  |
+    | ----------------------------------> |
+    |   EventListener(var)                |             EventListener
+    | ------------------------------------+-----------------> |
+    |   wait() : m_activeNotifications    |                   |
+    | ------------------------------------+-----------------> |
+```
   - **Attaching Subscriber Event (sampleReceived) to ReactAL:** The subscriber attaches the `EventNotifier`
       appropriately and signals the `ReactAL` via the `EventNotifier` about the occurrence 
       of the event (sampleReceived).
+```
+  User                ReactAL                                             Subscriber 
+   |   assignEvent()     |                                                     |
+   | ------------------> |   EventNotifier(EventVarDatPtr)    EventNotifier    |
+                         | --------------------------------------> |           |
+                         |                                         |           |
+                         |   enableEvent(EventNotifier, ...)       |           |
+                         | ----------------------------------------+---------> |
+```
   - **Signal an event from subscriber:** `EventNotifier.notify()` is called which sets an, to the subscriber 
       assigned flag, to true and `EventListener` will wake up.
+```
+  Subscriber          EventNotifier                EventVariableData.m_activeNotifications
+    |   notify()           |                                            |
+    | -------------------> |   operator[](m_notificationIndex) = true   |
+    |                      | -----------------------------------------> |
+```
   - **ReactAL reacting to events:** `EventListener.wait()` will provide a complete list of all `EventNotifier`
       which were notifying the `EventListener` till the last `wait()` call. The ReactAL uses this list 
       to call the corresponding callbacks.
+```cpp
+  auto activeCallbacks = m_eventListener.wait();
+  for(uint64_t i = 0U; i < activeCallbacks.size(); ++i)
+    if ( activeCallbacks[i] ) m_callbacks[i]();
+```
 
 #### Event Variable
 
