@@ -19,6 +19,7 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "testutils/timing_test.hpp"
 
 #include <algorithm>
