@@ -28,26 +28,6 @@ using namespace iox::capro;
 class ServiceDescription_test : public Test
 {
   public:
-    uint16_t testAnyServiceID = iox::capro::AnyService;
-    uint16_t testAnyEventID = iox::capro::AnyEvent;
-    uint16_t testAnyInstanceID = iox::capro::AnyInstance;
-    IdString_t service1{"Service"};
-    IdString_t instance1{"Instance"};
-    IdString_t event1{"Event"};
-
-    ServiceDescription csd1 = ServiceDescription(1, 2, 3);
-    ServiceDescription csd1Eq = ServiceDescription(testAnyServiceID, 2, 3);
-    ServiceDescription csd1Ne = ServiceDescription(testAnyServiceID, 9, 3);
-    ServiceDescription csd2 = ServiceDescription(1, testAnyEventID, 3);
-    ServiceDescription csd2Eq = ServiceDescription(1, 2, 3);
-    ServiceDescription csd2Ne = ServiceDescription(1, 2, 9);
-    ServiceDescription csd3 = ServiceDescription(1, 2, testAnyInstanceID);
-    ServiceDescription csd3Eq = ServiceDescription(1, 2, testAnyInstanceID);
-    ServiceDescription csd3Ne = ServiceDescription(9, 2, testAnyInstanceID);
-    ServiceDescription csd4 = ServiceDescription(1, 2, 3);
-    ServiceDescription csd4Eq = ServiceDescription(1, 2, 3);
-    ServiceDescription csd4Ne = ServiceDescription(9, 9, 9);
-    ServiceDescription csdIdStr = ServiceDescription(service1, instance1, event1);
     void SetUp(){};
     void TearDown(){};
 };
