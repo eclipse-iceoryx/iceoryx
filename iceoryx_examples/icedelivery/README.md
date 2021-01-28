@@ -214,7 +214,7 @@ untypedSubscriber.take()
     {
         // ...
     })
-    .or_else([](iox::popo::ChunkReceiveError error)
+    .or_else([](iox::popo::ChunkReceiveResult error)
     {
         std::cout << "Error receiving chunk." << std::endl;
     });

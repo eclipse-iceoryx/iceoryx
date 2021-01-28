@@ -26,6 +26,42 @@ inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const cap
 {
 }
 
+template <template <typename, typename, typename> class base_subscriber_t>
+inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base_subscriber_t>::take_1_0() noexcept
+{
+    auto result = BaseSubscriber::takeChunk();
+    if (result.has_error())
+    {
+        return cxx::error<ChunkReceiveResult>(result.get_error());
+    }
+    return cxx::success<const void*>(result.value()->payload());
+}
+
+template <template <typename, typename, typename> class base_subscriber_t>
+bool UntypedSubscriberImpl<base_subscriber_t>::hasChunks() const noexcept
+{
+    return BaseSubscriber::hasSamples();
+}
+
+template <template <typename, typename, typename> class base_subscriber_t>
+bool UntypedSubscriberImpl<base_subscriber_t>::hasMissedChunks() noexcept
+{
+    return BaseSubscriber::hasMissedData();
+}
+
+template <template <typename, typename, typename> class base_subscriber_t>
+void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedChunks() noexcept
+{
+    BaseSubscriber::releaseQueuedSamples();
+}
+
+template <template <typename, typename, typename> class base_subscriber_t>
+void UntypedSubscriberImpl<base_subscriber_t>::releaseChunk(const void* payload) noexcept
+{
+    auto header = mepoo::ChunkHeader::fromPayload(payload);
+    BaseSubscriber::releaseChunk(header);
+}
+
 } // namespace popo
 } // namespace iox
 
