@@ -124,7 +124,14 @@ void onUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
 }
 
 int main() {
+  iox::popo::SubscriberOptions subscriberOptions;
+  subscriberOptions.queueCapacity = 10U;
+  iox::popo::TypedSubscriber<RadarObject> mySubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+
   myCallbackReactAL.assignEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
+  mySubscriber.subscribe();
+
+  App::mainloop();
 }
 ```
 
@@ -337,7 +344,7 @@ be declared as a friend.
 
  - Maybe introduce some abstraction Condition Variable tracing handling. 
     One thought is to introduce a `SignalVector` where you can acquire a 
-    `Notifyier` which then signals the `ConditionVariable` and with the 
+    `Notifier` which then signals the `ConditionVariable` and with the 
     correct id.
 
 
