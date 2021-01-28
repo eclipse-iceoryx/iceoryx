@@ -67,10 +67,20 @@ The following use cases and behaviors should be implemented.
 
       myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
       ```
- - One can assign at most one callback to a specific event of an object. The event is usually defined 
-    with an enum by the developer. One example is `SubscriberEvent::HAS_SAMPLE_RECEIVED`.
+ - One can assign at most one callback to a specific event of a specific object. The event is 
+    - Usually defined with an enum by the developer. One example is `SubscriberEvent::HAS_SAMPLE_RECEIVED`.
     - Attaching a callback to an event where a callback has been already assigned overrides
       the existing callback with the new one.
+    - One can assign the same event to different objects at the same time.
+      ```cpp
+      myReactAL.assignEvent(subscriber1, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive);
+
+      // overrides first callback
+      myReactAL.assignEvent(subscriber1, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive2); 
+
+      // callback is being added to the ReactAL since it belonging to a different object
+      myReactAL.assignEvent(subscriber2, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive); 
+      ```
  - concurrently: detach a callback at any time from anywhere. This means in particular
     - Detaching a callback from within a callback.
     - [robust] When the detach call returns we guarantee that the callback is never called
@@ -79,14 +89,14 @@ The following use cases and behaviors should be implemented.
       Exception: If a callback detaches itself it blocks until the callback is removed 
                  and not until the callback is finished. After the successful removal the 
                  callback will continue and will not be called again.
-    - Calling detach means that after that call the callback is no longer assigned
-      even when it was not assigned in the first place. Therefore it will always succeed.
+    - The callback is no longer assigned to the event after calling `detach`.
+      The method will succeed even if it was not assigned in the first place.
 
- - When the ReactAL goes out of scope it should detach itself from every class 
+ - When the ReactAL goes out of scope it detaches itself from every class 
      to which it was assigned via a callback provided by the attached class (like in the WaitSet).
 
- - When the class which is assigned to the ReactAL goes out of scope it should 
-    detach itself from the ReactAL via a callback provided by the ReactAL (like in the WaitSet).
+ - When the class which is assigned to the ReactAL goes out of scope it 
+    detaches itself from the ReactAL via a callback provided by the ReactAL (like in the WaitSet).
 
 ### Usage Code Example
 ```cpp
@@ -99,22 +109,22 @@ void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
   });
 }
 
-void onWaitForSubscription(iox::popo::UntypedSubscriber & subscriber) {
+void onSubscribe(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "subscribed!\n";
   myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
-  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, onWaitForUnsubscription);
-  myCallbackReactAL.cancelEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED);
+  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, onUnsubscribe);
+  myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED);
 }
 
-void onWaitForUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
+void onUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "unsubscribed from publisher\n";
-  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onWaitForSubscription);
-  myCallbackReactAL.cancelEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED);
-  myCallbackReactAL.cancelEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED);
+  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
+  myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED);
+  myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED);
 }
 
 int main() {
-  myCallbackReactAL.assignEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onWaitForSubscription);
+  myCallbackReactAL.assignEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
 }
 ```
 
@@ -122,20 +132,18 @@ int main() {
 #### Class Interactions
 
   - **Creating ReactAL:** an `EventVariable` is created in the shared memory. 
-      The `ReactAL` uses the `EventWaiter` to wait for incoming events.
-  - **Attaching Subscriber Event (sampleReceived) to ReactAL:** The subscriber attaches the `EventSignaler`
-      appropriately and signals the `ReactAL` via the `EventSignaler` about the occurrence 
+      The `ReactAL` uses the `EventListener` to wait for incoming events.
+  - **Attaching Subscriber Event (sampleReceived) to ReactAL:** The subscriber attaches the `EventNotifier`
+      appropriately and signals the `ReactAL` via the `EventNotifier` about the occurrence 
       of the event (sampleReceived).
-  - **Signal an event from subscriber:** `EventSignaler.notify()` is called which sets an, to the subscriber 
-      assigned flag, to true and `EventWaiter` will wake up.
-  - **ReactAL reacting to events:** `EventWaiter.wait()` will provide a complete list of all `EventSignaler`
-      which were notifying the `EventWaiter` till the last `wait()` call. The ReactAL uses this list 
+  - **Signal an event from subscriber:** `EventNotifier.notify()` is called which sets an, to the subscriber 
+      assigned flag, to true and `EventListener` will wake up.
+  - **ReactAL reacting to events:** `EventListener.wait()` will provide a complete list of all `EventNotifier`
+      which were notifying the `EventListener` till the last `wait()` call. The ReactAL uses this list 
       to call the corresponding callbacks.
 
-#### Condition Variable
+#### Event Variable
 
-  - Alternative names: `EventVariable`, `EventSignaler`, `EventWaiter`
-  
   - **Problem:** The ReactAL would like to know by whom it was triggered. The WaitSet has a 
                   list of callbacks where it can ask the object if it triggered the WaitSet. This has 
                   certain disadvantages.
@@ -147,8 +155,7 @@ int main() {
       gets provided with an id. When the condition variable is notified a corresponding bool array entry is set to true 
       to trace the trigger origin.
 
-  - Create from `ConditionVariableWithOriginTracing`/ `EventVariable` (yeah we need a better name) has `ConditionVariableData` 
-    as a member and adds: `std::atomic_bool m_triggeredBy[MAX_CALLBACKS];`
+  - `EventVariableData` inherits from `ConditionVariableData` and adds the member `std::atomic_bool m_triggeredBy[MAX_CALLBACKS];`
 
     **Reason:**
       - The reactal will iterate through this array to find out by which event it was triggered 
@@ -178,14 +185,14 @@ int main() {
         and state based at the same time and this approach supports only event 
         driven triggering.
 
-  - add class `ConditionVariableWithOriginTracingSignaler` / `EventSignaler` (I know, better name)
+  - add class `EventNotifier`
   
     **Reason:** it behaves quite differently then the `ConditionVariable`. The `ConditionVariable` notifies the user
-    that it was signalled and the user has to find the origin  manually. The `ConditionVariableWithOriginTracing`
+    that it was signalled and the user has to find the origin manually. The `EventVariable`
     would notify the user by which origin it was signalled.
 
     ```cpp
-    class ConditionVariableWithOriginTracingSignaler {
+    class EventNotifier {
       public:
         // identify the trigger origin easily
         void notify(); 
@@ -200,9 +207,9 @@ int main() {
     };
     ```
 
-  - add class `ConditionVariableWithOriginTracingWaiter` / `EventWaiter`
+  - add class `EventListener`
   ```cpp
-  class ConditionVariableWithOriginTracingWaiter {
+  class EventListener {
     public:
       // returns a list of ids which have notified the conditionVariable
       cxx::vector<uint64_t> wait(); 
@@ -227,7 +234,7 @@ class ReactAL {
     ) noexcept;
 
     template<typename EventOrigin, typename EventType>
-    void cancelEvent( EventOrigin & origin, const EventType & eventType );
+    void detachEvent( EventOrigin & origin, const EventType & eventType );
 };
 
 ```
