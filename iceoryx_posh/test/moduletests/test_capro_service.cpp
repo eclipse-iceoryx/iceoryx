@@ -418,3 +418,36 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
 
     EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
 }
+
+TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
+{
+    ServiceDescription::ClassHash testHash1{1,2,3,4};
+    ServiceDescription::ClassHash testHash2{5,6,7,8};
+
+    EXPECT_FALSE(testHash1==testHash2);
+}
+
+TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsTrue)
+{
+    ServiceDescription::ClassHash testHash1{1,2,3,4};
+    ServiceDescription::ClassHash testHash2{1,2,3,4};
+
+    EXPECT_TRUE(testHash1==testHash2);
+}
+
+TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperatorReturnsTrue)
+{
+    ServiceDescription::ClassHash testHash1{1,2,3,4};
+    ServiceDescription::ClassHash testHash2{5,6,7,8};
+
+    EXPECT_TRUE(testHash1!=testHash2);
+}
+
+TEST_F(ServiceDescription_test, ComparingTwoEqualClassHashWithNotEqualOperatorReturnsFalse)
+{
+    ServiceDescription::ClassHash testHash1{1,2,3,4};
+    ServiceDescription::ClassHash testHash2{1,2,3,4};
+
+    EXPECT_FALSE(testHash1!=testHash2);
+}
+
