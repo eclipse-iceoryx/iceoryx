@@ -300,6 +300,8 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     }
     case runtime::MqMessageType::KEEPALIVE:
     {
+        //int32_t pid{0};
+        //cxx::convert::fromString(message.getElementAtIndex(3).c_str(), pid);
         m_prcMgr.updateLivelinessOfProcess(processName);
         break;
     }

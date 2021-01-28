@@ -335,7 +335,8 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
 
 bool MqRuntimeInterface::sendKeepalive() noexcept
 {
-    return m_RoudiMqInterface.send({mqMessageTypeToString(MqMessageType::KEEPALIVE), m_appName});
+    return m_RoudiMqInterface.send(
+        {mqMessageTypeToString(MqMessageType::KEEPALIVE), m_appName/*, std::to_string(getpid())*/});
 }
 
 RelativePointer::offset_t MqRuntimeInterface::getSegmentManagerAddressOffset() const noexcept

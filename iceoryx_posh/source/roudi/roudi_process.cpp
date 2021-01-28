@@ -317,6 +317,8 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
 {
     bool wasPreviouslyMonitored = false; // must be in outer scope but is only initialized before use
     bool processExists = false;
+    bool duplicate = false;
+
     RouDiProcess* process{nullptr};
     {
         std::lock_guard<std::mutex> g(m_mutex);
@@ -325,6 +327,11 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
         {
             processExists = true;
             wasPreviouslyMonitored = process->isMonitored(); // needs to be read here under lock
+                                                             // Is it the same process or a duplicate?
+            if (process->getPid() != pid)
+            {
+                duplicate = true;
+            }
         }
         else
         {
@@ -359,6 +366,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
         // process exists and is monitored - we rely on monitoring for removal
         LogWarn() << "Received REG from " << name << ", but another application with this name is already registered";
 
+        // Notify new application that she shall shutdown
         runtime::MqMessage sendBuffer;
         sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::REG_FAIL_APP_ALREADY_REGISTERED);
         process->sendToMQ(sendBuffer);
@@ -475,11 +483,12 @@ bool ProcessManager::removeProcess(const std::lock_guard<std::mutex>& lockGuard 
     return false;
 }
 
-void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name) noexcept
+void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name/*, const int32_t pid*/) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
     RouDiProcess* process = getProcessFromList(name);
+    //&& process->getPid() == pid
     if (nullptr != process)
     {
         // reset timestamp

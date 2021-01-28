@@ -133,7 +133,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @param [in] processKillDelay Amount of time RouDi will wait before killing
     void killAllProcesses(const units::Duration processKillDelay) noexcept;
 
-    void updateLivelinessOfProcess(const ProcessName_t& name) noexcept;
+    void updateLivelinessOfProcess(const ProcessName_t& name/*, const int32_t pid*/) noexcept;
 
     void findServiceForProcess(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept;
 
