@@ -141,18 +141,20 @@ int main() {
                                                / 1              | 1
 +-----------------------------------------------+ +----------------------------------------------+
 | EventListener                                 | | EventNotifier                                |
-|   EventListener(EventVariableData & dataPtr); | |   EventNotifier(EventVariableData & dataPtr, |
-|                                               | |                 uint64_t notificationIndex); |
-|   vector<bool> wait();                        | |   void notify();                             |
-|   vector<bool> timedWait();                   | |                                              |
-+-----------------------------------------------+ |   - m_notificationIndex;                     |
-        | 1                                       +----------------------------------------------+
-        |                                                       | m
+|   EventListener(EventVariableData & dataPtr)  | |   EventNotifier(EventVariableData & dataPtr, |
+|                                               | |                 uint64_t notificationIndex)  |
+|   vector<bool> wait()                         | |   void notify()                              |
+|   vector<bool> timedWait()                    | |                                              |
+|                                               | |   - m_notificationIndex                      |
+|   - m_pointerToEventVariableData              | |   - m_pointerToEventVariableData             |
++-----------------------------------------------+ +----------------------------------------------+
+        | 1                                                     | m
+        |                                                       |
         | 1                                                     | 1  [one EventNotifier per Event]
 +--------------------------------------------------+  +-----------------------------------+
 | ReactAL                                          |  | EventAssignable (e.g. Subscriber) |
-|   assignEvent(EventOrigin, EventType, Callback); |  +-----------------------------------+
-|   detachEvent(EventOrigin, EventType);           |
+|   assignEvent(EventOrigin, EventType, Callback)  |  +-----------------------------------+
+|   detachEvent(EventOrigin, EventType)            |
 |                                                  |
 |   - m_callbacks                                  |
 +--------------------------------------------------+
@@ -169,7 +171,7 @@ int main() {
     | ----------------------------------> |
     |   EventListener(var)                |             EventListener
     | ------------------------------------+-----------------> |
-    |   wait() : m_activeNotifications    |                   |
+    |   wait() : vector<uint64_t>         |                   |
     | ------------------------------------+-----------------> |
 ```
   - **Attaching Subscriber Event (sampleReceived) to ReactAL:** The subscriber attaches the `EventNotifier`
@@ -197,11 +199,15 @@ int main() {
       to call the corresponding callbacks.
 ```cpp
   auto activeCallbacks = m_eventListener.wait();
-  for(uint64_t i = 0U; i < activeCallbacks.size(); ++i)
-    if ( activeCallbacks[i] ) m_callbacks[i]();
+  for(auto index : activeCallbacks)
+     m_callbacks[index]();
 ```
 
 #### Event Variable
+
+  In this section we discuss the details of the three classes `EventVariableData`, `EventListener` and 
+  `EventNotifier` from the class diagram above. The `EventListener` and `EventNotifier` are sharing their 
+  data `EventVariableData` and the whole construct should be named `EventVariable`.
 
   - **Problem:** The ReactAL would like to know by whom it was triggered. The WaitSet has a 
                   list of callbacks where it can ask the object if it triggered the WaitSet. This has 
@@ -245,7 +251,7 @@ int main() {
         driven triggering.
 
   - add class `EventNotifier`
-  
+
     **Reason:** it behaves quite differently then the `ConditionVariable`. The `ConditionVariable` notifies the user
     that it was signalled and the user has to find the origin manually. The `EventVariable`
     would notify the user by which origin it was signalled.
@@ -267,15 +273,15 @@ int main() {
     ```
 
   - add class `EventListener`
-  ```cpp
-  class EventListener {
-    public:
-      // returns a list of ids which have notified the conditionVariable
-      cxx::vector<uint64_t> wait(); 
-      // sets the atomic bool to false in m_triggeredBy[id]
-      void resetWaitState(const uint64_t id) noexcept; 
-  };
-  ```
+    ```cpp
+    class EventListener {
+      public:
+        // returns a list of ids which have notified the conditionVariable
+        cxx::vector<uint64_t> wait(); 
+        // sets the atomic bool to false in m_triggeredBy[id]
+        void resetWaitState(const uint64_t id) noexcept; 
+    };
+    ```
 
 #### ReactAL 
 ```cpp
