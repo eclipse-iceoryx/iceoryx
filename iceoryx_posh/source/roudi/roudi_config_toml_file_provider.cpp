@@ -33,7 +33,7 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
     /// don't print additional output if not running
     if (cmdLineArgs.run)
     {
-        if (cmdLineArgs.configFilePath.size() == 0)
+        if (cmdLineArgs.configFilePath.empty())
         {
             /// @todo Replace with C++17 std::filesystem::exists()
             cxx::FileReader configFile(defaultConfigFilePath, "", cxx::FileReader::ErrorMode::Ignore);
@@ -56,7 +56,7 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
 iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRouDiConfigFileProvider::parse()
 {
     // Early exit in case no config file path was provided
-    if (m_customConfigFilePath.size() == 0)
+    if (m_customConfigFilePath.empty())
     {
         iox::RouDiConfig_t defaultConfig;
         defaultConfig.setDefaults();
