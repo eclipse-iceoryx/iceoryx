@@ -377,52 +377,44 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentEventStringsA
     EXPECT_FALSE(serviceDescription1 == serviceDescription2);
 }
 
-TEST_F(ServiceDescription_test, operatorNe)
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentValidIDsAreNotEqual)
 {
-    EXPECT_FALSE(csd1 != csd1Eq);
-    EXPECT_FALSE(csd2 != csd2Eq);
-    EXPECT_FALSE(csd3 != csd3Eq);
-    EXPECT_FALSE(csd4 != csd4Eq);
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 2U;
+    uint16_t testInstanceID = 3U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+    ServiceDescription serviceDescription2 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 
-    EXPECT_TRUE(csd1 != csd1Ne);
-    EXPECT_TRUE(csd2 != csd2Ne);
-    EXPECT_TRUE(csd3 != csd3Ne);
-    EXPECT_TRUE(csd4 != csd4Ne);
+    EXPECT_FALSE(serviceDescription1 != serviceDescription2);
 }
 
-TEST_F(ServiceDescription_test, operatorAssign)
+TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashWithValuesPassedToTheCtor)
 {
-    ServiceDescription csdNew = csd1;
-    EXPECT_TRUE(csdNew == csd1);
+    ServiceDescription::ClassHash testHash{1, 2, 3, 4};
+
+    EXPECT_EQ(uint32_t(1), testHash[0]);
+    EXPECT_EQ(uint32_t(2), testHash[1]);
+    EXPECT_EQ(uint32_t(3), testHash[2]);
+    EXPECT_EQ(uint32_t(4), testHash[3]);
 }
 
-TEST_F(ServiceDescription_test, CreateServiceOnlyDescription)
+TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsTrueIfTheServiceIDsAreSame)
 {
-    ServiceDescription desc1(1u, 2u);
-    ServiceDescription desc2("bla", "fuh");
-    ServiceDescription desc3(1u, 2u, 3u);
-    ServiceDescription desc4("bla", "fuh", "dumbledoodoo");
+    uint16_t sameserviceID = 1U;
+    ServiceDescription description1 = ServiceDescription(sameserviceID, iox::capro::AnyEvent, iox::capro::AnyInstance);
+    ServiceDescription description2 = ServiceDescription(sameserviceID, iox::capro::AnyEvent, iox::capro::AnyInstance);
+  
+    EXPECT_TRUE(iox::capro::serviceMatch(description1, description2));
 
-    EXPECT_TRUE(desc1.hasServiceOnlyDescription());
-    EXPECT_TRUE(desc2.hasServiceOnlyDescription());
-    EXPECT_FALSE(desc3.hasServiceOnlyDescription());
-    EXPECT_FALSE(desc4.hasServiceOnlyDescription());
 }
 
-TEST_F(ServiceDescription_test, defaultClassHash)
+TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAreDifferent)
 {
-    EXPECT_EQ(uint32_t(0), csdIdStr.getClassHash()[0]);
-    EXPECT_EQ(uint32_t(0), csdIdStr.getClassHash()[1]);
-    EXPECT_EQ(uint32_t(0), csdIdStr.getClassHash()[2]);
-    EXPECT_EQ(uint32_t(0), csdIdStr.getClassHash()[3]);
-}
+    uint16_t serviceID1 = 1U;
+    uint16_t serviceID2 = 2U;
+    ServiceDescription description1 = ServiceDescription(serviceID1, iox::capro::AnyEvent, iox::capro::AnyInstance);
+    ServiceDescription description2 =
+        ServiceDescription(serviceID2, iox::capro::AnyEvent, iox::capro::AnyInstance);
 
-TEST_F(ServiceDescription_test, CopyAssignmentClassHash)
-{
-    ServiceDescription desc1("TestService", "TestInstance", "TestEvent", {1, 2, 3, 4});
-    ServiceDescription desc2 = desc1;
-    EXPECT_EQ(desc2.getClassHash()[0], desc1.getClassHash()[0]);
-    EXPECT_EQ(desc2.getClassHash()[1], desc1.getClassHash()[1]);
-    EXPECT_EQ(desc2.getClassHash()[2], desc1.getClassHash()[2]);
-    EXPECT_EQ(desc2.getClassHash()[3], desc1.getClassHash()[3]);
+    EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
 }
