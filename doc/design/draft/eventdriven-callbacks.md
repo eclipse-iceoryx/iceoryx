@@ -36,7 +36,7 @@ background thread.
 ### General
 The usage should be similar to the _WaitSet_ with a key difference - it should 
 be **event driven** and not a mixture of event and state driven, depending on
-which event is assigned, like in the _WaitSet_.
+which event is attached, like in the _WaitSet_.
 
 It should have the following behavior:
 
@@ -55,31 +55,31 @@ The following use cases and behaviors should be implemented.
     We list here features marked with [robust] which are only supported to 
     increase this kind of the robustness.
 
- - concurrently: assigning a callback at any time from anywhere. This means in particular
+ - concurrently: attaching a callback at any time from anywhere. This means in particular
     - Attaching a callback from within a callback.
     - [robust] Updating a callback from within the same callback 
       ```cpp
       void onSampleReceived2(iox::popo::UntypedSubscriber & subscriber) {}
 
       void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
-        myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived2);
+        myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived2);
       }
 
-      myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
+      myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
       ```
- - One can assign at most one callback to a specific event of a specific object. The event is 
+ - One can attach at most one callback to a specific event of a specific object. The event is 
     - Usually defined with an enum by the developer. One example is `SubscriberEvent::HAS_SAMPLE_RECEIVED`.
-    - Attaching a callback to an event where a callback has been already assigned overrides
+    - Attaching a callback to an event where a callback has been already attached overrides
       the existing callback with the new one.
-    - One can assign the same event to different objects at the same time.
+    - One can attach the same event to different objects at the same time.
       ```cpp
-      myReactAL.assignEvent(subscriber1, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive);
+      myReactAL.attachEvent(subscriber1, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive);
 
       // overrides first callback
-      myReactAL.assignEvent(subscriber1, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive2); 
+      myReactAL.attachEvent(subscriber1, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive2); 
 
       // callback is being added to the ReactAL since it belonging to a different object
-      myReactAL.assignEvent(subscriber2, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive); 
+      myReactAL.attachEvent(subscriber2, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive); 
       ```
  - concurrently: detach a callback at any time from anywhere. This means in particular
     - Detaching a callback from within a callback.
@@ -89,13 +89,13 @@ The following use cases and behaviors should be implemented.
       Exception: If a callback detaches itself it blocks until the callback is removed 
                  and not until the callback is finished. After the successful removal the 
                  callback will continue and will not be called again.
-    - The callback is no longer assigned to the event after calling `detach`.
-      The method will succeed even if it was not assigned in the first place.
+    - The callback is no longer attached to the event after calling `detach`.
+      The method will succeed even if it was not attached in the first place.
 
  - When the ReactAL goes out of scope it detaches itself from every class 
-     to which it was assigned via a callback provided by the attached class (like in the WaitSet).
+     to which it was attached via a callback provided by the attached class (like in the WaitSet).
 
- - When the class which is assigned to the ReactAL goes out of scope it 
+ - When the class which is attached to the ReactAL goes out of scope it 
     detaches itself from the ReactAL via a callback provided by the ReactAL (like in the WaitSet).
 
 ### Usage Code Example
@@ -111,14 +111,14 @@ void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
 
 void onSubscribe(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "subscribed!\n";
-  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
-  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, onUnsubscribe);
+  myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
+  myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, onUnsubscribe);
   myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED);
 }
 
 void onUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
   std::cout << "unsubscribed from publisher\n";
-  myCallbackReactAL.assignEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
+  myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
   myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED);
   myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED);
 }
@@ -128,7 +128,7 @@ int main() {
   subscriberOptions.queueCapacity = 10U;
   iox::popo::TypedSubscriber<RadarObject> mySubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 
-  myCallbackReactAL.assignEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
+  myCallbackReactAL.attachEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
   mySubscriber.subscribe();
 
   App::mainloop();
@@ -160,7 +160,7 @@ int main() {
         | 1                                                     | 1  [one EventNotifier per Event]
 +--------------------------------------------------+  +-----------------------------------+
 | ReactAL                                          |  | EventAssignable (e.g. Subscriber) |
-|   assignEvent(EventOrigin, EventType, Callback)  |  +-----------------------------------+
+|   attachEvent(EventOrigin, EventType, Callback)  |  +-----------------------------------+
 |   detachEvent(EventOrigin, EventType)            |
 |                                                  |
 |   - m_callbacks                                  |
@@ -186,7 +186,7 @@ int main() {
       of the event (sampleReceived).
 ```
   User                ReactAL                                             Subscriber 
-   |   assignEvent()     |                                                     |
+   |   attachEvent()     |                                                     |
    | ------------------> |   EventNotifier(EventVarDatPtr)    EventNotifier    |
                          | --------------------------------------> |           |
                          |                                         |           |
@@ -194,7 +194,7 @@ int main() {
                          | ----------------------------------------+---------> |
 ```
   - **Signal an event from subscriber:** `EventNotifier.notify()` is called which sets an, to the subscriber 
-      assigned flag, to true and `EventListener` will wake up.
+      attached flag, to true and `EventListener` will wake up.
 ```
   Subscriber          EventNotifier                EventVariableData.m_activeNotifications
     |   notify()           |                                            |
@@ -300,7 +300,7 @@ template<uint64_t CallbackCapacity>
 class ReactAL {
   public:
     template<typename EventOrigin, typename EventType>
-    cxx::expected<ReactALErrors> assignEvent(
+    cxx::expected<ReactALErrors> attachEvent(
       EventOrigin & origin, const EventType & eventType,
       const cxx::function_ref<void(EventOrigin&)> & callback
     ) noexcept;
