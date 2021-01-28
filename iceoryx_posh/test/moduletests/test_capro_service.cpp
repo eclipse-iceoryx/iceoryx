@@ -473,3 +473,200 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
     EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
 }
 
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceStringIsInvalid)
+{
+    uint16_t testServiceID = iox::capro::AnyService;
+    uint16_t testEventID = iox::capro::AnyEvent;
+    uint16_t testInstanceID = iox::capro::AnyInstance;
+    IdString_t testService = iox::capro::InvalidIDString;
+    IdString_t testEvent = "validevent";
+    IdString_t testInstance = "validinstance";
+    ServiceDescription::ClassHash testHash{1, 2, 3, 4};
+    auto serialObj = iox::cxx::Serialization::create(testService,
+                                                     testInstance,
+                                                     testEvent,
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
+    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsAnyService)
+{
+    uint16_t testServiceID = iox::capro::AnyService;
+    uint16_t testEventID = iox::capro::AnyEvent;
+    uint16_t testInstanceID = iox::capro::AnyInstance;
+    IdString_t testService = "validservice";
+    IdString_t testEvent = "validevent";
+    IdString_t testInstance = "validinstance";
+    ServiceDescription::ClassHash testHash{1, 2, 3, 4};
+    auto serialObj = iox::cxx::Serialization::create(testService,
+                                                     testInstance,
+                                                     testEvent,
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
+    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceStringIsInvalid)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = iox::capro::AnyEvent;
+    uint16_t testInstanceID = iox::capro::AnyInstance;
+    IdString_t testService = "validservice";
+    IdString_t testEvent = "validevent";
+    IdString_t testInstance = iox::capro::InvalidIDString;
+    ServiceDescription::ClassHash testHash{1, 2, 3, 4};
+    auto serialObj = iox::cxx::Serialization::create(testService,
+                                                     testInstance,
+                                                     testEvent,
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
+    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsAnyInstance)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 3U;
+    uint16_t testInstanceID = iox::capro::AnyInstance;
+    IdString_t testService = "validinstance";
+    IdString_t testEvent = "validevent";
+    IdString_t testInstance = "validinstance";
+    ServiceDescription::ClassHash testHash{1, 2, 3, 4};
+    auto serialObj = iox::cxx::Serialization::create(testService,
+                                                     testInstance,
+                                                     testEvent,
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
+    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionIsValidWhenServiceInstanceAndEventAreValid)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 3U;
+    uint16_t testInstanceID = 2U;
+    IdString_t testService = "validservice";
+    IdString_t testEvent = "validevent";
+    IdString_t testInstance = "validinstance";
+    ServiceDescription::ClassHash testHash{1, 2, 3, 4};
+    auto serialObj = iox::cxx::Serialization::create(testService,
+                                                     testInstance,
+                                                     testEvent,
+                                                     testServiceID,
+                                                     testInstanceID,
+                                                     testEventID,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
+    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    EXPECT_TRUE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceIDIsInvalid)
+{
+    uint16_t testServiceID = 0U;
+    uint16_t testEventID = 1U;
+    uint16_t testInstanceID = 1U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceIDIsAnyService)
+{
+    uint16_t testServiceID = iox::capro::AnyService;
+    uint16_t testEventID = 1U;
+    uint16_t testInstanceID = 1U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndInstanceIDIsInvalid)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 1U;
+    uint16_t testInstanceID = 0U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndInstanceIDIsAnyInstance)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 1U;
+    uint16_t testInstanceID = iox::capro::AnyInstance;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndEventIDIsInvalid)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 0U;
+    uint16_t testInstanceID = 1U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndEventIDIsAnyEvent)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = iox::capro::AnyEvent;
+    uint16_t testInstanceID = 1U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    EXPECT_FALSE(serviceDescription1.isValid());
+}
+
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServieInstanceAndEventIDsAreValid)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 1U;
+    uint16_t testInstanceID = 1U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    EXPECT_TRUE(serviceDescription1.isValid());
+}
