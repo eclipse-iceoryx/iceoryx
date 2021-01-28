@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,5 +63,7 @@ struct iox_pub_storage_t_
     uint64_t do_not_touch_me[1];
 };
 typedef struct iox_pub_storage_t_ iox_pub_storage_t;
+
+#define MAX_NODE_NAME_LENGTH_ON_C 100
 
 #endif

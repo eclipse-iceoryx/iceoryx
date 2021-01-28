@@ -22,7 +22,6 @@ using namespace iox::popo;
 
 
 extern "C" {
-#include "iceoryx_binding_c/publisher_options.h"
 #include "iceoryx_binding_c/types.h"
 }
 
@@ -54,8 +53,9 @@ TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
     EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
 }
 
-TEST(iox_types_test, c_PublisherOptionsNodeNameLengthIsEqualToIoxNodeNameCapacity)
+TEST(iox_types_test, c_NodeNameLengthIsEqualToIoxNodeNameCapacity)
 {
     iox::NodeName_t testNode;
     EXPECT_THAT(MAX_NODE_NAME_LENGTH_ON_C, testNode.capacity());
 }
+

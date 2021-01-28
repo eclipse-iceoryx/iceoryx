@@ -12,19 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_PUBLISHER_OPTIONS_H
-#define IOX_BINDING_C_PUBLISHER_OPTIONS_H
+#ifndef IOX_BINDING_C_SUBSCRIBER_OPTIONS_H
+#define IOX_BINDING_C_SUBSCRIBER_OPTIONS_H
 
 #include "iceoryx_binding_c/types.h"
 #include <stdint.h>
 
-/// @brief This struct is used to configure the publisher
-struct c_PublisherOptions
+/// @brief This struct is used to configure the subscriber
+struct c_SubscriberOptions
 {
-    /// @brief The size of the history chunk queue
-    uint64_t historyCapacity;
+    /// @brief The size of the receiver queue where chunks are stored before they are passed to the user
+    /// @attention Depending on the underlying queue there can be a different overflow behavior
+    uint64_t queueCapacity;
 
-    /// @brief The name of the node where the publisher should belong to
+    /// @brief The max number of chunks received after subscription if chunks are available
+    uint64_t historyRequest;
+
+    /// @brief The name of the node where the subscriber should belong to
     char nodeName[MAX_NODE_NAME_LENGTH_ON_C];
 };
 

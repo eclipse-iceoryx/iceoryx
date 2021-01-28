@@ -20,7 +20,6 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 
 bool killswitch = false;
 
@@ -35,9 +34,8 @@ void sending()
 {
     iox_runtime_init("iox-c-publisher");
 
-    struct c_PublisherOptions options;
-    options.historyCapacity = 10U;
-    strncpy(options.nodeName, "iox-c-publisher-node", MAX_NODE_NAME_LENGTH_ON_C);
+    const uint64_t historyCapacity = 10U;
+    const struct c_PublisherOptions options = {historyCapacity, "iox-c-publisher-node"};
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", options);
 

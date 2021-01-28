@@ -34,7 +34,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* service,
                        const char* instance,
                        const char* event,
-                       struct c_PublisherOptions options);
+                       const struct c_PublisherOptions options);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed
