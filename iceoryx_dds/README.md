@@ -31,7 +31,7 @@ sudo apt install cmake maven openjdk-14-jdk-headless
 ## CMake Build 
 You can use the standard iceoryx cmake build approach with an activated `-DDDS_GATEWAY=ON`
 switch.
-```sw
+```sh
 cmake -Bbuild -Hiceoryx_meta -DDDS_GATEWAY=ON
 cd build
 make
@@ -57,21 +57,6 @@ In this example we would like to offer or subscribe to the two services
 `Radar.FrontLeft.Object` from our [icedelivery example](../iceoryx_examples/icedelivery)
 and to one service `larry_robotics.SystemMonitor.larry_info` from our 
 [larry demonstrator](https://gitlab.com/larry.robotics/larry.robotics).
-
-## Running
-Before running, you may need to add the install directory to the library load path if it is not standard (so that the runtime dependencies can be found).
-i.e.
-```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_DIR/lib
-```
-
-Then, simply run the gateway executables as desired.
-
-e.g.
-```bash
-$INSTALL_DIR/bin/iox-gw-iceoryx2dds
-$INSTALL_DIR/bin/iox-gw-dds2iceoryx
-```
 
 ## Running icedelivery via CycloneDDS
 We can use CycloneDDS to run our [icedelivery example](../iceoryx_examples/icedelivery) 
@@ -102,3 +87,20 @@ Open another three terminals on machine `B` and execute the commands:
 
 If you would like to have a bidirectional communication just run `iox-gw-dds2iceoryx` and 
 `iox-gw-iceoryx2dds` on the same machine.
+
+## Running with shared libraries
+Before running, you may need to add the install directory to the library load path if it is not standard (so that the runtime dependencies can be found).
+i.e.
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_DIR/lib
+```
+
+Then, simply run the gateway executables as desired.
+
+e.g.
+```bash
+$INSTALL_DIR/bin/iox-gw-iceoryx2dds
+$INSTALL_DIR/bin/iox-gw-dds2iceoryx
+```
+
+

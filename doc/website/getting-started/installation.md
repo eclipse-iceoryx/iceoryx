@@ -6,16 +6,23 @@ iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh 
 
 ### General
 
+ - [cmake](https://cmake.org), 3.5 or later
+ - One of the following compilers:
+   - [gcc](https://gcc.gnu.org), 7.4 or later 
+   - [clang](https://clang.llvm.org), 9.0 or later
+   - [msvc](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
+ - optionally, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspectiont tool.
+
 #### Cyclone DDS
 If you would like to use our Cyclone DDS Gateway you have to install 
 [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) first. Furthermore
 you have to install:
 
- - Maven 3.0 or higher
- - openjdk 14.0 or higher
+ - [Apache Maven](http://maven.apache.org/download.cgi), 3.5 or later
+ - [OpenJDK](http://jdk.java.net/11/), 11.0 or later. Alternatively Java JDK, version 8 or later
 
 **Hint:** If you are behind a corporate firewall you may have to adjust the proxy 
-settings of maven in `/etc/maven/settings.xml`.
+settings of maven in `/etc/maven/settings.xml`. See: [Maven Proxy Configuration](https://maven.apache.org/settings.html#proxies)
 
 ### Mac OS
 
