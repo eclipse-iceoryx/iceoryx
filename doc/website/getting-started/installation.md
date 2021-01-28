@@ -4,6 +4,19 @@ iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh 
 
 ## Prerequisites
 
+### General
+
+#### Cyclone DDS
+If you would like to use our Cyclone DDS Gateway you have to install 
+[Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) first. Furthermore
+you have to install:
+
+ - Maven 3.0 or higher
+ - openjdk 14.0 or higher
+
+**Hint:** If you are behind a corporate firewall you may have to adjust the proxy 
+settings of maven in `/etc/maven/settings.xml`.
+
 ### Mac OS
 
 Before installing iceoryx you need a XCode installation, git and optional an installed ncurses library for
@@ -20,8 +33,6 @@ git checkout v6.2
 make -j12
 make install
 ```
-
-If you would like to use our Cyclone DDS Gateway you have to install [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) first.
 
 ### Linux
 
