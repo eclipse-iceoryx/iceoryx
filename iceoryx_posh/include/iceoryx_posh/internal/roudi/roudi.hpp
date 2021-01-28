@@ -41,7 +41,7 @@ using namespace iox::units::duration_literals;
 class RouDi
 {
   public:
-    // indicate whether the message queue thread will start directly or deferred
+    // indicate whether the IPC channel thread will start directly or deferred
     // this is important for derived classes which may need to initialize their members before the thread starts
     enum class MQThreadStart
     {
@@ -82,9 +82,9 @@ class RouDi
     virtual ~RouDi();
 
   protected:
-    /// @brief Starts the roudi message queue thread
+    /// @brief Starts the roudi IPC channel thread
     /// Once this is done, applications can register and Roudi is fully operational.
-    void startMQThread();
+    void startIpcChannelThread();
 
     /// @brief Stops threads and kills all process known to RouDi
     /// Called in d'tor
@@ -120,7 +120,7 @@ class RouDi
     static uint64_t getUniqueSessionIdForProcess();
 
   private:
-    void mqThread();
+    void ipcChannelThread();
 
     void processThread();
 

@@ -106,7 +106,7 @@ class CMqInterfaceStartupRace_test : public Test
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
     IpcChannelType::result_t m_roudiQueue{
-        IpcChannelType::create(roudi::MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
+        IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
     IpcChannelType::result_t m_appQueue;
 };
@@ -140,7 +140,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         }
 
         auto m_roudiQueue2 =
-            IpcChannelType::create(roudi::MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+            IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
@@ -156,7 +156,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         }
     });
 
-    MqRuntimeInterface dut(roudi::MQ_ROUDI_NAME, MqAppName, 35_s);
+    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -189,7 +189,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
             std::cerr << "system call failed with error: " << sysC.getErrorString();
             exit(EXIT_FAILURE);
         }
-        auto newRoudi = IpcChannelType::create(roudi::MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto newRoudi = IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);
@@ -212,7 +212,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
         }
     });
 
-    MqRuntimeInterface dut(roudi::MQ_ROUDI_NAME, MqAppName, 35_s);
+    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -252,7 +252,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         }
     });
 
-    MqRuntimeInterface dut(roudi::MQ_ROUDI_NAME, MqAppName, 35_s);
+    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();

@@ -65,7 +65,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     // are there used instances of RouDiBase?
     auto maybePublisher = acquirePublisherPortData(IntrospectionPortService,
                                                    options,
-                                                   MQ_ROUDI_NAME,
+                                                   IPC_CHANNEL_ROUDI_NAME,
                                                    introspectionMemoryManager,
                                                    INTROSPECTION_SERVICE_ID,
                                                    PortConfigInfo());
@@ -79,7 +79,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
                                               options,
-                                              MQ_ROUDI_NAME,
+                                              IPC_CHANNEL_ROUDI_NAME,
                                               introspectionMemoryManager,
                                               INTROSPECTION_SERVICE_ID,
                                               PortConfigInfo());
@@ -94,7 +94,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
                                               options,
-                                              MQ_ROUDI_NAME,
+                                              IPC_CHANNEL_ROUDI_NAME,
                                               introspectionMemoryManager,
                                               INTROSPECTION_SERVICE_ID,
                                               PortConfigInfo());

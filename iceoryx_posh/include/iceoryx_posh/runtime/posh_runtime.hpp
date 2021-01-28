@@ -196,7 +196,7 @@ class PoshRuntime
     const ProcessName_t m_appName;
     mutable std::mutex m_appMqRequestMutex;
 
-    // Message queue interface for POSIX IPC from RouDi
+    // IPC channel interface for POSIX IPC from RouDi
     MqRuntimeInterface m_MqInterface;
     // Shared memory interface for POSIX IPC from RouDi
     SharedMemoryUser m_ShmInterface;
