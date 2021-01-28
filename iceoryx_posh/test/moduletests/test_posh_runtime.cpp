@@ -187,7 +187,6 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
     EXPECT_TRUE(applicationlistOverflowDetected);
 }
 
-
 TEST_F(PoshRuntime_test, MiddlewareInterfaceIsSuccessful)
 {
     const auto interfacePortData = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_nodeName);
@@ -274,7 +273,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
     EXPECT_EQ(publisherOptions.historyCapacity, publisherPort->m_chunkSenderData.m_historyCapacity);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewarePublisherMaxCapacity)
+TEST_F(PoshRuntime_test, MiddlewarePublisherMaxCapacityExceededReturnMaxCapacity)
 {
     // arrange
     iox::popo::PublisherOptions publisherOptions;
