@@ -670,3 +670,27 @@ TEST_F(ServiceDescription_test,
 
     EXPECT_TRUE(serviceDescription1.isValid());
 }
+
+TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfServiceStringOfFirstServiceDescriptionIsLessThanSecond)
+{
+    ServiceDescription serviceDescription1("TestService1", "TestInstance", "TestEvent");
+    ServiceDescription serviceDescription2("TestService2", "TestInstance", "TestEvent");
+
+    EXPECT_FALSE(serviceDescription1 < serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfInstanceStringOfFirstServiceDescriptionIsLessThanSecond)
+{
+    ServiceDescription serviceDescription1("TestService", "TestInstance1", "TestEvent");
+    ServiceDescription serviceDescription2("TestService", "TestInstance2", "TestEvent");
+
+    EXPECT_FALSE(serviceDescription1 < serviceDescription2);
+}
+
+TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirstServiceDescriptionIsLessThanSecond)
+{
+    ServiceDescription serviceDescription1("TestService", "TestInstance", "TestEvent1");
+    ServiceDescription serviceDescription2("TestService", "TestInstance", "TestEvent2");
+
+    EXPECT_FALSE(serviceDescription1 < serviceDescription2);
+}
