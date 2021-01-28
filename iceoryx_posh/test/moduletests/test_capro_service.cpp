@@ -403,9 +403,8 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsTrueIfTheServiceIDsAreS
     uint16_t sameserviceID = 1U;
     ServiceDescription description1 = ServiceDescription(sameserviceID, iox::capro::AnyEvent, iox::capro::AnyInstance);
     ServiceDescription description2 = ServiceDescription(sameserviceID, iox::capro::AnyEvent, iox::capro::AnyInstance);
-  
-    EXPECT_TRUE(iox::capro::serviceMatch(description1, description2));
 
+    EXPECT_TRUE(iox::capro::serviceMatch(description1, description2));
 }
 
 TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAreDifferent)
@@ -413,41 +412,64 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
     uint16_t serviceID1 = 1U;
     uint16_t serviceID2 = 2U;
     ServiceDescription description1 = ServiceDescription(serviceID1, iox::capro::AnyEvent, iox::capro::AnyInstance);
-    ServiceDescription description2 =
-        ServiceDescription(serviceID2, iox::capro::AnyEvent, iox::capro::AnyInstance);
+    ServiceDescription description2 = ServiceDescription(serviceID2, iox::capro::AnyEvent, iox::capro::AnyInstance);
 
     EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
 }
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
 {
-    ServiceDescription::ClassHash testHash1{1,2,3,4};
-    ServiceDescription::ClassHash testHash2{5,6,7,8};
+    ServiceDescription::ClassHash testHash1{1, 2, 3, 4};
+    ServiceDescription::ClassHash testHash2{5, 6, 7, 8};
 
-    EXPECT_FALSE(testHash1==testHash2);
+    EXPECT_FALSE(testHash1 == testHash2);
 }
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsTrue)
 {
-    ServiceDescription::ClassHash testHash1{1,2,3,4};
-    ServiceDescription::ClassHash testHash2{1,2,3,4};
+    ServiceDescription::ClassHash testHash1{1, 2, 3, 4};
+    ServiceDescription::ClassHash testHash2{1, 2, 3, 4};
 
-    EXPECT_TRUE(testHash1==testHash2);
+    EXPECT_TRUE(testHash1 == testHash2);
 }
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperatorReturnsTrue)
 {
-    ServiceDescription::ClassHash testHash1{1,2,3,4};
-    ServiceDescription::ClassHash testHash2{5,6,7,8};
+    ServiceDescription::ClassHash testHash1{1, 2, 3, 4};
+    ServiceDescription::ClassHash testHash2{5, 6, 7, 8};
 
-    EXPECT_TRUE(testHash1!=testHash2);
+    EXPECT_TRUE(testHash1 != testHash2);
 }
 
 TEST_F(ServiceDescription_test, ComparingTwoEqualClassHashWithNotEqualOperatorReturnsFalse)
 {
-    ServiceDescription::ClassHash testHash1{1,2,3,4};
-    ServiceDescription::ClassHash testHash2{1,2,3,4};
+    ServiceDescription::ClassHash testHash1{1, 2, 3, 4};
+    ServiceDescription::ClassHash testHash2{1, 2, 3, 4};
 
-    EXPECT_FALSE(testHash1!=testHash2);
+    EXPECT_FALSE(testHash1 != testHash2);
+}
+
+TEST_F(ServiceDescription_test, IsInternalMethodReturnsTrueWhenTheScopeIsSetToInternal)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 2U;
+    uint16_t testInstanceID = 3U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    serviceDescription1.setInternal();
+
+    EXPECT_TRUE(serviceDescription1.isInternal());
+}
+
+TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScope)
+{
+    uint16_t testServiceID = 1U;
+    uint16_t testEventID = 2U;
+    uint16_t testInstanceID = 3U;
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
+
+    serviceDescription1.setInternal();
+
+    EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
 }
 
