@@ -28,15 +28,13 @@ typedef struct cpp2c_Publisher* iox_pub_t;
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] historyCapacity size of the history chunk queue
-/// @param[in] nodeName name of the node where the publisher should belong to
+/// @param[in] options publisher options including historyCapacity and nodeName
 /// @return handle of the publisher
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* service,
                        const char* instance,
                        const char* event,
-                       const uint64_t historyCapacity,
-                       struct cpp2c_PublisherOptions options);
+                       struct c_PublisherOptions options);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed

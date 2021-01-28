@@ -15,11 +15,17 @@
 #ifndef IOX_BINDING_C_PUBLISHER_OPTIONS_H
 #define IOX_BINDING_C_PUBLISHER_OPTIONS_H
 
+#include <stdint.h>
+
 #define MAX_NODE_NAME_LENGTH_ON_C 100
 
-struct cpp2c_PublisherOptions
+/// @brief This struct is used to configure the publisher
+struct c_PublisherOptions
 {
-    // const char* nodeName{nullptr};
+    /// @brief The size of the history chunk queue
+    uint64_t historyCapacity;
+
+    /// @brief The name of the node where the publisher should belong to
     char nodeName[MAX_NODE_NAME_LENGTH_ON_C];
 };
 

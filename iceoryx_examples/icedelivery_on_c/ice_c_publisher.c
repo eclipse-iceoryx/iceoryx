@@ -35,11 +35,11 @@ void sending()
 {
     iox_runtime_init("iox-c-publisher");
 
-    const uint64_t historyRequest = 10U;
-    struct cpp2c_PublisherOptions options;
+    struct c_PublisherOptions options;
+    options.historyCapacity = 10U;
     strncpy(options.nodeName, "iox-c-publisher-node", MAX_NODE_NAME_LENGTH_ON_C);
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest, options);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", options);
 
     iox_pub_offer(publisher);
 
