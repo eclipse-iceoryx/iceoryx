@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/publisher_options.h"
 #include "iceoryx_binding_c/types.h"
 
 /// @brief publisher handle
@@ -35,7 +36,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* instance,
                        const char* event,
                        const uint64_t historyCapacity,
-                       const char* nodeName);
+                       struct cpp2c_PublisherOptions options);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed

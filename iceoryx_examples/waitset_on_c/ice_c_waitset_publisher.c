@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,9 +36,10 @@ void sending()
     iox_runtime_init("iox-c-ex-waitset-publisher");
 
     uint64_t historyRequest = 0U;
+    struct cpp2c_PublisherOptions options;
+    strncpy(options.nodeName, "iox-c-ex-waitset-publisher-node", MAX_NODE_NAME_LENGTH_ON_C);
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(
-        &publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest, "iox-c-ex-waitset-publisher-node");
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest, options);
 
     iox_pub_offer(publisher);
 
