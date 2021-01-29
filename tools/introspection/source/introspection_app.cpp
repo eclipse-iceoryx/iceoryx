@@ -342,7 +342,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         constexpr int32_t indentation{2};
         constexpr char indentationString[indentation + 1] = "  ";
 
-        auto strSize = data.size();
+        auto stringSize = data.size();
         if (currentLine == 0U)
         {
             stream << std::left << std::setw(maxSize) << data.substr(0U, static_cast<size_t>(maxSize));
