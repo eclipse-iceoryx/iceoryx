@@ -15,20 +15,17 @@
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include "test.hpp"
 
 using namespace ::testing;
 using ::testing::Return;
 
-namespace example
-{
 namespace test
 {
 class PortPool_test : public Test
 {
   public:
-    iox::roudi::PortPoolData* portPoolData = new iox::roudi::PortPoolData{};
+    iox::roudi::PortPoolData portPoolData;
 };
 
 TEST_F(PortPool_test, AddNodeDataFailsWhenNodeListIsFull)
@@ -41,16 +38,15 @@ TEST_F(PortPool_test, AddNodeDataFailsWhenNodeListIsFull)
             errorHandlerCalled = true;
         });
 
-    for (uint32_t i = 0; i < iox::MAX_NODE_NUMBER; ++i)
+    for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; ++i)
     {
-        portPoolData->m_nodeMembers.insert("processName", "nodeName", i);
+        portPoolData.m_nodeMembers.insert("processName", "nodeName", i);
     }
 
-    iox::roudi::PortPool portPool(*portPoolData);
-    portPool.addNodeData("processName", "nameName", 999u);
-
+    iox::roudi::PortPool sut(portPoolData);
+    sut.addNodeData("processName", "nameName", 999U);
+    ASSERT_THAT(errorHandlerCalled, Eq(true));
     EXPECT_EQ(errorHandlerType, iox::Error::kPORT_POOL__NODELIST_OVERFLOW);
 }
 
 } // namespace test
-} // namespace example
