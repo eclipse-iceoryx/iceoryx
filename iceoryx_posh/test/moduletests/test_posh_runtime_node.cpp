@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include "test.hpp"
@@ -40,13 +40,9 @@ class PoshRuntimeNode_test : public Test
     {
     }
 
-    virtual void SetUp()
-    {
-    };
+    virtual void SetUp(){};
 
-    virtual void TearDown()
-    {
-    };
+    virtual void TearDown(){};
 
     const ProcessName_t m_runtimeName{"App"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
@@ -59,7 +55,7 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeIsSuccess)
 
     Node m_node("Node");
 
-    EXPECT_THAT(m_node.getNodeName(),Eq(nodeName));
+    EXPECT_THAT(m_node.getNodeName(), Eq(nodeName));
 }
 
 TEST_F(PoshRuntimeNode_test, ConstructorNodeEmptyNodeNameIsSuccess)
@@ -68,39 +64,41 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeEmptyNodeNameIsSuccess)
 
     Node m_node("");
 
-    EXPECT_THAT(m_node.getNodeName(),Eq(nodeName));
+    EXPECT_THAT(m_node.getNodeName(), Eq(nodeName));
 }
 
-TEST_F(PoshRuntimeNode_test, VerifyAssignmentEqualOperatorAssignsCorrectNodeName)
+TEST_F(PoshRuntimeNode_test, VerifyMoveAssignmentOperatorAssignsCorrectName)
 {
-    const NodeName_t& nodeNewName{"@!~*"};
+    const NodeName_t nodeName{"@!~*"};
+    Node testNode(nodeName);
     Node m_node("Node");
 
-    m_node = Node("@!~*");
+    m_node = std::move(testNode);
 
-    EXPECT_THAT(m_node.getNodeName(), Eq(nodeNewName));
+    EXPECT_THAT(m_node.getNodeName(), Eq(nodeName));
 }
 
-TEST_F(PoshRuntimeNode_test, VerifyAssignmentEqualOperatorAssignsSameNodeName)
+TEST_F(PoshRuntimeNode_test, SelfMoveAssignmentIsExcluded)
 {
-    const NodeName_t& nodeNewName{"Node"};
-    Node m_node("Node");
+    const NodeName_t nodeName{"Node"};
+    Node m_node("");
+    m_node = nodeName;
 
     m_node = std::move(m_node);
 
-    EXPECT_THAT(m_node.getNodeName(), Eq(nodeNewName));
+    EXPECT_THAT(m_node.getNodeName(), Eq(nodeName));
 }
 
-TEST_F(PoshRuntimeNode_test, VerifyAssignmentMoveOperatorAssignsCorrectNodeName)
+TEST_F(PoshRuntimeNode_test, VerifyAssignmentMoveConstructorAssignsCorrectNodeName)
 {
     const NodeName_t& nodeNewName{"Node"};
 
-    Node m_node("Node");
+    Node m_node(nodeNewName);
 
-    Node m_nodeTest (std::move(m_node));
+    Node m_nodeTest(std::move(m_node));
 
     EXPECT_THAT(m_nodeTest.getNodeName(), Eq(nodeNewName));
 }
 
 } // namespace test
-} // namespace iox 
+} // namespace iox

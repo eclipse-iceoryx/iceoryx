@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #
-#include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 
 #include "test.hpp"
 
@@ -38,46 +38,42 @@ class PoshRuntimeSingleProcess_test : public Test
     {
     }
 
-    virtual void SetUp()
-    {
-    };
+    virtual void SetUp(){};
 
-    virtual void TearDown()
-    {
-    };   
+    virtual void TearDown(){};
 };
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSuccess)
 {
-  iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
-  IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
+    iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
+    IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
-  RouDi roudi(roudiComponents.m_rouDiMemoryManager,
-                            roudiComponents.m_portManager,
-                            RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
+    RouDi roudi(roudiComponents.m_rouDiMemoryManager,
+                roudiComponents.m_portManager,
+                RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
-  const ProcessName_t& m_runtimeName{"App"};
-  PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName);
+    const ProcessName_t m_runtimeName{"App"};
+    PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName);
 }
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipleProcessIsFound)
 {
-  RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
 
-  const ProcessName_t& m_runtimeName{"App"};
+    const ProcessName_t& m_runtimeName{"App"};
 
-  iox::cxx::optional<iox::Error> detectedError;
-  auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-    [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-        detectedError.emplace(error);
-        EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
-    });
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+        });
 
-  PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName);
+    PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName);
 
-  ASSERT_THAT(detectedError.has_value(), Eq(true));
-  EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
 }
 
 } // namespace test
-} // namespace iox 
+} // namespace iox
