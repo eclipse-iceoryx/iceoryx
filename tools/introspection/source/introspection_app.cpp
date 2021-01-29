@@ -369,11 +369,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
 
     for (auto& publisherPort : publisherPortData)
     {
-        // std::string m_sampleSize{std::to_string(publisherPort.throughputData->m_sampleSize)};
-        // std::string m_chunkSize{std::to_string(publisherPort.throughputData->m_chunkSize)};
-        // std::string m_chunksPerMinute{std::to_string(publisherPort.throughputData->m_chunksPerMinute)};
-        // std::string sendInterval{
-        //     std::to_string(publisherPort.throughputData->m_lastSendIntervalInNanoseconds / 1000000)};
         std::string m_sampleSize{"n/a"};
         std::string m_chunkSize{"n/a"};
         std::string m_chunksPerMinute{"n/a"};
@@ -435,19 +430,14 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         {
         case iox::SubscribeState::NOT_SUBSCRIBED:
             return "NOT_SUBSCRIBED";
-            break;
         case iox::SubscribeState::SUBSCRIBE_REQUESTED:
             return "SUB_REQUEST";
-            break;
         case iox::SubscribeState::SUBSCRIBED:
             return "SUBSCRIBED";
-            break;
         case iox::SubscribeState::UNSUBSCRIBE_REQUESTED:
             return "UNSUB_REQUEST";
-            break;
         case iox::SubscribeState::WAIT_FOR_OFFER:
             return "WAIT_FOR_OFFER";
-            break;
         default:
             return "UNKNOWN";
         }
