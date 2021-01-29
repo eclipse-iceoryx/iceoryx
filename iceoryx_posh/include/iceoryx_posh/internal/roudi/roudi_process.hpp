@@ -62,7 +62,7 @@ class RouDiProcess
 
     const ProcessName_t getName() const noexcept;
 
-    void sendToMQ(const runtime::MqMessage& data) noexcept;
+    void sendViaIpcChannel(const runtime::MqMessage& data) noexcept;
 
     /// @brief The session ID which is used to check outdated IPC channel transmissions for this process
     /// @return the session ID for this process

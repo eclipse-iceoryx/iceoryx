@@ -21,10 +21,10 @@ namespace roudi
 IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig) noexcept
     : m_rouDiMemoryManager(roudiConfig)
     , m_portManager([&]() -> IceOryxRouDiMemoryManager* {
-        // this temporary object will create a roudi mqueue
+        // this temporary object will create a roudi IPC channel
         // and close it immediatelly
         // if there was an outdated roudi IPC channel, it will be cleaned up
-        // if there is an outdated mqueue, the start of the apps will be terminated
+        // if there is an outdated IPC channel, the start of the apps will be terminated
         runtime::MqBase::cleanupOutdatedMessageQueue(roudi::IPC_CHANNEL_ROUDI_NAME);
 
         m_rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {

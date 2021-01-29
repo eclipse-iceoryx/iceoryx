@@ -41,7 +41,7 @@ uint8_t IceOryxRouDiApp::run() noexcept
                                                      m_rouDiComponents.value().m_portManager,
                                                      RouDi::RoudiStartupParameters{m_monitoringMode,
                                                                                    true,
-                                                                                   RouDi::MQThreadStart::IMMEDIATE,
+                                                                                   RouDi::IpcThreadStart::IMMEDIATE,
                                                                                    m_compatibilityCheckLevel,
                                                                                    m_processKillDelay});
         waitForSignal();
