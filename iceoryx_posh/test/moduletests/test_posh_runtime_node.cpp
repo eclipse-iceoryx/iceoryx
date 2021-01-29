@@ -81,12 +81,12 @@ TEST_F(PoshRuntimeNode_test, VerifyMoveAssignmentOperatorAssignsCorrectName)
 TEST_F(PoshRuntimeNode_test, SelfMoveAssignmentIsExcluded)
 {
     const NodeName_t nodeName{"Node"};
-    Node m_node("");
-    m_node = nodeName;
+    Node m_node1(nodeName);
+    Node& m_node2 = m_node1;
 
-    m_node = std::move(m_node);
-
-    EXPECT_THAT(m_node.getNodeName(), Eq(nodeName));
+    m_node1 = std::move(m_node2);
+ 
+    EXPECT_THAT(m_node1.getNodeName(), Eq(nodeName));
 }
 
 TEST_F(PoshRuntimeNode_test, VerifyAssignmentMoveConstructorAssignsCorrectNodeName)
