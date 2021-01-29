@@ -19,6 +19,11 @@ jobs:
           os: [ubuntu-20.04]
 
     steps:
+      - name: compiler versions
+        run: |
+          echo $(gcc --version)
+          echo $(clang --version)
+
       - name: Setup ROS
         uses: ros-tooling/setup-ros@0.1.2
         with:

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,9 @@ struct SubscriberOptions
 
     /// @brief The max number of chunks received after subscription if chunks are available
     uint64_t historyRequest{0U};
+
+    /// @ brief The name of the node where the subscriber should belong to
+    iox::NodeName_t nodeName{""};
 };
 
 } // namespace popo

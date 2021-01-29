@@ -68,7 +68,7 @@ set `CMAKE_BUILD_TYPE=Debug`.
 
 ### Build options
 
-Please take a look at the cmake file [build_options.cmake](../iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
+Please take a look at the cmake file [build_options.cmake](../../../iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
 
 ### Available CMake switches you can customize for the iceoryx_posh build
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -147,13 +147,11 @@ class ProcessManager : public ProcessManagerInterface
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,
                                  const popo::SubscriberOptions& subscriberOptions,
-                                 const NodeName_t& node,
                                  const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addPublisherForProcess(const ProcessName_t& name,
                                 const capro::ServiceDescription& service,
                                 const popo::PublisherOptions& publisherOptions,
-                                const NodeName_t& node,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addConditionVariableForProcess(const ProcessName_t& processName) noexcept;
