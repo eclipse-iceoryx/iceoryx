@@ -40,10 +40,11 @@ void receiving()
     // samples send by the publisher when we subscribe.
     const uint64_t historyRequest = 10U;
     const uint64_t queueCapacity = 5U;
-    const struct c_SubscriberOptions options = {queueCapacity, historyRequest, "iox-c-subscriber-node"};
+    const char* const nodeName = "iox-c-subscriber-node";
     iox_sub_storage_t subscriberStorage;
 
-    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", options);
+    iox_sub_t subscriber =
+        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest, nodeName);
     iox_sub_subscribe(subscriber);
 
     while (!killswitch)

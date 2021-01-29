@@ -60,10 +60,11 @@ int main()
     // create subscriber and subscribe them to our service
     const uint64_t historyRequest = 1U;
     const uint64_t queueCapacity = 256U;
-    const struct c_SubscriberOptions options = {queueCapacity, historyRequest, "iox-c-ex-waitset-grouping-node"};
+    const char* const nodeName = "iox-c-ex-waitset-grouping-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", options);
+        subscriber[i] = iox_sub_init(
+            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
 
         iox_sub_subscribe(subscriber[i]);
     }

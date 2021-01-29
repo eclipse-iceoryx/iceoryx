@@ -17,7 +17,6 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
-#include "iceoryx_binding_c/publisher_options.h"
 #include "iceoryx_binding_c/types.h"
 
 /// @brief publisher handle
@@ -28,13 +27,15 @@ typedef struct cpp2c_Publisher* iox_pub_t;
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] options publisher options including historyCapacity and nodeName
+/// @param[in] historyCapacity size of the history chunk queue
+/// @param[in] nodeName name of the node the publisher should belong to
 /// @return handle of the publisher
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
-                       const char* service,
-                       const char* instance,
-                       const char* event,
-                       const struct c_PublisherOptions options);
+                       const char* const service,
+                       const char* const instance,
+                       const char* const event,
+                       const uint64_t historyCapacity,
+                       const char* const nodeName);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed

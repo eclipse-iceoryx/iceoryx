@@ -61,11 +61,13 @@ int main()
     const uint64_t historyRequest = 1U;
     const uint64_t queueCapacity = 256U;
 
-    const struct c_SubscriberOptions options1 = {queueCapacity, historyRequest, "iox-c-ex-waitset-individual-node1"};
-    const struct c_SubscriberOptions options2 = {queueCapacity, historyRequest, "iox-c-ex-waitset-individual-node2"};
+    const char* const nodeName1 = "iox-c-ex-waitset-individual-node1";
+    const char* const nodeName2 = "iox-c-ex-waitset-individual-node2";
 
-    subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", options1);
-    subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", options2);
+    subscriber[0] = iox_sub_init(
+        &(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName1);
+    subscriber[1] = iox_sub_init(
+        &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName2);
 
     iox_sub_subscribe(subscriber[0]);
     iox_sub_subscribe(subscriber[1]);

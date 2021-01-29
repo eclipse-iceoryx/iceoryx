@@ -37,19 +37,21 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const struct c_SubscriberOptions options)
+                       const uint64_t queueCapacity,
+                       const uint64_t historyRequest,
+                       const char* const nodeName)
 {
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
-    SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = options.queueCapacity;
-    subscriberOptions.historyRequest = options.historyRequest;
-    subscriberOptions.nodeName = options.nodeName;
+    SubscriberOptions options;
+    options.queueCapacity = queueCapacity;
+    options.historyRequest = historyRequest;
+    options.nodeName = NodeName_t(TruncateToCapacity, nodeName);
     me->m_portData =
         PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
                                                                               IdString_t(TruncateToCapacity, instance),
                                                                               IdString_t(TruncateToCapacity, event)},
-                                                           subscriberOptions);
+                                                           options);
 
     return me;
 }

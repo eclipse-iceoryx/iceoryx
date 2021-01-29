@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,11 +51,5 @@ TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
 {
     EXPECT_THAT(sizeof(cpp2c_Publisher), Le(sizeof(iox_pub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
-}
-
-TEST(iox_types_test, c_NodeNameLengthIsEqualToIoxNodeNameCapacity)
-{
-    iox::NodeName_t testNode;
-    EXPECT_THAT(MAX_NODE_NAME_LENGTH_ON_C, testNode.capacity());
 }
 

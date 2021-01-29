@@ -17,7 +17,6 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
-#include "iceoryx_binding_c/subscriber_options.h"
 #include "iceoryx_binding_c/types.h"
 
 /// @brief Subscriber handle
@@ -28,13 +27,17 @@ typedef struct cpp2c_Subscriber* iox_sub_t;
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] options subscriber options including queueCapacity, historyRequest and nodeName
+/// @param[in] queueCapacity size of the receiver queue
+/// @param[in] historyRequest of chunks received after subscription if chunks are available
+/// @param[in] nodeName name of node where the subscriber should belong to
 /// @return handle of the subscriber
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const struct c_SubscriberOptions options);
+                       const uint64_t queueCapacity,
+                       const uint64_t historyRequest,
+                       const char* const nodeName);
 
 /// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed
