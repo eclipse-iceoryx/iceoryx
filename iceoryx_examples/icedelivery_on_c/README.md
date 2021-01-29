@@ -42,7 +42,7 @@ Let's take a look at the `receiving` function which comes with the
     right after the connection is established and the `queueCapacity` how many
     samples the subscriber can hold. These are samples which the publisher has
     send before the subscriber was connected. The `nodeName` is the name of the
-    node the subscriber  belongs to.
+    node the subscriber belongs to.
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c

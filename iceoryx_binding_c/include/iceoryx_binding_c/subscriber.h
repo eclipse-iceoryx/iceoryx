@@ -29,7 +29,7 @@ typedef struct cpp2c_Subscriber* iox_sub_t;
 /// @param[in] event eventString
 /// @param[in] queueCapacity size of the receiver queue
 /// @param[in] historyRequest of chunks received after subscription if chunks are available
-/// @param[in] nodeName name of node where the subscriber should belong to
+/// @param[in] nodeName name of node where the subscriber belongs to
 /// @return handle of the subscriber
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,

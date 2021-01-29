@@ -28,7 +28,7 @@ typedef struct cpp2c_Publisher* iox_pub_t;
 /// @param[in] instance instanceString
 /// @param[in] event eventString
 /// @param[in] historyCapacity size of the history chunk queue
-/// @param[in] nodeName name of the node the publisher should belong to
+/// @param[in] nodeName name of the node the publisher belongs to
 /// @return handle of the publisher
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const service,
