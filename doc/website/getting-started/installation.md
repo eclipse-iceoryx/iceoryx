@@ -11,9 +11,9 @@ iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh 
    - [gcc](https://gcc.gnu.org), 7.4 or later 
    - [clang](https://clang.llvm.org), 9.0 or later
    - [msvc](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
- - optionally, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspectiont tool.
+ - optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspectiont tool.
 
-#### Cyclone DDS
+#### Optional, Cyclone DDS Gateway
 If you would like to use our Cyclone DDS Gateway you have to install 
 [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) first. Furthermore
 you have to install:
@@ -86,7 +86,7 @@ set `CMAKE_BUILD_TYPE=Debug`.
 
 ### Build options
 
-Please take a look at the cmake file [build_options.cmake](../iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
+Please take a look at the cmake file [build_options.cmake](../../../iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
 
 ### Available CMake switches you can customize for the iceoryx_posh build
 
