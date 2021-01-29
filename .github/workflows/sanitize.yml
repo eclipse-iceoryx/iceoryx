@@ -9,12 +9,10 @@ on:
   pull_request:
     branches: [ master ]
 
-jobs:  
+jobs:
   clang-sanitize:
-    # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install iceoryx dependencies
         # Softwares installed in ubuntu-20.04 instance
@@ -28,12 +26,12 @@ jobs:
         run: |
           # build tests , dont run them
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize clang
-                    
+
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
           ../tools/run_all_tests.sh
-          
+
  # This job builds & runs iceoryx tests (with sanitizer) in macos-10.15
   clang-sanitize-macos:
     runs-on: macos-latest
@@ -66,6 +64,3 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/build
           ../tools/run_all_tests.sh asan-only
-        
-    
-    
