@@ -52,4 +52,3 @@ TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
     EXPECT_THAT(sizeof(cpp2c_Publisher), Le(sizeof(iox_pub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
 }
-
