@@ -56,7 +56,7 @@ jobs:
          run: |
            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean
 
- # This job builds & runs iceoryx tests in macos-10.13
+ # This job builds & runs iceoryx tests in macos-10.14
   iceoryx-macos:
     runs-on: macos-10.14
     # Softwares installed in macos-latest instance
