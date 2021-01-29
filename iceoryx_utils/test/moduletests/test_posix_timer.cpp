@@ -64,49 +64,6 @@ TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
     EXPECT_THAT(sut.getError(), Eq(TimerError::TIMEOUT_IS_ZERO));
 }
 
-TIMING_TEST_F(TimerStopWatch_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat(5), [&] {
-    Timer sut(TIMEOUT);
-
-    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
-});
-
-TIMING_TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired, Repeat(5), [&] {
-    Timer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
-    TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
-    sut.resetCreationTime();
-    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
-});
-
-TIMING_TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired, Repeat(5), [&] {
-    Timer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    sut.resetCreationTime();
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
-});
-
-TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
-    Timer sut(TIMEOUT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
-
-    TIMING_TEST_ASSERT_TRUE(sut.hasExpiredComparedToCreationTime());
-    sut.resetCreationTime();
-    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
-});
-
-TEST_F(Timer_test, EmptyCallbackInCtorLeadsToError)
-{
-    Timer sut(1_s, std::function<void()>());
-
-    EXPECT_THAT(sut.hasError(), Eq(true));
-    EXPECT_THAT(sut.getError(), Eq(iox::posix::TimerError::NO_VALID_CALLBACK));
-}
-
 TEST_F(Timer_test, ZeroTimeoutIsNotAllowed)
 {
     Timer sut(0_s, [] {});
