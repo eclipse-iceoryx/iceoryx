@@ -1816,14 +1816,29 @@ TEST(Duration_test, MultiplyDurationResultsInSaturationDueToNanoseconds)
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
 }
 
+TEST(Duration_test, MultiplyZeroDurationWithNaNDoubleResultsInZeroDuration)
+{
+    EXPECT_THAT(0_s * NAN, Eq(0_s));
+}
+
 TEST(Duration_test, MultiplyMaxDurationWithNaNDoubleResultsInMaxDuration)
 {
     EXPECT_THAT(DurationFactory::max() * NAN, Eq(DurationFactory::max()));
 }
 
+TEST(Duration_test, MultiplyZeroDurationWithPosInfDoubleResultsInZeroDuration)
+{
+    EXPECT_THAT(0_s * INFINITY, Eq(0_ns));
+}
+
 TEST(Duration_test, MultiplyMaxDurationWithPosInfDoubleResultsInMaxDuration)
 {
     EXPECT_THAT(DurationFactory::max() * INFINITY, Eq(DurationFactory::max()));
+}
+
+TEST(Duration_test, MultiplyZeroDurationWithNegInfDoubleResultsInZeroDuration)
+{
+    EXPECT_THAT(0_s * (INFINITY * -1.0), Eq(0_ns));
 }
 
 TEST(Duration_test, MultiplyMaxDurationWithNegInfDoubleResultsInZeroDuration)

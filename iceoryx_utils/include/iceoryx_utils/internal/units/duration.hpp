@@ -80,7 +80,7 @@ class Duration
     /// @tparam T is an integer type for the value
     /// @param[in] value as nanoseconds
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
     static constexpr Duration nanoseconds(const T value) noexcept;
 
@@ -88,7 +88,7 @@ class Duration
     /// @tparam T is an integer type for the value
     /// @param[in] value as microseconds
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
     static constexpr Duration microseconds(const T value) noexcept;
 
@@ -96,7 +96,7 @@ class Duration
     /// @tparam T is an integer type for the value
     /// @param[in] value as milliseconds
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
     static constexpr Duration milliseconds(const T value) noexcept;
 
@@ -104,7 +104,7 @@ class Duration
     /// @tparam T is an integer type for the value
     /// @param[in] value as seconds
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
     static constexpr Duration seconds(const T value) noexcept;
 
@@ -112,7 +112,7 @@ class Duration
     /// @tparam T is an integer type for the value
     /// @param[in] value as minutes
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
     static constexpr Duration minutes(const T value) noexcept;
 
@@ -120,7 +120,7 @@ class Duration
     /// @tparam T is an integer type for the value
     /// @param[in] value as hours
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
     static constexpr Duration hours(const T value) noexcept;
 
@@ -128,7 +128,7 @@ class Duration
     /// @tparam T is an integer type for the value
     /// @param[in] value as days
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
     static constexpr Duration days(const T value) noexcept;
 
@@ -151,18 +151,18 @@ class Duration
 
     /// @brief Construct a Duration object from std::chrono::milliseconds
     /// @param[in] value as milliseconds
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     constexpr explicit Duration(const std::chrono::milliseconds& value) noexcept;
 
     /// @brief Construct a Duration object from std::chrono::nanoseconds
     /// @param[in] value as nanoseconds
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     constexpr explicit Duration(const std::chrono::nanoseconds& value) noexcept;
 
     /// @brief Assigns a std::chrono::milliseconds to an duration object
     /// @param[in] rhs is the right hand side of the assignment
     /// @return a reference to the Duration object with the assigned millisecond value
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     Duration& operator=(const std::chrono::milliseconds& rhs) noexcept;
 
     // END CONSTRUCTORS AND ASSIGNMENT
@@ -211,17 +211,18 @@ class Duration
     /// @brief Creates Duration object by subtraction
     /// @param[in] rhs is the subtrahend
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     constexpr Duration operator-(const Duration& rhs) const noexcept;
 
     /// @brief Creates Duration object by multiplication
     /// @tparam T is an arithmetic type for the multiplicator
     /// @param[in] rhs is the multiplicator
     /// @return a new Duration object
-    /// @attention since negative durations are not allowed, the duration will be capped to 0
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
+    /// @note A duration of 0 will always result in 0, no matter if multiplied with NaN or +Inf
     /// @note There is no explicit division operator! This can be achieved by multiplication with the inverse of the
     /// divisor.
-    /// @note Multiplication with NaN and +Inf results in a saturated max duration
+    /// @note Multiplication of a non-zero duration with NaN and +Inf results in a saturated max duration
     template <typename T>
     constexpr Duration operator*(const T& rhs) const noexcept;
 
@@ -311,6 +312,7 @@ class Duration
     static constexpr Duration createDuration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept;
 
     static constexpr Duration max() noexcept;
+    static constexpr Duration zero() noexcept;
 
   private:
     template <typename T, typename String>
@@ -337,7 +339,7 @@ class Duration
 /// @param[in] lhs is the multiplicator
 /// @param[in] rhs is the multiplicant
 /// @return a new Duration object
-/// @attention since negative durations are not allowed, the duration will be capped to 0
+/// @attention Since negative durations are not allowed, the duration will be clamped to 0
 template <typename T>
 constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 

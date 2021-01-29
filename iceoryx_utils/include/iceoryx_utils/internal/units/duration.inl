@@ -52,6 +52,11 @@ inline constexpr Duration Duration::max() noexcept
     return Duration{std::numeric_limits<Seconds_t>::max(), NANOSECS_PER_SEC - 1U};
 }
 
+inline constexpr Duration Duration::zero() noexcept
+{
+    return Duration{0U, 0U};
+}
+
 template <typename T, typename String>
 inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value,
                                                                              const String fromMethod) noexcept
@@ -275,7 +280,7 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
     if (*this < rhs)
     {
         std::clog << __PRETTY_FUNCTION__ << ": Result of subtraction would be negative, clamping to zero!" << std::endl;
-        return Duration(0U, 0U);
+        return Duration::zero();
     }
     auto seconds = m_seconds - rhs.m_seconds;
     Nanoseconds_t nanoseconds{0U};
@@ -432,14 +437,14 @@ inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
-    if (rhs <= static_cast<T>(0))
+    if (rhs <= static_cast<T>(0) || *this == Duration::zero())
     {
         if (rhs < static_cast<T>(0))
         {
             std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
                       << std::endl;
         }
-        return Duration{0U, 0U};
+        return Duration::zero();
     }
 
     return multiplyWith<T>(rhs);
