@@ -124,7 +124,7 @@ class BaseSubscriber
     ///          not have been already released.
     void releaseChunk(const mepoo::ChunkHeader* header) noexcept;
 
-  public:
+    friend class EventAttorney;
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
     /// @param[in] uniqueTriggerId the id of the corresponding trigger
     /// @brief Only usable by the WaitSet, not for public use

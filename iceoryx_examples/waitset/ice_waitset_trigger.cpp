@@ -58,7 +58,7 @@ class MyTriggerClass
     void performAction() noexcept
     {
         m_hasPerformedAction = true;
-        m_actionTrigger.trigger();
+        m_onActionTrigger.trigger();
     }
 
     uint64_t getActivationCode() const noexcept
@@ -66,7 +66,7 @@ class MyTriggerClass
         return m_activationCode;
     }
 
-    // required by the m_actionTrigger to ask the class if it was triggered
+    // required by the m_onActionTrigger to ask the class if it was triggered
     bool hasPerformedAction() const noexcept
     {
         return m_hasPerformedAction;
@@ -97,7 +97,7 @@ class MyTriggerClass
         std::cout << "action performed" << std::endl;
     }
 
-    friend iox::popo::EventAccessor;
+    friend iox::popo::EventAttorney;
 
   private:
     /// @brief Only usable by the WaitSet, not for public use
@@ -109,7 +109,7 @@ class MyTriggerClass
         switch (event)
         {
         case MyTriggerClassEvents::PERFORMED_ACTION:
-            m_actionTrigger = std::move(triggerHandle);
+            m_onActionTrigger = std::move(triggerHandle);
             break;
         case MyTriggerClassEvents::ACTIVATE:
             m_activateTrigger = std::move(triggerHandle);
@@ -122,9 +122,9 @@ class MyTriggerClass
     // out of scope
     void invalidateTrigger(const uint64_t uniqueTriggerId)
     {
-        if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
+        if (m_onActionTrigger.getUniqueId() == uniqueTriggerId)
         {
-            m_actionTrigger.invalidate();
+            m_onActionTrigger.invalidate();
         }
         else if (m_activateTrigger.getUniqueId() == uniqueTriggerId)
         {
@@ -137,7 +137,7 @@ class MyTriggerClass
         switch (event)
         {
         case MyTriggerClassEvents::PERFORMED_ACTION:
-            m_actionTrigger.reset();
+            m_onActionTrigger.reset();
             break;
         case MyTriggerClassEvents::ACTIVATE:
             m_activateTrigger.reset();
@@ -146,7 +146,8 @@ class MyTriggerClass
     }
 
     /// @brief Only usable by the WaitSet, not for public use
-    iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
+    iox::popo::WaitSetHasTriggeredCallback
+    getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
     {
         switch (event)
         {
@@ -163,7 +164,7 @@ class MyTriggerClass
     bool m_hasPerformedAction = false;
     bool m_isActivated = false;
 
-    iox::popo::TriggerHandle m_actionTrigger;
+    iox::popo::TriggerHandle m_onActionTrigger;
     iox::popo::TriggerHandle m_activateTrigger;
 };
 

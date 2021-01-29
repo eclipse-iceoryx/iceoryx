@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_EVENT_ACCESSOR_HPP
-#define IOX_POSH_POPO_EVENT_ACCESSOR_HPP
+#ifndef IOX_POSH_POPO_EVENT_ATTORNEY_HPP
+#define IOX_POSH_POPO_EVENT_ATTORNEY_HPP
 
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
@@ -24,8 +24,9 @@ namespace iox
 namespace popo
 {
 /// @brief Class which allows accessing private methods to
-///         friends of EventAccessor. Used for example by the WaitSet.
-class EventAccessor
+///         friends of EventAttorney. Used for example by the WaitSet.
+///         Implements the Client-Attorney Pattern.
+class EventAttorney
 {
     template <uint64_t>
     friend class WaitSet;
@@ -48,5 +49,5 @@ class EventAccessor
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/event_accessor.inl"
+#include "iceoryx_posh/internal/popo/event_attorney.inl"
 #endif

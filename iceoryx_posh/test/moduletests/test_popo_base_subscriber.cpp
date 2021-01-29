@@ -39,6 +39,8 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
   public:
     using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
 
+    using SubscriberParent::disableEvent;
+    using SubscriberParent::enableEvent;
     using SubscriberParent::getServiceDescription;
     using SubscriberParent::getSubscriptionState;
     using SubscriberParent::getUid;

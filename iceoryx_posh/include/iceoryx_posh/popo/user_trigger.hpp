@@ -46,7 +46,7 @@ class UserTrigger
     /// @brief Resets the UserTrigger state to not triggered
     void resetTrigger() noexcept;
 
-    friend class EventAccessor;
+    friend class EventAttorney;
 
   private:
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.

@@ -63,7 +63,7 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
         }
     }
 
-    cxx::MethodCallback<void, uint64_t> invalidationCallback = EventAccessor::getInvalidateTriggerMethod(eventOrigin);
+    cxx::MethodCallback<void, uint64_t> invalidationCallback = EventAttorney::getInvalidateTriggerMethod(eventOrigin);
 
     if (!m_triggerList.push_back(
             Trigger{&eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback}))
@@ -81,10 +81,10 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAccessor::getHasTriggeredCallbackForEvent(eventOrigin, eventType);
+    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForEvent(eventOrigin, eventType);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
-        EventAccessor::enableEvent(
+        EventAttorney::enableEvent(
             eventOrigin,
             TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
             eventType);
@@ -106,10 +106,10 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAccessor::getHasTriggeredCallbackForEvent(eventOrigin);
+    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForEvent(eventOrigin);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
-        EventAccessor::enableEvent(
+        EventAttorney::enableEvent(
             eventOrigin, TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
     });
 }
@@ -126,7 +126,7 @@ template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
-    EventAccessor::disableEvent(eventOrigin, args...);
+    EventAttorney::disableEvent(eventOrigin, args...);
 }
 
 template <uint64_t Capacity>

@@ -20,26 +20,26 @@ namespace iox
 namespace popo
 {
 template <typename T, typename... Targs>
-inline void EventAccessor::enableEvent(T& eventOrigin, Targs&&... args) noexcept
+inline void EventAttorney::enableEvent(T& eventOrigin, Targs&&... args) noexcept
 {
     eventOrigin.enableEvent(std::forward<Targs>(args)...);
 }
 
 template <typename T, typename... Targs>
-inline void EventAccessor::disableEvent(T& eventOrigin, Targs&&... args) noexcept
+inline void EventAttorney::disableEvent(T& eventOrigin, Targs&&... args) noexcept
 {
     eventOrigin.disableEvent(std::forward<Targs>(args)...);
 }
 
 template <typename T, typename... Targs>
-inline cxx::ConstMethodCallback<bool> EventAccessor::getHasTriggeredCallbackForEvent(T& eventOrigin,
+inline cxx::ConstMethodCallback<bool> EventAttorney::getHasTriggeredCallbackForEvent(T& eventOrigin,
                                                                                      Targs&&... args) noexcept
 {
     return eventOrigin.getHasTriggeredCallbackForEvent(std::forward<Targs>(args)...);
 }
 
 template <typename T>
-inline cxx::MethodCallback<void, uint64_t> EventAccessor::getInvalidateTriggerMethod(T& eventOrigin) noexcept
+inline cxx::MethodCallback<void, uint64_t> EventAttorney::getInvalidateTriggerMethod(T& eventOrigin) noexcept
 {
     return cxx::MethodCallback<void, uint64_t>(
         eventOrigin, static_cast<cxx::MethodCallback<void, uint64_t>::MethodPointer<T>>(&T::invalidateTrigger));

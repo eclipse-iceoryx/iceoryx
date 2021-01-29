@@ -438,7 +438,7 @@ class MyTriggerClass
     void performAction() noexcept
     {
         m_hasPerformedAction = true;
-        m_actionTrigger.trigger();
+        m_onActionTrigger.trigger();
     }
 ```
 
@@ -463,13 +463,13 @@ the two const methods `hasPerformedAction` and `isActivated`.
 
 Since the following methods should not be accessible by the public but must be 
 accessible by any _Notifyable_ like the _WaitSet_ and to avoid that 
-we have to befriend every possible _Notifyable_ we created the `EventAccessor`.
-Every _Triggerable_ has to befriend the `EventAccessor` which provides access 
+we have to befriend every possible _Notifyable_ we created the `EventAttorney`.
+Every _Triggerable_ has to befriend the `EventAttorney` which provides access 
 to the private methods `enableEvent`, `disableEvent`, `invalidateTrigger` and 
 `getHasTriggeredCallbackForEvent` to all _Notifyables_.
 
 ```cpp
-    friend iox::popo::EventAccessor;
+    friend iox::popo::EventAttorney;
 ```
 
 The method `enableEvent` is called by the _WaitSet_ when `MyTriggerClass`
@@ -486,7 +486,7 @@ internal trigger handle.
         switch (event)
         {
         case MyTriggerClassEvents::PERFORMED_ACTION:
-            m_actionTrigger = std::move(triggerHandle);
+            m_onActionTrigger = std::move(triggerHandle);
             break;
         case MyTriggerClassEvents::ACTIVATE:
             m_activateTrigger = std::move(triggerHandle);
@@ -502,9 +502,9 @@ in the future.
 ```cpp
     void invalidateTrigger(const uint64_t uniqueTriggerId)
     {
-        if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
+        if (m_onActionTrigger.getUniqueId() == uniqueTriggerId)
         {
-            m_actionTrigger.invalidate();
+            m_onActionTrigger.invalidate();
         }
         else if (m_activateTrigger.getUniqueId() == uniqueTriggerId)
         {
@@ -523,7 +523,7 @@ find the to the event corresponding trigger.
         switch (event)
         {
         case MyTriggerClassEvents::PERFORMED_ACTION:
-            m_actionTrigger.reset();
+            m_onActionTrigger.reset();
             break;
         case MyTriggerClassEvents::ACTIVATE:
             m_activateTrigger.reset();
@@ -539,7 +539,8 @@ where it happened. This is the `hasTriggerCallback`. In our case we either retur
 the method pointer to `hasPerformedAction` or `isActivated` depending on which 
 event was requested.
 ```cpp
-    iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
+    iox::popo::WaitSetHasTriggeredCallback 
+    getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
     {
         switch (event)
         {
