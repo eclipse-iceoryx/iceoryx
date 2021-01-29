@@ -56,13 +56,12 @@ jobs:
          run: |
            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean
 
- # This job builds & runs iceoryx tests in macos-10.15
+ # This job builds & runs iceoryx tests in macos-10.14
   iceoryx-macos:
-    runs-on: macos-latest
+    runs-on: macos-10.14
     # Softwares installed in macos-latest instance
-    # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md
+    # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.14-Readme.md
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -99,11 +98,10 @@ jobs:
 
  # This job builds & runs iceoryx tests in Windows 2019
   iceoryx-windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     # Softwares installed in windows instance
     # https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name : Checkout
         uses: actions/checkout@v2
@@ -111,4 +109,4 @@ jobs:
 
       - name: Build sources
         run: |
-          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DBUILD_SHARED_LIBS=OFF && cmake --build build
+          cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON && cmake --build build
