@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/wait.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <chrono>
 #include <thread>
@@ -144,15 +144,15 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
     uint64_t i{0U};
     bool haveAllProcessesFinished{false};
-    posix::Timer finalKillTimer(processKillDelay);
+    cxx::DeadlineTimer finalKillTimer(processKillDelay);
 
     auto awaitProcessTermination = [&]() {
         bool shouldCheckProcessState = true;
-        finalKillTimer.resetCreationTime();
+        finalKillTimer.reset();
 
         // try to shut down all processes until either all processes have terminated or a timer set to processKillDelay
         // has expired
-        while (!haveAllProcessesFinished && !finalKillTimer.hasExpiredComparedToCreationTime())
+        while (!haveAllProcessesFinished && !finalKillTimer.hasExpired())
         {
             i = 0;
 
@@ -197,7 +197,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     awaitProcessTermination();
 
     // any processes still alive? Time to send SIG_KILL to kill.
-    if (finalKillTimer.hasExpiredComparedToCreationTime())
+    if (finalKillTimer.hasExpired())
     {
         i = 0;
         for (auto& process : m_processList)
@@ -216,7 +216,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
         awaitProcessTermination();
 
         // any processes still alive? Time to ignore them.
-        if (finalKillTimer.hasExpiredComparedToCreationTime())
+        if (finalKillTimer.hasExpired())
         {
             i = 0;
             for (auto& process : m_processList)
@@ -578,18 +578,30 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
     RouDiProcess* process = getProcessFromList(processName);
     if (nullptr != process)
     {
-        runtime::NodeData* node = m_portManager.acquireNodeData(processName, nodeName);
+        m_portManager.acquireNodeData(processName, nodeName)
+            .and_then([&](auto nodeData) {
+                auto offset = RelativePointer::getOffset(m_mgmtSegmentId, nodeData);
 
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, node);
+                runtime::MqMessage sendBuffer;
+                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_NODE_ACK)
+                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_NODE_ACK) << std::to_string(offset)
-                   << std::to_string(m_mgmtSegmentId);
+                process->sendToMQ(sendBuffer);
+                m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
+                                                NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
+                LogDebug() << "Created new node " << nodeName << " for process " << processName;
+            })
+            .or_else([&](PortPoolError error) {
+                runtime::MqMessage sendBuffer;
+                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
+                if (error == PortPoolError::NODE_DATA_LIST_FULL)
+                {
+                    sendBuffer << runtime::mqMessageErrorTypeToString(runtime::MqMessageErrorType::NODE_DATA_LIST_FULL);
+                }
+                process->sendToMQ(sendBuffer);
 
-        process->sendToMQ(sendBuffer);
-        m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
-                                        NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
-        LogDebug() << "Created new node " << nodeName << " for process " << processName;
+                LogDebug() << "Could not create new node for process " << processName;
+            });
     }
     else
     {
@@ -615,7 +627,6 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
 void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
                                              const capro::ServiceDescription& service,
                                              const popo::SubscriberOptions& subscriberOptions,
-                                             const NodeName_t& node,
                                              const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -625,7 +636,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
     {
         // create a SubscriberPort
         auto maybeSubscriber =
-            m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, node, portConfigInfo);
+            m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, portConfigInfo);
 
         if (!maybeSubscriber.has_error())
         {
@@ -657,7 +668,6 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
 void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
                                             const capro::ServiceDescription& service,
                                             const popo::PublisherOptions& publisherOptions,
-                                            const NodeName_t& node,
                                             const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -667,7 +677,7 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
     {
         // create a PublisherPort
         auto maybePublisher = m_portManager.acquirePublisherPortData(
-            service, publisherOptions, name, process->getPayloadMemoryManager(), node, portConfigInfo);
+            service, publisherOptions, name, process->getPayloadMemoryManager(), portConfigInfo);
 
         if (!maybePublisher.has_error())
         {
@@ -756,8 +766,9 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
 
     popo::PublisherOptions options;
     options.historyCapacity = 1;
+    options.nodeName = INTROSPECTION_NODE_NAME;
     auto maybePublisher = m_portManager.acquirePublisherPortData(
-        service, options, process_name, m_introspectionMemoryManager, "runnable", PortConfigInfo());
+        service, options, process_name, m_introspectionMemoryManager, PortConfigInfo());
 
     if (maybePublisher.has_error())
     {

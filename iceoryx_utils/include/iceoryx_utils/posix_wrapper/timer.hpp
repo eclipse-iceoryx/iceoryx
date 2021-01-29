@@ -282,13 +282,6 @@ class Timer
     cxx::expected<TimerError>
     restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
 
-    /// @brief Resets the internal creation time
-    void resetCreationTime() noexcept;
-
-    /// @brief Checks if the timer has expired compared to its creation time
-    /// @return Is the elapsed time larger than timeToWait?
-    bool hasExpiredComparedToCreationTime() noexcept;
-
     // @brief Returns the time until the timer expires the next time
     /// @note Shall only be called when callback is given
     cxx::expected<units::Duration, TimerError> timeUntilExpiration() noexcept;
