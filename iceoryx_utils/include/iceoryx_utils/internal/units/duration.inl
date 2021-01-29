@@ -141,8 +141,8 @@ inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexc
 
 inline constexpr uint64_t Duration::nanoSeconds() const noexcept
 {
-    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Seconds_t>::max() / NANOSECS_PER_SEC};
-    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{std::numeric_limits<Seconds_t>::max() % NANOSECS_PER_SEC};
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / NANOSECS_PER_SEC};
+    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() % NANOSECS_PER_SEC};
     constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
         createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
 
@@ -158,8 +158,8 @@ inline constexpr uint64_t Duration::nanoSeconds() const noexcept
 
 inline constexpr uint64_t Duration::microSeconds() const noexcept
 {
-    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Seconds_t>::max() / MICROSECS_PER_SEC};
-    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<Seconds_t>::max() % MICROSECS_PER_SEC)
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MICROSECS_PER_SEC};
+    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MICROSECS_PER_SEC)
                                                             * NANOSECS_PER_MICROSEC};
     constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
         createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
@@ -176,8 +176,8 @@ inline constexpr uint64_t Duration::microSeconds() const noexcept
 
 inline constexpr uint64_t Duration::milliSeconds() const noexcept
 {
-    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Seconds_t>::max() / MILLISECS_PER_SEC};
-    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<Seconds_t>::max() % MILLISECS_PER_SEC)
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MILLISECS_PER_SEC};
+    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MILLISECS_PER_SEC)
                                                             * NANOSECS_PER_MILLISEC};
     constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
         createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
