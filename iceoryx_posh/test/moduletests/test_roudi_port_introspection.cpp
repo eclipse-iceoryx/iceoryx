@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -220,15 +220,20 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         expected2.m_caproServiceID, expected2.m_caproInstanceID, expected2.m_caproEventMethodID);
 
     iox::mepoo::MemoryManager memoryManager;
-    iox::popo::PublisherOptions publisherOptions;
-    iox::popo::PublisherPortData portData1(service1, processName1, &memoryManager, publisherOptions);
-    iox::popo::PublisherPortData portData2(service2, processName2, &memoryManager, publisherOptions);
+    iox::popo::PublisherOptions publisherOptions1;
+    publisherOptions1.nodeName = nodeName1;
+    iox::popo::PublisherOptions publisherOptions2;
+    publisherOptions2.nodeName = nodeName2;
+    iox::popo::PublisherPortData portData1(service1, processName1, &memoryManager, publisherOptions1);
+    iox::popo::PublisherPortData portData2(service2, processName2, &memoryManager, publisherOptions2);
+    MockPublisherPortUser port1(&portData1);
+    MockPublisherPortUser port2(&portData2);
     // test adding of ports
     // remark: duplicate publisher port insertions are not possible
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, nodeName1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, nodeName1), Eq(false));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, nodeName2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, nodeName2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(portData1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(portData1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(false));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
@@ -265,9 +270,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     }
 
     // test removal of ports
-
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName1, service1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName1, service1), Eq(false));
+    EXPECT_CALL(port1, getServiceDescription()).WillRepeatedly(Return(portData1.m_serviceDescription));
+    EXPECT_CALL(port1, getUniqueID()).WillRepeatedly(Return(portData1.m_uniqueId));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(port1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(port1), Eq(false));
 
 
     chunkWasSent = false;
@@ -281,8 +287,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         EXPECT_THAT(comparePortData(chunk->sample()->m_publisherList[0], expected2), Eq(true));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(false));
+    EXPECT_CALL(port2, getServiceDescription()).WillRepeatedly(Return(portData2.m_serviceDescription));
+    EXPECT_CALL(port2, getUniqueID()).WillRepeatedly(Return(portData2.m_uniqueId));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(port2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(port2), Eq(false));
 
     chunkWasSent = false;
     m_introspectionAccess.sendPortData();
@@ -293,7 +301,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         ASSERT_THAT(chunk->sample()->m_subscriberList.size(), Eq(0U));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(port2), Eq(false));
 
     chunkWasSent = false;
     m_introspectionAccess.sendPortData();
@@ -342,20 +350,23 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     iox::capro::ServiceDescription service2(
         expected2.m_caproServiceID, expected2.m_caproInstanceID, expected2.m_caproEventMethodID);
 
+    iox::popo::SubscriberOptions subscriberOptions1;
+    subscriberOptions1.nodeName = nodeName1;
+    iox::popo::SubscriberOptions subscriberOptions2;
+    subscriberOptions2.nodeName = nodeName2;
+
     // test adding of ports
-    // remark: duplicate subscriber insertions are possible but will not be transmitted via send
-    iox::popo::SubscriberPortData recData1{service1,
-                                           processName1,
-                                           iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
-                                           iox::popo::SubscriberOptions()};
-    iox::popo::SubscriberPortData recData2{service2,
-                                           processName2,
-                                           iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
-                                           iox::popo::SubscriberOptions()};
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, nodeName1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, nodeName1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, nodeName2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, nodeName2), Eq(true));
+    // remark: duplicate subscriber insertions are not possible
+    iox::popo::SubscriberPortData recData1{
+        service1, processName1, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions1};
+    MockSubscriberPortUser port1(&recData1);
+    iox::popo::SubscriberPortData recData2{
+        service2, processName2, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions2};
+    MockSubscriberPortUser port2(&recData2);
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(false));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
@@ -392,9 +403,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     }
 
     // test removal of ports
-
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName1, service1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName1, service1), Eq(false));
+    EXPECT_CALL(port1, getUniqueID()).WillRepeatedly(Return(recData1.m_uniqueId));
+    EXPECT_CALL(port1, getServiceDescription()).WillRepeatedly(Return(recData1.m_serviceDescription));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(port1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(port1), Eq(false));
 
     chunkWasSent = false;
     m_introspectionAccess.sendPortData();
@@ -409,8 +421,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         EXPECT_THAT(comparePortData(publisherInfo, expected2), Eq(true));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName2, service2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName2, service2), Eq(false));
+    EXPECT_CALL(port2, getUniqueID()).WillRepeatedly(Return(recData2.m_uniqueId));
+    EXPECT_CALL(port2, getServiceDescription()).WillRepeatedly(Return(recData2.m_serviceDescription));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(port2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(port2), Eq(false));
 
     chunkWasSent = false;
     m_introspectionAccess.sendPortData();
@@ -421,7 +435,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         ASSERT_THAT(chunk->sample()->m_subscriberList.size(), Eq(0U));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName2, service2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(port2), Eq(false));
 
     chunkWasSent = false;
     m_introspectionAccess.sendPortData();
@@ -467,16 +481,18 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
                                            expectedPublisher.m_caproInstanceID,
                                            expectedPublisher.m_caproEventMethodID);
 
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.nodeName = nodeName;
+
     // test adding of publisher or subscriber port of same service to establish a connection (requires same service id)
-    iox::popo::SubscriberPortData recData1{service,
-                                           nameSubscriber,
-                                           iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
-                                           iox::popo::SubscriberOptions()};
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, nameSubscriber, service, nodeName), Eq(true));
+    iox::popo::SubscriberPortData recData1{
+        service, nameSubscriber, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions};
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(true));
     iox::mepoo::MemoryManager memoryManager;
     iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.nodeName = nodeName;
     iox::popo::PublisherPortData publisherPortData{service, namePublisher, &memoryManager, publisherOptions};
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&publisherPortData, namePublisher, service, nodeName), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(publisherPortData), Eq(true));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(

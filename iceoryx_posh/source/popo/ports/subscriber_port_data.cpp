@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceD
                                        cxx::VariantQueueTypes queueType,
                                        const SubscriberOptions& subscriberOptions,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, processName)
+    : BasePortData(serviceDescription, processName, subscriberOptions.nodeName)
     , m_chunkReceiverData(queueType, memoryInfo)
     , m_historyRequest(subscriberOptions.historyRequest)
 {
