@@ -50,11 +50,14 @@ class UntypedSubscriberImpl
     using BaseSubscriber::getUid;
     using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::subscribe;
-    // using BaseSubscriber::take; // iox-#408 replace
     using BaseSubscriber::unsubscribe;
 
-
-    cxx::expected<const void*, ChunkReceiveResult> take_1_0() noexcept;
+    ///
+    /// @brief take Take the chunk from the top of the receive queue.
+    /// @return The payload pointer of the chunk taken.
+    /// @details No automatic cleaunp of the associated chunk is performed.
+    ///
+    cxx::expected<const void*, ChunkReceiveResult> take_1_0() noexcept; // iox-#408 rename
 
     ///
     /// @brief hasChunks Check if chunks are available.

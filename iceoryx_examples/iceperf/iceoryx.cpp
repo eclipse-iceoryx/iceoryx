@@ -69,7 +69,7 @@ void Iceoryx::shutdown() noexcept
 
 void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    m_publisher.loan_1_0(payloadSizeInBytes).and_then([&](auto& chunk) {
+    m_publisher.loan(payloadSizeInBytes).and_then([&](auto& chunk) {
         auto sendSample = static_cast<PerfTopic*>(chunk);
         sendSample->payloadSize = payloadSizeInBytes;
         sendSample->run = runFlag;

@@ -65,8 +65,6 @@ class BasePublisher : public PublisherInterface<T>
     ///
     capro::ServiceDescription getServiceDescription() const noexcept;
 
-    // iox-#408 remove? (the typed version can use chunks and convert them to samples)
-    // todo: may be useful to have in the base, if so solve the name clash
     ///
     /// @brief loan Get a sample from loaned shared memory.
     /// @param size The expected size of the sample.
@@ -74,14 +72,14 @@ class BasePublisher : public PublisherInterface<T>
     /// laon.
     /// @details The loaned sample is automatically released when it goes out of scope.
     ///
-    cxx::expected<Sample<T>, AllocationError> loan(const uint32_t size) noexcept;
+    cxx::expected<Sample<T>, AllocationError> loanSample(const uint32_t size) noexcept;
 
     ///
     /// @brief loan Get a chunk from loaned shared memory.
     /// @param size The expected size of the chunk.
     /// @return A pointer to a chunk of memory with the requested size.
     ///
-    cxx::expected<void*, AllocationError> loan_1_0(const uint32_t size) noexcept;
+    cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
 
     // iox-#408 remove?
     ///

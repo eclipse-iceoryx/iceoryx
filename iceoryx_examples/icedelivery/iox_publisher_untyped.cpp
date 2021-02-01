@@ -44,7 +44,7 @@ int main()
 
         // API Usage #1
         //  * Loaned chunk can be held until ready to publish
-        auto result = publisher.loan_1_0(sizeof(RadarObject));
+        auto result = publisher.loan(sizeof(RadarObject));
         if (!result.has_error())
         {
             // In the untyped API we get a void pointer to the payload, therefore the data must be constructed
@@ -66,7 +66,7 @@ int main()
 
         // API Usage #2
         // * Loan chunk and provide logic to populate it via a lambda
-        publisher.loan_1_0(sizeof(RadarObject))
+        publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& chunk) {
                 auto data = new (chunk) RadarObject(ct, ct, ct);
                 assert(chunk == data);

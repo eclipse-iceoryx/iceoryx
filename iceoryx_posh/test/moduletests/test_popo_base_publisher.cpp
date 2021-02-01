@@ -40,9 +40,9 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
     {
         return iox::popo::BasePublisher<T, port_t>::getServiceDescription();
     }
-    iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError> loan(uint64_t size) noexcept
+    iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError> loanSample(uint64_t size) noexcept
     {
-        return iox::popo::BasePublisher<T, port_t>::loan(size);
+        return iox::popo::BasePublisher<T, port_t>::loanSample(size);
     }
     void release(iox::popo::Sample<T>& sample) noexcept
     {
@@ -107,7 +107,7 @@ TEST_F(BasePublisherTest, LoanForwardsAllocationErrorsToCaller)
         .WillByDefault(Return(
             ByMove(iox::cxx::error<iox::popo::AllocationError>(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS))));
     // ===== Test ===== //
-    auto result = sut.loan(sizeof(DummyData));
+    auto result = sut.loanSample(sizeof(DummyData));
     // ===== Verify ===== //
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, result.get_error());
@@ -120,7 +120,7 @@ TEST_F(BasePublisherTest, LoanReturnsAllocatedTypedSampleOnSuccess)
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
         .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
-    auto result = sut.loan(sizeof(DummyData));
+    auto result = sut.loanSample(sizeof(DummyData));
     // ===== Verify ===== //
     // The memory location of the sample should be the same as the chunk payload.
     EXPECT_EQ(chunkMock.chunkHeader()->payload(), result.value().get());
@@ -133,7 +133,7 @@ TEST_F(BasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
         .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
-    auto result = sut.loan(sizeof(DummyData));
+    auto result = sut.loanSample(sizeof(DummyData));
     // ===== Verify ===== //
     EXPECT_EQ(chunkMock.chunkHeader(), result.value().getHeader());
     // ===== Cleanup ===== //
@@ -149,7 +149,7 @@ TEST_F(BasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
 
     // ===== Test ===== //
     {
-        auto result = sut.loan(sizeof(DummyData));
+        auto result = sut.loanSample(sizeof(DummyData));
     }
     // ===== Verify ===== //
     // ===== Cleanup ===== //
@@ -162,7 +162,7 @@ TEST_F(BasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
         .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     EXPECT_CALL(sut.getMockedPort(), sendChunk).Times(1);
     // ===== Test ===== //
-    sut.loan(sizeof(DummyData)).and_then([](auto& sample) { sample.publish(); });
+    sut.loanSample(sizeof(DummyData)).and_then([](auto& sample) { sample.publish(); });
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

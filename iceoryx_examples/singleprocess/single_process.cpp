@@ -54,7 +54,7 @@ void publisher()
     std::string greenRightArrow("\033[32m->\033[m ");
     while (keepRunning.load())
     {
-        publisher.loan_1_0().and_then([&](auto& sample) {
+        publisher.loan().and_then([&](auto& sample) {
             sample->counter = counter++;
             consoleOutput(std::string("Sending   " + greenRightArrow + std::to_string(sample->counter)));
             sample.publish();

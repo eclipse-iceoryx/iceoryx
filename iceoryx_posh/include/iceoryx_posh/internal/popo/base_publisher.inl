@@ -47,7 +47,7 @@ inline capro::ServiceDescription BasePublisher<T, port_t>::getServiceDescription
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loan(const uint32_t size) noexcept
+inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loanSample(const uint32_t size) noexcept
 {
     auto result = m_port.tryAllocateChunk(size);
     if (result.has_error())
@@ -61,7 +61,7 @@ inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loan(
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<void*, AllocationError> BasePublisher<T, port_t>::loan_1_0(const uint32_t size) noexcept
+inline cxx::expected<void*, AllocationError> BasePublisher<T, port_t>::loan(const uint32_t size) noexcept
 {
     auto result = m_port.tryAllocateChunk(size);
     if (result.has_error())
