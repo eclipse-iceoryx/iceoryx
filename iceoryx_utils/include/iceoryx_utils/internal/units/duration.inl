@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,262 +20,517 @@ namespace iox
 {
 namespace units
 {
-template <typename T>
-constexpr Duration Duration::nanoseconds(const T ns)
+inline constexpr Duration::Duration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
+    : m_seconds(seconds)
+    , m_nanoseconds(nanoseconds)
 {
-    return operator"" _ns(ns);
+    if (nanoseconds >= NANOSECS_PER_SEC)
+    {
+        auto additionalSeconds = nanoseconds / NANOSECS_PER_SEC;
+        if (std::numeric_limits<Seconds_t>::max() - additionalSeconds < m_seconds)
+        {
+            std::clog << __PRETTY_FUNCTION__
+                      << ": Applied values are out of range and would overflow, clamping to max value!" << std::endl;
+            m_seconds = std::numeric_limits<Seconds_t>::max();
+            m_nanoseconds = NANOSECS_PER_SEC - 1U;
+        }
+        else
+        {
+            m_seconds += additionalSeconds;
+            m_nanoseconds = m_nanoseconds % NANOSECS_PER_SEC;
+        }
+    }
+}
+
+inline constexpr Duration Duration::createDuration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
+{
+    return Duration(seconds, nanoseconds);
+}
+
+inline constexpr Duration Duration::max() noexcept
+{
+    return Duration{std::numeric_limits<Seconds_t>::max(), NANOSECS_PER_SEC - 1U};
+}
+
+inline constexpr Duration Duration::zero() noexcept
+{
+    return Duration{0U, 0U};
+}
+
+template <typename T, typename String>
+inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value,
+                                                                             const String fromMethod) noexcept
+{
+    static_assert(std::numeric_limits<T>::is_integer, "only integer types are supported");
+
+    if (value < 0)
+    {
+        std::clog << fromMethod << ": Clamping negative value '" << value << "' to zero!" << std::endl;
+        return 0U;
+    }
+
+    return static_cast<unsigned long long int>(value);
+}
+
+template <typename T>
+constexpr Duration Duration::nanoseconds(const T value) noexcept
+{
+    return operator"" _ns(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
-constexpr Duration Duration::microseconds(const T us)
+constexpr Duration Duration::microseconds(const T value) noexcept
 {
-    return operator"" _us(us);
+    return operator"" _us(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
-constexpr Duration Duration::milliseconds(const T ms)
+constexpr Duration Duration::milliseconds(const T value) noexcept
 {
-    return operator"" _ms(ms);
+    return operator"" _ms(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
-constexpr Duration Duration::seconds(const T seconds)
+constexpr Duration Duration::seconds(const T value) noexcept
 {
-    return operator"" _s(seconds);
+    return operator"" _s(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
-constexpr Duration Duration::minutes(const T min)
+constexpr Duration Duration::minutes(const T value) noexcept
 {
-    return operator"" _m(min);
+    return operator"" _m(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
-constexpr Duration Duration::hours(const T hours)
+constexpr Duration Duration::hours(const T value) noexcept
 {
-    return operator"" _h(hours);
+    return operator"" _h(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
 template <typename T>
-constexpr Duration Duration::days(const T days)
+constexpr Duration Duration::days(const T value) noexcept
 {
-    return operator"" _d(days);
+    return operator"" _d(positiveValueOrClampToZero(value, __PRETTY_FUNCTION__));
 }
-inline constexpr Duration::Duration(const struct timeval& value)
-    : Duration(static_cast<long double>(value.tv_sec) + static_cast<long double>(value.tv_usec) / 1000000.0)
+
+inline constexpr Duration::Duration(const struct timeval& value) noexcept
+    : Duration(static_cast<Seconds_t>(value.tv_sec), static_cast<Nanoseconds_t>(value.tv_usec) * NANOSECS_PER_MICROSEC)
 {
 }
 
-inline constexpr Duration::Duration(const struct timespec& value)
-    : Duration(static_cast<long double>(value.tv_sec) + static_cast<long double>(value.tv_nsec) / 1000000000.0)
+inline constexpr Duration::Duration(const struct timespec& value) noexcept
+    : Duration(static_cast<Seconds_t>(value.tv_sec), static_cast<Nanoseconds_t>(value.tv_nsec))
 {
 }
 
-inline constexpr Duration::Duration(const struct itimerspec& value)
+inline constexpr Duration::Duration(const struct itimerspec& value) noexcept
     : Duration(value.it_interval)
 {
 }
 
-inline constexpr Duration::Duration(const std::chrono::milliseconds& value)
-    : Duration(static_cast<long double>(value.count()) / 1000.0)
+inline constexpr Duration::Duration(const std::chrono::milliseconds& value) noexcept
 {
+    *this = Duration::milliseconds(value.count());
 }
 
-inline constexpr Duration::Duration(const std::chrono::nanoseconds& value)
-    : Duration(static_cast<long double>(value.count()) / 1000000000.0)
+inline constexpr Duration::Duration(const std::chrono::nanoseconds& value) noexcept
 {
+    *this = Duration::nanoseconds(value.count());
 }
 
-inline Duration& Duration::operator=(const std::chrono::milliseconds& right)
+inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexcept
 {
-    durationInSeconds = static_cast<long double>(right.count()) / 1000.0;
+    *this = Duration(rhs);
     return *this;
 }
 
-inline constexpr Duration::Duration(const long double durationInSeconds)
-    : durationInSeconds(durationInSeconds >= 0.0 ? durationInSeconds : 0.0)
+inline constexpr uint64_t Duration::nanoSeconds() const noexcept
 {
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / NANOSECS_PER_SEC};
+    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() % NANOSECS_PER_SEC};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
+        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
+
+    if (*this > MAX_DURATION_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                  << std::endl;
+        return std::numeric_limits<uint64_t>::max();
+    }
+
+    return m_seconds * NANOSECS_PER_SEC + m_nanoseconds;
 }
 
-template <typename T>
-inline constexpr T Duration::nanoSeconds() const
+inline constexpr uint64_t Duration::microSeconds() const noexcept
 {
-    return static_cast<T>(durationInSeconds * 1000000000.0);
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MICROSECS_PER_SEC};
+    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MICROSECS_PER_SEC)
+                                                            * NANOSECS_PER_MICROSEC};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
+        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
+
+    if (*this > MAX_DURATION_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                  << std::endl;
+        return std::numeric_limits<uint64_t>::max();
+    }
+
+    return m_seconds * MICROSECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MICROSEC;
 }
 
-template <typename T>
-inline constexpr T Duration::microSeconds() const
+inline constexpr uint64_t Duration::milliSeconds() const noexcept
 {
-    return static_cast<T>(durationInSeconds * 1000000.0);
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MILLISECS_PER_SEC};
+    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MILLISECS_PER_SEC)
+                                                            * NANOSECS_PER_MILLISEC};
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW =
+        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW);
+
+    if (*this > MAX_DURATION_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                  << std::endl;
+        return std::numeric_limits<uint64_t>::max();
+    }
+
+    return m_seconds * MILLISECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MILLISEC;
 }
 
-template <typename T>
-inline constexpr T Duration::milliSeconds() const
+inline constexpr uint64_t Duration::seconds() const noexcept
 {
-    return static_cast<T>(durationInSeconds * 1000.0);
+    return m_seconds;
 }
 
-template <typename T>
-inline constexpr T Duration::seconds() const
+inline constexpr uint64_t Duration::minutes() const noexcept
 {
-    return static_cast<T>(durationInSeconds);
+    return m_seconds / SECS_PER_MINUTE;
 }
 
-template <typename T>
-inline constexpr T Duration::minutes() const
+inline constexpr uint64_t Duration::hours() const noexcept
 {
-    return static_cast<T>(durationInSeconds / 60.0);
+    return m_seconds / SECS_PER_HOUR;
 }
 
-template <typename T>
-inline constexpr T Duration::hours() const
+inline constexpr uint64_t Duration::days() const noexcept
 {
-    return static_cast<T>(durationInSeconds / 3600.0);
+    return m_seconds / (HOURS_PER_DAY * SECS_PER_HOUR);
 }
 
-template <typename T>
-inline constexpr T Duration::days() const
-{
-    return static_cast<T>(durationInSeconds / (24.0 * 3600.0));
-}
-
-inline constexpr Duration::operator timeval() const
+inline constexpr Duration::operator timeval() const noexcept
 {
     using SEC_TYPE = decltype(timeval::tv_sec);
     using USEC_TYPE = decltype(timeval::tv_usec);
-    return {this->seconds<SEC_TYPE>(), this->microSeconds<USEC_TYPE>() - this->seconds<USEC_TYPE>() * 1000000};
+    static_assert(sizeof(Seconds_t) >= sizeof(SEC_TYPE), "casting might alter result");
+    if (m_seconds > static_cast<Seconds_t>(std::numeric_limits<SEC_TYPE>::max()))
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                  << std::endl;
+        return {std::numeric_limits<SEC_TYPE>::max(), MICROSECS_PER_SEC - 1U};
+    }
+    return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
 }
 
-inline constexpr bool Duration::operator<(const Duration& right) const
+inline constexpr bool Duration::operator==(const Duration& rhs) const noexcept
 {
-    return durationInSeconds < right.durationInSeconds;
+    return (m_seconds == rhs.m_seconds) && (m_nanoseconds == rhs.m_nanoseconds);
 }
 
-inline constexpr bool Duration::operator>(const Duration& right) const
+inline constexpr bool Duration::operator!=(const Duration& rhs) const noexcept
 {
-    return durationInSeconds > right.durationInSeconds;
+    return !(*this == rhs);
 }
 
-inline constexpr bool Duration::operator>=(const Duration& right) const
+inline constexpr bool Duration::operator<(const Duration& rhs) const noexcept
 {
-    return durationInSeconds >= right.durationInSeconds;
+    return (m_seconds < rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds < rhs.m_nanoseconds));
 }
 
-inline constexpr bool Duration::operator<=(const Duration& right) const
+inline constexpr bool Duration::operator<=(const Duration& rhs) const noexcept
 {
-    return durationInSeconds <= right.durationInSeconds;
+    return !(*this > rhs);
 }
 
-inline constexpr Duration Duration::operator+(const Duration& right) const
+inline constexpr bool Duration::operator>(const Duration& rhs) const noexcept
 {
-    return Duration{durationInSeconds + right.durationInSeconds};
+    return (m_seconds > rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds > rhs.m_nanoseconds));
 }
 
-inline constexpr Duration Duration::operator-(const Duration& right) const
+inline constexpr bool Duration::operator>=(const Duration& rhs) const noexcept
 {
-    return Duration{durationInSeconds - right.durationInSeconds};
+    return !(*this < rhs);
 }
 
-inline constexpr Duration Duration::operator*(const Duration& right) const
+inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcept
 {
-    return Duration{durationInSeconds * right.durationInSeconds};
+    auto seconds = m_seconds + rhs.m_seconds;
+    auto nanoseconds = m_nanoseconds + rhs.m_nanoseconds;
+    if (nanoseconds >= NANOSECS_PER_SEC)
+    {
+        ++seconds;
+        nanoseconds -= NANOSECS_PER_SEC;
+    }
+
+    auto sum = Duration{seconds, nanoseconds};
+    if (sum < *this)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of addition would overflow, clamping to max value!" << std::endl;
+        return Duration::max();
+    }
+    return sum;
 }
 
-inline constexpr Duration Duration::operator/(const Duration& right) const
+inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcept
 {
-    return Duration{durationInSeconds / right.durationInSeconds};
+    if (*this < rhs)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of subtraction would be negative, clamping to zero!" << std::endl;
+        return Duration::zero();
+    }
+    auto seconds = m_seconds - rhs.m_seconds;
+    Nanoseconds_t nanoseconds{0U};
+    if (m_nanoseconds >= rhs.m_nanoseconds)
+    {
+        nanoseconds = m_nanoseconds - rhs.m_nanoseconds;
+    }
+    else
+    {
+        nanoseconds = NANOSECS_PER_SEC - rhs.m_nanoseconds + m_nanoseconds;
+        --seconds;
+    }
+    return Duration{seconds, nanoseconds};
 }
 
 template <typename T>
-inline constexpr Duration Duration::operator*(const T& right) const
+inline constexpr Duration
+Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
-    return Duration{durationInSeconds * static_cast<long double>(right)};
+    // operator*(...) takes care of negative values and 0 for rhs
+
+    static_assert(sizeof(T) <= sizeof(Seconds_t),
+                  "only integer types with less or equal to size of uint64_t are allowed for multiplication");
+    const auto multiplicator = static_cast<Seconds_t>(rhs);
+
+    const auto maxBeforeOverflow = std::numeric_limits<Seconds_t>::max() / multiplicator;
+
+    // check if the result of the m_seconds multiplication would already overflow
+    if (m_seconds > maxBeforeOverflow)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would overflow, clamping to max value!"
+                  << std::endl;
+        return Duration::max();
+    }
+    auto durationFromSeconds = Duration(m_seconds * multiplicator, 0U);
+
+    // the m_nanoseconds multiplication cannot exceed the limits of a Duration, since m_nanoseconds is always less than
+    // a second and m_seconds can hold 64 bits and the multiplicator is at max 64 bits
+
+    // check if the result of the m_nanoseconds multiplication can easily be converted into a Duration
+    if (m_nanoseconds <= maxBeforeOverflow)
+    {
+        return durationFromSeconds + Duration::nanoseconds(m_nanoseconds * multiplicator);
+    }
+
+    // when we reach this, the multiplicator must be larger than 2^32, since smaller values multiplied with the
+    // m_nanoseconds(uint32_t) would fit into 64 bits;
+    // to accurately determine the result, the calculation is split into a multiplication with the lower 32 bits of the
+    // multiplicator and another one with the upper 32 bits;
+
+    // this is the easy part with the lower 32 bits
+    uint64_t multiplicatorLow = static_cast<uint32_t>(multiplicator);
+    auto durationFromNanosecondsLow = Duration::nanoseconds(m_nanoseconds * multiplicatorLow);
+
+    // this is the complicated part with the upper 32 bits;
+    // the m_nanoseconds are multiplied with the upper 32 bits of the multiplicator shifted by 32 bit to the right, thus
+    // having again a multiplication of two 32 bit values whose result fits into a 64 bit variable;
+    // one bit of the result represents 2^32 nanoseconds;
+    // just shifting left by 32 bits would result in an overflow, therefore blocks of full seconds must be extracted of
+    // the result;
+    // this cannot be done by dividing through NANOSECS_PER_SEC, since that one is base 1_000_000_000 and the result is
+    // base 2^32, therefore the least common multiple can be used to get blocks of full seconds represented with the LSB
+    // representing 2^32 nanoseconds;
+    // this can then safely be converted to seconds as well as nanoseconds without loosing precision
+
+    // least common multiple of 2^32 and NANOSECONDS_PER_SECOND;
+    // for the following calculation it is not important to be the least common multiple, any common multiple will do
+    constexpr uint64_t LEAST_COMMON_MULTIPLE{8388608000000000};
+    static_assert(LEAST_COMMON_MULTIPLE % (1ULL << 32) == 0, "invalid multiple");
+    static_assert(LEAST_COMMON_MULTIPLE % NANOSECS_PER_SEC == 0, "invalid multiple");
+
+    constexpr uint64_t ONE_FULL_BLOCK_OF_SECONDS_ONLY{LEAST_COMMON_MULTIPLE >> 32};
+    constexpr uint64_t SECONDS_PER_FULL_BLOCK{LEAST_COMMON_MULTIPLE / NANOSECS_PER_SEC};
+
+    uint64_t multiplicatorHigh = static_cast<uint32_t>(multiplicator >> 32U);
+    auto nanosecondsFromHigh = m_nanoseconds * multiplicatorHigh;
+    auto fullBlocksOfSecondsOnly = nanosecondsFromHigh / ONE_FULL_BLOCK_OF_SECONDS_ONLY;
+    auto remainingBlockWithFullAndFractionalSeconds = nanosecondsFromHigh % ONE_FULL_BLOCK_OF_SECONDS_ONLY;
+
+    auto durationFromNanosecondsHigh = Duration{fullBlocksOfSecondsOnly * SECONDS_PER_FULL_BLOCK, 0U}
+                                       + Duration::nanoseconds(remainingBlockWithFullAndFractionalSeconds << 32);
+
+    return durationFromSeconds + durationFromNanosecondsLow + durationFromNanosecondsHigh;
+}
+
+
+template <typename From, typename To>
+inline constexpr bool Duration::wouldCastFromFloatingPointProbablyOverflow(const From floatingPoint) const noexcept
+{
+    static_assert(std::is_floating_point<From>::value, "only floating point is allowed");
+
+    // depending on the internal representation this could be either the last value to not cause an overflow
+    // or the first one which causes an overflow;
+    // to be safe, this is handled like causing an overflow which would result in undefined behavior when casting to
+    // Seconds_t
+    constexpr To SECONDS_BEFORE_LIKELY_OVERFLOW = static_cast<To>(std::numeric_limits<Seconds_t>::max());
+    return floatingPoint >= SECONDS_BEFORE_LIKELY_OVERFLOW;
 }
 
 template <typename T>
-inline constexpr Duration Duration::operator/(const T& right) const
+inline constexpr Duration Duration::fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept
 {
-    return Duration{durationInSeconds / static_cast<long double>(right)};
+    static_assert(std::is_floating_point<T>::value, "only floating point is allowed");
+
+    if (std::isinf(floatingPointSeconds))
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Multiplication with Inf, clamping to max value!" << std::endl;
+        return Duration::max();
+    }
+
+    double secondsFull{0.0};
+    double secondsFraction = modf(floatingPointSeconds, &secondsFull);
+
+    if (wouldCastFromFloatingPointProbablyOverflow<T, Seconds_t>(secondsFull))
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would overflow, clamping to max value!"
+                  << std::endl;
+        return Duration::max();
+    }
+
+    return Duration{static_cast<Seconds_t>(secondsFull),
+                    static_cast<Nanoseconds_t>(secondsFraction * NANOSECS_PER_SEC)};
+}
+
+template <typename T>
+inline constexpr Duration
+Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
+{
+    // operator*(...) takes care of negative values for rhs
+
+    if (std::isnan(rhs))
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Multiplication with NaN, clamping to max value!" << std::endl;
+        return Duration::max();
+    }
+
+    auto durationFromSeconds = fromFloatingPointSeconds(m_seconds * rhs);
+
+    auto resultNanoseconds = m_nanoseconds * rhs;
+
+    if (!wouldCastFromFloatingPointProbablyOverflow<T, uint64_t>(resultNanoseconds))
+    {
+        return durationFromSeconds + Duration::nanoseconds(static_cast<uint64_t>(resultNanoseconds));
+    }
+
+    // the multiplication result of nanoseconds would exceed the value an uint64_t can represent
+    // -> convert result to seconds and and calculate duration
+    auto durationFromNanoseconds = fromFloatingPointSeconds(resultNanoseconds /= NANOSECS_PER_SEC);
+
+    return durationFromSeconds + durationFromNanoseconds;
+}
+
+template <typename T>
+inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
+{
+    static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
+
+    if (rhs <= static_cast<T>(0) || *this == Duration::zero())
+    {
+        if (rhs < static_cast<T>(0))
+        {
+            std::clog << __PRETTY_FUNCTION__ << ": Result of multiplication would be negative, clamping to zero!"
+                      << std::endl;
+        }
+        return Duration::zero();
+    }
+
+    return multiplyWith<T>(rhs);
 }
 
 inline namespace duration_literals
 {
-inline constexpr Duration operator"" _ns(long double value)
+inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept // PRQA S 48
 {
-    return Duration{value / 1000000000.0};
+    auto seconds = static_cast<Duration::Seconds_t>(value / Duration::NANOSECS_PER_SEC);
+    auto nanoseconds = static_cast<Duration::Nanoseconds_t>(value % Duration::NANOSECS_PER_SEC);
+    return Duration{seconds, nanoseconds};
 }
 
-inline constexpr Duration operator"" _ns(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _us(unsigned long long int value) noexcept // PRQA S 48
 {
-    return Duration{static_cast<long double>(value) / 1000000000.0};
+    auto seconds = static_cast<Duration::Seconds_t>(value / Duration::MICROSECS_PER_SEC);
+    auto nanoseconds =
+        static_cast<Duration::Nanoseconds_t>((value % Duration::MICROSECS_PER_SEC) * Duration::NANOSECS_PER_MICROSEC);
+    return Duration{seconds, nanoseconds};
 }
 
-inline constexpr Duration operator"" _us(long double value)
+inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept // PRQA S 48
 {
-    return Duration{value / 1000000.0};
+    auto seconds = static_cast<Duration::Seconds_t>(value / Duration::MILLISECS_PER_SEC);
+    auto nanoseconds =
+        static_cast<Duration::Nanoseconds_t>((value % Duration::MILLISECS_PER_SEC) * Duration::NANOSECS_PER_MILLISEC);
+    return Duration{seconds, nanoseconds};
 }
 
-inline constexpr Duration operator"" _us(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _s(unsigned long long int value) noexcept // PRQA S 48
 {
-    return Duration{static_cast<long double>(value) / 1000000.0};
+    constexpr Duration::Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Duration::Seconds_t>::max()};
+    if (value > MAX_SECONDS_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Amount of seconds would overflow Duration, clamping to max value!"
+                  << std::endl;
+        return Duration::max();
+    }
+    return Duration{static_cast<Duration::Seconds_t>(value), 0U};
 }
 
-inline constexpr Duration operator"" _ms(long double value)
+inline constexpr Duration operator"" _m(unsigned long long int value) noexcept // PRQA S 48
 {
-    return Duration{value / 1000.0};
+    constexpr uint64_t MAX_MINUTES_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_MINUTE};
+    if (value > MAX_MINUTES_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Amount of minutes would overflow Duration, clamping to max value!"
+                  << std::endl;
+        return Duration::max();
+    }
+    return Duration{static_cast<Duration::Seconds_t>(value * Duration::SECS_PER_MINUTE), 0U};
 }
 
-inline constexpr Duration operator"" _ms(unsigned long long int value) // PRQA S 48
+inline constexpr Duration operator"" _h(unsigned long long int value) noexcept // PRQA S 48
 {
-    return Duration{static_cast<long double>(value) / 1000.0};
+    constexpr uint64_t MAX_HOURS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_HOUR};
+    if (value > MAX_HOURS_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Amount of hours would overflow Duration, clamping to max value!"
+                  << std::endl;
+        return Duration::max();
+    }
+    return Duration{static_cast<Duration::Seconds_t>(value * Duration::SECS_PER_HOUR), 0U};
 }
 
-inline constexpr Duration operator"" _s(long double value)
+inline constexpr Duration operator"" _d(unsigned long long int value) noexcept // PRQA S 48
 {
-    return Duration{value};
-}
-
-inline constexpr Duration operator"" _s(unsigned long long int value) // PRQA S 48
-{
-    return Duration{static_cast<long double>(value)};
-}
-
-inline constexpr Duration operator"" _m(long double value)
-{
-    return Duration{value * 60.0};
-}
-
-inline constexpr Duration operator"" _m(unsigned long long int value) // PRQA S 48
-{
-    return Duration{static_cast<long double>(value) * 60.0};
-}
-
-inline constexpr Duration operator"" _h(long double value)
-{
-    return Duration{value * 3600.0};
-}
-
-inline constexpr Duration operator"" _h(unsigned long long int value) // PRQA S 48
-{
-    return Duration{static_cast<long double>(value) * 3600.0};
-}
-
-inline constexpr Duration operator"" _d(long double value)
-{
-    return Duration{value * 24.0 * 3600.0};
-}
-
-inline constexpr Duration operator"" _d(unsigned long long int value) // PRQA S 48
-{
-    return Duration{static_cast<long double>(value) * 24.0 * 3600.0};
+    constexpr uint64_t SECS_PER_DAY{Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR};
+    constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / SECS_PER_DAY};
+    if (value > MAX_DAYS_BEFORE_OVERFLOW)
+    {
+        std::clog << __PRETTY_FUNCTION__ << ": Amount of days would overflow Duration, clamping to max value!"
+                  << std::endl;
+        return Duration::max();
+    }
+    return Duration{static_cast<Duration::Seconds_t>(value * SECS_PER_DAY), 0U};
 }
 
 } // namespace duration_literals
 
 template <typename T>
-inline constexpr Duration operator*(const T& left, const Duration& right)
+inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 {
-    return Duration::seconds(static_cast<long double>(left) * right.seconds<long double>());
-}
-
-template <typename T>
-inline constexpr Duration operator/(const T& left, const Duration& right)
-{
-    return Duration::seconds(static_cast<long double>(left) / right.seconds<long double>());
+    return rhs * lhs;
 }
 
 } // namespace units

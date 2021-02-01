@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "test.hpp"
 
 #include <thread>
@@ -80,15 +80,15 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
             std::thread* t;
             {
                 iox::posix::mutex mtx{false};
-                iox::posix::Timer hold(1000_ms);
+                iox::cxx::DeadlineTimer mutexTimer(1000_ms);
                 t = new std::thread([&] {
                     mtx.lock();
-                    iox::posix::Timer ct(5000_ms);
-                    while (!ct.hasExpiredComparedToCreationTime()) // come back in any case!
+                    iox::cxx::DeadlineTimer ct(5000_ms);
+                    while (!ct.hasExpired()) // come back in any case!
                         ;
                 });
 
-                while (!hold.hasExpiredComparedToCreationTime())
+                while (!mutexTimer.hasExpired())
                     ;
             }
             t->join();
