@@ -102,10 +102,11 @@ add_library(iceoryx_posh
     source/popo/building_blocks/condition_variable_waiter.cpp
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
-    source/popo/user_trigger.cpp
+    source/popo/active_call_set.cpp
+    source/popo/event_info.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
-    source/popo/event_info.cpp
+    source/popo/user_trigger.cpp
     source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
