@@ -344,9 +344,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         {
             stream << std::left << std::setw(maxSize) << data.substr(0U, static_cast<size_t>(maxSize));
         }
-        else if (stringSize > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
+        else if (stringSize
+                 > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
         {
-            const auto startPosition = static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
+            const auto startPosition =
+                static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
 
             stream << indentationString << std::left << std::setw(maxSize - indentation)
                    << data.substr(startPosition, static_cast<size_t>(maxSize - indentation));
@@ -356,7 +358,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             stream << std::left << std::setw(maxSize) << "";
         }
 
-        needsLineBreak |= (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
+        needsLineBreak |=
+            (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
 
         return stream.str();
     };
@@ -579,10 +582,11 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
     { // should be the same, else it will be soon
         for (const auto& port : portData->m_subscriberList)
         {
-            subscriberPortData.push_back(
-                {port,
-                 (port.m_publisherIndex != -1) ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)] : nullptr,
-                 subscriberPortChangingData->subscriberPortChangingDataList[i++]});
+            subscriberPortData.push_back({port,
+                                          (port.m_publisherIndex != -1)
+                                              ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)]
+                                              : nullptr,
+                                          subscriberPortChangingData->subscriberPortChangingDataList[i++]});
         }
     }
 
@@ -693,7 +697,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            memPoolSubscriber.take().and_then(
+            memPoolSubscriber.take_1_0().and_then(
                 [&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) { memPoolSample = sample; });
 
             if (memPoolSample)
@@ -713,7 +717,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            processSubscriber.take().and_then(
+            processSubscriber.take_1_0().and_then(
                 [&](iox::popo::Sample<const ProcessIntrospectionFieldTopic>& sample) { processSample = sample; });
 
             if (processSample)
@@ -729,15 +733,15 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         // print port information
         if (introspectionSelection.port == true)
         {
-            portSubscriber.take().and_then(
+            portSubscriber.take_1_0().and_then(
                 [&](iox::popo::Sample<const PortIntrospectionFieldTopic>& sample) { portSample = sample; });
 
-            portThroughputSubscriber.take().and_then(
+            portThroughputSubscriber.take_1_0().and_then(
                 [&](iox::popo::Sample<const PortThroughputIntrospectionFieldTopic>& sample) {
                     portThroughputSample = sample;
                 });
 
-            subscriberPortChangingDataSubscriber.take().and_then(
+            subscriberPortChangingDataSubscriber.take_1_0().and_then(
                 [&](iox::popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>& sample) {
                     subscriberPortChangingDataSamples = sample;
                 });
