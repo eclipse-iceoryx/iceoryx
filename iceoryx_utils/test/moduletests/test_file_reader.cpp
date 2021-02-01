@@ -47,7 +47,14 @@ class FileReader_test : public Test
         internal::CaptureStdout();
 
         std::fstream fs(TestFilePath, std::fstream::out | std::fstream::trunc);
-        fs << TestFileContent;
+        if (fs.std::fstream::is_open())
+        {
+            fs << TestFileContent;
+        }
+        else
+        {
+            ASSERT_STREQ("expected open fstream", "fstream not open");
+        }
         fs.close();
     }
     void TearDown()

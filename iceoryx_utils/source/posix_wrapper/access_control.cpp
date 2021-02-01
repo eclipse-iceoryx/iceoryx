@@ -267,12 +267,10 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     case Permission::READ:
     {
         return addAclPermission(entryPermissionSet, ACL_READ);
-        break;
     }
     case Permission::WRITE:
     {
         return addAclPermission(entryPermissionSet, ACL_WRITE);
-        break;
     }
     case Permission::READWRITE:
     {
@@ -281,17 +279,14 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
             return false;
         }
         return addAclPermission(entryPermissionSet, ACL_WRITE);
-        break;
     }
     case Permission::NONE:
     { // don't add any permission
         return true;
-        break;
     }
     default:
     {
         return false;
-        break;
     }
     }
 }

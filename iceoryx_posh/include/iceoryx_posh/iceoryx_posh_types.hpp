@@ -221,7 +221,7 @@ using BaseClock_t = std::chrono::steady_clock;
 // when sleep_until() is used with a timepoint in the past
 using DurationNs_t = std::chrono::duration<std::int64_t, std::nano>;
 using TimePointNs_t = std::chrono::time_point<BaseClock_t, DurationNs_t>;
-}
+} // namespace mepoo
 
 namespace runtime
 {
