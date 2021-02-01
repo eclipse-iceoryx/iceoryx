@@ -37,21 +37,19 @@ class UntypedPublisherImpl : public base_publisher_t
     using base_publisher_t::getServiceDescription;
     using base_publisher_t::getUid;
     using base_publisher_t::hasSubscribers;
-    using base_publisher_t::isOffered; // iox-#408 better hasOffered ?
-    using base_publisher_t::loan;      // iox-#408 replace
-    using base_publisher_t::loan_1_0;
+    using base_publisher_t::isOffered;
+    using base_publisher_t::loan_1_0; // iox-#408 rename
     using base_publisher_t::loanPreviousChunk;
-    using base_publisher_t::loanPreviousSample; // iox-#408 replace
     using base_publisher_t::offer;
     using base_publisher_t::publish;
     using base_publisher_t::stopOffer;
 
     ///
     /// @brief publish Publish the provided memory chunk.
-    /// @param allocatedMemory Pointer to the allocated shared memory chunk.
+    /// @param chunk Pointer to the allocated shared memory chunk.
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
-    void publish(void* allocatedMemory) noexcept;
+    void publish(void* chunk) noexcept;
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;
