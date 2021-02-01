@@ -26,12 +26,12 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
                                          const ProcessName_t& appName,
                                          const units::Duration roudiWaitingTimeout) noexcept
     : m_appName(appName)
-    , m_AppMqInterface(appName)
-    , m_RoudiMqInterface(roudiName)
+    , m_AppIpcInterface(appName)
+    , m_RoudiIpcInterface(roudiName)
 {
-    if (!m_AppMqInterface.isInitialized())
+    if (!m_AppIpcInterface.isInitialized())
     {
-        errorHandler(Error::kMQ_INTERFACE__UNABLE_TO_CREATE_APPLICATION_MQ);
+        errorHandler(Error::kIPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
         return;
     }
 
@@ -49,10 +49,10 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
     auto regState = RegState::WAIT_FOR_ROUDI;
     while (!timer.hasExpired() && regState != RegState::FINISHED)
     {
-        if (!m_RoudiMqInterface.isInitialized() || !m_RoudiMqInterface.mqMapsToFile())
+        if (!m_RoudiIpcInterface.isInitialized() || !m_RoudiIpcInterface.mqMapsToFile())
         {
-            LogDebug() << "reopen RouDi mqueue!";
-            m_RoudiMqInterface.reopen();
+            LogDebug() << "reopen RouDi's IPC channel!";
+            m_RoudiIpcInterface.reopen();
             regState = RegState::WAIT_FOR_ROUDI;
         }
 
@@ -61,7 +61,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
         case RegState::WAIT_FOR_ROUDI:
         {
             waitForRoudi(timer);
-            if (m_RoudiMqInterface.isInitialized())
+            if (m_RoudiIpcInterface.isInitialized())
             {
                 regState = RegState::SEND_REGISTER_REQUEST;
             }
@@ -86,7 +86,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
                        << std::to_string(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
 
-            bool successfullySent = m_RoudiMqInterface.timedSend(sendBuffer, 100_ms);
+            bool successfullySent = m_RoudiIpcInterface.timedSend(sendBuffer, 100_ms);
 
             if (successfullySent)
             {
@@ -116,18 +116,18 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
 
     if (regState != RegState::FINISHED)
     {
-        m_AppMqInterface.cleanupResource();
+        m_AppIpcInterface.cleanupResource();
     }
     switch (regState)
     {
     case RegState::WAIT_FOR_ROUDI:
-        errorHandler(Error::kMQ_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
+        errorHandler(Error::kIPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
     case RegState::SEND_REGISTER_REQUEST:
-        errorHandler(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ);
+        errorHandler(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
         break;
     case RegState::WAIT_FOR_REGISTER_ACK:
-        errorHandler(Error::kMQ_INTERFACE__REG_ACK_NO_RESPONSE);
+        errorHandler(Error::kIPC_INTERFACE__REG_ACK_NO_RESPONSE);
         break;
     case RegState::FINISHED:
         // nothing to do, move along
@@ -137,7 +137,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
 
 bool IpcRuntimeInterface::sendKeepalive() noexcept
 {
-    return m_RoudiMqInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_appName});
+    return m_RoudiIpcInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_appName});
 }
 
 RelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
@@ -149,13 +149,13 @@ RelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() 
 
 bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
 {
-    if (!m_RoudiMqInterface.send(msg))
+    if (!m_RoudiIpcInterface.send(msg))
     {
         LogError() << "Could not send request via RouDi messagequeue interface.\n";
         return false;
     }
 
-    if (!m_AppMqInterface.receive(answer))
+    if (!m_AppIpcInterface.receive(answer))
     {
         LogError() << "Could not receive request via App messagequeue interface.\n";
         return false;
@@ -166,7 +166,7 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
 
 bool IpcRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
 {
-    if (!m_RoudiMqInterface.send(msg))
+    if (!m_RoudiIpcInterface.send(msg))
     {
         LogError() << "Could not send message via RouDi messagequeue interface.\n";
         return false;
@@ -183,11 +183,11 @@ void IpcRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
 {
     bool printWaitingWarning = true;
     bool printFoundMessage = false;
-    while (!timer.hasExpired() && !m_RoudiMqInterface.isInitialized())
+    while (!timer.hasExpired() && !m_RoudiIpcInterface.isInitialized())
     {
-        m_RoudiMqInterface.reopen();
+        m_RoudiIpcInterface.reopen();
 
-        if (m_RoudiMqInterface.isInitialized())
+        if (m_RoudiIpcInterface.isInitialized())
         {
             LogDebug() << "RouDi mqueue found!";
             break;
@@ -202,7 +202,7 @@ void IpcRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    if (printFoundMessage && m_RoudiMqInterface.isInitialized())
+    if (printFoundMessage && m_RoudiIpcInterface.isInitialized())
     {
         LogWarn() << "... RouDi found.";
     }
@@ -220,7 +220,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
         using namespace units::duration_literals;
         IpcMessage receiveBuffer;
         // wait for IpcMessageType::REG_ACK from RouDi for 1 seconds
-        if (m_AppMqInterface.timedReceive(1_s, receiveBuffer))
+        if (m_AppIpcInterface.timedReceive(1_s, receiveBuffer))
         {
             std::string cmd = receiveBuffer.getElementAtIndex(0U);
 
@@ -229,7 +229,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 constexpr uint32_t REGISTER_ACK_PARAMETERS = 5U;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
-                    errorHandler(Error::kMQ_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
+                    errorHandler(Error::kIPC_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
                 }
 
                 // read out the shared memory base address and save it

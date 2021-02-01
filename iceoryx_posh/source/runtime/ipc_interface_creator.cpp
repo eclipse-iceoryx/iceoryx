@@ -32,7 +32,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
 
 void IpcInterfaceCreator::cleanupResource()
 {
-    m_mq.destroy();
+    m_ipcChannel.destroy();
 }
 } // namespace runtime
 } // namespace iox

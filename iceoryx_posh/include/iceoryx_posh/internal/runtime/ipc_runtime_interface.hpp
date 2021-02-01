@@ -24,10 +24,10 @@ namespace runtime
 class IpcRuntimeInterface
 {
   public:
-    /// @brief Runtime Interface for the own message queue and the one to the RouDi daemon
-    /// @param[in] roudiName name of the RouDi message queue
-    /// @param[in] appName name of the appplication and its message queue
-    /// @param[in] roudiWaitingTimeout timeout for searching the RouDi message queue
+    /// @brief Runtime Interface for the own IPC channel and the one to the RouDi daemon
+    /// @param[in] roudiName name of the RouDi IPC channel
+    /// @param[in] appName name of the appplication and its IPC channel
+    /// @param[in] roudiWaitingTimeout timeout for searching the RouDi IPC channel
     IpcRuntimeInterface(const ProcessName_t& roudiName,
                        const ProcessName_t& appName,
                        const units::Duration roudiWaitingTimeout) noexcept;
@@ -84,8 +84,8 @@ class IpcRuntimeInterface
   private:
     ProcessName_t m_appName;
     cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
-    IpcInterfaceCreator m_AppMqInterface;
-    IpcInterfaceUser m_RoudiMqInterface;
+    IpcInterfaceCreator m_AppIpcInterface;
+    IpcInterfaceUser m_RoudiIpcInterface;
     size_t m_shmTopicSize{0U};
     uint64_t m_segmentId{0U};
 };

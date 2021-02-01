@@ -16,7 +16,7 @@
 #include "test.hpp"
 
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
@@ -259,7 +259,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
     roudi.join();
 
     std::lock_guard<std::mutex> lock(m_appQueueMutex);
-    // the app message queue should be empty after registration
+    // the app IPC channel should be empty after registration
     auto response = m_appQueue->timedReceive(10_ms);
     EXPECT_THAT(response.has_error(), Eq(true));
 }

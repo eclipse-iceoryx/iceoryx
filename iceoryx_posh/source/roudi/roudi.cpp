@@ -116,7 +116,7 @@ void RouDi::processThread()
 
 void RouDi::ipcChannelThread()
 {
-    runtime::IpcInterfaceCreator roudiMqInterface{IPC_CHANNEL_ROUDI_NAME};
+    runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME};
 
     // the logger is intentionally not used, to ensure that this message is always printed
     std::cout << "RouDi is ready for clients" << std::endl;
@@ -125,7 +125,7 @@ void RouDi::ipcChannelThread()
     {
         // read RouDi's IPC channel
         runtime::IpcMessage message;
-        if (roudiMqInterface.timedReceive(m_ipcChannelTimeout, message))
+        if (roudiIpcInterface.timedReceive(m_ipcChannelTimeout, message))
         {
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
             std::string processName = message.getElementAtIndex(1);
@@ -301,7 +301,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     default:
     {
-        LogError() << "Unknown MQ Command [" << runtime::IpcMessageTypeToString(cmd) << "]";
+        LogError() << "Unknown IPC message command [" << runtime::IpcMessageTypeToString(cmd) << "]";
 
         m_prcMgr.sendMessageNotSupportedToRuntime(processName);
         break;

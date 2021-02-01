@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
@@ -72,11 +72,11 @@ PoshRuntime& PoshRuntime::getInstance(cxx::optional<const ProcessName_t*> name) 
 
 PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread) noexcept
     : m_appName(verifyInstanceName(name))
-    , m_MqInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+    , m_ipcChannelInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
-                     m_MqInterface.getShmTopicSize(),
-                     m_MqInterface.getSegmentId(),
-                     m_MqInterface.getSegmentManagerAddressOffset())
+                     m_ipcChannelInterface.getShmTopicSize(),
+                     m_ipcChannelInterface.getSegmentId(),
+                     m_ipcChannelInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
@@ -404,8 +404,8 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
     if (!sendRequestToRouDi(sendBuffer, requestResponse))
     {
         LogError() << "Could not send FIND_SERVICE request to RouDi\n";
-        errorHandler(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<Error>(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ);
+        errorHandler(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<Error>(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
     }
 
     InstanceContainer instanceContainer;
@@ -553,13 +553,13 @@ bool PoshRuntime::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) 
 {
     // runtime must be thread safe
     std::lock_guard<std::mutex> g(m_appMqRequestMutex);
-    return m_MqInterface.sendRequestToRouDi(msg, answer);
+    return m_ipcChannelInterface.sendRequestToRouDi(msg, answer);
 }
 
 // this is the callback for the m_keepAliveTimer
 void PoshRuntime::sendKeepAlive() noexcept
 {
-    if (!m_MqInterface.sendKeepalive())
+    if (!m_ipcChannelInterface.sendKeepalive())
     {
         LogWarn() << "Error in sending keep alive";
     }

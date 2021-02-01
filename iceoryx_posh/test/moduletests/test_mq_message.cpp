@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "mocks/time_mock.hpp"
 #include "test.hpp"
 

@@ -74,7 +74,7 @@ class PoshRuntime
     /// InstanceContainer: on success, container that is filled with all matching instances
     /// Error: if any, encountered during the operation
     /// Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW : Number of instances can't fit in instanceContainer
-    /// Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ : Find Service Request could not be sent to RouDi
+    /// Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL : Find Service Request could not be sent to RouDi
     cxx::expected<InstanceContainer, Error> findService(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
@@ -193,7 +193,7 @@ class PoshRuntime
     mutable std::mutex m_appMqRequestMutex;
 
     // IPC channel interface for POSIX IPC from RouDi
-    IpcRuntimeInterface m_MqInterface;
+    IpcRuntimeInterface m_ipcChannelInterface;
     // Shared memory interface for POSIX IPC from RouDi
     SharedMemoryUser m_ShmInterface;
     popo::ApplicationPort m_applicationPort;

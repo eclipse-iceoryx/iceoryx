@@ -20,18 +20,14 @@ namespace iox
 {
 namespace runtime
 {
-/// @brief Class for handling a message queue via mq_open and mq_unlink
-///             and mq_close
+/// @brief Class for creating and handling a IPC channel
 class IpcInterfaceCreator : public IpcInterfaceBase
 {
   public:
-    /// @brief Constructs a IpcInterfaceCreator and opens a new message
-    ///         queue with mq_open. If mq_open fails it tries to mq_unlink
-    ///         the message queue and tries mq_open again. If it still fails
-    ///         isInitialized will return false. Therefore, isInitialized
-    ///         should always be called before using this class.
-    /// @param[in] name Unique identifier of the message queue which is
-    ///         is used for mq_open
+    /// @brief Constructs a IpcInterfaceCreator and opens a new IPC channel.
+    ///        If it fails isInitialized will return false. Therefore, isInitialized
+    ///        should always be called before using this class.
+    /// @param[in] name Unique identifier of the IPC channel
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
     IpcInterfaceCreator(const ProcessName_t& name,
@@ -39,7 +35,7 @@ class IpcInterfaceCreator : public IpcInterfaceBase
                         const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 
     /// @brief The copy constructor and assignment operator is deleted since
-    ///         this class manages a resource (message queue) which cannot
+    ///         this class manages a resource (IPC channel) which cannot
     ///         be copied. Move is also not needed, it is also deleted.
     IpcInterfaceCreator(const IpcInterfaceCreator&) = delete;
     IpcInterfaceCreator& operator=(const IpcInterfaceCreator&) = delete;

@@ -79,7 +79,7 @@ class RouDiProcess
 
   private:
     int m_pid;
-    runtime::IpcInterfaceUser m_mq;
+    runtime::IpcInterfaceUser m_ipcChannel;
     mepoo::TimePointNs_t m_timestamp;
     mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
     bool m_isMonitored{true};

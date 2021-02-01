@@ -41,7 +41,7 @@ RouDiProcess::RouDiProcess(const ProcessName_t& name,
                            const uint64_t payloadSegmentId,
                            const uint64_t sessionId) noexcept
     : m_pid(pid)
-    , m_mq(name)
+    , m_ipcChannel(name)
     , m_timestamp(mepoo::BaseClock_t::now())
     , m_payloadMemoryManager(payloadMemoryManager)
     , m_isMonitored(isMonitored)
@@ -57,12 +57,12 @@ int32_t RouDiProcess::getPid() const noexcept
 
 const ProcessName_t RouDiProcess::getName() const noexcept
 {
-    return ProcessName_t(cxx::TruncateToCapacity, m_mq.getInterfaceName());
+    return ProcessName_t(cxx::TruncateToCapacity, m_ipcChannel.getInterfaceName());
 }
 
 void RouDiProcess::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
 {
-    bool sendSuccess = m_mq.send(data);
+    bool sendSuccess = m_ipcChannel.send(data);
     if (!sendSuccess)
     {
         LogWarn() << "RouDiProcess cannot send message over communication channel";

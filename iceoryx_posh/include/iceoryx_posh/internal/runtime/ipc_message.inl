@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL
-#define IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL
+#ifndef IOX_POSH_RUNTIME_IPC_MESSAGE_INL
+#define IOX_POSH_RUNTIME_IPC_MESSAGE_INL
 
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
 namespace iox
 {
@@ -28,7 +28,7 @@ void IpcMessage::addEntry(const T& entry) noexcept
 
     if (!isValidEntry(newEntry.str()))
     {
-        LogError() << "\'" << newEntry.str().c_str() << "\' is an invalid message queue entry";
+        LogError() << "\'" << newEntry.str().c_str() << "\' is an invalid IPC channel entry";
         m_isValid = false;
     }
     else
@@ -48,4 +48,4 @@ IpcMessage& IpcMessage::operator<<(const T& entry) noexcept
 } // namespace runtime
 } // namespace iox
 
-#endif // IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL
+#endif // IOX_POSH_RUNTIME_IPC_MESSAGE_INL

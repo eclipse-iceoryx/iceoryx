@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_HPP
-#define IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_HPP
+#ifndef IOX_POSH_RUNTIME_IPC_MESSAGE_HPP
+#define IOX_POSH_RUNTIME_IPC_MESSAGE_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 
@@ -39,7 +39,7 @@ namespace runtime
 class IpcMessage
 {
   public:
-    /// @brief Creates an empty and valid message queue message.
+    /// @brief Creates an empty and valid IPC channel message.
     IpcMessage() = default;
 
     /// @brief Creates a separator separated string. If one element
@@ -126,6 +126,6 @@ class IpcMessage
 } // namespace iox
 
 
-#include "iceoryx_posh/internal/runtime/message_queue_message.inl"
+#include "iceoryx_posh/internal/runtime/ipc_message.inl"
 
-#endif // IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_HPP
+#endif // IOX_POSH_RUNTIME_IPC_MESSAGE_HPP

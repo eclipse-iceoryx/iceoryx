@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -60,7 +60,9 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
-IpcInterfaceBase::IpcInterfaceBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
+IpcInterfaceBase::IpcInterfaceBase(const ProcessName_t& InterfaceName,
+                                   const uint64_t maxMessages,
+                                   const uint64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -75,7 +77,7 @@ IpcInterfaceBase::IpcInterfaceBase(const ProcessName_t& InterfaceName, const uin
 
 bool IpcInterfaceBase::receive(IpcMessage& answer) const noexcept
 {
-    auto message = m_mq.receive();
+    auto message = m_ipcChannel.receive();
     if (message.has_error())
     {
         return false;
@@ -86,7 +88,7 @@ bool IpcInterfaceBase::receive(IpcMessage& answer) const noexcept
 
 bool IpcInterfaceBase::timedReceive(const units::Duration timeout, IpcMessage& answer) const noexcept
 {
-    return !m_mq.timedReceive(timeout)
+    return !m_ipcChannel.timedReceive(timeout)
                 .and_then([&answer](auto& message) { IpcInterfaceBase::setMessageFromString(message.c_str(), answer); })
                 .has_error()
            && answer.isValid();
@@ -107,7 +109,7 @@ bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
 {
     if (!msg.isValid())
     {
-        LogError() << "Trying to send the message " << msg.getMessage() << "with mq_send() which "
+        LogError() << "Trying to send the message " << msg.getMessage() << " which "
                    << "does not follow the specified syntax.";
         return false;
     }
@@ -120,14 +122,14 @@ bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
-    return !m_mq.send(msg.getMessage()).or_else(logLengthError).has_error();
+    return !m_ipcChannel.send(msg.getMessage()).or_else(logLengthError).has_error();
 }
 
 bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout) const noexcept
 {
     if (!msg.isValid())
     {
-        LogError() << "Trying to send the message " << msg.getMessage() << " with mq_timedsend() which "
+        LogError() << "Trying to send the message " << msg.getMessage() << " which "
                    << "does not follow the specified syntax.";
         return false;
     }
@@ -140,7 +142,7 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
-    return !m_mq.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
+    return !m_ipcChannel.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
 const ProcessName_t& IpcInterfaceBase::getInterfaceName() const noexcept
@@ -150,24 +152,24 @@ const ProcessName_t& IpcInterfaceBase::getInterfaceName() const noexcept
 
 bool IpcInterfaceBase::isInitialized() const noexcept
 {
-    return m_mq.isInitialized();
+    return m_ipcChannel.isInitialized();
 }
 
 bool IpcInterfaceBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
 {
-    m_mq.destroy();
+    m_ipcChannel.destroy();
 
     m_channelSide = channelSide;
     IpcChannelType::create(
         m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .and_then([this](auto& mq) { this->m_mq = std::move(mq); });
+        .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); });
 
-    return m_mq.isInitialized();
+    return m_ipcChannel.isInitialized();
 }
 
 bool IpcInterfaceBase::closeMessageQueue() noexcept
 {
-    return !m_mq.destroy().has_error();
+    return !m_ipcChannel.destroy().has_error();
 }
 
 bool IpcInterfaceBase::reopen() noexcept
@@ -177,19 +179,19 @@ bool IpcInterfaceBase::reopen() noexcept
 
 bool IpcInterfaceBase::mqMapsToFile() noexcept
 {
-    return !m_mq.isOutdated().value_or(true);
+    return !m_ipcChannel.isOutdated().value_or(true);
 }
 
 bool IpcInterfaceBase::hasClosableMessageQueue() const noexcept
 {
-    return m_mq.isInitialized();
+    return m_ipcChannel.isInitialized();
 }
 
 void IpcInterfaceBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
 {
     if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
     {
-        LogWarn() << "MQ still there, doing an unlink of " << name;
+        LogWarn() << "IPC channel still there, doing an unlink of " << name;
     }
 }
 

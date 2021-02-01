@@ -15,7 +15,7 @@
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
@@ -108,25 +108,22 @@ class IpcInterfaceUser;
 class IpcInterfaceCreator;
 
 /// @brief Base-Class should never be used by the end-user.
-///     Handles the common properties and methods for the childs but does
-///     not call mq_open, mq_close, mq_link or mq_unlink. The handling of
-///     the message queues must be done by the children.
+///     Handles the common properties and methods for the childs. The handling of
+///     the IPC channels must be done by the children.
 class IpcInterfaceBase
 {
   public:
-    /// @brief Receives a message from the message queue and stores it in
+    /// @brief Receives a message from the IPC channel and stores it in
     ///         answer.
     /// @param[out] answer If a message is received it is stored there.
-    /// @return If the call to mq_received failed or an invalid message was
+    /// @return If the call failed or an invalid message was
     ///             received it returns false, otherwise true.
-    ///         One cause of a failed mq_received call can be a closed or
-    ///             unlinked message queue
     bool receive(IpcMessage& answer) const noexcept;
 
-    /// @brief Tries to receive a message from the message queue within a
+    /// @brief Tries to receive a message from the IPC channel within a
     ///         specified timeout. It stores the message in answer.
     /// @param[in] timeout for receiving a message.
-    /// @param[in] answer The answer of the message queue. If timedReceive
+    /// @param[in] answer The answer of the IPC channel. If timedReceive
     ///         failed the content of answer is undefined.
     /// @return If a valid message was received before the timeout occures
     ///             it returns true, otherwise false.
@@ -136,9 +133,8 @@ class IpcInterfaceBase
     /// @brief Tries to send the message specified in msg.
     /// @param[in] msg Must be a valid message, if its an invalid message
     ///                 send will return false
-    /// @return If a valid message was send via mq_send it returns true,
-    ///             otherwise if the message was invalid or mq_send returned
-    ///             an error, it will return false.
+    /// @return If a valid message was send it returns true,
+    ///             otherwise if the message was invalid it will return false.
     bool send(const IpcMessage& msg) const noexcept;
 
     /// @brief Tries to send the message specified in msg to the message
@@ -146,30 +142,29 @@ class IpcInterfaceBase
     /// @param[in] msg Must be a valid message, if its an invalid message
     ///                 send will return false
     /// @param[in] timeout specifies the duration to wait for sending.
-    /// @return If a valid message was send via mq_send it returns true,
-    ///             otherwise if the message was invalid or mq_send returned
-    ///             an error, it will return false.
+    /// @return If a valid message was send it returns true,
+    ///             otherwise if the message was invalid it will return false.
     bool timedSend(const IpcMessage& msg, const units::Duration timeout) const noexcept;
 
     /// @brief Returns the interface name, the unique char string which
-    ///         explicitly identifies the message queue.
-    /// @return name of the message queue
+    ///         explicitly identifies the IPC channel.
+    /// @return name of the IPC channel
     const ProcessName_t& getInterfaceName() const noexcept;
 
-    /// @brief If the message queue could not be opened or linked in the
+    /// @brief If the IPC channel could not be opened or linked in the
     ///         constructor it will return false, otherwise true. This is
     ///         needed since the constructor is not allowed to throw an
     ///         exception.
-    ///         You should always check a message queue with isInitialized
+    ///         You should always check a IPC channel with isInitialized
     ///         before using it, since all other methods will fail and
     ///         return false if a message could not be successfully
     ///         initialized.
     /// @return initialization state
     bool isInitialized() const noexcept;
 
-    /// @brief Since there might be an outdated message queue due to an unclean temination
-    ///        this function closes the message queue if it's existing.
-    /// @param[in] name of the message queue to clean up
+    /// @brief Since there might be an outdated IPC channel due to an unclean temination
+    ///        this function closes the IPC channel if it's existing.
+    /// @param[in] name of the IPC channel to clean up
     static void cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept;
 
     friend class IpcInterfaceUser;
@@ -177,23 +172,25 @@ class IpcInterfaceBase
     friend class IpcRuntimeInterface;
 
   protected:
-    /// @brief Closes and opens an existing message queue using the same parameters as before.
+    /// @brief Closes and opens an existing IPC channel using the same parameters as before.
     ///        If the queue was not open, it is just openened.
     /// @return true if successfully reopened, false if not
     bool reopen() noexcept;
 
-    /// @brief Checks if the mqd_t still has its counterpart in the file system
-    /// @return If the message queue, which corresponds to the mqd_t descriptor
+    /// @brief Checks if the IPC channel has its counterpart in the file system
+    /// @return If the IPC channel, which corresponds to a descriptor,
     ///         is still availabe in the file system it returns true,
-    ///         otherwise it was deleted or the mqueue was not open and returns false
+    ///         otherwise it was deleted or the IPC channel was not open and returns false
     bool mqMapsToFile() noexcept;
 
     /// @brief The default constructor is explicitly deleted since every
-    ///         message queue needs a unique string to be identified with.
+    ///         IPC channel needs a unique string to be identified with.
     IpcInterfaceBase() = delete;
     // TODO: unique identifier problem, multiple IpcInterfaceBase objects with the
-    //        same InterfaceName are using the same message queue
-    IpcInterfaceBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
+    //        same InterfaceName are using the same IPC channel
+    IpcInterfaceBase(const ProcessName_t& InterfaceName,
+                     const uint64_t maxMessages,
+                     const uint64_t messageSize) noexcept;
     virtual ~IpcInterfaceBase() = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
@@ -208,25 +205,25 @@ class IpcInterfaceBase
     /// @return answer.isValid()
     static bool setMessageFromString(const char* buffer, IpcMessage& answer) noexcept;
 
-    /// @brief Opens a message queue with mq_open and default permissions
-    ///         stored in m_perms and stores the descriptor in m_roudiMq
-    /// @param[in] channelSide of the queue. SERVER will also destroy the message queue in the dTor, while CLIENT
-    /// keeps the message queue in the file system after the dTor is called
-    /// @return Returns true if a message queue could be opened, otherwise
+    /// @brief Opens a IPC channel and default permissions
+    ///         stored in m_perms and stores the descriptor
+    /// @param[in] channelSide of the queue. SERVER will also destroy the IPC channel in the dTor, while CLIENT
+    /// keeps the IPC channel in the file system after the dTor is called
+    /// @return Returns true if a IPC channel could be opened, otherwise
     ///             false.
     bool openMessageQueue(const posix::IpcChannelSide channelSide) noexcept;
 
-    /// @brief Closes a message queue with mq_close
-    /// @return Returns true if the message queue could be closed, otherwise
+    /// @brief Closes a IPC channel
+    /// @return Returns true if the IPC channel could be closed, otherwise
     ///             false.
     bool closeMessageQueue() noexcept;
 
-    /// @brief If a message queue was moved then m_interfaceName was cleared
+    /// @brief If a IPC channel was moved then m_interfaceName was cleared
     ///         and this object gave up the control of that specific
-    ///         message queue and therefore shouldnt unlink or close it.
+    ///         IPC channel and therefore shouldnt unlink or close it.
     ///         Otherwise the object which it was moved to can end up with
-    ///         an invalid message queue descriptor.
-    /// @return Returns true if the message queue is closable,
+    ///         an invalid IPC channel descriptor.
+    /// @return Returns true if the IPC channel is closable,
     ///             otherwise false.
     bool hasClosableMessageQueue() const noexcept;
 
@@ -235,7 +232,7 @@ class IpcInterfaceBase
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
-    IpcChannelType m_mq;
+    IpcChannelType m_ipcChannel;
 };
 
 } // namespace runtime

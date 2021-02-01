@@ -23,7 +23,7 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 
 #undef private
