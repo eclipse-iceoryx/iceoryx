@@ -306,7 +306,7 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
                   "only integer types with less or equal to size of uint64_t are allowed for multiplication");
     const auto multiplicator = static_cast<Seconds_t>(rhs);
 
-    auto maxBeforeOverflow = std::numeric_limits<Seconds_t>::max() / multiplicator;
+    const auto maxBeforeOverflow = std::numeric_limits<Seconds_t>::max() / multiplicator;
 
     // check if the result of the m_seconds multiplication would already overflow
     if (m_seconds > maxBeforeOverflow)
@@ -336,17 +336,18 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     auto durationFromNanosecondsLow = Duration::nanoseconds(m_nanoseconds * multiplicatorLow);
 
     // this is the complicated part with the upper 32 bits;
-    // the m_nanoseconds are multiplied with the upper 32 bits of the multiplicator shifted by 32 bit to the left, thus
+    // the m_nanoseconds are multiplied with the upper 32 bits of the multiplicator shifted by 32 bit to the right, thus
     // having again a multiplication of two 32 bit values whose result fits into a 64 bit variable;
     // one bit of the result represents 2^32 nanoseconds;
     // just shifting left by 32 bits would result in an overflow, therefore blocks of full seconds must be extracted of
     // the result;
     // this cannot be done by dividing through NANOSECS_PER_SEC, since that one is base 1_000_000_000 and the result is
-    // base 2^32, therefore the least common multiple must be used to get blocks of full seconds represented as 2^32
-    // nanoseconds per bit;
+    // base 2^32, therefore the least common multiple can be used to get blocks of full seconds represented with the LSB
+    // representing 2^32 nanoseconds;
     // this can then safely be converted to seconds as well as nanoseconds without loosing precision
 
-    // least common multiple of 2^32 and NANOSECONDS_PER_SECOND
+    // least common multiple of 2^32 and NANOSECONDS_PER_SECOND;
+    // for the following calculation it is not important to be the least common multiple, any common multiple will do
     constexpr uint64_t LEAST_COMMON_MULTIPLE{8388608000000000};
     static_assert(LEAST_COMMON_MULTIPLE % (1ULL << 32) == 0, "invalid multiple");
     static_assert(LEAST_COMMON_MULTIPLE % NANOSECS_PER_SEC == 0, "invalid multiple");
