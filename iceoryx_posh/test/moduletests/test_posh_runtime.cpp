@@ -162,6 +162,22 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
 }
 
+TEST_F(PoshRuntime_test, MiddlewareInterfaceGetInvalidNodeNameIsNotSuccessful)
+{
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
+    m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(),
+                Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE));
+}
+
 
 TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
 {
@@ -380,6 +396,19 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), subscriberPort->m_serviceDescription);
     EXPECT_EQ(subscriberOptions.historyRequest, subscriberPort->m_historyRequest);
     EXPECT_EQ(subscriberOptions.queueCapacity, subscriberPort->m_chunkReceiverData.m_queue.capacity());
+}
+
+TEST_F(PoshRuntime_test, MiddlewareSubscriberMaxCapacityExceededReturnMaxCapacity)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
+    subscriberOptions.historyRequest = 13U;
+    subscriberOptions.queueCapacity = MAX_QUEUE_CAPACITY + 1U;
+
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_EQ(MAX_QUEUE_CAPACITY, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)
