@@ -243,7 +243,7 @@ inline constexpr bool Duration::operator<(const Duration& rhs) const noexcept
 
 inline constexpr bool Duration::operator<=(const Duration& rhs) const noexcept
 {
-    return (m_seconds < rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds <= rhs.m_nanoseconds));
+    return !(*this > rhs);
 }
 
 inline constexpr bool Duration::operator>(const Duration& rhs) const noexcept
@@ -253,7 +253,7 @@ inline constexpr bool Duration::operator>(const Duration& rhs) const noexcept
 
 inline constexpr bool Duration::operator>=(const Duration& rhs) const noexcept
 {
-    return (m_seconds > rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds >= rhs.m_nanoseconds));
+    return !(*this < rhs);
 }
 
 inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcept
