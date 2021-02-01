@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,34 +46,21 @@ class UserTrigger
     /// @brief Resets the UserTrigger state to not triggered
     void resetTrigger() noexcept;
 
-    template <uint64_t>
-    friend class WaitSet;
+    friend class EventAttorney;
 
   private:
+    /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
+    /// @param[in] uniqueTriggerId the id of the corresponding trigger
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
-    /// @brief enables the trigger event
-    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] eventId optional parameter, the id of the corresponding event
-    /// @param[in] callback optional parameter, the callback of the event
-    /// @return if the event could not be attached to the given waitset the expected contains the error, otherwise
-    /// the expected signals success
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const uint64_t eventId = EventInfo::INVALID_ID,
-                                            const EventInfo::Callback<UserTrigger> callback = nullptr) noexcept;
+    /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to UserTrigger::hasTriggered
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent() const noexcept;
 
-    /// @brief enables the trigger event
-    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] callback optional parameter, the callback of the event
-    /// @return if the event could not be attached to the given waitset the expected contains the error, otherwise
-    /// the expected signals success
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const EventInfo::Callback<UserTrigger> callback) noexcept;
+    /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
+    /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
 
-    /// @brief disables the trigger event. If it was not enabled nothing happens
-    /// happens.
+    /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
     void disableEvent() noexcept;
 
   private:
@@ -83,7 +70,5 @@ class UserTrigger
 
 } // namespace popo
 } // namespace iox
-
-#include "iceoryx_posh/internal/popo/user_trigger.inl"
 
 #endif // IOX_POSH_POPO_USER_TRIGGER_HPP

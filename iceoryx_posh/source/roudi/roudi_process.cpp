@@ -831,8 +831,6 @@ void ProcessManager::monitorProcesses() noexcept
 
                 m_processIntrospection->removeProcess(processIterator->getPid());
 
-                /// @todo #369 Need to delete condition variables used by terminating processes...
-
                 // delete application
                 processIterator = m_processList.erase(processIterator);
                 continue; // erase returns first element after the removed one --> skip iterator increment

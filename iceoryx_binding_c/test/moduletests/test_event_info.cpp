@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,19 +101,19 @@ UserTrigger* iox_event_info_test::m_lastEventCallbackArgument = nullptr;
 TEST_F(iox_event_info_test, eventInfoHasCorrectId)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 123U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, nullptr);
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID);
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
 
     ASSERT_THAT(eventInfoVector.size(), Eq(1));
-    EXPECT_EQ(iox_event_info_get_event_id(eventInfoVector[0]), 123U);
+    EXPECT_EQ(iox_event_info_get_event_id(eventInfoVector[0]), ARBITRARY_EVENT_ID);
 }
 
 TEST_F(iox_event_info_test, eventOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 124U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, nullptr);
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID);
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -148,7 +148,7 @@ TEST_F(iox_event_info_test, eventOriginIsSubscriberPointerWhenItsOriginatingFrom
 TEST_F(iox_event_info_test, eventOriginIsNotSubscriberPointerWhenItsOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 8921U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, nullptr);
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID);
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -160,7 +160,7 @@ TEST_F(iox_event_info_test, eventOriginIsNotSubscriberPointerWhenItsOriginatingF
 TEST_F(iox_event_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 89121U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, nullptr);
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID);
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -196,7 +196,7 @@ TEST_F(iox_event_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFr
 TEST_F(iox_event_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 891121U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, iox_event_info_test::eventCallback);
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback);
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -207,7 +207,7 @@ TEST_F(iox_event_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingF
 TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 80U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, iox_event_info_test::eventCallback);
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback);
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -219,7 +219,7 @@ TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
 TEST_F(iox_event_info_test, callbackCanBeCalledMultipleTimes)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 180U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, iox_event_info_test::eventCallback);
+    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback);
     m_userTrigger.trigger();
     auto eventInfoVector = m_waitSet.wait();
 
