@@ -14,14 +14,14 @@
 #ifndef IOX_POSH_RUNTIME_IPC_INTERFACE_USER_HPP
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_USER_HPP
 
-#include "iceoryx_posh/internal/runtime/ipc_base.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 namespace iox
 {
 namespace runtime
 {
 /// @brief Class for handling a message queue via mq_open and mq_close.
-class IpcInterfaceUser : public IpcBase
+class IpcInterfaceUser : public IpcInterfaceBase
 {
   public:
     /// @brief Constructs a IpcInterfaceUser and opens a message queue with

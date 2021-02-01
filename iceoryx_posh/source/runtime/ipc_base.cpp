@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/runtime/ipc_base.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
@@ -60,7 +60,7 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
-IpcBase::IpcBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
+IpcInterfaceBase::IpcInterfaceBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -73,7 +73,7 @@ IpcBase::IpcBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages,
     }
 }
 
-bool IpcBase::receive(IpcMessage& answer) const noexcept
+bool IpcInterfaceBase::receive(IpcMessage& answer) const noexcept
 {
     auto message = m_mq.receive();
     if (message.has_error())
@@ -81,18 +81,18 @@ bool IpcBase::receive(IpcMessage& answer) const noexcept
         return false;
     }
 
-    return IpcBase::setMessageFromString(message.value().c_str(), answer);
+    return IpcInterfaceBase::setMessageFromString(message.value().c_str(), answer);
 }
 
-bool IpcBase::timedReceive(const units::Duration timeout, IpcMessage& answer) const noexcept
+bool IpcInterfaceBase::timedReceive(const units::Duration timeout, IpcMessage& answer) const noexcept
 {
     return !m_mq.timedReceive(timeout)
-                .and_then([&answer](auto& message) { IpcBase::setMessageFromString(message.c_str(), answer); })
+                .and_then([&answer](auto& message) { IpcInterfaceBase::setMessageFromString(message.c_str(), answer); })
                 .has_error()
            && answer.isValid();
 }
 
-bool IpcBase::setMessageFromString(const char* buffer, IpcMessage& answer) noexcept
+bool IpcInterfaceBase::setMessageFromString(const char* buffer, IpcMessage& answer) noexcept
 {
     answer.setMessage(buffer);
     if (!answer.isValid())
@@ -103,7 +103,7 @@ bool IpcBase::setMessageFromString(const char* buffer, IpcMessage& answer) noexc
     return true;
 }
 
-bool IpcBase::send(const IpcMessage& msg) const noexcept
+bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
 {
     if (!msg.isValid())
     {
@@ -123,7 +123,7 @@ bool IpcBase::send(const IpcMessage& msg) const noexcept
     return !m_mq.send(msg.getMessage()).or_else(logLengthError).has_error();
 }
 
-bool IpcBase::timedSend(const IpcMessage& msg, units::Duration timeout) const noexcept
+bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout) const noexcept
 {
     if (!msg.isValid())
     {
@@ -143,17 +143,17 @@ bool IpcBase::timedSend(const IpcMessage& msg, units::Duration timeout) const no
     return !m_mq.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
-const ProcessName_t& IpcBase::getInterfaceName() const noexcept
+const ProcessName_t& IpcInterfaceBase::getInterfaceName() const noexcept
 {
     return m_interfaceName;
 }
 
-bool IpcBase::isInitialized() const noexcept
+bool IpcInterfaceBase::isInitialized() const noexcept
 {
     return m_mq.isInitialized();
 }
 
-bool IpcBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
+bool IpcInterfaceBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
 {
     m_mq.destroy();
 
@@ -165,27 +165,27 @@ bool IpcBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     return m_mq.isInitialized();
 }
 
-bool IpcBase::closeMessageQueue() noexcept
+bool IpcInterfaceBase::closeMessageQueue() noexcept
 {
     return !m_mq.destroy().has_error();
 }
 
-bool IpcBase::reopen() noexcept
+bool IpcInterfaceBase::reopen() noexcept
 {
     return openMessageQueue(m_channelSide);
 }
 
-bool IpcBase::mqMapsToFile() noexcept
+bool IpcInterfaceBase::mqMapsToFile() noexcept
 {
     return !m_mq.isOutdated().value_or(true);
 }
 
-bool IpcBase::hasClosableMessageQueue() const noexcept
+bool IpcInterfaceBase::hasClosableMessageQueue() const noexcept
 {
     return m_mq.isInitialized();
 }
 
-void IpcBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
+void IpcInterfaceBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
 {
     if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
     {

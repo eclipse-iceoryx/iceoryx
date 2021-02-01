@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_RUNTIME_IPC_BASE_HPP
-#define IOX_POSH_RUNTIME_IPC_BASE_HPP
+#ifndef IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
+#define IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
@@ -111,7 +111,7 @@ class IpcInterfaceCreator;
 ///     Handles the common properties and methods for the childs but does
 ///     not call mq_open, mq_close, mq_link or mq_unlink. The handling of
 ///     the message queues must be done by the children.
-class IpcBase
+class IpcInterfaceBase
 {
   public:
     /// @brief Receives a message from the message queue and stores it in
@@ -190,17 +190,17 @@ class IpcBase
 
     /// @brief The default constructor is explicitly deleted since every
     ///         message queue needs a unique string to be identified with.
-    IpcBase() = delete;
-    // TODO: unique identifier problem, multiple IpcBase objects with the
+    IpcInterfaceBase() = delete;
+    // TODO: unique identifier problem, multiple IpcInterfaceBase objects with the
     //        same InterfaceName are using the same message queue
-    IpcBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
-    virtual ~IpcBase() = default;
+    IpcInterfaceBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
+    virtual ~IpcInterfaceBase() = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
-    IpcBase(const IpcBase&) = delete;
-    IpcBase(IpcBase&&) = delete;
-    IpcBase& operator=(const IpcBase&) = delete;
-    IpcBase& operator=(IpcBase&&) = delete;
+    IpcInterfaceBase(const IpcInterfaceBase&) = delete;
+    IpcInterfaceBase(IpcInterfaceBase&&) = delete;
+    IpcInterfaceBase& operator=(const IpcInterfaceBase&) = delete;
+    IpcInterfaceBase& operator=(IpcInterfaceBase&&) = delete;
 
     /// @brief Set the content of answer from buffer.
     /// @param[in] buffer Raw message as char pointer
@@ -241,4 +241,4 @@ class IpcBase
 } // namespace runtime
 } // namespace iox
 
-#endif // IOX_POSH_RUNTIME_IPC_BASE_HPP
+#endif // IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP

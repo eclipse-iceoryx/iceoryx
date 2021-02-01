@@ -21,7 +21,7 @@ namespace runtime
 IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
-    : IpcBase(name, maxMessages, messageSize)
+    : IpcInterfaceBase(name, maxMessages, messageSize)
 {
     // check if the mq is still there (e.g. because of no proper termination
     // of the process)

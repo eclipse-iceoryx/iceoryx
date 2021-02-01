@@ -21,7 +21,7 @@ namespace runtime
 IpcInterfaceUser::IpcInterfaceUser(const ProcessName_t& name,
                                    const uint64_t maxMessages,
                                    const uint64_t messageSize) noexcept
-    : IpcBase(name, maxMessages, messageSize)
+    : IpcInterfaceBase(name, maxMessages, messageSize)
 {
     openMessageQueue(posix::IpcChannelSide::CLIENT);
 }

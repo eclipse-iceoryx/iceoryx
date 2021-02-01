@@ -21,8 +21,8 @@
 #define private public
 #define protected public
 
-#include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 
@@ -34,7 +34,7 @@
 using namespace ::testing;
 using ::testing::Return;
 
-using iox::runtime::IpcBase;
+using iox::runtime::IpcInterfaceBase;
 using iox::runtime::IpcInterfaceCreator;
 using iox::runtime::IpcInterfaceUser;
 using iox::runtime::IpcMessage;
@@ -211,7 +211,7 @@ void CMqInterface_IsInitialized(T& base [[gnu::unused]])
 }
 
 template <typename T>
-void CMqInterface_RunAllIpcBaseTests(T& base)
+void CMqInterface_RunAllIpcInterfaceBaseTests(T& base)
 {
     CMqInterface_IsInitialized(base);
     CMqInterface_Receive(base);
@@ -230,54 +230,54 @@ void CMqInterface_StringCTor()
 
 
 ////////////////////////////////
-// UnitTests: IpcBase
+// UnitTests: IpcInterfaceBase
 ////////////////////////////////
 
-TEST_F(CMqInterface_test, IpcBase_StringCTor)
+TEST_F(CMqInterface_test, IpcInterfaceBase_StringCTor)
 {
-    CMqInterface_StringCTor<IpcBase>();
+    CMqInterface_StringCTor<IpcInterfaceBase>();
 }
 
-TEST_F(CMqInterface_test, DISABLED_IpcBase_Receive)
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceBase_Receive)
 {
-    IpcBase base(ifName, maxMessages, messageSize);
+    IpcInterfaceBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_Receive<IpcBase>(base);
+    CMqInterface_Receive<IpcInterfaceBase>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_IpcBase_TimedReceive)
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceBase_TimedReceive)
 {
-    IpcBase base(ifName, maxMessages, messageSize);
+    IpcInterfaceBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_TimedReceive<IpcBase>(base);
+    CMqInterface_TimedReceive<IpcInterfaceBase>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_IpcBase_Send)
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceBase_Send)
 {
-    IpcBase base(ifName, maxMessages, messageSize);
+    IpcInterfaceBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_Send<IpcBase>(base);
+    CMqInterface_Send<IpcInterfaceBase>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_IpcBase_TimedSend)
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceBase_TimedSend)
 {
-    IpcBase base(ifName, maxMessages, messageSize);
+    IpcInterfaceBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_TimedSend<IpcBase>(base);
+    CMqInterface_TimedSend<IpcInterfaceBase>(base);
 }
 
-TEST_F(CMqInterface_test, IpcBase_GetInterfaceName)
+TEST_F(CMqInterface_test, IpcInterfaceBase_GetInterfaceName)
 {
-    IpcBase base(ifName, maxMessages, messageSize);
+    IpcInterfaceBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_GetInterfaceName<IpcBase>(base);
+    CMqInterface_GetInterfaceName<IpcInterfaceBase>(base);
 }
 
-TEST_F(CMqInterface_test, IpcBase_IsInitialized)
+TEST_F(CMqInterface_test, IpcInterfaceBase_IsInitialized)
 {
-    IpcBase base(ifName, maxMessages, messageSize);
+    IpcInterfaceBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_IsInitialized<IpcBase>(base);
+    CMqInterface_IsInitialized<IpcInterfaceBase>(base);
 }
 
 ////////////////////////////////

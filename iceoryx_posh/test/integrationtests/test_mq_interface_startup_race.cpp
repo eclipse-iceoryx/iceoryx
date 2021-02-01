@@ -31,7 +31,7 @@ using namespace iox;
 using namespace iox::units;
 using namespace iox::posix;
 
-using iox::runtime::IpcBase;
+using iox::runtime::IpcInterfaceBase;
 using iox::runtime::IpcMessage;
 using iox::runtime::IpcMessageType;
 using iox::runtime::IpcRuntimeInterface;
@@ -43,10 +43,10 @@ constexpr char DeleteRouDiMessageQueue[] = "rm /dev/mqueue/roudi";
 
 constexpr char MqAppName[] = "racer";
 
-class StringToMessage : public IpcBase
+class StringToMessage : public IpcInterfaceBase
 {
   public:
-    using IpcBase::setMessageFromString;
+    using IpcInterfaceBase::setMessageFromString;
 };
 
 class CMqInterfaceStartupRace_test : public Test

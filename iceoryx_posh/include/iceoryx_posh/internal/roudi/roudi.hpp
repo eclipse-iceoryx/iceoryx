@@ -18,7 +18,7 @@
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
-#include "iceoryx_posh/internal/runtime/ipc_base.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"

@@ -14,7 +14,7 @@
 #ifndef IOX_POSH_RUNTIME_IPC_INTERFACE_CREATOR_HPP
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_CREATOR_HPP
 
-#include "iceoryx_posh/internal/runtime/ipc_base.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 namespace iox
 {
@@ -22,7 +22,7 @@ namespace runtime
 {
 /// @brief Class for handling a message queue via mq_open and mq_unlink
 ///             and mq_close
-class IpcInterfaceCreator : public IpcBase
+class IpcInterfaceCreator : public IpcInterfaceBase
 {
   public:
     /// @brief Constructs a IpcInterfaceCreator and opens a new message
