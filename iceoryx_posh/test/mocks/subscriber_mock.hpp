@@ -67,6 +67,8 @@ template <typename T, typename Child, typename Port>
 class MockBaseSubscriber
 {
   public:
+    using PortType = Port;
+
     MockBaseSubscriber(const iox::capro::ServiceDescription&, const iox::popo::SubscriberOptions&){};
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());

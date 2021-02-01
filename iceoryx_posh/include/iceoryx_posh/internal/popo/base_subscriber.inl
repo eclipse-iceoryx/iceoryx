@@ -126,21 +126,6 @@ void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const mepoo::ChunkHeade
     m_port.releaseChunk(header);
 }
 
-// ============================== Sample Deleter ============================== //
-
-template <typename T, typename Subscriber, typename port_t>
-inline BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::SubscriberSampleDeleter(port_t& port)
-    : m_port(std::ref(port))
-{
-}
-
-template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::operator()(T* const ptr) const
-{
-    auto header = mepoo::ChunkHeader::fromPayload(ptr);
-    m_port.get().releaseChunk(header);
-}
-
 template <typename T, typename Subscriber, typename port_t>
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>

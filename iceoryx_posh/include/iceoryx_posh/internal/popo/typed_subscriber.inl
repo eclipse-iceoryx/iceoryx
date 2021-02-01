@@ -35,7 +35,8 @@ inline cxx::expected<Sample<const T>, ChunkReceiveResult> TypedSubscriber<T, bas
         return cxx::error<ChunkReceiveResult>(result.get_error());
     }
     auto payloadPtr = static_cast<T*>(result.value()->payload());
-    auto samplePtr = cxx::unique_ptr<T>(static_cast<T*>(payloadPtr), BaseSubscriber::m_sampleDeleter);
+    SubscriberSampleDeleter deleter(BaseSubscriber::m_port);
+    auto samplePtr = cxx::unique_ptr<T>(static_cast<T*>(payloadPtr), deleter);
     return cxx::success<Sample<const T>>(std::move(samplePtr));
 }
 

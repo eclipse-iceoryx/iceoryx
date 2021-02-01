@@ -15,6 +15,7 @@
 #ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 
+#include "iceoryx_posh/internal/popo/sample_deleter.hpp"
 #include "iceoryx_posh/popo/base_subscriber.hpp"
 
 namespace iox
@@ -46,7 +47,10 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     using BaseSubscriber::subscribe;
     using BaseSubscriber::unsubscribe;
 
-    inline cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept; // iox-#408 rename
+    inline cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept;
+
+    using PortType = typename BaseSubscriber::PortType;
+    using SubscriberSampleDeleter = SampleDeleter<PortType>;
 };
 
 } // namespace popo

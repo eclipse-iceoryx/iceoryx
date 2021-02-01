@@ -47,6 +47,7 @@ class BaseSubscriber
 {
   protected:
     using SelfType = BaseSubscriber<T, Subscriber, port_t>;
+    using PortType = port_t;
 
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
@@ -155,30 +156,8 @@ class BaseSubscriber
     /// @param[in] subscriberEvent the event which should be detached
     void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
 
-  private:
-    ///
-    /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-    /// underlying memory chunk via the subscriber port.
-    /// Each subscriber should create its own instance of this deleter struct to work with its specific port.
-    ///
-    /// @note As this deleter is coupled to the Subscriber implementation, it should only be used within the subscriber
-    /// context.
-    ///
-
-    // iox-#408 needs to be moved into the typed API
-    struct SubscriberSampleDeleter
-    {
-      public:
-        SubscriberSampleDeleter(port_t& port);
-        void operator()(T* const ptr) const;
-
-      private:
-        std::reference_wrapper<port_t> m_port;
-    };
-
   protected:
     port_t m_port{nullptr};
-    SubscriberSampleDeleter m_sampleDeleter{m_port};
     TriggerHandle m_trigger;
 };
 
