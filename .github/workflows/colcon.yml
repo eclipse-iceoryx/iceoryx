@@ -10,12 +10,8 @@ on:
   pull_request:
     branches: [ master ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
-    #runs-on: ubuntu-latest
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -23,10 +19,16 @@ jobs:
           os: [ubuntu-20.04]
 
     steps:
+      - name: compiler versions
+        run: |
+          echo $(gcc --version)
+          echo $(clang --version)
+
       - name: Setup ROS
-        uses: ros-tooling/setup-ros@0.0.26
+        uses: ros-tooling/setup-ros@0.1.2
         with:
           required-ros-distributions: foxy
+
       - name: Install Iceoryx Dependencies
         run: |
           sudo apt install -y apt-transport-https

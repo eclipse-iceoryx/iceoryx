@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,16 +21,24 @@ namespace iox
 {
 namespace units
 {
-struct timespec Duration::timespec(const TimeSpecReference& reference) const
+struct timespec Duration::timespec(const TimeSpecReference& reference) const noexcept
 {
-    constexpr int64_t NanoSecondsPerSecond{1000000000};
+    using SEC_TYPE = decltype(std::declval<struct timespec>().tv_sec);
+    using NSEC_TYPE = decltype(std::declval<struct timespec>().tv_nsec);
+
     if (reference == TimeSpecReference::None)
     {
-        int64_t timeInNanoSeconds = this->nanoSeconds<int64_t>();
-        int64_t seconds = timeInNanoSeconds / NanoSecondsPerSecond;
-        return {seconds,
-                static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(timeInNanoSeconds
-                                                                               - seconds * NanoSecondsPerSecond)};
+        static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
+        if (this->m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
+        {
+            std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                      << std::endl;
+            return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+        }
+
+        auto tv_sec = static_cast<SEC_TYPE>(this->m_seconds);
+        auto tv_nsec = static_cast<NSEC_TYPE>(this->m_nanoseconds);
+        return {tv_sec, tv_nsec};
     }
     else
     {
@@ -47,21 +55,26 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
         }
         else
         {
-            int64_t timeInNanoSeconds = this->nanoSeconds<int64_t>();
-            int64_t remainingNanoSecondsTimeout = timeInNanoSeconds % NanoSecondsPerSecond;
-            int64_t sumOfNanoSeconds = remainingNanoSecondsTimeout + referenceTime.tv_nsec;
-            int64_t additionalSeconds = sumOfNanoSeconds / NanoSecondsPerSecond;
-            int64_t seconds = timeInNanoSeconds / NanoSecondsPerSecond + referenceTime.tv_sec + additionalSeconds;
-            int64_t nanoSeconds = sumOfNanoSeconds - additionalSeconds * NanoSecondsPerSecond;
+            auto targetTime = Duration(referenceTime) + *this;
 
-            return {seconds, static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(nanoSeconds)};
+            static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
+            if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
+            {
+                std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
+                          << std::endl;
+                return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+            }
+
+            auto tv_sec = static_cast<SEC_TYPE>(targetTime.m_seconds);
+            auto tv_nsec = static_cast<NSEC_TYPE>(targetTime.m_nanoseconds);
+            return {tv_sec, tv_nsec};
         }
     }
 }
 
-std::ostream& operator<<(std::ostream& stream, const units::Duration& t)
+std::ostream& operator<<(std::ostream& stream, const units::Duration& t) noexcept
 {
-    stream << t.durationInSeconds << "s ";
+    stream << t.m_seconds << "s " << t.m_nanoseconds << "ns";
     return stream;
 }
 

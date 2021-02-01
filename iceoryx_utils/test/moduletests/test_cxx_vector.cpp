@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -889,14 +889,14 @@ TEST_F(vector_test, ConstBackPointsToLastElement)
 TEST_F(vector_test, ConstructorWithSizeParameterSmallerThanCapacity)
 {
     vector<CTorTest, 5> sut(2);
-    EXPECT_THAT(vector_test::copyCTor, Eq(2));
+    EXPECT_THAT(vector_test::cTor, Eq(2));
     ASSERT_THAT(sut.size(), Eq(2));
 }
 
 TEST_F(vector_test, ConstructorWithSizeParameterGreaterThanCapacity)
 {
     vector<CTorTest, 5> sut(7);
-    EXPECT_THAT(vector_test::copyCTor, Eq(5));
+    EXPECT_THAT(vector_test::cTor, Eq(5));
     ASSERT_THAT(sut.size(), Eq(5));
 }
 

@@ -118,7 +118,7 @@ class PeriodicTask
   private:
     T m_callable;
     posix::ThreadName_t m_taskName;
-    units::Duration m_interval{units::Duration::milliseconds<long double>(0.0)};
+    units::Duration m_interval{units::Duration::milliseconds(0U)};
     /// @todo use a refactored posix::Timer object once available
     posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
     std::thread m_taskExecutor;

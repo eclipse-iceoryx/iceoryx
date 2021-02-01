@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,8 +54,8 @@ void IntrospectionApp::printHelp() noexcept
                  "  -h, --help        Display help and exit.\n"
                  "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
                  "                    [min: "
-              << MIN_UPDATE_PERIOD.milliSeconds<uint32_t>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<uint32_t>()
-              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<uint32_t>()
+              << MIN_UPDATE_PERIOD.milliSeconds() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds()
+              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds()
               << "]\n"
                  "  -v, --version     Display latest official iceoryx release version and exit.\n"
                  "\nSubscription:\n"
@@ -96,10 +96,16 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
 
         case 't':
         {
-            /// @todo Calling milliseconds() should not be ambiguous, extend units::Duration?
-            iox::units::Duration l_rate =
-                iox::units::Duration::milliseconds(static_cast<long double>(std::atoi(optarg)));
-            updatePeriodMs = bounded(l_rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
+            uint64_t newUpdatePeriodMs;
+            if (cxx::convert::fromString(optarg, newUpdatePeriodMs))
+            {
+                iox::units::Duration rate = iox::units::Duration::milliseconds(newUpdatePeriodMs);
+                updatePeriodMs = bounded(rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
+            }
+            else
+            {
+                std::cout << "Invalid argument for `t`! Will be ignored!";
+            }
             break;
         }
 
@@ -297,6 +303,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     constexpr int32_t instanceWidth{16};
     constexpr int32_t eventWidth{21};
     constexpr int32_t processNameWidth{23};
+    constexpr int32_t nodeNameWidth{23};
     constexpr int32_t sampleSizeWidth{12};
     constexpr int32_t chunkSizeWidth{12};
     constexpr int32_t chunksWidth{12};
@@ -312,6 +319,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", instanceWidth, "Instance");
     wprintw(pad, " %*s |", eventWidth, "Event");
     wprintw(pad, " %*s |", processNameWidth, "Process");
+    wprintw(pad, " %*s |", nodeNameWidth, "Node");
     wprintw(pad, " %*s |", sampleSizeWidth, "Sample Size");
     wprintw(pad, " %*s |", chunkSizeWidth, "Chunk Size");
     wprintw(pad, " %*s |", chunksWidth, "Chunks");
@@ -322,6 +330,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", instanceWidth, "");
     wprintw(pad, " %*s |", eventWidth, "");
     wprintw(pad, " %*s |", processNameWidth, "");
+    wprintw(pad, " %*s |", nodeNameWidth, "");
     wprintw(pad, " %*s |", sampleSizeWidth, "[Byte]");
     wprintw(pad, " %*s |", chunkSizeWidth, "[Byte]");
     wprintw(pad, " %*s |", chunksWidth, "[/Minute]");
@@ -344,9 +353,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         {
             stream << std::left << std::setw(maxSize) << data.substr(0U, static_cast<size_t>(maxSize));
         }
-        else if (stringSize > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
+        else if (stringSize
+                 > static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation))
         {
-            const auto startPosition = static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
+            const auto startPosition =
+                static_cast<size_t>(maxSize) + (currentLine - 1U) * static_cast<size_t>(maxSize - indentation);
 
             stream << indentationString << std::left << std::setw(maxSize - indentation)
                    << data.substr(startPosition, static_cast<size_t>(maxSize - indentation));
@@ -356,18 +367,14 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             stream << std::left << std::setw(maxSize) << "";
         }
 
-        needsLineBreak |= (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
+        needsLineBreak |=
+            (stringSize > static_cast<size_t>(maxSize) + (currentLine) * static_cast<size_t>(maxSize - indentation));
 
         return stream.str();
     };
 
     for (auto& publisherPort : publisherPortData)
     {
-        // std::string m_sampleSize{std::to_string(publisherPort.throughputData->m_sampleSize)};
-        // std::string m_chunkSize{std::to_string(publisherPort.throughputData->m_chunkSize)};
-        // std::string m_chunksPerMinute{std::to_string(publisherPort.throughputData->m_chunksPerMinute)};
-        // std::string sendInterval{
-        //     std::to_string(publisherPort.throughputData->m_lastSendIntervalInNanoseconds / 1000000)};
         std::string m_sampleSize{"n/a"};
         std::string m_chunkSize{"n/a"};
         std::string m_chunksPerMinute{"n/a"};
@@ -381,6 +388,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             wprintw(pad, " %s |", printEntry(instanceWidth, publisherPort.portData->m_caproInstanceID).c_str());
             wprintw(pad, " %s |", printEntry(eventWidth, publisherPort.portData->m_caproEventMethodID).c_str());
             wprintw(pad, " %s |", printEntry(processNameWidth, publisherPort.portData->m_name).c_str());
+            wprintw(pad, " %s |", printEntry(nodeNameWidth, publisherPort.portData->m_node).c_str());
             wprintw(pad, " %s |", printEntry(sampleSizeWidth, m_sampleSize).c_str());
             wprintw(pad, " %s |", printEntry(chunkSizeWidth, m_chunkSize).c_str());
             wprintw(pad, " %s |", printEntry(chunksWidth, m_chunksPerMinute).c_str());
@@ -405,6 +413,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", serviceWidth, "Service");
     wprintw(pad, " %*s |", instanceWidth, "Instance");
     wprintw(pad, " %*s |", eventWidth, "Event");
+    wprintw(pad, " %*s |", nodeNameWidth, "Node");
     wprintw(pad, " %*s |", subscriptionStateWidth, "Subscription");
     wprintw(pad, " %*s |", fifoWidth, "FiFo");
     wprintw(pad, " %*s |", scopeWidth, "Propagation");
@@ -413,6 +422,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", serviceWidth, "");
     wprintw(pad, " %*s |", instanceWidth, "");
     wprintw(pad, " %*s |", eventWidth, "");
+    wprintw(pad, " %*s |", nodeNameWidth, "");
     wprintw(pad, " %*s |", subscriptionStateWidth, "State");
     wprintw(pad, " %*s |", fifoWidth, "size / capacity");
     wprintw(pad, " %*s |", scopeWidth, "scope");
@@ -426,19 +436,14 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         {
         case iox::SubscribeState::NOT_SUBSCRIBED:
             return "NOT_SUBSCRIBED";
-            break;
         case iox::SubscribeState::SUBSCRIBE_REQUESTED:
             return "SUB_REQUEST";
-            break;
         case iox::SubscribeState::SUBSCRIBED:
             return "SUBSCRIBED";
-            break;
         case iox::SubscribeState::UNSUBSCRIBE_REQUESTED:
             return "UNSUB_REQUEST";
-            break;
         case iox::SubscribeState::WAIT_FOR_OFFER:
             return "WAIT_FOR_OFFER";
-            break;
         default:
             return "UNKNOWN";
         }
@@ -453,6 +458,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             wprintw(pad, " %s |", printEntry(serviceWidth, subscriber.portData->m_caproServiceID).c_str());
             wprintw(pad, " %s |", printEntry(instanceWidth, subscriber.portData->m_caproInstanceID).c_str());
             wprintw(pad, " %s |", printEntry(eventWidth, subscriber.portData->m_caproEventMethodID).c_str());
+            wprintw(pad, " %s |", printEntry(nodeNameWidth, subscriber.portData->m_node).c_str());
             wprintw(pad,
                     " %s |",
                     printEntry(subscriptionStateWidth,
@@ -485,6 +491,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         wprintw(pad, " %*s |", serviceWidth, "");
         wprintw(pad, " %*s |", instanceWidth, "");
         wprintw(pad, " %*s |", eventWidth, "");
+        wprintw(pad, " %*s |", nodeNameWidth, "");
         wprintw(pad, " %*s |", subscriptionStateWidth, "");
         wprintw(pad, " %*s |", fifoWidth, "");
         wprintw(pad, " %*s |", scopeWidth, "");
@@ -512,7 +519,7 @@ bool IntrospectionApp::waitForSubscription(Subscriber& port)
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
-        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds()));
     }
 
     return subscribed;
@@ -579,10 +586,11 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
     { // should be the same, else it will be soon
         for (const auto& port : portData->m_subscriberList)
         {
-            subscriberPortData.push_back(
-                {port,
-                 (port.m_publisherIndex != -1) ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)] : nullptr,
-                 subscriberPortChangingData->subscriberPortChangingDataList[i++]});
+            subscriberPortData.push_back({port,
+                                          (port.m_publisherIndex != -1)
+                                              ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)]
+                                              : nullptr,
+                                          subscriberPortChangingData->subscriberPortChangingDataList[i++]});
         }
     }
 
@@ -763,13 +771,13 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         refreshTerminal();
 
         // Watch user input for updatePeriodMs
-        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds<uint64_t>());
+        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds());
         auto tWaitBegin = std::chrono::system_clock::now();
         while (tWaitRemaining.count() >= 0)
         {
             waitForUserInput(static_cast<int32_t>(tWaitRemaining.count()));
             auto tWaitElapsed = std::chrono::system_clock::now() - tWaitBegin;
-            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds<uint64_t>())
+            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds())
                              - std::chrono::duration_cast<std::chrono::milliseconds>(tWaitElapsed);
         }
     }
