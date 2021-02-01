@@ -178,6 +178,20 @@ auto enumTypeAsUnderlyingType(enum_type const value) -> typename std::underlying
     return static_cast<typename std::underlying_type<enum_type>::type>(value);
 }
 
+/// calls a given functor for every element in a given container
+/// @tparam[in] Container type which must be iteratable
+/// @tparam[in] Functor which has one argument, the element type of the container
+/// @param[in] c container which should be iterated
+/// @param[in] f functor which should be applied to every element
+template <typename Container, typename Functor>
+void forEach(Container& c, const Functor& f) noexcept
+{
+    for (auto& element : c)
+    {
+        f(element);
+    }
+}
+
 /// @brief Get the size of a string represented by a char array at compile time.
 /// @tparam The size of the char array filled out by the compiler.
 /// @param[in] The actual content of the char array is not of interest. Its just the size of the array that matters.
