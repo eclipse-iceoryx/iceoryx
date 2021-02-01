@@ -97,7 +97,7 @@ int main()
                 // We need to release the samples to reset the trigger hasSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.
-                subscriber->releaseQueuedSamples();
+                subscriber->releaseQueuedChunks();
             }
         }
 
