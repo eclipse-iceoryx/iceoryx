@@ -29,15 +29,6 @@ inline TypedPublisher<T, base_publisher_t>::TypedPublisher(const capro::ServiceD
 }
 
 template <typename T, typename base_publisher_t>
-inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loan() noexcept
-{
-    // Call default constructor here to ensure the type is immediately ready to use by the caller.
-    // There is a risk that the type will be re-constructed by the user (e.g. by using a placement new in
-    // publishResultOf(), however the overhead is considered to be insignificant and worth the additional safety.
-    return std::move(base_publisher_t::loan(sizeof(T)).and_then([](auto& sample) { new (sample.get()) T(); }));
-}
-
-template <typename T, typename base_publisher_t>
 template <typename... Args>
 inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loan_1_0(Args&&... args) noexcept
 {
@@ -56,7 +47,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
     static_assert(cxx::has_signature<Callable, void(T*, ArgTypes...)>::value,
                   "callable provided to TypedPublisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
-    return loan().and_then([&](auto& sample) {
+    return base_publisher_t::loan(sizeof(T)).and_then([&](auto& sample) {
         c(sample.get(), std::forward<ArgTypes>(args)...);
         sample.publish();
     });
@@ -65,7 +56,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
 template <typename T, typename base_publisher_t>
 inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publishCopyOf(const T& val) noexcept
 {
-    return loan().and_then([&](auto& sample) {
+    return base_publisher_t::loan(sizeof(T)).and_then([&](auto& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
         sample.publish();
     });

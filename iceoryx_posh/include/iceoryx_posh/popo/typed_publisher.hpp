@@ -47,10 +47,6 @@ class TypedPublisher : public base_publisher_t
     using base_publisher_t::publish;
     using base_publisher_t::stopOffer;
 
-    // iox-#408 replace with loan_1_0
-    cxx::expected<Sample<T>, AllocationError> loan() noexcept;
-
-
     ///
     /// @brief loan Get a sample from loaned shared memory and consctruct the data with the given arguments.
     /// @param args Arguments used to construct the data.

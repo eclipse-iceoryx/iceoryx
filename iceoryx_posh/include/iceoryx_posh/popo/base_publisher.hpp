@@ -66,6 +66,7 @@ class BasePublisher : public PublisherInterface<T>
     capro::ServiceDescription getServiceDescription() const noexcept;
 
     // iox-#408 remove? (the typed version can use chunks and convert them to samples)
+    // todo: may be useful to have in the base, if so solve the name clash
     ///
     /// @brief loan Get a sample from loaned shared memory.
     /// @param size The expected size of the sample.
