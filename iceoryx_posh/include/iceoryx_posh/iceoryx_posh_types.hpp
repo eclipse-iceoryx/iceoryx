@@ -104,6 +104,9 @@ constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
+// ActiveCallSet
+constexpr uint32_t MAX_NUMBER_OF_EVENT_VARIABLES = 128U;
+constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET = 128U;
 //--------- Communication Resources End---------------------
 
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
