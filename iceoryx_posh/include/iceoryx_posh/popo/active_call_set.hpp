@@ -19,6 +19,7 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/types.hpp"
 #include "iceoryx_utils/internal/concurrent/loffli.hpp"
+#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 
 #include <thread>
 #include <type_traits>
@@ -37,78 +38,55 @@ class ActiveCallSet
   public:
     template <typename T>
     using Callback_t = void (*)(T* const);
+    using TranslationCallback_t = void (*)(void* const, void (*const)(void* const));
 
     ActiveCallSet() noexcept;
     ~ActiveCallSet();
 
-
     template <typename T>
-    cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, const Callback_t<T>& eventCallback) noexcept
-    {
-        return cxx::success<>();
-    }
+    cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, const Callback_t<T> eventCallback) noexcept;
 
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<ActiveCallSetError>
-    attachEvent(T& eventOrigin, const EventType eventType, const Callback_t<T>& eventCallback) noexcept
-    {
-        return cxx::success<>();
-    }
+    attachEvent(T& eventOrigin, const EventType eventType, const Callback_t<T> eventCallback) noexcept;
 
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
-    cxx::expected<ActiveCallSetError> detachEvent(T& eventOrigin, const EventType eventType) noexcept
-    {
-        return cxx::success<>();
-    }
+    void detachEvent(T& eventOrigin, const EventType eventType) noexcept;
 
     template <typename T>
-    cxx::expected<ActiveCallSetError> detachEvent(T& eventOrigin) noexcept
-    {
-        return cxx::success<>();
-    }
+    void detachEvent(T& eventOrigin) noexcept;
 
   private:
-    struct Event_t;
+    class Event_t;
 
     void threadLoop() noexcept;
-    void addEvent(void* const origin, const uint64_t eventType, const Callback_t<void> callback) noexcept;
+    void addEvent(void* const origin,
+                  const uint64_t eventType,
+                  const Callback_t<void> callback,
+                  const TranslationCallback_t translationCallback) noexcept;
     void removeEvent(void* const origin, const uint64_t eventType) noexcept;
 
   private:
-    enum class CallbackState
+    class Event_t
     {
-        INACTIVE,
-        ACTIVE,
-        TO_BE_DELETED,
-        EMPTY
-    };
-
-    struct Event_t
-    {
-        bool isEqualTo(const void* const origin, const uint64_t eventType) const noexcept;
-        void toBeDeleted() noexcept;
-        void reset() noexcept;
-        void init(concurrent::LoFFLi& indexManager,
-                  const uint32_t index,
-                  void* const origin,
+      public:
+        bool resetIfEqualTo(const void* const origin, const uint64_t eventType) noexcept;
+        void init(void* const origin,
                   const uint64_t eventType,
-                  const Callback_t<void> callback) noexcept;
-        void set(void* const origin, const uint64_t eventType, const Callback_t<void> callback) noexcept;
-        void operator()() noexcept;
+                  const Callback_t<void> callback,
+                  const TranslationCallback_t translationCallback) noexcept;
+        void executeCallback() noexcept;
+        bool isInitialized() const noexcept;
 
+      private:
         void* m_origin = nullptr;
         uint64_t m_eventType = 0U;
-        std::atomic<uint64_t> m_setCounter{0U};
-
         Callback_t<void> m_callback = nullptr;
-        std::atomic<CallbackState> m_callbackState{CallbackState::EMPTY};
-
-        uint32_t m_index = 0U;
-        concurrent::LoFFLi* m_indexManager = nullptr;
+        TranslationCallback_t m_translationCallback = nullptr;
     };
 
     std::thread m_thread;
-    Event_t m_events[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
+    concurrent::smart_lock<Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
 
     std::atomic_bool m_wasDtorCalled{false};
     EventVariableData* m_eventVariable = nullptr;
@@ -119,5 +97,7 @@ class ActiveCallSet
 };
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/active_call_set.inl"
 
 #endif

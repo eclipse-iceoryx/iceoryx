@@ -38,7 +38,10 @@ ActiveCallSet::~ActiveCallSet()
     m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
-void ActiveCallSet::addEvent(void* const origin, const uint64_t eventType, const Callback_t<void> callback) noexcept
+void ActiveCallSet::addEvent(void* const origin,
+                             const uint64_t eventType,
+                             const Callback_t<void> callback,
+                             const TranslationCallback_t translationCallback) noexcept
 {
     uint32_t index = 0U;
     if (!m_indexManager.pop(index))
@@ -46,21 +49,18 @@ void ActiveCallSet::addEvent(void* const origin, const uint64_t eventType, const
         return;
     }
 
-    m_events[index].init(m_indexManager, index, origin, eventType, callback);
+    m_events[index]->init(origin, eventType, callback, translationCallback);
 }
 
 void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType) noexcept
 {
     for (uint32_t index = 0U; index < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++index)
     {
-        if (!m_events[index].isEqualTo(origin, eventType))
+        if (m_events[index]->resetIfEqualTo(origin, eventType))
         {
-            continue;
+            m_indexManager.push(index);
+            break;
         }
-
-        m_events[index].toBeDeleted();
-
-        break;
     }
 }
 
@@ -71,118 +71,50 @@ void ActiveCallSet::threadLoop() noexcept
     {
         auto activateNotificationIds = eventListener.wait();
 
-        cxx::forEach(activateNotificationIds, [this](auto id) { m_events[id](); });
+        cxx::forEach(activateNotificationIds, [this](auto id) { m_events[id]->executeCallback(); });
     }
 }
 
 ////////////////
 // Event_t
 ////////////////
-void ActiveCallSet::Event_t::operator()() noexcept
+void ActiveCallSet::Event_t::executeCallback() noexcept
 {
-    CallbackState expectedState = CallbackState::INACTIVE;
-
-    if (m_callbackState.compare_exchange_strong(
-            expectedState, CallbackState::ACTIVE, std::memory_order_acq_rel, std::memory_order_relaxed))
+    if (!isInitialized())
     {
-        m_callback(m_origin);
+        return;
+    }
 
-        expectedState = CallbackState::ACTIVE;
-        if (!m_callbackState.compare_exchange_strong(
-                expectedState, CallbackState::INACTIVE, std::memory_order_relaxed, std::memory_order_relaxed))
-        {
-            if (expectedState == CallbackState::TO_BE_DELETED)
-            {
-                m_callbackState.exchange(CallbackState::EMPTY, std::memory_order_relaxed);
-                reset();
-            }
-            else
-            {
-                // FATAL logic error
-            }
-        }
-    }
-    else
-    {
-        // FATAL logic error if expectedState == ACTIVE, TO_BE_DELETED
-    }
+    m_translationCallback(m_origin, m_callback);
 }
 
-void ActiveCallSet::Event_t::toBeDeleted() noexcept
-{
-    CallbackState expectedState = CallbackState::INACTIVE;
-    CallbackState newState = CallbackState::EMPTY;
-
-    while (!m_callbackState.compare_exchange_strong(
-        expectedState, newState, std::memory_order_relaxed, std::memory_order_relaxed))
-    {
-        if (expectedState == CallbackState::EMPTY || expectedState == CallbackState::TO_BE_DELETED)
-        {
-            return;
-        }
-        else if (expectedState == CallbackState::ACTIVE)
-        {
-            newState = CallbackState::TO_BE_DELETED;
-        }
-        else if (expectedState == CallbackState::INACTIVE)
-        {
-            newState = CallbackState::EMPTY;
-        }
-    }
-
-    if (newState == CallbackState::EMPTY)
-    {
-        reset();
-    }
-}
-
-void ActiveCallSet::Event_t::reset() noexcept
-{
-    set(nullptr, 0U, nullptr);
-    m_indexManager->push(m_index);
-    m_indexManager = nullptr;
-    m_index = 0U;
-}
-
-void ActiveCallSet::Event_t::init(concurrent::LoFFLi& indexManager,
-                                  const uint32_t index,
-                                  void* const origin,
+void ActiveCallSet::Event_t::init(void* const origin,
                                   const uint64_t eventType,
-                                  const Callback_t<void> callback) noexcept
-{
-    m_indexManager = &indexManager;
-    m_index = index;
-    set(origin, eventType, callback);
-    m_callbackState.store(CallbackState::INACTIVE, std::memory_order_release);
-}
-
-bool ActiveCallSet::Event_t::isEqualTo(const void* const origin, const uint64_t eventType) const noexcept
-{
-    auto currentCallbackState = m_callbackState.load(std::memory_order_relaxed);
-    if (currentCallbackState == CallbackState::TO_BE_DELETED || currentCallbackState == CallbackState::EMPTY)
-    {
-        return false;
-    }
-
-    uint64_t setCounter = 0U;
-    do
-    {
-        setCounter = m_setCounter.load(std::memory_order_acquire);
-        if (m_origin != origin || m_eventType != eventType)
-        {
-            return false;
-        }
-    } while (setCounter != m_setCounter.load(std::memory_order_acquire));
-
-    return true;
-}
-
-void ActiveCallSet::Event_t::set(void* const origin, const uint64_t eventType, const Callback_t<void> callback) noexcept
+                                  const Callback_t<void> callback,
+                                  const TranslationCallback_t translationCallback) noexcept
 {
     m_origin = origin;
     m_eventType = eventType;
     m_callback = callback;
-    m_setCounter.fetch_add(1, std::memory_order_release);
+    m_translationCallback = translationCallback;
+}
+
+bool ActiveCallSet::Event_t::resetIfEqualTo(const void* const origin, const uint64_t eventType) noexcept
+{
+    if (m_origin == origin && m_eventType == eventType)
+    {
+        m_origin = nullptr;
+        m_eventType = 0U;
+        m_callback = nullptr;
+        m_translationCallback = nullptr;
+        return true;
+    }
+    return false;
+}
+
+bool ActiveCallSet::Event_t::isInitialized() const noexcept
+{
+    return m_origin != nullptr;
 }
 
 } // namespace popo
