@@ -84,7 +84,7 @@ void ActiveCallSet::Event_t::operator()() noexcept
     CallbackState expectedState = CallbackState::INACTIVE;
 
     if (m_callbackState.compare_exchange_strong(
-            expectedState, CallbackState::ACTIVE, std::memory_order_relaxed, std::memory_order_relaxed))
+            expectedState, CallbackState::ACTIVE, std::memory_order_acq_rel, std::memory_order_relaxed))
     {
         m_callback(m_origin);
         m_callbackState.store(CallbackState::INACTIVE, std::memory_order_relaxed);
@@ -96,7 +96,7 @@ void ActiveCallSet::Event_t::init(void* const origin,
                                   const Callback_t<void> callback) noexcept
 {
     set(origin, eventType, callback);
-    m_callbackState.store(CallbackState::INACTIVE, std::memory_order_relaxed);
+    m_callbackState.store(CallbackState::INACTIVE, std::memory_order_release);
 }
 
 void ActiveCallSet::Event_t::reset() noexcept
