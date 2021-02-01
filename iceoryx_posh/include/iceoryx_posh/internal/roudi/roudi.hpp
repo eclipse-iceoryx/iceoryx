@@ -91,14 +91,14 @@ class RouDi
     ///
     /// @note Intentionally not virtual to be able to call it in derived class
     void shutdown();
-    virtual void processMessage(const runtime::MqMessage& message,
-                                const iox::runtime::MqMessageType& cmd,
+    virtual void processMessage(const runtime::IpcMessage& message,
+                                const iox::runtime::IpcMessageType& cmd,
                                 const ProcessName_t& processName);
     virtual void cyclicUpdateHook();
-    void mqMessageErrorHandler();
+    void IpcMessageErrorHandler();
 
     version::VersionInfo
-    parseRegisterMessage(const runtime::MqMessage& message, int& pid, uid_t& userId, int64_t& transmissionTimestamp);
+    parseRegisterMessage(const runtime::IpcMessage& message, int& pid, uid_t& userId, int64_t& transmissionTimestamp);
 
     /// @brief Handles the registration request from process
     /// @param [in] name of the process which wants to register at roudi; this is equal to the IPC channel name

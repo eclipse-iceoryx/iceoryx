@@ -43,7 +43,7 @@ namespace iox
 {
 namespace runtime
 {
-enum class MqMessageType : int32_t
+enum class IpcMessageType : int32_t
 {
     BEGIN = -1,
     NOTYPE = 0,
@@ -73,8 +73,8 @@ enum class MqMessageType : int32_t
     END,
 };
 
-/// If MqMessageType::ERROR, this is the sub type for details about the error
-enum class MqMessageErrorType : int32_t
+/// If IpcMessageType::ERROR, this is the sub type for details about the error
+enum class IpcMessageErrorType : int32_t
 {
     BEGIN = -1,
     NOTYPE = 0,
@@ -93,27 +93,27 @@ enum class MqMessageErrorType : int32_t
 
 /// @brief Converts a string to the message type enumeration
 /// @param[in] str string to convert
-MqMessageType stringToMqMessageType(const char* str) noexcept;
+IpcMessageType stringToIpcMessageType(const char* str) noexcept;
 
 /// @brief Converts a message type enumeration value into a string
 /// @param[in] msg enum value to convert
-std::string mqMessageTypeToString(const MqMessageType msg) noexcept;
+std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept;
 
 /// @brief Converts a string to the message error type enumeration
 /// @param[in] str string to convert
-MqMessageErrorType stringToMqMessageErrorType(const char* str) noexcept;
+IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept;
 /// @brief Converts a message error type enumeration value into a string
 /// @param[in] msg enum value to convert
-std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept;
+std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept;
 
-class MqInterfaceUser;
-class MqInterfaceCreator;
+class IpcInterfaceUser;
+class IpcInterfaceCreator;
 
 /// @brief Base-Class should never be used by the end-user.
 ///     Handles the common properties and methods for the childs but does
 ///     not call mq_open, mq_close, mq_link or mq_unlink. The handling of
 ///     the message queues must be done by the children.
-class MqBase
+class IpcBase
 {
   public:
     /// @brief Receives a message from the message queue and stores it in
@@ -123,7 +123,7 @@ class MqBase
     ///             received it returns false, otherwise true.
     ///         One cause of a failed mq_received call can be a closed or
     ///             unlinked message queue
-    bool receive(MqMessage& answer) const noexcept;
+    bool receive(IpcMessage& answer) const noexcept;
 
     /// @brief Tries to receive a message from the message queue within a
     ///         specified timeout. It stores the message in answer.
@@ -133,7 +133,7 @@ class MqBase
     /// @return If a valid message was received before the timeout occures
     ///             it returns true, otherwise false.
     ///         It also returns false if clock_gettime() failed
-    bool timedReceive(const units::Duration timeout, MqMessage& answer) const noexcept;
+    bool timedReceive(const units::Duration timeout, IpcMessage& answer) const noexcept;
 
     /// @brief Tries to send the message specified in msg.
     /// @param[in] msg Must be a valid message, if its an invalid message
@@ -141,7 +141,7 @@ class MqBase
     /// @return If a valid message was send via mq_send it returns true,
     ///             otherwise if the message was invalid or mq_send returned
     ///             an error, it will return false.
-    bool send(const MqMessage& msg) const noexcept;
+    bool send(const IpcMessage& msg) const noexcept;
 
     /// @brief Tries to send the message specified in msg to the message
     ///        queue within a specified timeout.
@@ -151,7 +151,7 @@ class MqBase
     /// @return If a valid message was send via mq_send it returns true,
     ///             otherwise if the message was invalid or mq_send returned
     ///             an error, it will return false.
-    bool timedSend(const MqMessage& msg, const units::Duration timeout) const noexcept;
+    bool timedSend(const IpcMessage& msg, const units::Duration timeout) const noexcept;
 
     /// @brief Returns the interface name, the unique char string which
     ///         explicitly identifies the message queue.
@@ -174,8 +174,8 @@ class MqBase
     /// @param[in] name of the message queue to clean up
     static void cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept;
 
-    friend class MqInterfaceUser;
-    friend class MqInterfaceCreator;
+    friend class IpcInterfaceUser;
+    friend class IpcInterfaceCreator;
     friend class MqRuntimeInterface;
 
   protected:
@@ -192,23 +192,23 @@ class MqBase
 
     /// @brief The default constructor is explicitly deleted since every
     ///         message queue needs a unique string to be identified with.
-    MqBase() = delete;
-    // TODO: unique identifier problem, multiple MqBase objects with the
+    IpcBase() = delete;
+    // TODO: unique identifier problem, multiple IpcBase objects with the
     //        same InterfaceName are using the same message queue
-    MqBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
-    virtual ~MqBase() = default;
+    IpcBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
+    virtual ~IpcBase() = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
-    MqBase(const MqBase&) = delete;
-    MqBase(MqBase&&) = delete;
-    MqBase& operator=(const MqBase&) = delete;
-    MqBase& operator=(MqBase&&) = delete;
+    IpcBase(const IpcBase&) = delete;
+    IpcBase(IpcBase&&) = delete;
+    IpcBase& operator=(const IpcBase&) = delete;
+    IpcBase& operator=(IpcBase&&) = delete;
 
     /// @brief Set the content of answer from buffer.
     /// @param[in] buffer Raw message as char pointer
-    /// @param[out] answer Raw message is setting this MqMessage
+    /// @param[out] answer Raw message is setting this IpcMessage
     /// @return answer.isValid()
-    static bool setMessageFromString(const char* buffer, MqMessage& answer) noexcept;
+    static bool setMessageFromString(const char* buffer, IpcMessage& answer) noexcept;
 
     /// @brief Opens a message queue with mq_open and default permissions
     ///         stored in m_perms and stores the descriptor in m_roudiMq
@@ -241,10 +241,10 @@ class MqBase
 };
 
 /// @brief Class for handling a message queue via mq_open and mq_close.
-class MqInterfaceUser : public MqBase
+class IpcInterfaceUser : public IpcBase
 {
   public:
-    /// @brief Constructs a MqInterfaceUser and opens a message queue with
+    /// @brief Constructs a IpcInterfaceUser and opens a message queue with
     ///         mq_open. If mq_open fails the method isInitialized returns
     ///         false. Therefore, isInitialized should always be called
     ///         before using this class.
@@ -252,27 +252,27 @@ class MqInterfaceUser : public MqBase
     ///         is used for mq_open
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
-    MqInterfaceUser(const ProcessName_t& name,
+    IpcInterfaceUser(const ProcessName_t& name,
                     const uint64_t maxMessages = APP_MAX_MESSAGES,
                     const uint64_t messageSize = APP_MESSAGE_SIZE) noexcept;
 
     /// @brief The copy constructor and assignment operator are deleted since
     ///         this class manages a resource (message queue) which cannot
     ///         be copied. Since move is not needed it is also deleted.
-    MqInterfaceUser(const MqInterfaceUser&) = delete;
-    MqInterfaceUser& operator=(const MqInterfaceUser&) = delete;
+    IpcInterfaceUser(const IpcInterfaceUser&) = delete;
+    IpcInterfaceUser& operator=(const IpcInterfaceUser&) = delete;
 
     /// @brief Not needed therefore deleted
-    MqInterfaceUser(MqInterfaceUser&&) = delete;
-    MqInterfaceUser& operator=(MqInterfaceUser&&) = delete;
+    IpcInterfaceUser(IpcInterfaceUser&&) = delete;
+    IpcInterfaceUser& operator=(IpcInterfaceUser&&) = delete;
 };
 
 /// @brief Class for handling a message queue via mq_open and mq_unlink
 ///             and mq_close
-class MqInterfaceCreator : public MqBase
+class IpcInterfaceCreator : public IpcBase
 {
   public:
-    /// @brief Constructs a MqInterfaceCreator and opens a new message
+    /// @brief Constructs a IpcInterfaceCreator and opens a new message
     ///         queue with mq_open. If mq_open fails it tries to mq_unlink
     ///         the message queue and tries mq_open again. If it still fails
     ///         isInitialized will return false. Therefore, isInitialized
@@ -281,19 +281,19 @@ class MqInterfaceCreator : public MqBase
     ///         is used for mq_open
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
-    MqInterfaceCreator(const ProcessName_t& name,
+    IpcInterfaceCreator(const ProcessName_t& name,
                        const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
                        const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 
     /// @brief The copy constructor and assignment operator is deleted since
     ///         this class manages a resource (message queue) which cannot
     ///         be copied. Move is also not needed, it is also deleted.
-    MqInterfaceCreator(const MqInterfaceCreator&) = delete;
-    MqInterfaceCreator& operator=(const MqInterfaceCreator&) = delete;
+    IpcInterfaceCreator(const IpcInterfaceCreator&) = delete;
+    IpcInterfaceCreator& operator=(const IpcInterfaceCreator&) = delete;
 
     /// @brief Not needed therefore deleted
-    MqInterfaceCreator(MqInterfaceCreator&&) = delete;
-    MqInterfaceCreator& operator=(MqInterfaceCreator&&) = delete;
+    IpcInterfaceCreator(IpcInterfaceCreator&&) = delete;
+    IpcInterfaceCreator& operator=(IpcInterfaceCreator&&) = delete;
 
   private:
     friend class MqRuntimeInterface;
@@ -326,12 +326,12 @@ class MqRuntimeInterface
     /// @param[in] msg request to RouDi
     /// @param[out] answer response from RouDi
     /// @return true if communication was successful, false if not
-    bool sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept;
+    bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept;
 
     /// @brief send a message to the RouDi daemon
     /// @param[in] msg message which will be send to RouDi
     /// @return true if communication was successful, otherwise false
-    bool sendMessageToRouDi(const MqMessage& msg) noexcept;
+    bool sendMessageToRouDi(const IpcMessage& msg) noexcept;
 
     /// @brief get the adress offset of the segment manager
     /// @return address offset as RelativePointer::offset_t
@@ -363,8 +363,8 @@ class MqRuntimeInterface
   private:
     ProcessName_t m_appName;
     cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
-    MqInterfaceCreator m_AppMqInterface;
-    MqInterfaceUser m_RoudiMqInterface;
+    IpcInterfaceCreator m_AppMqInterface;
+    IpcInterfaceUser m_RoudiMqInterface;
     size_t m_shmTopicSize{0U};
     uint64_t m_segmentId{0U};
 };

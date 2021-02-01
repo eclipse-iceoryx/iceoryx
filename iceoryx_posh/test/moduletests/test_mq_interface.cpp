@@ -34,10 +34,10 @@
 using namespace ::testing;
 using ::testing::Return;
 
-using iox::runtime::MqBase;
-using iox::runtime::MqInterfaceCreator;
-using iox::runtime::MqInterfaceUser;
-using iox::runtime::MqMessage;
+using iox::runtime::IpcBase;
+using iox::runtime::IpcInterfaceCreator;
+using iox::runtime::IpcInterfaceUser;
+using iox::runtime::IpcMessage;
 using namespace iox::units::duration_literals;
 
 class CMqInterface_test : public Test
@@ -89,7 +89,7 @@ void CMqInterface_Open(T& base)
 template <typename T>
 void CMqInterface_Receive(T& base)
 {
-    MqMessage result;
+    IpcMessage result;
 
     char msg1[] = "msg1,msg2,";
     char invalidMsg2[] = "msg1,msg2";
@@ -113,7 +113,7 @@ void CMqInterface_Receive(T& base)
 template <typename T>
 void CMqInterface_TimedReceive(T& base)
 {
-    MqMessage result;
+    IpcMessage result;
 
     char msg1[] = "msg1,msg2,";
     char invalidMsg2[] = "msg1,msg2";
@@ -142,7 +142,7 @@ void CMqInterface_TimedReceive(T& base)
 template <typename T>
 void CMqInterface_Send(T& base)
 {
-    MqMessage validMsg, invalidMsg, overflowMsg;
+    IpcMessage validMsg, invalidMsg, overflowMsg;
     validMsg.setMessage("msg1,msg2,msg3,");
     invalidMsg.setMessage("msg1,msg2,msg3");
 
@@ -171,7 +171,7 @@ void CMqInterface_Send(T& base)
 template <typename T>
 void CMqInterface_TimedSend(T& base)
 {
-    MqMessage validMsg, invalidMsg, overflowMsg;
+    IpcMessage validMsg, invalidMsg, overflowMsg;
     validMsg.setMessage("msg1,msg2,msg3,");
     invalidMsg.setMessage("msg1,msg2,msg3");
 
@@ -211,7 +211,7 @@ void CMqInterface_IsInitialized(T& base [[gnu::unused]])
 }
 
 template <typename T>
-void CMqInterface_RunAllMqBaseTests(T& base)
+void CMqInterface_RunAllIpcBaseTests(T& base)
 {
     CMqInterface_IsInitialized(base);
     CMqInterface_Receive(base);
@@ -230,155 +230,155 @@ void CMqInterface_StringCTor()
 
 
 ////////////////////////////////
-// UnitTests: MqBase
+// UnitTests: IpcBase
 ////////////////////////////////
 
-TEST_F(CMqInterface_test, MqBase_StringCTor)
+TEST_F(CMqInterface_test, IpcBase_StringCTor)
 {
-    CMqInterface_StringCTor<MqBase>();
+    CMqInterface_StringCTor<IpcBase>();
 }
 
-TEST_F(CMqInterface_test, DISABLED_MqBase_Receive)
+TEST_F(CMqInterface_test, DISABLED_IpcBase_Receive)
 {
-    MqBase base(ifName, maxMessages, messageSize);
+    IpcBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_Receive<MqBase>(base);
+    CMqInterface_Receive<IpcBase>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_MqBase_TimedReceive)
+TEST_F(CMqInterface_test, DISABLED_IpcBase_TimedReceive)
 {
-    MqBase base(ifName, maxMessages, messageSize);
+    IpcBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_TimedReceive<MqBase>(base);
+    CMqInterface_TimedReceive<IpcBase>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_MqBase_Send)
+TEST_F(CMqInterface_test, DISABLED_IpcBase_Send)
 {
-    MqBase base(ifName, maxMessages, messageSize);
+    IpcBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_Send<MqBase>(base);
+    CMqInterface_Send<IpcBase>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_MqBase_TimedSend)
+TEST_F(CMqInterface_test, DISABLED_IpcBase_TimedSend)
 {
-    MqBase base(ifName, maxMessages, messageSize);
+    IpcBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_TimedSend<MqBase>(base);
+    CMqInterface_TimedSend<IpcBase>(base);
 }
 
-TEST_F(CMqInterface_test, MqBase_GetInterfaceName)
+TEST_F(CMqInterface_test, IpcBase_GetInterfaceName)
 {
-    MqBase base(ifName, maxMessages, messageSize);
+    IpcBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_GetInterfaceName<MqBase>(base);
+    CMqInterface_GetInterfaceName<IpcBase>(base);
 }
 
-TEST_F(CMqInterface_test, MqBase_IsInitialized)
+TEST_F(CMqInterface_test, IpcBase_IsInitialized)
 {
-    MqBase base(ifName, maxMessages, messageSize);
+    IpcBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
-    CMqInterface_IsInitialized<MqBase>(base);
-}
-
-////////////////////////////////
-// UnitTests: MqInterfaceUser
-////////////////////////////////
-
-TEST_F(CMqInterface_test, MqInterfaceUser_StringCTor)
-{
-    CMqInterface_StringCTor<MqInterfaceUser>();
-}
-
-TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_Receive)
-{
-    MqInterfaceUser base(ifName);
-    CMqInterface_Open(base);
-    CMqInterface_Receive<MqInterfaceUser>(base);
-}
-
-TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_TimedReceive)
-{
-    MqInterfaceUser base(ifName);
-    CMqInterface_Open(base);
-    CMqInterface_TimedReceive<MqInterfaceUser>(base);
-}
-
-TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_Send)
-{
-    MqInterfaceUser base(ifName);
-    CMqInterface_Open(base);
-    CMqInterface_Send<MqInterfaceUser>(base);
-}
-
-TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_TimedSend)
-{
-    MqInterfaceUser base(ifName);
-    CMqInterface_Open(base);
-    CMqInterface_TimedSend<MqInterfaceUser>(base);
-}
-
-TEST_F(CMqInterface_test, MqInterfaceUser_GetInterfaceName)
-{
-    MqInterfaceUser base(ifName);
-    CMqInterface_Open(base);
-    CMqInterface_GetInterfaceName<MqInterfaceUser>(base);
-}
-
-TEST_F(CMqInterface_test, MqInterfaceUser_IsInitialized)
-{
-    MqInterfaceUser base(ifName);
-    CMqInterface_Open(base);
-    CMqInterface_IsInitialized<MqInterfaceUser>(base);
+    CMqInterface_IsInitialized<IpcBase>(base);
 }
 
 ////////////////////////////////
-// UnitTests: MqInterfaceCreator
+// UnitTests: IpcInterfaceUser
 ////////////////////////////////
 
-TEST_F(CMqInterface_test, MqInterfaceCreator_StringCTor)
+TEST_F(CMqInterface_test, IpcInterfaceUser_StringCTor)
 {
-    CMqInterface_StringCTor<MqInterfaceCreator>();
+    CMqInterface_StringCTor<IpcInterfaceUser>();
 }
 
-TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_Receive)
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceUser_Receive)
 {
-    MqInterfaceCreator base(ifName);
+    IpcInterfaceUser base(ifName);
     CMqInterface_Open(base);
-    CMqInterface_Receive<MqInterfaceCreator>(base);
+    CMqInterface_Receive<IpcInterfaceUser>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_TimedReceive)
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceUser_TimedReceive)
 {
-    MqInterfaceCreator base(ifName);
+    IpcInterfaceUser base(ifName);
     CMqInterface_Open(base);
-    CMqInterface_TimedReceive<MqInterfaceCreator>(base);
+    CMqInterface_TimedReceive<IpcInterfaceUser>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_Send)
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceUser_Send)
 {
-    MqInterfaceCreator base(ifName);
+    IpcInterfaceUser base(ifName);
     CMqInterface_Open(base);
-    CMqInterface_Send<MqInterfaceCreator>(base);
+    CMqInterface_Send<IpcInterfaceUser>(base);
 }
 
-TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_TimedSend)
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceUser_TimedSend)
 {
-    MqInterfaceCreator base(ifName);
+    IpcInterfaceUser base(ifName);
     CMqInterface_Open(base);
-    CMqInterface_TimedSend<MqInterfaceCreator>(base);
+    CMqInterface_TimedSend<IpcInterfaceUser>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceCreator_GetInterfaceName)
+TEST_F(CMqInterface_test, IpcInterfaceUser_GetInterfaceName)
 {
-    MqInterfaceCreator base(ifName);
+    IpcInterfaceUser base(ifName);
     CMqInterface_Open(base);
-    CMqInterface_GetInterfaceName<MqInterfaceCreator>(base);
+    CMqInterface_GetInterfaceName<IpcInterfaceUser>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceCreator_IsInitialized)
+TEST_F(CMqInterface_test, IpcInterfaceUser_IsInitialized)
 {
-    MqInterfaceCreator base(ifName);
+    IpcInterfaceUser base(ifName);
     CMqInterface_Open(base);
-    CMqInterface_IsInitialized<MqInterfaceCreator>(base);
+    CMqInterface_IsInitialized<IpcInterfaceUser>(base);
+}
+
+////////////////////////////////
+// UnitTests: IpcInterfaceCreator
+////////////////////////////////
+
+TEST_F(CMqInterface_test, IpcInterfaceCreator_StringCTor)
+{
+    CMqInterface_StringCTor<IpcInterfaceCreator>();
+}
+
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceCreator_Receive)
+{
+    IpcInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
+    CMqInterface_Receive<IpcInterfaceCreator>(base);
+}
+
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceCreator_TimedReceive)
+{
+    IpcInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
+    CMqInterface_TimedReceive<IpcInterfaceCreator>(base);
+}
+
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceCreator_Send)
+{
+    IpcInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
+    CMqInterface_Send<IpcInterfaceCreator>(base);
+}
+
+TEST_F(CMqInterface_test, DISABLED_IpcInterfaceCreator_TimedSend)
+{
+    IpcInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
+    CMqInterface_TimedSend<IpcInterfaceCreator>(base);
+}
+
+TEST_F(CMqInterface_test, IpcInterfaceCreator_GetInterfaceName)
+{
+    IpcInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
+    CMqInterface_GetInterfaceName<IpcInterfaceCreator>(base);
+}
+
+TEST_F(CMqInterface_test, IpcInterfaceCreator_IsInitialized)
+{
+    IpcInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
+    CMqInterface_IsInitialized<IpcInterfaceCreator>(base);
 }
 #endif

@@ -36,37 +36,37 @@ namespace runtime
 ///    separator. A message is defined as valid if all entries contained in
 ///    that message are valid and it ends with the separator or it is empty,
 ///    otherwise it is defined as invalid.
-class MqMessage
+class IpcMessage
 {
   public:
     /// @brief Creates an empty and valid message queue message.
-    MqMessage() = default;
+    IpcMessage() = default;
 
     /// @brief Creates a separator separated string. If one element
-    ///      contains a separator symbol the MqMessage becomes invalid
+    ///      contains a separator symbol the IpcMessage becomes invalid
     ///      and returns false on isValid().
     /// @param[in] msg array of strings to combine in a message
-    MqMessage(const std::initializer_list<std::string>& msg) noexcept;
+    IpcMessage(const std::initializer_list<std::string>& msg) noexcept;
 
     /// @brief Takes a separator separated string and interprets it as
-    ///      a MqMessage. In this case the MqMessage can only become
+    ///      a IpcMessage. In this case the IpcMessage can only become
     ///      invalid if it is not empty and does not end with the separator.
     /// @param[in] separator separated string for a message
-    MqMessage(const std::string& msg) noexcept;
+    IpcMessage(const std::string& msg) noexcept;
 
-    ///  @brief Adds a new entry to the MqMessage, if the entry is invalid
-    ///          no entry is added and the MqMessage becomes invalid.
+    ///  @brief Adds a new entry to the IpcMessage, if the entry is invalid
+    ///          no entry is added and the IpcMessage becomes invalid.
     ///  @param[in] entry Datatype which is convertable to string via std::to_string
     template <typename T>
-    MqMessage& operator<<(const T& entry) noexcept;
+    IpcMessage& operator<<(const T& entry) noexcept;
 
-    /// @brief Returns the number of entries stored in MqMessage.
+    /// @brief Returns the number of entries stored in IpcMessage.
     ///          If the message is invalid the return value is undefined.
     /// @return number of entries in messaage
     uint32_t getNumberOfElements() const noexcept;
 
     /// @brief Returns the entry at position f_index. If f_index is larger
-    ///         then the sum of the entries stored in MqMessage it returns
+    ///         then the sum of the entries stored in IpcMessage it returns
     ///         std::string()
     /// @param[in] index desired entry position
     /// @return If the element exists it returns the element at f_index
@@ -92,9 +92,9 @@ class MqMessage
     std::string getMessage() const noexcept;
 
     /// @brief Takes a separator separated string and interprets it as
-    ///      a MqMessage. In this case the MqMessage can only become
+    ///      a IpcMessage. In this case the IpcMessage can only become
     ///      invalid if it is not empty and does not end with the separator.
-    ///      All the entries that were stored previously in the MqMessage
+    ///      All the entries that were stored previously in the IpcMessage
     ///      will be cleared after a call to setMessage.
     /// @param[in] separator separated string for the message
     void setMessage(const std::string& msg) noexcept;
@@ -103,17 +103,17 @@ class MqMessage
     //      message becomes valid again.
     void clearMessage() noexcept;
 
-    /// @brief Adds a new entry to the MqMessage, if the entry is invalid
-    ///         no entry is added and the MqMessage becomes invalid.
+    /// @brief Adds a new entry to the IpcMessage, if the entry is invalid
+    ///         no entry is added and the IpcMessage becomes invalid.
     /// @tparam Datatype which is convertable to string via
     /// std::stringstream
     /// @param[in] entry to add to the message
     template <typename T>
     void addEntry(const T& entry) noexcept;
 
-    /// @brief Compares two MqMessages to be equal
-    /// @param rhs MqMessage to compare with
-    bool operator==(const MqMessage& rhs) const noexcept;
+    /// @brief Compares two IpcMessages to be equal
+    /// @param rhs IpcMessage to compare with
+    bool operator==(const IpcMessage& rhs) const noexcept;
 
   private:
     static const char m_separator; // default value is ,

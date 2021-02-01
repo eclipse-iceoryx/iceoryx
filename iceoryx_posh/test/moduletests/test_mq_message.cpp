@@ -19,9 +19,9 @@
 
 using namespace ::testing;
 
-using iox::runtime::MqMessage;
+using iox::runtime::IpcMessage;
 
-class MqMessage_test : public Test
+class IpcMessage_test : public Test
 {
   protected:
     void SetUp()
@@ -43,18 +43,18 @@ class MqMessage_test : public Test
     }
 };
 
-TEST_F(MqMessage_test, DefaultCTor)
+TEST_F(IpcMessage_test, DefaultCTor)
 {
-    MqMessage message;
+    IpcMessage message;
     EXPECT_THAT(message.getNumberOfElements(), Eq(0u));
     EXPECT_THAT(message.getMessage(), Eq(""));
     EXPECT_THAT(message.isValid(), Eq(true));
     EXPECT_THAT(message.getElementAtIndex(2), Eq(""));
 }
 
-TEST_F(MqMessage_test, CTorWithInitializerList_validEntries)
+TEST_F(IpcMessage_test, CTorWithInitializerList_validEntries)
 {
-    MqMessage message1({"abc", "def", "123123", ")(!*@&#^$)", "ABASDASD"});
+    IpcMessage message1({"abc", "def", "123123", ")(!*@&#^$)", "ABASDASD"});
     EXPECT_THAT(message1.getNumberOfElements(), Eq(5u));
     EXPECT_THAT(message1.getMessage(), Eq("abc,def,123123,)(!*@&#^$),ABASDASD,"));
     EXPECT_THAT(message1.isValid(), Eq(true));
@@ -64,11 +64,11 @@ TEST_F(MqMessage_test, CTorWithInitializerList_validEntries)
     EXPECT_THAT(message1.getElementAtIndex(3), Eq(")(!*@&#^$)"));
     EXPECT_THAT(message1.getElementAtIndex(4), Eq("ABASDASD"));
 
-    MqMessage message2({});
+    IpcMessage message2({});
     EXPECT_THAT(message2.isValid(), Eq(true));
     EXPECT_THAT(message2.getNumberOfElements(), Eq(0u));
 
-    MqMessage message3({"", "", ""});
+    IpcMessage message3({"", "", ""});
     EXPECT_THAT(message3.isValid(), Eq(true));
     EXPECT_THAT(message3.getNumberOfElements(), Eq(3u));
     for (int i = 0; i < 3; ++i)
@@ -77,56 +77,56 @@ TEST_F(MqMessage_test, CTorWithInitializerList_validEntries)
     }
     EXPECT_THAT(message3.getMessage(), Eq(",,,"));
 
-    MqMessage message4({"", "", "a", ""});
+    IpcMessage message4({"", "", "a", ""});
     EXPECT_THAT(message4.isValid(), Eq(true));
     EXPECT_THAT(message4.getNumberOfElements(), Eq(4u));
     EXPECT_THAT(message4.getElementAtIndex(2), Eq("a"));
     EXPECT_THAT(message4.getMessage(), Eq(",,a,,"));
 }
 
-TEST_F(MqMessage_test, CTorWithInitializerList_invalidEntries)
+TEST_F(IpcMessage_test, CTorWithInitializerList_invalidEntries)
 {
-    MqMessage message1({"abc", "def", "123i,123", ")(!*@&#^$)", "ABASDASD"});
+    IpcMessage message1({"abc", "def", "123i,123", ")(!*@&#^$)", "ABASDASD"});
     EXPECT_THAT(message1.isValid(), Eq(false));
 
-    MqMessage message2({"abc", "def", "123i123", ")(!*@&,#^$)", "ABASDASD"});
+    IpcMessage message2({"abc", "def", "123i123", ")(!*@&,#^$)", "ABASDASD"});
     EXPECT_THAT(message1.isValid(), Eq(false));
 
-    MqMessage message3({",,,"});
+    IpcMessage message3({",,,"});
     EXPECT_THAT(message3.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, CTorWithString_validMessage)
+TEST_F(IpcMessage_test, CTorWithString_validMessage)
 {
-    MqMessage message1("asd,asd,asd,asd,");
+    IpcMessage message1("asd,asd,asd,asd,");
     EXPECT_THAT(message1.getNumberOfElements(), Eq(4u));
     EXPECT_THAT(message1.isValid(), Eq(true));
 
-    MqMessage message2("");
+    IpcMessage message2("");
     EXPECT_THAT(message2.getNumberOfElements(), Eq(0u));
     EXPECT_THAT(message2.isValid(), Eq(true));
 
-    MqMessage message3("a,");
+    IpcMessage message3("a,");
     EXPECT_THAT(message3.getNumberOfElements(), Eq(1u));
     EXPECT_THAT(message3.isValid(), Eq(true));
 }
 
-TEST_F(MqMessage_test, CTorWithString_invalidMessage)
+TEST_F(IpcMessage_test, CTorWithString_invalidMessage)
 {
-    MqMessage message1("asd,asd,asd,asd");
+    IpcMessage message1("asd,asd,asd,asd");
     EXPECT_THAT(message1.isValid(), Eq(false));
 
-    MqMessage message2(",a");
+    IpcMessage message2(",a");
     EXPECT_THAT(message2.isValid(), Eq(false));
 
-    MqMessage message3("a,ia");
+    IpcMessage message3("a,ia");
     EXPECT_THAT(message3.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, CopyCTorValidEntries)
+TEST_F(IpcMessage_test, CopyCTorValidEntries)
 {
-    MqMessage* source = new MqMessage({"fuu", "bar", "bla"});
-    MqMessage destination(*source);
+    IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
+    IpcMessage destination(*source);
     delete source;
 
     EXPECT_THAT(destination.isValid(), Eq(true));
@@ -137,19 +137,19 @@ TEST_F(MqMessage_test, CopyCTorValidEntries)
     EXPECT_THAT(destination.getElementAtIndex(2), Eq("bla"));
 }
 
-TEST_F(MqMessage_test, CopyCTorInvalidEntries)
+TEST_F(IpcMessage_test, CopyCTorInvalidEntries)
 {
-    MqMessage* source = new MqMessage({"f,uu", "bar", "bla"});
-    MqMessage destination(*source);
+    IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
+    IpcMessage destination(*source);
     delete source;
 
     EXPECT_THAT(destination.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, MoveCTorValidEntries)
+TEST_F(IpcMessage_test, MoveCTorValidEntries)
 {
-    MqMessage* source = new MqMessage({"fuu", "bar", "bla"});
-    MqMessage destination(std::move(*source));
+    IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
+    IpcMessage destination(std::move(*source));
     delete source;
 
     EXPECT_THAT(destination.isValid(), Eq(true));
@@ -160,19 +160,19 @@ TEST_F(MqMessage_test, MoveCTorValidEntries)
     EXPECT_THAT(destination.getElementAtIndex(2), Eq("bla"));
 }
 
-TEST_F(MqMessage_test, MoveCTorInvalidEntries)
+TEST_F(IpcMessage_test, MoveCTorInvalidEntries)
 {
-    MqMessage* source = new MqMessage({"f,uu", "bar", "bla"});
-    MqMessage destination(std::move(*source));
+    IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
+    IpcMessage destination(std::move(*source));
     delete source;
 
     EXPECT_THAT(destination.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, CopyOperatorValidEntries)
+TEST_F(IpcMessage_test, CopyOperatorValidEntries)
 {
-    MqMessage* source = new MqMessage({"fuu", "bar", "bla"});
-    MqMessage destination;
+    IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
+    IpcMessage destination;
     destination = *source;
     delete source;
 
@@ -184,20 +184,20 @@ TEST_F(MqMessage_test, CopyOperatorValidEntries)
     EXPECT_THAT(destination.getElementAtIndex(2), Eq("bla"));
 }
 
-TEST_F(MqMessage_test, CopyOperatorInvalidEntries)
+TEST_F(IpcMessage_test, CopyOperatorInvalidEntries)
 {
-    MqMessage* source = new MqMessage({"f,uu", "bar", "bla"});
-    MqMessage destination;
+    IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
+    IpcMessage destination;
     destination = *source;
     delete source;
 
     EXPECT_THAT(destination.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, MoveOperatorValidEntries)
+TEST_F(IpcMessage_test, MoveOperatorValidEntries)
 {
-    MqMessage* source = new MqMessage({"fuu", "bar", "bla"});
-    MqMessage destination;
+    IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
+    IpcMessage destination;
     destination = std::move(*source);
     delete source;
 
@@ -209,19 +209,19 @@ TEST_F(MqMessage_test, MoveOperatorValidEntries)
     EXPECT_THAT(destination.getElementAtIndex(2), Eq("bla"));
 }
 
-TEST_F(MqMessage_test, MoveOperatorInvalidEntries)
+TEST_F(IpcMessage_test, MoveOperatorInvalidEntries)
 {
-    MqMessage* source = new MqMessage({"f,uu", "bar", "bla"});
-    MqMessage destination;
+    IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
+    IpcMessage destination;
     destination = std::move(*source);
     delete source;
 
     EXPECT_THAT(destination.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, getElementAtIndex)
+TEST_F(IpcMessage_test, getElementAtIndex)
 {
-    MqMessage message1({"fuu", "bar", "bla"});
+    IpcMessage message1({"fuu", "bar", "bla"});
 
     EXPECT_THAT(message1.getElementAtIndex(1), Eq("bar"));
     message1.addEntry(123.123f);
@@ -231,7 +231,7 @@ TEST_F(MqMessage_test, getElementAtIndex)
     message1.addEntry("asd");
     EXPECT_THAT(message1.getElementAtIndex(5), Eq("asd"));
 
-    MqMessage message2({});
+    IpcMessage message2({});
     EXPECT_THAT(message2.getElementAtIndex(0), Eq(""));
     message2.addEntry(11U);
     message2.addEntry(12U);
@@ -242,9 +242,9 @@ TEST_F(MqMessage_test, getElementAtIndex)
     EXPECT_THAT(message2.getElementAtIndex(2), Eq("13"));
 }
 
-TEST_F(MqMessage_test, isValidEntry)
+TEST_F(IpcMessage_test, isValidEntry)
 {
-    MqMessage message;
+    IpcMessage message;
 
     EXPECT_THAT(message.isValidEntry(""), Eq(true));
     EXPECT_THAT(message.isValidEntry("asdasd"), Eq(true));
@@ -257,70 +257,70 @@ TEST_F(MqMessage_test, isValidEntry)
     EXPECT_THAT(message.isValidEntry("i91283,asdasdasd"), Eq(false));
 }
 
-TEST_F(MqMessage_test, IsValidWithCTorConstruction)
+TEST_F(IpcMessage_test, IsValidWithCTorConstruction)
 {
-    MqMessage message1;
+    IpcMessage message1;
     EXPECT_THAT(message1.isValid(), Eq(true));
 
-    MqMessage message2({"asdasd"});
+    IpcMessage message2({"asdasd"});
     EXPECT_THAT(message2.isValid(), Eq(true));
 
-    MqMessage message3({"123123"});
+    IpcMessage message3({"123123"});
     EXPECT_THAT(message3.isValid(), Eq(true));
 
-    MqMessage message4({"~!@#$%^\\&&*()_+_|}{][''\"]}"});
+    IpcMessage message4({"~!@#$%^\\&&*()_+_|}{][''\"]}"});
     EXPECT_THAT(message4.isValid(), Eq(true));
 
-    MqMessage message5({","});
+    IpcMessage message5({","});
     EXPECT_THAT(message5.isValid(), Eq(false));
 
-    MqMessage message6({"asdasdasd,"});
+    IpcMessage message6({"asdasdasd,"});
     EXPECT_THAT(message6.isValid(), Eq(false));
 
-    MqMessage message7({",asdasss"});
+    IpcMessage message7({",asdasss"});
     EXPECT_THAT(message7.isValid(), Eq(false));
 
-    MqMessage message8({"a8w9ej1,089sau;'1'"});
+    IpcMessage message8({"a8w9ej1,089sau;'1'"});
     EXPECT_THAT(message8.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, IsValidWithAddEntry)
+TEST_F(IpcMessage_test, IsValidWithAddEntry)
 {
-    MqMessage message1;
+    IpcMessage message1;
     EXPECT_THAT(message1.isValid(), Eq(true));
 
-    MqMessage message2;
+    IpcMessage message2;
     message2.addEntry("asdasd");
     EXPECT_THAT(message2.isValid(), Eq(true));
 
-    MqMessage message3;
+    IpcMessage message3;
     message3.addEntry("123123");
     EXPECT_THAT(message3.isValid(), Eq(true));
 
-    MqMessage message4;
+    IpcMessage message4;
     message4.addEntry("~!@#$%^\\&&*()_+_|}{][''\"]}");
     EXPECT_THAT(message4.isValid(), Eq(true));
 
-    MqMessage message5;
+    IpcMessage message5;
     message5.addEntry(",");
     EXPECT_THAT(message5.isValid(), Eq(false));
 
-    MqMessage message6;
+    IpcMessage message6;
     message6.addEntry("asdasdasd,");
     EXPECT_THAT(message6.isValid(), Eq(false));
 
-    MqMessage message7;
+    IpcMessage message7;
     message7.addEntry(",asdasss");
     EXPECT_THAT(message7.isValid(), Eq(false));
 
-    MqMessage message8;
+    IpcMessage message8;
     message8.addEntry("a8w9ej1,089sau;'1'");
     EXPECT_THAT(message8.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, getMessage)
+TEST_F(IpcMessage_test, getMessage)
 {
-    MqMessage message1;
+    IpcMessage message1;
     EXPECT_THAT(message1.getMessage(), Eq(""));
     message1.addEntry(123);
     EXPECT_THAT(message1.getMessage(), Eq("123,"));
@@ -329,13 +329,13 @@ TEST_F(MqMessage_test, getMessage)
     message1.addEntry("&*!_)(@)");
     EXPECT_THAT(message1.getMessage(), Eq("123,asd,&*!_)(@),"));
 
-    MqMessage message2({"f812", "92-3kjd", "\"'s02'"});
+    IpcMessage message2({"f812", "92-3kjd", "\"'s02'"});
     EXPECT_THAT(message2.getMessage(), Eq("f812,92-3kjd,\"'s02',"));
 }
 
-TEST_F(MqMessage_test, AddEntryWithValidEntries)
+TEST_F(IpcMessage_test, AddEntryWithValidEntries)
 {
-    MqMessage message1;
+    IpcMessage message1;
 
     message1.addEntry("aaaa");
     EXPECT_THAT(message1.getNumberOfElements(), Eq(1u));
@@ -349,7 +349,7 @@ TEST_F(MqMessage_test, AddEntryWithValidEntries)
     EXPECT_THAT(message1.getNumberOfElements(), Eq(3u));
     EXPECT_THAT(message1.getElementAtIndex(2), Eq("x"));
 
-    MqMessage message2({"fuu", "bar"});
+    IpcMessage message2({"fuu", "bar"});
     message2.addEntry("aaaa");
     EXPECT_THAT(message2.getNumberOfElements(), Eq(3u));
     EXPECT_THAT(message2.getElementAtIndex(2), Eq("aaaa"));
@@ -363,9 +363,9 @@ TEST_F(MqMessage_test, AddEntryWithValidEntries)
     EXPECT_THAT(message2.getElementAtIndex(4), Eq("x"));
 }
 
-TEST_F(MqMessage_test, AddEntryWithInvalidEntries)
+TEST_F(IpcMessage_test, AddEntryWithInvalidEntries)
 {
-    MqMessage message1;
+    IpcMessage message1;
 
     EXPECT_THAT(message1.isValid(), Eq(true));
     message1.addEntry("aa,aa");
@@ -373,7 +373,7 @@ TEST_F(MqMessage_test, AddEntryWithInvalidEntries)
     message1.addEntry("aaa");
     EXPECT_THAT(message1.isValid(), Eq(false));
 
-    MqMessage message2({"asd", "913u"});
+    IpcMessage message2({"asd", "913u"});
 
     EXPECT_THAT(message2.isValid(), Eq(true));
     message2.addEntry("aaa");
@@ -382,16 +382,16 @@ TEST_F(MqMessage_test, AddEntryWithInvalidEntries)
     EXPECT_THAT(message2.isValid(), Eq(false));
 }
 
-TEST_F(MqMessage_test, clearMessage)
+TEST_F(IpcMessage_test, clearMessage)
 {
-    MqMessage message1;
+    IpcMessage message1;
 
     message1.clearMessage();
     EXPECT_THAT(message1.isValid(), Eq(true));
     EXPECT_THAT(message1.getMessage(), Eq(""));
     EXPECT_THAT(message1.getNumberOfElements(), Eq(0u));
 
-    MqMessage message2({"a", "asd", "asd", "aaaaa"});
+    IpcMessage message2({"a", "asd", "asd", "aaaaa"});
     EXPECT_THAT(message2.isValid(), Eq(true));
     EXPECT_THAT(message2.getMessage(), Eq("a,asd,asd,aaaaa,"));
     EXPECT_THAT(message2.getNumberOfElements(), Eq(4u));
@@ -400,7 +400,7 @@ TEST_F(MqMessage_test, clearMessage)
     EXPECT_THAT(message2.getMessage(), Eq(""));
     EXPECT_THAT(message2.getNumberOfElements(), Eq(0u));
 
-    MqMessage message3({",,,a", "asd", "asd", "aaaaa"});
+    IpcMessage message3({",,,a", "asd", "asd", "aaaaa"});
     EXPECT_THAT(message3.isValid(), Eq(false));
     message3.clearMessage();
     EXPECT_THAT(message3.isValid(), Eq(true));
@@ -408,9 +408,9 @@ TEST_F(MqMessage_test, clearMessage)
     EXPECT_THAT(message3.getNumberOfElements(), Eq(0u));
 }
 
-TEST_F(MqMessage_test, setMessage)
+TEST_F(IpcMessage_test, setMessage)
 {
-    MqMessage message1;
+    IpcMessage message1;
 
     message1.setMessage("asd1,asd2,asd3,asd4,");
     EXPECT_THAT(message1.isValid(), Eq(true));

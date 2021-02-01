@@ -93,7 +93,7 @@ class PortManager
     void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
-    runtime::MqMessage findService(const capro::ServiceDescription& service) noexcept;
+    runtime::IpcMessage findService(const capro::ServiceDescription& service) noexcept;
 
   protected:
     void handlePublisherPorts() noexcept;

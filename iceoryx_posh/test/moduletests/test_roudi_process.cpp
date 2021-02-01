@@ -27,14 +27,14 @@ using namespace iox::popo;
 using namespace iox::runtime;
 using ::testing::Return;
 
-class MqInterfaceUser_Mock : public iox::roudi::RouDiProcess
+class IpcInterfaceUser_Mock : public iox::roudi::RouDiProcess
 {
   public:
-    MqInterfaceUser_Mock()
+    IpcInterfaceUser_Mock()
         : iox::roudi::RouDiProcess("TestRoudiProcess", 200, nullptr, true, 0x654321, 255)
     {
     }
-    MOCK_METHOD1(sendViaIpcChannel, void(MqMessage));
+    MOCK_METHOD1(sendViaIpcChannel, void(IpcMessage));
 };
 
 class RouDiProcess_test : public Test
@@ -46,7 +46,7 @@ class RouDiProcess_test : public Test
     bool isMonitored = true;
     const uint64_t payloadSegmentId{0x654321U};
     const uint64_t sessionId{255U};
-    MqInterfaceUser_Mock mqIntrfceusermock;
+    IpcInterfaceUser_Mock mqIntrfceusermock;
 };
 
 TEST_F(RouDiProcess_test, getPid)
@@ -87,13 +87,13 @@ TEST_F(RouDiProcess_test, getPayloadMemoryManager)
 
 TEST_F(RouDiProcess_test, sendViaIpcChannelPass)
 {
-    iox::runtime::MqMessage data{"MESSAGE_NOT_SUPPORTED"};
+    iox::runtime::IpcMessage data{"MESSAGE_NOT_SUPPORTED"};
     EXPECT_CALL(mqIntrfceusermock, sendViaIpcChannel(_)).Times(1);
     mqIntrfceusermock.sendViaIpcChannel(data);
 }
 TEST_F(RouDiProcess_test, sendViaIpcChannelFail)
 {
-    iox::runtime::MqMessage data{""};
+    iox::runtime::IpcMessage data{""};
     iox::cxx::optional<iox::Error> sendViaIpcChannelStatusFail;
 
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(

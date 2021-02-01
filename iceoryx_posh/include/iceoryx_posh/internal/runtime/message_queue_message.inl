@@ -21,7 +21,7 @@ namespace iox
 namespace runtime
 {
 template <typename T>
-void MqMessage::addEntry(const T& entry) noexcept
+void IpcMessage::addEntry(const T& entry) noexcept
 {
     std::stringstream newEntry;
     newEntry << entry;
@@ -39,7 +39,7 @@ void MqMessage::addEntry(const T& entry) noexcept
 }
 
 template <typename T>
-MqMessage& MqMessage::operator<<(const T& entry) noexcept
+IpcMessage& IpcMessage::operator<<(const T& entry) noexcept
 {
     addEntry(entry);
     return *this;

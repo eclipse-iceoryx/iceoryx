@@ -137,7 +137,7 @@ class PoshRuntime
     /// @param[in] msg request message to send
     /// @param[out] response from the RouDi daemon
     /// @return true if sucessful request/response, false on error
-    bool sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept;
+    bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept;
 
   public:
     PoshRuntime(const PoshRuntime&) = delete;
@@ -177,14 +177,14 @@ class PoshRuntime
     static PoshRuntime& getInstance(cxx::optional<const ProcessName_t*> name) noexcept;
 
   private:
-    cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
-    requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept;
+    cxx::expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
+    requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
-    requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept;
+    cxx::expected<SubscriberPortUserType::MemberType_t*, IpcMessageErrorType>
+    requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
-    requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
+    cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
+    requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
     /// @brief checks the given application name for certain constraints like length or if is empty
     const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;

@@ -60,7 +60,7 @@ const ProcessName_t RouDiProcess::getName() const noexcept
     return ProcessName_t(cxx::TruncateToCapacity, m_mq.getInterfaceName());
 }
 
-void RouDiProcess::sendViaIpcChannel(const runtime::MqMessage& data) noexcept
+void RouDiProcess::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
 {
     bool sendSuccess = m_mq.send(data);
     if (!sendSuccess)
@@ -412,10 +412,10 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
     m_processList.emplace_back(name, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
 
     // send REG_ACK and BaseAddrString
-    runtime::MqMessage sendBuffer;
+    runtime::IpcMessage sendBuffer;
 
     auto offset = RelativePointer::getOffset(m_mgmtSegmentId, m_segmentManager);
-    sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::REG_ACK)
+    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_ACK)
                << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << offset << transmissionTimestamp
                << m_mgmtSegmentId;
 
@@ -489,7 +489,7 @@ void ProcessManager::findServiceForProcess(const ProcessName_t& name, const capr
     RouDiProcess* process = getProcessFromList(name);
     if (nullptr != process)
     {
-        runtime::MqMessage instanceString({m_portManager.findService(service)});
+        runtime::IpcMessage instanceString({m_portManager.findService(service)});
         process->sendViaIpcChannel(instanceString);
         LogDebug() << "Sent InstanceString to application " << name;
     }
@@ -514,8 +514,8 @@ void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
         // send ReceiverPort to app as a serialized relative pointer
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
 
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_INTERFACE_ACK)
+        runtime::IpcMessage sendBuffer;
+        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         process->sendViaIpcChannel(sendBuffer);
 
@@ -536,7 +536,7 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const ProcessName
         // send counter to app as a serialized relative pointer
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
 
-        runtime::MqMessage sendBuffer;
+        runtime::IpcMessage sendBuffer;
         sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         process->sendViaIpcChannel(sendBuffer);
     }
@@ -557,8 +557,8 @@ void ProcessManager::addApplicationForProcess(const ProcessName_t& name) noexcep
 
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
 
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_APPLICATION_ACK)
+        runtime::IpcMessage sendBuffer;
+        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_APPLICATION_ACK)
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         process->sendViaIpcChannel(sendBuffer);
 
@@ -581,8 +581,8 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
             .and_then([&](auto nodeData) {
                 auto offset = RelativePointer::getOffset(m_mgmtSegmentId, nodeData);
 
-                runtime::MqMessage sendBuffer;
-                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_NODE_ACK)
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
                            << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
                 process->sendViaIpcChannel(sendBuffer);
@@ -591,11 +591,11 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
                 LogDebug() << "Created new node " << nodeName << " for process " << processName;
             })
             .or_else([&](PortPoolError error) {
-                runtime::MqMessage sendBuffer;
-                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 if (error == PortPoolError::NODE_DATA_LIST_FULL)
                 {
-                    sendBuffer << runtime::mqMessageErrorTypeToString(runtime::MqMessageErrorType::NODE_DATA_LIST_FULL);
+                    sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::NODE_DATA_LIST_FULL);
                 }
                 process->sendViaIpcChannel(sendBuffer);
 
@@ -615,8 +615,8 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
     RouDiProcess* process = getProcessFromList(name);
     if (nullptr != process)
     {
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::MESSAGE_NOT_SUPPORTED);
+        runtime::IpcMessage sendBuffer;
+        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::MESSAGE_NOT_SUPPORTED);
         process->sendViaIpcChannel(sendBuffer);
 
         LogError() << "Application " << name << " sent a message, which is not supported by this RouDi";
@@ -642,8 +642,8 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
             // send SubscriberPort to app as a serialized relative pointer
             auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSubscriber.value());
 
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SUBSCRIBER_ACK)
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
                        << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
             process->sendViaIpcChannel(sendBuffer);
 
@@ -651,9 +651,9 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
         }
         else
         {
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
-            sendBuffer << runtime::mqMessageErrorTypeToString(runtime::MqMessageErrorType::SUBSCRIBER_LIST_FULL);
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+            sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SUBSCRIBER_LIST_FULL);
             process->sendViaIpcChannel(sendBuffer);
             LogError() << "Could not create SubscriberPort for application " << name;
         }
@@ -683,8 +683,8 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
             // send PublisherPort to app as a serialized relative pointer
             auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybePublisher.value());
 
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_PUBLISHER_ACK)
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
                        << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
             process->sendViaIpcChannel(sendBuffer);
 
@@ -692,12 +692,12 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
         }
         else
         {
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
-            sendBuffer << runtime::mqMessageErrorTypeToString( // map error codes
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+            sendBuffer << runtime::IpcMessageErrorTypeToString( // map error codes
                 (maybePublisher.get_error() == PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS
-                     ? runtime::MqMessageErrorType::NO_UNIQUE_CREATED
-                     : runtime::MqMessageErrorType::PUBLISHER_LIST_FULL));
+                     ? runtime::IpcMessageErrorType::NO_UNIQUE_CREATED
+                     : runtime::IpcMessageErrorType::PUBLISHER_LIST_FULL));
             process->sendViaIpcChannel(sendBuffer);
             LogError() << "Could not create PublisherPort for application " << name;
         }
@@ -720,20 +720,20 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
             .and_then([&](auto condVar) {
                 auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
 
-                runtime::MqMessage sendBuffer;
-                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_CONDITION_VARIABLE_ACK)
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
                            << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
                 process->sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new ConditionVariable for application " << processName;
             })
             .or_else([&](PortPoolError error) {
-                runtime::MqMessage sendBuffer;
-                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 if (error == PortPoolError::CONDITION_VARIABLE_LIST_FULL)
                 {
-                    sendBuffer << runtime::mqMessageErrorTypeToString(
-                        runtime::MqMessageErrorType::CONDITION_VARIABLE_LIST_FULL);
+                    sendBuffer << runtime::IpcMessageErrorTypeToString(
+                        runtime::IpcMessageErrorType::CONDITION_VARIABLE_LIST_FULL);
                 }
                 process->sendViaIpcChannel(sendBuffer);
 

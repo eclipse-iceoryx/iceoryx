@@ -27,40 +27,40 @@ namespace iox
 {
 namespace runtime
 {
-MqMessageType stringToMqMessageType(const char* str) noexcept
+IpcMessageType stringToIpcMessageType(const char* str) noexcept
 {
-    std::underlying_type<MqMessageType>::type msg;
+    std::underlying_type<IpcMessageType>::type msg;
     bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
     noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
-    noError &= noError ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
-                           || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
+    noError &= noError ? !(static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
+                           || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg)
                        : false;
-    return noError ? (static_cast<MqMessageType>(msg)) : MqMessageType::NOTYPE;
+    return noError ? (static_cast<IpcMessageType>(msg)) : IpcMessageType::NOTYPE;
 }
 
-std::string mqMessageTypeToString(const MqMessageType msg) noexcept
+std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 {
-    return std::to_string(static_cast<std::underlying_type<MqMessageType>::type>(msg));
+    return std::to_string(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
 }
 
-MqMessageErrorType stringToMqMessageErrorType(const char* str) noexcept
+IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 {
-    std::underlying_type<MqMessageErrorType>::type msg;
+    std::underlying_type<IpcMessageErrorType>::type msg;
     bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
     noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
     noError &= noError
-                   ? !(static_cast<std::underlying_type<MqMessageErrorType>::type>(MqMessageErrorType::BEGIN) >= msg
-                       || static_cast<std::underlying_type<MqMessageErrorType>::type>(MqMessageErrorType::END) <= msg)
+                   ? !(static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::BEGIN) >= msg
+                       || static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::END) <= msg)
                    : false;
-    return noError ? (static_cast<MqMessageErrorType>(msg)) : MqMessageErrorType::NOTYPE;
+    return noError ? (static_cast<IpcMessageErrorType>(msg)) : IpcMessageErrorType::NOTYPE;
 }
 
-std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
+std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
 {
-    return std::to_string(static_cast<std::underlying_type<MqMessageErrorType>::type>(msg));
+    return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
-MqBase::MqBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
+IpcBase::IpcBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -73,7 +73,7 @@ MqBase::MqBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, c
     }
 }
 
-bool MqBase::receive(MqMessage& answer) const noexcept
+bool IpcBase::receive(IpcMessage& answer) const noexcept
 {
     auto message = m_mq.receive();
     if (message.has_error())
@@ -81,18 +81,18 @@ bool MqBase::receive(MqMessage& answer) const noexcept
         return false;
     }
 
-    return MqBase::setMessageFromString(message.value().c_str(), answer);
+    return IpcBase::setMessageFromString(message.value().c_str(), answer);
 }
 
-bool MqBase::timedReceive(const units::Duration timeout, MqMessage& answer) const noexcept
+bool IpcBase::timedReceive(const units::Duration timeout, IpcMessage& answer) const noexcept
 {
     return !m_mq.timedReceive(timeout)
-                .and_then([&answer](auto& message) { MqBase::setMessageFromString(message.c_str(), answer); })
+                .and_then([&answer](auto& message) { IpcBase::setMessageFromString(message.c_str(), answer); })
                 .has_error()
            && answer.isValid();
 }
 
-bool MqBase::setMessageFromString(const char* buffer, MqMessage& answer) noexcept
+bool IpcBase::setMessageFromString(const char* buffer, IpcMessage& answer) noexcept
 {
     answer.setMessage(buffer);
     if (!answer.isValid())
@@ -103,7 +103,7 @@ bool MqBase::setMessageFromString(const char* buffer, MqMessage& answer) noexcep
     return true;
 }
 
-bool MqBase::send(const MqMessage& msg) const noexcept
+bool IpcBase::send(const IpcMessage& msg) const noexcept
 {
     if (!msg.isValid())
     {
@@ -123,7 +123,7 @@ bool MqBase::send(const MqMessage& msg) const noexcept
     return !m_mq.send(msg.getMessage()).or_else(logLengthError).has_error();
 }
 
-bool MqBase::timedSend(const MqMessage& msg, units::Duration timeout) const noexcept
+bool IpcBase::timedSend(const IpcMessage& msg, units::Duration timeout) const noexcept
 {
     if (!msg.isValid())
     {
@@ -143,17 +143,17 @@ bool MqBase::timedSend(const MqMessage& msg, units::Duration timeout) const noex
     return !m_mq.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
-const ProcessName_t& MqBase::getInterfaceName() const noexcept
+const ProcessName_t& IpcBase::getInterfaceName() const noexcept
 {
     return m_interfaceName;
 }
 
-bool MqBase::isInitialized() const noexcept
+bool IpcBase::isInitialized() const noexcept
 {
     return m_mq.isInitialized();
 }
 
-bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
+bool IpcBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
 {
     m_mq.destroy();
 
@@ -165,27 +165,27 @@ bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     return m_mq.isInitialized();
 }
 
-bool MqBase::closeMessageQueue() noexcept
+bool IpcBase::closeMessageQueue() noexcept
 {
     return !m_mq.destroy().has_error();
 }
 
-bool MqBase::reopen() noexcept
+bool IpcBase::reopen() noexcept
 {
     return openMessageQueue(m_channelSide);
 }
 
-bool MqBase::mqMapsToFile() noexcept
+bool IpcBase::mqMapsToFile() noexcept
 {
     return !m_mq.isOutdated().value_or(true);
 }
 
-bool MqBase::hasClosableMessageQueue() const noexcept
+bool IpcBase::hasClosableMessageQueue() const noexcept
 {
     return m_mq.isInitialized();
 }
 
-void MqBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
+void IpcBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
 {
     if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
     {
@@ -193,18 +193,18 @@ void MqBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
     }
 }
 
-MqInterfaceUser::MqInterfaceUser(const ProcessName_t& name,
+IpcInterfaceUser::IpcInterfaceUser(const ProcessName_t& name,
                                  const uint64_t maxMessages,
                                  const uint64_t messageSize) noexcept
-    : MqBase(name, maxMessages, messageSize)
+    : IpcBase(name, maxMessages, messageSize)
 {
     openMessageQueue(posix::IpcChannelSide::CLIENT);
 }
 
-MqInterfaceCreator::MqInterfaceCreator(const ProcessName_t& name,
+IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
                                        const uint64_t maxMessages,
                                        const uint64_t messageSize) noexcept
-    : MqBase(name, maxMessages, messageSize)
+    : IpcBase(name, maxMessages, messageSize)
 {
     // check if the mq is still there (e.g. because of no proper termination
     // of the process)
@@ -213,7 +213,7 @@ MqInterfaceCreator::MqInterfaceCreator(const ProcessName_t& name,
     openMessageQueue(posix::IpcChannelSide::SERVER);
 }
 
-void MqInterfaceCreator::cleanupResource()
+void IpcInterfaceCreator::cleanupResource()
 {
     m_mq.destroy();
 }
@@ -274,10 +274,10 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
             }
             transmissionTimestamp = timestamp;
 
-            // send MqMessageType::REG to RouDi
+            // send IpcMessageType::REG to RouDi
 
-            MqMessage sendBuffer;
-            sendBuffer << mqMessageTypeToString(MqMessageType::REG) << m_appName << std::to_string(getpid())
+            IpcMessage sendBuffer;
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_appName << std::to_string(getpid())
                        << std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID())
                        << std::to_string(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
@@ -333,7 +333,7 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
 
 bool MqRuntimeInterface::sendKeepalive() noexcept
 {
-    return m_RoudiMqInterface.send({mqMessageTypeToString(MqMessageType::KEEPALIVE), m_appName});
+    return m_RoudiMqInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_appName});
 }
 
 RelativePointer::offset_t MqRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
@@ -343,7 +343,7 @@ RelativePointer::offset_t MqRuntimeInterface::getSegmentManagerAddressOffset() c
     return m_segmentManagerAddressOffset.value();
 }
 
-bool MqRuntimeInterface::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept
+bool MqRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
 {
     if (!m_RoudiMqInterface.send(msg))
     {
@@ -360,7 +360,7 @@ bool MqRuntimeInterface::sendRequestToRouDi(const MqMessage& msg, MqMessage& ans
     return true;
 }
 
-bool MqRuntimeInterface::sendMessageToRouDi(const MqMessage& msg) noexcept
+bool MqRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
 {
     if (!m_RoudiMqInterface.send(msg))
     {
@@ -414,13 +414,13 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
     while (retryCounter++ < MAX_RETRY_COUNT)
     {
         using namespace units::duration_literals;
-        MqMessage receiveBuffer;
-        // wait for MqMessageType::REG_ACK from RouDi for 1 seconds
+        IpcMessage receiveBuffer;
+        // wait for IpcMessageType::REG_ACK from RouDi for 1 seconds
         if (m_AppMqInterface.timedReceive(1_s, receiveBuffer))
         {
             std::string cmd = receiveBuffer.getElementAtIndex(0U);
 
-            if (stringToMqMessageType(cmd.c_str()) == MqMessageType::REG_ACK)
+            if (stringToIpcMessageType(cmd.c_str()) == IpcMessageType::REG_ACK)
             {
                 constexpr uint32_t REGISTER_ACK_PARAMETERS = 5U;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)

@@ -540,7 +540,7 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     LogDebug() << "Destroyed subscriber port";
 }
 
-runtime::MqMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
+runtime::IpcMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
 {
     // send find to all interfaces
     capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, service);
@@ -552,7 +552,7 @@ runtime::MqMessage PortManager::findService(const capro::ServiceDescription& ser
     }
 
     // add all found instances to instanceString
-    runtime::MqMessage instanceMessage;
+    runtime::IpcMessage instanceMessage;
 
     ServiceRegistry::InstanceSet_t instances;
     m_serviceRegistry.find(instances, service.getServiceIDString(), service.getInstanceIDString());

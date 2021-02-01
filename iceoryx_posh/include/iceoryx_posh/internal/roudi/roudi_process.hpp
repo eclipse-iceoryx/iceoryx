@@ -62,7 +62,7 @@ class RouDiProcess
 
     const ProcessName_t getName() const noexcept;
 
-    void sendViaIpcChannel(const runtime::MqMessage& data) noexcept;
+    void sendViaIpcChannel(const runtime::IpcMessage& data) noexcept;
 
     /// @brief The session ID which is used to check outdated IPC channel transmissions for this process
     /// @return the session ID for this process
@@ -79,7 +79,7 @@ class RouDiProcess
 
   private:
     int m_pid;
-    runtime::MqInterfaceUser m_mq;
+    runtime::IpcInterfaceUser m_mq;
     mepoo::TimePointNs_t m_timestamp;
     mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
     bool m_isMonitored{true};
