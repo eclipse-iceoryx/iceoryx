@@ -40,7 +40,6 @@ class SubscriberPortUser;
 namespace posix
 {
 class UnixDomainSocket;
-class MessageQueue;
 } // namespace posix
 
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;

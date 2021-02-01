@@ -128,7 +128,7 @@ class RouDi
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 
-    const units::Duration m_messageQueueTimeout{100_ms};
+    const units::Duration m_ipcChannelTimeout{100_ms};
 
   protected:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
