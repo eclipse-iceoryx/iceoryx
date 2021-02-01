@@ -27,7 +27,7 @@ inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const cap
 }
 
 template <template <typename, typename, typename> class base_subscriber_t>
-inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base_subscriber_t>::take_1_0() noexcept
+inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base_subscriber_t>::take() noexcept
 {
     auto result = BaseSubscriber::takeChunk();
     if (result.has_error())

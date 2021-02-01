@@ -86,7 +86,7 @@ PerfTopic Iceoryx::receivePerfTopic() noexcept
 
     do
     {
-        m_subscriber.take_1_0().and_then([&](const void* data) {
+        m_subscriber.take().and_then([&](const void* data) {
             receivedSample = *(static_cast<const PerfTopic*>(data));
             hasReceivedSample = true;
             m_subscriber.releaseChunk(data);

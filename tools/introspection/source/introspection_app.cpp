@@ -697,7 +697,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            memPoolSubscriber.take_1_0().and_then(
+            memPoolSubscriber.take().and_then(
                 [&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) { memPoolSample = sample; });
 
             if (memPoolSample)
@@ -717,7 +717,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            processSubscriber.take_1_0().and_then(
+            processSubscriber.take().and_then(
                 [&](iox::popo::Sample<const ProcessIntrospectionFieldTopic>& sample) { processSample = sample; });
 
             if (processSample)
@@ -733,15 +733,15 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         // print port information
         if (introspectionSelection.port == true)
         {
-            portSubscriber.take_1_0().and_then(
+            portSubscriber.take().and_then(
                 [&](iox::popo::Sample<const PortIntrospectionFieldTopic>& sample) { portSample = sample; });
 
-            portThroughputSubscriber.take_1_0().and_then(
+            portThroughputSubscriber.take().and_then(
                 [&](iox::popo::Sample<const PortThroughputIntrospectionFieldTopic>& sample) {
                     portThroughputSample = sample;
                 });
 
-            subscriberPortChangingDataSubscriber.take_1_0().and_then(
+            subscriberPortChangingDataSubscriber.take().and_then(
                 [&](iox::popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>& sample) {
                     subscriberPortChangingDataSamples = sample;
                 });

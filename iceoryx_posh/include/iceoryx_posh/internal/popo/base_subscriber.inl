@@ -83,32 +83,6 @@ inline bool BaseSubscriber<T, Subscriber, port_t>::hasMissedSamples() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveResult>
-BaseSubscriber<T, Subscriber, port_t>::take() noexcept
-{
-    auto result = m_port.tryGetChunk();
-    if (result.has_error())
-    {
-        return cxx::error<ChunkReceiveResult>(result.get_error());
-    }
-    else
-    {
-        auto optionalHeader = result.value();
-        if (optionalHeader.has_value())
-        {
-            auto header = optionalHeader.value();
-            auto samplePtr = cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter);
-            return cxx::success<cxx::optional<Sample<const T>>>(
-                cxx::make_optional<Sample<const T>>(std::move(samplePtr)));
-        }
-        else
-        {
-            return cxx::success<cxx::optional<Sample<const T>>>(cxx::nullopt);
-        }
-    }
-}
-
-template <typename T, typename Subscriber, typename port_t>
 inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult>
 BaseSubscriber<T, Subscriber, port_t>::takeChunk() noexcept
 {

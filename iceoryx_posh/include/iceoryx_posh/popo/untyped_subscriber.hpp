@@ -57,7 +57,7 @@ class UntypedSubscriberImpl
     /// @return The payload pointer of the chunk taken.
     /// @details No automatic cleaunp of the associated chunk is performed.
     ///
-    cxx::expected<const void*, ChunkReceiveResult> take_1_0() noexcept; // iox-#408 rename
+    cxx::expected<const void*, ChunkReceiveResult> take() noexcept; // iox-#408 rename
 
     ///
     /// @brief hasChunks Check if chunks are available.
@@ -80,7 +80,7 @@ class UntypedSubscriberImpl
     ///
     /// @brief releaseChunk Releases the chunk provided by the payload pointer.
     /// @param payload pointer to the payload of the chunk to be released
-    /// @details The chunk must have been previosly provided by take_1_0 and
+    /// @details The chunk must have been previosly provided by take and
     ///          not have been already released.
     ///
     void releaseChunk(const void* payload) noexcept;

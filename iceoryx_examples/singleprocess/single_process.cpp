@@ -82,7 +82,7 @@ void subscriber()
 
             do
             {
-                subscriber.take_1_0()
+                subscriber.take()
                     .and_then([&](auto& sample) {
                         consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
                     })

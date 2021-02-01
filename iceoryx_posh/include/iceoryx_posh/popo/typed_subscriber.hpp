@@ -46,7 +46,7 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     using BaseSubscriber::subscribe;
     using BaseSubscriber::unsubscribe;
 
-    inline cxx::expected<Sample<const T>, ChunkReceiveResult> take_1_0() noexcept; // iox-#408 rename
+    inline cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept; // iox-#408 rename
 };
 
 } // namespace popo

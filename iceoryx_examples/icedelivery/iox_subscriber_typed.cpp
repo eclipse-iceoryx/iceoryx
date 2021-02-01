@@ -47,7 +47,7 @@ int main()
     {
         if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            subscriber.take_1_0()
+            subscriber.take()
                 .and_then([](auto& sample) { std::cout << "Got value: " << sample->x << std::endl; })
                 .or_else([](auto& result) {
                     // only has to be called if the alternative is of interest,

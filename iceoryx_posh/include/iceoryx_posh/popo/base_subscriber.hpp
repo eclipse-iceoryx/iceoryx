@@ -83,28 +83,18 @@ class BaseSubscriber
     ///
     void unsubscribe() noexcept;
 
-    // iox-#408 replace
     ///
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
     bool hasSamples() const noexcept;
 
-    // iox-#408 replace
     ///
     /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
     /// @return True if samples have been missed.
     /// @details Samples may be missed due to overflowing receive queue.
     ///
     bool hasMissedSamples() noexcept;
-
-    // iox-#408 remove
-    ///
-    /// @brief take Take the a sample from the top of the receive queue.
-    /// @return An expected containing populated optional if there is a sample available, otherwise empty.
-    /// @details The memory loan for the sample is automatically released when it goes out of scope.
-    ///
-    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveResult> take() noexcept;
 
     ///
     /// @brief takeChunk Take the chunk from the top of the receive queue.
@@ -113,7 +103,6 @@ class BaseSubscriber
     ///
     cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
 
-    // iox-#408 replace
     ///
     /// @brief releaseQueuedSamples Releases any unread queued samples.
     ///
@@ -175,6 +164,8 @@ class BaseSubscriber
     /// @note As this deleter is coupled to the Subscriber implementation, it should only be used within the subscriber
     /// context.
     ///
+
+    // iox-#408 needs to be moved into the typed API
     struct SubscriberSampleDeleter
     {
       public:

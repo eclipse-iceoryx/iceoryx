@@ -39,7 +39,7 @@ void receive()
 
         while (subscriber.hasSamples())
         {
-            subscriber.take_1_0()
+            subscriber.take()
                 .and_then([](auto& sample) { std::cout << "Received: " << *sample.get() << std::endl; })
                 .or_else([](auto&) { std::cout << "Error while receiving." << std::endl; });
         };

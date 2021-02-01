@@ -47,7 +47,7 @@ int main()
     {
         if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            subscriber.take_1_0()
+            subscriber.take()
                 .and_then([&](const void* data) {
                     auto object = static_cast<const RadarObject*>(data);
                     std::cout << "Got value: " << object->x << std::endl;
