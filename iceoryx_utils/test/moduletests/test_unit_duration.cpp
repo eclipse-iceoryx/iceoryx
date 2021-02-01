@@ -29,18 +29,19 @@ constexpr uint64_t NANOSECS_PER_MICROSECOND = Duration::NANOSECS_PER_MICROSEC;
 constexpr uint64_t NANOSECS_PER_MILLISECOND = Duration::NANOSECS_PER_MILLISEC;
 constexpr uint64_t NANOSECS_PER_SECOND = Duration::NANOSECS_PER_SEC;
 
-struct DurationFactory : public Duration
+struct DurationAccessor : public Duration
 {
-    constexpr DurationFactory(Seconds_t seconds, Nanoseconds_t nanoseconds)
-        : Duration(seconds, nanoseconds)
-    {
-    }
-
+    using Duration::createDuration;
     using Duration::max;
 
     using Duration::Nanoseconds_t;
     using Duration::Seconds_t;
 };
+
+constexpr Duration createDuration(DurationAccessor::Seconds_t seconds, DurationAccessor::Nanoseconds_t nanoseconds)
+{
+    return DurationAccessor::createDuration(seconds, nanoseconds);
+}
 
 TEST(Duration_test, ConversionConstants)
 {
@@ -64,7 +65,7 @@ TEST(Duration_test, ConstructDurationWithZeroTime)
     constexpr uint64_t NANOSECONDS{0U};
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{0U};
 
-    auto sut = DurationFactory{SECONDS, NANOSECONDS};
+    auto sut = createDuration(SECONDS, NANOSECONDS);
 
     EXPECT_THAT(sut.nanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
@@ -75,7 +76,7 @@ TEST(Duration_test, ConstructDurationWithResultOfLessNanosecondsThanOneSecond)
     constexpr uint64_t NANOSECONDS{7337U};
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{NANOSECONDS};
 
-    auto sut = DurationFactory{SECONDS, NANOSECONDS};
+    auto sut = createDuration(SECONDS, NANOSECONDS);
 
     EXPECT_THAT(sut.nanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
@@ -86,7 +87,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsLessThanOneSecond)
     constexpr uint64_t NANOSECONDS{73U};
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{SECONDS * NANOSECS_PER_SECOND + NANOSECONDS};
 
-    auto sut = DurationFactory{SECONDS, NANOSECONDS};
+    auto sut = createDuration(SECONDS, NANOSECONDS);
 
     EXPECT_THAT(sut.nanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
@@ -97,7 +98,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsEqualToOneSecond)
     constexpr uint64_t NANOSECONDS{NANOSECS_PER_SECOND};
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(SECONDS + 1U) * NANOSECS_PER_SECOND};
 
-    auto sut = DurationFactory{SECONDS, NANOSECONDS};
+    auto sut = createDuration(SECONDS, NANOSECONDS);
 
     EXPECT_THAT(sut.nanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
@@ -109,7 +110,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsMoreThanOneSecond)
     constexpr uint64_t MORE_THAN_ONE_SECOND_NANOSECONDS{NANOSECS_PER_SECOND + NANOSECONDS};
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(SECONDS + 1U) * NANOSECS_PER_SECOND + NANOSECONDS};
 
-    auto sut = DurationFactory{SECONDS, MORE_THAN_ONE_SECOND_NANOSECONDS};
+    auto sut = createDuration(SECONDS, MORE_THAN_ONE_SECOND_NANOSECONDS);
 
     EXPECT_THAT(sut.nanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
@@ -117,24 +118,24 @@ TEST(Duration_test, ConstructDurationWithNanosecondsMoreThanOneSecond)
 TEST(Duration_test, ConstructDurationWithNanosecondsMaxValue)
 {
     constexpr uint64_t SECONDS{37U};
-    constexpr uint64_t MAX_NANOSECONDS_FOR_CTOR{std::numeric_limits<DurationFactory::Nanoseconds_t>::max()};
+    constexpr uint64_t MAX_NANOSECONDS_FOR_CTOR{std::numeric_limits<DurationAccessor::Nanoseconds_t>::max()};
     constexpr uint64_t EXPECTED_SECONDS = SECONDS + MAX_NANOSECONDS_FOR_CTOR / NANOSECS_PER_SECOND;
     constexpr uint64_t REMAINING_NANOSECONDS = MAX_NANOSECONDS_FOR_CTOR % NANOSECS_PER_SECOND;
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(EXPECTED_SECONDS)*NANOSECS_PER_SECOND + REMAINING_NANOSECONDS};
 
-    auto sut = DurationFactory{SECONDS, MAX_NANOSECONDS_FOR_CTOR};
+    auto sut = createDuration(SECONDS, MAX_NANOSECONDS_FOR_CTOR);
 
     EXPECT_THAT(sut.nanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructDurationWithSecondsAndNanosecondsMaxValues)
 {
-    constexpr uint64_t MAX_SECONDS_FOR_CTOR{std::numeric_limits<DurationFactory::Seconds_t>::max()};
-    constexpr uint64_t MAX_NANOSECONDS_FOR_CTOR{std::numeric_limits<DurationFactory::Nanoseconds_t>::max()};
+    constexpr uint64_t MAX_SECONDS_FOR_CTOR{std::numeric_limits<DurationAccessor::Seconds_t>::max()};
+    constexpr uint64_t MAX_NANOSECONDS_FOR_CTOR{std::numeric_limits<DurationAccessor::Nanoseconds_t>::max()};
 
-    auto sut = DurationFactory{MAX_SECONDS_FOR_CTOR, MAX_NANOSECONDS_FOR_CTOR};
+    auto sut = createDuration(MAX_SECONDS_FOR_CTOR, MAX_NANOSECONDS_FOR_CTOR);
 
-    EXPECT_THAT(sut, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, ConstructDurationWithOneNanosecondResultsNotInZeroNanoseconds)
@@ -143,7 +144,7 @@ TEST(Duration_test, ConstructDurationWithOneNanosecondResultsNotInZeroNanosecond
     constexpr uint64_t NANOSECONDS{1U};
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{NANOSECONDS};
 
-    auto sut = DurationFactory{SECONDS, NANOSECONDS};
+    auto sut = createDuration(SECONDS, NANOSECONDS);
 
     EXPECT_THAT(sut.nanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
@@ -152,7 +153,7 @@ TEST(Duration_test, ConstructFromTimespecWithZeroValue)
 {
     constexpr uint64_t SECONDS{0U};
     constexpr uint64_t NANOSECONDS{0U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, NANOSECONDS};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
     struct timespec ts;
     ts.tv_sec = SECONDS;
@@ -166,7 +167,7 @@ TEST(Duration_test, ConstructFromTimespecWithValueLessThanOneSecond)
 {
     constexpr uint64_t SECONDS{0U};
     constexpr uint64_t NANOSECONDS{456U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, NANOSECONDS};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
     struct timespec value;
     value.tv_sec = SECONDS;
@@ -180,7 +181,7 @@ TEST(Duration_test, ConstructFromTimespecWithValueMoreThanOneSecond)
 {
     constexpr uint64_t SECONDS{73U};
     constexpr uint64_t NANOSECONDS{456U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, NANOSECONDS};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
     struct timespec value;
     value.tv_sec = SECONDS;
@@ -192,7 +193,7 @@ TEST(Duration_test, ConstructFromTimespecWithValueMoreThanOneSecond)
 
 TEST(Duration_test, ConstructFromTimespecWithMaxValue)
 {
-    constexpr uint64_t SECONDS{std::numeric_limits<DurationFactory::Seconds_t>::max()};
+    constexpr uint64_t SECONDS{std::numeric_limits<DurationAccessor::Seconds_t>::max()};
     constexpr uint64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
     struct timespec ts;
@@ -200,14 +201,14 @@ TEST(Duration_test, ConstructFromTimespecWithMaxValue)
     ts.tv_nsec = NANOSECONDS;
 
     Duration sut{ts};
-    EXPECT_THAT(sut, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, ConstructFromITimerspecWithZeroValue)
 {
     constexpr uint64_t SECONDS{0U};
     constexpr uint64_t NANOSECONDS{0U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, NANOSECONDS};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
     struct itimerspec its;
     its.it_interval.tv_sec = SECONDS;
@@ -221,7 +222,7 @@ TEST(Duration_test, ConstructFromITimerspecWithValueLessThanOneSecond)
 {
     constexpr uint64_t SECONDS{0U};
     constexpr uint64_t NANOSECONDS{642U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, NANOSECONDS};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
     struct itimerspec its;
     its.it_interval.tv_sec = SECONDS;
@@ -235,7 +236,7 @@ TEST(Duration_test, ConstructFromITimerspecWithValueMoreThanOneSecond)
 {
     constexpr uint64_t SECONDS{13U};
     constexpr uint64_t NANOSECONDS{42U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, NANOSECONDS};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
     struct itimerspec its;
     its.it_interval.tv_sec = SECONDS;
@@ -247,7 +248,7 @@ TEST(Duration_test, ConstructFromITimerspecWithValueMoreThanOneSecond)
 
 TEST(Duration_test, ConstructFromITimerspecWithMaxValue)
 {
-    constexpr uint64_t SECONDS{std::numeric_limits<DurationFactory::Seconds_t>::max()};
+    constexpr uint64_t SECONDS{std::numeric_limits<DurationAccessor::Seconds_t>::max()};
     constexpr uint64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
     struct itimerspec its;
@@ -255,14 +256,14 @@ TEST(Duration_test, ConstructFromITimerspecWithMaxValue)
     its.it_interval.tv_nsec = NANOSECONDS;
 
     Duration sut{its};
-    EXPECT_THAT(sut, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, ConstructFromTimevalWithZeroValue)
 {
     constexpr uint64_t SECONDS{0U};
     constexpr uint64_t MICROSECONDS{0U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND);
 
     struct timeval tv;
     tv.tv_sec = SECONDS;
@@ -276,7 +277,7 @@ TEST(Duration_test, ConstructFromTimevalWithValueLessThanOneSecond)
 {
     constexpr uint64_t SECONDS{0U};
     constexpr uint64_t MICROSECONDS{13U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND);
 
     struct timeval tv;
     tv.tv_sec = SECONDS;
@@ -290,7 +291,7 @@ TEST(Duration_test, ConstructFromTimevalWithValueMoreThanOneSecond)
 {
     constexpr uint64_t SECONDS{1337U};
     constexpr uint64_t MICROSECONDS{42U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND);
 
     struct timeval tv;
     tv.tv_sec = SECONDS;
@@ -304,7 +305,7 @@ TEST(Duration_test, ConstructFromTimevalWithMaxValue)
 {
     constexpr uint64_t SECONDS{std::numeric_limits<uint64_t>::max()};
     constexpr uint64_t MICROSECONDS{Duration::MICROSECS_PER_SEC - 1U};
-    constexpr DurationFactory EXPECTED_DURATION{SECONDS, MICROSECONDS * Duration::NANOSECS_PER_MICROSEC};
+    constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * Duration::NANOSECS_PER_MICROSEC);
 
     struct timeval tv;
     tv.tv_sec = SECONDS;
@@ -511,10 +512,10 @@ TEST(Duration_test, CreateDurationFromDaysFunctionWithMultipleDays)
 TEST(Duration_test, CreateDurationFromDaysFunctionWithDaysResultsNotYetInSaturation)
 {
     constexpr uint64_t SECONDS_PER_DAY{HOURS_PER_DAY * SECONDS_PER_HOUR};
-    constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{std::numeric_limits<DurationFactory::Seconds_t>::max()
+    constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{std::numeric_limits<DurationAccessor::Seconds_t>::max()
                                                 / SECONDS_PER_DAY};
-    constexpr DurationFactory EXPECTED_DURATION{MAX_DAYS_BEFORE_OVERFLOW * SECONDS_PER_DAY, 0U};
-    static_assert(EXPECTED_DURATION < DurationFactory::max(),
+    constexpr Duration EXPECTED_DURATION = createDuration(MAX_DAYS_BEFORE_OVERFLOW * SECONDS_PER_DAY, 0U);
+    static_assert(EXPECTED_DURATION < DurationAccessor::max(),
                   "EXPECTED_DURATION too large to exclude saturation! Please decrease!");
 
     auto sut1 = Duration::days(static_cast<int64_t>(MAX_DAYS_BEFORE_OVERFLOW));
@@ -529,8 +530,8 @@ TEST(Duration_test, CreateDurationFromDaysFunctionWithMaxDaysResultsInSaturation
     auto sut1 = Duration::days(std::numeric_limits<int64_t>::max());
     auto sut2 = Duration::days(std::numeric_limits<uint64_t>::max());
 
-    EXPECT_THAT(sut1, Eq(DurationFactory::max()));
-    EXPECT_THAT(sut2, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut1, Eq(DurationAccessor::max()));
+    EXPECT_THAT(sut2, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, CreateDurationFromDaysFunctionWithNegativeValuesIsZero)
@@ -560,10 +561,10 @@ TEST(Duration_test, CreateDurationFromHoursFunctionWithMultipleHours)
 
 TEST(Duration_test, CreateDurationFromHoursFunctionWithHoursResultsNotYetInSaturation)
 {
-    constexpr uint64_t MAX_HOURS_BEFORE_OVERFLOW{std::numeric_limits<DurationFactory::Seconds_t>::max()
+    constexpr uint64_t MAX_HOURS_BEFORE_OVERFLOW{std::numeric_limits<DurationAccessor::Seconds_t>::max()
                                                  / SECONDS_PER_HOUR};
-    constexpr DurationFactory EXPECTED_DURATION{MAX_HOURS_BEFORE_OVERFLOW * SECONDS_PER_HOUR, 0U};
-    static_assert(EXPECTED_DURATION < DurationFactory::max(),
+    constexpr Duration EXPECTED_DURATION = createDuration(MAX_HOURS_BEFORE_OVERFLOW * SECONDS_PER_HOUR, 0U);
+    static_assert(EXPECTED_DURATION < DurationAccessor::max(),
                   "EXPECTED_DURATION too large to exclude saturation! Please decrease!");
 
     auto sut1 = Duration::hours(static_cast<int64_t>(MAX_HOURS_BEFORE_OVERFLOW));
@@ -578,8 +579,8 @@ TEST(Duration_test, CreateDurationFromHoursFunctionWithMaxHoursResultsInSaturati
     auto sut1 = Duration::hours(std::numeric_limits<int64_t>::max());
     auto sut2 = Duration::hours(std::numeric_limits<uint64_t>::max());
 
-    EXPECT_THAT(sut1, Eq(DurationFactory::max()));
-    EXPECT_THAT(sut2, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut1, Eq(DurationAccessor::max()));
+    EXPECT_THAT(sut2, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, CreateDurationFromHoursFunctionWithNegativeValueIsZero)
@@ -609,10 +610,10 @@ TEST(Duration_test, CreateDurationFromMinutesFunctionWithMultipleMinutes)
 
 TEST(Duration_test, CreateDurationFromMinutesFunctionWithMinutesResultsNotYetInSaturation)
 {
-    constexpr uint64_t MAX_MINUTES_BEFORE_OVERFLOW{std::numeric_limits<DurationFactory::Seconds_t>::max()
+    constexpr uint64_t MAX_MINUTES_BEFORE_OVERFLOW{std::numeric_limits<DurationAccessor::Seconds_t>::max()
                                                    / SECONDS_PER_MINUTE};
-    constexpr DurationFactory EXPECTED_DURATION{MAX_MINUTES_BEFORE_OVERFLOW * SECONDS_PER_MINUTE, 0U};
-    static_assert(EXPECTED_DURATION < DurationFactory::max(),
+    constexpr Duration EXPECTED_DURATION = createDuration(MAX_MINUTES_BEFORE_OVERFLOW * SECONDS_PER_MINUTE, 0U);
+    static_assert(EXPECTED_DURATION < DurationAccessor::max(),
                   "EXPECTED_DURATION too large to exclude saturation! Please decrease!");
 
     auto sut1 = Duration::minutes(static_cast<int64_t>(MAX_MINUTES_BEFORE_OVERFLOW));
@@ -627,8 +628,8 @@ TEST(Duration_test, CreateDurationFromMinutesFunctionWithMaxMinutesResultsInSatu
     auto sut1 = Duration::minutes(std::numeric_limits<int64_t>::max());
     auto sut2 = Duration::minutes(std::numeric_limits<uint64_t>::max());
 
-    EXPECT_THAT(sut1, Eq(DurationFactory::max()));
-    EXPECT_THAT(sut2, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut1, Eq(DurationAccessor::max()));
+    EXPECT_THAT(sut2, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, CreateDurationFromMinutesFunctionWithNegativeValueIsZero)
@@ -659,9 +660,9 @@ TEST(Duration_test, CreateDurationFromSecondsFunction)
 TEST(Duration_test, CreateDurationFromSecondsFunctionWithMaxSeconds)
 {
     constexpr uint64_t MAX_SECONDS_FROM_SIGNED{static_cast<uint64_t>(std::numeric_limits<int64_t>::max())};
-    constexpr DurationFactory EXPECTED_DURATION_FROM_MAX_SIGNED{MAX_SECONDS_FROM_SIGNED, 0U};
+    constexpr Duration EXPECTED_DURATION_FROM_MAX_SIGNED = createDuration(MAX_SECONDS_FROM_SIGNED, 0U);
     constexpr uint64_t MAX_SECONDS_FROM_USIGNED{std::numeric_limits<uint64_t>::max()};
-    constexpr DurationFactory EXPECTED_DURATION_FROM_MAX_UNSIGNED{MAX_SECONDS_FROM_USIGNED, 0U};
+    constexpr Duration EXPECTED_DURATION_FROM_MAX_UNSIGNED = createDuration(MAX_SECONDS_FROM_USIGNED, 0U);
 
     auto sut1 = Duration::seconds(std::numeric_limits<int64_t>::max());
     auto sut2 = Duration::seconds(std::numeric_limits<uint64_t>::max());
@@ -698,13 +699,13 @@ TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithMultipleMillisecon
 TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithMaxMilliseconds)
 {
     constexpr uint64_t MAX_MILLISECONDS_FROM_SIGNED{static_cast<uint64_t>(std::numeric_limits<int64_t>::max())};
-    constexpr DurationFactory EXPECTED_DURATION_FROM_MAX_SIGNED{MAX_MILLISECONDS_FROM_SIGNED / MILLISECS_PER_SECOND,
-                                                                (MAX_MILLISECONDS_FROM_SIGNED % MILLISECS_PER_SECOND)
-                                                                    * NANOSECS_PER_MILLISECOND};
+    constexpr Duration EXPECTED_DURATION_FROM_MAX_SIGNED =
+        createDuration(MAX_MILLISECONDS_FROM_SIGNED / MILLISECS_PER_SECOND,
+                       (MAX_MILLISECONDS_FROM_SIGNED % MILLISECS_PER_SECOND) * NANOSECS_PER_MILLISECOND);
     constexpr uint64_t MAX_MILLISECONDS_FROM_USIGNED{std::numeric_limits<uint64_t>::max()};
-    constexpr DurationFactory EXPECTED_DURATION_FROM_MAX_UNSIGNED{MAX_MILLISECONDS_FROM_USIGNED / MILLISECS_PER_SECOND,
-                                                                  (MAX_MILLISECONDS_FROM_USIGNED % MILLISECS_PER_SECOND)
-                                                                      * NANOSECS_PER_MILLISECOND};
+    constexpr Duration EXPECTED_DURATION_FROM_MAX_UNSIGNED =
+        createDuration(MAX_MILLISECONDS_FROM_USIGNED / MILLISECS_PER_SECOND,
+                       (MAX_MILLISECONDS_FROM_USIGNED % MILLISECS_PER_SECOND) * NANOSECS_PER_MILLISECOND);
 
     auto sut1 = Duration::milliseconds(std::numeric_limits<int64_t>::max());
     auto sut2 = Duration::milliseconds(std::numeric_limits<uint64_t>::max());
@@ -741,13 +742,13 @@ TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithMultipleMicrosecon
 TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithMaxMicroseconds)
 {
     constexpr uint64_t MAX_MICROSECONDS_FROM_SIGNED{static_cast<uint64_t>(std::numeric_limits<int64_t>::max())};
-    constexpr DurationFactory EXPECTED_DURATION_FROM_MAX_SIGNED{MAX_MICROSECONDS_FROM_SIGNED / MICROSECS_PER_SECONDS,
-                                                                (MAX_MICROSECONDS_FROM_SIGNED % MICROSECS_PER_SECONDS)
-                                                                    * NANOSECS_PER_MICROSECOND};
+    constexpr Duration EXPECTED_DURATION_FROM_MAX_SIGNED =
+        createDuration(MAX_MICROSECONDS_FROM_SIGNED / MICROSECS_PER_SECONDS,
+                       (MAX_MICROSECONDS_FROM_SIGNED % MICROSECS_PER_SECONDS) * NANOSECS_PER_MICROSECOND);
     constexpr uint64_t MAX_MICROSECONDS_FROM_USIGNED{std::numeric_limits<uint64_t>::max()};
-    constexpr DurationFactory EXPECTED_DURATION_FROM_MAX_UNSIGNED{
-        MAX_MICROSECONDS_FROM_USIGNED / MICROSECS_PER_SECONDS,
-        (MAX_MICROSECONDS_FROM_USIGNED % MICROSECS_PER_SECONDS) * NANOSECS_PER_MICROSECOND};
+    constexpr Duration EXPECTED_DURATION_FROM_MAX_UNSIGNED =
+        createDuration(MAX_MICROSECONDS_FROM_USIGNED / MICROSECS_PER_SECONDS,
+                       (MAX_MICROSECONDS_FROM_USIGNED % MICROSECS_PER_SECONDS) * NANOSECS_PER_MICROSECOND);
 
     auto sut1 = Duration::microseconds(std::numeric_limits<int64_t>::max());
     auto sut2 = Duration::microseconds(std::numeric_limits<uint64_t>::max());
@@ -784,11 +785,11 @@ TEST(Duration_test, CreateDurationFromNanosecondsFunctionWithMultipleNanoseconds
 TEST(Duration_test, CreateDurationFromNanosecondsFunction)
 {
     constexpr uint64_t MAX_NANOSECONDS_FROM_SIGNED{static_cast<uint64_t>(std::numeric_limits<int64_t>::max())};
-    constexpr DurationFactory EXPECTED_DURATION_FROM_MAX_SIGNED{MAX_NANOSECONDS_FROM_SIGNED / NANOSECS_PER_SECOND,
-                                                                MAX_NANOSECONDS_FROM_SIGNED % NANOSECS_PER_SECOND};
+    constexpr Duration EXPECTED_DURATION_FROM_MAX_SIGNED = createDuration(
+        MAX_NANOSECONDS_FROM_SIGNED / NANOSECS_PER_SECOND, MAX_NANOSECONDS_FROM_SIGNED % NANOSECS_PER_SECOND);
     constexpr uint64_t MAX_NANOSECONDS_FROM_USIGNED{std::numeric_limits<uint64_t>::max()};
-    constexpr DurationFactory EXPECTED_DURATION_FROM_MAX_UNSIGNED{MAX_NANOSECONDS_FROM_USIGNED / NANOSECS_PER_SECOND,
-                                                                  MAX_NANOSECONDS_FROM_USIGNED % NANOSECS_PER_SECOND};
+    constexpr Duration EXPECTED_DURATION_FROM_MAX_UNSIGNED = createDuration(
+        MAX_NANOSECONDS_FROM_USIGNED / NANOSECS_PER_SECOND, MAX_NANOSECONDS_FROM_USIGNED % NANOSECS_PER_SECOND);
 
     auto sut1 = Duration::nanoseconds(std::numeric_limits<int64_t>::max());
     auto sut2 = Duration::nanoseconds(std::numeric_limits<uint64_t>::max());
@@ -828,8 +829,8 @@ TEST(Duration_test, ConvertDaysFromDurationMoreThanOneDay)
 TEST(Duration_test, ConvertDaysFromMaxDuration)
 {
     constexpr uint64_t SECONDS_PER_DAY{60U * 60U * 24U};
-    constexpr uint64_t EXPECTED_DAYS{std::numeric_limits<DurationFactory::Seconds_t>::max() / SECONDS_PER_DAY};
-    auto sut = DurationFactory::max();
+    constexpr uint64_t EXPECTED_DAYS{std::numeric_limits<DurationAccessor::Seconds_t>::max() / SECONDS_PER_DAY};
+    auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.days(), Eq(EXPECTED_DAYS));
 }
 
@@ -854,8 +855,8 @@ TEST(Duration_test, ConvertHoursFromDurationMoreThanOneHour)
 TEST(Duration_test, ConvertHoursFromMaxDuration)
 {
     constexpr uint64_t SECONDS_PER_HOUR{60U * 60U};
-    constexpr uint64_t EXPECTED_HOURS{std::numeric_limits<DurationFactory::Seconds_t>::max() / SECONDS_PER_HOUR};
-    auto sut = DurationFactory::max();
+    constexpr uint64_t EXPECTED_HOURS{std::numeric_limits<DurationAccessor::Seconds_t>::max() / SECONDS_PER_HOUR};
+    auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.hours(), Eq(EXPECTED_HOURS));
 }
 
@@ -880,8 +881,8 @@ TEST(Duration_test, ConvertMinutesFromDurationMoreThanOneMinute)
 TEST(Duration_test, ConvertMinutesFromMaxDuration)
 {
     constexpr uint64_t SECONDS_PER_MINUTE{60U};
-    constexpr uint64_t EXPECTED_MINUTES{std::numeric_limits<DurationFactory::Seconds_t>::max() / SECONDS_PER_MINUTE};
-    auto sut = DurationFactory::max();
+    constexpr uint64_t EXPECTED_MINUTES{std::numeric_limits<DurationAccessor::Seconds_t>::max() / SECONDS_PER_MINUTE};
+    auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.minutes(), Eq(EXPECTED_MINUTES));
 }
 
@@ -905,15 +906,15 @@ TEST(Duration_test, ConvertSecondsFromDurationMoreThanOneSecond)
 
 TEST(Duration_test, ConvertSecondsFromMaxSecondsMinusOne)
 {
-    constexpr uint64_t EXPECTED_SECONDS{std::numeric_limits<DurationFactory::Seconds_t>::max() - 1U};
-    auto sut = DurationFactory::max() - 1_s;
+    constexpr uint64_t EXPECTED_SECONDS{std::numeric_limits<DurationAccessor::Seconds_t>::max() - 1U};
+    auto sut = DurationAccessor::max() - 1_s;
     EXPECT_THAT(sut.seconds(), Eq(EXPECTED_SECONDS));
 }
 
 TEST(Duration_test, ConvertSecondsFromMaxDuration)
 {
-    constexpr uint64_t EXPECTED_SECONDS{std::numeric_limits<DurationFactory::Seconds_t>::max()};
-    auto sut = DurationFactory::max();
+    constexpr uint64_t EXPECTED_SECONDS{std::numeric_limits<DurationAccessor::Seconds_t>::max()};
+    auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.seconds(), Eq(EXPECTED_SECONDS));
 }
 
@@ -944,7 +945,7 @@ TEST(Duration_test, ConvertMillisecondsFromDurationResultsNotYetInSaturation)
 
 TEST(Duration_test, ConvertMillisecondsFromMaxDurationResultsInSaturation)
 {
-    auto sut = DurationFactory::max();
+    auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.milliSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
 }
 
@@ -975,7 +976,7 @@ TEST(Duration_test, ConvertMicrosecondsFromDurationResultsNotYetInSaturation)
 
 TEST(Duration_test, ConvertMicroecondsFromMaxDurationResultsInSaturation)
 {
-    auto sut = DurationFactory::max();
+    auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.microSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
 }
 
@@ -1006,7 +1007,7 @@ TEST(Duration_test, ConvertNanosecondsFromDurationResultsNotYetInSaturation)
 
 TEST(Duration_test, ConvertNanoecondsFromMaxDurationResultsInSaturation)
 {
-    auto sut = DurationFactory::max();
+    auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.nanoSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
 }
 
@@ -1015,7 +1016,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromZeroDuration)
     constexpr int64_t SECONDS{0};
     constexpr int64_t NANOSECONDS{0};
 
-    DurationFactory duration{SECONDS, NANOSECONDS};
+    auto duration = createDuration(SECONDS, NANOSECONDS);
 
     struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
 
@@ -1028,7 +1029,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationLessThanOneSecon
     constexpr int64_t SECONDS{0};
     constexpr int64_t NANOSECONDS{55};
 
-    DurationFactory duration{SECONDS, NANOSECONDS};
+    auto duration = createDuration(SECONDS, NANOSECONDS);
 
     struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
 
@@ -1041,7 +1042,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationMoreThanOneSecon
     constexpr int64_t SECONDS{44};
     constexpr int64_t NANOSECONDS{55};
 
-    DurationFactory duration{SECONDS, NANOSECONDS};
+    auto duration = createDuration(SECONDS, NANOSECONDS);
 
     struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
 
@@ -1054,7 +1055,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationResultsNotYetInS
     constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    DurationFactory duration{SECONDS, NANOSECONDS};
+    auto duration = createDuration(SECONDS, NANOSECONDS);
 
     struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
 
@@ -1067,7 +1068,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromMaxDurationResultsInSatu
     constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    struct timespec sut = DurationFactory::max().timespec(iox::units::TimeSpecReference::None);
+    struct timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::None);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1081,7 +1082,7 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReference)
     auto timeSinceUnixEpoch = std::chrono::system_clock::now().time_since_epoch();
     auto timeSinceMonotonicEpoch = std::chrono::steady_clock::now().time_since_epoch();
 
-    DurationFactory duration{SECONDS, NANOSECONDS};
+    auto duration = createDuration(SECONDS, NANOSECONDS);
     struct timespec sut = duration.timespec(iox::units::TimeSpecReference::Monotonic);
 
     auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
@@ -1095,7 +1096,7 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReferenceFromMaxDurationResultsI
     constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    struct timespec sut = DurationFactory::max().timespec(iox::units::TimeSpecReference::Monotonic);
+    struct timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::Monotonic);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1108,7 +1109,7 @@ TEST(Duration_test, ConvertTimespecWithEpochReference)
 
     auto timeSinceUnixEpoch = std::chrono::system_clock::now().time_since_epoch();
 
-    DurationFactory duration{SECONDS, NANOSECONDS};
+    auto duration = createDuration(SECONDS, NANOSECONDS);
     struct timespec sut = duration.timespec(iox::units::TimeSpecReference::Epoch);
 
     auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
@@ -1121,7 +1122,7 @@ TEST(Duration_test, ConvertTimespecWithEpochReferenceFromMaxDurationResultsInSat
     constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    struct timespec sut = DurationFactory::max().timespec(iox::units::TimeSpecReference::Epoch);
+    struct timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::Epoch);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1133,7 +1134,7 @@ TEST(Duration_test, ConvertTimespecWithEpochReferenceFromMaxDurationResultsInSat
 
 TEST(Duration_test, OperatorTimevalFromZeroDuration)
 {
-    DurationFactory duration{0U, 0U};
+    auto duration = createDuration(0U, 0U);
 
     struct timeval sut = timeval(duration);
 
@@ -1147,7 +1148,7 @@ TEST(Duration_test, OperatorTimevalFromDurationWithLessThanOneSecond)
     constexpr int64_t MICROSECONDS{222};
     constexpr int64_t ROUND_OFF_NANOSECONDS{666};
 
-    DurationFactory duration{SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS};
+    auto duration = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS);
 
     struct timeval sut = timeval(duration);
 
@@ -1161,7 +1162,7 @@ TEST(Duration_test, OperatorTimevalFromDurationWithMoreThanOneSecond)
     constexpr int64_t MICROSECONDS{222};
     constexpr int64_t ROUND_OFF_NANOSECONDS{666};
 
-    DurationFactory duration{SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS};
+    auto duration = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS);
 
     struct timeval sut = timeval(duration);
 
@@ -1185,7 +1186,7 @@ TEST(Duration_test, OperatorTimevalFromMaxDurationResultsInSaturation)
     using SEC_TYPE = decltype(timeval::tv_sec);
     using USEC_TYPE = decltype(timeval::tv_usec);
 
-    struct timeval sut = timeval(DurationFactory::max());
+    struct timeval sut = timeval(DurationAccessor::max());
 
     EXPECT_THAT(sut.tv_sec, Eq(std::numeric_limits<SEC_TYPE>::max()));
     EXPECT_THAT(sut.tv_usec, Eq(static_cast<USEC_TYPE>(MICROSECS_PER_SECONDS - 1U)));
@@ -1396,7 +1397,7 @@ TEST(Duration_test, AddDurationWithOneZeroDurationsResultsInNoneZeroDuration)
 
 TEST(Duration_test, AddDurationWithSumOfDurationsLessThanOneSecondsResultsInLessThanOneSecond)
 {
-    constexpr DurationFactory EXPECTED_DURATION{0U, 100 * NANOSECS_PER_MICROSECOND + 10U};
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, 100 * NANOSECS_PER_MICROSECOND + 10U);
     auto duration1 = 100_us;
     auto duration2 = 10_ns;
 
@@ -1409,7 +1410,7 @@ TEST(Duration_test, AddDurationWithSumOfDurationsLessThanOneSecondsResultsInLess
 
 TEST(Duration_test, AddDurationWithSumOfDurationsMoreThanOneSecondsResultsInMoreThanOneSecond)
 {
-    constexpr DurationFactory EXPECTED_DURATION{1U, 700 * NANOSECS_PER_MILLISECOND};
+    constexpr Duration EXPECTED_DURATION = createDuration(1U, 700 * NANOSECS_PER_MILLISECOND);
     auto duration1 = 800_ms;
     auto duration2 = 900_ms;
 
@@ -1422,8 +1423,8 @@ TEST(Duration_test, AddDurationWithSumOfDurationsMoreThanOneSecondsResultsInMore
 
 TEST(Duration_test, AddDurationWithOneDurationMoreThanOneSecondsResultsInMoreThanOneSecond)
 {
-    constexpr DurationFactory EXPECTED_DURATION{2U, 700 * NANOSECS_PER_MILLISECOND};
-    auto duration1 = DurationFactory{1U, 800 * NANOSECS_PER_MILLISECOND};
+    constexpr Duration EXPECTED_DURATION = createDuration(2U, 700 * NANOSECS_PER_MILLISECOND);
+    auto duration1 = createDuration(1U, 800 * NANOSECS_PER_MILLISECOND);
     auto duration2 = 900_ms;
 
     auto sut1 = duration1 + duration2;
@@ -1435,9 +1436,9 @@ TEST(Duration_test, AddDurationWithOneDurationMoreThanOneSecondsResultsInMoreTha
 
 TEST(Duration_test, AddDurationWithDurationsMoreThanOneSecondsResultsInMoreThanOneSecond)
 {
-    constexpr DurationFactory EXPECTED_DURATION{3U, 700 * NANOSECS_PER_MILLISECOND};
-    auto duration1 = DurationFactory{1U, 800 * NANOSECS_PER_MILLISECOND};
-    auto duration2 = DurationFactory{1U, 900 * NANOSECS_PER_MILLISECOND};
+    constexpr Duration EXPECTED_DURATION = createDuration(3U, 700 * NANOSECS_PER_MILLISECOND);
+    auto duration1 = createDuration(1U, 800 * NANOSECS_PER_MILLISECOND);
+    auto duration2 = createDuration(1U, 900 * NANOSECS_PER_MILLISECOND);
 
     auto sut1 = duration1 + duration2;
     auto sut2 = duration2 + duration1;
@@ -1448,11 +1449,11 @@ TEST(Duration_test, AddDurationWithDurationsMoreThanOneSecondsResultsInMoreThanO
 
 TEST(Duration_test, AddDurationResultsNotYetInSaturation)
 {
-    constexpr DurationFactory EXPECTED_DURATION{std::numeric_limits<DurationFactory::Seconds_t>::max(),
-                                                NANOSECS_PER_SECOND - 2U};
+    constexpr Duration EXPECTED_DURATION =
+        createDuration(std::numeric_limits<DurationAccessor::Seconds_t>::max(), NANOSECS_PER_SECOND - 2U);
     auto duration1 =
-        DurationFactory{std::numeric_limits<DurationFactory::Seconds_t>::max() - 1U, NANOSECS_PER_SECOND - 1U};
-    auto duration2 = DurationFactory{0U, NANOSECS_PER_SECOND - 1U};
+        createDuration(std::numeric_limits<DurationAccessor::Seconds_t>::max() - 1U, NANOSECS_PER_SECOND - 1U);
+    auto duration2 = createDuration(0U, NANOSECS_PER_SECOND - 1U);
 
     auto sut1 = duration1 + duration2;
     auto sut2 = duration2 + duration1;
@@ -1463,27 +1464,27 @@ TEST(Duration_test, AddDurationResultsNotYetInSaturation)
 
 TEST(Duration_test, AddDurationResultsInSaturationFromNanoseconds)
 {
-    auto duration1 = DurationFactory{std::numeric_limits<DurationFactory::Seconds_t>::max(), NANOSECS_PER_SECOND - 2U};
-    auto duration2 = DurationFactory{0U, 2U};
+    auto duration1 = createDuration(std::numeric_limits<DurationAccessor::Seconds_t>::max(), NANOSECS_PER_SECOND - 2U);
+    auto duration2 = createDuration(0U, 2U);
 
     auto sut1 = duration1 + duration2;
     auto sut2 = duration2 + duration1;
 
-    EXPECT_THAT(sut1, Eq(DurationFactory::max()));
-    EXPECT_THAT(sut2, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut1, Eq(DurationAccessor::max()));
+    EXPECT_THAT(sut2, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, AddDurationResultsInSaturationFromSeconds)
 {
     auto duration1 =
-        DurationFactory{std::numeric_limits<DurationFactory::Seconds_t>::max() - 2U, NANOSECS_PER_SECOND - 1U};
-    auto duration2 = DurationFactory{2U, 0U};
+        createDuration(std::numeric_limits<DurationAccessor::Seconds_t>::max() - 1U, NANOSECS_PER_SECOND - 1U);
+    auto duration2 = createDuration(2U, 0U);
 
     auto sut1 = duration1 + duration2;
     auto sut2 = duration2 + duration1;
 
-    EXPECT_THAT(sut1, Eq(DurationFactory::max()));
-    EXPECT_THAT(sut2, Eq(DurationFactory::max()));
+    EXPECT_THAT(sut1, Eq(DurationAccessor::max()));
+    EXPECT_THAT(sut2, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, SubstractDurationDoesNotChangeOriginalObject)
@@ -1514,8 +1515,8 @@ TEST(Duration_test, SubstractDurationWithTwoZeroDurationsResultsInZeroDuration)
 TEST(Duration_test, SubstractDurationWithDurationsWithSameValueResultsInZeroDuration)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
-    auto duration1 = DurationFactory{10U, 123U};
-    auto duration2 = DurationFactory{10U, 123U};
+    auto duration1 = createDuration(10U, 123U);
+    auto duration2 = createDuration(10U, 123U);
 
     auto sut = duration1 - duration2;
 
@@ -1550,8 +1551,8 @@ TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFro
 TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFromSeconds)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
-    auto duration1 = DurationFactory{10U, 123U};
-    auto duration2 = DurationFactory{100U, 123U};
+    auto duration1 = createDuration(10U, 123U);
+    auto duration2 = createDuration(100U, 123U);
 
     auto sut = duration1 - duration2;
 
@@ -1560,7 +1561,7 @@ TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFro
 
 TEST(Duration_test, SubstractDurationWithZeroDurationsResultsInOriginaDuration)
 {
-    constexpr DurationFactory EXPECTED_DURATION{10U, 42U};
+    constexpr Duration EXPECTED_DURATION = createDuration(10U, 42U);
     auto duration1 = EXPECTED_DURATION;
     auto duration2 = 0_s;
 
@@ -1571,9 +1572,9 @@ TEST(Duration_test, SubstractDurationWithZeroDurationsResultsInOriginaDuration)
 
 TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResultsInMoreThanOneSecond)
 {
-    constexpr DurationFactory EXPECTED_DURATION{1U, 36U};
-    auto duration1 = DurationFactory{1U, 73U};
-    auto duration2 = DurationFactory{0U, 37U};
+    constexpr Duration EXPECTED_DURATION = createDuration(1U, 36U);
+    auto duration1 = createDuration(1U, 73U);
+    auto duration2 = createDuration(0U, 37U);
 
     auto sut = duration1 - duration2;
 
@@ -1582,9 +1583,9 @@ TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResul
 
 TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResultsInLessThanOneSecond)
 {
-    constexpr DurationFactory EXPECTED_DURATION{0U, NANOSECS_PER_SECOND - 36U};
-    auto duration1 = DurationFactory{1U, 37U};
-    auto duration2 = DurationFactory{0U, 73U};
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, NANOSECS_PER_SECOND - 36U);
+    auto duration1 = createDuration(1U, 37U);
+    auto duration2 = createDuration(0U, 73U);
 
     auto sut = duration1 - duration2;
 
@@ -1593,9 +1594,9 @@ TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResul
 
 TEST(Duration_test, SubstractDurationMoreThanOneSecondWithMoreThanOneSecondResultsInLessThanOneSecond)
 {
-    constexpr DurationFactory EXPECTED_DURATION{0U, 36U};
-    auto duration1 = DurationFactory{1U, 73U};
-    auto duration2 = DurationFactory{1U, 37U};
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, 36U);
+    auto duration1 = createDuration(1U, 73U);
+    auto duration2 = createDuration(1U, 37U);
 
     auto sut = duration1 - duration2;
 
@@ -1604,9 +1605,9 @@ TEST(Duration_test, SubstractDurationMoreThanOneSecondWithMoreThanOneSecondResul
 
 TEST(Duration_test, SubstractDurationWithSecondsAndNanosecondsCausingReductionOfSeconds)
 {
-    constexpr DurationFactory EXPECTED_DURATION{0U, NANOSECS_PER_SECOND - 36U};
-    auto duration1 = DurationFactory{2U, 37U};
-    auto duration2 = DurationFactory{1U, 73U};
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, NANOSECS_PER_SECOND - 36U);
+    auto duration1 = createDuration(2U, 37U);
+    auto duration2 = createDuration(1U, 73U);
 
     auto sut = duration1 - duration2;
 
@@ -1778,7 +1779,7 @@ TEST(Duration_test, MultiplyDurationLessThanOneSecondResultsInMoreNanosecondsTha
 {
     constexpr uint64_t MULTIPLICATOR{(1ULL << 32U) * 42U + 73U};
     constexpr Duration DURATION = 473_ms + 578_us + 511_ns;
-    auto EXPECTED_RESULT = DurationFactory{85428177141U, 573034055U};
+    auto EXPECTED_RESULT = createDuration(85428177141U, 573034055U);
 
     auto result = MULTIPLICATOR * DURATION;
     EXPECT_THAT(result, Eq(EXPECTED_RESULT));
@@ -1790,8 +1791,9 @@ TEST(Duration_test, MultiplyDurationResultsNotYetInSaturation)
 {
     constexpr uint64_t MULTIPLICATOR{1343535617188545796U};
     constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
-    constexpr DurationFactory EXPECTED_DURATION{std::numeric_limits<DurationFactory::Seconds_t>::max(), 56194452U};
-    static_assert(EXPECTED_DURATION < DurationFactory::max(),
+    constexpr Duration EXPECTED_DURATION =
+        createDuration(std::numeric_limits<DurationAccessor::Seconds_t>::max(), 56194452U);
+    static_assert(EXPECTED_DURATION < DurationAccessor::max(),
                   "EXPECTED_DURATION too large to exclude saturation! Please decrease!");
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(EXPECTED_DURATION));
@@ -1803,8 +1805,8 @@ TEST(Duration_test, MultiplyDurationResultsInSaturationDueToSeconds)
     constexpr uint64_t MULTIPLICATOR{1343535617188545797U};
     constexpr Duration DURATION = 14_s;
 
-    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
-    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyDurationResultsInSaturationDueToNanoseconds)
@@ -1812,8 +1814,8 @@ TEST(Duration_test, MultiplyDurationResultsInSaturationDueToNanoseconds)
     constexpr uint64_t MULTIPLICATOR{1343535617188545797U};
     constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
 
-    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
-    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyZeroDurationWithNaNDoubleResultsInZeroDuration)
@@ -1823,7 +1825,7 @@ TEST(Duration_test, MultiplyZeroDurationWithNaNDoubleResultsInZeroDuration)
 
 TEST(Duration_test, MultiplyMaxDurationWithNaNDoubleResultsInMaxDuration)
 {
-    EXPECT_THAT(DurationFactory::max() * NAN, Eq(DurationFactory::max()));
+    EXPECT_THAT(DurationAccessor::max() * NAN, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyZeroDurationWithPosInfDoubleResultsInZeroDuration)
@@ -1833,7 +1835,7 @@ TEST(Duration_test, MultiplyZeroDurationWithPosInfDoubleResultsInZeroDuration)
 
 TEST(Duration_test, MultiplyMaxDurationWithPosInfDoubleResultsInMaxDuration)
 {
-    EXPECT_THAT(DurationFactory::max() * INFINITY, Eq(DurationFactory::max()));
+    EXPECT_THAT(DurationAccessor::max() * INFINITY, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyZeroDurationWithNegInfDoubleResultsInZeroDuration)
@@ -1843,14 +1845,14 @@ TEST(Duration_test, MultiplyZeroDurationWithNegInfDoubleResultsInZeroDuration)
 
 TEST(Duration_test, MultiplyMaxDurationWithNegInfDoubleResultsInZeroDuration)
 {
-    EXPECT_THAT(DurationFactory::max() * (INFINITY * -1.0), Eq(0_ns));
+    EXPECT_THAT(DurationAccessor::max() * (INFINITY * -1.0), Eq(0_ns));
 }
 
 TEST(Duration_test, MultiplyDurationWithMinimalFloatResultsInZero)
 {
     constexpr float MULTIPLICATOR{std::numeric_limits<float>::min()};
     constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
-    auto EXPECTED_DURATION = DurationFactory{0U, 0U};
+    auto EXPECTED_DURATION = createDuration(0U, 0U);
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(EXPECTED_DURATION));
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_DURATION));
@@ -1860,7 +1862,7 @@ TEST(Duration_test, MultiplyDurationWithMinimalDoubleResultsInZero)
 {
     constexpr double MULTIPLICATOR{std::numeric_limits<double>::min()};
     constexpr Duration DURATION = 13_s + 730_ms + 37_ns;
-    auto EXPECTED_DURATION = DurationFactory{0U, 0U};
+    auto EXPECTED_DURATION = createDuration(0U, 0U);
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(EXPECTED_DURATION));
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_DURATION));
@@ -1868,12 +1870,12 @@ TEST(Duration_test, MultiplyDurationWithMinimalDoubleResultsInZero)
 
 TEST(Duration_test, MultiplyMaxDurationWithFloatOneResultsInMaxDuration)
 {
-    EXPECT_THAT(DurationFactory::max() * 1.0, Eq(DurationFactory::max()));
+    EXPECT_THAT(DurationAccessor::max() * 1.0, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyMaxDurationWithDoubleOneResultsInMaxDuration)
 {
-    EXPECT_THAT(DurationFactory::max() * 1.0, Eq(DurationFactory::max()));
+    EXPECT_THAT(DurationAccessor::max() * 1.0, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToSeconds)
@@ -1881,8 +1883,8 @@ TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToSeconds)
     constexpr float MULTIPLICATOR{1343535617188545797.0};
     constexpr Duration DURATION = 14_s;
 
-    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
-    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToSeconds)
@@ -1890,8 +1892,8 @@ TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToSeconds)
     constexpr double MULTIPLICATOR{1343535617188545797.0};
     constexpr Duration DURATION = 14_s;
 
-    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
-    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToNanoseconds)
@@ -1899,8 +1901,8 @@ TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToNanoseconds
     constexpr float MULTIPLICATOR{1343535617188545797.0};
     constexpr Duration DURATION = 13_s + 930_ms + 37_ns;
 
-    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
-    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToNanoseconds)
@@ -1908,8 +1910,8 @@ TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToNanosecond
     constexpr double MULTIPLICATOR{1343535617188545797.0};
     constexpr Duration DURATION = 13_s + 930_ms + 37_ns;
 
-    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationFactory::max()));
-    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationFactory::max()));
+    EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));
+    EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
 TEST(Duration_test, StreamingOperator)
