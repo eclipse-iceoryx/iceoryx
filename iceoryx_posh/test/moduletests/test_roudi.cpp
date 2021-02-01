@@ -419,8 +419,7 @@ TEST_F(RouDiBaseClass_test, ProcessMessageCreateNodeError)
                            RouDi::RoudiStartupParameters{roudi::MonitoringMode::ON, true}));
 
     MqMessage message;
-    message << mqMessageTypeToString(MqMessageType::CREATE_NODE) << "AppName"
-            << "123123";
+    message << mqMessageTypeToString(MqMessageType::CREATE_NODE) << "AppName";
     auto cmd = runtime::stringToMqMessageType(message.getElementAtIndex(0).c_str());
     std::string processName = message.getElementAtIndex(1);
 
