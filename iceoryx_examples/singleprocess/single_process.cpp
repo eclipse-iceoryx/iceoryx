@@ -54,7 +54,7 @@ void publisher()
     std::string greenRightArrow("\033[32m->\033[m ");
     while (keepRunning.load())
     {
-        publisher.loan().and_then([&](auto& sample) {
+        publisher.loan_1_0().and_then([&](auto& sample) {
             sample->counter = counter++;
             consoleOutput(std::string("Sending   " + greenRightArrow + std::to_string(sample->counter)));
             sample.publish();
@@ -82,12 +82,17 @@ void subscriber()
 
             do
             {
-                subscriber.take()
-                    .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
+                subscriber.take_1_0()
+                    .and_then([&](auto& sample) {
                         consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
                     })
-                    .if_empty([&] { hasMoreSamples = false; })
-                    .or_else([](auto) { std::cout << "Error receiving sample: " << std::endl; });
+                    .or_else([&](auto& result) {
+                        hasMoreSamples = false;
+                        if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                        {
+                            std::cout << "Error receiving chunk." << std::endl;
+                        }
+                    });
             } while (hasMoreSamples);
         }
 

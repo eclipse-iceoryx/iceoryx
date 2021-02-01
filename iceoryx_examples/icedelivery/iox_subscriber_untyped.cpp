@@ -54,7 +54,7 @@ int main()
 
                     // note that we explicitly have to release the data
                     // and afterwards the pointer access is undefined behavior
-                    subscriber.releaseChunk(object);
+                    subscriber.releaseChunk(data);
                 })
                 .or_else([](auto& result) {
                     if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
