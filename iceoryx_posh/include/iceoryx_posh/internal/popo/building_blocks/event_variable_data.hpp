@@ -15,6 +15,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_EVENT_VARIABLE_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_EVENT_VARIABLE_DATA_HPP
 
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 #include <atomic>
@@ -23,10 +24,8 @@ namespace iox
 {
 namespace popo
 {
-class EventVariableData
+struct EventVariableData : public ConditionVariableData
 {
-  public:
-  private:
     cxx::vector<std::atomic_bool, 100> m_activeNotifications;
 };
 } // namespace popo

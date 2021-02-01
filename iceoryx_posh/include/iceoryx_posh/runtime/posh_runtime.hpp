@@ -17,6 +17,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
@@ -122,6 +123,11 @@ class PoshRuntime
     /// @brief request the RouDi daemon to create an condition variable
     /// @return pointer to a created condition variable data
     popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept;
+
+    popo::EventVariableData* getMiddlewareEventVariable() noexcept
+    {
+        return nullptr;
+    }
 
     /// @brief request the RouDi daemon to create a node
     /// @param[in] nodeProperty class which contains all properties which the node should have
