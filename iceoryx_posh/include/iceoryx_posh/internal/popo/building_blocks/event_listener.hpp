@@ -15,6 +15,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_EVENT_LISTENER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_EVENT_LISTENER_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
@@ -29,20 +30,46 @@ class EventListener
 {
   public:
     EventListener(EventVariableData& dataRef) noexcept
+        : m_pointerToEventVariableData(&dataRef)
     {
     }
 
-    cxx::vector<uint64_t, 100> wait() noexcept
+    cxx::vector<uint64_t, MAX_NUMBER_OF_EVENT_VARIABLES> wait() noexcept
     {
-    }
-
-    cxx::vector<uint64_t, 100> timedWait(const units::Duration timeToWait) noexcept
-    {
+        cxx::vector<uint64_t, MAX_NUMBER_OF_EVENT_VARIABLES> activeNotifications;
+        if (getMembers()->m_semaphore.wait().has_error())
+        {
+            errorHandler(Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+        }
+        else
+        {
+            // return vector of true entries in activeNotifications
+            // mutex?
+            for (uint64_t i = 0U; i < getMembers()->m_activeNotifications.size(); i++)
+            {
+                if (getMembers()->m_activeNotifications[i])
+                {
+                    activeNotifications.emplace_back(i);
+                }
+            }
+        }
+        return activeNotifications;
     }
 
     void reset(const uint64_t index) noexcept
     {
+        // count the semaphores down to zero?
+        m_pointerToEventVariableData->m_activeNotifications[index] = false;
     }
+
+  private:
+    const EventVariableData* getMembers() const noexcept
+    {
+        return m_pointerToEventVariableData;
+    }
+
+  private:
+    EventVariableData* m_pointerToEventVariableData{nullptr};
 };
 } // namespace popo
 } // namespace iox
