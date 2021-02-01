@@ -26,7 +26,8 @@ namespace popo
 {
 struct EventVariableData : public ConditionVariableData
 {
-    cxx::vector<std::atomic_bool, 100> m_activeNotifications;
+    // todo: C array, Events per active callset
+    cxx::vector<std::atomic_bool, MAX_NUMBER_OF_EVENT_VARIABLES> m_activeNotifications;
 };
 } // namespace popo
 } // namespace iox
