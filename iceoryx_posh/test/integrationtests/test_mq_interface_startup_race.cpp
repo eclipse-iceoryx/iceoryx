@@ -112,7 +112,7 @@ class CMqInterfaceStartupRace_test : public Test
 };
 
 #if !defined(__APPLE__)
-TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
+TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
 {
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
@@ -162,7 +162,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
     roudi.join();
 }
 
-TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
+TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
 {
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
