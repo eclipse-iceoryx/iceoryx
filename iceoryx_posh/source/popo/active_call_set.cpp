@@ -46,7 +46,7 @@ void ActiveCallSet::addEvent(void* const origin, const uint64_t eventType, const
         return;
     }
 
-    m_events[index].init(origin, eventType, callback);
+    m_events[index].init(m_indexManager, index, origin, eventType, callback);
 }
 
 void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType) noexcept
@@ -58,8 +58,7 @@ void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType) no
             continue;
         }
 
-        m_events[index].reset();
-        m_indexManager.push(index);
+        m_events[index].toBeDeleted();
 
         break;
     }
@@ -87,42 +86,84 @@ void ActiveCallSet::Event_t::operator()() noexcept
             expectedState, CallbackState::ACTIVE, std::memory_order_acq_rel, std::memory_order_relaxed))
     {
         m_callback(m_origin);
-        m_callbackState.store(CallbackState::INACTIVE, std::memory_order_relaxed);
+
+        expectedState = CallbackState::ACTIVE;
+        if (!m_callbackState.compare_exchange_strong(
+                expectedState, CallbackState::INACTIVE, std::memory_order_relaxed, std::memory_order_relaxed))
+        {
+            if (expectedState == CallbackState::TO_BE_DELETED)
+            {
+                m_callbackState.exchange(CallbackState::EMPTY, std::memory_order_relaxed);
+                reset();
+            }
+            else
+            {
+                // FATAL logic error
+            }
+        }
+    }
+    else
+    {
+        // FATAL logic error if expectedState == ACTIVE, TO_BE_DELETED
     }
 }
 
-void ActiveCallSet::Event_t::init(void* const origin,
-                                  const uint64_t eventType,
-                                  const Callback_t<void> callback) noexcept
+void ActiveCallSet::Event_t::toBeDeleted() noexcept
 {
-    set(origin, eventType, callback);
-    m_callbackState.store(CallbackState::INACTIVE, std::memory_order_release);
+    CallbackState expectedState = CallbackState::INACTIVE;
+    CallbackState newState = CallbackState::EMPTY;
+
+    while (!m_callbackState.compare_exchange_strong(
+        expectedState, newState, std::memory_order_relaxed, std::memory_order_relaxed))
+    {
+        if (expectedState == CallbackState::EMPTY || expectedState == CallbackState::TO_BE_DELETED)
+        {
+            return;
+        }
+        else if (expectedState == CallbackState::ACTIVE)
+        {
+            newState = CallbackState::TO_BE_DELETED;
+        }
+        else if (expectedState == CallbackState::INACTIVE)
+        {
+            newState = CallbackState::EMPTY;
+        }
+    }
+
+    if (newState == CallbackState::EMPTY)
+    {
+        reset();
+    }
 }
 
 void ActiveCallSet::Event_t::reset() noexcept
 {
-    CallbackState expectedState = CallbackState::INACTIVE;
-    while (!m_callbackState.compare_exchange_strong(
-        expectedState, CallbackState::DELETED, std::memory_order_relaxed, std::memory_order_relaxed))
-    {
-        if (expectedState == CallbackState::DELETED)
-        {
-            return;
-        }
-        expectedState = CallbackState::INACTIVE;
-    }
-
     set(nullptr, 0U, nullptr);
+    m_indexManager->push(m_index);
+    m_indexManager = nullptr;
+    m_index = 0U;
+}
+
+void ActiveCallSet::Event_t::init(concurrent::LoFFLi& indexManager,
+                                  const uint32_t index,
+                                  void* const origin,
+                                  const uint64_t eventType,
+                                  const Callback_t<void> callback) noexcept
+{
+    m_indexManager = &indexManager;
+    m_index = index;
+    set(origin, eventType, callback);
+    m_callbackState.store(CallbackState::INACTIVE, std::memory_order_release);
 }
 
 bool ActiveCallSet::Event_t::isEqualTo(const void* const origin, const uint64_t eventType) const noexcept
 {
-    if (m_callbackState.load(std::memory_order_relaxed) == CallbackState::DELETED)
+    auto currentCallbackState = m_callbackState.load(std::memory_order_relaxed);
+    if (currentCallbackState == CallbackState::TO_BE_DELETED || currentCallbackState == CallbackState::EMPTY)
     {
         return false;
     }
 
-    // to ensure correctness when removeEvent is called twice concurrently for the same event
     uint64_t setCounter = 0U;
     do
     {

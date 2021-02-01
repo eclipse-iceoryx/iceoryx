@@ -79,14 +79,20 @@ class ActiveCallSet
     {
         INACTIVE,
         ACTIVE,
-        DELETED,
+        TO_BE_DELETED,
+        EMPTY
     };
 
     struct Event_t
     {
         bool isEqualTo(const void* const origin, const uint64_t eventType) const noexcept;
+        void toBeDeleted() noexcept;
         void reset() noexcept;
-        void init(void* const origin, const uint64_t eventType, const Callback_t<void> callback) noexcept;
+        void init(concurrent::LoFFLi& indexManager,
+                  const uint32_t index,
+                  void* const origin,
+                  const uint64_t eventType,
+                  const Callback_t<void> callback) noexcept;
         void set(void* const origin, const uint64_t eventType, const Callback_t<void> callback) noexcept;
         void operator()() noexcept;
 
@@ -95,7 +101,10 @@ class ActiveCallSet
         std::atomic<uint64_t> m_setCounter{0U};
 
         Callback_t<void> m_callback = nullptr;
-        std::atomic<CallbackState> m_callbackState{CallbackState::DELETED};
+        std::atomic<CallbackState> m_callbackState{CallbackState::EMPTY};
+
+        uint32_t m_index = 0U;
+        concurrent::LoFFLi* m_indexManager = nullptr;
     };
 
     std::thread m_thread;
