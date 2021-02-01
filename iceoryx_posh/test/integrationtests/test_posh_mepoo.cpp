@@ -161,9 +161,13 @@ class Mepoo_IntegrationTest : public Test
 
     void PrintTiming(iox::units::Duration start)
     {
-        std::cerr << "RouDi startup took " << start.milliSeconds<int>() << " milliseconds, "
-                  << "(which is " << start.seconds<int>() << " seconds)"
-                  << "(which is " << start.minutes<int>() << " minutes)" << std::endl;
+        auto totalMillisconds = start.milliSeconds();
+        auto milliseconds = totalMillisconds % 1000U;
+        auto totalSeconds = totalMillisconds / 1000U;
+        auto seconds = totalSeconds % 60U;
+        auto minutes = totalSeconds / 60U;
+        std::cerr << "RouDi startup took " << minutes << " minutes " << seconds << " seconds and " << milliseconds
+                  << " milliseconds" << std::endl;
     }
 
     template <uint32_t size>

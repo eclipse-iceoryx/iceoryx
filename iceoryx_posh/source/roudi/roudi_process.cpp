@@ -157,8 +157,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
             i = 0;
 
             // give processes some time to terminate before checking their state
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.milliSeconds<int64_t>()));
+            std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.milliSeconds()));
 
             for (auto& process : m_processList)
             {
@@ -205,7 +204,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
             if (processStillRunning[i])
             {
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' is still running after SIGTERM was sent " << processKillDelay.seconds<int>()
+                          << "' is still running after SIGTERM was sent " << processKillDelay.seconds()
                           << " seconds ago. RouDi is sending SIGKILL now.";
                 processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL);
             }
@@ -224,7 +223,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
                 if (processStillRunning[i])
                 {
                     LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                              << "' is still running after SIGKILL was sent " << processKillDelay.seconds<int>()
+                              << "' is still running after SIGKILL was sent " << processKillDelay.seconds()
                               << " seconds ago. RouDi is ignoring this process.";
                 }
                 ++i;
@@ -756,7 +755,7 @@ void ProcessManager::run() noexcept
 {
     monitorProcesses();
     discoveryUpdate();
-    std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.milliSeconds<int64_t>()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.milliSeconds()));
 }
 
 popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service,
@@ -809,17 +808,14 @@ void ProcessManager::monitorProcesses() noexcept
     {
         if (processIterator->isMonitored())
         {
-            auto timediff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp
-                                                                                     - processIterator->getTimestamp())
-                                   .count();
+            auto timediff = units::Duration(currentTimestamp - processIterator->getTimestamp());
 
             static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
                           "keep alive timeout too small");
-            if (std::chrono::milliseconds(timediff_ms)
-                > std::chrono::milliseconds(runtime::PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
+            if (timediff > runtime::PROCESS_KEEP_ALIVE_TIMEOUT)
             {
                 LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
-                          << timediff_ms << " milliseconds ago) --> removing it";
+                          << timediff.milliSeconds() << " milliseconds ago) --> removing it";
 
                 // note: if we would want to use the removeProcess function, it would search for the process again
                 // (but we already found it and have an iterator to remove it)

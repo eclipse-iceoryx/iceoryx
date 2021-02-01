@@ -54,8 +54,8 @@ void IntrospectionApp::printHelp() noexcept
                  "  -h, --help        Display help and exit.\n"
                  "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
                  "                    [min: "
-              << MIN_UPDATE_PERIOD.milliSeconds<uint32_t>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<uint32_t>()
-              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<uint32_t>()
+              << MIN_UPDATE_PERIOD.milliSeconds() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds()
+              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds()
               << "]\n"
                  "  -v, --version     Display latest official iceoryx release version and exit.\n"
                  "\nSubscription:\n"
@@ -96,10 +96,16 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
 
         case 't':
         {
-            /// @todo Calling milliseconds() should not be ambiguous, extend units::Duration?
-            iox::units::Duration l_rate =
-                iox::units::Duration::milliseconds(static_cast<long double>(std::atoi(optarg)));
-            updatePeriodMs = bounded(l_rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
+            uint64_t newUpdatePeriodMs;
+            if (cxx::convert::fromString(optarg, newUpdatePeriodMs))
+            {
+                iox::units::Duration rate = iox::units::Duration::milliseconds(newUpdatePeriodMs);
+                updatePeriodMs = bounded(rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
+            }
+            else
+            {
+                std::cout << "Invalid argument for `t`! Will be ignored!";
+            }
             break;
         }
 
@@ -513,7 +519,7 @@ bool IntrospectionApp::waitForSubscription(Subscriber& port)
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
-        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds()));
     }
 
     return subscribed;
@@ -765,13 +771,13 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         refreshTerminal();
 
         // Watch user input for updatePeriodMs
-        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds<uint64_t>());
+        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds());
         auto tWaitBegin = std::chrono::system_clock::now();
         while (tWaitRemaining.count() >= 0)
         {
             waitForUserInput(static_cast<int32_t>(tWaitRemaining.count()));
             auto tWaitElapsed = std::chrono::system_clock::now() - tWaitBegin;
-            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds<uint64_t>())
+            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds())
                              - std::chrono::duration_cast<std::chrono::milliseconds>(tWaitElapsed);
         }
     }

@@ -94,8 +94,9 @@ TYPED_TEST(IpcChannel_test, createNoName)
 
 TYPED_TEST(IpcChannel_test, createWithLeadingSlash)
 {
-    auto serverResult = TestFixture::IpcChannelType::create(slashName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
-    EXPECT_FALSE(serverResult.has_error());  
+    auto serverResult =
+        TestFixture::IpcChannelType::create(slashName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    EXPECT_FALSE(serverResult.has_error());
 }
 
 TYPED_TEST(IpcChannel_test, createAgain)
@@ -341,11 +342,11 @@ TYPED_TEST(IpcChannel_test, timedSend)
         {
             ASSERT_THAT(result.get_error(), Eq(IpcChannelError::TIMEOUT));
             // Do not exceed timeout
-            auto timeDiff_ms = duration_cast<milliseconds>(after - before);
-            EXPECT_LT(timeDiff_ms.count(), (maxTimeout + maxTimeoutTolerance).milliSeconds<int64_t>());
+            auto timeDiff = units::Duration(after - before);
+            EXPECT_LT(timeDiff, maxTimeout + maxTimeoutTolerance);
 
             // Check if timedSend has blocked for ~maxTimeout and has not returned immediately
-            EXPECT_GT(timeDiff_ms.count(), (maxTimeout - minTimeoutTolerance).milliSeconds<int64_t>());
+            EXPECT_GT(timeDiff, maxTimeout - minTimeoutTolerance);
 
             break;
         }
@@ -378,10 +379,10 @@ TYPED_TEST(IpcChannel_test, timedReceive)
     ASSERT_THAT(received.get_error(), Eq(IpcChannelError::TIMEOUT));
 
     // Do not exceed timeout
-    auto timeDiff_ms = duration_cast<milliseconds>(after - before);
-    EXPECT_LT(timeDiff_ms.count(), (timeout + maxTimeoutTolerance).milliSeconds<int64_t>());
+    auto timeDiff = units::Duration(after - before);
+    EXPECT_LT(timeDiff, timeout + maxTimeoutTolerance);
 
     // Check if timedReceive has blocked for ~timeout and has not returned immediately
-    EXPECT_GT(timeDiff_ms.count(), (timeout - minTimeoutTolerance).milliSeconds<int64_t>());
+    EXPECT_GT(timeDiff, timeout - minTimeoutTolerance);
 }
 #endif
