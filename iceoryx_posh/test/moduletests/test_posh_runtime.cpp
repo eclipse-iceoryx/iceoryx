@@ -263,6 +263,8 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 13U;
+    publisherOptions.nodeName = m_nodeName;
+
     const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
                                                                  publisherOptions,
                                                                  iox::runtime::PortConfigInfo(11U, 22U, 33U));
@@ -358,6 +360,7 @@ TEST_F(PoshRuntime_test, MiddlewareSubscriberMaxCapacityExceededReturnMaxCapacit
     constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
     subscriberOptions.historyRequest = 13U;
     subscriberOptions.queueCapacity = MAX_QUEUE_CAPACITY + 1U;
+    
     auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
                                                              subscriberOptions,
                                                              iox::runtime::PortConfigInfo(11U, 22U, 33U));
@@ -370,6 +373,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.historyRequest = 13U;
     subscriberOptions.queueCapacity = 42U;
+    subscriberOptions.nodeName = m_nodeName;
+
     auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
                                                              subscriberOptions,
                                                              iox::runtime::PortConfigInfo(11U, 22U, 33U));
