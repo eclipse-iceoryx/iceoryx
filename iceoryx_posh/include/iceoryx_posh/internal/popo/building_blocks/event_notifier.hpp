@@ -27,11 +27,20 @@ class EventNotifier
 {
   public:
     EventNotifier(EventVariableData& dataRef, const uint64_t index) noexcept
+        : m_pointerToEventVariableData(&dataRef)
+        , m_notificationIndex(index)
     {
     }
+
     void notify()
     {
+        m_pointerToEventVariableData->m_activeNotifications[m_notificationIndex] = true;
+        m_pointerToEventVariableData->m_semaphore.post();
     }
+
+  private:
+    EventVariableData* m_pointerToEventVariableData{nullptr};
+    uint64_t m_notificationIndex{0U};
 };
 } // namespace popo
 } // namespace iox
