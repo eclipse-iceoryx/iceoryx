@@ -11,19 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_RUNTIME_MESSAGE_QUEUE_INTERFACE_HPP
-#define IOX_POSH_RUNTIME_MESSAGE_QUEUE_INTERFACE_HPP
+#ifndef IOX_POSH_RUNTIME_IPC_BASE_HPP
+#define IOX_POSH_RUNTIME_IPC_BASE_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
-#include "iceoryx_utils/platform/mqueue.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
@@ -176,7 +174,7 @@ class IpcBase
 
     friend class IpcInterfaceUser;
     friend class IpcInterfaceCreator;
-    friend class MqRuntimeInterface;
+    friend class IpcRuntimeInterface;
 
   protected:
     /// @brief Closes and opens an existing message queue using the same parameters as before.
@@ -240,135 +238,7 @@ class IpcBase
     IpcChannelType m_mq;
 };
 
-/// @brief Class for handling a message queue via mq_open and mq_close.
-class IpcInterfaceUser : public IpcBase
-{
-  public:
-    /// @brief Constructs a IpcInterfaceUser and opens a message queue with
-    ///         mq_open. If mq_open fails the method isInitialized returns
-    ///         false. Therefore, isInitialized should always be called
-    ///         before using this class.
-    /// @param[in] name Unique identifier of the message queue which
-    ///         is used for mq_open
-    /// @param[in] maxMessages maximum number of queued messages
-    /// @param[in] message size maximum message size
-    IpcInterfaceUser(const ProcessName_t& name,
-                    const uint64_t maxMessages = APP_MAX_MESSAGES,
-                    const uint64_t messageSize = APP_MESSAGE_SIZE) noexcept;
-
-    /// @brief The copy constructor and assignment operator are deleted since
-    ///         this class manages a resource (message queue) which cannot
-    ///         be copied. Since move is not needed it is also deleted.
-    IpcInterfaceUser(const IpcInterfaceUser&) = delete;
-    IpcInterfaceUser& operator=(const IpcInterfaceUser&) = delete;
-
-    /// @brief Not needed therefore deleted
-    IpcInterfaceUser(IpcInterfaceUser&&) = delete;
-    IpcInterfaceUser& operator=(IpcInterfaceUser&&) = delete;
-};
-
-/// @brief Class for handling a message queue via mq_open and mq_unlink
-///             and mq_close
-class IpcInterfaceCreator : public IpcBase
-{
-  public:
-    /// @brief Constructs a IpcInterfaceCreator and opens a new message
-    ///         queue with mq_open. If mq_open fails it tries to mq_unlink
-    ///         the message queue and tries mq_open again. If it still fails
-    ///         isInitialized will return false. Therefore, isInitialized
-    ///         should always be called before using this class.
-    /// @param[in] name Unique identifier of the message queue which is
-    ///         is used for mq_open
-    /// @param[in] maxMessages maximum number of queued messages
-    /// @param[in] message size maximum message size
-    IpcInterfaceCreator(const ProcessName_t& name,
-                       const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
-                       const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
-
-    /// @brief The copy constructor and assignment operator is deleted since
-    ///         this class manages a resource (message queue) which cannot
-    ///         be copied. Move is also not needed, it is also deleted.
-    IpcInterfaceCreator(const IpcInterfaceCreator&) = delete;
-    IpcInterfaceCreator& operator=(const IpcInterfaceCreator&) = delete;
-
-    /// @brief Not needed therefore deleted
-    IpcInterfaceCreator(IpcInterfaceCreator&&) = delete;
-    IpcInterfaceCreator& operator=(IpcInterfaceCreator&&) = delete;
-
-  private:
-    friend class MqRuntimeInterface;
-    void cleanupResource();
-};
-
-class MqRuntimeInterface
-{
-  public:
-    /// @brief Runtime Interface for the own message queue and the one to the RouDi daemon
-    /// @param[in] roudiName name of the RouDi message queue
-    /// @param[in] appName name of the appplication and its message queue
-    /// @param[in] roudiWaitingTimeout timeout for searching the RouDi message queue
-    MqRuntimeInterface(const ProcessName_t& roudiName,
-                       const ProcessName_t& appName,
-                       const units::Duration roudiWaitingTimeout) noexcept;
-    ~MqRuntimeInterface() = default;
-
-    /// @brief Not needed therefore deleted
-    MqRuntimeInterface(const MqRuntimeInterface&) = delete;
-    MqRuntimeInterface& operator=(const MqRuntimeInterface&) = delete;
-    MqRuntimeInterface(MqRuntimeInterface&&) = delete;
-    MqRuntimeInterface& operator=(MqRuntimeInterface&&) = delete;
-
-    /// @brief sends the keep alive trigger to the RouDi daemon
-    /// @return true if sending was successful, false if not
-    bool sendKeepalive() noexcept;
-
-    /// @brief send a request to the RouDi daemon
-    /// @param[in] msg request to RouDi
-    /// @param[out] answer response from RouDi
-    /// @return true if communication was successful, false if not
-    bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept;
-
-    /// @brief send a message to the RouDi daemon
-    /// @param[in] msg message which will be send to RouDi
-    /// @return true if communication was successful, otherwise false
-    bool sendMessageToRouDi(const IpcMessage& msg) noexcept;
-
-    /// @brief get the adress offset of the segment manager
-    /// @return address offset as RelativePointer::offset_t
-    RelativePointer::offset_t getSegmentManagerAddressOffset() const noexcept;
-
-    /// @brief get the size of the management shared memory object
-    /// @return size in bytes
-    size_t getShmTopicSize() noexcept;
-
-    /// @brief get the segment id of the shared memory object
-    /// @return segment id
-    uint64_t getSegmentId() const noexcept;
-
-  private:
-    enum class RegAckResult
-    {
-        SUCCESS,
-        TIMEOUT
-    };
-
-    /// @brief
-    /// @return
-    void waitForRoudi(cxx::DeadlineTimer& timer) noexcept;
-
-    /// @brief
-    /// @return
-    RegAckResult waitForRegAck(int64_t transmissionTimestamp) noexcept;
-
-  private:
-    ProcessName_t m_appName;
-    cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
-    IpcInterfaceCreator m_AppMqInterface;
-    IpcInterfaceUser m_RoudiMqInterface;
-    size_t m_shmTopicSize{0U};
-    uint64_t m_segmentId{0U};
-};
 } // namespace runtime
 } // namespace iox
 
-#endif // IOX_POSH_RUNTIME_MESSAGE_QUEUE_INTERFACE_HPP
+#endif // IOX_POSH_RUNTIME_IPC_BASE_HPP

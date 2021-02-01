@@ -14,7 +14,6 @@
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -22,6 +21,7 @@
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/posix_wrapper/thread.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 
 namespace iox
 {

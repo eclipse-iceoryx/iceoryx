@@ -15,7 +15,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "test.hpp"
 
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
@@ -34,7 +34,7 @@ using namespace iox::posix;
 using iox::runtime::IpcBase;
 using iox::runtime::IpcMessage;
 using iox::runtime::IpcMessageType;
-using iox::runtime::MqRuntimeInterface;
+using iox::runtime::IpcRuntimeInterface;
 
 
 #if !defined(__APPLE__)
@@ -156,7 +156,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
         }
     });
 
-    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -189,7 +189,8 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
             std::cerr << "system call failed with error: " << sysC.getErrorString();
             exit(EXIT_FAILURE);
         }
-        auto newRoudi = IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto newRoudi =
+            IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);
@@ -212,7 +213,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
         }
     });
 
-    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -252,7 +253,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         }
     });
 
-    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();

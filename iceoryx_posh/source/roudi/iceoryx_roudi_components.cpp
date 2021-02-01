@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_base.hpp"
 
 namespace iox
 {

@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
-#include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/timespec.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <thread>
@@ -27,200 +22,9 @@ namespace iox
 {
 namespace runtime
 {
-IpcMessageType stringToIpcMessageType(const char* str) noexcept
-{
-    std::underlying_type<IpcMessageType>::type msg;
-    bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
-    noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
-    noError &= noError ? !(static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
-                           || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg)
-                       : false;
-    return noError ? (static_cast<IpcMessageType>(msg)) : IpcMessageType::NOTYPE;
-}
-
-std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
-{
-    return std::to_string(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
-}
-
-IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
-{
-    std::underlying_type<IpcMessageErrorType>::type msg;
-    bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
-    noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
-    noError &= noError
-                   ? !(static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::BEGIN) >= msg
-                       || static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::END) <= msg)
-                   : false;
-    return noError ? (static_cast<IpcMessageErrorType>(msg)) : IpcMessageErrorType::NOTYPE;
-}
-
-std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
-{
-    return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
-}
-
-IpcBase::IpcBase(const ProcessName_t& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
-    : m_interfaceName(InterfaceName)
-{
-    m_maxMessages = maxMessages;
-    m_maxMessageSize = messageSize;
-    if (m_maxMessageSize > posix::MessageQueue::MAX_MESSAGE_SIZE)
-    {
-        LogWarn() << "Message size too large, reducing from " << messageSize << " to "
-                  << posix::MessageQueue::MAX_MESSAGE_SIZE;
-        m_maxMessageSize = posix::MessageQueue::MAX_MESSAGE_SIZE;
-    }
-}
-
-bool IpcBase::receive(IpcMessage& answer) const noexcept
-{
-    auto message = m_mq.receive();
-    if (message.has_error())
-    {
-        return false;
-    }
-
-    return IpcBase::setMessageFromString(message.value().c_str(), answer);
-}
-
-bool IpcBase::timedReceive(const units::Duration timeout, IpcMessage& answer) const noexcept
-{
-    return !m_mq.timedReceive(timeout)
-                .and_then([&answer](auto& message) { IpcBase::setMessageFromString(message.c_str(), answer); })
-                .has_error()
-           && answer.isValid();
-}
-
-bool IpcBase::setMessageFromString(const char* buffer, IpcMessage& answer) noexcept
-{
-    answer.setMessage(buffer);
-    if (!answer.isValid())
-    {
-        LogError() << "The received message " << answer.getMessage() << " is not valid";
-        return false;
-    }
-    return true;
-}
-
-bool IpcBase::send(const IpcMessage& msg) const noexcept
-{
-    if (!msg.isValid())
-    {
-        LogError() << "Trying to send the message " << msg.getMessage() << "with mq_send() which "
-                   << "does not follow the specified syntax.";
-        return false;
-    }
-
-    auto logLengthError = [&msg](posix::IpcChannelError& error) {
-        if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
-        {
-            const size_t messageSize =
-                static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
-            LogError() << "msg size of " << messageSize << "bigger than configured max message size";
-        }
-    };
-    return !m_mq.send(msg.getMessage()).or_else(logLengthError).has_error();
-}
-
-bool IpcBase::timedSend(const IpcMessage& msg, units::Duration timeout) const noexcept
-{
-    if (!msg.isValid())
-    {
-        LogError() << "Trying to send the message " << msg.getMessage() << " with mq_timedsend() which "
-                   << "does not follow the specified syntax.";
-        return false;
-    }
-
-    auto logLengthError = [&msg](posix::IpcChannelError& error) {
-        if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
-        {
-            const size_t messageSize =
-                static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
-            LogError() << "msg size of " << messageSize << "bigger than configured max message size";
-        }
-    };
-    return !m_mq.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
-}
-
-const ProcessName_t& IpcBase::getInterfaceName() const noexcept
-{
-    return m_interfaceName;
-}
-
-bool IpcBase::isInitialized() const noexcept
-{
-    return m_mq.isInitialized();
-}
-
-bool IpcBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
-{
-    m_mq.destroy();
-
-    m_channelSide = channelSide;
-    IpcChannelType::create(
-        m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .and_then([this](auto& mq) { this->m_mq = std::move(mq); });
-
-    return m_mq.isInitialized();
-}
-
-bool IpcBase::closeMessageQueue() noexcept
-{
-    return !m_mq.destroy().has_error();
-}
-
-bool IpcBase::reopen() noexcept
-{
-    return openMessageQueue(m_channelSide);
-}
-
-bool IpcBase::mqMapsToFile() noexcept
-{
-    return !m_mq.isOutdated().value_or(true);
-}
-
-bool IpcBase::hasClosableMessageQueue() const noexcept
-{
-    return m_mq.isInitialized();
-}
-
-void IpcBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
-{
-    if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
-    {
-        LogWarn() << "MQ still there, doing an unlink of " << name;
-    }
-}
-
-IpcInterfaceUser::IpcInterfaceUser(const ProcessName_t& name,
-                                 const uint64_t maxMessages,
-                                 const uint64_t messageSize) noexcept
-    : IpcBase(name, maxMessages, messageSize)
-{
-    openMessageQueue(posix::IpcChannelSide::CLIENT);
-}
-
-IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
-                                       const uint64_t maxMessages,
-                                       const uint64_t messageSize) noexcept
-    : IpcBase(name, maxMessages, messageSize)
-{
-    // check if the mq is still there (e.g. because of no proper termination
-    // of the process)
-    cleanupOutdatedMessageQueue(name);
-
-    openMessageQueue(posix::IpcChannelSide::SERVER);
-}
-
-void IpcInterfaceCreator::cleanupResource()
-{
-    m_mq.destroy();
-}
-
-MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
-                                       const ProcessName_t& appName,
-                                       const units::Duration roudiWaitingTimeout) noexcept
+IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
+                                         const ProcessName_t& appName,
+                                         const units::Duration roudiWaitingTimeout) noexcept
     : m_appName(appName)
     , m_AppMqInterface(appName)
     , m_RoudiMqInterface(roudiName)
@@ -331,19 +135,19 @@ MqRuntimeInterface::MqRuntimeInterface(const ProcessName_t& roudiName,
     }
 }
 
-bool MqRuntimeInterface::sendKeepalive() noexcept
+bool IpcRuntimeInterface::sendKeepalive() noexcept
 {
     return m_RoudiMqInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_appName});
 }
 
-RelativePointer::offset_t MqRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
+RelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
 {
     cxx::Ensures(m_segmentManagerAddressOffset.has_value()
                  && "No segment manager available! Should have been fetched in the c'tor");
     return m_segmentManagerAddressOffset.value();
 }
 
-bool MqRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
+bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
 {
     if (!m_RoudiMqInterface.send(msg))
     {
@@ -360,7 +164,7 @@ bool MqRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& a
     return true;
 }
 
-bool MqRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
+bool IpcRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
 {
     if (!m_RoudiMqInterface.send(msg))
     {
@@ -370,12 +174,12 @@ bool MqRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
     return true;
 }
 
-size_t MqRuntimeInterface::getShmTopicSize() noexcept
+size_t IpcRuntimeInterface::getShmTopicSize() noexcept
 {
     return m_shmTopicSize;
 }
 
-void MqRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
+void IpcRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
 {
     bool printWaitingWarning = true;
     bool printFoundMessage = false;
@@ -404,7 +208,7 @@ void MqRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
     }
 }
 
-MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t transmissionTimestamp) noexcept
+IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t transmissionTimestamp) noexcept
 {
     // wait for the register ack from the RouDi daemon. If we receive another response we do a retry
     // @todo if message queues are properly setup and cleaned up, always the expected REG_ACK should be received here,
@@ -456,10 +260,9 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
     return RegAckResult::TIMEOUT;
 }
 
-uint64_t MqRuntimeInterface::getSegmentId() const noexcept
+uint64_t IpcRuntimeInterface::getSegmentId() const noexcept
 {
     return m_segmentId;
 }
-
 } // namespace runtime
 } // namespace iox

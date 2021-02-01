@@ -21,7 +21,7 @@
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
@@ -193,7 +193,7 @@ class PoshRuntime
     mutable std::mutex m_appMqRequestMutex;
 
     // IPC channel interface for POSIX IPC from RouDi
-    MqRuntimeInterface m_MqInterface;
+    IpcRuntimeInterface m_MqInterface;
     // Shared memory interface for POSIX IPC from RouDi
     SharedMemoryUser m_ShmInterface;
     popo::ApplicationPort m_applicationPort;

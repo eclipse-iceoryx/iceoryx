@@ -1,0 +1,96 @@
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#ifndef IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
+#define IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
+
+#include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
+
+namespace iox
+{
+namespace runtime
+{
+class IpcRuntimeInterface
+{
+  public:
+    /// @brief Runtime Interface for the own message queue and the one to the RouDi daemon
+    /// @param[in] roudiName name of the RouDi message queue
+    /// @param[in] appName name of the appplication and its message queue
+    /// @param[in] roudiWaitingTimeout timeout for searching the RouDi message queue
+    IpcRuntimeInterface(const ProcessName_t& roudiName,
+                       const ProcessName_t& appName,
+                       const units::Duration roudiWaitingTimeout) noexcept;
+    ~IpcRuntimeInterface() = default;
+
+    /// @brief Not needed therefore deleted
+    IpcRuntimeInterface(const IpcRuntimeInterface&) = delete;
+    IpcRuntimeInterface& operator=(const IpcRuntimeInterface&) = delete;
+    IpcRuntimeInterface(IpcRuntimeInterface&&) = delete;
+    IpcRuntimeInterface& operator=(IpcRuntimeInterface&&) = delete;
+
+    /// @brief sends the keep alive trigger to the RouDi daemon
+    /// @return true if sending was successful, false if not
+    bool sendKeepalive() noexcept;
+
+    /// @brief send a request to the RouDi daemon
+    /// @param[in] msg request to RouDi
+    /// @param[out] answer response from RouDi
+    /// @return true if communication was successful, false if not
+    bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept;
+
+    /// @brief send a message to the RouDi daemon
+    /// @param[in] msg message which will be send to RouDi
+    /// @return true if communication was successful, otherwise false
+    bool sendMessageToRouDi(const IpcMessage& msg) noexcept;
+
+    /// @brief get the adress offset of the segment manager
+    /// @return address offset as RelativePointer::offset_t
+    RelativePointer::offset_t getSegmentManagerAddressOffset() const noexcept;
+
+    /// @brief get the size of the management shared memory object
+    /// @return size in bytes
+    size_t getShmTopicSize() noexcept;
+
+    /// @brief get the segment id of the shared memory object
+    /// @return segment id
+    uint64_t getSegmentId() const noexcept;
+
+  private:
+    enum class RegAckResult
+    {
+        SUCCESS,
+        TIMEOUT
+    };
+
+    /// @brief
+    /// @return
+    void waitForRoudi(cxx::DeadlineTimer& timer) noexcept;
+
+    /// @brief
+    /// @return
+    RegAckResult waitForRegAck(int64_t transmissionTimestamp) noexcept;
+
+  private:
+    ProcessName_t m_appName;
+    cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
+    IpcInterfaceCreator m_AppMqInterface;
+    IpcInterfaceUser m_RoudiMqInterface;
+    size_t m_shmTopicSize{0U};
+    uint64_t m_segmentId{0U};
+};
+
+} // namespace runtime
+} // namespace iox
+
+#endif // IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
