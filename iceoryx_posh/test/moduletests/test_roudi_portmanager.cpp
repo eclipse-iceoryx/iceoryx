@@ -63,7 +63,6 @@ class PortManager_test : public Test
     uint16_t m_instIdCounter, m_eventIdCounter, m_sIdCounter;
 
     iox::ProcessName_t m_Process{"TestProcess"};
-    iox::NodeName_t m_Node{"TestNode"};
 
     void SetUp() override
     {
@@ -124,10 +123,6 @@ class PortManager_test : public Test
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
-    void InterOpWait()
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
 };
 
 
@@ -572,80 +567,6 @@ TEST_F(PortManager_test, PortDestroy)
     }
 }
 
-TEST_F(PortManager_test, CheckNodeOverflowErrorReturnsnullptrForAcquireNodeData)
-{
-    std::string nodename = "nodeName";
-
-    for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; i++)
-    {
-        auto newNodeName = nodename + std::to_string(i);
-        auto nodePointer = m_portManager->acquireNodeData(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName),
-                                                          iox::NodeName_t(iox::cxx::TruncateToCapacity, newNodeName));
-        EXPECT_NE(nodePointer, nullptr);
-    }
-
-    { // test if overflow errors get hit
-
-        auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-            [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-                errorHandlerCalled = true;
-            });
-
-        auto nodePointer = m_portManager->acquireNodeData(m_Process, m_Node);
-        EXPECT_EQ(nodePointer, nullptr);
-        EXPECT_TRUE(errorHandlerCalled);
-    }
-
-    // delete one and add one should be possible now
-    {
-        unsigned int testi = 0;
-        auto newNodeName = nodename + std::to_string(testi);
-        m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName));
-
-        auto nodePointer = m_portManager->acquireNodeData(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newNodeName),
-                                                          iox::NodeName_t(iox::cxx::TruncateToCapacity, newNodeName));
-        EXPECT_NE(nodePointer, nullptr);
-    }
-}
-
-TEST_F(PortManager_test, UseDestroyNodeReturnsNotNullPtrToAcquireNodeData)
-{
-    std::vector<iox::runtime::NodeData*> nodeContainer;
-    std::string nodeName = "nodeName";
-
-    // first aquire all possible condition variables
-    for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; i++)
-    {
-        auto newnodeName = nodeName + std::to_string(i);
-        auto nodeDataResult =
-            m_portManager->acquireNodeData(m_Process, iox::NodeName_t(iox::cxx::TruncateToCapacity, newnodeName));
-        EXPECT_NE(nodeDataResult, nullptr);
-        nodeContainer.push_back(nodeDataResult);
-    }
-
-    // so now no one should be available
-    {
-        auto nodeDataResult = m_portManager->acquireNodeData(m_Process, m_Node);
-        EXPECT_EQ(nodeDataResult, nullptr);
-    }
-
-    // set the destroy flag and let the discovery loop take care
-    for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; i++)
-    {
-        nodeContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
-    }
-    m_portManager->doDiscovery();
-    nodeContainer.clear(); // These pointers are dangling now
-
-    // so we should able to get some more now
-    for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; i++)
-    {
-        auto nodeDataResult = m_portManager->acquireNodeData(m_Process, m_Node);
-        EXPECT_NE(nodeDataResult, nullptr);
-    }
-}
-
 TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfacePortData)
 {
     std::vector<iox::popo::InterfacePortData*> interfaceContainer;
@@ -683,7 +604,7 @@ TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfaceP
     }
 }
 
-TEST_F(PortManager_test, OfferPublisherServiceReturnsServiceRegistryChangeCounter)
+TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounter)
 {
     auto serviceCounter = m_portManager->serviceRegistryChangeCounter();
     auto initialCount = serviceCounter->load();
@@ -692,12 +613,11 @@ TEST_F(PortManager_test, OfferPublisherServiceReturnsServiceRegistryChangeCounte
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, m_Process, m_payloadMemoryManager, m_Node, PortConfigInfo())
+                {1, 1, 1}, publisherOptions, m_Process, m_payloadMemoryManager, PortConfigInfo())
             .value());
 
     publisher.offer();
     m_portManager->doDiscovery();
-    this->InterOpWait();
 
     EXPECT_TRUE(initialCount + 1 == serviceCounter->load());
 }
