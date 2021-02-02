@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -ex
+
+WORKSPACE=$(pwd)
+echo $WORKSPACE
+
+echo "TODO: Actually run Axivion analysis"
+exit 1
