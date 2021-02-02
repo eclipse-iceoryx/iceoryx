@@ -125,7 +125,7 @@ void RouDi::processRuntimeMessages()
     {
         // read RouDi's IPC channel
         runtime::MqMessage message;
-        if (roudiMqInterface.timedReceive(m_ipcChannelTimeout, message))
+        if (roudiMqInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToMqMessageType(message.getElementAtIndex(0).c_str());
             std::string processName = message.getElementAtIndex(1);
