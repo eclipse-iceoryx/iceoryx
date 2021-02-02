@@ -49,8 +49,8 @@ inline vector<T, Capacity>::vector(const uint64_t count)
                   << std::endl;
     }
 
-    m_size = std::min(count, Capacity);
-    for (uint64_t i = 0U; i < m_size; ++i)
+    m_container.set_size(std::min(count, Capacity));
+    for (uint64_t i = 0U; i < size(); ++i)
     {
         new (&at(i)) T();
     }
