@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/internal/popo/building_blocks/event_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 
 #include "test.hpp"
+#include "testutils/timing_test.hpp"
+
+#include <thread>
 
 using namespace ::testing;
 using namespace iox::popo;
@@ -23,6 +27,7 @@ using namespace iox::popo;
 class EventVariable_test : public Test
 {
   public:
+    using notificationVector = iox::cxx::vector<uint64_t, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>;
     EventVariableData m_eventVarData{"Ferdinand"};
 };
 
@@ -66,7 +71,6 @@ TEST_F(EventVariable_test, NotifyActivatesCorrectIndex)
     }
 }
 
-
 TEST_F(EventVariable_test, NotifyActivatesNoIndexIfIndexIsTooLarge)
 {
     uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
@@ -78,3 +82,83 @@ TEST_F(EventVariable_test, NotifyActivatesNoIndexIfIndexIsTooLarge)
     }
 }
 
+TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
+{
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
+    EventNotifier notifier(m_eventVarData, index);
+    EventListener listener(m_eventVarData);
+
+    notifier.notify();
+    const auto& activeNotifications = listener.wait();
+    ASSERT_THAT(activeNotifications.size(), Eq(1U));
+    EXPECT_THAT(activeNotifications[0], Eq(index));
+}
+
+TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAndWait)
+{
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
+    EventNotifier notifier1(m_eventVarData, index);
+    EventNotifier notifier2(m_eventVarData, 0U);
+    EventListener listener(m_eventVarData);
+
+    notifier1.notify();
+    notifier2.notify();
+    const auto& activeNotifications = listener.wait();
+    ASSERT_THAT(activeNotifications.size(), Eq(2U));
+    EXPECT_THAT(activeNotifications[0], Eq(0U));
+    EXPECT_THAT(activeNotifications[1], Eq(index));
+}
+
+TEST_F(EventVariable_test, GetEmptyNotificationVectorAfterNotifyWithTooLargeAndWait)
+{
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET + 1U;
+    EventNotifier notifier(m_eventVarData, index);
+    EventListener listener(m_eventVarData);
+
+    notifier.notify();
+    const auto& activeNotifications = listener.wait();
+    EXPECT_THAT(activeNotifications.size(), Eq(0U));
+}
+
+TEST_F(EventVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
+{
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
+    EventNotifier notifier(m_eventVarData, index);
+    EventListener listener(m_eventVarData);
+    notificationVector activeNotifications;
+
+    std::thread waiter([&] {
+        activeNotifications = listener.wait();
+        ASSERT_THAT(activeNotifications.size(), Eq(1U));
+        EXPECT_THAT(activeNotifications[0], Eq(index));
+    });
+
+    notifier.notify();
+    waiter.join();
+}
+
+TIMING_TEST_F(EventVariable_test, WaitBlocks, Repeat(5), [&] {
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
+    EventNotifier notifier(m_eventVarData, index);
+    EventListener listener(m_eventVarData);
+    notificationVector activeNotifications;
+    iox::posix::Semaphore semaphore =
+        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
+    std::atomic_bool hasWaited{false};
+
+    std::thread waiter([&] {
+        semaphore.post();
+        activeNotifications = listener.wait();
+        hasWaited.store(true, std::memory_order_relaxed);
+        ASSERT_THAT(activeNotifications.size(), Eq(1U));
+        EXPECT_THAT(activeNotifications[0], Eq(index));
+    });
+
+    semaphore.wait();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    hasWaited.store(false, std::memory_order_relaxed);
+    notifier.notify();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    hasWaited.store(true, std::memory_order_relaxed);
+    waiter.join();
+})
