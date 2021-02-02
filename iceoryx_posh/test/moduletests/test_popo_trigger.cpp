@@ -310,7 +310,7 @@ TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfRequirementsAreFullfilled)
     Trigger sut2(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 891U,
+                 892U,
                  TriggerClass::callback);
 
 
@@ -318,7 +318,7 @@ TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfRequirementsAreFullfilled)
     EXPECT_TRUE(sut2.isLogicalEqualTo(sut1));
 }
 
-TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfTriggerIdDiffers)
+TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfOnlyTriggerIdDiffers)
 {
     Trigger sut1(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
@@ -333,8 +333,8 @@ TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfTriggerIdDiffers)
                  TriggerClass::callback);
 
 
-    EXPECT_FALSE(sut1.isLogicalEqualTo(sut2));
-    EXPECT_FALSE(sut2.isLogicalEqualTo(sut1));
+    EXPECT_TRUE(sut1.isLogicalEqualTo(sut2));
+    EXPECT_TRUE(sut2.isLogicalEqualTo(sut1));
 }
 
 TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfHasTriggeredCallbackDiffers)

@@ -38,8 +38,8 @@ inline cxx::expected<ActiveCallSetError> ActiveCallSet::attachEvent(T& eventOrig
                     internal::callsetCallback<T>,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
-            EventAttorney::enableEvent(eventOrigin,
-                                       TriggerHandle(m_eventVariable, {*this, &ActiveCallSet::removeTrigger}, eventId));
+            EventAttorney::enableEvent(
+                eventOrigin, TriggerHandle(*m_eventVariable, {*this, &ActiveCallSet::removeTrigger}, eventId));
         });
 }
 
@@ -55,7 +55,7 @@ ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRe
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(eventOrigin,
-                                       TriggerHandle(m_eventVariable, {*this, &ActiveCallSet::removeTrigger}, eventId),
+                                       TriggerHandle(*m_eventVariable, {*this, &ActiveCallSet::removeTrigger}, eventId),
                                        eventType);
         });
 }

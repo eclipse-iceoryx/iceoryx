@@ -20,18 +20,18 @@ namespace iox
 {
 namespace popo
 {
-TriggerHandle::TriggerHandle(EventVariableData* const eventVariableDataPtr,
+TriggerHandle::TriggerHandle(EventVariableData& eventVariableDataPtr,
                              const cxx::MethodCallback<void, uint64_t> resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
-    : TriggerHandle(static_cast<ConditionVariableData*>(eventVariableDataPtr), resetCallback, uniqueTriggerId)
+    : TriggerHandle(static_cast<ConditionVariableData&>(eventVariableDataPtr), resetCallback, uniqueTriggerId)
 {
     m_doesContainEventVariable = true;
 }
 
-TriggerHandle::TriggerHandle(ConditionVariableData* const conditionVariableDataPtr,
+TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableDataPtr,
                              const cxx::MethodCallback<void, uint64_t> resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
-    : m_conditionVariableDataPtr(conditionVariableDataPtr)
+    : m_conditionVariableDataPtr(&conditionVariableDataPtr)
     , m_resetCallback(resetCallback)
     , m_uniqueTriggerId(uniqueTriggerId)
 {
