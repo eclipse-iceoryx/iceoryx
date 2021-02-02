@@ -30,25 +30,30 @@ namespace popo
 {
 enum class ActiveCallSetError
 {
-
+    ACTIVE_CALL_SET_FULL,
+    EVENT_ALREADY_ATTACHED,
 };
 
 class ActiveCallSet
 {
   public:
     template <typename T>
-    using Callback_t = void (*)(T* const);
-    using TranslationCallback_t = void (*)(void* const, void (*const)(void* const));
+    using CallbackRef_t = void (&)(T* const);
+    using TranslationCallbackRef_t = void (&)(void* const, void (*const)(void* const));
+
+    template <typename T>
+    using CallbackPtr_t = void (*)(T* const);
+    using TranslationCallbackPtr_t = void (*)(void* const, void (*const)(void* const));
 
     ActiveCallSet() noexcept;
     ~ActiveCallSet();
 
     template <typename T>
-    cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, const Callback_t<T> eventCallback) noexcept;
+    cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
 
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<ActiveCallSetError>
-    attachEvent(T& eventOrigin, const EventType eventType, const Callback_t<T> eventCallback) noexcept;
+    attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept;
 
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
     void detachEvent(T& eventOrigin, const EventType eventType) noexcept;
@@ -56,37 +61,48 @@ class ActiveCallSet
     template <typename T>
     void detachEvent(T& eventOrigin) noexcept;
 
+  protected:
+    ActiveCallSet(EventVariableData* eventVariable) noexcept;
+
   private:
     class Event_t;
 
     void threadLoop() noexcept;
-    void addEvent(void* const origin,
-                  const uint64_t eventType,
-                  const Callback_t<void> callback,
-                  const TranslationCallback_t translationCallback) noexcept;
-    void removeEvent(void* const origin, const uint64_t eventType) noexcept;
+    cxx::expected<ActiveCallSetError> addEvent(void* const origin,
+                                               const uint64_t eventType,
+                                               const uint64_t eventTypeHash,
+                                               CallbackRef_t<void> callback,
+                                               TranslationCallbackRef_t translationCallback) noexcept;
+    void removeEvent(void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept;
+
+    void removeTrigger(const uint64_t index) noexcept;
 
   private:
     class Event_t
     {
       public:
-        bool resetIfEqualTo(const void* const origin, const uint64_t eventType) noexcept;
+        bool isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept;
+        bool resetIfEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept;
+        bool reset() noexcept;
         void init(void* const origin,
                   const uint64_t eventType,
-                  const Callback_t<void> callback,
-                  const TranslationCallback_t translationCallback) noexcept;
+                  const uint64_t eventTypeHash,
+                  CallbackRef_t<void> callback,
+                  TranslationCallbackRef_t translationCallback) noexcept;
         void executeCallback() noexcept;
         bool isInitialized() const noexcept;
 
       private:
         void* m_origin = nullptr;
         uint64_t m_eventType = 0U;
-        Callback_t<void> m_callback = nullptr;
-        TranslationCallback_t m_translationCallback = nullptr;
+        uint64_t m_eventTypeHash = 0U;
+        CallbackPtr_t<void> m_callback = nullptr;
+        TranslationCallbackPtr_t m_translationCallback = nullptr;
     };
 
     std::thread m_thread;
     concurrent::smart_lock<Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
+    std::mutex m_addEventMutex;
 
     std::atomic_bool m_wasDtorCalled{false};
     EventVariableData* m_eventVariable = nullptr;
