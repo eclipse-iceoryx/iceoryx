@@ -100,6 +100,9 @@ add_library(iceoryx_posh
     source/popo/building_blocks/condition_variable_data.cpp    
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
+    source/popo/building_blocks/event_variable_data.cpp    
+    source/popo/building_blocks/event_listener.cpp    
+    source/popo/building_blocks/event_notifier.cpp    
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
     source/popo/active_call_set.cpp
