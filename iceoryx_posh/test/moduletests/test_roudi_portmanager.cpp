@@ -122,7 +122,6 @@ class PortManager_test : public Test
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-
 };
 
 
@@ -331,6 +330,7 @@ TEST_F(PortManager_test, InterfacesOverflow)
     {
         unsigned int testi = 0;
         auto newItfName = itf + std::to_string(testi);
+        // this is done because there is no removeInterfaceData method in the PortManager class
         m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
 
         auto interfacePointer = m_portManager->acquireInterfacePortData(
@@ -368,6 +368,7 @@ TEST_F(PortManager_test, ApplicationsOverflow)
     {
         unsigned int testi = 0;
         auto newAppName = app + std::to_string(testi);
+        // this is done because there is no removeApplicationData method in the PortManager class
         m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newAppName));
 
         auto appPointer =
@@ -406,6 +407,7 @@ TEST_F(PortManager_test, ConditionVariablesOverflow)
     {
         unsigned int testi = 0;
         auto newProcessName = process + std::to_string(testi);
+        // this is done because there is no removeConditionVariableData method in the PortManager class
         m_portManager->deletePortsOfProcess(iox::ProcessName_t(iox::cxx::TruncateToCapacity, newProcessName));
 
         auto conditionVariableDataResult = m_portManager->acquireConditionVariableData(
@@ -424,7 +426,7 @@ TEST_F(PortManager_test, ConditionVariablesDestroy)
     for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
     {
         auto conditionVariableDataResult = m_portManager->acquireConditionVariableData("JustFollowTheHypnoToad");
-        EXPECT_FALSE(conditionVariableDataResult.has_error());
+        ASSERT_FALSE(conditionVariableDataResult.has_error());
         condVarContainer.push_back(conditionVariableDataResult.value());
     }
 
@@ -449,6 +451,124 @@ TEST_F(PortManager_test, ConditionVariablesDestroy)
         EXPECT_FALSE(conditionVariableDataResult.has_error());
     }
 }
+
+TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
+{
+    std::string process = "Process";
+    std::string node = "Node";
+
+    for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+        iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, node + std::to_string(i));
+        auto nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
+        EXPECT_THAT(nodeData.has_error(), Eq(false));
+        EXPECT_THAT(nodeData.value()->m_node, StrEq(newNodeName));
+        EXPECT_THAT(nodeData.value()->m_process, StrEq(newProcessName));
+    }
+}
+
+TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
+{
+    std::string process = "Process";
+    std::string node = "Node";
+
+    // first acquire all possible NodeData
+    for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+        iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, node + std::to_string(i));
+        auto nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
+        ASSERT_THAT(nodeData.has_error(), Eq(false));
+    }
+
+    // test if overflow errors get hit
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
+
+    auto nodeData = m_portManager->acquireNodeData("AnotherProcess", "AnotherNode");
+    EXPECT_THAT(nodeData.has_error(), Eq(true));
+    EXPECT_THAT(errorHandlerCalled, Eq(true));
+    EXPECT_THAT(nodeData.get_error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
+}
+
+TEST_F(PortManager_test, DeletingNodeWorks)
+{
+    std::string process = "Process";
+    std::string node = "Node";
+
+    // first acquire all possible NodeData
+    for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+        iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, node + std::to_string(i));
+        auto nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
+        ASSERT_THAT(nodeData.has_error(), Eq(false));
+    }
+
+    // test if overflow errors get hit
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
+
+    auto nodeData = m_portManager->acquireNodeData("AnotherProcess", "AnotherNode");
+    ASSERT_THAT(nodeData.has_error(), Eq(true));
+    ASSERT_THAT(errorHandlerCalled, Eq(true));
+    ASSERT_THAT(nodeData.get_error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
+
+    // delete one and add one NodeData should be possible now
+    unsigned int i = 0U;
+    iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+    iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, node + std::to_string(i));
+    // this is done because there is no removeNodeData method in the PortManager class
+    m_portManager->deletePortsOfProcess(newProcessName);
+
+    nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
+    EXPECT_THAT(nodeData.has_error(), Eq(false));
+    EXPECT_THAT(nodeData.value()->m_node, StrEq(newNodeName));
+    EXPECT_THAT(nodeData.value()->m_process, StrEq(newProcessName));
+}
+
+
+TEST_F(PortManager_test, DestroyNodeDataAndAddNewNodeDataSucceeds)
+{
+    iox::ProcessName_t process = "Humuhumunukunukuapua'a";
+    iox::NodeName_t node = "Taumatawhakatangihangakoauauotamateaturipukakapikimaungahoronukupokaiwhenuakitanatahu";
+    std::vector<iox::runtime::NodeData*> nodeContainer;
+
+    // first acquire all possible NodeData
+    for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        auto nodeData = m_portManager->acquireNodeData(process, node);
+        ASSERT_FALSE(nodeData.has_error());
+        nodeContainer.push_back(nodeData.value());
+    }
+
+    // so now no NodeData should be available
+    auto nodeData = m_portManager->acquireNodeData(process, node);
+    EXPECT_THAT(nodeData.has_error(), Eq(true));
+
+    // set the destroy flag and let the discovery loop take care
+    for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        nodeContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    }
+    m_portManager->doDiscovery();
+    nodeContainer.clear();
+
+    // so we should be able to get some more now
+    for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        auto nodeData = m_portManager->acquireNodeData(process, node);
+        EXPECT_THAT(nodeData.has_error(), Eq(false));
+    }
+}
+
 
 TEST_F(PortManager_test, PortDestroy)
 {
@@ -612,8 +732,7 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
 
     PublisherPortUser publisher(
         m_portManager
-            ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, m_Process, m_payloadMemoryManager, PortConfigInfo())
+            ->acquirePublisherPortData({1, 1, 1}, publisherOptions, m_Process, m_payloadMemoryManager, PortConfigInfo())
             .value());
 
     publisher.offer();
