@@ -48,21 +48,24 @@ UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. Iceory
 
 In iceoryx are scripts available to do the scan on your own. Additionally the Scans are running on the CI in every Pull-Request.
 As Requirement you should install the clang compiler:
-```
+```bash
 sudo apt install clang
 ```
 
 Then you need to compile the iceoryx with the sanitizer flags:
-```
+```bash
 ./tools/iceoryx_build_test.sh build-strict build-all sanitize clang clean
 ```
 After that we can run the tests with enabled sanitizer options:
-```
+```bash
 cd build
 ../tools/run_all_tests.sh
 ```
 When the tests are running without errors then it is fine, else an error report is shown with a stacktrace to find the place where the leak occurs. If the leak comes from an external dependency or shall be handled later then it is possible to set a function on a suppression list.
 This should be only rarely used and only in coordination with an iceoryx maintainer.
+
+**NOTE**
+Iceoryx needs to be build as static library for working with sanitizer flags. The script does it automatically.
 
 ## Iceoryx library build
 
@@ -71,10 +74,22 @@ where the end-user can easily find it with the cmake command `find-package(...)`
 In the default case the iceoryx libraries are installed by `make install` into `/usr/lib` which need root access. To avoid that cmake gives you the possibility to install the libs into a custom folder.
 This can be done by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
 
-Iceoryx_meta is a Cmake file which collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for building. 
+Iceoryx_meta is a CMake file which collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for building. 
 The alternate solution is provided for Ubuntu-users by having a build script `iceoryx_build_test.sh` in the tools folder.
 
-Per default iceoryx is build as shared libraries because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
-This is done by the flag `BUILD_SHARED_LIBS` which is set to ON per default. If you want to have static libraries, just pass `-DBUILD_SHARED_LIBS=OFF` to Cmake or use `build-static` as flag in the build script.
+Per default iceoryx is build as static libraries for usability.
+Additionally we offer to build as shared because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
+This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as flag in the build script.
+
+If iceoryx libs are build as shared libraries and you installed them in a custom path (e.g. build/install/prefix) you need to set
+the `LD_LIBRARY_PATH` to the directory with the libiceoryx_.so files. This can be done by calling:
+```bash
+export LD_LIBRARY_PATH=/your/path/to/iceoryx/libs
+```
+or you can set it directly:
+```bash
+LD_LIBRARY_PATH=/your/path/to/lib iox-roudi
+```
 
 If you want to share the iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will be build it in `build_package`.
+

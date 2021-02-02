@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,11 +50,48 @@ class UntypedSubscriberImpl
     using BaseSubscriber::getUid;
     using BaseSubscriber::hasMissedSamples;
     using BaseSubscriber::hasSamples;
-    using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseQueuedSamples;
+
     using BaseSubscriber::subscribe;
-    using BaseSubscriber::take;
+    using BaseSubscriber::take; // iox-#408 replace
     using BaseSubscriber::unsubscribe;
+
+    // iox-#408
+    // the 1_0 suffix is only used temporarily to not cause regressions in all examples and tests and keep the changes
+    // as small as possible, it will replace the function without suffix in a follow-up pull request (which changes
+    // all examples)
+
+    cxx::expected<const void*, ChunkReceiveResult> take_1_0() noexcept;
+
+    // iox-#408
+    // the untyped API is supposed to deal with chunks, hence the renaming iox #408 remove comment
+    // calling it chunks looks inappropriate in the function names (use data instead of chunks?)...
+
+    ///
+    /// @brief hasChunks Check if chunks are available.
+    /// @return True if a new chunk is available.
+    ///
+    bool hasChunks() const noexcept;
+
+    ///
+    /// @brief hasMissedChunks Check if chunks have been missed since the last hasMissedData() call.
+    /// @return True if chunks have been missed.
+    /// @details Chunks may be missed due to overflowing receive queue.
+    ///
+    bool hasMissedChunks() noexcept;
+
+    ///
+    /// @brief releaseQueuedChunks Releases any unread queued data chunk.
+    ///
+    void releaseQueuedChunks() noexcept;
+
+    ///
+    /// @brief releaseChunk Releases the chunk provided by the payload pointer.
+    /// @param payload pointer to the payload of the chunk to be released
+    /// @details The chunk must have been previosly provided by take_1_0 and
+    ///          not have been already released.
+    ///
+    void releaseChunk(const void* payload) noexcept;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;

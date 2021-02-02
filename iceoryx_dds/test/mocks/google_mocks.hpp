@@ -65,7 +65,7 @@ class MockSubscriber
     MOCK_CONST_METHOD0(hasSamples, bool());
     MOCK_METHOD0(hasMissedSamples, bool());
     MOCK_METHOD0_T(take,
-                   iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError>());
+                   iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveResult>());
     MOCK_METHOD0(releaseQueuedSamples, void());
     MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
     MOCK_METHOD0(unsetConditionVariable, bool(void));

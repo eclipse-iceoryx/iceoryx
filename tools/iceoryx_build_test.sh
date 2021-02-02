@@ -43,7 +43,7 @@ ROUDI_ENV_FLAG="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
-BUILD_SHARED="ON"
+BUILD_SHARED="OFF"
 TOML_FLAG="ON"
 EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
 COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds" 
@@ -60,6 +60,7 @@ while (( "$#" )); do
         BUILD_TYPE="Debug"
         RUN_TEST=true
         COV_FLAG="ON"
+        BUILD_SHARED="OFF"
         if [ -z "$2" ]
         then
             shift 1
@@ -121,9 +122,9 @@ while (( "$#" )); do
         BUILD_ALL_FLAG="ON"
         shift 1
         ;;
-    "build-static")
-        echo " [i] Build iceoryx as static lib"
-        BUILD_SHARED="OFF"
+    "build-shared")
+        echo " [i] Build iceoryx as shared lib"
+        BUILD_SHARED="ON"
         shift 1
         ;;
     "examples")
@@ -150,6 +151,7 @@ while (( "$#" )); do
         echo " [i] Build with sanitizers"
         BUILD_TYPE="Debug"
         SANITIZE_FLAG="ON"
+        BUILD_SHARED="OFF"
         shift 1
         ;;
     "clang")
@@ -181,7 +183,7 @@ while (( "$#" )); do
         echo "    build-all             Build all extensions and all examples"
         echo "    out-of-tree           Out-of-tree build for CI build"
         echo "    build-strict          Build is performed with '-Werror'"
-        echo "    build-static          Build static libs (iceoryx is build as shared lib per default)"
+        echo "    build-shared         Build shared libs (iceoryx is build as static lib per default)"
         echo "    build-test            Builds all tests (doesn't run)"
         echo "    package               Creates a debian package from clean build in build_package"
         echo "    test                  Builds and runs all tests in all iceoryx components"

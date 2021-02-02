@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ int main()
         auto& subscriber = subscriberVector.back();
 
         subscriber.subscribe();
-        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
+        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, 0, &subscriberCallback);
     }
 
     // event loop

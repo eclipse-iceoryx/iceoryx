@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,10 +61,7 @@ class MockPublisherPortUser
         return true;
     }
 
-    iox::UniquePortId getUniqueID()
-    {
-        return iox::UniquePortId();
-    };
+    MOCK_CONST_METHOD0(getUniqueID, iox::UniquePortId());
     MOCK_METHOD0(destroy, void());
 };
 
@@ -76,8 +73,10 @@ class MockBasePublisher : public iox::popo::PublisherInterface<T>
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
+    MOCK_METHOD1(loan_1_0, iox::cxx::expected<void*, iox::popo::AllocationError>(uint32_t));
     MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&&));
     MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::Sample<T>>());
+    MOCK_METHOD0(loanPreviousChunk, iox::cxx::optional<void*>());
     MOCK_METHOD0(offer, void(void));
     MOCK_METHOD0(stopOffer, void(void));
     MOCK_CONST_METHOD0(isOffered, bool(void));

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,12 +83,14 @@ class BaseSubscriber
     ///
     void unsubscribe() noexcept;
 
+    // iox-#408 replace
     ///
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
     bool hasSamples() const noexcept;
 
+    // iox-#408 replace
     ///
     /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
     /// @return True if samples have been missed.
@@ -96,57 +98,55 @@ class BaseSubscriber
     ///
     bool hasMissedSamples() noexcept;
 
+    // iox-#408 remove
     ///
     /// @brief take Take the a sample from the top of the receive queue.
     /// @return An expected containing populated optional if there is a sample available, otherwise empty.
     /// @details The memory loan for the sample is automatically released when it goes out of scope.
     ///
-    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> take() noexcept;
+    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveResult> take() noexcept;
 
+    ///
+    /// @brief takeChunk Take the chunk from the top of the receive queue.
+    /// @return The header of the chunk taken.
+    /// @details No automatic cleaunp of the associated chunk is performed.
+    ///
+    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
+
+    // iox-#408 replace
     ///
     /// @brief releaseQueuedSamples Releases any unread queued samples.
     ///
     void releaseQueuedSamples() noexcept;
 
-    template <uint64_t Capacity>
-    friend class WaitSet;
+    /// @brief releaseChunk Releases the chunk associated with the header pointer.
+    /// @details The chunk must have been previosly provided by takeChunk and
+    ///          not have been already released.
+    void releaseChunk(const mepoo::ChunkHeader* header) noexcept;
+
+    friend class EventAttorney;
+    /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
+    /// @param[in] uniqueTriggerId the id of the corresponding trigger
+    /// @brief Only usable by the WaitSet, not for public use
+    void invalidateTrigger(const uint64_t trigger) noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
+    /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
+    /// @param[in] subscriberEvent the event which should be attached
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const SubscriberEvent subscriberEvent) noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to the event corresponding
+    /// hasTriggered method callback
+    /// @param[in] subscriberEvent the event to which the hasTriggeredCallback is required
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const SubscriberEvent subscriberEvent) const noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
+    /// @param[in] subscriberEvent the event which should be detached
+    void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
 
   protected:
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions) noexcept;
-
-    void invalidateTrigger(const uint64_t trigger) noexcept;
-
-    /// @brief attaches a WaitSet to the subscriber
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
-    /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
-    ///            identify an event uniquely or to group multiple events together when they share the same eventId
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const SubscriberEvent subscriberEvent,
-                                            const uint64_t eventId = EventInfo::INVALID_ID,
-                                            const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
-
-    /// @brief attaches a WaitSet to the subscriber
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
-    /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const SubscriberEvent subscriberEvent,
-                                            const EventInfo::Callback<Subscriber> callback) noexcept;
-
-    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
-    /// @param[in] subscriberEvent the event which should be detached
-    void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
 
   private:
     ///

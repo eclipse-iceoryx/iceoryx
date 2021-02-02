@@ -22,24 +22,69 @@
 
 #include <thread>
 
+#include <iostream>
+
 namespace iox
 {
 namespace concurrent
 {
+/// @brief This is a helper struct to make the immediate start of the task in the PeriodicTask ctor obvious to the user
+struct PeriodicTaskAutoStart_t
+{
+};
+static constexpr PeriodicTaskAutoStart_t PeriodicTaskAutoStart;
+
+/// @brief This is a helper struct to make the manual start of the task with the `start` method obvious to the user
+struct PeriodicTaskManualStart_t
+{
+};
+static constexpr PeriodicTaskManualStart_t PeriodicTaskManualStart;
+
 /// @brief This class periodically executes a callable specified by the template parameter.
-///        This can be a struct with a `operator()()` overload, a `cxx::function_ref<void()>` or `std::fuction<void()>`
+///        This can be a struct with a `operator()()` overload, a `cxx::function_ref<void()>` or `std::fuction<void()>`.
+/// @code
+/// #include <iceoryx_utils/internal/concurrent/periodic_task.hpp>
+/// #include <iceoryx_utils/internal/units/duration.hpp>
+/// #include <iostream>
+///
+/// int main()
+/// {
+///     using namespace iox::units::duration_literals;
+///     PeriodicTask<iox::cxx::function_ref<void()>> task{
+///         PeriodicTaskAutoStart, 1_s, "MyTask", [] { std::cout << "Hello World" << std::endl; }};
+///
+///         return 0;
+/// }
+/// @endcode
+/// @note Currently execution time of the callable is added to the interval.
 /// @tparam T is a callable type without function parameters
 template <typename T>
 class PeriodicTask
 {
   public:
-    /// @brief Creates a periodic task by spawning a thread. The specified callable is executed immediately on creation
-    /// and then periodically after the interval duration.
+    /// @brief Creates a periodic task. The specified callable is stored but not executed.
+    /// To run the task, `void start(const units::Duration interval)` must be called.
+    /// @tparam Args are variadic template parameter for which are forwarded to the underlying callable object
+    /// @param[in] PeriodicTaskManualStart_t indicates that this ctor doesn't start the task; just pass
+    /// `PeriodicTaskManualStart` as argument
     /// @param[in] taskName will be set as thread name
-    /// @param[in] interval is the time the thread waits between two invocations of the callable
     /// @param[in] args are forwarded to the underlying callable object
     template <typename... Args>
-    PeriodicTask(const posix::ThreadName_t taskName, const units::Duration interval, Args&&... args) noexcept;
+    PeriodicTask(const PeriodicTaskManualStart_t, const posix::ThreadName_t taskName, Args&&... args) noexcept;
+
+    /// @brief Creates a periodic task by spawning a thread. The specified callable is executed immediately on creation
+    /// and then periodically after the interval duration.
+    /// @tparam Args are variadic template parameter for which are forwarded to the underlying callable object
+    /// @param[in] PeriodicTaskAutoStart_t indicates that this ctor starts the task; just pass
+    /// `PeriodicTaskAutoStart` as argument
+    /// @param[in] interval is the time the thread waits between two invocations of the callable
+    /// @param[in] taskName will be set as thread name
+    /// @param[in] args are forwarded to the underlying callable object
+    template <typename... Args>
+    PeriodicTask(const PeriodicTaskAutoStart_t,
+                 const units::Duration interval,
+                 const posix::ThreadName_t taskName,
+                 Args&&... args) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.
     /// @note This is blocking and the blocking time depends on the callable.
@@ -51,15 +96,32 @@ class PeriodicTask
     PeriodicTask& operator=(const PeriodicTask&) = delete;
     PeriodicTask& operator=(PeriodicTask&&) = delete;
 
+    /// @brief Spawns a thread and immediately executes the callable specified with the constructor.
+    /// The execution is repeated after the specified interval is passed.
+    /// @param[in] interval is the time the thread waits between two invocations of the callable
+    /// @attention If the PeriodicTask instance has already a running thread, this will be stopped and started again
+    /// with the new interval. This might take some time if a slow task is executing during this call.
+    void start(const units::Duration interval) noexcept;
+
+    /// @brief This stops the thread if it's running, otherwise does nothing. When this method returns, the thread is
+    /// stopped.
+    /// @attention This might take some time if a slow task is executing during this call.
+    void stop() noexcept;
+
+    /// @brief This method check if a thread is spawned and running, potentially executing a task.
+    /// @return true if the thread is running, false otherwise.
+    bool isActive() const noexcept;
+
   private:
     void run() noexcept;
 
   private:
     T m_callable;
-    units::Duration m_interval;
+    posix::ThreadName_t m_taskName;
+    units::Duration m_interval{units::Duration::milliseconds(0U)};
     /// @todo use a refactored posix::Timer object once available
     posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
-    std::thread m_taskExecutor{&PeriodicTask::run, this};
+    std::thread m_taskExecutor;
 };
 
 } // namespace concurrent

@@ -37,7 +37,7 @@ ServerPortUser::MemberType_t* ServerPortUser::getMembers() noexcept
 }
 
 
-cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveError> ServerPortUser::getRequest() noexcept
+cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveResult> ServerPortUser::getRequest() noexcept
 {
     return cxx::success<cxx::optional<const RequestHeader*>>(cxx::nullopt_t());
 }
