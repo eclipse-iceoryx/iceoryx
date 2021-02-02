@@ -14,8 +14,6 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 
 namespace iox
 {
@@ -67,8 +65,17 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
         typename MemberType_t::LockGuard_t lock(*getMembers());
         if (getMembers()->m_conditionVariableDataPtr)
         {
-            ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
-            condVarSignaler.notifyOne();
+            if (getMembers()->m_eventVariableIndex)
+            {
+                EventNotifier(*reinterpret_cast<EventVariableData*>(getMembers()->m_conditionVariableDataPtr.get()),
+                              *getMembers()->m_eventVariableIndex)
+                    .notify();
+            }
+            else
+            {
+                ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
+                condVarSignaler.notifyOne();
+            }
         }
     }
 }

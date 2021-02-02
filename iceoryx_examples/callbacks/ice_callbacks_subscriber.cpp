@@ -16,6 +16,7 @@
 #include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -23,6 +24,8 @@
 #include <iostream>
 
 iox::popo::UserTrigger shutdownTrigger;
+iox::posix::Semaphore mainLoopBlocker =
+    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0).value();
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -35,6 +38,7 @@ void shutdownTriggerCallback(iox::popo::UserTrigger* trigger)
 
 void subscriberCallback(iox::popo::TypedSubscriber<CounterTopic>* subscriber)
 {
+    subscriber->take_1_0().and_then([](auto& sample) { printf("received: %d\n", sample->counter); });
 }
 
 int main()

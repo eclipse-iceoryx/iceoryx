@@ -91,6 +91,11 @@ void SubscriberPortUser::setConditionVariable(ConditionVariableData* conditionVa
     m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
+void SubscriberPortUser::setEventVariable(EventVariableData& eventVariableData, const uint64_t eventId) noexcept
+{
+    m_chunkReceiver.setEventVariable(eventVariableData, eventId);
+}
+
 void SubscriberPortUser::unsetConditionVariable() noexcept
 {
     m_chunkReceiver.unsetConditionVariable();
