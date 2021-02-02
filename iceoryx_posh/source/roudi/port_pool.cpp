@@ -46,6 +46,11 @@ PortPool::getConditionVariableDataList() noexcept
     return m_portPoolData->m_conditionVariableMembers.content();
 }
 
+cxx::vector<popo::EventVariableData*, MAX_NUMBER_OF_EVENT_VARIABLES> PortPool::getEventVariableDataList() noexcept
+{
+    return m_portPoolData->m_eventVariableMembers.content();
+}
+
 cxx::expected<popo::InterfacePortData*, PortPoolError>
 PortPool::addInterfacePort(const ProcessName_t& applicationName, const capro::Interfaces interface) noexcept
 {
@@ -107,6 +112,21 @@ PortPool::addConditionVariableData(const ProcessName_t& process) noexcept
     }
 }
 
+cxx::expected<popo::EventVariableData*, PortPoolError>
+PortPool::addEventVariableData(const ProcessName_t& process) noexcept
+{
+    if (m_portPoolData->m_eventVariableMembers.hasFreeSpace())
+    {
+        auto eventVariableData = m_portPoolData->m_eventVariableMembers.insert(process);
+        return cxx::success<popo::EventVariableData*>(eventVariableData);
+    }
+    else
+    {
+        errorHandler(Error::kPORT_POOL__EVENT_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::EVENT_VARIABLE_LIST_FULL);
+    }
+}
+
 void PortPool::removeInterfacePort(popo::InterfacePortData* const portData) noexcept
 {
     m_portPoolData->m_interfacePortMembers.erase(portData);
@@ -125,6 +145,11 @@ void PortPool::removeNodeData(runtime::NodeData* const nodeData) noexcept
 void PortPool::removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept
 {
     m_portPoolData->m_conditionVariableMembers.erase(conditionVariableData);
+}
+
+void PortPool::removeEventVariableData(popo::EventVariableData* const eventVariableData) noexcept
+{
+    m_portPoolData->m_eventVariableMembers.erase(eventVariableData);
 }
 
 std::atomic<uint64_t>* PortPool::serviceRegistryChangeCounter() noexcept

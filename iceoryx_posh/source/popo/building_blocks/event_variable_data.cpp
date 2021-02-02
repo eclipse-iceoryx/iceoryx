@@ -22,6 +22,10 @@ EventVariableData::EventVariableData() noexcept
 {
     iox::cxx::forEach(m_activeNotifications, [](auto& id) { id.store(false, std::memory_order_relaxed); });
 }
+EventVariableData::EventVariableData(const ProcessName_t& process) noexcept
+    : ConditionVariableData(process)
+{
+}
 } // namespace popo
 } // namespace iox
 

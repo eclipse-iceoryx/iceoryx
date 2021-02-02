@@ -24,6 +24,7 @@ namespace popo
 struct EventVariableData : public ConditionVariableData
 {
     EventVariableData() noexcept;
+    EventVariableData(const ProcessName_t& process) noexcept;
 
     std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
 };
