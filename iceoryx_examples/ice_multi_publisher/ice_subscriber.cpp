@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,10 @@ static void sigHandler(int sig [[gnu::unused]])
 
 void receive()
 {
-    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.nodeName = "uMgungundlovu";
+
+    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"}, subscriberOptions);
 
     subscriber.subscribe();
 
@@ -43,7 +46,7 @@ void receive()
                 .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << "Received: " << *sample.get() << std::endl;
                 })
-                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
+                .or_else([](iox::popo::ChunkReceiveResult) { std::cout << "Error while receiving." << std::endl; });
         };
         std::cout << "Waiting for data ... " << std::endl;
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,24 +25,25 @@ cpp2c_Subscriber::~cpp2c_Subscriber()
     }
 }
 
-iox::cxx::expected<iox::popo::WaitSetError>
-cpp2c_Subscriber::enableEvent(iox::popo::WaitSet<>& waitset,
-                              const iox_SubscriberEvent subscriberEvent,
-                              const uint64_t eventId,
-                              const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback) noexcept
+void cpp2c_Subscriber::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
+                                   const iox_SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);
 
-    return waitset
-        .acquireTriggerHandle(this,
-                              {*this, &cpp2c_Subscriber::hasSamples},
-                              {*this, &cpp2c_Subscriber::invalidateTrigger},
-                              eventId,
-                              callback)
-        .and_then([this](iox::popo::TriggerHandle& trigger) {
-            m_trigger = std::move(trigger);
-            iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
-        });
+    m_trigger = std::move(triggerHandle);
+    iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
+}
+
+iox::popo::WaitSetHasTriggeredCallback
+cpp2c_Subscriber::getHasTriggeredCallbackForEvent(const iox_SubscriberEvent subscriberEvent) const noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent_HAS_SAMPLES:
+        return {*this, &cpp2c_Subscriber::hasSamples};
+    }
+
+    return {};
 }
 
 void cpp2c_Subscriber::disableEvent(const iox_SubscriberEvent subscriberEvent) noexcept

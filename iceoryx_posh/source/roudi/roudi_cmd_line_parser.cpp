@@ -247,7 +247,7 @@ void CmdLineParser::printParameters() const noexcept
     m_uniqueRouDiId.and_then([](auto& id) { LogVerbose() << "Unique RouDi ID: " << id; }).or_else([] {
         LogVerbose() << "Unique RouDi ID: < unset >";
     });
-    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds<uint64_t>() << " ms";
+    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds() << " s";
 }
 
 } // namespace config

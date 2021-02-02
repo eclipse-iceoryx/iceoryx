@@ -43,7 +43,7 @@ void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units:
         }
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(duration.milliSeconds<uint64_t>()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(duration.milliSeconds()));
     keepRunning = false;
     t.join();
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@ class RouDiMemoryInterface
     /// MemoryBlocks to destroy their data
     virtual cxx::expected<RouDiMemoryManagerError> destroyMemory() noexcept = 0;
 
-    virtual PosixShmMemoryProvider* mgmtMemoryProvider() noexcept = 0;
     virtual const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept = 0;
     virtual cxx::optional<PortPool*> portPool() noexcept = 0;
     virtual cxx::optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept = 0;

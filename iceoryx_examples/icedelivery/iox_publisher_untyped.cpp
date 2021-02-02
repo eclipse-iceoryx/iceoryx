@@ -34,8 +34,8 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
 
-    iox::popo::UntypedPublisher untypedPublisher({"Radar", "FrontLeft", "Object"});
-    untypedPublisher.offer();
+    iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
+    publisher.offer();
 
     double ct = 0.0;
     while (!killswitch)
@@ -43,34 +43,37 @@ int main()
         ++ct;
 
         // API Usage #1
-        //  * Loaned sample can be held until ready to publish
-        auto result = untypedPublisher.loan(sizeof(RadarObject));
+        //  * Loaned chunk can be held until ready to publish
+        auto result = publisher.loan_1_0(sizeof(RadarObject));
         if (!result.has_error())
         {
-            auto& sample = result.value();
-            // In the untyped API, the returned sample is a void pointer, therefore the data must be constructed
+            // In the untyped API we get a void pointer to the payload, therefore the data must be constructed
             // in place
-            auto object = static_cast<RadarObject*>(sample.get());
-            *object = RadarObject(ct, ct, ct);
-            sample.publish();
+            void* chunk = result.value();
+            auto data = new (chunk) RadarObject(ct, ct, ct);
+
+            // data and chunk should be equal. otherwise we have a misalignment
+            // (note that we only requested as many bytes as needed for the object to be send)
+            assert(chunk == data);
+            publisher.publish(chunk);
         }
         else
         {
             auto error = result.get_error();
-            // Do something with error
+            // Do something with the error
         }
 
 
         // API Usage #2
-        // * Loan sample and provide logic to use it immediately via a lambda
-        untypedPublisher.loan(sizeof(RadarObject))
-            .and_then([&](auto& sample) {
-                auto object = static_cast<RadarObject*>(sample.get());
-                *object = RadarObject(ct, ct, ct);
-                sample.publish();
+        // * Loan chunk and provide logic to populate it via a lambda
+        publisher.loan_1_0(sizeof(RadarObject))
+            .and_then([&](auto& chunk) {
+                auto data = new (chunk) RadarObject(ct, ct, ct);
+                assert(chunk == data);
+                publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
-                // Do something with error
+                // Do something with the error
             });
 
         std::cout << "Sent two times value: " << ct << std::endl;

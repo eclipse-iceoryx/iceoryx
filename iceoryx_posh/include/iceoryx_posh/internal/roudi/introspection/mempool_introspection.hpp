@@ -20,14 +20,10 @@
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
-#include <chrono>
-#include <condition_variable>
 #include <cstdint>
-#include <iostream>
-#include <mutex>
-#include <string>
-#include <thread>
 
 namespace iox
 {
@@ -41,14 +37,6 @@ namespace roudi
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 class MemPoolIntrospection
 {
-  private:
-    enum RunLevel
-    {
-        RUN,
-        WAIT,
-        TERMINATE
-    };
-
   public:
     /// @brief The constructor for the MemPoolIntrospection.
     ///        It starts a thread and set it into a wait condition.
@@ -68,54 +56,38 @@ class MemPoolIntrospection
     MemPoolIntrospection(MemPoolIntrospection&&) = delete;
     MemPoolIntrospection& operator=(MemPoolIntrospection&&) = delete;
 
-    /// @brief This function sets the thread into run mode, which periodically
-    ///        sends snapshots of the mempool introspecton data to the client.
-    ///        The send interval can be set by @ref setSnapshotInterval "setSnapshotInterval(...)".
-    void start() noexcept;
-
-    /// @brief This functions sets the thread into a wait state and
-    ///        the transmission of the introspection data is stopped.
-    void wait() noexcept;
+    /// @brief This function starts the periodic transmission of snapshots of the mempool introspecton data.
+    ///        The send interval can be set by @ref setSendInterval "setSendInterval(...)". By default it's 1 second.
+    void run() noexcept;
 
     /// @brief This function stops the thread which sends the introspection data.
     ///        It is not possible to start the thread again.
-    void terminate() noexcept;
+    void stop() noexcept;
 
     /// @brief This function configures the interval for the transmission of the
     ///        mempool introspection data.
-    ///
-    /// @param snapshotInterval_ms is the interval time in milliseconds
-    void setSnapshotInterval(unsigned int snapshotInterval_ms) noexcept;
+    /// @param[in] interval duration between two send invocations
+    void setSendInterval(const units::Duration interval) noexcept;
 
   protected:
     MemoryManager* m_rouDiInternalMemoryManager{nullptr}; // mempool handler needs to outlive this class (!)
     SegmentManager* m_segmentManager{nullptr};
     PublisherPort m_publisherPort{nullptr};
+    void send() noexcept;
 
   private:
-    std::chrono::milliseconds m_snapShotInterval{1000};
-
-    std::atomic<RunLevel> m_runLevel{WAIT};
-    std::condition_variable m_waitConditionVar;
-    std::mutex m_mutex;
-    std::thread m_thread;
-
-    void run() noexcept;
-    void waitForRunLevelChange() noexcept;
-    void wakeUp(RunLevel newLevel = RUN) noexcept;
-
-    // wait until start command, run until wait or terminate, restart from wait
-    // is possible  terminate call leads to exit
-    void threadMain() noexcept;
-
     static void prepareIntrospectionSample(MemPoolIntrospectionInfo& sample,
                                            const posix::PosixGroup& readerGroup,
                                            const posix::PosixGroup& writerGroup,
                                            uint32_t id) noexcept;
-    void send() noexcept;
 
     /// @brief copy data fro internal struct into interface struct
     void copyMemPoolInfo(const MemoryManager& memoryManager, MemPoolInfoContainer& dest) noexcept;
+
+  private:
+    units::Duration m_sendInterval{units::Duration::seconds(1U)};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
+        concurrent::PeriodicTaskManualStart, "MemPoolIntr", *this, &MemPoolIntrospection::send};
 };
 
 /// @brief typedef for the templated mempool introspection class that is used by RouDi for the

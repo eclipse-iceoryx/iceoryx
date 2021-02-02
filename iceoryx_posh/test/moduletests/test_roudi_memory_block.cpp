@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 #include "mocks/roudi_memory_provider_mock.hpp"
+#include "mocks/roudi_memory_block_mock.hpp"
 
 #include "test.hpp"
 
@@ -22,39 +23,23 @@ using namespace ::testing;
 
 using namespace iox::roudi;
 
-class MemoryBlockTestImpl final : public MemoryBlock
-{
-  public:
-    uint64_t size() const noexcept override
-    {
-        return MEMORY_SIZE;
-    }
-
-    uint64_t alignment() const noexcept override
-    {
-        return MEMORY_ALIGNMENT;
-    }
-
-    void destroy() noexcept override
-    {
-    }
-
-    static constexpr uint64_t MEMORY_SIZE = 1;
-    static constexpr uint64_t MEMORY_ALIGNMENT = 1;
-};
-
 class MemoryBlock_Test : public Test
 {
   public:
     void SetUp() override
     {
+        EXPECT_CALL(sut, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
+        EXPECT_CALL(sut, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
     }
 
     void TearDown() override
     {
     }
 
-    MemoryBlockTestImpl sut;
+    static constexpr uint64_t MEMORY_SIZE = 1U;
+    static constexpr uint64_t MEMORY_ALIGNMENT = 1U;
+
+    MemoryBlockMock sut;
     MemoryProviderTestImpl memoryProvider;
 };
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
         PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, MQ_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
-    m_mempoolIntrospection.start();
+    m_mempoolIntrospection.run();
 
     // since RouDi offers the introspection services, also add it to the list of processes
     m_processIntrospection.addProcess(getpid(), MQ_ROUDI_NAME);
@@ -190,12 +190,10 @@ void RouDi::processMessage(const runtime::MqMessage& message,
 
             popo::PublisherOptions options;
             options.historyCapacity = std::stoull(message.getElementAtIndex(3));
+            options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
 
-            m_prcMgr.addPublisherForProcess(processName,
-                                            service,
-                                            options,
-                                            NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
-                                            iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+            m_prcMgr.addPublisherForProcess(
+                processName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }
@@ -215,12 +213,10 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             popo::SubscriberOptions options;
             options.historyRequest = std::stoull(message.getElementAtIndex(3));
             options.queueCapacity = std::stoull(message.getElementAtIndex(4));
+            options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
 
-            m_prcMgr.addSubscriberForProcess(processName,
-                                             service,
-                                             options,
-                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5)),
-                                             iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+            m_prcMgr.addSubscriberForProcess(
+                processName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,13 +83,13 @@ inline bool BaseSubscriber<T, Subscriber, port_t>::hasMissedSamples() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError>
+inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveResult>
 BaseSubscriber<T, Subscriber, port_t>::take() noexcept
 {
     auto result = m_port.tryGetChunk();
     if (result.has_error())
     {
-        return cxx::error<ChunkReceiveError>(result.get_error());
+        return cxx::error<ChunkReceiveResult>(result.get_error());
     }
     else
     {
@@ -109,9 +109,37 @@ BaseSubscriber<T, Subscriber, port_t>::take() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
+inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult>
+BaseSubscriber<T, Subscriber, port_t>::takeChunk() noexcept
+{
+    auto result = m_port.tryGetChunk();
+    if (result.has_error())
+    {
+        return cxx::error<ChunkReceiveResult>(result.get_error());
+    }
+    else
+    {
+        auto maybeHeader = result.value();
+        if (maybeHeader.has_value())
+        {
+            return cxx::success<const mepoo::ChunkHeader*>(maybeHeader.value());
+        }
+    }
+    ///@todo: optimization - we could move this to a tryGetChunk but then we should remove expected<optional<>> there in
+    /// the call chain
+    return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
+}
+
+template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexcept
 {
     m_port.releaseQueuedChunks();
+}
+
+template <typename T, typename Subscriber, typename port_t>
+void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const mepoo::ChunkHeader* header) noexcept
+{
+    m_port.releaseChunk(header);
 }
 
 template <typename T, typename Subscriber, typename port_t>
@@ -121,6 +149,39 @@ inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint6
     {
         m_port.unsetConditionVariable();
         m_trigger.invalidate();
+    }
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline void
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
+                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
+{
+    m_trigger = std::move(triggerHandle);
+    m_port.setConditionVariable(m_trigger.getConditionVariableData());
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHasTriggeredCallbackForEvent(
+    const SubscriberEvent subscriberEvent) const noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::HAS_SAMPLES:
+        return {*this, &SelfType::hasSamples};
+    }
+    return {};
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::HAS_SAMPLES:
+        m_trigger.reset();
+        m_port.unsetConditionVariable();
+        break;
     }
 }
 
@@ -138,46 +199,6 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
     auto header = mepoo::ChunkHeader::fromPayload(ptr);
     m_port.get().releaseChunk(header);
 }
-
-template <typename T, typename Subscriber, typename port_t>
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                                   const uint64_t eventId,
-                                                   const EventInfo::Callback<Subscriber> callback) noexcept
-{
-    Subscriber* self = reinterpret_cast<Subscriber*>(this);
-
-    return waitset
-        .acquireTriggerHandle(
-            self, {*this, &SelfType::hasSamples}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
-        .and_then([this](TriggerHandle& trigger) {
-            m_trigger = std::move(trigger);
-            m_port.setConditionVariable(m_trigger.getConditionVariableData());
-        });
-}
-
-template <typename T, typename Subscriber, typename port_t>
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                                   const EventInfo::Callback<Subscriber> callback) noexcept
-{
-    return enableEvent(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
-}
-
-template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
-{
-    static_cast<void>(subscriberEvent);
-
-    m_trigger.reset();
-    m_port.unsetConditionVariable();
-}
-
-
 } // namespace popo
 } // namespace iox
 
