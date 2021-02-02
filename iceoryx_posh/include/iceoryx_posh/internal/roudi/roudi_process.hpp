@@ -156,6 +156,8 @@ class ProcessManager : public ProcessManagerInterface
 
     void addConditionVariableForProcess(const ProcessName_t& processName) noexcept;
 
+    void addEventVariableForProcess(const ProcessName_t& processName) noexcept;
+
     void initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept;
 
     void run() noexcept;

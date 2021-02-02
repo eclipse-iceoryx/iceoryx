@@ -235,6 +235,21 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
+    case runtime::MqMessageType::CREATE_EVENT_VARIABLE:
+    {
+        if (message.getNumberOfElements() != 2)
+        {
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_EVENT_VARIABLE\" from \""
+                       << processName << "\"received!";
+            errorHandler(
+                Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::MODERATE);
+        }
+        else
+        {
+            m_prcMgr.addEventVariableForProcess(processName);
+        }
+        break;
+    }
     case runtime::MqMessageType::CREATE_INTERFACE:
     {
         if (message.getNumberOfElements() != 4)
