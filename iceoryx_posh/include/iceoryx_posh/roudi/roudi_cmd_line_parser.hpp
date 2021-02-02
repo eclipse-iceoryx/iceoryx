@@ -26,6 +26,12 @@ namespace iox
 {
 namespace config
 {
+enum class CmdLineParserResult
+{
+    UNKNOWN_OPTION_USED,
+    USAGE_OUTPUT_REQUESTED /// @todo use this instead of CmdLineArgs_t.run after modularisation of RouDi
+};
+
 class CmdLineParser
 {
   public:
@@ -47,17 +53,10 @@ class CmdLineParser
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] cmdLineParsingMode selects to parse a single option or all options
     /// @param[out] Result of the parsed arguments as CmdLineArgs_t struct
-    virtual CmdLineArgs_t
+    virtual cxx::expected<CmdLineArgs_t, CmdLineParserResult>
     parse(int argc,
           char* argv[],
           const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
-
-    bool getRun() const noexcept;
-    iox::log::LogLevel getLogLevel() const noexcept;
-    roudi::MonitoringMode getMonitoringMode() const noexcept;
-    version::CompatibilityCheckLevel getCompatibilityCheckLevel() const noexcept;
-    cxx::optional<uint16_t> getUniqueRouDiId() const noexcept;
-    units::Duration getProcessKillDelay() const noexcept;
 
   protected:
     bool m_run{true};

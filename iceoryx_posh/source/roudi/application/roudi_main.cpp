@@ -25,9 +25,15 @@ int main(int argc, char* argv[])
     using iox::roudi::IceOryxRouDiApp;
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
-    iox::config::CmdLineArgs_t cmdLineArgs = cmdLineParser.parse(argc, argv);
+    auto cmdLineArgs = cmdLineParser.parse(argc, argv).or_else([](iox::config::CmdLineParserResult& error) {
+        if (error == iox::config::CmdLineParserResult::UNKNOWN_OPTION_USED)
+        {
+            iox::LogFatal() << "Unable to parse command line arguments!";
+            std::terminate();
+        }
+    });
 
-    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs);
+    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
 
     iox::RouDiConfig_t roudiConfig =
         configFileProvider.parse()
@@ -39,7 +45,7 @@ int main(int argc, char* argv[])
             })
             .value();
 
-    IceOryxRouDiApp roudi(cmdLineArgs, roudiConfig);
+    IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig);
 
     return roudi.run();
 }

@@ -35,12 +35,10 @@ class CmdLineParserConfigFileOption : public CmdLineParser
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] cmdLineParsingMode selects to parse a single option or all options
     /// @param[out] Result of the parsed arguments as CmdLineArgs_t struct
-    CmdLineArgs_t
+    cxx::expected<CmdLineArgs_t, CmdLineParserResult>
     parse(int argc,
           char* argv[],
           const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept override;
-
-    roudi::ConfigFilePathString_t getConfigFilePath() const;
 
   protected:
     roudi::ConfigFilePathString_t m_customConfigFilePath;

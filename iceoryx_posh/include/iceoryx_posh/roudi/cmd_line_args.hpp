@@ -30,8 +30,8 @@ struct CmdLineArgs_t
     iox::log::LogLevel logLevel{iox::log::LogLevel::kWarn};
     version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
-    cxx::optional<uint16_t> uniqueRouDiId;
-    bool run{false};
+    cxx::optional<uint16_t> uniqueRouDiId{cxx::nullopt};
+    bool run{true};
     roudi::ConfigFilePathString_t configFilePath;
 };
 
