@@ -129,17 +129,28 @@ class ActiveCallSet
         cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
     };
 
+    // TODO: integrate in LoFFLi?!
+    class IndexManager_t
+    {
+      public:
+        IndexManager_t() noexcept;
+        bool pop(uint32_t& index) noexcept;
+        void push(const uint32_t index) noexcept;
+        uint64_t size() const noexcept;
+
+        uint32_t m_loffliStorage[concurrent::LoFFLi::requiredMemorySize(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+                                 / sizeof(uint32_t)];
+        concurrent::LoFFLi m_loffli;
+        std::atomic<uint64_t> m_size{0U};
+    } m_indexManager;
+
+
     std::thread m_thread;
     concurrent::smart_lock<Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
     std::mutex m_addEventMutex;
 
-    std::atomic<uint64_t> m_size{0U};
     std::atomic_bool m_wasDtorCalled{false};
     EventVariableData* m_eventVariable = nullptr;
-
-    uint32_t m_loffliStorage[concurrent::LoFFLi::requiredMemorySize(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
-                             / sizeof(uint32_t)];
-    concurrent::LoFFLi m_indexManager;
 };
 } // namespace popo
 } // namespace iox

@@ -16,6 +16,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/active_call_set.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
@@ -52,6 +53,8 @@ class ActiveCallSet_test : public Test
 
         ~SimpleEventClass()
         {
+            m_handleStoepsel.reset();
+            m_handleHypnotoad.reset();
         }
 
         void enableEvent(iox::popo::TriggerHandle&& handle, const SimpleEvent event) noexcept
@@ -82,16 +85,6 @@ class ActiveCallSet_test : public Test
             {
                 m_handleStoepsel.invalidate();
             }
-        }
-
-        iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent() const noexcept
-        {
-            return {*this, &SimpleEventClass::hasTriggered};
-        }
-
-        bool hasTriggered() const
-        {
-            return m_hasTriggered.exchange(false);
         }
 
         void disableEvent(const SimpleEvent event)
@@ -140,7 +133,7 @@ class ActiveCallSet_test : public Test
     };
 
     EventVariableData m_eventVarData{"Maulbeerblatt"};
-    ActiveCallSetMock m_sut{&m_eventVarData};
+    iox::cxx::optional<ActiveCallSetMock> m_sut;
 
     template <uint64_t N>
     static void triggerCallback(ActiveCallSet_test::SimpleEventClass* const event)
@@ -150,6 +143,7 @@ class ActiveCallSet_test : public Test
 
     void SetUp()
     {
+        m_sut.emplace(&m_eventVarData);
         ActiveCallSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
     };
 
@@ -166,176 +160,224 @@ uint64_t ActiveCallSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
 
 TEST_F(ActiveCallSet_test, IsEmptyWhenConstructed)
 {
-    EXPECT_THAT(m_sut.size(), Eq(0U));
+    EXPECT_THAT(m_sut->size(), Eq(0U));
 }
 
 TEST_F(ActiveCallSet_test, AttachingWithoutEnumIfEnoughSpaceAvailableWorks)
 {
-    EXPECT_FALSE(m_sut.attachEvent(m_simpleEvents[0], ActiveCallSet_test::triggerCallback<0>).has_error());
-    EXPECT_THAT(m_sut.size(), Eq(1U));
+    EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0], ActiveCallSet_test::triggerCallback<0>).has_error());
+    EXPECT_THAT(m_sut->size(), Eq(1U));
 }
 
 TEST_F(ActiveCallSet_test, AttachWithoutEnumTillCapacityIsFullWorks)
 {
-    for (uint64_t i = 0U; i < m_sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        EXPECT_FALSE(m_sut.attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error());
+        EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error());
     }
-    EXPECT_THAT(m_sut.size(), Eq(m_sut.capacity()));
+    EXPECT_THAT(m_sut->size(), Eq(m_sut->capacity()));
 }
 
 TEST_F(ActiveCallSet_test, DetachDecreasesSize)
 {
-    for (uint64_t i = 0U; i < m_sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        m_sut.attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>);
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>);
     }
-    m_sut.detachEvent(m_simpleEvents[0]);
-    EXPECT_THAT(m_sut.size(), Eq(m_sut.capacity() - 1));
+    m_sut->detachEvent(m_simpleEvents[0]);
+    EXPECT_THAT(m_sut->size(), Eq(m_sut->capacity() - 1));
 }
 
 TEST_F(ActiveCallSet_test, AttachWithoutEnumOneMoreThanCapacityFails)
 {
-    for (uint64_t i = 0U; i < m_sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        m_sut.attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error();
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error();
     }
-    EXPECT_TRUE(
-        m_sut.attachEvent(m_simpleEvents[m_sut.capacity()], ActiveCallSet_test::triggerCallback<0>).has_error());
+    auto result = m_sut->attachEvent(m_simpleEvents[m_sut->capacity()], ActiveCallSet_test::triggerCallback<0>);
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ActiveCallSetError::ACTIVE_CALL_SET_FULL));
 }
 
 TEST_F(ActiveCallSet_test, AttachingWithEnumIfEnoughSpaceAvailableWorks)
 {
     EXPECT_FALSE(m_sut
-                     .attachEvent(m_simpleEvents[0],
-                                  ActiveCallSet_test::SimpleEvent::Hypnotoad,
-                                  ActiveCallSet_test::triggerCallback<0>)
+                     ->attachEvent(m_simpleEvents[0],
+                                   ActiveCallSet_test::SimpleEvent::Hypnotoad,
+                                   ActiveCallSet_test::triggerCallback<0>)
                      .has_error());
 }
 
 TEST_F(ActiveCallSet_test, AttachWithEnumTillCapacityIsFullWorks)
 {
-    for (uint64_t i = 0U; i < m_sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
         EXPECT_FALSE(m_sut
-                         .attachEvent(m_simpleEvents[i],
-                                      ActiveCallSet_test::SimpleEvent::Hypnotoad,
-                                      ActiveCallSet_test::triggerCallback<0>)
+                         ->attachEvent(m_simpleEvents[i],
+                                       ActiveCallSet_test::SimpleEvent::Hypnotoad,
+                                       ActiveCallSet_test::triggerCallback<0>)
                          .has_error());
     }
 }
 
 TEST_F(ActiveCallSet_test, AttachWithEnumOneMoreThanCapacityFails)
 {
-    for (uint64_t i = 0U; i < m_sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
         m_sut
-            .attachEvent(
+            ->attachEvent(
                 m_simpleEvents[i], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0>)
             .has_error();
     }
-    EXPECT_TRUE(m_sut
-                    .attachEvent(m_simpleEvents[m_sut.capacity()],
-                                 ActiveCallSet_test::SimpleEvent::Hypnotoad,
-                                 ActiveCallSet_test::triggerCallback<0>)
-                    .has_error());
+    auto result = m_sut->attachEvent(m_simpleEvents[m_sut->capacity()],
+                                     ActiveCallSet_test::SimpleEvent::Hypnotoad,
+                                     ActiveCallSet_test::triggerCallback<0>);
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ActiveCallSetError::ACTIVE_CALL_SET_FULL));
 }
 
 TEST_F(ActiveCallSet_test, DetachMakesSpaceForAnotherAttachWithEventEnum)
 {
-    for (uint64_t i = 0U; i < m_sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
         m_sut
-            .attachEvent(
+            ->attachEvent(
                 m_simpleEvents[i], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0>)
             .has_error();
     }
 
-    m_sut.detachEvent(m_simpleEvents[0], ActiveCallSet_test::SimpleEvent::Hypnotoad);
+    m_sut->detachEvent(m_simpleEvents[0], ActiveCallSet_test::SimpleEvent::Hypnotoad);
     EXPECT_FALSE(m_sut
-                     .attachEvent(m_simpleEvents[m_sut.capacity()],
-                                  ActiveCallSet_test::SimpleEvent::Hypnotoad,
-                                  ActiveCallSet_test::triggerCallback<0>)
+                     ->attachEvent(m_simpleEvents[m_sut->capacity()],
+                                   ActiveCallSet_test::SimpleEvent::Hypnotoad,
+                                   ActiveCallSet_test::triggerCallback<0>)
                      .has_error());
 }
 
 TEST_F(ActiveCallSet_test, DetachMakesSpaceForAnotherAttachWithoutEventEnum)
 {
-    for (uint64_t i = 0U; i < m_sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        m_sut.attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error();
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error();
     }
 
-    m_sut.detachEvent(m_simpleEvents[0]);
+    m_sut->detachEvent(m_simpleEvents[0]);
     EXPECT_FALSE(m_sut
-                     .attachEvent(m_simpleEvents[m_sut.capacity()],
-                                  ActiveCallSet_test::SimpleEvent::Hypnotoad,
-                                  ActiveCallSet_test::triggerCallback<0>)
+                     ->attachEvent(m_simpleEvents[m_sut->capacity()],
+                                   ActiveCallSet_test::SimpleEvent::Hypnotoad,
+                                   ActiveCallSet_test::triggerCallback<0>)
                      .has_error());
 }
 
 TEST_F(ActiveCallSet_test, AttachingEventWithoutEventTypeLeadsToAttachedTriggerHandle)
 {
-    m_sut.attachEvent(m_simpleEvents[0], ActiveCallSet_test::triggerCallback<0>);
+    m_sut->attachEvent(m_simpleEvents[0], ActiveCallSet_test::triggerCallback<0>);
     EXPECT_TRUE(m_simpleEvents[0].m_handleHypnotoad.isValid());
 }
 
 TEST_F(ActiveCallSet_test, AttachingEventWithEventTypeLeadsToAttachedTriggerHandle)
 {
-    m_sut.attachEvent(m_simpleEvents[0],
-                      ActiveCallSet_test::SimpleEvent::StoepselBachelorParty,
-                      ActiveCallSet_test::triggerCallback<0>);
+    m_sut->attachEvent(m_simpleEvents[0],
+                       ActiveCallSet_test::SimpleEvent::StoepselBachelorParty,
+                       ActiveCallSet_test::triggerCallback<0>);
     EXPECT_TRUE(m_simpleEvents[0].m_handleStoepsel.isValid());
 }
 
 TEST_F(ActiveCallSet_test, AttachingSameEventWithEventEnumTwiceFails)
 {
-    m_sut.attachEvent(m_simpleEvents[0],
-                      ActiveCallSet_test::SimpleEvent::StoepselBachelorParty,
-                      ActiveCallSet_test::triggerCallback<0>);
+    m_sut->attachEvent(m_simpleEvents[0],
+                       ActiveCallSet_test::SimpleEvent::StoepselBachelorParty,
+                       ActiveCallSet_test::triggerCallback<0>);
 
-    EXPECT_TRUE(m_sut
-                    .attachEvent(m_simpleEvents[0],
-                                 ActiveCallSet_test::SimpleEvent::StoepselBachelorParty,
-                                 ActiveCallSet_test::triggerCallback<0>)
-                    .has_error());
+    auto result = m_sut->attachEvent(m_simpleEvents[0],
+                                     ActiveCallSet_test::SimpleEvent::StoepselBachelorParty,
+                                     ActiveCallSet_test::triggerCallback<0>);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ActiveCallSetError::EVENT_ALREADY_ATTACHED));
 }
 
 TEST_F(ActiveCallSet_test, AttachingSameEventWithoutEventEnumTwiceFails)
 {
-    m_sut.attachEvent(m_simpleEvents[0], ActiveCallSet_test::triggerCallback<0>);
+    m_sut->attachEvent(m_simpleEvents[0], ActiveCallSet_test::triggerCallback<0>);
 
-    EXPECT_TRUE(m_sut.attachEvent(m_simpleEvents[0], ActiveCallSet_test::triggerCallback<0>).has_error());
+    auto result = m_sut->attachEvent(m_simpleEvents[0], ActiveCallSet_test::triggerCallback<0>);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ActiveCallSetError::EVENT_ALREADY_ATTACHED));
 }
 
 TEST_F(ActiveCallSet_test, AttachingSameClassWithTwoDifferentEventsWorks)
 {
-    m_sut.attachEvent(
+    m_sut->attachEvent(
         m_simpleEvents[0], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0>);
 
     EXPECT_FALSE(m_sut
-                     .attachEvent(m_simpleEvents[0],
-                                  ActiveCallSet_test::SimpleEvent::StoepselBachelorParty,
-                                  ActiveCallSet_test::triggerCallback<0>)
+                     ->attachEvent(m_simpleEvents[0],
+                                   ActiveCallSet_test::SimpleEvent::StoepselBachelorParty,
+                                   ActiveCallSet_test::triggerCallback<0>)
                      .has_error());
 }
 
 TEST_F(ActiveCallSet_test, DetachingSameClassWithDifferentEventEnumChangesNothing)
 {
-    m_sut.attachEvent(
+    m_sut->attachEvent(
         m_simpleEvents[0], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0>);
 
-    m_sut.detachEvent(m_simpleEvents[0], ActiveCallSet_test::SimpleEvent::StoepselBachelorParty);
-    EXPECT_THAT(m_sut.size(), Eq(1U));
+    m_sut->detachEvent(m_simpleEvents[0], ActiveCallSet_test::SimpleEvent::StoepselBachelorParty);
+    EXPECT_THAT(m_sut->size(), Eq(1U));
 }
 
 TEST_F(ActiveCallSet_test, DetachingDifferentClassWithSameEventEnumChangesNothing)
 {
-    m_sut.attachEvent(
+    m_sut->attachEvent(
         m_simpleEvents[0], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0>);
 
-    m_sut.detachEvent(m_simpleEvents[1], ActiveCallSet_test::SimpleEvent::Hypnotoad);
-    EXPECT_THAT(m_sut.size(), Eq(1U));
+    m_sut->detachEvent(m_simpleEvents[1], ActiveCallSet_test::SimpleEvent::Hypnotoad);
+    EXPECT_THAT(m_sut->size(), Eq(1U));
 }
 
-//
+TEST_F(ActiveCallSet_test, AttachingTillCapacityFilledSetsUpTriggerHandle)
+{
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
+    {
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error();
+    }
+
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
+    {
+        EXPECT_TRUE(m_simpleEvents[i].m_handleHypnotoad.isValid());
+    }
+}
+
+TEST_F(ActiveCallSet_test, DTorDetachesAllAttachedEvents)
+{
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
+    {
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error();
+    }
+
+    m_sut.reset();
+
+    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
+    {
+        EXPECT_FALSE(m_simpleEvents[i].m_handleHypnotoad.isValid());
+    }
+}
+
+TEST_F(ActiveCallSet_test, AttachedEventDTorDetachesItself)
+{
+    {
+        SimpleEventClass fuu;
+        m_sut->attachEvent(fuu, ActiveCallSet_test::triggerCallback<0>);
+    }
+
+    EXPECT_THAT(m_sut->size(), Eq(0U));
+}
+
+//////////////////////////////////
+// concurrent attach / detach
+//////////////////////////////////
+
+
+// -- goes out of scope while callback is running

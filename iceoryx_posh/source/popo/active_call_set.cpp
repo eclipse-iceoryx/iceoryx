@@ -30,7 +30,6 @@ ActiveCallSet::ActiveCallSet() noexcept
 ActiveCallSet::ActiveCallSet(EventVariableData* eventVariable) noexcept
     : m_eventVariable(eventVariable)
 {
-    m_indexManager.init(m_loffliStorage, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
     m_thread = std::thread(&ActiveCallSet::threadLoop, this);
 }
 
@@ -70,7 +69,6 @@ ActiveCallSet::addEvent(void* const origin,
         return cxx::error<ActiveCallSetError>(ActiveCallSetError::ACTIVE_CALL_SET_FULL);
     }
 
-    ++m_size;
     m_events[index]->init(index, origin, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
     return cxx::success<uint64_t>(index);
 }
@@ -82,7 +80,6 @@ void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType, co
         if (m_events[index]->resetIfEqualTo(origin, eventType, eventTypeHash))
         {
             m_indexManager.push(index);
-            --m_size;
             break;
         }
     }
@@ -90,7 +87,7 @@ void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType, co
 
 uint64_t ActiveCallSet::size() const noexcept
 {
-    return m_size.load(std::memory_order_relaxed);
+    return m_indexManager.size();
 }
 
 void ActiveCallSet::threadLoop() noexcept
@@ -190,8 +187,41 @@ bool ActiveCallSet::Event_t::reset() noexcept
 
 bool ActiveCallSet::Event_t::isInitialized() const noexcept
 {
-    return m_origin != nullptr;
+    return m_origin != nullptr || m_eventId == INVALID_ID || m_eventType == INVALID_ID || m_eventTypeHash == INVALID_ID
+           || m_callback == nullptr || m_translationCallback == nullptr
+           || m_invalidationCallback == cxx::MethodCallback<void, uint64_t>();
 }
+
+//////////////////
+// IndexManager_t
+//////////////////
+
+ActiveCallSet::IndexManager_t::IndexManager_t() noexcept
+{
+    m_loffli.init(m_loffliStorage, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
+}
+
+bool ActiveCallSet::IndexManager_t::pop(uint32_t& value) noexcept
+{
+    if (m_loffli.pop(value))
+    {
+        ++m_size;
+        return true;
+    }
+    return false;
+}
+
+void ActiveCallSet::IndexManager_t::push(const uint32_t index) noexcept
+{
+    m_loffli.push(index);
+    --m_size;
+}
+
+uint64_t ActiveCallSet::IndexManager_t::size() const noexcept
+{
+    return m_size.load(std::memory_order_relaxed);
+}
+
 
 } // namespace popo
 } // namespace iox
