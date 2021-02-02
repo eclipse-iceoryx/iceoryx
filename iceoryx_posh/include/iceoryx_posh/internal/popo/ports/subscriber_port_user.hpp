@@ -83,6 +83,8 @@ class SubscriberPortUser : public BasePort
     /// @brief attach a condition variable (via its pointer) to subscriber
     void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
+    void setEventVariable(EventVariableData& eventVariableData, const uint64_t eventId) noexcept;
+
     /// @brief detach a condition variable from subscriber
     void unsetConditionVariable() noexcept;
 

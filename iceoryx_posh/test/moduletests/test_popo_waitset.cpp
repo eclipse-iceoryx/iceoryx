@@ -178,6 +178,15 @@ TEST_F(WaitSet_test, AcquireSameTriggerWithNonNullIdTwiceResultsInError)
     EXPECT_THAT(result2.get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
 }
 
+TEST_F(WaitSet_test, AcquireSameTriggerWithDifferentIdResultsInError)
+{
+    m_sut.attachEvent(m_simpleEvents[0], 2101U);
+    auto result2 = m_sut.attachEvent(m_simpleEvents[0], 9121U);
+
+    ASSERT_TRUE(result2.has_error());
+    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
+}
+
 TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
 {
     uint64_t uniqueTriggerId = 0U;
@@ -206,7 +215,7 @@ TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
         // waitset is already full
     }
 
-    auto result = m_sut.attachEvent(m_simpleEvents[0], 0U);
+    auto result = m_sut.attachEvent(m_simpleEvents.back(), 0U);
     EXPECT_FALSE(result.has_error());
 }
 

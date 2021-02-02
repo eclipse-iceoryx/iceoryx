@@ -86,7 +86,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
             eventOrigin,
-            TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
+            TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
             eventType);
     });
 }
@@ -110,7 +110,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
-            eventOrigin, TriggerHandle(m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+            eventOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
     });
 }
 

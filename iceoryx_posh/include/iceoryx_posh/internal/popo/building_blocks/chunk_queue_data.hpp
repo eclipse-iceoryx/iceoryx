@@ -40,6 +40,7 @@ struct ChunkQueueData : public LockingPolicy
     std::atomic_bool m_queueHasOverflown{false};
 
     relative_ptr<ConditionVariableData> m_conditionVariableDataPtr{nullptr};
+    cxx::optional<uint64_t> m_eventVariableIndex;
 };
 
 } // namespace popo

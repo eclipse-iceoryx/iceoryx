@@ -125,10 +125,19 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(
 }
 
 template <typename ChunkQueueDataType>
+inline void ChunkQueuePopper<ChunkQueueDataType>::setEventVariable(EventVariableData& eventVariableDataPtr,
+                                                                   const uint64_t eventId) noexcept
+{
+    getMembers()->m_conditionVariableDataPtr = &eventVariableDataPtr;
+    getMembers()->m_eventVariableIndex.emplace(eventId);
+}
+
+template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
     getMembers()->m_conditionVariableDataPtr = nullptr;
+    getMembers()->m_eventVariableIndex.reset();
 }
 
 template <typename ChunkQueueDataType>
