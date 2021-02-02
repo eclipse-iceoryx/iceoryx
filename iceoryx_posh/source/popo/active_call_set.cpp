@@ -70,6 +70,7 @@ ActiveCallSet::addEvent(void* const origin,
         return cxx::error<ActiveCallSetError>(ActiveCallSetError::ACTIVE_CALL_SET_FULL);
     }
 
+    ++m_size;
     m_events[index]->init(index, origin, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
     return cxx::success<uint64_t>(index);
 }
@@ -81,9 +82,15 @@ void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType, co
         if (m_events[index]->resetIfEqualTo(origin, eventType, eventTypeHash))
         {
             m_indexManager.push(index);
+            --m_size;
             break;
         }
     }
+}
+
+uint64_t ActiveCallSet::size() const noexcept
+{
+    return m_size.load(std::memory_order_relaxed);
 }
 
 void ActiveCallSet::threadLoop() noexcept

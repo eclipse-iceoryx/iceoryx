@@ -69,6 +69,10 @@ class ActiveCallSet
     template <typename T>
     void detachEvent(T& eventOrigin) noexcept;
 
+    static constexpr uint64_t capacity() noexcept;
+
+    uint64_t size() const noexcept;
+
   protected:
     ActiveCallSet(EventVariableData* eventVariable) noexcept;
 
@@ -114,7 +118,6 @@ class ActiveCallSet
       private:
         static constexpr uint64_t INVALID_ID = std::numeric_limits<uint64_t>::max();
 
-        // EventInfo
         void* m_origin = nullptr;
         uint64_t m_eventType = INVALID_ID;
         uint64_t m_eventTypeHash = INVALID_ID;
@@ -122,7 +125,6 @@ class ActiveCallSet
         CallbackPtr_t<void> m_callback = nullptr;
         TranslationCallbackPtr_t m_translationCallback = nullptr;
 
-        // TriggerHandle
         uint64_t m_eventId = INVALID_ID;
         cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
     };
@@ -131,6 +133,7 @@ class ActiveCallSet
     concurrent::smart_lock<Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
     std::mutex m_addEventMutex;
 
+    std::atomic<uint64_t> m_size{0U};
     std::atomic_bool m_wasDtorCalled{false};
     EventVariableData* m_eventVariable = nullptr;
 

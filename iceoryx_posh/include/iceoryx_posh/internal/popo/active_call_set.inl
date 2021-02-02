@@ -43,7 +43,7 @@ inline cxx::expected<ActiveCallSetError> ActiveCallSet::attachEvent(T& eventOrig
         });
 }
 
-template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
+template <typename T, typename EventType, typename>
 inline cxx::expected<ActiveCallSetError>
 ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept
 {
@@ -60,7 +60,7 @@ ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRe
         });
 }
 
-template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
+template <typename T, typename EventType, typename>
 inline void ActiveCallSet::detachEvent(T& eventOrigin, const EventType eventType) noexcept
 {
     removeEvent(&eventOrigin, static_cast<uint64_t>(eventType), typeid(EventType).hash_code());
@@ -70,6 +70,11 @@ template <typename T>
 inline void ActiveCallSet::detachEvent(T& eventOrigin) noexcept
 {
     detachEvent(eventOrigin, NoEnumUsed::PLACEHOLDER);
+}
+
+inline constexpr uint64_t ActiveCallSet::capacity() noexcept
+{
+    return MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
 }
 
 
