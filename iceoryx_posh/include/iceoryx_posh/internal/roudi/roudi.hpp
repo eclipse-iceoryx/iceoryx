@@ -43,7 +43,7 @@ class RouDi
   public:
     // indicate whether the IPC channel thread will start directly or deferred
     // this is important for derived classes which may need to initialize their members before the thread starts
-    enum class IpcThreadStart
+    enum class RuntimeMessagesThreadStart
     {
         IMMEDIATE,
         DEFER_START
@@ -54,12 +54,12 @@ class RouDi
         RoudiStartupParameters(
             const roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::ON,
             const bool killProcessesInDestructor = true,
-            const IpcThreadStart IpcThreadStart = IpcThreadStart::IMMEDIATE,
+            const RuntimeMessagesThreadStart RuntimeMessagesThreadStart = RuntimeMessagesThreadStart::IMMEDIATE,
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
             const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY) noexcept
             : m_monitoringMode(monitoringMode)
             , m_killProcessesInDestructor(killProcessesInDestructor)
-            , m_ipcThreadStart(IpcThreadStart)
+            , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
             , m_compatibilityCheckLevel(compatibilityCheckLevel)
             , m_processKillDelay(processKillDelay)
         {
@@ -67,7 +67,7 @@ class RouDi
 
         const roudi::MonitoringMode m_monitoringMode;
         const bool m_killProcessesInDestructor;
-        const IpcThreadStart m_ipcThreadStart;
+        const RuntimeMessagesThreadStart m_runtimesMessagesThreadStart;
         const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
         const units::Duration m_processKillDelay;
     };
@@ -84,7 +84,7 @@ class RouDi
   protected:
     /// @brief Starts the roudi IPC channel thread
     /// Once this is done, applications can register and Roudi is fully operational.
-    void startIpcChannelThread();
+    void startProcessRuntimeMessagesThread();
 
     /// @brief Stops threads and kills all process known to RouDi
     /// Called in d'tor
