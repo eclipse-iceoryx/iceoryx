@@ -46,7 +46,7 @@ class uninitialized_array
 
 
   protected:
-    using element_t = alignas(Capacity == 0 ? 1 : alignof(T)) uint8_t[Capacity == 0 ? 1 : sizeof(T)];
+    using element_t alignas(Capacity == 0 ? 1 : alignof(T)) = uint8_t[Capacity == 0 ? 1 : sizeof(T)];
 
   private:
     element_t m_data[Capacity == 0 ? 1 : Capacity];
