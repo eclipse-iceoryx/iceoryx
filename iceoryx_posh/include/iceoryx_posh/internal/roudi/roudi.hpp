@@ -41,8 +41,8 @@ using namespace iox::units::duration_literals;
 class RouDi
 {
   public:
-    // indicate whether the IPC channel thread will start directly or deferred
-    // this is important for derived classes which may need to initialize their members before the thread starts
+    /// @brief Indicate whether the thread processing messages from the runtimes will start directly or deferred
+    /// this is important for derived classes which may need to initialize their members before the thread starts
     enum class RuntimeMessagesThreadStart
     {
         IMMEDIATE,
@@ -82,7 +82,7 @@ class RouDi
     virtual ~RouDi();
 
   protected:
-    /// @brief Starts the roudi IPC channel thread
+    /// @brief Starts the thread processing messages from the runtimes
     /// Once this is done, applications can register and Roudi is fully operational.
     void startProcessRuntimeMessagesThread();
 
