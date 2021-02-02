@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 
@@ -206,11 +206,12 @@ TEST_F(PoshRuntime_test, MiddlewareInterfaceGetInvalidNodeNameIsNotSuccessful)
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
-    
+
     m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_invalidNodeName);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE));
+    EXPECT_THAT(detectedError.value(),
+                Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
@@ -264,10 +265,8 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 13U;
     publisherOptions.nodeName = m_nodeName;
-
-    const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
-                                                                 publisherOptions,
-                                                                 iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(99U, 1U, 20U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), publisherPort->m_serviceDescription);
@@ -281,8 +280,8 @@ TEST_F(PoshRuntime_test, MiddlewarePublisherMaxCapacityExceededReturnMaxCapacity
     publisherOptions.historyCapacity = iox::MAX_PUBLISHER_HISTORY + 1U;
 
     // act
-    const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
-                                                                 publisherOptions);
+    const auto publisherPort =
+        m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U), publisherOptions);
 
     // assert
     ASSERT_NE(nullptr, publisherPort);
@@ -360,10 +359,9 @@ TEST_F(PoshRuntime_test, MiddlewareSubscriberMaxCapacityExceededReturnMaxCapacit
     constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
     subscriberOptions.historyRequest = 13U;
     subscriberOptions.queueCapacity = MAX_QUEUE_CAPACITY + 1U;
-    
-    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
-                                                             subscriberOptions,
-                                                             iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_EQ(MAX_QUEUE_CAPACITY, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
@@ -375,9 +373,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
     subscriberOptions.queueCapacity = 42U;
     subscriberOptions.nodeName = m_nodeName;
 
-    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
-                                                             subscriberOptions,
-                                                             iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, subscriberPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), subscriberPort->m_serviceDescription);
@@ -489,7 +486,7 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
             detectedError.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
-    
+
     m_runtime->createNode(nodeProperty);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));

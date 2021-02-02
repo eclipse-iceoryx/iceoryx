@@ -25,7 +25,7 @@
 namespace cpp2c
 {
 iox_SubscribeState SubscribeState(const iox::SubscribeState value);
-iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveError value);
+iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult value);
 iox_AllocationResult AllocationResult(const iox::popo::AllocationError value);
 iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value);
 } // namespace cpp2c

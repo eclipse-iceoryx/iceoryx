@@ -74,8 +74,8 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 
 | task | call |
 |:-----|:-----|
-|attach subscriber to a WaitSet|`waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, 123, mySubscriberCallback)`|
-|attach user trigger to a WaitSet|`waitset.attachEvent(userTrigger, 456, myUserTriggerCallback)`|
+|attach subscriber to a WaitSet|`waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, 123, &mySubscriberCallback)`|
+|attach user trigger to a WaitSet|`waitset.attachEvent(userTrigger, 456, &myUserTriggerCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
 |check if event originated from some object|`event.doesOriginateFrom(ptrToSomeObject)`|
@@ -157,7 +157,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     auto& subscriber = subscriberVector.back();
 
     subscriber.subscribe();
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, &subscriberCallback);
 }
 ```
 
@@ -362,7 +362,7 @@ After that we require a `cyclicTrigger` to trigger our
 eventId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-waitset.attachEvent(cyclicTrigger, 0U, SomeClass::cyclicRun);
+waitset.attachEvent(cyclicTrigger, 0U, &SomeClass::cyclicRun);
 ```
 
 The next thing we need is something which will trigger our `cyclicTrigger`
@@ -438,7 +438,7 @@ class MyTriggerClass
     void performAction() noexcept
     {
         m_hasPerformedAction = true;
-        m_actionTrigger.trigger();
+        m_onActionTrigger.trigger();
     }
 ```
 
@@ -461,72 +461,95 @@ the two const methods `hasPerformedAction` and `isActivated`.
     }
 ```
 
-The method `enableEvent` attaches our class to a WaitSet but the user has
-to specify which event they would like to attach. Additionally, they can
-set a `eventId` and a `callback`.
-
-If the parameter event was set to `PERFORMED_ACTION` we call `acquireTriggerHandle`
-and the waitset which will return an `cxx::expected`. The following parameters
-have to be provided.
-
- 1. The origin of the trigger, e.g. `this`
- 2. A method which can be called by the trigger to ask if it was triggered.
- 3. A method which resets the trigger. Used when the WaitSet goes out of scope.
- 4. The id of the event.
- 5. A callback with the signature `void (MyTriggerClass * )`.
+Since the following methods should not be accessible by the public but must be 
+accessible by any _Notifyable_ like the _WaitSet_ and to avoid that 
+we have to befriend every possible _Notifyable_ we created the `EventAttorney`.
+Every _Triggerable_ has to befriend the `EventAttorney` which provides access 
+to the private methods `enableEvent`, `disableEvent`, `invalidateTrigger` and 
+`getHasTriggeredCallbackForEvent` to all _Notifyables_.
 
 ```cpp
-    iox::cxx::expected<iox::popo::WaitSetError>
-    enableEvent(iox::popo::WaitSet<>& waitset,
-                    const MyTriggerClassEvents event,
-                    const uint64_t eventId,
-                    const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
+    friend iox::popo::EventAttorney;
+```
+
+The method `enableEvent` is called by the _WaitSet_ when `MyTriggerClass`
+is being attached to it. During that process the _WaitSet_ creates a `triggerHandle`
+and forwards the `event` to which this handle belongs. 
+
+In the switch case statement we assign the `triggerHandle` to the corresponding
+internal trigger handle.
+
+```cpp
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle,
+                     const MyTriggerClassEvents event) noexcept
     {
         switch (event)
         {
         case MyTriggerClassEvents::PERFORMED_ACTION:
-        {
-            return waitset
-                .acquireTriggerHandle(this,
-                                {*this, &MyTriggerClass::hasPerformedAction},
-                                {*this, &MyTriggerClass::disableEvent},
-                                eventId,
-                                callback)
-                .and_then([this](iox::popo::TriggerHandle& trigger) {
-                    m_actionTrigger = std::move(trigger); });
-        }
-```
-
-When the parameter event has the value `ACTIVATE` we use the `isActivated` method
-for the trigger.
-```cpp
+            m_onActionTrigger = std::move(triggerHandle);
+            break;
         case MyTriggerClassEvents::ACTIVATE:
-        {
-            return waitset
-                .acquireTriggerHandle(this,
-                                {*this, &MyTriggerClass::isActivated},
-                                {*this, &MyTriggerClass::disableEvent},
-                                eventId,
-                                callback)
-                .and_then([this](iox::popo::TriggerHandle& trigger) {
-                    m_activateTrigger = std::move(trigger); });
+            m_activateTrigger = std::move(triggerHandle);
+            break;
         }
+    }
 ```
 
-The next thing on our checklist is the `disableEvent` method used by the WaitSet
+The next thing on our checklist is the `invalidateTrigger` method used by the WaitSet
 to reset the _Trigger_ when it goes out of scope. Therefore we look up the
-correct unique trigger id first and then `invalidate` it.
+correct unique trigger id first and then `invalidate` it to make them unusable 
+in the future.
 ```cpp
-    void disableEvent(const uint64_t uniqueEventId)
+    void invalidateTrigger(const uint64_t uniqueTriggerId)
     {
-        if (m_actionTrigger.getUniqueId() == uniqueEventId)
+        if (m_onActionTrigger.getUniqueId() == uniqueTriggerId)
         {
-            m_actionTrigger.invalidate();
+            m_onActionTrigger.invalidate();
         }
-        else if (m_activateTrigger.getUniqueId() == uniqueEventId)
+        else if (m_activateTrigger.getUniqueId() == uniqueTriggerId)
         {
             m_activateTrigger.invalidate();
         }
+    }
+```
+
+Detaching an event in the _WaitSet_ will lead to a call to `disableEvent` in 
+our class. In this case we have to `reset` the corresponding trigger to invalidate 
+and release it from the _WaitSet_. Like before we use a switch case statement to 
+find the to the event corresponding trigger.
+```cpp
+    void disableEvent(const MyTriggerClassEvents event) noexcept
+    {
+        switch (event)
+        {
+        case MyTriggerClassEvents::PERFORMED_ACTION:
+            m_onActionTrigger.reset();
+            break;
+        case MyTriggerClassEvents::ACTIVATE:
+            m_activateTrigger.reset();
+            break;
+        }
+    }
+```
+
+The last method we have to implement is `getHasTriggeredCallbackForEvent`. The
+_WaitSet_ is state based and therefore it requires, beside the condition variable
+which only states that something has happened, a callback to find the object 
+where it happened. This is the `hasTriggerCallback`. In our case we either return 
+the method pointer to `hasPerformedAction` or `isActivated` depending on which 
+event was requested.
+```cpp
+    iox::popo::WaitSetHasTriggeredCallback 
+    getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
+    {
+        switch (event)
+        {
+        case MyTriggerClassEvents::PERFORMED_ACTION:
+            return {*this, &MyTriggerClass::hasPerformedAction};
+        case MyTriggerClassEvents::ACTIVATE:
+            return {*this, &MyTriggerClass::isActivated};
+        }
+        return {};
     }
 ```
 
@@ -570,9 +593,9 @@ triggerClass.emplace();
 After that we can attach both `triggerClass` events to the waitset and provide
 also a callback for them.
 ```cpp
-    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, &callOnActivate);
     waitset->attachEvent(
-        *triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
+        *triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction);
 ```
 
 Now that everything is set up we can start our `eventLoop` in a new thread.

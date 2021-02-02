@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -142,7 +142,6 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
 
 PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
                                                                          const popo::PublisherOptions& publisherOptions,
-                                                                         const NodeName_t& nodeName,
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     constexpr uint64_t MAX_HISTORY_CAPACITY =
@@ -156,10 +155,16 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
                   << ", limiting from " << publisherOptions.historyCapacity << " to " << MAX_HISTORY_CAPACITY;
         options.historyCapacity = MAX_HISTORY_CAPACITY;
     }
+
+    if (options.nodeName.empty())
+    {
+        options.nodeName = m_appName;
+    }
+
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
-               << nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
+               << options.nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
     if (maybePublisher.has_error())
@@ -236,7 +241,6 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
 SubscriberPortUserType::MemberType_t*
 PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                                      const popo::SubscriberOptions& subscriberOptions,
-                                     const NodeName_t& nodeName,
                                      const PortConfigInfo& portConfigInfo) noexcept
 {
     constexpr uint64_t MAX_QUEUE_CAPACITY = SubscriberPortUserType::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
@@ -250,10 +254,15 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
         options.queueCapacity = MAX_QUEUE_CAPACITY;
     }
 
+    if (options.nodeName.empty())
+    {
+        options.nodeName = m_appName;
+    }
+
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << nodeName
+               << std::to_string(options.queueCapacity) << options.nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
