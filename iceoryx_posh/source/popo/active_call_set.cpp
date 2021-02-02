@@ -31,6 +31,7 @@ ActiveCallSet::ActiveCallSet(EventVariableData* eventVariable) noexcept
     : m_eventVariable(eventVariable)
 {
     m_indexManager.init(m_loffliStorage, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
+    m_thread = std::thread(&ActiveCallSet::threadLoop, this);
 }
 
 ActiveCallSet::~ActiveCallSet()
@@ -41,6 +42,8 @@ ActiveCallSet::~ActiveCallSet()
     m_eventVariable->m_semaphore.post();
 
     m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+
+    m_thread.join();
 }
 
 cxx::expected<uint64_t, ActiveCallSetError>

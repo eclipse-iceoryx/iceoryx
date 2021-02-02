@@ -49,7 +49,12 @@ class ActiveCallSet
     using TranslationCallbackPtr_t = void (*)(void* const, void (*const)(void* const));
 
     ActiveCallSet() noexcept;
+    ActiveCallSet(const ActiveCallSet&) = delete;
+    ActiveCallSet(ActiveCallSet&&) = delete;
     ~ActiveCallSet();
+
+    ActiveCallSet& operator=(const ActiveCallSet&) = delete;
+    ActiveCallSet& operator=(ActiveCallSet&&) = delete;
 
     template <typename T>
     cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
