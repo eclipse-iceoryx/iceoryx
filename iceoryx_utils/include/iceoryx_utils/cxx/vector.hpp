@@ -28,7 +28,7 @@ namespace cxx
 ///         adjustments in the API since we do not use exceptions and we require
 ///         a data structure which can be located fully in the shared memory.
 template <typename T, uint64_t Capacity>
-class vector : public container_storage<T, Capacity>
+class vector
 {
   public:
     typedef T value_type;
@@ -90,22 +90,13 @@ class vector : public container_storage<T, Capacity>
     ///         element (the first element which is outside of the vector).
     const_iterator end() const noexcept;
 
-    /// @brief returns a reference to the first element; terminates if the vector is empty
-    /// @return reference to the first element
-    reference front() noexcept;
+    /// @brief return the pointer to the underlying array
+    /// @return pointer to underlying array
+    T* data() noexcept;
 
-    /// @brief returns a const reference to the first element; terminates if the vector is empty
-    /// @return const reference to the first element
-    const_reference front() const noexcept;
-
-    /// @brief returns a reference to the last element; terminates if the vector is empty
-    /// @return reference to the last element
-    reference back() noexcept;
-
-    /// @brief returns a const reference to the last element; terminates if the vector is empty
-    /// @return const reference to the last element
-    const_reference back() const noexcept;
-
+    /// @brief return the const pointer to the underlying array
+    /// @return const pointer to underlying array
+    const T* data() const noexcept;
 
     /// @brief returns a reference to the element stored at index.
     ///         Terminates, if the element at index does not exist.
@@ -123,8 +114,36 @@ class vector : public container_storage<T, Capacity>
     ///         Terminates, if the element at index does not exist.
     const_reference operator[](const uint64_t index) const noexcept;
 
+    /// @brief returns a reference to the first element; terminates if the vector is empty
+    /// @return reference to the first element
+    reference front() noexcept;
+
+    /// @brief returns a const reference to the first element; terminates if the vector is empty
+    /// @return const reference to the first element
+    const_reference front() const noexcept;
+
+    /// @brief returns a reference to the last element; terminates if the vector is empty
+    /// @return reference to the last element
+    reference back() noexcept;
+
+    /// @brief returns a const reference to the last element; terminates if the vector is empty
+    /// @return const reference to the last element
+    const_reference back() const noexcept;
+
+    /// @brief returns the capacity of the vector which was given via the template
+    ///         argument
+    uint64_t capacity() const;
+
+    /// @brief returns the number of elements which are currently stored in the
+    ///         vector
+    uint64_t size() const;
+
     /// @brief returns true if the vector is empty, otherwise false
     bool empty() const noexcept;
+
+    /// @brief returns whether the data structure is completely full
+    /// @return true, if filled with capacity() elements, false otherwise
+    bool full() const noexcept;
 
     /// @brief calls the destructor of all contained elements and removes them
     void clear() noexcept;
@@ -162,7 +181,8 @@ class vector : public container_storage<T, Capacity>
     iterator erase(const uint64_t index);
 
   private:
-    using element_t = typename uninitialized_array<T, Capacity>::element_t;
+    using element_t = typename container_storage<T, Capacity>::element_t;
+    container_storage<T, Capacity> m_container;
 };
 } // namespace cxx
 } // namespace iox

@@ -1,4 +1,4 @@
-// Copyright (c) 2020,2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
 #ifndef IOX_UTILS_CXX_LIST_HPP
 #define IOX_UTILS_CXX_LIST_HPP
 
-#include "iceoryx_utils/cxx/uninitialized_array.hpp"
 #include <cstdint>
-#include <iceoryx_utils/cxx/container_storage.hpp>
 #include <iostream>
 
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include <iceoryx_utils/cxx/container_storage.hpp>
 
 namespace iox
 {
@@ -52,7 +51,7 @@ namespace cxx
 /// @param T type user data to be managed within list
 /// @param Capacity number of maximum list elements a client can push to the list.
 template <typename T, uint64_t Capacity>
-class list : public container_storage<T, Capacity>
+class list
 {
   private:
     // forward declarations, private
@@ -122,6 +121,28 @@ class list : public container_storage<T, Capacity>
     ///         Terminated when content is attemted to read (operator*, operator->)
     /// @return iterator to end element, does not contain data.
     const_iterator cend() const noexcept;
+
+    /// @brief list meta information on filling
+    /// @return no elements in list (true), otherwise (false)
+    bool empty() const noexcept;
+
+    /// @brief list meta information on filling
+    /// @return whether list is full (filled with 'capacity' / 'max_size' elements) (true), otherwise (false)
+    bool full() const noexcept;
+
+    /// @brief list meta information on filling
+    /// @return current number of elements in list
+    /// @min    returns min 0
+    /// @max    returns max capacity
+    size_type size() const noexcept;
+
+    /// @brief list meta information, maximum number of elements the list can contain
+    /// @return list has been initialized with the following number of elements.
+    size_type capacity() const noexcept;
+
+    /// @brief list meta information, maximum number of elements the list can contain
+    /// @return list has been initialized with the following number of elements, same as capacity()
+    size_type max_size() const noexcept;
 
     /// @brief Returns a reference to the first element in the container.
     ///         calling front() on an empty list will terminate() the processing
@@ -357,6 +378,9 @@ class list : public container_storage<T, Capacity>
     // first used list element (begin())
     NodeLink m_links[NODE_LINK_COUNT];
 
+    using element_t = typename container_storage<T, Capacity>::element_t;
+
+    container_storage<T, Capacity> m_container;
 }; // list
 
 } // namespace cxx

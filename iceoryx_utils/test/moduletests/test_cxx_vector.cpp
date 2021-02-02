@@ -132,9 +132,7 @@ TEST_F(vector_test, NewlyCreatedVectorHasSizeZero)
 TEST_F(vector_test, Capacity)
 {
     EXPECT_THAT(sut5.capacity(), Eq(5));
-    EXPECT_THAT(sut5.max_size(), Eq(5));
     EXPECT_THAT(sut0.capacity(), Eq(0));
-    EXPECT_THAT(sut0.max_size(), Eq(0));
 }
 
 TEST_F(vector_test, NewVectorWithElementsCTorWithZeroElements)
@@ -284,7 +282,6 @@ TEST_F(vector_test, SizeEqualsCapacityIfFull)
         sut5.emplace_back(5);
     }
     EXPECT_THAT(sut5.size(), Eq(sut5.capacity()));
-    EXPECT_THAT(sut5.size(), Eq(sut5.max_size()));
 }
 
 TEST_F(vector_test, FullVectorIsFull)

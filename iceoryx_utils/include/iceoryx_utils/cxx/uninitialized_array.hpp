@@ -44,10 +44,6 @@ class uninitialized_array
     ///         i.e., the maximum number of elements it can hold
     uint64_t capacity() const noexcept;
 
-    /// @brief returns the capacity, which was given via the template argument,
-    ///         i.e., the maximum number of elements it can hold (same as capacity())
-    uint64_t max_size() const noexcept;
-
 
   protected:
     using element_t = alignas(Capacity == 0 ? 1 : alignof(T)) uint8_t[Capacity == 0 ? 1 : sizeof(T)];

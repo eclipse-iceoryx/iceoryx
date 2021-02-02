@@ -51,6 +51,8 @@ class container_storage : public uninitialized_array<T, Capacity>
     /// @return true, if filled with max_size() elements, false otherwise
     bool full() const noexcept;
 
+    using element_t = typename uninitialized_array<T, Capacity>::element_t;
+
   private:
     uint64_t m_size{0u};
 };

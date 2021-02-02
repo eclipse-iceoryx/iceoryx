@@ -1,4 +1,4 @@
-// Copyright (c) 2020,2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ inline forward_list<T, Capacity>& forward_list<T, Capacity>::forward_list::opera
         uint64_t i = 0U;
         auto iterThis = before_begin();
         auto citerRhs = rhs.cbefore_begin();
-        auto startSize = this->size();
+        auto startSize = size();
         auto minOfLhsRhsSize = std::min(rhs.size(), startSize);
 
         // copy using copy assignment
@@ -87,7 +87,7 @@ inline forward_list<T, Capacity>& forward_list<T, Capacity>::forward_list::opera
         uint64_t i = 0U;
         auto iterThis = before_begin();
         auto iterRhs = rhs.before_begin();
-        auto startSize = this->size();
+        auto startSize = size();
         auto minOfLhsRhsSize = std::min(rhs.size(), startSize);
 
         // move using move assignment
@@ -175,6 +175,37 @@ inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capaci
 
 
 template <typename T, uint64_t Capacity>
+inline bool forward_list<T, Capacity>::empty() const noexcept
+{
+    return m_container.empty();
+}
+
+template <typename T, uint64_t Capacity>
+inline bool forward_list<T, Capacity>::full() const noexcept
+{
+    return m_container.full();
+}
+
+template <typename T, uint64_t Capacity>
+inline typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::size() const noexcept
+{
+    return m_container.size();
+}
+
+template <typename T, uint64_t Capacity>
+inline typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::capacity() const noexcept
+{
+    return m_container.capacity();
+}
+
+template <typename T, uint64_t Capacity>
+inline typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::max_size() const noexcept
+{
+    return capacity();
+}
+
+
+template <typename T, uint64_t Capacity>
 template <typename... ConstructorArgs>
 inline T& forward_list<T, Capacity>::emplace_front(ConstructorArgs&&... args) noexcept
 {
@@ -191,7 +222,7 @@ forward_list<T, Capacity>::emplace_after(const_iterator toBeEmplacedAfterIter, C
         return end();
     }
 
-    if (this->size() >= Capacity)
+    if (full())
     {
         errorMessage(__PRETTY_FUNCTION__, " capacity exhausted ");
         return end();
@@ -212,7 +243,7 @@ forward_list<T, Capacity>::emplace_after(const_iterator toBeEmplacedAfterIter, C
     setNextIdx(toBeAddedIdx, getNextIdx(toBeEmplacedAfterIter));
     setNextIdx(toBeEmplacedAfterIter.m_iterListNodeIdx, toBeAddedIdx);
 
-    this->set_size(this->size() + 1U);
+    m_container.set_size(m_container.size() + 1u);
 
     return iterator{this, toBeAddedIdx};
 }
@@ -230,7 +261,7 @@ forward_list<T, Capacity>::erase_after(const_iterator toBeErasedAfterIter) noexc
     auto eraseIdx = getNextIdx(toBeErasedAfterIter);
 
     // additional validity check on to-be-erase element
-    if (!isValidElementIdx(eraseIdx) || this->empty())
+    if (!isValidElementIdx(eraseIdx) || empty())
     {
         errorMessage(__PRETTY_FUNCTION__, " iterator is end() or list is empty");
         return end();
@@ -248,7 +279,7 @@ forward_list<T, Capacity>::erase_after(const_iterator toBeErasedAfterIter) noexc
     setNextIdx(eraseIdx, m_freeListHeadIdx);
     m_freeListHeadIdx = eraseIdx;
 
-    this->set_size(this->size() - 1U);
+    m_container.set_size(m_container.size() - 1u);
 
     // Iterator to the element following the erased one, or end() if no such element exists.
     return iterator{this, retIdx};
@@ -306,31 +337,31 @@ inline const T& forward_list<T, Capacity>::front() const noexcept
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::push_front(const T& data) noexcept
 {
-    auto sizeBeforePush = this->size();
-    if (this->size() < Capacity)
+    auto sizeBeforePush = m_container.size();
+    if (!full())
     {
         emplace_front(data);
     }
-    return (this->size() == ++sizeBeforePush);
+    return (m_container.size() == ++sizeBeforePush);
 }
 
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::push_front(T&& data) noexcept
 {
-    auto sizeBeforePush = this->size();
-    if (this->size() < Capacity)
+    auto sizeBeforePush = m_container.size();
+    if (!full())
     {
         emplace_front(std::forward<T>(data));
     }
-    return (this->size() == ++sizeBeforePush);
+    return (m_container.size() == ++sizeBeforePush);
 }
 
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::pop_front() noexcept
 {
-    auto sizeBeforeErase = this->size();
+    auto sizeBeforeErase = m_container.size();
     erase_after(before_begin());
-    return ((this->size() + 1U) == sizeBeforeErase);
+    return ((m_container.size() + 1U) == sizeBeforeErase);
 }
 
 template <typename T, uint64_t Capacity>
@@ -351,7 +382,7 @@ inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::i
 template <typename T, uint64_t Capacity>
 inline void forward_list<T, Capacity>::clear() noexcept
 {
-    while (this->size())
+    while (m_container.size())
     {
         erase_after(before_begin());
     }
@@ -471,7 +502,7 @@ inline void forward_list<T, Capacity>::init() noexcept
     setNextIdx(Capacity + 1U, END_INDEX);
     m_freeListHeadIdx = 0U;
 
-    this->set_size(0U);
+    m_container.set_size(0U);
 }
 
 
@@ -520,7 +551,7 @@ inline const T* forward_list<T, Capacity>::getDataPtrFromIdx(const size_type idx
         return nullptr;
     }
 
-    return &(this->data()[idx]);
+    return &(m_container.data()[idx]);
 }
 
 template <typename T, uint64_t Capacity>

@@ -31,6 +31,11 @@ inline uint64_t container_storage<T, Capacity>::size() const noexcept
 template <typename T, uint64_t Capacity>
 inline void container_storage<T, Capacity>::set_size(uint64_t newSize) noexcept
 {
+    if (newSize > Capacity)
+    {
+        std::cerr << "Illegal call of set_size(" << newSize << ") exceeds Capacity=" << Capacity << "." << std::endl;
+        std::terminate();
+    }
     m_size = newSize;
 }
 
@@ -56,8 +61,13 @@ class container_storage<T, 0U> : public uninitialized_array<T, 0>
         return 0u;
     }
 
-    inline void set_size(uint64_t newSize [[gnu::unused]]) noexcept
+    inline void set_size(uint64_t newSize) noexcept
     {
+        if (newSize > 0U)
+        {
+            std::cerr << "Illegal call of set_size(" << newSize << ") exceeds Capacity=0." << std::endl;
+            std::terminate();
+        }
     }
 
     inline bool empty() const noexcept
@@ -69,6 +79,8 @@ class container_storage<T, 0U> : public uninitialized_array<T, 0>
     {
         return true;
     }
+
+    using element_t = typename uninitialized_array<T, 0U>::element_t;
 };
 
 } // namespace cxx

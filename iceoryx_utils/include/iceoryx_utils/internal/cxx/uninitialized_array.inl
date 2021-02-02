@@ -28,12 +28,6 @@ inline uint64_t uninitialized_array<T, Capacity>::capacity() const noexcept
 }
 
 template <typename T, uint64_t Capacity>
-inline uint64_t uninitialized_array<T, Capacity>::max_size() const noexcept
-{
-    return Capacity;
-}
-
-template <typename T, uint64_t Capacity>
 inline T* uninitialized_array<T, Capacity>::data() noexcept
 {
     return reinterpret_cast<T*>(m_data);
