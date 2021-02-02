@@ -439,6 +439,109 @@ TEST_F(PortManager_test, ConditionVariablesDestroy)
     }
 }
 
+TEST_F(PortManager_test, AcquiringMaximumNumberOfEventVariablesWorks)
+{
+    std::string process = "BuddyHolly";
+
+    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
+    {
+        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+        auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
+        EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
+    }
+}
+
+TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfEventVariableFails)
+{
+    std::string process = "BuddyHollysBrille";
+
+    // first acquire all possible event variables
+    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
+    {
+        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+        auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
+        ASSERT_THAT(eventVariableDataResult.has_error(), Eq(false));
+    }
+
+    // test if overflow errors get hit
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
+
+    auto eventVariableDataResult = m_portManager->acquireEventVariableData("AnotherBrille");
+    EXPECT_THAT(eventVariableDataResult.has_error(), Eq(true));
+    EXPECT_THAT(errorHandlerCalled, Eq(true));
+    EXPECT_THAT(eventVariableDataResult.get_error(), Eq(PortPoolError::EVENT_VARIABLE_LIST_FULL));
+}
+
+TEST_F(PortManager_test, DeletingEventVariableWorks)
+{
+    std::string process = "BudSpencer";
+
+    // first acquire all possible event variables
+    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
+    {
+        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+        auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
+        ASSERT_THAT(eventVariableDataResult.has_error(), Eq(false));
+    }
+
+    // test if overflow errors get hit
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
+
+    auto eventVariableDataResult = m_portManager->acquireEventVariableData("AnotherItalianActor");
+    ASSERT_THAT(eventVariableDataResult.has_error(), Eq(true));
+    ASSERT_THAT(errorHandlerCalled, Eq(true));
+    ASSERT_THAT(eventVariableDataResult.get_error(), Eq(PortPoolError::EVENT_VARIABLE_LIST_FULL));
+
+    // delete one and add one eventVariableDataResult should be possible now
+    unsigned int i = 0U;
+    iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+    m_portManager->deletePortsOfProcess(newProcessName);
+
+    eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
+    EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
+}
+
+TEST_F(PortManager_test, DestroyEventVariableAndAddNewOneSucceeds)
+{
+    iox::ProcessName_t process = "Terence Hill";
+    std::vector<iox::popo::EventVariableData*> eventVariableContainer;
+
+    // first acquire all possible event variables
+    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
+    {
+        auto eventVariableDataResult = m_portManager->acquireEventVariableData(process);
+        EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
+        eventVariableContainer.push_back(eventVariableDataResult.value());
+    }
+
+    // so now no event variables should be available
+    auto eventVariableDataResult = m_portManager->acquireEventVariableData(process);
+    EXPECT_THAT(eventVariableDataResult.has_error(), Eq(true));
+
+    // set the destroy flag and let the discovery loop take care
+    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
+    {
+        eventVariableContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    }
+    m_portManager->doDiscovery();
+    eventVariableContainer.clear();
+
+    // so we should be able to get some more now
+    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
+    {
+        auto eventVariableDataResult = m_portManager->acquireEventVariableData(process);
+        EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
+    }
+}
+
 TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
 {
     std::string process = "Process";
@@ -520,7 +623,6 @@ TEST_F(PortManager_test, DeletingNodeWorks)
     EXPECT_THAT(nodeData.value()->m_process, StrEq(newProcessName));
 }
 
-
 TEST_F(PortManager_test, DestroyNodeDataAndAddNewNodeDataSucceeds)
 {
     iox::ProcessName_t process = "Humuhumunukunukuapua'a";
@@ -554,7 +656,6 @@ TEST_F(PortManager_test, DestroyNodeDataAndAddNewNodeDataSucceeds)
         EXPECT_THAT(nodeData.has_error(), Eq(false));
     }
 }
-
 
 TEST_F(PortManager_test, PortDestroy)
 {
