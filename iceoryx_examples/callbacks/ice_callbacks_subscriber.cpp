@@ -55,6 +55,9 @@ int main()
 
     callSet.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
 
+    std::this_thread::sleep_for(std::chrono::seconds(100000));
+
+
     callSet.detachEvent(shutdownTrigger);
     callSet.detachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_SAMPLES);
 

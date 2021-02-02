@@ -43,7 +43,7 @@ ActiveCallSet::~ActiveCallSet()
     m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
-cxx::expected<ActiveCallSetError>
+cxx::expected<uint64_t, ActiveCallSetError>
 ActiveCallSet::addEvent(void* const origin,
                         const uint64_t eventType,
                         const uint64_t eventTypeHash,
@@ -67,8 +67,8 @@ ActiveCallSet::addEvent(void* const origin,
         return cxx::error<ActiveCallSetError>(ActiveCallSetError::ACTIVE_CALL_SET_FULL);
     }
 
-    m_events[index]->init(origin, eventType, eventTypeHash, callback, translationCallback);
-    return cxx::success<>();
+    m_events[index]->init(index, origin, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
+    return cxx::success<uint64_t>(index);
 }
 
 void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept
@@ -113,6 +113,11 @@ void ActiveCallSet::removeTrigger(const uint64_t index) noexcept
 ////////////////
 // Event_t
 ////////////////
+ActiveCallSet::Event_t::~Event_t()
+{
+    reset();
+}
+
 void ActiveCallSet::Event_t::executeCallback() noexcept
 {
     if (!isInitialized())
@@ -123,17 +128,21 @@ void ActiveCallSet::Event_t::executeCallback() noexcept
     m_translationCallback(m_origin, m_callback);
 }
 
-void ActiveCallSet::Event_t::init(void* const origin,
+void ActiveCallSet::Event_t::init(const uint64_t eventId,
+                                  void* const origin,
                                   const uint64_t eventType,
                                   const uint64_t eventTypeHash,
                                   CallbackRef_t<void> callback,
-                                  TranslationCallbackRef_t translationCallback) noexcept
+                                  TranslationCallbackRef_t translationCallback,
+                                  const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
+    m_eventId = eventId;
     m_origin = origin;
     m_eventType = eventType;
     m_eventTypeHash = eventTypeHash;
     m_callback = &callback;
     m_translationCallback = &translationCallback;
+    m_invalidationCallback = invalidationCallback;
 }
 
 bool ActiveCallSet::Event_t::isEqualTo(const void* const origin,
@@ -154,10 +163,15 @@ bool ActiveCallSet::Event_t::reset() noexcept
 {
     if (isInitialized())
     {
+        m_invalidationCallback(m_eventId);
+
+        m_eventId = INVALID_ID;
         m_origin = nullptr;
-        m_eventType = 0U;
+        m_eventType = INVALID_ID;
+        m_eventTypeHash = INVALID_ID;
         m_callback = nullptr;
         m_translationCallback = nullptr;
+        m_invalidationCallback = cxx::MethodCallback<void, uint64_t>();
 
         return true;
     }
