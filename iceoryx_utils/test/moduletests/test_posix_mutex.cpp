@@ -31,6 +31,9 @@ class Mutex_test : public Test
             : iox::posix::mutex(isRecursive)
         {
         }
+
+
+        // static const iox::units::Duration TIMEOUT;
     };
 
     void SetUp() override
@@ -48,7 +51,10 @@ class Mutex_test : public Test
     }
 
     iox::posix::mutex sut{false};
+    // static const iox::units::Duration TIMEOUT;
 };
+
+// const iox::units::Duration Mutex_test::TIMEOUT{1000_ms};
 
 TEST_F(Mutex_test, TryLockWithNoLock)
 {
@@ -80,16 +86,17 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
             std::thread* t;
             {
                 iox::posix::mutex mtx{false};
-                iox::cxx::DeadlineTimer mutexTimer(1000_ms);
+                constexpr iox::units::Duration mutexTimerDuration = 1000_ms;
+                constexpr iox::units::Duration threadTimerDuration = 5000_ms;
+                iox::cxx::DeadlineTimer mutexTimer(mutexTimerDuration);
+
                 t = new std::thread([&] {
                     mtx.lock();
-                    iox::cxx::DeadlineTimer ct(5000_ms);
-                    while (!ct.hasExpired()) // come back in any case!
-                        ;
+                    iox::cxx::DeadlineTimer ct(threadTimerDuration);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2 * threadTimerDuration.milliSeconds<int>()));
                 });
 
-                while (!mutexTimer.hasExpired())
-                    ;
+                std::this_thread::sleep_for(std::chrono::milliseconds(2 * mutexTimerDuration.milliSeconds<int>()));
             }
             t->join();
             delete t;
