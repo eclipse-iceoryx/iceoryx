@@ -428,6 +428,16 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
     EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
 }
 
+TEST_F(ServiceDescription_test, ClassHashIndexOperatorReturnsTheValueInTheCorrespondingIndex)
+{
+    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
+
+    EXPECT_THAT(testHash[0], Eq(1U));
+    EXPECT_THAT(testHash[1], Eq(2U));
+    EXPECT_THAT(testHash[2], Eq(3U));
+    EXPECT_THAT(testHash[3], Eq(4U));
+}
+
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
 {
     ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
@@ -484,7 +494,8 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
     EXPECT_EQ(serviceDescription1.getScope(), Scope::INTERNAL);
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceStringIsInvalid)
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceStringIsInvalid)
 {
     uint16_t testServiceID = iox::capro::AnyService;
     uint16_t testEventID = iox::capro::AnyEvent;
@@ -509,7 +520,8 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceStringIsIn
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsAnyService)
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceIDIsAnyService)
 {
     uint16_t testServiceID = iox::capro::AnyService;
     uint16_t testEventID = iox::capro::AnyEvent;
@@ -534,7 +546,8 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenServiceIDIsAnySer
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceStringIsInvalid)
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndInstanceStringIsInvalid)
 {
     uint16_t testServiceID = 1U;
     uint16_t testEventID = iox::capro::AnyEvent;
@@ -558,7 +571,8 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceStringIsI
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsAnyInstance)
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndInstanceIDIsAnyInstance)
 {
     uint16_t testServiceID = 1U;
     uint16_t testEventID = 3U;
@@ -583,7 +597,8 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhenInstanceIDIsAnyIn
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
-TEST_F(ServiceDescription_test, ServiceDescriptionIsValidWhenServiceInstanceAndEventAreValid)
+TEST_F(ServiceDescription_test,
+       ServiceDescriptionIsValidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceInstanceAndEventAreValid)
 {
     uint16_t testServiceID = 1U;
     uint16_t testEventID = 3U;
@@ -672,7 +687,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionIsInvalidWhen_m_hasServiceOnly
 }
 
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsFalseAndServieInstanceAndEventIDsAreValid)
+       ServiceDescriptionIsValidWhen_m_hasServiceOnlyDescriptionIsFalseAndServiceInstanceAndEventIDsAreValid)
 {
     uint16_t testServiceID = 1U;
     uint16_t testEventID = 1U;
