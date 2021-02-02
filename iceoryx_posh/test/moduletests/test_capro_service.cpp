@@ -226,6 +226,8 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithZeroAsStringValu
 
 TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithOutOfBoundaryIntegerStringValuesSetTheIDsToInvalid)
 {
+    /// @note The value 65536 is assigned to the strings to set the condition to out of boundary when string is
+    /// converted to uint_16t.
     testService = "65536";
     testInstance = "65536";
     testEvent = "65536";
