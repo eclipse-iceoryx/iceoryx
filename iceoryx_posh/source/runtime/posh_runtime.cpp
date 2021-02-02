@@ -517,6 +517,43 @@ PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noex
     return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE);
 }
 
+cxx::expected<popo::EventVariableData*, MqMessageErrorType>
+PoshRuntime::requestEventVariableFromRoudi(const MqMessage& sendBuffer) noexcept
+{
+    MqMessage receiveBuffer;
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3U == receiveBuffer.getNumberOfElements()))
+    {
+        std::string mqMessage = receiveBuffer.getElementAtIndex(0U);
+
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_EVENT_VARIABLE_ACK)
+        {
+            RelativePointer::id_t segmentId{0U};
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
+            RelativePointer::offset_t offset{0U};
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
+            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            return cxx::success<popo::EventVariableData*>(reinterpret_cast<popo::EventVariableData*>(ptr));
+        }
+    }
+    else
+    {
+        if (receiveBuffer.getNumberOfElements() == 2U)
+        {
+            std::string mqMessage1 = receiveBuffer.getElementAtIndex(0U);
+            std::string mqMessage2 = receiveBuffer.getElementAtIndex(1U);
+            if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
+            {
+                LogError() << "Request event variable received no valid event variable port from RouDi.";
+                return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
+            }
+        }
+    }
+
+    LogError() << "Request event variable got wrong response from message queue :'" << receiveBuffer.getMessage()
+               << "'";
+    return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_EVENT_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE);
+}
+
 popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexcept
 {
     MqMessage sendBuffer;
@@ -547,6 +584,38 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
         return nullptr;
     }
     return maybeConditionVariable.value();
+}
+
+popo::EventVariableData* PoshRuntime::getMiddlewareEventVariable() noexcept
+{
+    MqMessage sendBuffer;
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_EVENT_VARIABLE) << m_appName;
+
+    auto maybeEventVariable = requestEventVariableFromRoudi(sendBuffer);
+    if (maybeEventVariable.has_error())
+    {
+        switch (maybeEventVariable.get_error())
+        {
+        case MqMessageErrorType::EVENT_VARIABLE_LIST_FULL:
+            LogWarn() << "Could not create event variable as we are out of memory for event variables.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_EVENT_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        case MqMessageErrorType::REQUEST_EVENT_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE:
+            LogWarn() << "Could not create event variables; received wrong message queue response.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_EVENT_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE,
+                         nullptr,
+                         iox::ErrorLevel::SEVERE);
+            break;
+        default:
+            LogWarn() << "Undefined behavior occurred while creating event variable";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_EVENT_VARIABLE_CREATION_UNDEFINED_BEHAVIOR,
+                         nullptr,
+                         iox::ErrorLevel::SEVERE);
+            break;
+        }
+        return nullptr;
+    }
+    return maybeEventVariable.value();
 }
 
 bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept

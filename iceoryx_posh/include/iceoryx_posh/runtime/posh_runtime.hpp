@@ -120,14 +120,13 @@ class PoshRuntime
     /// @return pointer to a created application port data
     popo::ApplicationPortData* getMiddlewareApplication() noexcept;
 
-    /// @brief request the RouDi daemon to create an condition variable
+    /// @brief request the RouDi daemon to create a condition variable
     /// @return pointer to a created condition variable data
     popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept;
 
-    popo::EventVariableData* getMiddlewareEventVariable() noexcept
-    {
-        return nullptr;
-    }
+    /// @brief request the RouDi daemon to create an event variable
+    /// @return pointer to a created event variable data
+    popo::EventVariableData* getMiddlewareEventVariable() noexcept;
 
     /// @brief request the RouDi daemon to create a node
     /// @param[in] nodeProperty class which contains all properties which the node should have
@@ -191,6 +190,9 @@ class PoshRuntime
 
     cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
     requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
+
+    cxx::expected<popo::EventVariableData*, MqMessageErrorType>
+    requestEventVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
 
     /// @brief checks the given application name for certain constraints like length or if is empty
     const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
