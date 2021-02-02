@@ -16,9 +16,6 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_EVENT_VARIABLE_DATA_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -26,10 +23,7 @@ namespace popo
 {
 struct EventVariableData : public ConditionVariableData
 {
-    EventVariableData() noexcept
-    {
-        iox::cxx::forEach(m_activeNotifications, [](auto& id) { id = false; });
-    }
+    EventVariableData() noexcept;
 
     std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
 };
