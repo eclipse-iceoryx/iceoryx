@@ -120,9 +120,9 @@ class RouDi
     static uint64_t getUniqueSessionIdForProcess();
 
   private:
-    void ipcChannelThread();
+    void processRuntimeMessages();
 
-    void processThread();
+    void monitorAndDiscoveryUpdate();
 
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
@@ -141,7 +141,7 @@ class RouDi
 
   private:
     std::thread m_processManagementThread;
-    std::thread m_processIpcChannelThread;
+    std::thread m_processRuntimeMessagesThread;
 
   protected:
     ProcessIntrospectionType m_processIntrospection;

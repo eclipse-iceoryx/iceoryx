@@ -53,7 +53,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // run the threads
-    m_processManagementThread = std::thread(&RouDi::processThread, this);
+    m_processManagementThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
     posix::setThreadName(m_processManagementThread.native_handle(), "ProcessMgmt");
 
     if (roudiStartupParameters.m_ipcThreadStart == IpcThreadStart::IMMEDIATE)
@@ -69,8 +69,8 @@ RouDi::~RouDi()
 
 void RouDi::startIpcChannelThread()
 {
-    m_processIpcChannelThread = std::thread(&RouDi::ipcChannelThread, this);
-    posix::setThreadName(m_processIpcChannelThread.native_handle(), "IPC-msg-process");
+    m_processRuntimeMessagesThread = std::thread(&RouDi::processRuntimeMessages, this);
+    posix::setThreadName(m_processRuntimeMessagesThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown()
@@ -91,10 +91,10 @@ void RouDi::shutdown()
         m_processManagementThread.join();
         LogDebug() << "...'ProcessMgmt' thread joined.";
     }
-    if (m_processIpcChannelThread.joinable())
+    if (m_processRuntimeMessagesThread.joinable())
     {
         LogDebug() << "Joining 'IPC-msg-process' thread...";
-        m_processIpcChannelThread.join();
+        m_processRuntimeMessagesThread.join();
         LogDebug() << "...'IPC-msg-process' thread joined.";
     }
 }
@@ -104,7 +104,7 @@ void RouDi::cyclicUpdateHook()
     // default implementation; do nothing
 }
 
-void RouDi::processThread()
+void RouDi::monitorAndDiscoveryUpdate()
 {
     while (m_runThreads)
     {
@@ -114,7 +114,7 @@ void RouDi::processThread()
     }
 }
 
-void RouDi::ipcChannelThread()
+void RouDi::processRuntimeMessages()
 {
     runtime::MqInterfaceCreator roudiMqInterface{IPC_CHANNEL_ROUDI_NAME};
 
