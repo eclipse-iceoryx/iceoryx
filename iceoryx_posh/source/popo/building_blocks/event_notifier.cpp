@@ -12,28 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_EVENT_NOTIFIER_HPP
-#define IOX_POSH_POPO_BUILDING_BLOCKS_EVENT_NOTIFIER_HPP
-
-#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
 
 namespace iox
 {
 namespace popo
 {
-class EventNotifier
+EventNotifier::EventNotifier(EventVariableData& dataRef, const uint64_t index) noexcept
+    : m_pointerToEventVariableData(&dataRef)
+    , m_notificationIndex(index)
 {
-  public:
-    EventNotifier(EventVariableData& dataRef, const uint64_t index) noexcept;
+}
 
-    void notify() noexcept;
-
-  private:
-    EventVariableData* m_pointerToEventVariableData{nullptr};
-    uint64_t m_notificationIndex{0U};
-};
+void EventNotifier::notify() noexcept
+{
+    m_pointerToEventVariableData->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
+    m_pointerToEventVariableData->m_semaphore.post();
+}
 } // namespace popo
 } // namespace iox
-
-#endif
 
