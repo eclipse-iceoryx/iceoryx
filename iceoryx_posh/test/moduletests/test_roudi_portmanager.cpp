@@ -578,7 +578,7 @@ TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfaceP
         auto newItfName = itf + std::to_string(i);
         auto interp = m_portManager->acquireInterfacePortData(
             iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
-        EXPECT_NE(interp, nullptr);
+        ASSERT_NE(interp, nullptr);
         interfaceContainer.push_back(interp);
     }
 
