@@ -32,11 +32,15 @@ inline cxx::expected<ActiveCallSetError> ActiveCallSet::attachEvent(T& eventOrig
                                                                     CallbackRef_t<T> eventCallback) noexcept
 {
     return addEvent(&eventOrigin,
-                    0U,
-                    typeid(void).hash_code(),
+                    static_cast<uint64_t>(NoEnumUsed::PLACEHOLDER),
+                    typeid(NoEnumUsed).hash_code(),
                     reinterpret_cast<CallbackRef_t<void>>(eventCallback),
                     internal::callsetCallback<T>,
-                    EventAttorney::getInvalidateTriggerMethod(eventOrigin));
+                    EventAttorney::getInvalidateTriggerMethod(eventOrigin))
+        .and_then([&](auto& eventId) {
+            EventAttorney::enableEvent(eventOrigin,
+                                       TriggerHandle(m_eventVariable, {*this, &ActiveCallSet::removeTrigger}, eventId));
+        });
 }
 
 template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
@@ -48,7 +52,12 @@ ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRe
                     typeid(EventType).hash_code(),
                     reinterpret_cast<CallbackRef_t<void>>(eventCallback),
                     internal::callsetCallback<T>,
-                    EventAttorney::getInvalidateTriggerMethod(eventOrigin));
+                    EventAttorney::getInvalidateTriggerMethod(eventOrigin))
+        .and_then([&](auto& eventId) {
+            EventAttorney::enableEvent(eventOrigin,
+                                       TriggerHandle(m_eventVariable, {*this, &ActiveCallSet::removeTrigger}, eventId),
+                                       eventType);
+        });
 }
 
 template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
@@ -60,7 +69,7 @@ inline void ActiveCallSet::detachEvent(T& eventOrigin, const EventType eventType
 template <typename T>
 inline void ActiveCallSet::detachEvent(T& eventOrigin) noexcept
 {
-    removeEvent(&eventOrigin, 0U, typeid(void).hash_code());
+    detachEvent(eventOrigin, NoEnumUsed::PLACEHOLDER);
 }
 
 

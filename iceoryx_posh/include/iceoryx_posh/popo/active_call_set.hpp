@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
+#include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/types.hpp"
@@ -48,7 +49,12 @@ class ActiveCallSet
     using TranslationCallbackPtr_t = void (*)(void* const, void (*const)(void* const));
 
     ActiveCallSet() noexcept;
+    ActiveCallSet(const ActiveCallSet&) = delete;
+    ActiveCallSet(ActiveCallSet&&) = delete;
     ~ActiveCallSet();
+
+    ActiveCallSet& operator=(const ActiveCallSet&) = delete;
+    ActiveCallSet& operator=(ActiveCallSet&&) = delete;
 
     template <typename T>
     cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
@@ -70,37 +76,54 @@ class ActiveCallSet
     class Event_t;
 
     void threadLoop() noexcept;
-    cxx::expected<ActiveCallSetError> addEvent(void* const origin,
-                                               const uint64_t eventType,
-                                               const uint64_t eventTypeHash,
-                                               CallbackRef_t<void> callback,
-                                               TranslationCallbackRef_t translationCallback,
-                                               const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
+    cxx::expected<uint64_t, ActiveCallSetError>
+    addEvent(void* const origin,
+             const uint64_t eventType,
+             const uint64_t eventTypeHash,
+             CallbackRef_t<void> callback,
+             TranslationCallbackRef_t translationCallback,
+             const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
     void removeEvent(void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept;
 
     void removeTrigger(const uint64_t index) noexcept;
 
   private:
+    enum class NoEnumUsed
+    {
+        PLACEHOLDER = 0
+    };
+
     class Event_t
     {
       public:
+        ~Event_t();
+
         bool isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept;
         bool resetIfEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept;
         bool reset() noexcept;
-        void init(void* const origin,
+        void init(const uint64_t eventId,
+                  void* const origin,
                   const uint64_t eventType,
                   const uint64_t eventTypeHash,
                   CallbackRef_t<void> callback,
-                  TranslationCallbackRef_t translationCallback) noexcept;
+                  TranslationCallbackRef_t translationCallback,
+                  const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
         void executeCallback() noexcept;
         bool isInitialized() const noexcept;
 
       private:
+        static constexpr uint64_t INVALID_ID = std::numeric_limits<uint64_t>::max();
+
+        // EventInfo
         void* m_origin = nullptr;
-        uint64_t m_eventType = 0U;
-        uint64_t m_eventTypeHash = 0U;
+        uint64_t m_eventType = INVALID_ID;
+        uint64_t m_eventTypeHash = INVALID_ID;
+
         CallbackPtr_t<void> m_callback = nullptr;
         TranslationCallbackPtr_t m_translationCallback = nullptr;
+
+        // TriggerHandle
+        uint64_t m_eventId = INVALID_ID;
         cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
     };
 
