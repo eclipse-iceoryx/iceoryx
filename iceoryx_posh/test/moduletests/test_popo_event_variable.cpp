@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 
 #include "test.hpp"
@@ -42,6 +43,36 @@ TEST_F(EventVariable_test, CorrectProcessNameAfterConstructionWithProcessName)
 TEST_F(EventVariable_test, AllNotificationsAreFalseAfterConstructionWithProcessName)
 {
     for (auto& notification : m_eventVarData.m_activeNotifications)
+    {
+        EXPECT_THAT(notification, Eq(false));
+    }
+}
+
+TEST_F(EventVariable_test, NotifyActivatesCorrectIndex)
+{
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1;
+    EventNotifier sut(m_eventVarData, index);
+    sut.notify();
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
+    {
+        if (i == index)
+        {
+            EXPECT_THAT(m_eventVarData.m_activeNotifications[i], Eq(true));
+        }
+        else
+        {
+            EXPECT_THAT(m_eventVarData.m_activeNotifications[i], Eq(false));
+        }
+    }
+}
+
+
+TEST_F(EventVariable_test, NotifyActivatesNoIndexIfIndexIsTooLarge)
+{
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
+    EventNotifier sut(m_eventVarData, index);
+    sut.notify();
+    for (const auto& notification : m_eventVarData.m_activeNotifications)
     {
         EXPECT_THAT(notification, Eq(false));
     }

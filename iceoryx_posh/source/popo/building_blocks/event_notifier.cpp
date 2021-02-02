@@ -26,7 +26,10 @@ EventNotifier::EventNotifier(EventVariableData& dataRef, const uint64_t index) n
 
 void EventNotifier::notify() noexcept
 {
-    m_pointerToEventVariableData->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
+    if (m_notificationIndex < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+    {
+        m_pointerToEventVariableData->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
+    }
     m_pointerToEventVariableData->m_semaphore.post();
 }
 } // namespace popo
