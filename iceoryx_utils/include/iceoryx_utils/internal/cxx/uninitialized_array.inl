@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_INL
-#define IOX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_INL
+#ifndef IOX_UTILS_CXX_UNINITIALIZED_ARRAY_INL
+#define IOX_UTILS_CXX_UNINITIALIZED_ARRAY_INL
 
-#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
+#include <iceoryx_utils/cxx/uninitialized_array.hpp>
 #include <iostream>
 
 namespace iox
@@ -22,25 +22,25 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-inline uint64_t SizedUninitializedArray<T, Capacity>::capacity() const noexcept
+inline uint64_t uninitialized_array<T, Capacity>::capacity() const noexcept
 {
     return Capacity;
 }
 
 template <typename T, uint64_t Capacity>
-inline uint64_t SizedUninitializedArray<T, Capacity>::max_size() const noexcept
+inline uint64_t uninitialized_array<T, Capacity>::max_size() const noexcept
 {
     return Capacity;
 }
 
 template <typename T, uint64_t Capacity>
-inline T* SizedUninitializedArray<T, Capacity>::data() noexcept
+inline T* uninitialized_array<T, Capacity>::data() noexcept
 {
     return reinterpret_cast<T*>(m_data);
 }
 
 template <typename T, uint64_t Capacity>
-inline const T* SizedUninitializedArray<T, Capacity>::data() const noexcept
+inline const T* uninitialized_array<T, Capacity>::data() const noexcept
 {
     return reinterpret_cast<const T*>(m_data);
 }
@@ -49,4 +49,4 @@ inline const T* SizedUninitializedArray<T, Capacity>::data() const noexcept
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_INL
+#endif // IOX_UTILS_CXX_UNINITIALIZED_ARRAY_INL

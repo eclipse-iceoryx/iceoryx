@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_SIZED_CONTAINER_INL
-#define IOX_UTILS_CXX_SIZED_CONTAINER_INL
+#ifndef IOX_UTILS_CXX_SIZE_VALUE_INL
+#define IOX_UTILS_CXX_SIZE_VALUE_INL
 
-#include <iceoryx_utils/cxx/sized_container.hpp>
+#include <iceoryx_utils/cxx/container_storage.hpp>
 #include <iostream>
 
 namespace iox
@@ -23,32 +23,32 @@ namespace cxx
 {
 // Generic implementation for Capacity > 0
 template <typename T, uint64_t Capacity>
-inline uint64_t SizedContainer<T, Capacity>::size() const noexcept
+inline uint64_t container_storage<T, Capacity>::size() const noexcept
 {
     return m_size;
 }
 
 template <typename T, uint64_t Capacity>
-inline void SizedContainer<T, Capacity>::set_size(uint64_t newSize) noexcept
+inline void container_storage<T, Capacity>::set_size(uint64_t newSize) noexcept
 {
     m_size = newSize;
 }
 
 template <typename T, uint64_t Capacity>
-inline bool SizedContainer<T, Capacity>::empty() const noexcept
+inline bool container_storage<T, Capacity>::empty() const noexcept
 {
     return (m_size == 0U);
 }
 
 template <typename T, uint64_t Capacity>
-inline bool SizedContainer<T, Capacity>::full() const noexcept
+inline bool container_storage<T, Capacity>::full() const noexcept
 {
     return (m_size >= Capacity);
 }
 
 // Specialization for Capacity 0, where m_size is not needed
 template <typename T>
-class SizedContainer<T, 0U>
+class container_storage<T, 0U> : public uninitialized_array<T, 0>
 {
   public:
     inline uint64_t size() const noexcept
@@ -74,4 +74,4 @@ class SizedContainer<T, 0U>
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_UTILS_CXX_SIZED_CONTAINER_INL
+#endif // IOX_UTILS_CXX_SIZE_VALUE_INL

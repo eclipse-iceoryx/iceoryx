@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
-#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
+#include <iceoryx_utils/cxx/container_storage.hpp>
 #include <utility>
 
 namespace iox
@@ -28,7 +28,7 @@ namespace cxx
 ///         adjustments in the API since we do not use exceptions and we require
 ///         a data structure which can be located fully in the shared memory.
 template <typename T, uint64_t Capacity>
-class vector : public SizedUninitializedArray<T, Capacity>
+class vector : public container_storage<T, Capacity>
 {
   public:
     typedef T value_type;
@@ -162,7 +162,7 @@ class vector : public SizedUninitializedArray<T, Capacity>
     iterator erase(const uint64_t index);
 
   private:
-    using element_t = typename SizedUninitializedArray<T, Capacity>::element_t;
+    using element_t = typename uninitialized_array<T, Capacity>::element_t;
 };
 } // namespace cxx
 } // namespace iox

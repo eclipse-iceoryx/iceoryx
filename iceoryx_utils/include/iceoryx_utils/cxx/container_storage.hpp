@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ICEORYX_UTILS_CXX_SIZED_CONTAINER_HPP
-#define ICEORYX_UTILS_CXX_SIZED_CONTAINER_HPP
+#ifndef ICEORYX_UTILS_CXX_SIZE_VALUE_HPP
+#define ICEORYX_UTILS_CXX_SIZE_VALUE_HPP
 
-
+#include "iceoryx_utils/cxx/uninitialized_array.hpp"
 #include <cstdint>
 
 namespace iox
@@ -23,16 +23,16 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-class SizedContainer;
+class container_storage;
 
 template <typename T>
-class SizedContainer<T, 0U>;
+class container_storage<T, 0U>;
 
 template <typename T, uint64_t Capacity>
-class SizedContainer
+class container_storage : public uninitialized_array<T, Capacity>
 {
   public:
-    SizedContainer() = default;
+    container_storage() = default;
 
     /// @brief returns the number of elements which are currently stored in the
     ///         vector
@@ -58,6 +58,6 @@ class SizedContainer
 } // namespace cxx
 } // namespace iox
 
-#include <iceoryx_utils/internal/cxx/sized_container.inl>
+#include <iceoryx_utils/internal/cxx/container_storage.inl>
 
-#endif /* ICEORYX_UTILS_CXX_SIZED_CONTAINER_HPP */
+#endif /* ICEORYX_UTILS_CXX_SIZE_VALUE_HPP */

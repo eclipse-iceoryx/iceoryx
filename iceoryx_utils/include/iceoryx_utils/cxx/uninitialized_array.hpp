@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ICEORYX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_HPP
-#define ICEORYX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_HPP
+#ifndef ICEORYX_UTILS_CXX_UNINITIALIZED_ARRAY_HPP
+#define ICEORYX_UTILS_CXX_UNINITIALIZED_ARRAY_HPP
 
-#include "iceoryx_utils/cxx/sized_container.hpp"
 #include <cstdint>
 
 namespace iox
@@ -23,13 +22,13 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-class SizedUninitializedArray : public SizedContainer<T, Capacity>
+class uninitialized_array
 {
   public:
     using value_type = T;
     using size_type = decltype(Capacity);
 
-    SizedUninitializedArray() = default;
+    uninitialized_array() = default;
 
     /// @brief return the pointer to the underlying array
     /// @return pointer to underlying array
@@ -51,15 +50,15 @@ class SizedUninitializedArray : public SizedContainer<T, Capacity>
 
 
   protected:
-    using element_t = uint8_t[Capacity == 0 ? 1 : sizeof(T)];
+    using element_t = alignas(Capacity == 0 ? 1 : alignof(T)) uint8_t[Capacity == 0 ? 1 : sizeof(T)];
 
   private:
-    alignas(Capacity == 0 ? 1 : alignof(T)) element_t m_data[Capacity == 0 ? 1 : Capacity];
+    element_t m_data[Capacity == 0 ? 1 : Capacity];
 };
 
 } // namespace cxx
 } // namespace iox
 
-#include <iceoryx_utils/internal/cxx/sized_uninitialized_array.inl>
+#include <iceoryx_utils/internal/cxx/uninitialized_array.inl>
 
-#endif /* ICEORYX_UTILS_CXX_SIZED_UNINITIALIZED_ARRAY_HPP */
+#endif /* ICEORYX_UTILS_CXX_UNINITIALIZED_ARRAY_HPP */

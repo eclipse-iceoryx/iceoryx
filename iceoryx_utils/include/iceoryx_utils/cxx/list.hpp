@@ -15,8 +15,9 @@
 #ifndef IOX_UTILS_CXX_LIST_HPP
 #define IOX_UTILS_CXX_LIST_HPP
 
+#include "iceoryx_utils/cxx/uninitialized_array.hpp"
 #include <cstdint>
-#include <iceoryx_utils/cxx/sized_uninitialized_array.hpp>
+#include <iceoryx_utils/cxx/container_storage.hpp>
 #include <iostream>
 
 #include "iceoryx_utils/platform/platform_correction.hpp"
@@ -51,7 +52,7 @@ namespace cxx
 /// @param T type user data to be managed within list
 /// @param Capacity number of maximum list elements a client can push to the list.
 template <typename T, uint64_t Capacity>
-class list : public SizedUninitializedArray<T, Capacity>
+class list : public container_storage<T, Capacity>
 {
   private:
     // forward declarations, private
