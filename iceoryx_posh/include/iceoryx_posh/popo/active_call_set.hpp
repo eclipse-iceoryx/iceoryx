@@ -16,7 +16,9 @@
 #define IOX_POSH_POPO_ACTIVE_CALL_SET_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
+#include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/types.hpp"
 #include "iceoryx_utils/internal/concurrent/loffli.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
@@ -72,7 +74,8 @@ class ActiveCallSet
                                                const uint64_t eventType,
                                                const uint64_t eventTypeHash,
                                                CallbackRef_t<void> callback,
-                                               TranslationCallbackRef_t translationCallback) noexcept;
+                                               TranslationCallbackRef_t translationCallback,
+                                               const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
     void removeEvent(void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept;
 
     void removeTrigger(const uint64_t index) noexcept;
@@ -98,6 +101,7 @@ class ActiveCallSet
         uint64_t m_eventTypeHash = 0U;
         CallbackPtr_t<void> m_callback = nullptr;
         TranslationCallbackPtr_t m_translationCallback = nullptr;
+        cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
     };
 
     std::thread m_thread;

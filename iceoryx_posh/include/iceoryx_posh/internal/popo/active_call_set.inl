@@ -31,24 +31,24 @@ template <typename T>
 inline cxx::expected<ActiveCallSetError> ActiveCallSet::attachEvent(T& eventOrigin,
                                                                     CallbackRef_t<T> eventCallback) noexcept
 {
-    addEvent(&eventOrigin,
-             0U,
-             typeid(void).hash_code(),
-             reinterpret_cast<CallbackRef_t<void>>(eventCallback),
-             internal::callsetCallback<T>);
-    return cxx::success<>();
+    return addEvent(&eventOrigin,
+                    0U,
+                    typeid(void).hash_code(),
+                    reinterpret_cast<CallbackRef_t<void>>(eventCallback),
+                    internal::callsetCallback<T>,
+                    EventAttorney::getInvalidateTriggerMethod(eventOrigin));
 }
 
 template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
 inline cxx::expected<ActiveCallSetError>
 ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept
 {
-    addEvent(&eventOrigin,
-             static_cast<uint64_t>(eventType),
-             typeid(EventType).hash_code(),
-             reinterpret_cast<CallbackRef_t<void>>(eventCallback),
-             internal::callsetCallback<T>);
-    return cxx::success<>();
+    return addEvent(&eventOrigin,
+                    static_cast<uint64_t>(eventType),
+                    typeid(EventType).hash_code(),
+                    reinterpret_cast<CallbackRef_t<void>>(eventCallback),
+                    internal::callsetCallback<T>,
+                    EventAttorney::getInvalidateTriggerMethod(eventOrigin));
 }
 
 template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>

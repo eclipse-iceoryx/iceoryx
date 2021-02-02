@@ -43,11 +43,13 @@ ActiveCallSet::~ActiveCallSet()
     m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
-cxx::expected<ActiveCallSetError> ActiveCallSet::addEvent(void* const origin,
-                                                          const uint64_t eventType,
-                                                          const uint64_t eventTypeHash,
-                                                          CallbackRef_t<void> callback,
-                                                          TranslationCallbackRef_t translationCallback) noexcept
+cxx::expected<ActiveCallSetError>
+ActiveCallSet::addEvent(void* const origin,
+                        const uint64_t eventType,
+                        const uint64_t eventTypeHash,
+                        CallbackRef_t<void> callback,
+                        TranslationCallbackRef_t translationCallback,
+                        const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
     std::lock_guard<std::mutex> lock(m_addEventMutex);
 
@@ -88,7 +90,10 @@ void ActiveCallSet::threadLoop() noexcept
     {
         auto activateNotificationIds = eventListener.wait();
 
-        cxx::forEach(activateNotificationIds, [this](auto id) { m_events[id]->executeCallback(); });
+        cxx::forEach(activateNotificationIds, [this, &eventListener](auto id) {
+            eventListener.reset(id);
+            m_events[id]->executeCallback();
+        });
     }
 }
 
