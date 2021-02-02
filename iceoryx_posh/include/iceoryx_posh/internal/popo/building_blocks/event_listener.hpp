@@ -34,9 +34,9 @@ class EventListener
     {
     }
 
-    cxx::vector<uint64_t, MAX_NUMBER_OF_EVENT_VARIABLES> wait() noexcept
+    cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> wait() noexcept
     {
-        cxx::vector<uint64_t, MAX_NUMBER_OF_EVENT_VARIABLES> activeNotifications;
+        cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> activeNotifications;
         if (getMembers()->m_semaphore.wait().has_error())
         {
             errorHandler(Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
@@ -45,7 +45,7 @@ class EventListener
         {
             // return vector of true entries in activeNotifications
             // mutex?
-            for (uint64_t i = 0U; i < getMembers()->m_activeNotifications.size(); i++)
+            for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
             {
                 if (getMembers()->m_activeNotifications[i])
                 {
@@ -58,7 +58,6 @@ class EventListener
 
     void reset(const uint64_t index) noexcept
     {
-        // count the semaphores down to zero?
         m_pointerToEventVariableData->m_activeNotifications[index] = false;
     }
 

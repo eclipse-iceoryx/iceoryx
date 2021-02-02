@@ -26,6 +26,7 @@ namespace popo
 {
 struct ConditionVariableData
 {
+    ConditionVariableData() noexcept = default;
     ConditionVariableData(const ProcessName_t& process) noexcept;
     ConditionVariableData(const ConditionVariableData& rhs) = delete;
     ConditionVariableData(ConditionVariableData&& rhs) = delete;
