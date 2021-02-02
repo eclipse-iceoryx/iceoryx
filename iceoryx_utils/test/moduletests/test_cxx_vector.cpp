@@ -32,6 +32,7 @@ class vector_test : public Test
     static int copyAssignment;
     static int dTor;
     static int classValue;
+    static int dTorClassValue;
 
     class CTorTest
     {
@@ -82,7 +83,7 @@ class vector_test : public Test
         ~CTorTest()
         {
             dTor++;
-            classValue = value;
+            dTorClassValue = value;
         }
 
         int value = 0;
@@ -98,6 +99,7 @@ class vector_test : public Test
         copyAssignment = 0;
         dTor = 0;
         classValue = 0;
+        dTorClassValue = 0;
     }
 
     vector<int, 5> sut5;
@@ -112,6 +114,7 @@ int vector_test::moveAssignment;
 int vector_test::copyAssignment;
 int vector_test::dTor;
 int vector_test::classValue;
+int vector_test::dTorClassValue;
 
 
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
@@ -889,10 +892,10 @@ TEST_F(vector_test, EraseOfLastElementCallsDTorOnly)
     sut1.emplace_back(8);
     sut1.emplace_back(9);
 
-    sut1.erase(sut1.begin() + 2);
+    sut1.erase(sut1.begin() + 1);
 
     EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(classValue, Eq(9));
+    EXPECT_THAT(dTorClassValue, Eq(8));
 }
 
 TEST_F(vector_test, EraseByIndexOfLastElementCallsDTorOnly)
@@ -905,7 +908,7 @@ TEST_F(vector_test, EraseByIndexOfLastElementCallsDTorOnly)
     sut1.erase((uint64_t)2);
 
     EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(classValue, Eq(9));
+    EXPECT_THAT(dTorClassValue, Eq(9));
 }
 
 TEST_F(vector_test, EraseOfMiddleElementCallsDTorAndMove)

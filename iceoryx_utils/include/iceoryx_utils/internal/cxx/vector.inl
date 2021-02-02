@@ -292,11 +292,11 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(uint64_
     {
         return end();
     }
+    at(index).~T();
     for (; n + 1u < this->size(); ++n)
     {
         at(n) = std::move(at(n + 1u));
     }
-    at(n).~T();
     this->set_size(this->size() - 1u);
     return this->begin() + index;
 }
