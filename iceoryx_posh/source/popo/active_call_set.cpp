@@ -23,7 +23,12 @@ namespace iox
 namespace popo
 {
 ActiveCallSet::ActiveCallSet() noexcept
-    : m_eventVariable(runtime::PoshRuntime::getInstance().getMiddlewareEventVariable())
+    : ActiveCallSet(runtime::PoshRuntime::getInstance().getMiddlewareEventVariable())
+{
+}
+
+ActiveCallSet::ActiveCallSet(EventVariableData* eventVariable) noexcept
+    : m_eventVariable(eventVariable)
 {
     m_indexManager.init(m_loffliStorage, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
 }
@@ -38,25 +43,37 @@ ActiveCallSet::~ActiveCallSet()
     m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
-void ActiveCallSet::addEvent(void* const origin,
-                             const uint64_t eventType,
-                             const Callback_t<void> callback,
-                             const TranslationCallback_t translationCallback) noexcept
+cxx::expected<ActiveCallSetError> ActiveCallSet::addEvent(void* const origin,
+                                                          const uint64_t eventType,
+                                                          const uint64_t eventTypeHash,
+                                                          CallbackRef_t<void> callback,
+                                                          TranslationCallbackRef_t translationCallback) noexcept
 {
+    std::lock_guard<std::mutex> lock(m_addEventMutex);
+
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
+    {
+        if (m_events[i]->isEqualTo(origin, eventType, eventTypeHash))
+        {
+            return cxx::error<ActiveCallSetError>(ActiveCallSetError::EVENT_ALREADY_ATTACHED);
+        }
+    }
+
     uint32_t index = 0U;
     if (!m_indexManager.pop(index))
     {
-        return;
+        return cxx::error<ActiveCallSetError>(ActiveCallSetError::ACTIVE_CALL_SET_FULL);
     }
 
-    m_events[index]->init(origin, eventType, callback, translationCallback);
+    m_events[index]->init(origin, eventType, eventTypeHash, callback, translationCallback);
+    return cxx::success<>();
 }
 
-void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType) noexcept
+void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept
 {
     for (uint32_t index = 0U; index < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++index)
     {
-        if (m_events[index]->resetIfEqualTo(origin, eventType))
+        if (m_events[index]->resetIfEqualTo(origin, eventType, eventTypeHash))
         {
             m_indexManager.push(index);
             break;
@@ -75,6 +92,19 @@ void ActiveCallSet::threadLoop() noexcept
     }
 }
 
+void ActiveCallSet::removeTrigger(const uint64_t index) noexcept
+{
+    if (index >= MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+    {
+        return;
+    }
+
+    if (m_events[index]->reset())
+    {
+        m_indexManager.push(static_cast<uint32_t>(index));
+    }
+}
+
 ////////////////
 // Event_t
 ////////////////
@@ -90,23 +120,40 @@ void ActiveCallSet::Event_t::executeCallback() noexcept
 
 void ActiveCallSet::Event_t::init(void* const origin,
                                   const uint64_t eventType,
-                                  const Callback_t<void> callback,
-                                  const TranslationCallback_t translationCallback) noexcept
+                                  const uint64_t eventTypeHash,
+                                  CallbackRef_t<void> callback,
+                                  TranslationCallbackRef_t translationCallback) noexcept
 {
     m_origin = origin;
     m_eventType = eventType;
-    m_callback = callback;
-    m_translationCallback = translationCallback;
+    m_eventTypeHash = eventTypeHash;
+    m_callback = &callback;
+    m_translationCallback = &translationCallback;
 }
 
-bool ActiveCallSet::Event_t::resetIfEqualTo(const void* const origin, const uint64_t eventType) noexcept
+bool ActiveCallSet::Event_t::isEqualTo(const void* const origin,
+                                       const uint64_t eventType,
+                                       const uint64_t eventTypeHash) const noexcept
 {
-    if (m_origin == origin && m_eventType == eventType)
+    return (m_origin == origin && m_eventType == eventType && m_eventTypeHash == eventTypeHash);
+}
+
+bool ActiveCallSet::Event_t::resetIfEqualTo(const void* const origin,
+                                            const uint64_t eventType,
+                                            const uint64_t eventTypeHash) noexcept
+{
+    return (isEqualTo(origin, eventType, eventTypeHash)) ? reset() : false;
+}
+
+bool ActiveCallSet::Event_t::reset() noexcept
+{
+    if (isInitialized())
     {
         m_origin = nullptr;
         m_eventType = 0U;
         m_callback = nullptr;
         m_translationCallback = nullptr;
+
         return true;
     }
     return false;

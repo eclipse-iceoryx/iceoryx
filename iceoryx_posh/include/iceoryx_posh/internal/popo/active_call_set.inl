@@ -29,19 +29,24 @@ inline void callsetCallback(void* const origin, void (*underlyingCallback)(void*
 
 template <typename T>
 inline cxx::expected<ActiveCallSetError> ActiveCallSet::attachEvent(T& eventOrigin,
-                                                                    const Callback_t<T> eventCallback) noexcept
+                                                                    CallbackRef_t<T> eventCallback) noexcept
 {
-    addEvent(&eventOrigin, 0U, reinterpret_cast<Callback_t<void>>(eventCallback), internal::callsetCallback<T>);
+    addEvent(&eventOrigin,
+             0U,
+             typeid(void).hash_code(),
+             reinterpret_cast<CallbackRef_t<void>>(eventCallback),
+             internal::callsetCallback<T>);
     return cxx::success<>();
 }
 
 template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
 inline cxx::expected<ActiveCallSetError>
-ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, const Callback_t<T> eventCallback) noexcept
+ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept
 {
     addEvent(&eventOrigin,
              static_cast<uint64_t>(eventType),
-             reinterpret_cast<Callback_t<void>>(eventCallback),
+             typeid(EventType).hash_code(),
+             reinterpret_cast<CallbackRef_t<void>>(eventCallback),
              internal::callsetCallback<T>);
     return cxx::success<>();
 }
@@ -49,13 +54,13 @@ ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, const Call
 template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
 inline void ActiveCallSet::detachEvent(T& eventOrigin, const EventType eventType) noexcept
 {
-    removeEvent(&eventOrigin, static_cast<uint64_t>(eventType));
+    removeEvent(&eventOrigin, static_cast<uint64_t>(eventType), typeid(EventType).hash_code());
 }
 
 template <typename T>
 inline void ActiveCallSet::detachEvent(T& eventOrigin) noexcept
 {
-    removeEvent(&eventOrigin, 0U);
+    removeEvent(&eventOrigin, 0U, typeid(void).hash_code());
 }
 
 
