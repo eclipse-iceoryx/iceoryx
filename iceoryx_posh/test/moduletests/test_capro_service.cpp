@@ -162,6 +162,20 @@ TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheIDsAn
     EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq("0"));
 }
 
+TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheScopeToWorldWide)
+{
+    ServiceDescription serviceDescription1 = ServiceDescription();
+
+    EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::WORLDWIDE));
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheInterfaceToInternal)
+{
+    ServiceDescription serviceDescription1 = ServiceDescription();
+
+    EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
+}
+
 TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescriptionWithValuesPassedToTheCtor)
 {
     testService = "1";
@@ -187,6 +201,20 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithNonIntegerString
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
+    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
+
+    EXPECT_EQ(InvalidID, serviceDescription1.getServiceID());
+    EXPECT_EQ(InvalidID, serviceDescription1.getInstanceID());
+    EXPECT_EQ(InvalidID, serviceDescription1.getEventID());
+}
+
+TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithZeroAsStringValuesSetTheIDsToInvalid)
+{
+    testService = "0";
+    testInstance = "0";
+    testEvent = "0";
     ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
 
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
