@@ -50,6 +50,7 @@ jobs:
 
       - name: Build
         run: |
+          source /opt/ros/foxy/setup.bash
           cd $GITHUB_WORKSPACE
           colcon build
 
