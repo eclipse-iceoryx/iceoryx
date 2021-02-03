@@ -105,9 +105,11 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
     auto subscriber = channel.getIceoryxTerminal();
     while (subscriber->hasSamples())
     {
-        subscriber->take().and_then([&channel](popo::Sample<const void>& sample) {
+        subscriber->take().and_then([&](const void* payload) {
             auto dataWriter = channel.getExternalTerminal();
-            dataWriter->write(static_cast<const uint8_t*>(sample.get()), sample.getHeader()->payloadSize);
+            auto header = iox::mepoo::ChunkHeader::fromPayload(payload);
+            dataWriter->write(static_cast<const uint8_t*>(payload), header->payloadSize);
+            subscriber.releaseChunk(payload);
         });
     }
 }
