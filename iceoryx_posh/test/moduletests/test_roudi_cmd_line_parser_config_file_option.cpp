@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if !defined(_WIN32)
 #include "test.hpp"
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
@@ -100,3 +101,4 @@ TEST_F(CmdLineParserConfigFileOption_test, HelpLongOptionLeadsProgrammNotRunning
     EXPECT_THAT(result.has_error(), Eq(false));
     EXPECT_THAT(result.value().run, Eq(false));
 }
+#endif
