@@ -26,6 +26,7 @@ class PortPool_test : public Test
 {
   public:
     iox::roudi::PortPoolData portPoolData;
+    iox::roudi::PortPool sut{portPoolData};
 };
 
 TEST_F(PortPool_test, AddNodeDataFailsWhenNodeListIsFull)
@@ -38,13 +39,10 @@ TEST_F(PortPool_test, AddNodeDataFailsWhenNodeListIsFull)
             errorHandlerCalled = true;
         });
 
-    for (uint32_t i = 0U; i < iox::MAX_NODE_NUMBER; ++i)
+    for (uint32_t i = 0U; i <= iox::MAX_NODE_NUMBER; ++i)
     {
-        portPoolData.m_nodeMembers.insert("processName", "nodeName", i);
+        sut.addNodeData("processName", "nameName", i);
     }
-
-    iox::roudi::PortPool sut(portPoolData);
-    sut.addNodeData("processName", "nameName", 999U);
     ASSERT_THAT(errorHandlerCalled, Eq(true));
     EXPECT_EQ(errorHandlerType, iox::Error::kPORT_POOL__NODELIST_OVERFLOW);
 }
