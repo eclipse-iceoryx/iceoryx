@@ -83,13 +83,6 @@ inline void BasePublisher<T, port_t>::publish(Sample<T>&& sample) noexcept
 }
 
 template <typename T, typename port_t>
-inline void BasePublisher<T, port_t>::publish(const void* const chunk) noexcept
-{
-    auto header = mepoo::ChunkHeader::fromPayload(chunk);
-    m_port.sendChunk(header);
-}
-
-template <typename T, typename port_t>
 inline cxx::optional<Sample<T>> BasePublisher<T, port_t>::loanPreviousSample() noexcept
 {
     auto result = m_port.tryGetPreviousChunk();

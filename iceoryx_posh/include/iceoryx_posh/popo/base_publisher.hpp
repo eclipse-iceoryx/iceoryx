@@ -82,19 +82,14 @@ class BasePublisher : public PublisherInterface<T>
     ///
     cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
 
+    /// @todo: currently required by PublisherInterface, medium refactoring required to remove
+    /// goal: remove samples from this layer
     ///
     /// @brief publish Publishes the given sample and then releases its loan.
     /// @param sample The sample to publish.
     ///
     void publish(Sample<T>&& sample) noexcept override;
 
-    ///
-    /// @brief publish Publishes the given chunk and then releases its loan.
-    /// @param chunk The chunk to publish.
-    ///
-    void publish(const void* const chunk) noexcept;
-
-    // iox-#408 remove?
     ///
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
     /// @return The previously loaned sample if retrieved.

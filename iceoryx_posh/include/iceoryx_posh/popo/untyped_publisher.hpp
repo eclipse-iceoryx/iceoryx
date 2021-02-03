@@ -41,7 +41,6 @@ class UntypedPublisherImpl : public base_publisher_t
     using base_publisher_t::loan; // iox-#408 rename
     using base_publisher_t::loanPreviousChunk;
     using base_publisher_t::offer;
-    using base_publisher_t::publish;
     using base_publisher_t::stopOffer;
 
     ///
@@ -49,7 +48,7 @@ class UntypedPublisherImpl : public base_publisher_t
     /// @param chunk Pointer to the allocated shared memory chunk.
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
-    void publish(void* chunk) noexcept;
+    void publish(const void* chunk) noexcept;
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;
