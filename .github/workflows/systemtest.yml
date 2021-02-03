@@ -32,7 +32,7 @@ jobs:
       - name: Install Iceoryx Dependencies
         run: |
           sudo apt install -y apt-transport-https
-          sudo apt update && sudo apt install -y cmake libacl1-dev libncurses5-dev pkg-config
+          sudo apt update && sudo apt install -y cmake libacl1-dev libncurses5-dev pkg-config ros-foxy-ros-testing
           mkdir -p src/iceoryx
           cd $GITHUB_WORKSPACE/src/iceoryx
 
