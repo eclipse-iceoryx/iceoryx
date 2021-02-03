@@ -16,6 +16,7 @@
 #define IOX_POSH_POPO_BASE_PUBLISHER_HPP
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/sample_deleter.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -81,14 +82,12 @@ class BasePublisher : public PublisherInterface<T>
     ///
     cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
 
-    // iox-#408 remove?
     ///
     /// @brief publish Publishes the given sample and then releases its loan.
     /// @param sample The sample to publish.
     ///
     void publish(Sample<T>&& sample) noexcept override;
 
-    // iox-#408 override, provide a pure virtual base and adapt tests
     ///
     /// @brief publish Publishes the given chunk and then releases its loan.
     /// @param chunk The chunk to publish.
@@ -136,24 +135,6 @@ class BasePublisher : public PublisherInterface<T>
 
   private:
     ///
-    /// @brief The PublisherSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-    /// underlying memory chunk via the publisher port.
-    /// Each publisher should create its own instance of this deleter struct to work with its specific port.
-    ///
-    /// @note As this deleter is coupled to the Publisher implementation, it should only be used within the publisher
-    /// context.
-    ///
-    struct PublisherSampleDeleter
-    {
-      public:
-        PublisherSampleDeleter(port_t& port);
-        void operator()(T* const ptr) const;
-
-      private:
-        std::reference_wrapper<port_t> m_port;
-    };
-
-    ///
     /// @brief convertChunkHeaderToSample Helper function that wraps the payload of a ChunkHeader in an Sample.
     /// @param header The chunk header describing the allocated memory chunk to use in the sample.
     /// @return A sample that uses the ChunkHeader's payload as its memory allocation.
@@ -164,6 +145,7 @@ class BasePublisher : public PublisherInterface<T>
     port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
 
+    using PublisherSampleDeleter = SampleDeleter<port_t>;
     PublisherSampleDeleter m_sampleDeleter{m_port};
 };
 

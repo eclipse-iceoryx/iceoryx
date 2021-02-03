@@ -46,6 +46,11 @@ void PublisherPortUser::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcep
     m_chunkSender.release(chunkHeader);
 }
 
+void PublisherPortUser::releaseChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
+{
+    m_chunkSender.release(chunkHeader);
+}
+
 void PublisherPortUser::sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     const auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
