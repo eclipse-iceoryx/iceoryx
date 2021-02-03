@@ -49,7 +49,7 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
     using SubscriberParent::invalidateTrigger;
     using SubscriberParent::releaseQueuedSamples;
     using SubscriberParent::subscribe;
-    // using SubscriberParent::take;
+    using SubscriberParent::takeChunk;
     using SubscriberParent::unsubscribe;
     port_t& getMockedPort()
     {
@@ -80,9 +80,6 @@ class BaseSubscriberTest : public Test
     ChunkMock<DummyData> chunkMock;
     TestBaseSubscriber sut{};
 };
-
-#if 0
-//iox-#408 rewrite and reactivate after API adaptation
 
 TEST_F(BaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
 {
@@ -124,34 +121,17 @@ TEST_F(BaseSubscriberTest, HasNewSamplesCallForwardedToUnderlyingSubscriberPort)
     // ===== Cleanup ===== //
 }
 
-TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksWrappedInSample)
+TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunk)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
         .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(
             const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
-    auto result = sut.take();
+    auto result = sut.takeChunk();
     // ===== Verify ===== //
-    EXPECT_EQ(false, result.has_error());
-    EXPECT_EQ(true, result.value().has_value());
-    EXPECT_EQ(reinterpret_cast<DummyData*>(chunkMock.chunkHeader()->payload()),
-              result.value().value().get()); // Checks they point to the same memory location.
-    // ===== Cleanup ===== //
-}
-
-TEST_F(BaseSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(
-            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
-    EXPECT_CALL(sut.getMockedPort(), releaseChunk).Times(AtLeast(1));
-    // ===== Test ===== //
-    {
-        auto result = sut.take();
-    }
-    // ===== Verify ===== //
+    ASSERT_EQ(false, result.has_error());
+    EXPECT_EQ(result.value(), chunkMock.chunkHeader());
     // ===== Cleanup ===== //
 }
 
@@ -162,23 +142,24 @@ TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
         .WillOnce(Return(ByMove(iox::cxx::error<iox::popo::ChunkReceiveResult>(
             iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
     // ===== Test ===== //
-    auto result = sut.take();
+    auto result = sut.takeChunk();
     // ===== Verify ===== //
-    EXPECT_EQ(true, result.has_error());
+    ASSERT_EQ(true, result.has_error());
+    EXPECT_EQ(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, result.get_error());
     // ===== Cleanup ===== //
 }
 
-TEST_F(BaseSubscriberTest, ReceiveReturnsEmptyOptionalIfUnderlyingPortReturnsEmptyOptional)
+TEST_F(BaseSubscriberTest, ReceiveReturnsNoChunkAvailableIfUnderlyingPortReturnsEmptyOptional)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
         .WillOnce(
             Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(iox::cxx::nullopt))));
     // ===== Test ===== //
-    auto result = sut.take();
+    auto result = sut.takeChunk();
     // ===== Verify ===== //
-    EXPECT_EQ(false, result.has_error());
-    EXPECT_EQ(false, result.value().has_value());
+    ASSERT_EQ(true, result.has_error());
+    EXPECT_EQ(iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE, result.get_error());
     // ===== Cleanup ===== //
 }
 
@@ -287,5 +268,3 @@ TEST_F(BaseSubscriberTest, DestroysUnderlyingPortOnDestruction)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-
-#endif
