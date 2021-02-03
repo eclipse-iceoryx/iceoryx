@@ -36,6 +36,13 @@ constexpr char theUnknown[] = "WhoeverYouAre";
 constexpr char slashName[] = "/miau";
 constexpr char invalidName[] = "x";
 
+/// @req
+/// @brief This test suite verifies that the abstract interface IpcChannelType is fulfilled by both the UnixDomainSocket
+/// class and the MessageQueue class
+/// @pre server and client object are allocated and move to the member object of the fixture
+/// @post StdErr is capture and outputed to StdCout
+/// @note Specific functionality of the underlying implementations of an IpcChannelType are tested in
+/// "UnixDomainSocket_test"
 template <typename T>
 class IpcChannel_test : public Test
 {
@@ -230,13 +237,6 @@ TYPED_TEST(IpcChannel_test, UnlinkNonExistingOneWorks)
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(theUnknown);
     EXPECT_FALSE(ret.has_error());
     EXPECT_FALSE(ret.value());
-}
-
-TYPED_TEST(IpcChannel_test, UnlinkNonExistingWithInvalidNameLeadsToError)
-{
-    auto ret = TestFixture::IpcChannelType::unlinkIfExists(invalidName);
-    EXPECT_TRUE(ret.has_error());
-    ASSERT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TYPED_TEST(IpcChannel_test, SendAndReceiveWorks)
