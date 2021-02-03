@@ -58,10 +58,7 @@ jobs:
         run: |
           source /opt/ros/foxy/setup.bash
           cd $GITHUB_WORKSPACE
-          colcon test --return-code-on-test-failure
-          testpassed=$?
-          if [ $retVal -ne 0 ]; then
-            echo "Systemtest failed! See log output below:"
-            colcon test-result --all --verbose
-          fi
+          colcon test
+          colcon test-result --all --verbose
+
 
