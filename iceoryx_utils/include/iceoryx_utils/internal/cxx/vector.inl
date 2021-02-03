@@ -83,7 +83,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs)
         // copy using copy assignment
         for (; i < std::min(rhs.size(), this->size()); ++i)
         {
-            at(i) = rhs.at(i);
+            new (&at(i)) T(rhs.at(i));
         }
 
         // copy using copy ctor
@@ -111,7 +111,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs)
         // move using move assignment
         for (; i < std::min(rhs.size(), this->size()); ++i)
         {
-            at(i) = std::move(rhs.at(i));
+            new (&at(i)) T(std::move(rhs.at(i)));
         }
 
         // move using move ctor
@@ -338,7 +338,7 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(uint64_
     at(index).~T();
     for (; n + 1u < this->size(); ++n)
     {
-        at(n) = std::move(at(n + 1u));
+        new (&at(n)) T(std::move(at(n + 1u)));
     }
     m_container.set_size(m_container.size() - 1u);
     return this->begin() + index;

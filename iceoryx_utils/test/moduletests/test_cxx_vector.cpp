@@ -528,8 +528,8 @@ TEST_F(vector_test, CopyAssignmentWithLargerDestination)
 
     sut1 = sut2;
     EXPECT_THAT(dTor, Eq(2));
-    EXPECT_THAT(copyAssignment, Eq(2));
-    EXPECT_THAT(copyCTor, Eq(0));
+    EXPECT_THAT(copyAssignment, Eq(0));
+    EXPECT_THAT(copyCTor, Eq(2));
     EXPECT_THAT(sut1.size(), Eq(2));
     EXPECT_THAT(sut1.empty(), Eq(false));
 
@@ -551,8 +551,8 @@ TEST_F(vector_test, CopyAssignmentWithLargerSource)
     sut2 = sut1;
 
     EXPECT_THAT(dTor, Eq(0));
-    EXPECT_THAT(copyAssignment, Eq(2));
-    EXPECT_THAT(copyCTor, Eq(2));
+    EXPECT_THAT(copyAssignment, Eq(0));
+    EXPECT_THAT(copyCTor, Eq(4));
     EXPECT_THAT(sut2.size(), Eq(4));
     EXPECT_THAT(sut2.empty(), Eq(false));
 
@@ -609,8 +609,8 @@ TEST_F(vector_test, MoveAssignmentWithLargerDestination)
 
     sut1 = std::move(sut2);
     EXPECT_THAT(dTor, Eq(4));
-    EXPECT_THAT(moveAssignment, Eq(2));
-    EXPECT_THAT(moveCTor, Eq(0));
+    EXPECT_THAT(moveAssignment, Eq(0));
+    EXPECT_THAT(moveCTor, Eq(2));
     EXPECT_THAT(sut1.size(), Eq(2));
     EXPECT_THAT(sut1.empty(), Eq(false));
 
@@ -632,8 +632,8 @@ TEST_F(vector_test, MoveAssignmentWithLargerSource)
     sut2 = std::move(sut1);
 
     EXPECT_THAT(dTor, Eq(4));
-    EXPECT_THAT(moveAssignment, Eq(2));
-    EXPECT_THAT(moveCTor, Eq(2));
+    EXPECT_THAT(moveAssignment, Eq(0));
+    EXPECT_THAT(moveCTor, Eq(4));
     EXPECT_THAT(sut2.size(), Eq(4));
     EXPECT_THAT(sut2.empty(), Eq(false));
 
@@ -933,7 +933,7 @@ TEST_F(vector_test, EraseOfMiddleElementCallsDTorAndMove)
     sut1.erase(sut1.begin() + 2);
 
     EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(moveAssignment, Eq(2));
+    EXPECT_THAT(moveCTor, Eq(2));
 }
 
 TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
@@ -948,7 +948,7 @@ TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
     sut1.erase(sut1.begin());
 
     EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(moveAssignment, Eq(4));
+    EXPECT_THAT(moveCTor, Eq(4));
 }
 
 TEST_F(vector_test, EraseMiddleElementDataCorrectAfterwards)
