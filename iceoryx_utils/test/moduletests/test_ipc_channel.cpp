@@ -34,7 +34,6 @@ constexpr char goodName[] = "channel_test";
 constexpr char anotherGoodName[] = "horst";
 constexpr char theUnknown[] = "WhoeverYouAre";
 constexpr char slashName[] = "/miau";
-constexpr char invalidName[] = "x";
 
 /// @req
 /// @brief This test suite verifies that the abstract interface IpcChannelType is fulfilled by both the UnixDomainSocket
