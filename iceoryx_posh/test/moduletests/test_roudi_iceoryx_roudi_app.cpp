@@ -71,24 +71,9 @@ class IceoryxRoudiApp_test : public Test
 
 TEST_F(IceoryxRoudiApp_test, CheckConstructorIsSuccessfull)
 {
-    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineParser);
-
-    iox::RouDiConfig_t roudiConfig =
-        configFileProvider.parse()
-            .or_else([](iox::roudi::RouDiConfigFileParseError& parseResult) {
-                iox::LogFatal() << "Couldn't parse config file. Error: "
-                                << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                                 parseResult);
-                std::terminate();
-            })
-            .value();
-
-    //iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineParser);
-
     IceoryxRoudiApp_Child roudi(cmdLineParser, iox::RouDiConfig_t().setDefaults());
 
     EXPECT_TRUE(roudi.getVariableMRun());
-
 }
 
 TEST_F(IceoryxRoudiApp_test, CheckRunMethodWithMRunFalseReturnExitSuccess)
