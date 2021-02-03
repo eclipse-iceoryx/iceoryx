@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,14 +11,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef ICEORYX_SYSTEMTEST_TOPIC_DATA_HPP
+#define ICEORYX_SYSTEMTEST_TOPIC_DATA_HPP
 
-#include <cstdio>
+#include <cstdint>
 
-int main(int argc, char ** argv)
+struct RadarObject
 {
-  (void) argc;
-  (void) argv;
+    RadarObject() noexcept
+    {
+    }
+    RadarObject(double x, double y, double z) noexcept
+        : x(x)
+        , y(y)
+        , z(z)
+    {
+    }
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+};
 
-  printf("hello world iceoryx_integration_test package\n");
-  return 0;
-}
+#endif // ICEORYX_SYSTEMTEST_TOPIC_DATA_HPP
