@@ -45,7 +45,10 @@ cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> EventListener::w
 
 void EventListener::reset(const uint64_t index) noexcept
 {
-    m_pointerToEventVariableData->m_activeNotifications[index].store(false, std::memory_order_relaxed);
+    if (index < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+    {
+        m_pointerToEventVariableData->m_activeNotifications[index].store(false, std::memory_order_relaxed);
+    }
 }
 } // namespace popo
 } // namespace iox
