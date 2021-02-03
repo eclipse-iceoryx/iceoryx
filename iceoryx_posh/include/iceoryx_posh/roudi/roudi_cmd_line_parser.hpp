@@ -52,7 +52,8 @@ class CmdLineParser
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] cmdLineParsingMode selects to parse a single option or all options
-    /// @param[out] Result of the parsed arguments as CmdLineArgs_t struct
+    /// @param[out] Result wrapped in an cxx::expected, either the parsed arguments as CmdLineArgs_t struct or
+    /// CmdLineParserResult
     virtual cxx::expected<CmdLineArgs_t, CmdLineParserResult>
     parse(int argc,
           char* argv[],

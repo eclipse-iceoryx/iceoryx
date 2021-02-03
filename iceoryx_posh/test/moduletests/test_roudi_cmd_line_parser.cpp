@@ -102,7 +102,7 @@ TEST_F(CmdLineParser_test, NoOptionLeadsToDefaultValues)
     EXPECT_THAT(result.value(), Eq(defaultValues));
 }
 
-TEST_F(CmdLineParser_test, WrongOptionLeadsToProgrammNotRunning)
+TEST_F(CmdLineParser_test, WrongOptionLeadsUnkownOptionResult)
 {
     constexpr uint8_t numberOfArgs{2U};
     char* args[numberOfArgs];
@@ -368,6 +368,44 @@ TEST_F(CmdLineParser_test, WrongCompatibilityLevelOptionLeadsToProgrammNotRunnin
 
     EXPECT_THAT(result.has_error(), Eq(false));
     EXPECT_THAT(result.value().run, Eq(false));
+}
+
+TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
+{
+    constexpr uint8_t numberOfArgs{3U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    char option[] = "--unique-roudi-id";
+    char wrongValue[] = "4242";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &wrongValue[0];
+
+    iox::config::CmdLineParser sut;
+    auto result = sut.parse(numberOfArgs, args);
+
+    EXPECT_THAT(result.has_error(), Eq(false));
+    EXPECT_THAT(result.value().uniqueRouDiId.has_value(), Eq(true));
+    EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
+}
+
+TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
+{
+    constexpr uint8_t numberOfArgs{3U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    char option[] = "-u";
+    char wrongValue[] = "4242";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &wrongValue[0];
+
+    iox::config::CmdLineParser sut;
+    auto result = sut.parse(numberOfArgs, args);
+
+    EXPECT_THAT(result.has_error(), Eq(false));
+    EXPECT_THAT(result.value().uniqueRouDiId.has_value(), Eq(true));
+    EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
 }
 
 TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
