@@ -103,13 +103,13 @@ template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto subscriber = channel.getIceoryxTerminal();
-    while (subscriber->hasSamples())
+    while (subscriber->hasChunks())
     {
         subscriber->take().and_then([&](const void* payload) {
             auto dataWriter = channel.getExternalTerminal();
             auto header = iox::mepoo::ChunkHeader::fromPayload(payload);
             dataWriter->write(static_cast<const uint8_t*>(payload), header->payloadSize);
-            subscriber.releaseChunk(payload);
+            subscriber->releaseChunk(payload);
         });
     }
 }
