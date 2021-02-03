@@ -888,6 +888,19 @@ TEST_F(vector_test, EraseOfLastElementCallsDTorOnly)
     sut1.emplace_back(7);
     sut1.emplace_back(8);
     sut1.emplace_back(9);
+    classValue = 0; // reset, since emplace_back set it
+    sut1.erase(sut1.begin() + 2);
+
+    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(classValue, Eq(0));
+}
+
+TEST_F(vector_test, EraseOfMiddleElementCallsCorrectDTor)
+{
+    vector<CTorTest, 5> sut1;
+    sut1.emplace_back(7);
+    sut1.emplace_back(8);
+    sut1.emplace_back(9);
 
     sut1.erase(sut1.begin() + 1);
 
