@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Colcon build
+name: Iceoryx Systemtests
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -48,7 +48,18 @@ jobs:
           sudo sed -i '41 c\"'c'", "'cc'", "'cpp'", "'cxx'", "'h'", "'hh'", "'hpp'", "'hxx'", "'inl'", "'sh'"' /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/main.py
           ament_copyright --exclude LICENSE CONTRIBUTING.md tools/apache2_header.txt
 
-      - name: Build & Test
+      - name: Build
         run: |
           cd $GITHUB_WORKSPACE
           colcon build
+
+      - name: Test Execution
+        run: |
+          cd $GITHUB_WORKSPACE
+          colcon test --return-code-on-test-failure
+          testpassed=$?
+          if [ $retVal -ne 0 ]; then
+            echo "Systemtest failed! See log output below:"
+            colcon test-result --all --verbose
+          fi
+
