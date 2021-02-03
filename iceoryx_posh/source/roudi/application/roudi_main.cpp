@@ -25,27 +25,28 @@ int main(int argc, char* argv[])
     using iox::roudi::IceOryxRouDiApp;
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
-    auto cmdLineArgs = cmdLineParser.parse(argc, argv).or_else([](iox::config::CmdLineParserResult& error) {
-        if (error == iox::config::CmdLineParserResult::UNKNOWN_OPTION_USED)
+    auto cmdLineArgs = cmdLineParser.parse(argc, argv);
+    if (cmdLineArgs.has_error())
+    {
+        if (cmdLineArgs.get_error() == iox::config::CmdLineParserResult::UNKNOWN_OPTION_USED)
         {
             iox::LogFatal() << "Unable to parse command line arguments!";
-            std::terminate();
+            return EXIT_FAILURE;
         }
-    });
+    }
 
     iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
 
-    iox::RouDiConfig_t roudiConfig =
-        configFileProvider.parse()
-            .or_else([](iox::roudi::RouDiConfigFileParseError& parseResult) {
-                iox::LogFatal() << "Couldn't parse config file. Error: "
-                                << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                                 parseResult);
-                std::terminate();
-            })
-            .value();
+    auto roudiConfig = configFileProvider.parse();
+    if (roudiConfig.has_error())
+    {
+        iox::LogFatal() << "Couldn't parse config file. Error: "
+                        << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
+                                                         roudiConfig.get_error());
+        return EXIT_FAILURE;
+    }
 
-    IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig);
+    IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig.value());
 
     return roudi.run();
 }

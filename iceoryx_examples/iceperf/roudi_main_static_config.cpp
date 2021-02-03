@@ -25,13 +25,15 @@ int main(int argc, char* argv[])
     static constexpr uint32_t ONE_MEGABYTE = 1024U * 1024;
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
-    auto cmdLineArgs = cmdLineParser.parse(argc, argv).or_else([](iox::config::CmdLineParserResult& error) {
-        if (error == iox::config::CmdLineParserResult::UNKNOWN_OPTION_USED)
+    auto cmdLineArgs = cmdLineParser.parse(argc, argv);
+    if (cmdLineArgs.has_error())
+    {
+        if (cmdLineArgs.get_error() == iox::config::CmdLineParserResult::UNKNOWN_OPTION_USED)
         {
             iox::LogFatal() << "Unable to parse command line arguments!";
-            std::terminate();
+            return EXIT_FAILURE;
         }
-    });
+    }
 
     iox::RouDiConfig_t roudiConfig;
     // roudiConfig.setDefaults(); can be used if you want to use the default config only.

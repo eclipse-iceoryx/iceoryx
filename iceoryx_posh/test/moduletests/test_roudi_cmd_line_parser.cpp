@@ -377,10 +377,10 @@ TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
     char* args[numberOfArgs];
     char appName[] = "./foo";
     char option[] = "--unique-roudi-id";
-    char wrongValue[] = "4242";
+    char value[] = "4242";
     args[0] = &appName[0];
     args[1] = &option[0];
-    args[2] = &wrongValue[0];
+    args[2] = &value[0];
 
     iox::config::CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
@@ -396,10 +396,10 @@ TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
     char* args[numberOfArgs];
     char appName[] = "./foo";
     char option[] = "-u";
-    char wrongValue[] = "4242";
+    char value[] = "4242";
     args[0] = &appName[0];
     args[1] = &option[0];
-    args[2] = &wrongValue[0];
+    args[2] = &value[0];
 
     iox::config::CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
