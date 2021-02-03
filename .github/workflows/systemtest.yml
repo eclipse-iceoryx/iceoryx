@@ -60,5 +60,3 @@ jobs:
           cd $GITHUB_WORKSPACE
           colcon test
           colcon test-result --all --verbose
-
-
