@@ -5,9 +5,9 @@ To ensure quality standards in iceoryx, we are using automated testing to verify
 Additionally we need to make sure that the customer-facing API is functional and system-level requirements are fulfilled.
 
 For that purpose we bring in tests which simulate customer behavior to have automatic testing of (Mis)Use-cases.
-As testing framework we use the [launch_testing](https://github.com/ros2/launch/tree/master/launch_testing) from ROS 2.
-The tests are in a ROS 2 CMake package where the test executables are build and tested by python scripts.
-In these scripts the testing is currently done by evaluating stdout output of the processes and the exit codes.
+As testing framework we use the [launch_testing](https://github.com/ros2/launch/tree/master/launch_testing) framework from ROS 2.
+The tests are stored in a ROS 2 CMake package where the test executables are build and launched/tested by python scripts.
+In these scripts the testing is currently done by evaluating the stdout output of the processes and the exit codes.
 
 advantages:
 - automatic test if processes have exited unexpectedly
@@ -20,7 +20,7 @@ limitations:
 
 ## Setup
 For building and executing the tests you need to have ROS2 installed. Please follow the instructions on https://index.ros.org/doc/ros2/Installation.
-The systemtests are currently tested on ROS 2 "Foxy Fitzroy" in Ubuntu 20.04 LTS.
+The system tests are currently tested on ROS 2 "Foxy Fitzroy" in Ubuntu 20.04 LTS.
 
 For a basic setup you need to install the following packages:
 ```bash
@@ -54,7 +54,7 @@ iceoryx_workspace
 
 ## Test Build and Execution
 
-For you go into your iceoryx_workspace folder and do the colcon build:
+Go into your iceoryx_workspace folder and do the colcon build:
 ```bash
 colcon build
 ```
@@ -80,24 +80,24 @@ Summary: 13 packages finished [7.80s]
 ```
 
 For observing test logs in an error case you can use `colcon test-result`:
-```
+```bash
 colcon test-result --all --verbose
 ```
 
 With colcon all tests in the systemtest package are executed. In particular cases you want to execute only
-one testfile. This can be done the following way:
+one test file. This can be done the following way:
 ```bash
 source install/setup.bash # your install directory created by colcon
 launch_test src/iceoryx/iceoryx_systemtest/iceoryx_systemtest/test_roudi_startup_shutdown.py 
 ```
 
-An output can look like this:
+An output for a failing test could look like this:
 ```bash
     ======================================================================
     FAIL: test_roudi_ready (iceoryx_systemtest.TestRouDiProcess)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      File "iceoryx_ws/src/iceoryx/iceoryx_systemtest/iceoryx_systemtest/test_roudi_startup_shutdown.py", line 52, in test_roudi_ready
+      File "iceoryx_workspace/src/iceoryx/iceoryx_systemtest/iceoryx_systemtest/test_roudi_startup_shutdown.py", line 52, in test_roudi_ready
         proc_output.assertWaitFor(
       File "/opt/ros/foxy/lib/python3.8/site-packages/launch_testing/io_handler.py", line 146, in assertWaitFor
         assert success, 'Waiting for output timed out'
@@ -106,4 +106,4 @@ An output can look like this:
 
 ## Open points
 - use an alternative way of tracing test information of the test processes without involving iceoryx (e.g. DDS or some tracing lib)
-- add gtest for detailed testing in the test processes.
+- add gtest for detailed testing in the test processes
