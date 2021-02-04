@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ PoshRuntime& PoshRuntime::getInstance(cxx::optional<const ProcessName_t*> name) 
 
 PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread) noexcept
     : m_appName(verifyInstanceName(name))
-    , m_MqInterface(roudi::MQ_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+    , m_MqInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
                      m_MqInterface.getSegmentId(),
@@ -142,7 +142,6 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
 
 PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
                                                                          const popo::PublisherOptions& publisherOptions,
-                                                                         const NodeName_t& nodeName,
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     constexpr uint64_t MAX_HISTORY_CAPACITY =
@@ -156,10 +155,16 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
                   << ", limiting from " << publisherOptions.historyCapacity << " to " << MAX_HISTORY_CAPACITY;
         options.historyCapacity = MAX_HISTORY_CAPACITY;
     }
+
+    if (options.nodeName.empty())
+    {
+        options.nodeName = m_appName;
+    }
+
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
-               << nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
+               << options.nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
     if (maybePublisher.has_error())
@@ -178,7 +183,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
             break;
         case MqMessageErrorType::REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
-                      << "' could not be created. Request publisher got wrong message queue response.";
+                      << "' could not be created. Request publisher got wrong IPC channel response.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
@@ -229,14 +234,13 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
         }
     }
 
-    LogError() << "Request publisher got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    LogError() << "Request publisher got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
     return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE);
 }
 
 SubscriberPortUserType::MemberType_t*
 PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                                      const popo::SubscriberOptions& subscriberOptions,
-                                     const NodeName_t& nodeName,
                                      const PortConfigInfo& portConfigInfo) noexcept
 {
     constexpr uint64_t MAX_QUEUE_CAPACITY = SubscriberPortUserType::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
@@ -250,10 +254,15 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
         options.queueCapacity = MAX_QUEUE_CAPACITY;
     }
 
+    if (options.nodeName.empty())
+    {
+        options.nodeName = m_appName;
+    }
+
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << nodeName
+               << std::to_string(options.queueCapacity) << options.nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
@@ -269,7 +278,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
             break;
         case MqMessageErrorType::REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
-                      << "' could not be created. Request subscriber got wrong message queue response.";
+                      << "' could not be created. Request subscriber got wrong IPC channel response.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
@@ -320,7 +329,7 @@ PoshRuntime::requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept
         }
     }
 
-    LogError() << "Request subscriber got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    LogError() << "Request subscriber got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
     return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE);
 }
 
@@ -348,7 +357,7 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
         }
     }
 
-    LogError() << "Get mw interface got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    LogError() << "Get mw interface got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
     errorHandler(
         Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
@@ -465,7 +474,7 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
         }
     }
 
-    LogError() << "Get mw application got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    LogError() << "Get mw application got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
     errorHandler(
         Error::kPOSH__RUNTIME_ROUDI_GET_MW_APPLICATION_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
@@ -503,7 +512,7 @@ PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noex
         }
     }
 
-    LogError() << "Request condition variable got wrong response from message queue :'" << receiveBuffer.getMessage()
+    LogError() << "Request condition variable got wrong response from IPC channel :'" << receiveBuffer.getMessage()
                << "'";
     return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE);
 }
@@ -523,7 +532,7 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
         case MqMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE:
-            LogWarn() << "Could not create condition variables; received wrong message queue response.";
+            LogWarn() << "Could not create condition variables; received wrong IPC channel response.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);

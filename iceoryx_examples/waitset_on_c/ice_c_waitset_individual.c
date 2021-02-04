@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,10 +60,14 @@ int main()
     // create two subscribers, subscribe to the service and attach them to the waitset
     const uint64_t historyRequest = 1U;
     const uint64_t queueCapacity = 256U;
-    subscriber[0] =
-        iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
-    subscriber[1] =
-        iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+
+    const char* const nodeName1 = "iox-c-ex-waitset-individual-node1";
+    const char* const nodeName2 = "iox-c-ex-waitset-individual-node2";
+
+    subscriber[0] = iox_sub_init(
+        &(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName1);
+    subscriber[1] = iox_sub_init(
+        &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName2);
 
     iox_sub_subscribe(subscriber[0]);
     iox_sub_subscribe(subscriber[1]);

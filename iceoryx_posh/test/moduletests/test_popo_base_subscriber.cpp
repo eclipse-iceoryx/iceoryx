@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
     using SubscriberParent::getUid;
     using SubscriberParent::hasMissedSamples;
     using SubscriberParent::hasSamples;
-    using SubscriberParent::invalidateTrigger;
     using SubscriberParent::releaseQueuedSamples;
     using SubscriberParent::subscribe;
     using SubscriberParent::take;
@@ -196,7 +195,7 @@ TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     // ===== Test ===== //
-    sut.enableEvent(waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitSet.attachEvent(sut, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -207,7 +206,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.enableEvent(*waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitSet->attachEvent(sut, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     // ===== Verify ===== //
@@ -221,10 +220,10 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     std::unique_ptr<WaitSetMock> waitSet2{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.enableEvent(*waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitSet->attachEvent(sut, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.enableEvent(*waitSet2, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitSet2->attachEvent(sut, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     EXPECT_EQ(waitSet2->size(), 1U);
@@ -237,7 +236,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.enableEvent(*waitSet, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitSet->attachEvent(sut, iox::popo::SubscriberEvent::HAS_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     sut.disableEvent(iox::popo::SubscriberEvent::HAS_SAMPLES);

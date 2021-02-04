@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -137,6 +137,12 @@ inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexce
 }
 
 template <typename T, typename Subscriber, typename port_t>
+void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const mepoo::ChunkHeader* header) noexcept
+{
+    m_port.releaseChunk(header);
+}
+
+template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
     if (m_trigger.getUniqueId() == uniqueTriggerId)
@@ -147,9 +153,36 @@ inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint6
 }
 
 template <typename T, typename Subscriber, typename port_t>
-void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const mepoo::ChunkHeader* header) noexcept
+inline void
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
+                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
 {
-    m_port.releaseChunk(header);
+    m_trigger = std::move(triggerHandle);
+    m_port.setConditionVariable(m_trigger.getConditionVariableData());
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline WaitSetHasTriggeredCallback BaseSubscriber<T, Subscriber, port_t>::getHasTriggeredCallbackForEvent(
+    const SubscriberEvent subscriberEvent) const noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::HAS_SAMPLES:
+        return {*this, &SelfType::hasSamples};
+    }
+    return {};
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::HAS_SAMPLES:
+        m_trigger.reset();
+        m_port.unsetConditionVariable();
+        break;
+    }
 }
 
 // ============================== Sample Deleter ============================== //
@@ -166,46 +199,6 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
     auto header = mepoo::ChunkHeader::fromPayload(ptr);
     m_port.get().releaseChunk(header);
 }
-
-template <typename T, typename Subscriber, typename port_t>
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                                   const uint64_t eventId,
-                                                   const EventInfo::Callback<Subscriber> callback) noexcept
-{
-    Subscriber* self = reinterpret_cast<Subscriber*>(this);
-
-    return waitset
-        .acquireTriggerHandle(
-            self, {*this, &SelfType::hasSamples}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
-        .and_then([this](TriggerHandle& trigger) {
-            m_trigger = std::move(trigger);
-            m_port.setConditionVariable(m_trigger.getConditionVariableData());
-        });
-}
-
-template <typename T, typename Subscriber, typename port_t>
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                   [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                                   const EventInfo::Callback<Subscriber> callback) noexcept
-{
-    return enableEvent(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
-}
-
-template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
-{
-    static_cast<void>(subscriberEvent);
-
-    m_trigger.reset();
-    m_port.unsetConditionVariable();
-}
-
-
 } // namespace popo
 } // namespace iox
 

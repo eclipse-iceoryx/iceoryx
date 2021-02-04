@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +14,8 @@
 
 #include "test.hpp"
 
-#define private public
-#define protected public
-
 #include "iceoryx_posh/gateway/gateway_discovery.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
-
-#undef private
-#undef protected
 
 using namespace ::testing;
 using ::testing::Return;
@@ -30,6 +24,15 @@ using CaproMessage = iox::capro::CaproMessage;
 using BasePort = iox::popo::BasePort;
 using InterfacePort = iox::popo::InterfacePort;
 
+template <typename T>
+class GatewayDiscoveryAccess : public iox::gw::GatewayDiscovery<T>
+{
+  public:
+    GatewayDiscoveryAccess(T interfacePortImpl)
+        : iox::gw::GatewayDiscovery<T>(interfacePortImpl)
+    {
+    }
+};
 
 class InterfacePort_mock
 {
@@ -53,7 +56,8 @@ class GatewayDiscovery_test : public Test
 TEST_F(GatewayDiscovery_test, GetCaproMessage)
 {
     InterfacePort_mock interfacePortImplMock;
-    iox::gw::GatewayDiscovery<InterfacePort_mock> GatewayDiscovery(interfacePortImplMock);
+    iox::gw::GatewayDiscovery<InterfacePort_mock> GatewayDiscovery =
+        GatewayDiscoveryAccess<InterfacePort_mock>(interfacePortImplMock);
     CaproMessage msg;
     GatewayDiscovery.getCaproMessage(msg);
     EXPECT_EQ(iox::capro::CaproMessageType::ACK, msg.m_type);

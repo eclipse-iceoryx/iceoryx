@@ -97,7 +97,7 @@ class ProcessIntrospection
 
     std::mutex m_mutex;
 
-    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
+    units::Duration m_sendInterval{units::Duration::seconds(1U)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
         concurrent::PeriodicTaskManualStart, "ProcessIntr", *this, &ProcessIntrospection::send};
 };
