@@ -111,7 +111,7 @@ add_library(iceoryx_posh
     source/runtime/ipc_interface_user.cpp
     source/runtime/ipc_interface_creator.cpp
     source/runtime/ipc_runtime_interface.cpp
-    source/runtime/message_queue_message.cpp
+    source/runtime/ipc_message.cpp
     source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
     source/runtime/posh_runtime_single_process.cpp
