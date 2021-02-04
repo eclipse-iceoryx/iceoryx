@@ -3,6 +3,8 @@
 This is a guide on how to write tests for iceoryx. It intends to cover the most common cases which will probably apply to 99% of the tests.
 This shall not encourage to be more royalist than the king and common sense shall be applied when the guidelines don't make sense.
 
+The guide also expects some knowledge on `gtest`. At least the [Googletest Primer](https://github.com/google/googletest/blob/master/docs/primer.md) document should be read before continuing with this guide.
+
 Don't write test just for the sake of having a high coverage number. First and foremost, tests must be meaningful and **verify the code** to prevent bugs and regressions.
 New code shall be created with testability in mind. Legacy code shall be refactored if it is not testable.
 
@@ -34,6 +36,7 @@ The catchwords can be used to draw simple scenarios which nicely fits to the AAA
 - full
 - out of bounds
 - timeouts
+- copy & move
 - etc.
 
 Following [Hyrum's Law](https://www.hyrumslaw.com/) loosely, given enough users, one will find ways to use the software in a way it was never imagined. Therefore never underestimate the creativity of brilliancy/stupidity.
