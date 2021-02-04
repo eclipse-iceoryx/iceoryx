@@ -39,26 +39,26 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
           *m_roudiMemoryInterface->introspectionMemoryManager()
                .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
           *m_roudiMemoryInterface->segmentManager().value(),
-          PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionMempoolService, MQ_ROUDI_NAME)))
+          PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionMempoolService, IPC_CHANNEL_ROUDI_NAME)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
     m_processIntrospection.registerPublisherPort(
-        PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, MQ_ROUDI_NAME)));
+        PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, IPC_CHANNEL_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.run();
 
     // since RouDi offers the introspection services, also add it to the list of processes
-    m_processIntrospection.addProcess(getpid(), MQ_ROUDI_NAME);
+    m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // run the threads
-    m_processManagementThread = std::thread(&RouDi::processThread, this);
+    m_processManagementThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
     posix::setThreadName(m_processManagementThread.native_handle(), "ProcessMgmt");
 
-    if (roudiStartupParameters.m_mqThreadStart == MQThreadStart::IMMEDIATE)
+    if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
-        startMQThread();
+        startProcessRuntimeMessagesThread();
     }
 }
 
@@ -67,10 +67,10 @@ RouDi::~RouDi()
     shutdown();
 }
 
-void RouDi::startMQThread()
+void RouDi::startProcessRuntimeMessagesThread()
 {
-    m_processMQThread = std::thread(&RouDi::mqThread, this);
-    posix::setThreadName(m_processMQThread.native_handle(), "MQ-processing");
+    m_processRuntimeMessagesThread = std::thread(&RouDi::processRuntimeMessages, this);
+    posix::setThreadName(m_processRuntimeMessagesThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown()
@@ -91,11 +91,11 @@ void RouDi::shutdown()
         m_processManagementThread.join();
         LogDebug() << "...'ProcessMgmt' thread joined.";
     }
-    if (m_processMQThread.joinable())
+    if (m_processRuntimeMessagesThread.joinable())
     {
-        LogDebug() << "Joining 'MQ-processing' thread...";
-        m_processMQThread.join();
-        LogDebug() << "...'MQ-processing' thread joined.";
+        LogDebug() << "Joining 'IPC-msg-process' thread...";
+        m_processRuntimeMessagesThread.join();
+        LogDebug() << "...'IPC-msg-process' thread joined.";
     }
 }
 
@@ -104,7 +104,7 @@ void RouDi::cyclicUpdateHook()
     // default implementation; do nothing
 }
 
-void RouDi::processThread()
+void RouDi::monitorAndDiscoveryUpdate()
 {
     while (m_runThreads)
     {
@@ -114,18 +114,18 @@ void RouDi::processThread()
     }
 }
 
-void RouDi::mqThread()
+void RouDi::processRuntimeMessages()
 {
-    runtime::MqInterfaceCreator roudiMqInterface{MQ_ROUDI_NAME};
+    runtime::MqInterfaceCreator roudiMqInterface{IPC_CHANNEL_ROUDI_NAME};
 
     // the logger is intentionally not used, to ensure that this message is always printed
     std::cout << "RouDi is ready for clients" << std::endl;
 
     while (m_runThreads)
     {
-        // read RouDi message queue
+        // read RouDi's IPC channel
         runtime::MqMessage message;
-        if (roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
+        if (roudiMqInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToMqMessageType(message.getElementAtIndex(0).c_str());
             std::string processName = message.getElementAtIndex(1);
