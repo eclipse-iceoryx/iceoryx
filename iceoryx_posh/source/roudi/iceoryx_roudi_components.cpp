@@ -26,7 +26,7 @@ IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig)
         // and close it immediatelly
         // if there was an outdated roudi IPC channel, it will be cleaned up
         // if there is an outdated IPC channel, the start of the apps will be terminated
-        runtime::IpcInterfaceBase::cleanupOutdatedMessageQueue(roudi::IPC_CHANNEL_ROUDI_NAME);
+        runtime::IpcInterfaceBase::cleanupOutdatedIpcChannel(roudi::IPC_CHANNEL_ROUDI_NAME);
 
         m_rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
             LogFatal() << "Could not create SharedMemory! Error: " << error;

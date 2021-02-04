@@ -165,7 +165,7 @@ class IpcInterfaceBase
     /// @brief Since there might be an outdated IPC channel due to an unclean temination
     ///        this function closes the IPC channel if it's existing.
     /// @param[in] name of the IPC channel to clean up
-    static void cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept;
+    static void cleanupOutdatedIpcChannel(const ProcessName_t& name) noexcept;
 
     friend class IpcInterfaceUser;
     friend class IpcInterfaceCreator;
@@ -211,12 +211,12 @@ class IpcInterfaceBase
     /// keeps the IPC channel in the file system after the dTor is called
     /// @return Returns true if a IPC channel could be opened, otherwise
     ///             false.
-    bool openMessageQueue(const posix::IpcChannelSide channelSide) noexcept;
+    bool openIpcChannel(const posix::IpcChannelSide channelSide) noexcept;
 
     /// @brief Closes a IPC channel
     /// @return Returns true if the IPC channel could be closed, otherwise
     ///             false.
-    bool closeMessageQueue() noexcept;
+    bool closeIpcChannel() noexcept;
 
     /// @brief If a IPC channel was moved then m_interfaceName was cleared
     ///         and this object gave up the control of that specific
@@ -225,7 +225,7 @@ class IpcInterfaceBase
     ///         an invalid IPC channel descriptor.
     /// @return Returns true if the IPC channel is closable,
     ///             otherwise false.
-    bool hasClosableMessageQueue() const noexcept;
+    bool hasClosableIpcChannel() const noexcept;
 
   protected:
     ProcessName_t m_interfaceName;

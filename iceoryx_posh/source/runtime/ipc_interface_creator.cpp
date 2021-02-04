@@ -25,9 +25,9 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
 {
     // check if the mq is still there (e.g. because of no proper termination
     // of the process)
-    cleanupOutdatedMessageQueue(name);
+    cleanupOutdatedIpcChannel(name);
 
-    openMessageQueue(posix::IpcChannelSide::SERVER);
+    openIpcChannel(posix::IpcChannelSide::SERVER);
 }
 
 void IpcInterfaceCreator::cleanupResource()

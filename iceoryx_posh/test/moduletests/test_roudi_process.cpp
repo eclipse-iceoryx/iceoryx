@@ -46,7 +46,7 @@ class RouDiProcess_test : public Test
     bool isMonitored = true;
     const uint64_t payloadSegmentId{0x654321U};
     const uint64_t sessionId{255U};
-    IpcInterfaceUser_Mock mqIntrfceusermock;
+    IpcInterfaceUser_Mock ipcInterfaceUserMock;
 };
 
 TEST_F(RouDiProcess_test, getPid)
@@ -88,8 +88,8 @@ TEST_F(RouDiProcess_test, getPayloadMemoryManager)
 TEST_F(RouDiProcess_test, sendViaIpcChannelPass)
 {
     iox::runtime::IpcMessage data{"MESSAGE_NOT_SUPPORTED"};
-    EXPECT_CALL(mqIntrfceusermock, sendViaIpcChannel(_)).Times(1);
-    mqIntrfceusermock.sendViaIpcChannel(data);
+    EXPECT_CALL(ipcInterfaceUserMock, sendViaIpcChannel(_)).Times(1);
+    ipcInterfaceUserMock.sendViaIpcChannel(data);
 }
 TEST_F(RouDiProcess_test, sendViaIpcChannelFail)
 {

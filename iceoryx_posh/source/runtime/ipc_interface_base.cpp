@@ -155,7 +155,7 @@ bool IpcInterfaceBase::isInitialized() const noexcept
     return m_ipcChannel.isInitialized();
 }
 
-bool IpcInterfaceBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
+bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) noexcept
 {
     m_ipcChannel.destroy();
 
@@ -167,14 +167,14 @@ bool IpcInterfaceBase::openMessageQueue(const posix::IpcChannelSide channelSide)
     return m_ipcChannel.isInitialized();
 }
 
-bool IpcInterfaceBase::closeMessageQueue() noexcept
+bool IpcInterfaceBase::closeIpcChannel() noexcept
 {
     return !m_ipcChannel.destroy().has_error();
 }
 
 bool IpcInterfaceBase::reopen() noexcept
 {
-    return openMessageQueue(m_channelSide);
+    return openIpcChannel(m_channelSide);
 }
 
 bool IpcInterfaceBase::mqMapsToFile() noexcept
@@ -182,12 +182,12 @@ bool IpcInterfaceBase::mqMapsToFile() noexcept
     return !m_ipcChannel.isOutdated().value_or(true);
 }
 
-bool IpcInterfaceBase::hasClosableMessageQueue() const noexcept
+bool IpcInterfaceBase::hasClosableIpcChannel() const noexcept
 {
     return m_ipcChannel.isInitialized();
 }
 
-void IpcInterfaceBase::cleanupOutdatedMessageQueue(const ProcessName_t& name) noexcept
+void IpcInterfaceBase::cleanupOutdatedIpcChannel(const ProcessName_t& name) noexcept
 {
     if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
     {
