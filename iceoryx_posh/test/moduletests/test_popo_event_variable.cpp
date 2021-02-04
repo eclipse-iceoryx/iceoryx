@@ -109,17 +109,6 @@ TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAndWai
     EXPECT_THAT(activeNotifications[1], Eq(index));
 }
 
-TEST_F(EventVariable_test, GetEmptyNotificationVectorAfterNotifyWithTooLargeAndWait)
-{
-    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET + 1U;
-    EventNotifier notifier(m_eventVarData, index);
-    EventListener listener(m_eventVarData);
-
-    notifier.notify();
-    const auto& activeNotifications = listener.wait();
-    EXPECT_THAT(activeNotifications.size(), Eq(0U));
-}
-
 TEST_F(EventVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 {
     uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
@@ -156,10 +145,43 @@ TIMING_TEST_F(EventVariable_test, WaitBlocks, Repeat(5), [&] {
 
     semaphore.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    hasWaited.store(false, std::memory_order_relaxed);
+    EXPECT_THAT(hasWaited, Eq(false));
     notifier.notify();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    hasWaited.store(true, std::memory_order_relaxed);
+    EXPECT_THAT(hasWaited, Eq(true));
+    waiter.join();
+})
+
+TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5), [&] {
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 2U;
+    EventNotifier notifier1(m_eventVarData, index);
+    EventNotifier notifier2(m_eventVarData, 0U);
+    EventListener listener(m_eventVarData);
+    iox::posix::Semaphore semaphore =
+        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
+    std::atomic_bool hasWaited{false};
+
+    notifier1.notify();
+    notifier2.notify();
+    notificationVector activeNotifications = listener.wait();
+    ASSERT_THAT(activeNotifications.size(), Eq(2U));
+    EXPECT_THAT(activeNotifications[0], Eq(0U));
+    EXPECT_THAT(activeNotifications[1], Eq(index));
+
+    std::thread waiter([&] {
+        semaphore.post();
+        activeNotifications = listener.wait();
+        hasWaited.store(true, std::memory_order_relaxed);
+        ASSERT_THAT(activeNotifications.size(), Eq(1U));
+        EXPECT_THAT(activeNotifications[0], Eq(index));
+    });
+
+    semaphore.wait();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_THAT(hasWaited, Eq(false));
+    notifier1.notify();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_THAT(hasWaited, Eq(true));
     waiter.join();
 })
 
@@ -197,3 +219,4 @@ TEST_F(EventVariable_test, ResetWithTooLargeIndexDoesNotChangeNotificationArray)
         EXPECT_THAT(notification, Eq(false));
     }
 }
+

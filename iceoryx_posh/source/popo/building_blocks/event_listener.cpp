@@ -25,7 +25,21 @@ EventListener::EventListener(EventVariableData& dataRef) noexcept
 
 cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> EventListener::wait() noexcept
 {
+    resetSemaphore();
     cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> activeNotifications;
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
+    {
+        if (m_pointerToEventVariableData->m_activeNotifications[i].load(std::memory_order_relaxed))
+        {
+            reset(i);
+            activeNotifications.emplace_back(i);
+        }
+    }
+    if (!activeNotifications.empty())
+    {
+        return activeNotifications;
+    }
+
     if (m_pointerToEventVariableData->m_semaphore.wait().has_error())
     {
         errorHandler(Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
@@ -36,6 +50,7 @@ cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> EventListener::w
         {
             if (m_pointerToEventVariableData->m_activeNotifications[i].load(std::memory_order_relaxed))
             {
+                reset(i);
                 activeNotifications.emplace_back(i);
             }
         }
@@ -50,5 +65,19 @@ void EventListener::reset(const uint64_t index) noexcept
         m_pointerToEventVariableData->m_activeNotifications[index].store(false, std::memory_order_relaxed);
     }
 }
+
+void EventListener::resetSemaphore() noexcept
+{
+    // Count the semaphore down to zero
+    while (m_pointerToEventVariableData->m_semaphore.tryWait()
+               .or_else([](posix::SemaphoreError) {
+                   errorHandler(
+                       Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_RESET, nullptr, ErrorLevel::FATAL);
+               })
+               .value())
+    {
+    }
+}
 } // namespace popo
 } // namespace iox
+

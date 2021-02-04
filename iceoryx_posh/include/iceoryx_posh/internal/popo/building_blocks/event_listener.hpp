@@ -32,6 +32,8 @@ class EventListener
     void reset(const uint64_t index) noexcept;
 
   private:
+    void resetSemaphore() noexcept;
+
     EventVariableData* m_pointerToEventVariableData{nullptr};
 };
 } // namespace popo
