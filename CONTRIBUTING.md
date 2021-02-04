@@ -217,7 +217,6 @@ Each source file needs to have this header:
 
 ```cpp
     // Copyright (c) [YEAR OF INITIAL CONTRIBUTION] - [YEAR LAST CONTRIBUTION] by [CONTRIBUTOR]. All rights reserved.
-    // SPDX-License-Identifier: Apache License 2.0
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -230,6 +229,8 @@ Each source file needs to have this header:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+    //
+    // SPDX-License-Identifier: Apache License 2.0
 ```
 Note: `DATE` is either a year or a range of years with the first and last years of the range separated by a dash. So for example: "2004" (initial and last contribution in the same year) or "2000 - 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified. The year of the last contribution needs to be updated the content was modified in a new year. An option is to add a year by a comma for the case that a contributor did not modify in one year.
 
@@ -238,7 +239,6 @@ Example:
 ```cpp
     // Copyright (c) 2019 - 2020, 2022 by Contributor1. All rights reserved.
     // Copyright (c) 2020 - 2022 by Contributor2. All rights reserved.
-    // SPDX-License-Identifier: Apache License 2.0
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -251,6 +251,8 @@ Example:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+    //
+    // SPDX-License-Identifier: Apache License 2.0
 ```
 **_NOTE:_**  For scripts or CMake files you can use `#` instead of `//` for the header.
 ## Quality levels
