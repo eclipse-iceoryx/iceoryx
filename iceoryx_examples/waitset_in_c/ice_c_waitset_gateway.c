@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,10 +73,11 @@ int main()
     // create subscriber and subscribe them to our service
     const uint64_t historyRequest = 1U;
     const uint64_t queueCapacity = 256U;
+    const char* const nodeName = "iox-c-ex-waitSet-gateway-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_t subscriber =
-            iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+        iox_sub_t subscriber = iox_sub_init(
+            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
 
         iox_sub_subscribe(subscriber);
         iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);

@@ -238,7 +238,7 @@ TEST_F(CMqInterface_test, MqBase_StringCTor)
     CMqInterface_StringCTor<MqBase>();
 }
 
-TEST_F(CMqInterface_test, MqBase_Receive)
+TEST_F(CMqInterface_test, DISABLED_MqBase_Receive)
 {
     MqBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
@@ -252,14 +252,14 @@ TEST_F(CMqInterface_test, DISABLED_MqBase_TimedReceive)
     CMqInterface_TimedReceive<MqBase>(base);
 }
 
-TEST_F(CMqInterface_test, MqBase_Send)
+TEST_F(CMqInterface_test, DISABLED_MqBase_Send)
 {
     MqBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
     CMqInterface_Send<MqBase>(base);
 }
 
-TEST_F(CMqInterface_test, MqBase_TimedSend)
+TEST_F(CMqInterface_test, DISABLED_MqBase_TimedSend)
 {
     MqBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
@@ -289,7 +289,7 @@ TEST_F(CMqInterface_test, MqInterfaceUser_StringCTor)
     CMqInterface_StringCTor<MqInterfaceUser>();
 }
 
-TEST_F(CMqInterface_test, MqInterfaceUser_Receive)
+TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_Receive)
 {
     MqInterfaceUser base(ifName);
     CMqInterface_Open(base);
@@ -303,14 +303,14 @@ TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_TimedReceive)
     CMqInterface_TimedReceive<MqInterfaceUser>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceUser_Send)
+TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_Send)
 {
     MqInterfaceUser base(ifName);
     CMqInterface_Open(base);
     CMqInterface_Send<MqInterfaceUser>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceUser_TimedSend)
+TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_TimedSend)
 {
     MqInterfaceUser base(ifName);
     CMqInterface_Open(base);
@@ -340,7 +340,7 @@ TEST_F(CMqInterface_test, MqInterfaceCreator_StringCTor)
     CMqInterface_StringCTor<MqInterfaceCreator>();
 }
 
-TEST_F(CMqInterface_test, MqInterfaceCreator_Receive)
+TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_Receive)
 {
     MqInterfaceCreator base(ifName);
     CMqInterface_Open(base);
@@ -354,14 +354,14 @@ TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_TimedReceive)
     CMqInterface_TimedReceive<MqInterfaceCreator>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceCreator_Send)
+TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_Send)
 {
     MqInterfaceCreator base(ifName);
     CMqInterface_Open(base);
     CMqInterface_Send<MqInterfaceCreator>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceCreator_TimedSend)
+TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_TimedSend)
 {
     MqInterfaceCreator base(ifName);
     CMqInterface_Open(base);

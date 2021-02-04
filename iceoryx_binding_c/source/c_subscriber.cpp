@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,13 +38,15 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const instance,
                        const char* const event,
                        const uint64_t queueCapacity,
-                       const uint64_t historyRequest)
+                       const uint64_t historyRequest,
+                       const char* const nodeName)
 {
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
     SubscriberOptions options;
     options.queueCapacity = queueCapacity;
     options.historyRequest = historyRequest;
+    options.nodeName = NodeName_t(TruncateToCapacity, nodeName);
     me->m_portData =
         PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
                                                                               IdString_t(TruncateToCapacity, instance),
