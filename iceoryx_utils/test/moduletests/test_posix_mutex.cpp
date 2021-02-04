@@ -31,9 +31,6 @@ class Mutex_test : public Test
             : iox::posix::mutex(isRecursive)
         {
         }
-
-
-        // static const iox::units::Duration TIMEOUT;
     };
 
     void SetUp() override
@@ -51,10 +48,7 @@ class Mutex_test : public Test
     }
 
     iox::posix::mutex sut{false};
-    // static const iox::units::Duration TIMEOUT;
 };
-
-// const iox::units::Duration Mutex_test::TIMEOUT{1000_ms};
 
 TEST_F(Mutex_test, TryLockWithNoLock)
 {
