@@ -35,6 +35,79 @@ class ServiceDescription_test : public Test
     void TearDown(){};
 };
 
+/// BEGIN CLASSHASH TESTS
+
+TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashWithValuesPassedToTheCtor)
+{
+    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
+
+    EXPECT_EQ(uint32_t(1), testHash[0]);
+    EXPECT_EQ(uint32_t(2), testHash[1]);
+    EXPECT_EQ(uint32_t(3), testHash[2]);
+    EXPECT_EQ(uint32_t(4), testHash[3]);
+}
+
+TEST_F(ServiceDescription_test, ClassHashIndexOperatorReturnsTheValueInTheCorrespondingIndex)
+{
+    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
+
+    EXPECT_THAT(testHash[0], Eq(1U));
+    EXPECT_THAT(testHash[1], Eq(2U));
+    EXPECT_THAT(testHash[2], Eq(3U));
+    EXPECT_THAT(testHash[3], Eq(4U));
+}
+
+TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
+{
+    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash2{5U, 6U, 7U, 8U};
+
+    EXPECT_FALSE(testHash1 == testHash2);
+}
+
+TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsTrue)
+{
+    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash2{1U, 2U, 3U, 4U};
+
+    EXPECT_TRUE(testHash1 == testHash2);
+}
+
+TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperatorReturnsTrue)
+{
+    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash2{5U, 6U, 7U, 8U};
+
+    EXPECT_TRUE(testHash1 != testHash2);
+}
+
+TEST_F(ServiceDescription_test, ComparingTwoEqualClassHashWithNotEqualOperatorReturnsFalse)
+{
+    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash2{1U, 2U, 3U, 4U};
+
+    EXPECT_FALSE(testHash1 != testHash2);
+}
+
+TEST_F(ServiceDescription_test, ClassHashWithValuesAssignedUsingAssignmentOperatorStoresTheValueInTheCorrespondingIndex)
+{
+    ServiceDescription::ClassHash testHash{};
+
+    testHash[0] = 1U;
+    testHash[1] = 2U;
+    testHash[2] = 3U;
+    testHash[3] = 4U;
+
+    EXPECT_THAT(testHash[0], Eq(1U));
+    EXPECT_THAT(testHash[1], Eq(2U));
+    EXPECT_THAT(testHash[2], Eq(3U));
+    EXPECT_THAT(testHash[3], Eq(4U));
+}
+
+/// END CLASSHASH TESTS
+
+/// BEGIN SERVICEDESCRIPTION TESTS
+
 TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCtorCreatesServiceDescriptionWithValuesPassedToTheCtor)
 {
     ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
@@ -56,7 +129,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCtorCreatesServic
                                                      testHash[1],
                                                      testHash[2],
                                                      testHash[3],
-                                                     true,
+                                                     false,
                                                      static_cast<uint16_t>(testScope),
                                                      static_cast<uint16_t>(testInterfaceSource));
 
@@ -72,7 +145,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCtorCreatesServic
     EXPECT_THAT((serviceDescription1.getClassHash())[1], Eq(testHash[1]));
     EXPECT_THAT((serviceDescription1.getClassHash())[2], Eq(testHash[2]));
     EXPECT_THAT((serviceDescription1.getClassHash())[3], Eq(testHash[3]));
-    EXPECT_THAT(serviceDescription1.hasServiceOnlyDescription(), Eq(true));
+    EXPECT_THAT(serviceDescription1.hasServiceOnlyDescription(), Eq(false));
     EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INTERNAL));
     EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
 }
@@ -340,25 +413,13 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentInstanceStrin
 {
     uint16_t testServiceID = 1U;
     uint16_t testEventID = 2U;
-    uint16_t testInstanceID = 3U;
+    uint16_t testInstanceID = InvalidID;
     testService = "1";
     testEvent = "2";
     testInstance = "instance";
-    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
-    auto serialObj = iox::cxx::Serialization::create(testService,
-                                                     testInstance,
-                                                     testEvent,
-                                                     testServiceID,
-                                                     testInstanceID,
-                                                     testEventID,
-                                                     testHash[0],
-                                                     testHash[1],
-                                                     testHash[2],
-                                                     testHash[3],
-                                                     true);
 
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-    ServiceDescription serviceDescription2 = ServiceDescription(serialObj);
+    ServiceDescription serviceDescription2 = ServiceDescription(testService, testInstance, testEvent);
 
     EXPECT_FALSE(serviceDescription1 == serviceDescription2);
 }
@@ -366,31 +427,19 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentInstanceStrin
 TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentEventStringsAreNotEqual)
 {
     uint16_t testServiceID = 1U;
-    uint16_t testEventID = 2U;
+    uint16_t testEventID = InvalidID;
     uint16_t testInstanceID = 3U;
     testService = "1";
     testEvent = "event";
     testInstance = "3";
-    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
-    auto serialObj = iox::cxx::Serialization::create(testService,
-                                                     testInstance,
-                                                     testEvent,
-                                                     testServiceID,
-                                                     testInstanceID,
-                                                     testEventID,
-                                                     testHash[0],
-                                                     testHash[1],
-                                                     testHash[2],
-                                                     testHash[3],
-                                                     true);
 
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
-    ServiceDescription serviceDescription2 = ServiceDescription(serialObj);
+    ServiceDescription serviceDescription2 = ServiceDescription(testService, testInstance, testEvent);
 
     EXPECT_FALSE(serviceDescription1 == serviceDescription2);
 }
 
-TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentValidIDsAreNotEqual)
+TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithSameIDsComparedWithInequalityOperatorReturnsFalse)
 {
     uint16_t testServiceID = 1U;
     uint16_t testEventID = 2U;
@@ -399,16 +448,6 @@ TEST_F(ServiceDescription_test, TwoServiceDescriptionsWithDifferentValidIDsAreNo
     ServiceDescription serviceDescription2 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 
     EXPECT_FALSE(serviceDescription1 != serviceDescription2);
-}
-
-TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashWithValuesPassedToTheCtor)
-{
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
-
-    EXPECT_EQ(uint32_t(1), testHash[0]);
-    EXPECT_EQ(uint32_t(2), testHash[1]);
-    EXPECT_EQ(uint32_t(3), testHash[2]);
-    EXPECT_EQ(uint32_t(4), testHash[3]);
 }
 
 TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsTrueIfTheServiceIDsAreSame)
@@ -428,48 +467,6 @@ TEST_F(ServiceDescription_test, ServiceMatchMethodReturnsFalseIfTheServiceIDsAre
     ServiceDescription description2 = ServiceDescription(serviceID2, iox::capro::AnyEvent, iox::capro::AnyInstance);
 
     EXPECT_FALSE(iox::capro::serviceMatch(description1, description2));
-}
-
-TEST_F(ServiceDescription_test, ClassHashIndexOperatorReturnsTheValueInTheCorrespondingIndex)
-{
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
-
-    EXPECT_THAT(testHash[0], Eq(1U));
-    EXPECT_THAT(testHash[1], Eq(2U));
-    EXPECT_THAT(testHash[2], Eq(3U));
-    EXPECT_THAT(testHash[3], Eq(4U));
-}
-
-TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
-{
-    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
-    ServiceDescription::ClassHash testHash2{5U, 6U, 7U, 8U};
-
-    EXPECT_FALSE(testHash1 == testHash2);
-}
-
-TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsTrue)
-{
-    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
-    ServiceDescription::ClassHash testHash2{1U, 2U, 3U, 4U};
-
-    EXPECT_TRUE(testHash1 == testHash2);
-}
-
-TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperatorReturnsTrue)
-{
-    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
-    ServiceDescription::ClassHash testHash2{5U, 6U, 7U, 8U};
-
-    EXPECT_TRUE(testHash1 != testHash2);
-}
-
-TEST_F(ServiceDescription_test, ComparingTwoEqualClassHashWithNotEqualOperatorReturnsFalse)
-{
-    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
-    ServiceDescription::ClassHash testHash2{1U, 2U, 3U, 4U};
-
-    EXPECT_FALSE(testHash1 != testHash2);
 }
 
 TEST_F(ServiceDescription_test, IsInternalMethodReturnsTrueWhenTheScopeIsSetToInternal)
@@ -499,25 +496,10 @@ TEST_F(ServiceDescription_test, GetScopeMethodReturnsTheCorrespondingValueOfScop
 TEST_F(ServiceDescription_test,
        ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceStringIsInvalid)
 {
-    uint16_t testServiceID = iox::capro::AnyService;
-    uint16_t testEventID = iox::capro::AnyEvent;
-    uint16_t testInstanceID = iox::capro::AnyInstance;
     testService = iox::capro::InvalidIDString;
-    testEvent = "validevent";
     testInstance = "validinstance";
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
-    auto serialObj = iox::cxx::Serialization::create(testService,
-                                                     testInstance,
-                                                     testEvent,
-                                                     testServiceID,
-                                                     testInstanceID,
-                                                     testEventID,
-                                                     testHash[0],
-                                                     testHash[1],
-                                                     testHash[2],
-                                                     testHash[3],
-                                                     true);
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance);
 
     EXPECT_FALSE(serviceDescription1.isValid());
 }
@@ -526,24 +508,9 @@ TEST_F(ServiceDescription_test,
        ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceIDIsAnyService)
 {
     uint16_t testServiceID = iox::capro::AnyService;
-    uint16_t testEventID = iox::capro::AnyEvent;
     uint16_t testInstanceID = iox::capro::AnyInstance;
-    testService = "validservice";
-    testEvent = "validevent";
-    testInstance = "validinstance";
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
-    auto serialObj = iox::cxx::Serialization::create(testService,
-                                                     testInstance,
-                                                     testEvent,
-                                                     testServiceID,
-                                                     testInstanceID,
-                                                     testEventID,
-                                                     testHash[0],
-                                                     testHash[1],
-                                                     testHash[2],
-                                                     testHash[3],
-                                                     true);
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testInstanceID);
 
     EXPECT_FALSE(serviceDescription1.isValid());
 }
@@ -551,25 +518,11 @@ TEST_F(ServiceDescription_test,
 TEST_F(ServiceDescription_test,
        ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndInstanceStringIsInvalid)
 {
-    uint16_t testServiceID = 1U;
-    uint16_t testEventID = iox::capro::AnyEvent;
-    uint16_t testInstanceID = iox::capro::AnyInstance;
     testService = "validservice";
-    testEvent = "validevent";
     testInstance = iox::capro::InvalidIDString;
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
-    auto serialObj = iox::cxx::Serialization::create(testService,
-                                                     testInstance,
-                                                     testEvent,
-                                                     testServiceID,
-                                                     testInstanceID,
-                                                     testEventID,
-                                                     testHash[0],
-                                                     testHash[1],
-                                                     testHash[2],
-                                                     testHash[3],
-                                                     true);
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance);
+
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
@@ -577,50 +530,20 @@ TEST_F(ServiceDescription_test,
        ServiceDescriptionIsInvalidWhen_m_hasServiceOnlyDescriptionIsTrueAndInstanceIDIsAnyInstance)
 {
     uint16_t testServiceID = 1U;
-    uint16_t testEventID = 3U;
     uint16_t testInstanceID = iox::capro::AnyInstance;
-    testService = "validinstance";
-    testEvent = "validevent";
-    testInstance = "validinstance";
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
-    auto serialObj = iox::cxx::Serialization::create(testService,
-                                                     testInstance,
-                                                     testEvent,
-                                                     testServiceID,
-                                                     testInstanceID,
-                                                     testEventID,
-                                                     testHash[0],
-                                                     testHash[1],
-                                                     testHash[2],
-                                                     testHash[3],
-                                                     true);
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testInstanceID);
 
     EXPECT_FALSE(serviceDescription1.isValid());
 }
 
 TEST_F(ServiceDescription_test,
-       ServiceDescriptionIsValidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceInstanceAndEventAreValid)
+       ServiceDescriptionIsValidWhen_m_hasServiceOnlyDescriptionIsTrueAndServiceAndInstanceAreValid)
 {
     uint16_t testServiceID = 1U;
-    uint16_t testEventID = 3U;
     uint16_t testInstanceID = 2U;
-    testService = "validservice";
-    testEvent = "validevent";
-    testInstance = "validinstance";
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
-    auto serialObj = iox::cxx::Serialization::create(testService,
-                                                     testInstance,
-                                                     testEvent,
-                                                     testServiceID,
-                                                     testInstanceID,
-                                                     testEventID,
-                                                     testHash[0],
-                                                     testHash[1],
-                                                     testHash[2],
-                                                     testHash[3],
-                                                     true);
-    ServiceDescription serviceDescription1 = ServiceDescription(serialObj);
+
+    ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testInstanceID);
 
     EXPECT_TRUE(serviceDescription1.isValid());
 }
@@ -722,3 +645,5 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirst
 
     EXPECT_FALSE(serviceDescription1 < serviceDescription2);
 }
+
+/// END SERVICEDESCRIPTION TESTS
