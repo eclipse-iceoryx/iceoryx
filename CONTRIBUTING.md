@@ -99,11 +99,11 @@ See [error-handling.md](./doc/error-handling.md) for additional information abou
 Please use [doxygen](http://www.doxygen.nl/) to document your code.
 
 The following doxygen comments are required for public API headers:
-
+```cpp
     /// @brief short description
     /// @param[in] / [out] / [in,out] name description
     /// @return description
-
+```
 A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
 
 ## Folder structure
@@ -193,14 +193,14 @@ Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to g
 If one of the rules is not followed, a rationale is added in the following manner:
 
 With a comment in the same line:
-
+```cpp
     *mynullptr = foo; // PRQA S 4242 # Short description why
-
+```
 With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
-
+```cpp
     // PRQA S 4242 1 # Short description why
     *mynullptr = foo;
-
+```
 Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
 please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
 
@@ -215,8 +215,8 @@ requests. We're planning to introduce continuos integration checks in the near f
 
 Each source file needs to have this header:
 
-```
-    // Copyright (c) [DATE] by [INITIAL COPYRIGHT OWNER] [OTHER COPYRIGHT OWNERS]. All rights reserved.
+```cpp
+    // Copyright (c) [YEAR OF INITIAL CONTRIBUTION] - [YEAR LAST CONTRIBUTION] by [CONTRIBUTOR]. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -230,12 +230,13 @@ Each source file needs to have this header:
     // See the License for the specific language governing permissions and
     // limitations under the License.
 ```
-Note: `DATE` is either a year or a range of years with the first and last years of the range separated by a comma. So for example: "2004" or "2000, 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified.
+Note: `DATE` is either a year or a range of years with the first and last years of the range separated by a dash. So for example: "2004" (initial and last contribution in the same year) or "2000 - 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified. The year of the last contribution needs to be updated the content was modified in a new year. An option is to add a year by a comma for the case that a contributor did not modify in one year.
 
 Example:
 
-```
-    // Copyright (c) 2018, 2020 by ACME Corp, Globex. All rights reserved.
+```cpp
+    // Copyright (c) 2019 - 2020, 2022 by Contributor1. All rights reserved.
+    // Copyright (c) 2020 - 2022 by Contributor2. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -249,7 +250,7 @@ Example:
     // See the License for the specific language governing permissions and
     // limitations under the License.
 ```
-
+**_NOTE:_**  For scripts or CMake files you can use `#` instead of `//` for the header.
 ## Quality levels
 
 CMake targets can be developed according to different quality levels. Despite developing some of our targets according
