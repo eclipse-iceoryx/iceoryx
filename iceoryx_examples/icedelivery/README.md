@@ -7,7 +7,7 @@ It provides publisher and subscriber applications. They come in two C++ API flav
 
 ## Expected output
 
-Create different terminals and run one command in each of them. Choose at least one publisher and one subscriber for having a data communication. You can also mix the typed and untyped versions. And if you feel like crazy today you start several publishers and subscribers from icedelivery and icedelivery_on_c (needs the default n:m communication, not possible if you build with the ONE_TO_MANY option)
+Create different terminals and run one command in each of them. Choose at least one publisher and one subscriber for having a data communication. You can also mix the typed and untyped versions. And if you feel like crazy today you start several publishers and subscribers from icedelivery and icedelivery_in_c (needs the default n:m communication, not possible if you build with the ONE_TO_MANY option)
 
 ```sh
 # If installed and available in PATH environment variable
