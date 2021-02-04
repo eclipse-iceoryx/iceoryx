@@ -162,7 +162,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
 }
 
-TEST_F(PoshRuntime_test, MiddlewareInterfaceGetInvalidNodeNameIsNotSuccessful)
+TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessful)
 {
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -374,7 +374,6 @@ TEST_F(PoshRuntime_test, MiddlewareSubscriberMaxCapacityExceededReturnMaxCapacit
 {
     iox::popo::SubscriberOptions subscriberOptions;
     constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
-    subscriberOptions.historyRequest = 13U;
     subscriberOptions.queueCapacity = MAX_QUEUE_CAPACITY + 1U;
 
     auto subscriberPort = m_runtime->getMiddlewareSubscriber(

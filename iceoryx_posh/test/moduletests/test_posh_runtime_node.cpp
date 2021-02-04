@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,53 +51,53 @@ class PoshRuntimeNode_test : public Test
 
 TEST_F(PoshRuntimeNode_test, ConstructorNodeIsSuccess)
 {
-    const NodeName_t& nodeName{"Node"};
+    const NodeName_t nodeName{"Node"};
 
-    Node m_node("Node");
+    Node node("Node");
 
-    EXPECT_THAT(m_node.getNodeName(), Eq(nodeName));
+    EXPECT_THAT(node.getNodeName(), Eq(nodeName));
 }
 
 TEST_F(PoshRuntimeNode_test, ConstructorNodeEmptyNodeNameIsSuccess)
 {
-    const NodeName_t& nodeName{""};
+    const NodeName_t nodeName{""};
 
-    Node m_node("");
+    Node node("");
 
-    EXPECT_THAT(m_node.getNodeName(), Eq(nodeName));
+    EXPECT_THAT(node.getNodeName(), Eq(nodeName));
 }
 
 TEST_F(PoshRuntimeNode_test, VerifyMoveAssignmentOperatorAssignsCorrectName)
 {
     const NodeName_t nodeName{"@!~*"};
     Node testNode(nodeName);
-    Node m_node("Node");
+    Node node("Node");
 
-    m_node = std::move(testNode);
+    node = std::move(testNode);
 
-    EXPECT_THAT(m_node.getNodeName(), Eq(nodeName));
+    EXPECT_THAT(node.getNodeName(), Eq(nodeName));
 }
 
 TEST_F(PoshRuntimeNode_test, SelfMoveAssignmentIsExcluded)
 {
     const NodeName_t nodeName{"Node"};
-    Node m_node1(nodeName);
-    Node& m_node2 = m_node1;
+    Node node1(nodeName);
+    Node& node2 = node1;
 
-    m_node1 = std::move(m_node2);
- 
-    EXPECT_THAT(m_node1.getNodeName(), Eq(nodeName));
+    node1 = std::move(node2);
+
+    EXPECT_THAT(node1.getNodeName(), Eq(nodeName));
 }
 
-TEST_F(PoshRuntimeNode_test, VerifyAssignmentMoveConstructorAssignsCorrectNodeName)
+TEST_F(PoshRuntimeNode_test, VerifyMoveConstructorAssignsCorrectNodeName)
 {
     const NodeName_t& nodeNewName{"Node"};
 
-    Node m_node(nodeNewName);
+    Node node(nodeNewName);
 
-    Node m_nodeTest(std::move(m_node));
+    Node nodeTest(std::move(node));
 
-    EXPECT_THAT(m_nodeTest.getNodeName(), Eq(nodeNewName));
+    EXPECT_THAT(nodeTest.getNodeName(), Eq(nodeNewName));
 }
 
 } // namespace test

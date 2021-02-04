@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
                 RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
     const ProcessName_t m_runtimeName{"App"};
-    PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName);
+
+    EXPECT_NO_FATAL_FAILURE({ PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName); });
 }
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipleProcessIsFound)
