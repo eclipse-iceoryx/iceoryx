@@ -82,6 +82,16 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     Tip: You can fasten up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
     You can choose more or less depending on your available CPU cores on your machine.
 
+ 4. Install to system
+	Mac:
+    ```bash
+    cmake --build build --target install
+    ```
+	Linux:
+    ```bash
+    sudo cmake --build build --target install
+    ```
+	Tip: The installation directory is usually left at its default, which is /usr/local
 **NOTE:** Iceoryx is build in Release mode with `-O3` optimization by default. If you want to have debug symbols please
 set `CMAKE_BUILD_TYPE=Debug`.
 

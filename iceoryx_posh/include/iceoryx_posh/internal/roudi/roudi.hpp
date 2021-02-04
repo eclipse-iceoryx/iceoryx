@@ -41,9 +41,9 @@ using namespace iox::units::duration_literals;
 class RouDi
 {
   public:
-    // indicate whether the IPC channel thread will start directly or deferred
-    // this is important for derived classes which may need to initialize their members before the thread starts
-    enum class IpcThreadStart
+    /// @brief Indicate whether the thread processing messages from the runtimes will start directly or deferred
+    /// this is important for derived classes which may need to initialize their members before the thread starts
+    enum class RuntimeMessagesThreadStart
     {
         IMMEDIATE,
         DEFER_START
@@ -54,12 +54,12 @@ class RouDi
         RoudiStartupParameters(
             const roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::ON,
             const bool killProcessesInDestructor = true,
-            const IpcThreadStart IpcThreadStart = IpcThreadStart::IMMEDIATE,
+            const RuntimeMessagesThreadStart RuntimeMessagesThreadStart = RuntimeMessagesThreadStart::IMMEDIATE,
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
             const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY) noexcept
             : m_monitoringMode(monitoringMode)
             , m_killProcessesInDestructor(killProcessesInDestructor)
-            , m_ipcThreadStart(IpcThreadStart)
+            , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
             , m_compatibilityCheckLevel(compatibilityCheckLevel)
             , m_processKillDelay(processKillDelay)
         {
@@ -67,7 +67,7 @@ class RouDi
 
         const roudi::MonitoringMode m_monitoringMode;
         const bool m_killProcessesInDestructor;
-        const IpcThreadStart m_ipcThreadStart;
+        const RuntimeMessagesThreadStart m_runtimesMessagesThreadStart;
         const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
         const units::Duration m_processKillDelay;
     };
@@ -82,9 +82,9 @@ class RouDi
     virtual ~RouDi();
 
   protected:
-    /// @brief Starts the roudi IPC channel thread
+    /// @brief Starts the thread processing messages from the runtimes
     /// Once this is done, applications can register and Roudi is fully operational.
-    void startIpcChannelThread();
+    void startProcessRuntimeMessagesThread();
 
     /// @brief Stops threads and kills all process known to RouDi
     /// Called in d'tor
@@ -120,15 +120,15 @@ class RouDi
     static uint64_t getUniqueSessionIdForProcess();
 
   private:
-    void ipcChannelThread();
+    void processRuntimeMessages();
 
-    void processThread();
+    void monitorAndDiscoveryUpdate();
 
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 
-    const units::Duration m_ipcChannelTimeout{100_ms};
+    const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 
   protected:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
@@ -141,7 +141,7 @@ class RouDi
 
   private:
     std::thread m_processManagementThread;
-    std::thread m_processIpcChannelThread;
+    std::thread m_processRuntimeMessagesThread;
 
   protected:
     ProcessIntrospectionType m_processIntrospection;

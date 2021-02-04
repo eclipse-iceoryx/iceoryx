@@ -107,7 +107,7 @@ add_library(iceoryx_posh
     source/popo/trigger_handle.cpp
     source/popo/event_info.cpp
     source/version/version_info.cpp
-    source/runtime/ipc_base.cpp
+    source/runtime/ipc_interface_base.cpp
     source/runtime/ipc_interface_user.cpp
     source/runtime/ipc_interface_creator.cpp
     source/runtime/ipc_runtime_interface.cpp
