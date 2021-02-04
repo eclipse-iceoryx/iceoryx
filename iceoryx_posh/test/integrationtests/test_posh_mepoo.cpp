@@ -252,7 +252,7 @@ class Mepoo_IntegrationTest : public Test
         m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(*memoryManager, mempoolInfo);
 
         // internally, the chunks are adjusted to the additional management information;
-        // this needs to be substracted to be able to compare to the configured sizes
+        // this needs to be subtracted to be able to compare to the configured sizes
         for (auto& mempool : mempoolInfo)
         {
             if (mempool.m_chunkSize != 0)
