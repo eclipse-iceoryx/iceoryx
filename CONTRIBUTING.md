@@ -217,6 +217,7 @@ Each source file needs to have this header:
 
 ```cpp
     // Copyright (c) [YEAR OF INITIAL CONTRIBUTION] - [YEAR LAST CONTRIBUTION] by [CONTRIBUTOR]. All rights reserved.
+    // SPDX-License-Identifier: Apache License 2.0
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -237,6 +238,7 @@ Example:
 ```cpp
     // Copyright (c) 2019 - 2020, 2022 by Contributor1. All rights reserved.
     // Copyright (c) 2020 - 2022 by Contributor2. All rights reserved.
+    // SPDX-License-Identifier: Apache License 2.0
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
