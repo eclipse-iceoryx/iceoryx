@@ -26,13 +26,10 @@ int main(int argc, char* argv[])
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
     auto cmdLineArgs = cmdLineParser.parse(argc, argv);
-    if (cmdLineArgs.has_error())
+    if (cmdLineArgs.has_error() && (cmdLineArgs.get_error() != iox::config::CmdLineParserResult::INFO_OUTPUT_ONLY))
     {
-        if (cmdLineArgs.get_error() == iox::config::CmdLineParserResult::UNKNOWN_OPTION_USED)
-        {
-            iox::LogFatal() << "Unable to parse command line arguments!";
-            return EXIT_FAILURE;
-        }
+        iox::LogFatal() << "Unable to parse command line arguments!";
+        return EXIT_FAILURE;
     }
 
     iox::RouDiConfig_t roudiConfig;
