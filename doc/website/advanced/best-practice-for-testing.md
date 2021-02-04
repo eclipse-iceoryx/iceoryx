@@ -44,6 +44,7 @@ Following [Hyrum's Law](https://www.hyrumslaw.com/) loosely, given enough users,
 # Practical Example
 
 Let's test the following class
+
 ```c++
 class SingleDigitNumber
 {
@@ -76,6 +77,7 @@ class SingleDigitNumber
 ```
 
 This test fixture will be used
+
 ```c++
 
 class SingleDigitNumber_test : public Test
@@ -90,7 +92,6 @@ class SingleDigitNumber_test : public Test
 
 Well, this is quite a simple class, so the tests must also be simple, right?
 
-Let's have this test fixture
 ```c++
 TEST_F(SingleDigitNumber_test, TestClass)
 {
@@ -112,7 +113,7 @@ The test above has several major and minor flaws. The first thing that leaps to 
 
 Furthermore, the default constructor is called in the test, but it is never checked to do the right thing. If there were a check, it would have revealed that `m_number` is not correctly initialized.
 
-Then, `EXPECT_TRUE` is used to check for equality. While this works, if the test fails we just get the information of the failure, but not which values were checked.
+Then, `EXPECT_TRUE` is used to compare the values. While this works, when the test fails we just get the information of the failure, but not which values were compared.
 To get this information `EXPECT_EQ` or `EXPECT_THAT` should be used. Furthermore, it's important to easily distinguish between the actual and the expected value, therefore the ordering of the values should be the same as if `EXPECT_THAT` would be used. The first value should be the actual value and the second one the expected.
 
 While the coverage might be 100%, there are no tests for:
