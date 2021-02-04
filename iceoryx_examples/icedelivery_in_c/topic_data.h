@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXAMPLES_ICEDELIVERY_in_c_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ICEDELIVERY_in_c_TOPIC_DATA_HPP
+#ifndef IOX_EXAMPLES_ICEDELIVERY_IN_C_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_ICEDELIVERY_IN_C_TOPIC_DATA_HPP
 
 #include <stdint.h>
 
