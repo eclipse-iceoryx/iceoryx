@@ -181,10 +181,10 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
                       << "' could not be created since we are out of memory for publishers.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_PUBLISHER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
-        case IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE:
+        case IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' could not be created. Request publisher got wrong IPC channel response.";
-            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE,
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
             break;
@@ -235,7 +235,7 @@ PoshRuntime::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept
     }
 
     LogError() << "Request publisher got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
-    return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE);
+    return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
 SubscriberPortUserType::MemberType_t*
@@ -276,10 +276,10 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                       << "' could not be created since we are out of memory for subscribers.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_SUBSCRIBER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
-        case IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE:
+        case IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' could not be created. Request subscriber got wrong IPC channel response.";
-            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE,
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
             break;
@@ -330,7 +330,7 @@ PoshRuntime::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept
     }
 
     LogError() << "Request subscriber got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
-    return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE);
+    return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
 popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interfaces interface,
@@ -359,7 +359,7 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
 
     LogError() << "Get mw interface got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
     errorHandler(
-        Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+        Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
 }
 
@@ -388,7 +388,7 @@ NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
 
     LogError() << "Got wrong response from RouDi while creating node:'" << receiveBuffer.getMessage() << "'";
     errorHandler(
-        Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+        Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
 }
 
@@ -476,7 +476,7 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
 
     LogError() << "Get mw application got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
     errorHandler(
-        Error::kPOSH__RUNTIME_ROUDI_GET_MW_APPLICATION_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+        Error::kPOSH__RUNTIME_ROUDI_GET_MW_APPLICATION_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
 }
 
@@ -514,7 +514,7 @@ PoshRuntime::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noe
 
     LogError() << "Request condition variable got wrong response from IPC channel :'" << receiveBuffer.getMessage()
                << "'";
-    return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE);
+    return cxx::error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
 popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexcept
@@ -531,9 +531,9 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
             LogWarn() << "Could not create condition variable as we are out of memory for condition variables.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
-        case IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE:
+        case IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE:
             LogWarn() << "Could not create condition variables; received wrong IPC channel response.";
-            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE,
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
             break;
