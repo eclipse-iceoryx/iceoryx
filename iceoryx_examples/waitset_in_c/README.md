@@ -16,7 +16,7 @@ in the same way as the C++ ones.
 
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced
-in the [icedelivery C example](../icedelivery_on_c).
+in the [icedelivery C example](../icedelivery_in_c).
 
 ### Gateway
 Let's say we would like to write a gateway and would like to forward every 
