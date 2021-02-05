@@ -108,7 +108,10 @@ TEST_F(ServiceDescription_test, ClassHashWithValuesAssignedUsingAssignmentOperat
 
 /// BEGIN SERVICEDESCRIPTION TESTS
 
-TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCtorCreatesServiceDescriptionWithValuesPassedToTheCtor)
+/// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
+/// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
+/// only intended to check the functionality by injecting the valus directly.
+TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDescriptionWithValuesPassedToTheCtor)
 {
     ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
     testService = "Service";
@@ -150,6 +153,9 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCtorCreatesServic
     EXPECT_THAT(serviceDescription1.getSourceInterface(), Eq(Interfaces::INTERNAL));
 }
 
+/// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
+/// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
+/// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeSetsTheScopeToInvalid)
 {
     ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
@@ -178,6 +184,9 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfB
     EXPECT_THAT(serviceDescription1.getScope(), Eq(Scope::INVALID));
 }
 
+/// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
+/// the ServiceDescription over communication protocols which transfers strings like the MessageQueue. The testcase is
+/// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test,
        ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceSetsTheInterfaceSourceToInterfaceEnd)
 {
