@@ -159,7 +159,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_processKillDelay =
-                    units::Duration::seconds(static_cast<unsigned long long int>(processKillDelayInSeconds));
+                    units::Duration::fromSeconds(processKillDelayInSeconds);
             }
             break;
         }
@@ -213,7 +213,5 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
     return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{
         m_monitoringMode, m_logLevel, m_compatibilityCheckLevel, m_processKillDelay, m_uniqueRouDiId, m_run, ""});
 } // namespace roudi
-
-
 } // namespace config
 } // namespace iox

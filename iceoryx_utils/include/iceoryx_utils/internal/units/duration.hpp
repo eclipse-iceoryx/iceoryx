@@ -82,7 +82,7 @@ class Duration
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
-    static constexpr Duration nanoseconds(const T value) noexcept;
+    static constexpr Duration fromNanoseconds(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from microseconds
     /// @tparam T is an integer type for the value
@@ -90,7 +90,7 @@ class Duration
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
-    static constexpr Duration microseconds(const T value) noexcept;
+    static constexpr Duration fromMicroseconds(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from milliseconds
     /// @tparam T is an integer type for the value
@@ -98,7 +98,7 @@ class Duration
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
-    static constexpr Duration milliseconds(const T value) noexcept;
+    static constexpr Duration fromMilliseconds(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from seconds
     /// @tparam T is an integer type for the value
@@ -106,7 +106,7 @@ class Duration
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
-    static constexpr Duration seconds(const T value) noexcept;
+    static constexpr Duration fromSeconds(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from minutes
     /// @tparam T is an integer type for the value
@@ -114,7 +114,7 @@ class Duration
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
-    static constexpr Duration minutes(const T value) noexcept;
+    static constexpr Duration fromMinutes(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from hours
     /// @tparam T is an integer type for the value
@@ -122,7 +122,7 @@ class Duration
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
-    static constexpr Duration hours(const T value) noexcept;
+    static constexpr Duration fromHours(const T value) noexcept;
 
     /// @brief Constructs a new Duration object from days
     /// @tparam T is an integer type for the value
@@ -130,7 +130,7 @@ class Duration
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     template <typename T>
-    static constexpr Duration days(const T value) noexcept;
+    static constexpr Duration fromDays(const T value) noexcept;
 
     // END CREATION FROM STATIC FUNCTIONS
 
@@ -233,35 +233,35 @@ class Duration
     /// @brief returns the duration in nanoseconds
     /// @note If the duration in nanoseconds is larger than an uint64_t can represent, it will be clamped to the
     /// uint64_t max value.
-    constexpr uint64_t nanoSeconds() const noexcept;
+    constexpr uint64_t toNanoseconds() const noexcept;
 
     /// @brief returns the duration in microseconds
     /// @note If the duration in microseconds is larger than an uint64_t can represent, it will be clamped to the
     /// uint64_t max value.
     /// @note The remaining nanoseconds are truncated, similar to the casting behavior of a float to an int.
-    constexpr uint64_t microSeconds() const noexcept;
+    constexpr uint64_t toMicroseconds() const noexcept;
 
     /// @brief returns the duration in milliseconds
     /// @note If the duration in milliseconds is larger than an uint64_t can represent, it will be clamped to the
     /// uint64_t max value.
     /// @note The remaining microseconds are truncated, similar to the casting behavior of a float to an int.
-    constexpr uint64_t milliSeconds() const noexcept;
+    constexpr uint64_t toMilliseconds() const noexcept;
 
     /// @brief returns the duration in seconds
     /// @note The remaining milliseconds are truncated, similar to the casting behavior of a float to an int.
-    constexpr uint64_t seconds() const noexcept;
+    constexpr uint64_t toSeconds() const noexcept;
 
     /// @brief returns the duration in minutes
     /// @note The remaining seconds are truncated, similar to the casting behavior of a float to an int.
-    constexpr uint64_t minutes() const noexcept;
+    constexpr uint64_t toMinutes() const noexcept;
 
     /// @brief returns the duration in hours
     /// @note The remaining minutes are truncated, similar to the casting behavior of a float to an int.
-    constexpr uint64_t hours() const noexcept;
+    constexpr uint64_t toHours() const noexcept;
 
     /// @brief returns the duration in days
     /// @note The remaining hours are truncated, similar to the casting behavior of a float to an int.
-    constexpr uint64_t days() const noexcept;
+    constexpr uint64_t toDays() const noexcept;
 
     /// @brief converts duration in a timespec c struct
     struct timespec timespec(const TimeSpecReference& reference = TimeSpecReference::None) const noexcept;

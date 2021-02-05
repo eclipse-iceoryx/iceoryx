@@ -42,7 +42,7 @@ inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const Cmd
     logstream << "Compatibility check level: " << cmdLineArgs.compatibilityCheckLevel << "\n";
     cmdLineArgs.uniqueRouDiId.and_then([&logstream](auto& id) { logstream << "Unique RouDi ID: " << id << "\n"; })
         .or_else([&logstream] { logstream << "Unique RouDi ID: < unset >\n"; });
-    logstream << "Process kill delay: " << cmdLineArgs.processKillDelay.seconds() << " s\n";
+    logstream << "Process kill delay: " << cmdLineArgs.processKillDelay.toSeconds() << " s\n";
     if (!cmdLineArgs.configFilePath.empty())
     {
         logstream << "Config file used is: " << cmdLineArgs.configFilePath;

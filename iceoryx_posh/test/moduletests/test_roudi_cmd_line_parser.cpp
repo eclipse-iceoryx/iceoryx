@@ -286,7 +286,7 @@ TEST_F(CmdLineParser_test, KillDelayLongOptionLeadsToCorrectDelay)
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result.value().processKillDelay, Eq(Duration::seconds(73)));
+    EXPECT_THAT(result.value().processKillDelay, Eq(Duration::fromSeconds(73)));
 }
 
 TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
@@ -304,7 +304,7 @@ TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result.value().processKillDelay, Eq(Duration::seconds(42)));
+    EXPECT_THAT(result.value().processKillDelay, Eq(Duration::fromSeconds(42)));
 }
 
 TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
