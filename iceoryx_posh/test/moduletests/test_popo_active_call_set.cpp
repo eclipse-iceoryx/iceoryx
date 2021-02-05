@@ -119,8 +119,6 @@ class ActiveCallSet_test : public Test
         iox::popo::TriggerHandle m_handleStoepsel;
         mutable std::atomic_bool m_hasTriggered{false};
         static uint64_t m_invalidateTriggerId;
-
-        std::array<SimpleEventClass*, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> m_triggerCallbackArg{nullptr};
     };
 
     class ActiveCallSetMock : public ActiveCallSet
@@ -138,11 +136,15 @@ class ActiveCallSet_test : public Test
     template <uint64_t N>
     static void triggerCallback(ActiveCallSet_test::SimpleEventClass* const event)
     {
-        event->m_triggerCallbackArg[N] = event;
+        ActiveCallSet_test::m_triggerCallbackArg[N] = event;
     }
 
     void SetUp()
     {
+        for (auto& e : m_triggerCallbackArg)
+        {
+            e = nullptr;
+        }
         m_sut.emplace(&m_eventVarData);
         ActiveCallSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
     };
@@ -151,8 +153,11 @@ class ActiveCallSet_test : public Test
 
     using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1>;
     eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1};
+    static std::array<SimpleEventClass*, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> m_triggerCallbackArg;
 };
 uint64_t ActiveCallSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
+std::array<ActiveCallSet_test::SimpleEventClass*, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
+    ActiveCallSet_test::m_triggerCallbackArg;
 
 //////////////////////////////////
 // attach / detach test collection
@@ -394,6 +399,6 @@ TIMING_TEST_F(ActiveCallSet_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
     fuu.triggerStoepsel();
     m_sut.reset();
 
-    TIMING_TEST_EXPECT_TRUE(fuu.m_triggerCallbackArg[0] == &fuu);
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0] == &fuu);
 });
 

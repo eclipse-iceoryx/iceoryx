@@ -181,9 +181,9 @@ bool ActiveCallSet::Event_t::reset() noexcept
 
 bool ActiveCallSet::Event_t::isInitialized() const noexcept
 {
-    return m_origin != nullptr || m_eventId == INVALID_ID || m_eventType == INVALID_ID || m_eventTypeHash == INVALID_ID
-           || m_callback == nullptr || m_translationCallback == nullptr
-           || m_invalidationCallback == cxx::MethodCallback<void, uint64_t>();
+    return m_origin != nullptr && m_eventId != INVALID_ID && m_eventType != INVALID_ID && m_eventTypeHash != INVALID_ID
+           && m_callback != nullptr && m_translationCallback != nullptr
+           && m_invalidationCallback != cxx::MethodCallback<void, uint64_t>();
 }
 
 //////////////////
