@@ -139,7 +139,7 @@ inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexc
     return *this;
 }
 
-inline constexpr uint64_t Duration::toNanoSeconds() const noexcept
+inline constexpr uint64_t Duration::toNanoseconds() const noexcept
 {
     constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / NANOSECS_PER_SEC};
     constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() % NANOSECS_PER_SEC};
@@ -156,7 +156,7 @@ inline constexpr uint64_t Duration::toNanoSeconds() const noexcept
     return m_seconds * NANOSECS_PER_SEC + m_nanoseconds;
 }
 
-inline constexpr uint64_t Duration::toMicroSeconds() const noexcept
+inline constexpr uint64_t Duration::toMicroseconds() const noexcept
 {
     constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MICROSECS_PER_SEC};
     constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MICROSECS_PER_SEC)
@@ -174,7 +174,7 @@ inline constexpr uint64_t Duration::toMicroSeconds() const noexcept
     return m_seconds * MICROSECS_PER_SEC + m_nanoseconds / NANOSECS_PER_MICROSEC;
 }
 
-inline constexpr uint64_t Duration::toMilliSeconds() const noexcept
+inline constexpr uint64_t Duration::toMilliseconds() const noexcept
 {
     constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MILLISECS_PER_SEC};
     constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{(std::numeric_limits<uint64_t>::max() % MILLISECS_PER_SEC)

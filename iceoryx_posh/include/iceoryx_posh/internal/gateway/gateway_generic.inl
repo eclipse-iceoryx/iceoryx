@@ -165,7 +165,7 @@ inline void GatewayGeneric<channel_t, gateway_t>::discoveryLoop() noexcept
         {
             discover(msg);
         }
-        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_discoveryPeriod.toMilliSeconds()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_discoveryPeriod.toMilliseconds()));
     }
 }
 
@@ -176,7 +176,7 @@ inline void GatewayGeneric<channel_t, gateway_t>::forwardingLoop() noexcept
     {
         auto startTime = std::chrono::steady_clock::now();
         forEachChannel([this](channel_t channel) { this->forward(channel); });
-        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_forwardingPeriod.toMilliSeconds()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_forwardingPeriod.toMilliseconds()));
     };
 }
 

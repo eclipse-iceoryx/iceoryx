@@ -67,7 +67,7 @@ TEST(Duration_test, ConstructDurationWithZeroTime)
 
     auto sut = createDuration(SECONDS, NANOSECONDS);
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructDurationWithResultOfLessNanosecondsThanOneSecond)
@@ -78,7 +78,7 @@ TEST(Duration_test, ConstructDurationWithResultOfLessNanosecondsThanOneSecond)
 
     auto sut = createDuration(SECONDS, NANOSECONDS);
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructDurationWithNanosecondsLessThanOneSecond)
@@ -89,7 +89,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsLessThanOneSecond)
 
     auto sut = createDuration(SECONDS, NANOSECONDS);
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructDurationWithNanosecondsEqualToOneSecond)
@@ -100,7 +100,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsEqualToOneSecond)
 
     auto sut = createDuration(SECONDS, NANOSECONDS);
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructDurationWithNanosecondsMoreThanOneSecond)
@@ -112,7 +112,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsMoreThanOneSecond)
 
     auto sut = createDuration(SECONDS, MORE_THAN_ONE_SECOND_NANOSECONDS);
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructDurationWithNanosecondsMaxValue)
@@ -125,7 +125,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsMaxValue)
 
     auto sut = createDuration(SECONDS, MAX_NANOSECONDS_FOR_CTOR);
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructDurationWithSecondsAndNanosecondsMaxValues)
@@ -146,7 +146,7 @@ TEST(Duration_test, ConstructDurationWithOneNanosecondResultsNotInZeroNanosecond
 
     auto sut = createDuration(SECONDS, NANOSECONDS);
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructFromTimespecWithZeroValue)
@@ -319,68 +319,68 @@ TEST(Duration_test, ConstructFromChronoMillisecondsZero)
 {
     constexpr uint64_t EXPECTED_MILLISECONDS{0U};
     Duration sut{std::chrono::milliseconds(EXPECTED_MILLISECONDS)};
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, ConstructFromChronoMillisecondsLessThanOneSecond)
 {
     constexpr uint64_t EXPECTED_MILLISECONDS{44U};
     Duration sut{std::chrono::milliseconds(EXPECTED_MILLISECONDS)};
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_MILLISECONDS * NANOSECS_PER_MILLISECOND));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_MILLISECONDS * NANOSECS_PER_MILLISECOND));
 }
 
 TEST(Duration_test, ConstructFromChronoMillisecondsMoreThanOneSecond)
 {
     constexpr uint64_t EXPECTED_MILLISECONDS{1001};
     Duration sut{std::chrono::milliseconds(EXPECTED_MILLISECONDS)};
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_MILLISECONDS * NANOSECS_PER_MILLISECOND));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_MILLISECONDS * NANOSECS_PER_MILLISECOND));
 }
 
 TEST(Duration_test, ConstructFromChronoMillisecondsMax)
 {
     constexpr uint64_t EXPECTED_MILLISECONDS{std::numeric_limits<int64_t>::max()};
     Duration sut{std::chrono::milliseconds(EXPECTED_MILLISECONDS)};
-    EXPECT_THAT(sut.toMilliSeconds(), Eq(EXPECTED_MILLISECONDS));
+    EXPECT_THAT(sut.toMilliseconds(), Eq(EXPECTED_MILLISECONDS));
 }
 
 TEST(Duration_test, ConstructFromNegativeChronoMillisecondsIsZero)
 {
     Duration sut(std::chrono::milliseconds(-1));
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, ConstructFromChronoNanosecondsZero)
 {
     constexpr uint64_t EXPECTED_NANOSECONDS{0U};
     Duration sut{std::chrono::nanoseconds(EXPECTED_NANOSECONDS)};
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructFromChronoNanosecondsLessThanOneSecond)
 {
     constexpr uint64_t EXPECTED_NANOSECONDS{424242U};
     Duration sut{std::chrono::nanoseconds(EXPECTED_NANOSECONDS)};
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructFromChronoNanosecondsMoreThanOneSecond)
 {
     constexpr uint64_t EXPECTED_NANOSECONDS{NANOSECS_PER_SECOND + 42U};
     Duration sut{std::chrono::nanoseconds(EXPECTED_NANOSECONDS)};
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructFromChronoNanosecondsMax)
 {
     constexpr uint64_t EXPECTED_NANOSECONDS{std::numeric_limits<int64_t>::max()};
     Duration sut{std::chrono::nanoseconds(EXPECTED_NANOSECONDS)};
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_NANOSECONDS));
 }
 
 TEST(Duration_test, ConstructFromNegativeChronoNanosecondsIsZero)
 {
     Duration sut(std::chrono::nanoseconds(-1));
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 // END CONSTRUCTOR TESTS
@@ -392,7 +392,7 @@ TEST(Duration_test, AssignFromChronoMillisecondsZero)
     constexpr uint64_t EXPECTED_MILLISECONDS{0U};
     Duration sut = 0_ns;
     sut = std::chrono::milliseconds(EXPECTED_MILLISECONDS);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, AssignFromChronoMillisecondsLessThanOneSecond)
@@ -400,7 +400,7 @@ TEST(Duration_test, AssignFromChronoMillisecondsLessThanOneSecond)
     constexpr uint64_t EXPECTED_MILLISECONDS{73U};
     Duration sut = 0_ns;
     sut = std::chrono::milliseconds(EXPECTED_MILLISECONDS);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_MILLISECONDS * NANOSECS_PER_MILLISECOND));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_MILLISECONDS * NANOSECS_PER_MILLISECOND));
 }
 
 TEST(Duration_test, AssignFromChronoMillisecondsMoreThanOneSecond)
@@ -408,7 +408,7 @@ TEST(Duration_test, AssignFromChronoMillisecondsMoreThanOneSecond)
     constexpr uint64_t EXPECTED_MILLISECONDS{1073U};
     Duration sut = 0_ns;
     sut = std::chrono::milliseconds(EXPECTED_MILLISECONDS);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_MILLISECONDS * NANOSECS_PER_MILLISECOND));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_MILLISECONDS * NANOSECS_PER_MILLISECOND));
 }
 
 TEST(Duration_test, AssignFromChronoMillisecondsMax)
@@ -416,14 +416,14 @@ TEST(Duration_test, AssignFromChronoMillisecondsMax)
     constexpr uint64_t EXPECTED_MILLISECONDS{std::numeric_limits<int64_t>::max()};
     Duration sut = 0_ns;
     sut = std::chrono::milliseconds(EXPECTED_MILLISECONDS);
-    EXPECT_THAT(sut.toMilliSeconds(), Eq(EXPECTED_MILLISECONDS));
+    EXPECT_THAT(sut.toMilliseconds(), Eq(EXPECTED_MILLISECONDS));
 }
 
 TEST(Duration_test, AssignFromNegativeChronoMillisecondsIsZero)
 {
     Duration sut = 22_ns;
     sut = std::chrono::milliseconds(-1);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 // END ASSIGNMENT TESTS
@@ -435,7 +435,7 @@ TEST(Duration_test, CreateDurationFromDaysLiteral)
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{2U * HOURS_PER_DAY * SECONDS_PER_HOUR * NANOSECS_PER_SECOND};
     auto sut = 2_d;
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromHoursLiteral)
@@ -443,7 +443,7 @@ TEST(Duration_test, CreateDurationFromHoursLiteral)
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{3U * SECONDS_PER_HOUR * NANOSECS_PER_SECOND};
     auto sut = 3_h;
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromMinutesLiteral)
@@ -451,7 +451,7 @@ TEST(Duration_test, CreateDurationFromMinutesLiteral)
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{4U * SECONDS_PER_MINUTE * NANOSECS_PER_SECOND};
     auto sut = 4_m;
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromSecondsLiteral)
@@ -459,7 +459,7 @@ TEST(Duration_test, CreateDurationFromSecondsLiteral)
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{5U * NANOSECS_PER_SECOND};
     auto sut = 5_s;
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromMillisecondsLiteral)
@@ -467,7 +467,7 @@ TEST(Duration_test, CreateDurationFromMillisecondsLiteral)
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{6U * NANOSECS_PER_MILLISECOND};
     auto sut = 6_ms;
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromMicrosecondsLiteral)
@@ -475,7 +475,7 @@ TEST(Duration_test, CreateDurationFromMicrosecondsLiteral)
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{7U * NANOSECS_PER_MICROSECOND};
     auto sut = 7_us;
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromNanosecondsLiteral)
@@ -483,7 +483,7 @@ TEST(Duration_test, CreateDurationFromNanosecondsLiteral)
     constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{8U};
     auto sut = 8_ns;
 
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 // END CREATION FROM LITERAL TESTS
@@ -495,8 +495,8 @@ TEST(Duration_test, CreateDurationFromDaysFunctionWithZeroDays)
     auto sut1 = Duration::fromDays(0);
     auto sut2 = Duration::fromDays(0U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(0U));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(0U));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromDaysFunctionWithMultipleDays)
@@ -505,8 +505,8 @@ TEST(Duration_test, CreateDurationFromDaysFunctionWithMultipleDays)
     auto sut1 = Duration::fromDays(2);
     auto sut2 = Duration::fromDays(2U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromDaysFunctionWithDaysResultsNotYetInSaturation)
@@ -537,7 +537,7 @@ TEST(Duration_test, CreateDurationFromDaysFunctionWithMaxDaysResultsInSaturation
 TEST(Duration_test, CreateDurationFromDaysFunctionWithNegativeValuesIsZero)
 {
     auto sut = Duration::fromDays(-1);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromHoursFunctionWithZeroHours)
@@ -545,8 +545,8 @@ TEST(Duration_test, CreateDurationFromHoursFunctionWithZeroHours)
     auto sut1 = Duration::fromHours(0);
     auto sut2 = Duration::fromHours(0U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(0U));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(0U));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromHoursFunctionWithMultipleHours)
@@ -555,8 +555,8 @@ TEST(Duration_test, CreateDurationFromHoursFunctionWithMultipleHours)
     auto sut1 = Duration::fromHours(3);
     auto sut2 = Duration::fromHours(3U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromHoursFunctionWithHoursResultsNotYetInSaturation)
@@ -586,7 +586,7 @@ TEST(Duration_test, CreateDurationFromHoursFunctionWithMaxHoursResultsInSaturati
 TEST(Duration_test, CreateDurationFromHoursFunctionWithNegativeValueIsZero)
 {
     auto sut = Duration::fromHours(-1);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromMinutesFunctionWithZeroMinuts)
@@ -594,8 +594,8 @@ TEST(Duration_test, CreateDurationFromMinutesFunctionWithZeroMinuts)
     auto sut1 = Duration::fromMinutes(0);
     auto sut2 = Duration::fromMinutes(0U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(0U));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(0U));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromMinutesFunctionWithMultipleMinutes)
@@ -604,8 +604,8 @@ TEST(Duration_test, CreateDurationFromMinutesFunctionWithMultipleMinutes)
     auto sut1 = Duration::fromMinutes(4);
     auto sut2 = Duration::fromMinutes(4U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromMinutesFunctionWithMinutesResultsNotYetInSaturation)
@@ -635,7 +635,7 @@ TEST(Duration_test, CreateDurationFromMinutesFunctionWithMaxMinutesResultsInSatu
 TEST(Duration_test, CreateDurationFromMinutesFunctionWithNegativeValueIsZero)
 {
     auto sut = Duration::fromMinutes(-1);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromSecondsFunctionWithZeroSeconds)
@@ -643,8 +643,8 @@ TEST(Duration_test, CreateDurationFromSecondsFunctionWithZeroSeconds)
     auto sut1 = Duration::fromSeconds(0);
     auto sut2 = Duration::fromSeconds(0U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(0U));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(0U));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromSecondsFunction)
@@ -653,8 +653,8 @@ TEST(Duration_test, CreateDurationFromSecondsFunction)
     auto sut1 = Duration::fromSeconds(5);
     auto sut2 = Duration::fromSeconds(5U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromSecondsFunctionWithMaxSeconds)
@@ -674,7 +674,7 @@ TEST(Duration_test, CreateDurationFromSecondsFunctionWithMaxSeconds)
 TEST(Duration_test, CreateDurationFromSecondsFunctionWithNegativeValueIsZero)
 {
     auto sut = Duration::fromSeconds(-1);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithZeroMilliseconds)
@@ -682,8 +682,8 @@ TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithZeroMilliseconds)
     auto sut1 = Duration::fromMilliseconds(0);
     auto sut2 = Duration::fromMilliseconds(0U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(0U));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(0U));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithMultipleMilliseconds)
@@ -692,8 +692,8 @@ TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithMultipleMillisecon
     auto sut1 = Duration::fromMilliseconds(6);
     auto sut2 = Duration::fromMilliseconds(6U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithMaxMilliseconds)
@@ -717,7 +717,7 @@ TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithMaxMilliseconds)
 TEST(Duration_test, CreateDurationFromMillisecondsFunctionWithNegativeValueIsZero)
 {
     auto sut = Duration::fromMilliseconds(-1);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithZeroMicroseconds)
@@ -725,8 +725,8 @@ TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithZeroMicroseconds)
     auto sut1 = Duration::fromMicroseconds(0);
     auto sut2 = Duration::fromMicroseconds(0U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(0U));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(0U));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithMultipleMicroseconds)
@@ -735,8 +735,8 @@ TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithMultipleMicrosecon
     auto sut1 = Duration::fromMicroseconds(7);
     auto sut2 = Duration::fromMicroseconds(7U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithMaxMicroseconds)
@@ -760,7 +760,7 @@ TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithMaxMicroseconds)
 TEST(Duration_test, CreateDurationFromMicrosecondsFunctionWithNegativeValueIsZero)
 {
     auto sut = Duration::fromMicroseconds(-1);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromNanosecondsFunctionWithZeroNanoseconds)
@@ -768,8 +768,8 @@ TEST(Duration_test, CreateDurationFromNanosecondsFunctionWithZeroNanoseconds)
     auto sut1 = Duration::fromNanoseconds(0);
     auto sut2 = Duration::fromNanoseconds(0U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(0U));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(0U));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(0U));
 }
 
 TEST(Duration_test, CreateDurationFromNanosecondsFunctionWithMultipleNanoseconds)
@@ -778,8 +778,8 @@ TEST(Duration_test, CreateDurationFromNanosecondsFunctionWithMultipleNanoseconds
     auto sut1 = Duration::fromNanoseconds(8);
     auto sut2 = Duration::fromNanoseconds(8U);
 
-    EXPECT_THAT(sut1.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
-    EXPECT_THAT(sut2.toNanoSeconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut1.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
+    EXPECT_THAT(sut2.toNanoseconds(), Eq(EXPECTED_DURATION_IN_NANOSECONDS));
 }
 
 TEST(Duration_test, CreateDurationFromNanosecondsFunction)
@@ -801,7 +801,7 @@ TEST(Duration_test, CreateDurationFromNanosecondsFunction)
 TEST(Duration_test, CreateDurationFromNanosecondsFunctionWithNegativeValueIsZero)
 {
     auto sut = Duration::fromNanoseconds(-1);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(0U));
 }
 
 // END CREATION FROM STATIC FUNCTION TESTS
@@ -921,94 +921,94 @@ TEST(Duration_test, ConvertSecondsFromMaxDuration)
 TEST(Duration_test, ConvertMillisecondsFromZeroDuration)
 {
     auto sut = 0_s;
-    EXPECT_THAT(sut.toMilliSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toMilliseconds(), Eq(0U));
 }
 
 TEST(Duration_test, ConvertMillisecondsFromDurationLessThanOneMillisecond)
 {
     auto sut = 637_us;
-    EXPECT_THAT(sut.toMilliSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toMilliseconds(), Eq(0U));
 }
 
 TEST(Duration_test, ConvertMilliecondsFromDurationMoreThanOneMillisecond)
 {
     auto sut = 55_ms + 633_us;
-    EXPECT_THAT(sut.toMilliSeconds(), Eq(55U));
+    EXPECT_THAT(sut.toMilliseconds(), Eq(55U));
 }
 
 TEST(Duration_test, ConvertMillisecondsFromDurationResultsNotYetInSaturation)
 {
     constexpr uint64_t EXPECTED_MILLISECONDS{std::numeric_limits<uint64_t>::max() - 1U};
     auto sut = Duration::fromMilliseconds(EXPECTED_MILLISECONDS);
-    EXPECT_THAT(sut.toMilliSeconds(), Eq(EXPECTED_MILLISECONDS));
+    EXPECT_THAT(sut.toMilliseconds(), Eq(EXPECTED_MILLISECONDS));
 }
 
 TEST(Duration_test, ConvertMillisecondsFromMaxDurationResultsInSaturation)
 {
     auto sut = DurationAccessor::max();
-    EXPECT_THAT(sut.toMilliSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
+    EXPECT_THAT(sut.toMilliseconds(), Eq(std::numeric_limits<uint64_t>::max()));
 }
 
 TEST(Duration_test, ConvertMicrosecondsFromZeroDuration)
 {
     auto sut = 0_s;
-    EXPECT_THAT(sut.toMicroSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toMicroseconds(), Eq(0U));
 }
 
 TEST(Duration_test, ConvertMicrosecondsFromDurationLessThanOneMicrosecond)
 {
     auto sut = 733_ns;
-    EXPECT_THAT(sut.toMicroSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toMicroseconds(), Eq(0U));
 }
 
 TEST(Duration_test, ConvertMicrosecondsFromDurationMoreThanOneMicrosecond)
 {
     auto sut = 555_us + 733_ns;
-    EXPECT_THAT(sut.toMicroSeconds(), Eq(555U));
+    EXPECT_THAT(sut.toMicroseconds(), Eq(555U));
 }
 
 TEST(Duration_test, ConvertMicrosecondsFromDurationResultsNotYetInSaturation)
 {
     constexpr uint64_t EXPECTED_MICROSECONDS{std::numeric_limits<uint64_t>::max() - 1U};
     auto sut = Duration::fromMicroseconds(EXPECTED_MICROSECONDS);
-    EXPECT_THAT(sut.toMicroSeconds(), Eq(EXPECTED_MICROSECONDS));
+    EXPECT_THAT(sut.toMicroseconds(), Eq(EXPECTED_MICROSECONDS));
 }
 
 TEST(Duration_test, ConvertMicroecondsFromMaxDurationResultsInSaturation)
 {
     auto sut = DurationAccessor::max();
-    EXPECT_THAT(sut.toMicroSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
+    EXPECT_THAT(sut.toMicroseconds(), Eq(std::numeric_limits<uint64_t>::max()));
 }
 
 TEST(Duration_test, ConvertNanosecondsFromZeroDuration)
 {
     auto sut = 0_s;
-    EXPECT_THAT(sut.toMicroSeconds(), Eq(0U));
+    EXPECT_THAT(sut.toMicroseconds(), Eq(0U));
 }
 
 TEST(Duration_test, ConvertNanosecondsFromDurationOfOneNanosecond)
 {
     auto sut = 1_ns;
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(1U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(1U));
 }
 
 TEST(Duration_test, ConvertNanosecondsFromDurationMultipleNanoseconds)
 {
     auto sut = 42_ns;
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(42U));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(42U));
 }
 
 TEST(Duration_test, ConvertNanosecondsFromDurationResultsNotYetInSaturation)
 {
     constexpr uint64_t EXPECTED_NANOSECONDS{std::numeric_limits<uint64_t>::max() - 1U};
     auto sut = Duration::fromNanoseconds(EXPECTED_NANOSECONDS);
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(EXPECTED_NANOSECONDS));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(EXPECTED_NANOSECONDS));
 }
 
 TEST(Duration_test, ConvertNanoecondsFromMaxDurationResultsInSaturation)
 {
     auto sut = DurationAccessor::max();
-    EXPECT_THAT(sut.toNanoSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
+    EXPECT_THAT(sut.toNanoseconds(), Eq(std::numeric_limits<uint64_t>::max()));
 }
 
 TEST(Duration_test, ConvertTimespecWithNoneReferenceFromZeroDuration)
@@ -1783,7 +1783,7 @@ TEST(Duration_test, MultiplyDurationLessThanOneSecondResultsInMoreNanosecondsTha
 
     auto result = MULTIPLICATOR * DURATION;
     EXPECT_THAT(result, Eq(EXPECTED_RESULT));
-    EXPECT_THAT(result.toNanoSeconds(), Eq(std::numeric_limits<uint64_t>::max()));
+    EXPECT_THAT(result.toNanoseconds(), Eq(std::numeric_limits<uint64_t>::max()));
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(EXPECTED_RESULT));
 }
 

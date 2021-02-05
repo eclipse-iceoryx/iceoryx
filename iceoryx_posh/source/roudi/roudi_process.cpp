@@ -157,7 +157,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
             i = 0;
 
             // give processes some time to terminate before checking their state
-            std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliSeconds()));
+            std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
 
             for (auto& process : m_processList)
             {
@@ -755,7 +755,7 @@ void ProcessManager::run() noexcept
 {
     monitorProcesses();
     discoveryUpdate();
-    std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.toMilliSeconds()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.toMilliseconds()));
 }
 
 popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service,
@@ -815,7 +815,7 @@ void ProcessManager::monitorProcesses() noexcept
             if (timediff > runtime::PROCESS_KEEP_ALIVE_TIMEOUT)
             {
                 LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
-                          << timediff.toMilliSeconds() << " milliseconds ago) --> removing it";
+                          << timediff.toMilliseconds() << " milliseconds ago) --> removing it";
 
                 // note: if we would want to use the removeProcess function, it would search for the process again
                 // (but we already found it and have an iterator to remove it)

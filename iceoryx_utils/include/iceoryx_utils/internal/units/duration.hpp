@@ -233,19 +233,19 @@ class Duration
     /// @brief returns the duration in nanoseconds
     /// @note If the duration in nanoseconds is larger than an uint64_t can represent, it will be clamped to the
     /// uint64_t max value.
-    constexpr uint64_t toNanoSeconds() const noexcept;
+    constexpr uint64_t toNanoseconds() const noexcept;
 
     /// @brief returns the duration in microseconds
     /// @note If the duration in microseconds is larger than an uint64_t can represent, it will be clamped to the
     /// uint64_t max value.
     /// @note The remaining nanoseconds are truncated, similar to the casting behavior of a float to an int.
-    constexpr uint64_t toMicroSeconds() const noexcept;
+    constexpr uint64_t toMicroseconds() const noexcept;
 
     /// @brief returns the duration in milliseconds
     /// @note If the duration in milliseconds is larger than an uint64_t can represent, it will be clamped to the
     /// uint64_t max value.
     /// @note The remaining microseconds are truncated, similar to the casting behavior of a float to an int.
-    constexpr uint64_t toMilliSeconds() const noexcept;
+    constexpr uint64_t toMilliseconds() const noexcept;
 
     /// @brief returns the duration in seconds
     /// @note The remaining milliseconds are truncated, similar to the casting behavior of a float to an int.

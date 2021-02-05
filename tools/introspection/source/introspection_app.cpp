@@ -54,8 +54,8 @@ void IntrospectionApp::printHelp() noexcept
                  "  -h, --help        Display help and exit.\n"
                  "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
                  "                    [min: "
-              << MIN_UPDATE_PERIOD.toMilliSeconds() << ", max: " << MAX_UPDATE_PERIOD.toMilliSeconds()
-              << ", default: " << DEFAULT_UPDATE_PERIOD.toMilliSeconds()
+              << MIN_UPDATE_PERIOD.toMilliseconds() << ", max: " << MAX_UPDATE_PERIOD.toMilliseconds()
+              << ", default: " << DEFAULT_UPDATE_PERIOD.toMilliseconds()
               << "]\n"
                  "  -v, --version     Display latest official iceoryx release version and exit.\n"
                  "\nSubscription:\n"
@@ -519,7 +519,7 @@ bool IntrospectionApp::waitForSubscription(Subscriber& port)
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
-        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.toMilliSeconds()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.toMilliseconds()));
     }
 
     return subscribed;
@@ -771,13 +771,13 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         refreshTerminal();
 
         // Watch user input for updatePeriodMs
-        auto tWaitRemaining = std::chrono::milliseconds(updatePeriod.toMilliSeconds());
+        auto tWaitRemaining = std::chrono::milliseconds(updatePeriod.toMilliseconds());
         auto tWaitBegin = std::chrono::system_clock::now();
         while (tWaitRemaining.count() >= 0)
         {
             waitForUserInput(static_cast<int32_t>(tWaitRemaining.count()));
             auto tWaitElapsed = std::chrono::system_clock::now() - tWaitBegin;
-            tWaitRemaining = std::chrono::milliseconds(updatePeriod.toMilliSeconds())
+            tWaitRemaining = std::chrono::milliseconds(updatePeriod.toMilliseconds())
                              - std::chrono::duration_cast<std::chrono::milliseconds>(tWaitElapsed);
         }
     }
