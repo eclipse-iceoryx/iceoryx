@@ -69,8 +69,8 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            uint64_t* missedElements)
 {
     return event_info_vector_to_c_array(
-        self->timedWait(units::Duration::fromNanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
-                        + units::Duration::fromSeconds(static_cast<unsigned long long int>(timeout.tv_sec))),
+        self->timedWait(units::Duration::fromNanoseconds(timeout.tv_nsec)
+                        + units::Duration::fromSeconds(timeout.tv_sec)),
         eventInfoArray,
         eventInfoArrayCapacity,
         missedElements);
