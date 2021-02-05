@@ -2,13 +2,16 @@
 
 This is a guide on how to write tests for iceoryx. It intends to cover the most common cases which will probably apply to 99% of the tests.
 This shall not encourage to be more royalist than the king and common sense shall be applied when the guidelines don't make sense.
+But if half of the tests don't follow the guidelines, it's a clear indicator that they need to be refactored.
 
 The guide also expects some knowledge on `gtest`. At least the [Googletest Primer](https://github.com/google/googletest/blob/master/docs/primer.md) document should be read before continuing with this guide.
 
-Don't write test just for the sake of having a high coverage number. First and foremost, tests must be meaningful and **verify the code** to prevent bugs and regressions.
+Don't write test just for the sake of having a high coverage number.
+First and foremost, tests must be meaningful and **verify the code** to prevent bugs and regressions.
 New code shall be created with testability in mind. Legacy code shall be refactored if it is not testable.
 
-In general, the **Arrange Act Assert** pattern shall be used. This makes it trivial to isolate a test failure, since only one aspect of the code is tested at a time.
+In general, the **Arrange Act Assert** pattern shall be used.
+This makes it trivial to isolate a test failure, since only one aspect of the code is tested at a time.
 These two [blog](https://defragdev.com/blog/2014/08/07/the-fundamentals-of-unit-testing-arrange-act-assert.html)
 [posts](https://medium.com/@pjbgf/title-testing-code-ocd-and-the-aaa-pattern-df453975ab80) explain the **AAA** pattern in more detail.
 
@@ -23,10 +26,14 @@ E = Exercise Exceptional Behavior
 S = Simple Scenarios, Simple Solutions
 ```
 
-This can be separated into **ZOM** and **BIE** with **S** bridging them together. **ZOM** are often simple test, like _a vector with zero items is empty_ or _a vector with one item is not empty_ or _a vector with N items has a size of N_.
-The **BIE** part takes care of edge cases like _adding one to Number::max saturates_ or _division by zero returns error_. The latter overlaps with a case from the **ZOM** part, which illustrates that these are not always clearly separated.
+This can be separated into **ZOM** and **BIE** with **S** bridging them together.
+**ZOM** are often simple test, like _a vector with zero items is empty_ or _a vector with one item is not empty_ or _a vector with N items has a size of N_.
+The **BIE** part takes care of edge cases like _adding one to Number::max saturates_ or _division by zero returns error_.
+The latter overlaps with a case from the **ZOM** part, which illustrates that these are not always clearly separated.
 
-**Exercise Exceptional Behavior** means to not only test the happy path, but also the negative one. Basically to test with silly inputs and check for a graceful behavior like the previous example with division by 0. The linked blog post explains [negative testing](https://www.softwaretestinghelp.com/what-is-negative-testing/) in a more thorough way.
+**Exercise Exceptional Behavior** means to not only test the happy path, but also the negative one.
+Basically to test with silly inputs and check for a graceful behavior like the previous example with division by 0.
+The linked blog post explains [negative testing](https://www.softwaretestinghelp.com/what-is-negative-testing/) in a more thorough way.
 
 The catchwords can be used to draw simple scenarios which nicely fits to the AAA pattern. A non-exhaustive list of these scenarios are
 - overflow
@@ -36,10 +43,34 @@ The catchwords can be used to draw simple scenarios which nicely fits to the AAA
 - full
 - out of bounds
 - timeouts
-- copy & move
+- copy
+    - are the objects equal
+    - is the copy origin unchanged
+    - etc.
+- move
+    - is the move destination object cleaning up its resources
+    - is the move origin object in a defined but unspecified state
+    - etc.
 - etc.
 
-Following [Hyrum's Law](https://www.hyrumslaw.com/) loosely, given enough users, one will find ways to use the software in a way it was never imagined. Therefore never underestimate the creativity of brilliancy/stupidity.
+Following [Hyrum's Law](https://www.hyrumslaw.com/) loosely, given enough users, one will find ways to use the software in a way it was never imagined.
+Therefore never underestimate the creativity of brilliancy/stupidity.
+
+In some cases it might be necessary to instantiate an object on the heap. While that's not allowed in production code, it is fine in test code.
+To avoid manual memory management with new/delete, smart pointer shall be used if possible.
+As a reminder, if a method takes a pointer to an object, this object can be instantiated on the stack and the address of this object can be passed to the method.
+A good reason to use the heap are large objects which might cause a stack overflow.
+Some operating system have a rather small stack of only a few kB, so this limit might be closer one might think.
+
+Sometimes it is necessary to access a pointer returned by a method.
+Using an `EXPECT_*` to check for a `nullptr` is not sufficient if the pointer is dereferenced afterwards.
+It might crash the test application if it indeed is a `nullptr`.
+The implementation of the test object might be broken and only after the successful test run it can be assumed to be correct.
+To prevent a crash, the `nullptr` check has to be done with an `ASSERT_*`. This gracefully aborts the current test case and continues with the next one.
+The same applies to other potential dangerous operations, like accessing the value of an `cxx::optional` or `cxx::expected`.
+This check can be omitted if another test case already ensured that the test object operates as expected.
+
+Last but not least, apply the **DRY** principle (don't repeat yourself) and use typed and parameterized test to check multiple implementations and variations without repeating much code.
 
 # Practical Example
 
@@ -51,22 +82,22 @@ class SingleDigitNumber
   public:
     SingleDigitNumber() noexcept = default;
 
-    SingleDigitNumber(uint64_t number)
+    constexpr SingleDigitNumber(uint64_t number) noexcept
         : m_number(number)
     {
     }
 
-    operator uint64_t()
+    constexpr operator uint64_t() const noexcept
     {
         return m_number;
     }
 
-    SingleDigitNumber operator+(const SingleDigitNumber rhs)
+    constexpr SingleDigitNumber operator+(const SingleDigitNumber rhs) const noexcept
     {
         return m_number + rhs.m_number;
     }
 
-    SingleDigitNumber operator-(const SingleDigitNumber rhs)
+    constexpr SingleDigitNumber operator-(const SingleDigitNumber rhs) const noexcept
     {
         return m_number - rhs.m_number;
     }
@@ -79,7 +110,6 @@ class SingleDigitNumber
 This test fixture will be used
 
 ```c++
-
 class SingleDigitNumber_test : public Test
 {
   public:
@@ -144,20 +174,84 @@ The test also has a meaningful name. If this fails in the CI, it is immediately 
 Additionally, the tested object is called `sut`. This makes it easy to identify the actual test object.
 Lastly, a `constexpr` is used for the expected value. This removes a magic value and also makes the output of a failed test more readable, since it is immediately clear what's the actual tested value and what's the expected value.
 
-TODO
+Now let's continue with further tests, applying the ZOMBIES principle
 
-- ZOMBIES principle
-- meaningful names
-- create objects on the stack or instantiate large objects with smart pointer. Avoid manual memory management with new/delete.
-- use `sut`
-- Example with assert before accessing a potential nullptr/nullopt;
+```c++
+TEST_F(SingleDigitNumber_test, ConstructionWithValidValueCreatesNumberWithSameValue)
+{
+    constexpr uint64_t NUMBER_VALUE{7U};
+    constexpr uint64_t EXPECTED_VALUE{NUMBER_VALUE};
 
-# Slightly More Advanced Techniques
+    SingleDigitNumber sut{NUMBER_VALUE};
 
-TODO
+    EXPECT_EQ(static_cast<uint64_t>(sut), EXPECTED_VALUE);
+}
 
-- typed tests
-- parameterized tests
-    - https://www.sandordargo.com/blog/2019/04/24/parameterized-testing-with-gtest
-    - use `std::tie`
-- mocks
+TEST_F(SingleDigitNumber_test, ConstructionWithInvalidValueResultsInSaturation)
+{
+    constexpr uint64_t NUMBER_VALUE{42U};
+    constexpr uint64_t EXPECTED_VALUE{9U};
+
+    SingleDigitNumber sut{NUMBER_VALUE};
+
+    EXPECT_EQ(static_cast<uint64_t>(sut), EXPECTED_VALUE);
+}
+
+TEST_F(SingleDigitNumber_test, AddingZeroDoesNotChangeTheNumber)
+{
+    constexpr SingleDigitNumber NUMBER{3U};
+    constexpr SingleDigitNumber ZERO{0U};
+    constexpr uint64_t EXPECTED_VALUE{3U};
+
+    auto sut = NUMBER + ZERO;
+
+    EXPECT_EQ(static_cast<uint64_t>(sut), EXPECTED_VALUE);
+}
+
+TEST_F(SingleDigitNumber_test, AddingOneIncreasesTheNumberByOne)
+{
+    constexpr SingleDigitNumber NUMBER{3U};
+    constexpr SingleDigitNumber ONE{1U};
+    constexpr uint64_t EXPECTED_VALUE{4U};
+
+    auto sut = NUMBER + ONE;
+
+    EXPECT_EQ(static_cast<uint64_t>(sut), EXPECTED_VALUE);
+}
+
+// and so on
+```
+
+These are some examples showing how to apply the ZOMBIES principle to find good test cases.
+They also exert all the good practices mentioned previously, like clear and distinct names or avoiding magic numbers.
+
+# Slightly More Advanced Topics
+
+## Typed Tests
+
+TODO:
+- simple example which can be used as template
+
+## Parameterized Tests
+
+TODO:
+- simple example which can be used as template
+- https://www.sandordargo.com/blog/2019/04/24/parameterized-testing-with-gtest
+- use `std::tie`
+
+## Mocks
+
+TODO:
+- just a few links
+
+# Conclusion
+
+- apply the AAA pattern to structure the test and check only one aspect of the code at a time
+- use the ZOMBIES principle to find sensible test cases
+- meaningful names for the tests to indicate what the test is supposed to do
+- name the test object `sut` to make it clear what object is tested
+- don't use magic numbers
+- instantiate objects on the stack or use smart pointer for large objects and avoid manual memory management with new/delete
+- use `ASSERT_*` before doing a potential dangerous action which might crash the test application, like accessing a `nullptr` or a `cxx::optional` with a `nullopt`
+- use mocks to reduce the complexity of the test arrangement
+- apply the **DRY** principle by using typed and parameterized tests
