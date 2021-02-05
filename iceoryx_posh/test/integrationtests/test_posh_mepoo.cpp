@@ -161,7 +161,7 @@ class Mepoo_IntegrationTest : public Test
 
     void PrintTiming(iox::units::Duration start)
     {
-        auto totalMillisconds = start.milliSeconds();
+        auto totalMillisconds = start.toMilliSeconds();
         auto milliseconds = totalMillisconds % 1000U;
         auto totalSeconds = totalMillisconds / 1000U;
         auto seconds = totalSeconds % 60U;

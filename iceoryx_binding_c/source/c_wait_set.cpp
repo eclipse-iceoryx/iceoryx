@@ -69,8 +69,8 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            uint64_t* missedElements)
 {
     return event_info_vector_to_c_array(
-        self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
-                        + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
+        self->timedWait(units::Duration::fromNanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
+                        + units::Duration::fromSeconds(static_cast<unsigned long long int>(timeout.tv_sec))),
         eventInfoArray,
         eventInfoArrayCapacity,
         missedElements);
@@ -124,4 +124,3 @@ void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t co
 {
     self->detachEvent(*userTrigger);
 }
-

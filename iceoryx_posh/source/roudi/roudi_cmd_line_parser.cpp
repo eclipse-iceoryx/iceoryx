@@ -159,7 +159,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             else
             {
                 m_processKillDelay =
-                    units::Duration::seconds(static_cast<unsigned long long int>(processKillDelayInSeconds));
+                    units::Duration::fromSeconds(static_cast<unsigned long long int>(processKillDelayInSeconds));
             }
             break;
         }
@@ -247,7 +247,7 @@ void CmdLineParser::printParameters() const noexcept
     m_uniqueRouDiId.and_then([](auto& id) { LogVerbose() << "Unique RouDi ID: " << id; }).or_else([] {
         LogVerbose() << "Unique RouDi ID: < unset >";
     });
-    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds() << " s";
+    LogVerbose() << "Process kill delay: " << m_processKillDelay.toSeconds() << " s";
 }
 
 } // namespace config

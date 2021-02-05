@@ -74,7 +74,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         }
     }
 
-    static constexpr unsigned long long TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds()};
+    static constexpr unsigned long long TIMING_TEST_TIMEOUT{(100_ms).toNanoSeconds()};
 
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
@@ -321,7 +321,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
     std::atomic_bool timedWaitFinish{false};
 
     std::thread t([&] {
-        auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
+        auto ts = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
         syncSemaphore->post();
         sut->wait();
         auto call = sut->timedWait(&ts, false);
@@ -347,7 +347,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
     std::atomic_bool timedWaitFinish{false};
 
     std::thread t([&] {
-        auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
+        auto ts = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
         syncSemaphore->post();
         sut->wait();
         auto call = sut->timedWait(&ts, false);
