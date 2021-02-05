@@ -159,7 +159,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_processKillDelay =
-                    units::Duration::fromSeconds(static_cast<unsigned long long int>(processKillDelayInSeconds));
+                    units::Duration::fromSeconds(processKillDelayInSeconds);
             }
             break;
         }
