@@ -23,28 +23,21 @@ EventListener::EventListener(EventVariableData& dataRef) noexcept
 {
 }
 
+void EventListener::destroy() noexcept
+{
+    m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    if (m_pointerToEventVariableData->m_semaphore.post().has_error())
+    {
+        errorHandler(Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_DESTROY, nullptr, ErrorLevel::FATAL);
+    }
+}
+
 cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> EventListener::wait() noexcept
 {
-    resetSemaphore();
     cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> activeNotifications;
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
-    {
-        if (m_pointerToEventVariableData->m_activeNotifications[i].load(std::memory_order_relaxed))
-        {
-            reset(i);
-            activeNotifications.emplace_back(i);
-        }
-    }
-    if (!activeNotifications.empty())
-    {
-        return activeNotifications;
-    }
 
-    if (m_pointerToEventVariableData->m_semaphore.wait().has_error())
-    {
-        errorHandler(Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
-    }
-    else
+    resetSemaphore();
+    while (!m_toBeDestroyed.load(std::memory_order_relaxed))
     {
         for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
         {
@@ -54,7 +47,17 @@ cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> EventListener::w
                 activeNotifications.emplace_back(i);
             }
         }
+        if (!activeNotifications.empty())
+        {
+            return activeNotifications;
+        }
+
+        if (m_pointerToEventVariableData->m_semaphore.wait().has_error())
+        {
+            errorHandler(Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+        }
     }
+
     return activeNotifications;
 }
 

@@ -381,3 +381,19 @@ TEST_F(ActiveCallSet_test, AttachedEventDTorDetachesItself)
 
 
 // -- goes out of scope while callback is running
+
+
+///////////////////////////////////
+// calling callbacks
+///////////////////////////////////
+TIMING_TEST_F(ActiveCallSet_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
+    SimpleEventClass fuu;
+    m_sut->attachEvent(
+        fuu, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0>);
+
+    fuu.triggerStoepsel();
+    m_sut.reset();
+
+    TIMING_TEST_EXPECT_TRUE(fuu.m_triggerCallbackArg[0] == &fuu);
+});
+

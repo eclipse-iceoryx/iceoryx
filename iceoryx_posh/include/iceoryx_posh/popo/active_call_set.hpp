@@ -15,6 +15,7 @@
 #ifndef IOX_POSH_POPO_ACTIVE_CALL_SET_HPP
 #define IOX_POSH_POPO_ACTIVE_CALL_SET_HPP
 
+#include "iceoryx_posh/internal/popo/building_blocks/event_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
@@ -151,6 +152,7 @@ class ActiveCallSet
 
     std::atomic_bool m_wasDtorCalled{false};
     EventVariableData* m_eventVariable = nullptr;
+    EventListener m_eventListener;
 };
 } // namespace popo
 } // namespace iox

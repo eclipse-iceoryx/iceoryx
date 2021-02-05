@@ -29,6 +29,7 @@ ActiveCallSet::ActiveCallSet() noexcept
 
 ActiveCallSet::ActiveCallSet(EventVariableData* eventVariable) noexcept
     : m_eventVariable(eventVariable)
+    , m_eventListener(*eventVariable)
 {
     m_thread = std::thread(&ActiveCallSet::threadLoop, this);
 }
@@ -36,13 +37,10 @@ ActiveCallSet::ActiveCallSet(EventVariableData* eventVariable) noexcept
 ActiveCallSet::~ActiveCallSet()
 {
     m_wasDtorCalled.store(true, std::memory_order_relaxed);
-
-    // notify eventVariable without origin to signal that we are in the dtor
-    m_eventVariable->m_semaphore.post();
-
-    m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    m_eventListener.destroy();
 
     m_thread.join();
+    m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
 cxx::expected<uint64_t, ActiveCallSetError>
@@ -92,15 +90,11 @@ uint64_t ActiveCallSet::size() const noexcept
 
 void ActiveCallSet::threadLoop() noexcept
 {
-    EventListener eventListener(*m_eventVariable);
     while (m_wasDtorCalled.load(std::memory_order_relaxed) == false)
     {
-        auto activateNotificationIds = eventListener.wait();
+        auto activateNotificationIds = m_eventListener.wait();
 
-        cxx::forEach(activateNotificationIds, [this, &eventListener](auto id) {
-            eventListener.reset(id);
-            m_events[id]->executeCallback();
-        });
+        cxx::forEach(activateNotificationIds, [this](auto id) { m_events[id]->executeCallback(); });
     }
 }
 
