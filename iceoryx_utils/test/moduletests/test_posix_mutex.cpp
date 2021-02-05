@@ -87,10 +87,10 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
                 t = new std::thread([&] {
                     mtx.lock();
                     iox::cxx::DeadlineTimer ct(threadTimerDuration);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(2 * threadTimerDuration.milliSeconds<int>()));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2 * threadTimerDuration.milliSeconds()));
                 });
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(2 * mutexTimerDuration.milliSeconds<int>()));
+                std::this_thread::sleep_for(std::chrono::milliseconds(2 * mutexTimerDuration.milliSeconds()));
             }
             t->join();
             delete t;
