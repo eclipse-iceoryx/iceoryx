@@ -15,6 +15,7 @@
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
@@ -24,23 +25,25 @@ int main(int argc, char* argv[])
     using iox::roudi::IceOryxRouDiApp;
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
-    cmdLineParser.parse(argc, argv);
+    auto cmdLineArgs = cmdLineParser.parse(argc, argv);
+    if (cmdLineArgs.has_error() && (cmdLineArgs.get_error() != iox::config::CmdLineParserResult::INFO_OUTPUT_ONLY))
+    {
+        iox::LogFatal() << "Unable to parse command line arguments!";
+        return EXIT_FAILURE;
+    }
 
-    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineParser);
+    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
 
-    iox::RouDiConfig_t roudiConfig =
-        configFileProvider.parse()
-            .or_else([](iox::roudi::RouDiConfigFileParseError& parseResult) {
-                iox::LogFatal() << "Couldn't parse config file. Error: "
-                                << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                                 parseResult);
-                std::terminate();
-            })
-            .value();
+    auto roudiConfig = configFileProvider.parse();
+    if (roudiConfig.has_error())
+    {
+        iox::LogFatal() << "Couldn't parse config file. Error: "
+                        << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
+                                                         roudiConfig.get_error());
+        return EXIT_FAILURE;
+    }
 
-    cmdLineParser.printParameters();
-
-    IceOryxRouDiApp roudi(cmdLineParser, roudiConfig);
+    IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig.value());
 
     return roudi.run();
 }
