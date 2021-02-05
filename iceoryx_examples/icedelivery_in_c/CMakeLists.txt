@@ -15,7 +15,7 @@
 
 # Build icedelivery example
 cmake_minimum_required(VERSION 3.5)
-project(example_icedelivery_on_c)
+project(example_icedelivery_in_c)
 
 include(GNUInstallDirs)
 

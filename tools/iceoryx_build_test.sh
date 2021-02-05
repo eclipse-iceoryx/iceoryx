@@ -271,7 +271,7 @@ fi
 if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     rm -rf $WORKSPACE/build_out_of_tree
     if [ "$BINDING_C_FLAG" == "ON" ]; then
-        EXAMPLES="${EXAMPLES} icedelivery_on_c waitset_on_c iceperf"
+        EXAMPLES="${EXAMPLES} icedelivery_in_c waitset_in_c iceperf"
     fi
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo ${EXAMPLES}

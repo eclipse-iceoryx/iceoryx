@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -249,10 +249,9 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 13U;
-    const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U),
-                                                                 publisherOptions,
-                                                                 m_nodeName,
-                                                                 iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    publisherOptions.nodeName = m_nodeName;
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(99U, 1U, 20U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), publisherPort->m_serviceDescription);
@@ -306,10 +305,10 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     auto sameServiceDescription = iox::capro::ServiceDescription(99U, 1U, 20U);
 
     const auto publisherPort1 = m_runtime->getMiddlewarePublisher(
-        sameServiceDescription, iox::popo::PublisherOptions(), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        sameServiceDescription, iox::popo::PublisherOptions(), iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     const auto publisherPort2 = m_runtime->getMiddlewarePublisher(
-        sameServiceDescription, iox::popo::PublisherOptions(), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        sameServiceDescription, iox::popo::PublisherOptions(), iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, publisherPort1);
 
@@ -329,10 +328,9 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.historyRequest = 13U;
     subscriberOptions.queueCapacity = 42U;
-    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U),
-                                                             subscriberOptions,
-                                                             m_nodeName,
-                                                             iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    subscriberOptions.nodeName = m_nodeName;
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     ASSERT_NE(nullptr, subscriberPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), subscriberPort->m_serviceDescription);

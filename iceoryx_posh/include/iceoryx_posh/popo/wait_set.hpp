@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -35,7 +36,10 @@ enum class WaitSetError : uint8_t
 {
     WAIT_SET_FULL,
     EVENT_ALREADY_ATTACHED,
+    PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET,
 };
+
+using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
 
 /// @brief Logical disjunction of a certain number of Triggers
 ///
@@ -61,44 +65,44 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
-    /// @brief attaches an event to the WaitSet
-    /// @param[in] eventOrigin the origin of the event
-    /// @param[in] args... additional event identifying arguments
-    /// @return when an error occurs an enum which is describing the error is returned
-    template <typename T, typename... Targs>
-    cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const Targs&... args) noexcept;
+    /// @brief attaches an event of a given class to the WaitSet.
+    /// @param[in] eventOrigin the class from which the event originates.
+    /// @param[in] eventType the event specified by the class
+    /// @param[in] eventId an arbitrary user defined id for the event
+    /// @param[in] eventCallback a callback which should be assigned to the event
+    template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
+    cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
+                                            const EventType eventType,
+                                            const uint64_t eventId = 0U,
+                                            const EventInfo::Callback<T>& eventCallback = {}) noexcept;
+
+    /// @brief attaches an event of a given class to the WaitSet.
+    /// @param[in] eventOrigin the class from which the event originates.
+    /// @param[in] eventType the event specified by the class
+    /// @param[in] eventCallback a callback which should be assigned to the event
+    template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value, void>>
+    cxx::expected<WaitSetError>
+    attachEvent(T& eventOrigin, const EventType eventType, const EventInfo::Callback<T>& eventCallback) noexcept;
+
+    /// @brief attaches an event of a given class to the WaitSet.
+    /// @param[in] eventOrigin the class from which the event originates.
+    /// @param[in] eventId an arbitrary user defined id for the event
+    /// @param[in] eventCallback a callback which should be assigned to the event
+    template <typename T>
+    cxx::expected<WaitSetError>
+    attachEvent(T& eventOrigin, const uint64_t eventId = 0U, const EventInfo::Callback<T>& eventCallback = {}) noexcept;
+
+    /// @brief attaches an event of a given class to the WaitSet.
+    /// @param[in] eventOrigin the class from which the event originates.
+    /// @param[in] eventCallback a callback which should be assigned to the event
+    template <typename T>
+    cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const EventInfo::Callback<T>& eventCallback) noexcept;
 
     /// @brief detaches an event from the WaitSet
     /// @param[in] eventOrigin the origin of the event that should be detached
     /// @param[in] args... additional event identifying arguments
     template <typename T, typename... Targs>
     void detachEvent(T& eventOrigin, const Targs&... args) noexcept;
-
-    /// @brief Acquires a trigger from the waitset  The trigger is then attached to an object, the origin,
-    ///        which triggers the Trigger if a specific event happens. The object must then signal the
-    ///        trigger that it was triggered via the triggerCallback. If the WaitSet goes out of scope
-    ///        before the object does it calls the invalidationCallback to invalidate the Trigger inside
-    ///        of the object
-    ///        You cannot acquire an already logically equal acquired trigger. This means if you acquire a trigger
-    ///        twice with the same: origin, triggerCallback and eventId this method will return
-    ///        EVENT_ALREADY_ATTACHED
-    /// @param[in] origin the pointer to the object which will attach the trigger
-    /// @param[in] triggerCallback a method from the object which will signal the Trigger that it was triggered
-    /// @param[in] invalidationCallback callback which will be called in the destructor of the waitset, important when
-    /// the waitset goes out of scope before the origin does.
-    /// @param[in] eventId an arbitrary id to identify the trigger later when a list of triggers is returned via wait
-    /// or timedWait
-    /// @param[in] callback a callback which is attached to the trigger and can be later called when the trigger will be
-    ///            returned via wait or timedWait
-    /// @return returns the newly created trigger if the WaitSet has space left otherwise it returns
-    /// WaitSetError::WAIT_SET_FULL
-    template <typename T>
-    cxx::expected<TriggerHandle, WaitSetError>
-    acquireTriggerHandle(T* const origin,
-                         const cxx::ConstMethodCallback<bool>& triggerCallback,
-                         const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                         const uint64_t eventId = EventInfo::INVALID_ID,
-                         const EventInfo::Callback<T> callback = nullptr) noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the triggers are triggered
     /// @param[in] timeout How long shall we waite for a trigger
@@ -119,6 +123,12 @@ class WaitSet
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
+    template <typename T>
+    cxx::expected<uint64_t, WaitSetError> attachEventImpl(T& eventOrigin,
+                                                          const WaitSetHasTriggeredCallback& hasTriggeredCallback,
+                                                          const uint64_t eventId,
+                                                          const EventInfo::Callback<T>& eventCallback) noexcept;
+
     EventInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
     EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;

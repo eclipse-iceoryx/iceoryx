@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,10 +48,10 @@ class UntypedSubscriberImpl
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
-    using BaseSubscriber::hasMissedSamples; // iox-#408 remove
-    using BaseSubscriber::hasSamples;       // iox-#408 remove
-    using BaseSubscriber::invalidateTrigger;
-    using BaseSubscriber::releaseQueuedSamples; // iox-#408 remove
+    using BaseSubscriber::hasMissedSamples;
+    using BaseSubscriber::hasSamples;
+    using BaseSubscriber::releaseQueuedSamples;
+
     using BaseSubscriber::subscribe;
     using BaseSubscriber::take; // iox-#408 replace
     using BaseSubscriber::unsubscribe;

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,23 +39,9 @@ static void sigHandler(int signalValue)
     iox_user_trigger_trigger(shutdownTrigger);
 }
 
-// The callback of the trigger. Every callback must have an argument which is
-// a pointer to the origin of the Trigger. In our case the trigger origin is
-// an iox_sub_t.
-void subscriberCallback(iox_sub_t const subscriber)
-{
-    const void* chunk;
-    if (iox_sub_get_chunk(subscriber, &chunk))
-    {
-        printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
-
-        iox_sub_release_chunk(subscriber, chunk);
-    }
-}
-
 int main()
 {
-    iox_runtime_init("iox-c-ex-waitset-gateway");
+    iox_runtime_init("iox-c-ex-waitset-individual");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -69,18 +55,25 @@ int main()
 
     // array where the subscriber are stored
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
+    iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
-    // create subscriber and subscribe them to our service
+    // create two subscribers, subscribe to the service and attach them to the waitset
     const uint64_t historyRequest = 1U;
     const uint64_t queueCapacity = 256U;
-    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
-    {
-        iox_sub_t subscriber =
-            iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
 
-        iox_sub_subscribe(subscriber);
-        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);
-    }
+    const char* const nodeName1 = "iox-c-ex-waitset-individual-node1";
+    const char* const nodeName2 = "iox-c-ex-waitset-individual-node2";
+
+    subscriber[0] = iox_sub_init(
+        &(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName1);
+    subscriber[1] = iox_sub_init(
+        &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName2);
+
+    iox_sub_subscribe(subscriber[0]);
+    iox_sub_subscribe(subscriber[1]);
+
+    iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
+    iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
 
 
     uint64_t missedElements = 0U;
@@ -104,10 +97,25 @@ int main()
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
             }
-            else
+            // process sample received by subscriber1
+            else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0U]))
             {
-                // call the callback which was assigned to the event
-                iox_event_info_call(event);
+                const void* chunk;
+                if (iox_sub_get_chunk(subscriber[0U], &chunk))
+                {
+                    printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
+
+                    iox_sub_release_chunk(subscriber[0U], chunk);
+                }
+            }
+            // dismiss sample received by subscriber2
+            else if (iox_event_info_does_originate_from_subscriber(event, subscriber[1]))
+            {
+                // We need to release the samples to reset the event hasSamples
+                // otherwise the WaitSet would notify us in `iox_ws_wait()` again
+                // instantly.
+                iox_sub_release_queued_chunks(subscriber[1U]);
+                printf("subscriber 2 received something - dont care\n");
             }
         }
     }

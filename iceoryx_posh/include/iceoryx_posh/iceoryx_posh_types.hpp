@@ -40,7 +40,6 @@ class SubscriberPortUser;
 namespace posix
 {
 class UnixDomainSocket;
-class MessageQueue;
 } // namespace posix
 
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
@@ -54,11 +53,7 @@ using SubscriberPortType = iox::build::CommunicationPolicy;
 /// @brief The socket is created in the current path if no absolute path is given hence
 ///      we need an absolut path so that every application knows where our sockets can
 ///      be found.
-#if defined(__APPLE__)
 using IpcChannelType = iox::posix::UnixDomainSocket;
-#else
-using IpcChannelType = iox::posix::MessageQueue;
-#endif
 
 /// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
@@ -185,7 +180,7 @@ namespace roudi
 {
 using ConfigFilePathString_t = cxx::string<1024>;
 
-constexpr char MQ_ROUDI_NAME[] = "/roudi";
+constexpr char IPC_CHANNEL_ROUDI_NAME[] = "/roudi";
 
 /// shared memmory segment for the iceoryx managment data
 constexpr char SHM_NAME[] = "/iceoryx_mgmt";
@@ -221,7 +216,7 @@ using BaseClock_t = std::chrono::steady_clock;
 // when sleep_until() is used with a timepoint in the past
 using DurationNs_t = std::chrono::duration<std::int64_t, std::nano>;
 using TimePointNs_t = std::chrono::time_point<BaseClock_t, DurationNs_t>;
-}
+} // namespace mepoo
 
 namespace runtime
 {
