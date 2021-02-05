@@ -25,7 +25,12 @@ int main(int argc, char* argv[])
     static constexpr uint32_t ONE_MEGABYTE = 1024U * 1024;
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
-    cmdLineParser.parse(argc, argv);
+    auto cmdLineArgs = cmdLineParser.parse(argc, argv);
+    if (cmdLineArgs.has_error() && (cmdLineArgs.get_error() != iox::config::CmdLineParserResult::INFO_OUTPUT_ONLY))
+    {
+        iox::LogFatal() << "Unable to parse command line arguments!";
+        return EXIT_FAILURE;
+    }
 
     iox::RouDiConfig_t roudiConfig;
     // roudiConfig.setDefaults(); can be used if you want to use the default config only.
@@ -61,9 +66,7 @@ int main(int argc, char* argv[])
     ///  mempoolConfig})
     /// @endcode
 
-    cmdLineParser.printParameters();
-
-    IceOryxRouDiApp roudi(cmdLineParser, roudiConfig);
+    IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig);
 
     return roudi.run();
 }

@@ -23,9 +23,8 @@ namespace iox
 {
 namespace config
 {
-void CmdLineParserConfigFileOption::parse(int argc,
-                                          char* argv[],
-                                          const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
+cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::parse(
+    int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
     constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
                                       {"config-file", required_argument, nullptr, 'c'},
@@ -63,7 +62,11 @@ void CmdLineParserConfigFileOption::parse(int argc,
         {
             // we want to parse the help option again, therefore we need to decrement the option index of getopt
             optind--;
-            CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
+            auto result = CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
+            if (result.has_error())
+            {
+                return cxx::error<CmdLineParserResult>(result.get_error());
+            }
         }
         };
 
@@ -72,16 +75,13 @@ void CmdLineParserConfigFileOption::parse(int argc,
             break;
         }
     }
-}
-roudi::ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
-{
-    return m_customConfigFilePath;
-}
-
-void CmdLineParserConfigFileOption::printParameters() noexcept
-{
-    CmdLineParser::printParameters();
-    LogVerbose() << "Config file used is: " << m_customConfigFilePath;
+    return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
+                                                     m_logLevel,
+                                                     m_compatibilityCheckLevel,
+                                                     m_processKillDelay,
+                                                     m_uniqueRouDiId,
+                                                     m_run,
+                                                     m_customConfigFilePath});
 }
 
 } // namespace config
