@@ -27,27 +27,16 @@ namespace popo
 {
 using uid_t = UniquePortId;
 
-///
-/// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.
-/// This allows any publisher specialization to be stored as a reference by the Sample class.
-///
-template <typename T>
-class PublisherInterface
-{
-  public:
-    virtual void publish(Sample<T>&& sample) noexcept = 0;
-
-  protected:
-    PublisherInterface() = default;
-};
 
 ///
 /// @brief The BasePublisher class contains the common implementation for the different publisher specializations.
 ///
 template <typename T, typename port_t = iox::PublisherPortUserType>
-class BasePublisher : public PublisherInterface<T>
+class BasePublisher
 {
   protected:
+    using PortType = port_t;
+
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
     BasePublisher(BasePublisher&& rhs) = delete;
@@ -65,42 +54,6 @@ class BasePublisher : public PublisherInterface<T>
     /// @return The service description.
     ///
     capro::ServiceDescription getServiceDescription() const noexcept;
-
-    ///
-    /// @brief loan Get a sample from loaned shared memory.
-    /// @param size The expected size of the sample.
-    /// @return An instance of the sample that resides in shared memory or an error if unable ot allocate memory to
-    /// laon.
-    /// @details The loaned sample is automatically released when it goes out of scope.
-    ///
-    cxx::expected<Sample<T>, AllocationError> loanSample(const uint32_t size) noexcept;
-
-    ///
-    /// @brief loan Get a chunk from loaned shared memory.
-    /// @param size The expected size of the chunk.
-    /// @return A pointer to a chunk of memory with the requested size.
-    ///
-    cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
-
-    /// @todo: currently required by PublisherInterface, medium refactoring required to remove
-    /// goal: remove samples from this layer
-    ///
-    /// @brief publish Publishes the given sample and then releases its loan.
-    /// @param sample The sample to publish.
-    ///
-    void publish(Sample<T>&& sample) noexcept override;
-
-    ///
-    /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
-    /// @return The previously loaned sample if retrieved.
-    ///
-    cxx::optional<Sample<T>> loanPreviousSample() noexcept;
-
-    ///
-    /// @brief loanPreviousChunk Get the previously loanded chunk if possible.
-    /// @return A pointer to the previous chunk if available, nullopt otherwise.
-    ///
-    cxx::optional<void*> loanPreviousChunk() noexcept;
 
     ///
     /// @brief offer Offer the service to be subscribed to.
@@ -124,24 +77,14 @@ class BasePublisher : public PublisherInterface<T>
     ///
     bool hasSubscribers() const noexcept;
 
-  protected:
     BasePublisher() = default; // Required for testing.
     BasePublisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions);
 
-  private:
-    ///
-    /// @brief convertChunkHeaderToSample Helper function that wraps the payload of a ChunkHeader in an Sample.
-    /// @param header The chunk header describing the allocated memory chunk to use in the sample.
-    /// @return A sample that uses the ChunkHeader's payload as its memory allocation.
-    ///
-    Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
+    const port_t& port() const noexcept;
+    port_t& port() noexcept;
 
-  protected:
     port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
-
-    using PublisherSampleDeleter = SampleDeleter<port_t>;
-    PublisherSampleDeleter m_sampleDeleter{m_port};
 };
 
 } // namespace popo

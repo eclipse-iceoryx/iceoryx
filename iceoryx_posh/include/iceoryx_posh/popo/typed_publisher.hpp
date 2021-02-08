@@ -23,8 +23,21 @@ namespace iox
 {
 namespace popo
 {
+///
+/// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.
+/// This allows any publisher specialization to be stored as a reference by the Sample class.
+///
+template <typename T>
+class PublisherInterface
+{
+  public:
+    virtual void publish(Sample<T>&& sample) noexcept = 0;
+
+  protected:
+    PublisherInterface() = default;
+};
 template <typename T, typename base_publisher_t = BasePublisher<T>>
-class TypedPublisher : public base_publisher_t
+class TypedPublisher : public base_publisher_t, public PublisherInterface<T>
 {
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
     static_assert(std::is_default_constructible<T>::value, "The TypedPublisher requires default-constructable types.");
@@ -42,10 +55,31 @@ class TypedPublisher : public base_publisher_t
     using base_publisher_t::getUid;
     using base_publisher_t::hasSubscribers;
     using base_publisher_t::isOffered;
-    using base_publisher_t::loanPreviousSample;
     using base_publisher_t::offer;
-    using base_publisher_t::publish;
     using base_publisher_t::stopOffer;
+
+    ///
+    /// @brief loan Get a sample from loaned shared memory.
+    /// @param size The expected size of the sample.
+    /// @return An instance of the sample that resides in shared memory or an error if unable ot allocate memory to
+    /// laon.
+    /// @details The loaned sample is automatically released when it goes out of scope.
+    ///
+    cxx::expected<Sample<T>, AllocationError> loanSample(const uint32_t size) noexcept;
+
+    /// @todo: currently required by PublisherInterface, medium refactoring required to remove
+    /// goal: remove samples from this layer
+    ///
+    /// @brief publish Publishes the given sample and then releases its loan.
+    /// @param sample The sample to publish.
+    ///
+    void publish(Sample<T>&& sample) noexcept override;
+
+    ///
+    /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
+    /// @return The previously loaned sample if retrieved.
+    ///
+    cxx::optional<Sample<T>> loanPreviousSample() noexcept;
 
     ///
     /// @brief loan Get a sample from loaned shared memory and consctruct the data with the given arguments.
@@ -71,6 +105,20 @@ class TypedPublisher : public base_publisher_t
     ///
     template <typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
+
+  protected:
+    using base_publisher_t::port;
+
+  private:
+    ///
+    /// @brief convertChunkHeaderToSample Helper function that wraps the payload of a ChunkHeader in an Sample.
+    /// @param header The chunk header describing the allocated memory chunk to use in the sample.
+    /// @return A sample that uses the ChunkHeader's payload as its memory allocation.
+    ///
+    Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
+
+    using PublisherSampleDeleter = SampleDeleter<typename base_publisher_t::PortType>;
+    PublisherSampleDeleter m_sampleDeleter{port()};
 };
 
 } // namespace popo

@@ -38,10 +38,23 @@ class UntypedPublisherImpl : public base_publisher_t
     using base_publisher_t::getUid;
     using base_publisher_t::hasSubscribers;
     using base_publisher_t::isOffered;
-    using base_publisher_t::loan; // iox-#408 rename
-    using base_publisher_t::loanPreviousChunk;
+    // using base_publisher_t::loan;
+    // using base_publisher_t::loanPreviousChunk;
     using base_publisher_t::offer;
     using base_publisher_t::stopOffer;
+
+    ///
+    /// @brief loan Get a chunk from loaned shared memory.
+    /// @param size The expected size of the chunk.
+    /// @return A pointer to a chunk of memory with the requested size.
+    ///
+    cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
+
+    ///
+    /// @brief loanPreviousChunk Get the previously loanded chunk if possible.
+    /// @return A pointer to the previous chunk if available, nullopt otherwise.
+    ///
+    cxx::optional<void*> loanPreviousChunk() noexcept;
 
     ///
     /// @brief publish Publish the provided memory chunk.
@@ -49,6 +62,9 @@ class UntypedPublisherImpl : public base_publisher_t
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
     void publish(const void* chunk) noexcept;
+
+  protected:
+    using base_publisher_t::port;
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;

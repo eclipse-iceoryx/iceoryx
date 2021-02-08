@@ -50,7 +50,7 @@ class TypedPublisherTest : public Test
 };
 
 #if 0
-//iox-#408 rewrite and reactivate after API adaptation
+// iox-#408 rewrite and reactivate after API adaptation
 
 TEST_F(TypedPublisherTest, LoansSamplesLargeEnoughForTheType)
 {

@@ -47,64 +47,6 @@ inline capro::ServiceDescription BasePublisher<T, port_t>::getServiceDescription
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loanSample(const uint32_t size) noexcept
-{
-    auto result = m_port.tryAllocateChunk(size);
-    if (result.has_error())
-    {
-        return cxx::error<AllocationError>(result.get_error());
-    }
-    else
-    {
-        return cxx::success<Sample<T>>(convertChunkHeaderToSample(result.value()));
-    }
-}
-
-template <typename T, typename port_t>
-inline cxx::expected<void*, AllocationError> BasePublisher<T, port_t>::loan(const uint32_t size) noexcept
-{
-    auto result = m_port.tryAllocateChunk(size);
-    if (result.has_error())
-    {
-        return cxx::error<AllocationError>(result.get_error());
-    }
-    else
-    {
-        return cxx::success<void*>(result.value()->payload());
-    }
-}
-
-template <typename T, typename port_t>
-inline void BasePublisher<T, port_t>::publish(Sample<T>&& sample) noexcept
-{
-    auto header = mepoo::ChunkHeader::fromPayload(sample.get());
-    m_port.sendChunk(header);
-    sample.release(); // Must release ownership of the sample as the publisher port takes it when publishing.
-}
-
-template <typename T, typename port_t>
-inline cxx::optional<Sample<T>> BasePublisher<T, port_t>::loanPreviousSample() noexcept
-{
-    auto result = m_port.tryGetPreviousChunk();
-    if (result.has_value())
-    {
-        return cxx::make_optional<Sample<T>>(convertChunkHeaderToSample(result.value()));
-    }
-    return cxx::nullopt;
-}
-
-template <typename T, typename port_t>
-cxx::optional<void*> BasePublisher<T, port_t>::loanPreviousChunk() noexcept
-{
-    auto result = m_port.tryGetPreviousChunk();
-    if (result.has_value())
-    {
-        return result.value()->payload();
-    }
-    return cxx::nullopt;
-}
-
-template <typename T, typename port_t>
 inline void BasePublisher<T, port_t>::offer() noexcept
 {
     m_port.offer();
@@ -129,9 +71,15 @@ inline bool BasePublisher<T, port_t>::hasSubscribers() const noexcept
 }
 
 template <typename T, typename port_t>
-inline Sample<T> BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept
+const port_t& BasePublisher<T, port_t>::port() const noexcept
 {
-    return Sample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter), *this);
+    return m_port;
+}
+
+template <typename T, typename port_t>
+port_t& BasePublisher<T, port_t>::port() noexcept
+{
+    return m_port;
 }
 
 } // namespace popo

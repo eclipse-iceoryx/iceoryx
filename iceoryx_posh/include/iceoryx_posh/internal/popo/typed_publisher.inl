@@ -32,8 +32,8 @@ template <typename T, typename base_publisher_t>
 template <typename... Args>
 inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loan(Args&&... args) noexcept
 {
-    return std::move(base_publisher_t::loanSample(sizeof(T)).and_then(
-        [&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); }));
+    return std::move(
+        loanSample(sizeof(T)).and_then([&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); }));
 }
 
 template <typename T, typename base_publisher_t>
@@ -47,7 +47,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
     static_assert(cxx::has_signature<Callable, void(T*, ArgTypes...)>::value,
                   "callable provided to TypedPublisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
-    return base_publisher_t::loanSample(sizeof(T)).and_then([&](auto& sample) {
+    return loanSample(sizeof(T)).and_then([&](auto& sample) {
         c(sample.get(), std::forward<ArgTypes>(args)...);
         sample.publish();
     });
@@ -56,10 +56,51 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
 template <typename T, typename base_publisher_t>
 inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publishCopyOf(const T& val) noexcept
 {
-    return base_publisher_t::loanSample(sizeof(T)).and_then([&](auto& sample) {
+    return loanSample(sizeof(T)).and_then([&](auto& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
         sample.publish();
     });
+}
+
+template <typename T, typename base_publisher_t>
+inline cxx::expected<Sample<T>, AllocationError>
+TypedPublisher<T, base_publisher_t>::loanSample(const uint32_t size) noexcept
+{
+    auto result = port().tryAllocateChunk(size);
+    if (result.has_error())
+    {
+        return cxx::error<AllocationError>(result.get_error());
+    }
+    else
+    {
+        return cxx::success<Sample<T>>(convertChunkHeaderToSample(result.value()));
+    }
+}
+
+template <typename T, typename base_publisher_t>
+inline void TypedPublisher<T, base_publisher_t>::publish(Sample<T>&& sample) noexcept
+{
+    auto header = mepoo::ChunkHeader::fromPayload(sample.get());
+    port().sendChunk(header);
+    sample.release(); // Must release ownership of the sample as the publisher port takes it when publishing.
+}
+
+template <typename T, typename base_publisher_t>
+inline cxx::optional<Sample<T>> TypedPublisher<T, base_publisher_t>::loanPreviousSample() noexcept
+{
+    auto result = port().tryGetPreviousChunk();
+    if (result.has_value())
+    {
+        return cxx::make_optional<Sample<T>>(convertChunkHeaderToSample(result.value()));
+    }
+    return cxx::nullopt;
+}
+
+template <typename T, typename base_publisher_t>
+inline Sample<T>
+TypedPublisher<T, base_publisher_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept
+{
+    return Sample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter), *this);
 }
 
 } // namespace popo

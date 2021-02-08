@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/base_publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
+#include "iceoryx_posh/popo/typed_publisher.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 #include "test.hpp"
 
