@@ -42,7 +42,10 @@ bool operator==(const CmdLineArgs_t& lhs, const CmdLineArgs_t& rhs)
 } // namespace config
 } // namespace iox
 
-
+namespace iox
+{
+namespace test
+{
 class CmdLineParser_test : public Test
 {
   public:
@@ -239,7 +242,7 @@ TEST_F(CmdLineParser_test, LogLevelOptionsLeadToCorrectLogLevel)
     char* args[numberOfArgs];
     char appName[] = "./foo";
     char optionArray[][20] = {"-l", "--log-level"};
-    char valueArray[][10] = {"off", "fatal", "error", "warn", "info", "debug", "verbose"};
+    char valueArray[][10] = {"off", "fatal", "error", "warning", "info", "debug", "verbose"};
     args[0] = &appName[0];
 
     for (auto optionValue : optionArray)
@@ -428,4 +431,6 @@ TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
     EXPECT_THAT(result.has_error(), Eq(false));
     EXPECT_THAT(result.value().run, Eq(false));
 }
+} // namespace test
+} // namespace iox
 #endif

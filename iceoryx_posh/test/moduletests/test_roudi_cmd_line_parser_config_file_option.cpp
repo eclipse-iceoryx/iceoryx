@@ -26,7 +26,12 @@ using namespace ::testing;
 using ::testing::Return;
 
 using namespace iox::cxx;
+using namespace iox::config;
 
+namespace iox
+{
+namespace test
+{
 class CmdLineParserConfigFileOption_test : public Test
 {
   public:
@@ -103,4 +108,62 @@ TEST_F(CmdLineParserConfigFileOption_test, HelpLongOptionLeadsProgrammNotRunning
     EXPECT_THAT(result.has_error(), Eq(false));
     EXPECT_THAT(result.value().run, Eq(false));
 }
+
+TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
+{
+    constexpr uint8_t numberOfArgs{2U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    char option[] = "--unknown";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+
+    iox::config::CmdLineParserConfigFileOption sut;
+    auto result = sut.parse(numberOfArgs, args);
+
+    EXPECT_THAT(result.has_error(), Eq(true));
+    EXPECT_THAT(result.get_error(), Eq(CmdLineParserResult::UNKNOWN_OPTION_USED));
+}
+
+TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParserParseReturningNoError)
+{
+    constexpr uint8_t numberOfArgs{3U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    char option[] = "-u";
+    char value[] = "4242";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    iox::config::CmdLineParserConfigFileOption sut;
+    auto result = sut.parse(numberOfArgs, args);
+
+    EXPECT_THAT(result.has_error(), Eq(false));
+    EXPECT_THAT(result.value().uniqueRouDiId.has_value(), Eq(true));
+    EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
+}
+
+TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneReturnNoError)
+{
+    constexpr uint8_t numberOfArgs{3U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    char option[] = "-u";
+    char value[] = "4242";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    iox::config::CmdLineParser sut;
+    auto result = sut.parse(numberOfArgs, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
+
+    EXPECT_THAT(result.has_error(), Eq(false));
+    EXPECT_THAT(result.value().uniqueRouDiId.has_value(), Eq(true));
+    EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
+}
+
+} // namespace test
+} // namespace iox
+
 #endif
