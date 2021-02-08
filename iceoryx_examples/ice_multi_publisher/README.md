@@ -160,7 +160,7 @@ Notice that all identifiers match the ones provided by the two publishers.
 We periodically wake up
 ```cpp
 std::this_thread::sleep_for(std::chrono::seconds(1));
-while (subscriber.hasSamples())
+while (subscriber.hasData())
 ```
 
 When there are new samples we display them on the console.

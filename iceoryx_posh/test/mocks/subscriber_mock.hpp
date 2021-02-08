@@ -75,10 +75,10 @@ class MockBaseSubscriber
     MOCK_METHOD1(subscribe, void(uint64_t));
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
     MOCK_METHOD0(unsubscribe, void());
-    MOCK_CONST_METHOD0(hasSamples, bool());
-    MOCK_METHOD0(hasMissedSamples, bool());
+    MOCK_CONST_METHOD0(hasData, bool());
+    MOCK_METHOD0(hasMissedData, bool());
     MOCK_METHOD0(takeChunk, iox::cxx::expected<const iox::mepoo::ChunkHeader*, iox::popo::ChunkReceiveResult>());
-    MOCK_METHOD0(releaseQueuedSamples, void());
+    MOCK_METHOD0(releaseQueuedData, void());
     MOCK_METHOD1(invalidateTrigger, bool(const uint64_t));
     MOCK_METHOD4(
         enableEvent,

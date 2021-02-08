@@ -64,7 +64,7 @@ int main()
         auto& subscriber = subscriberVector.back();
 
         subscriber.subscribe();
-        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
+        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, subscriberCallback);
     }
 
     // event loop

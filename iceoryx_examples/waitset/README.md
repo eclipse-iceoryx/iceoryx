@@ -7,7 +7,7 @@ one or many of the attached entities signal an event. If that happens one receiv
 a list of _EventInfos_ which is corresponding to all occurred events.
 
 WaitSet events can be state based, this means that the WaitSet will notify you
-till you reset the state. The `HAS_SAMPLES` event of the subscriber for instance
+till you reset the state. The `HAS_DATA` event of the subscriber for instance
 will notify you as long as there are samples. But it is also possible that one
 attaches one shot events. These are events which will trigger the WaitSet only once.
 
@@ -37,7 +37,7 @@ trigger the _TriggerHandle_.
  - **EventOrigin** the pointer to the class where the _Event_ originated from, short
      pointer to the _Triggerable_.
  - **Events** a _Triggerable_ will signal an event via a _TriggerHandle_ to a _Notifyable_.
-     For instance one can attach the subscriber event `HAS_SAMPLES` to _WaitSet_. This will cause the
+     For instance one can attach the subscriber event `HAS_DATA` to _WaitSet_. This will cause the
      subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a sample was received.
  - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
@@ -74,7 +74,7 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 
 | task | call |
 |:-----|:-----|
-|attach subscriber to a WaitSet|`waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, 123, mySubscriberCallback)`|
+|attach subscriber to a WaitSet|`waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 123, mySubscriberCallback)`|
 |attach user trigger to a WaitSet|`waitset.attachEvent(userTrigger, 456, myUserTriggerCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
@@ -146,7 +146,7 @@ waitset.attachEvent(shutdownTrigger);
 ```
 
 After that we create a vector to hold our subscribers, we create, subscribe and then
-attach them to a _WaitSet_ with the `HAS_SAMPLES` event and the `subscriberCallback`.
+attach them to a _WaitSet_ with the `HAS_DATA` event and the `subscriberCallback`.
 Everytime one 
 of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 ```cpp
@@ -157,7 +157,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     auto& subscriber = subscriberVector.back();
 
     subscriber.subscribe();
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, subscriberCallback);
 }
 ```
 
@@ -220,12 +220,12 @@ to the second group.
 ```cpp
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
 {
-    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_SAMPLES, FIRST_GROUP_ID);
+    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, FIRST_GROUP_ID);
 }
 
 for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_SAMPLES, SECOND_GROUP_ID);
+    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, SECOND_GROUP_ID);
 }
 ```
 
@@ -261,7 +261,7 @@ we just dismiss the received data.
     {
         std::cout << "dismiss data\n";
         auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
-        subscriber->releaseQueuedSamples();
+        subscriber->releaseQueuedData();
     }
 ```
 **Important** The second group needs to release all queued samples otherwise
@@ -291,8 +291,8 @@ iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Cou
 subscriber1.subscribe();
 subscriber2.subscribe();
 
-waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_SAMPLES);
-waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_SAMPLES);
+waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_DATA);
+waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_DATA);
 ```
 
 With that set up we enter the event loop and handle the program termination
@@ -323,7 +323,7 @@ corresponding subscriber. If so we act.
         }
         if (event->doesOriginateFrom(&subscriber2))
         {
-            subscriber2.releaseQueuedSamples();
+            subscriber2.releaseQueuedData();
             std::cout << "subscriber 2 received something - dont care\n";
         }
 ```

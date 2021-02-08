@@ -40,14 +40,19 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
-    using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasSamples;
+    using BaseSubscriber::hasMissedData;
+    using BaseSubscriber::hasData;
     using BaseSubscriber::invalidateTrigger;
-    using BaseSubscriber::releaseQueuedSamples;
+    using BaseSubscriber::releaseQueuedData;
     using BaseSubscriber::subscribe;
     using BaseSubscriber::unsubscribe;
 
-    inline cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept;
+    ///
+    /// @brief Take the samples from the top of the receive queue.
+    /// @return Either a sample or a ChunkReceiveResult.
+    /// @details The sample takes care of the cleanup. Don't store the raw pointer to the content of the sample, but always the whole sample.
+    ///
+    cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept;
 
     using PortType = typename BaseSubscriber::PortType;
     using SubscriberSampleDeleter = SampleDeleter<PortType>;

@@ -458,7 +458,7 @@ by using an additional loop.
 ```cpp
 while (keepRunning)
 {
-    while (subscriber.hasSamples())
+    while (subscriber.hasData())
     {
         subscriber->take()
             .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
@@ -474,8 +474,7 @@ while (keepRunning)
 }
 ```
 
-Here we do not check whether we actually have data since we already know there is data available by calling
-``hasSamples``.
+Here we do not check whether we actually have data since we already know there is data available by calling `hasData`.
 
 ### Untyped API
 

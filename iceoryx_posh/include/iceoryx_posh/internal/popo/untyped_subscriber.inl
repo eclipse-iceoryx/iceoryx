@@ -38,24 +38,6 @@ inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base
 }
 
 template <template <typename, typename, typename> class base_subscriber_t>
-bool UntypedSubscriberImpl<base_subscriber_t>::hasChunks() const noexcept
-{
-    return BaseSubscriber::hasSamples();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-bool UntypedSubscriberImpl<base_subscriber_t>::hasMissedChunks() noexcept
-{
-    return BaseSubscriber::hasMissedData();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedChunks() noexcept
-{
-    BaseSubscriber::releaseQueuedSamples();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
 void UntypedSubscriberImpl<base_subscriber_t>::releaseChunk(const void* payload) noexcept
 {
     auto header = mepoo::ChunkHeader::fromPayload(payload);

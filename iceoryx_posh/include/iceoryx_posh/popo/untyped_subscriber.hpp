@@ -48,39 +48,24 @@ class UntypedSubscriberImpl
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;
+    using BaseSubscriber::hasMissedData;
+    using BaseSubscriber::hasData;
     using BaseSubscriber::invalidateTrigger;
+    using BaseSubscriber::releaseQueuedData;
     using BaseSubscriber::subscribe;
     using BaseSubscriber::unsubscribe;
 
     ///
-    /// @brief take Take the chunk from the top of the receive queue.
+    /// @brief Take the chunk from the top of the receive queue.
     /// @return The payload pointer of the chunk taken.
-    /// @details No automatic cleaunp of the associated chunk is performed.
+    /// @details No automatic cleanup of the associated chunk is performed.
     ///
-    cxx::expected<const void*, ChunkReceiveResult> take() noexcept; // iox-#408 rename
+    cxx::expected<const void*, ChunkReceiveResult> take() noexcept;
 
     ///
-    /// @brief hasChunks Check if chunks are available.
-    /// @return True if a new chunk is available.
-    ///
-    bool hasChunks() const noexcept;
-
-    ///
-    /// @brief hasMissedChunks Check if chunks have been missed since the last hasMissedData() call.
-    /// @return True if chunks have been missed.
-    /// @details Chunks may be missed due to overflowing receive queue.
-    ///
-    bool hasMissedChunks() noexcept;
-
-    ///
-    /// @brief releaseQueuedChunks Releases any unread queued data chunk.
-    ///
-    void releaseQueuedChunks() noexcept;
-
-    ///
-    /// @brief releaseChunk Releases the chunk provided by the payload pointer.
+    /// @brief Releases the chunk provided by the payload pointer.
     /// @param payload pointer to the payload of the chunk to be released
-    /// @details The chunk must have been previosly provided by take and
+    /// @details The chunk must have been previously provided by take and
     ///          not have been already released.
     ///
     void releaseChunk(const void* payload) noexcept;

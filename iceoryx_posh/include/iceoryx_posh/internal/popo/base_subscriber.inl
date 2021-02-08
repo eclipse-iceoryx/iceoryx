@@ -71,13 +71,13 @@ inline void BaseSubscriber<T, Subscriber, port_t>::unsubscribe() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline bool BaseSubscriber<T, Subscriber, port_t>::hasSamples() const noexcept
+inline bool BaseSubscriber<T, Subscriber, port_t>::hasData() const noexcept
 {
     return m_port.hasNewChunks();
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline bool BaseSubscriber<T, Subscriber, port_t>::hasMissedSamples() noexcept
+inline bool BaseSubscriber<T, Subscriber, port_t>::hasMissedData() noexcept
 {
     return m_port.hasLostChunksSinceLastCall();
 }
@@ -105,7 +105,7 @@ BaseSubscriber<T, Subscriber, port_t>::takeChunk() noexcept
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedData() noexcept
 {
     m_port.releaseQueuedChunks();
 }
@@ -138,7 +138,7 @@ BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& wai
 
     return waitset
         .acquireTriggerHandle(
-            self, {*this, &SelfType::hasSamples}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
+            self, {*this, &SelfType::hasData}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
         .and_then([this](TriggerHandle& trigger) {
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());

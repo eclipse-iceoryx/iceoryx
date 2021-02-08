@@ -32,11 +32,11 @@ using uid_t = UniquePortId;
 
 enum class SubscriberEvent
 {
-    HAS_SAMPLES
+    HAS_DATA
 };
 
 /// @brief base class for all types of subscriber
-/// @param[in] T the sample type
+/// @param[in] T the sample data type
 /// @param[in] Subscriber type of the child which is inheriting from BaseSubscriber. This type is required for the
 /// TriggerCallback since a trigger provides a pointer to the originating class as parameter for the callback. If we
 /// wouldn't have the type the user would have to cast it correctly via dynamic_cast or reinterpret_cast which can be
@@ -85,17 +85,17 @@ class BaseSubscriber
     void unsubscribe() noexcept;
 
     ///
-    /// @brief hasData Check if sample is available.
-    /// @return True if a new sample is available.
+    /// @brief Check if samples are available.
+    /// @return True if new samples are available.
     ///
-    bool hasSamples() const noexcept;
+    bool hasData() const noexcept;
 
     ///
-    /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
+    /// @brief Check if samples have been missed since the last call of this method.
     /// @return True if samples have been missed.
     /// @details Samples may be missed due to overflowing receive queue.
     ///
-    bool hasMissedSamples() noexcept;
+    bool hasMissedData() noexcept;
 
     ///
     /// @brief takeChunk Take the chunk from the top of the receive queue.
@@ -105,9 +105,9 @@ class BaseSubscriber
     cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
 
     ///
-    /// @brief releaseQueuedSamples Releases any unread queued samples.
+    /// @brief Releases any unread queued data.
     ///
-    void releaseQueuedSamples() noexcept;
+    void releaseQueuedData() noexcept;
 
     ///
     /// @brief releaseChunk Releases the chunk associated with the header pointer.

@@ -97,9 +97,9 @@ TEST_F(UntypedSubscriberTest, UnsubscribesViaBaseSubscriber)
 TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasSamples).Times(1);
+    EXPECT_CALL(sut, hasData).Times(1);
     // ===== Test ===== //
-    sut.hasSamples();
+    sut.hasData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -107,9 +107,9 @@ TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasMissedSamples).Times(1);
+    EXPECT_CALL(sut, hasMissedData).Times(1);
     // ===== Test ===== //
-    sut.hasMissedSamples();
+    sut.hasMissedData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -125,12 +125,12 @@ TEST_F(UntypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
+TEST_F(UntypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, releaseQueuedSamples).Times(1);
+    EXPECT_CALL(sut, releaseQueuedData).Times(1);
     // ===== Test ===== //
-    sut.releaseQueuedSamples();
+    sut.releaseQueuedData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
