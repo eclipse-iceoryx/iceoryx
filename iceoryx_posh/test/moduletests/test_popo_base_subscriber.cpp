@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,16 +42,9 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
 
     using SubscriberParent::disableEvent;
     using SubscriberParent::enableEvent;
-    using SubscriberParent::getServiceDescription;
-    using SubscriberParent::getSubscriptionState;
-    using SubscriberParent::getUid;
-    using SubscriberParent::hasMissedData;
-    using SubscriberParent::hasData;
     using SubscriberParent::invalidateTrigger;
-    using SubscriberParent::releaseQueuedData;
-    using SubscriberParent::subscribe;
     using SubscriberParent::takeChunk;
-    using SubscriberParent::unsubscribe;
+
     port_t& getMockedPort()
     {
         return SubscriberParent::m_port;

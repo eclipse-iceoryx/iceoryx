@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,14 +46,7 @@ enum class SubscriberEvent
 template <typename T, typename Subscriber, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
-  protected:
-    using SelfType = BaseSubscriber<T, Subscriber, port_t>;
-    using PortType = port_t;
-
-    BaseSubscriber(const BaseSubscriber& other) = delete;
-    BaseSubscriber& operator=(const BaseSubscriber&) = delete;
-    BaseSubscriber(BaseSubscriber&& rhs) = delete;
-    BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
+  public:
     virtual ~BaseSubscriber();
 
     ///
@@ -106,8 +100,16 @@ class BaseSubscriber
     friend class WaitSet;
 
   protected:
+    using SelfType = BaseSubscriber<T, Subscriber, port_t>;
+    using PortType = port_t;
+
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions) noexcept;
+
+    BaseSubscriber(const BaseSubscriber& other) = delete;
+    BaseSubscriber& operator=(const BaseSubscriber&) = delete;
+    BaseSubscriber(BaseSubscriber&& rhs) = delete;
+    BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
 
     /// @brief small helper method to unwrap the `expected<optional<ChunkHeader*>>` from the `tryGetChunk` method of the
     /// port

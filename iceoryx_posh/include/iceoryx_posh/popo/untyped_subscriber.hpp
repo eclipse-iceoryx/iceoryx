@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,16 +45,6 @@ class UntypedSubscriberImpl
     UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
     virtual ~UntypedSubscriberImpl() = default;
-
-    using BaseSubscriber::getServiceDescription;
-    using BaseSubscriber::getSubscriptionState;
-    using BaseSubscriber::getUid;
-    using BaseSubscriber::hasMissedData;
-    using BaseSubscriber::hasData;
-    using BaseSubscriber::invalidateTrigger;
-    using BaseSubscriber::releaseQueuedData;
-    using BaseSubscriber::subscribe;
-    using BaseSubscriber::unsubscribe;
 
     ///
     /// @brief Take the chunk from the top of the receive queue.

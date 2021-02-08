@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,20 +38,11 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
     virtual ~TypedSubscriber() = default;
 
-    using BaseSubscriber::getServiceDescription;
-    using BaseSubscriber::getSubscriptionState;
-    using BaseSubscriber::getUid;
-    using BaseSubscriber::hasMissedData;
-    using BaseSubscriber::hasData;
-    using BaseSubscriber::invalidateTrigger;
-    using BaseSubscriber::releaseQueuedData;
-    using BaseSubscriber::subscribe;
-    using BaseSubscriber::unsubscribe;
-
     ///
     /// @brief Take the samples from the top of the receive queue.
     /// @return Either a sample or a ChunkReceiveResult.
-    /// @details The sample takes care of the cleanup. Don't store the raw pointer to the content of the sample, but always the whole sample.
+    /// @details The sample takes care of the cleanup. Don't store the raw pointer to the content of the sample, but
+    /// always the whole sample.
     ///
     cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept;
 
