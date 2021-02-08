@@ -146,21 +146,18 @@ TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParse
 
 TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneReturnNoError)
 {
-    constexpr uint8_t numberOfArgs{3U};
+    constexpr uint8_t numberOfArgs{2U};
     char* args[numberOfArgs];
     char appName[] = "./foo";
-    char option[] = "-u";
-    char value[] = "4242";
+    char option[] = "--help";
     args[0] = &appName[0];
     args[1] = &option[0];
-    args[2] = &value[0];
 
-    iox::config::CmdLineParser sut;
+    iox::config::CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
     EXPECT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result.value().uniqueRouDiId.has_value(), Eq(true));
-    EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
+    EXPECT_THAT(result.value().run, Eq(false));
 }
 
 } // namespace test
