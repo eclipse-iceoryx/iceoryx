@@ -91,7 +91,7 @@ TEST_F(PoshRuntimeNode_test, SelfMoveAssignmentIsExcluded)
 
 TEST_F(PoshRuntimeNode_test, VerifyMoveConstructorAssignsCorrectNodeName)
 {
-    const NodeName_t& nodeNewName{"Node"};
+    const NodeName_t nodeNewName{"Node"};
 
     Node node(nodeNewName);
 

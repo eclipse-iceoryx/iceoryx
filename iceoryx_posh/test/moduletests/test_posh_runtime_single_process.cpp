@@ -61,7 +61,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
 {
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
 
-    const ProcessName_t& m_runtimeName{"App"};
+    const ProcessName_t m_runtimeName{"App"};
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
