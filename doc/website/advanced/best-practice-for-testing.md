@@ -1,12 +1,12 @@
 # Best practice for testing
 
-This is a guide on how to write tests for iceoryx. It intends to cover the most common cases which will probably apply to 99% of the tests.
+This is a guide on how to write tests for iceoryx. It intends to cover the most common cases which will probably apply to 99% of tests.
 This shall not encourage to be more royalist than the king and common sense shall be applied when the guidelines don't make sense.
 But if half of the tests don't follow the guidelines, it's a clear indicator that they need to be refactored.
 
 The guide also expects some knowledge on `gtest`. At least the [Googletest Primer](https://github.com/google/googletest/blob/master/docs/primer.md) document should be read before continuing with this guide.
 
-Don't write test just for the sake of having a high coverage number.
+Don't write tests just for the sake of having a high coverage number.
 First and foremost, tests must be meaningful and **verify the code** to prevent bugs and regressions.
 New code shall be created with testability in mind. Legacy code shall be refactored if it is not testable.
 
@@ -27,7 +27,7 @@ S = Simple Scenarios, Simple Solutions
 ```
 
 This can be separated into **ZOM** and **BIE** with **S** bridging them together.
-**ZOM** are often simple test, like _a vector with zero items is empty_ or _a vector with one item is not empty_ or _a vector with N items has a size of N_.
+**ZOM** are often simple tests, like _a vector with zero items is empty_ or _a vector with one item is not empty_ or _a vector with N items has a size of N_.
 The **BIE** part takes care of edge cases like _adding one to Number::max saturates_ or _division by zero returns error_.
 The latter overlaps with a case from the **ZOM** part, which illustrates that these are not always clearly separated.
 
@@ -54,7 +54,7 @@ The catchwords can be used to draw simple scenarios which nicely fits to the AAA
 - etc.
 
 Following [Hyrum's Law](https://www.hyrumslaw.com/) loosely, given enough users, one will find ways to use the software in a way it was never imagined.
-Therefore never underestimate the creativity of brilliancy/stupidity.
+Therefore, never underestimate the creativity of brilliancy/stupidity.
 
 In some cases it might be necessary to instantiate an object on the heap. While that's not allowed in production code, it is fine in test code.
 To avoid manual memory management with new/delete, smart pointer shall be used if possible.
@@ -171,7 +171,7 @@ TEST_F(SingleDigitNumber_test, DefaultConstructedObjectIsCorrectlyInitialized)
 ```
 
 The test also has a meaningful name. If this fails in the CI, it is immediately clear what is broken.
-Additionally, the tested object is called `sut`. This makes it easy to identify the actual test object.
+Additionally, the tested object is called `sut` (system under test). This makes it easy to identify the actual test object.
 Lastly, a `constexpr` is used for the expected value. This removes a magic value and also makes the output of a failed test more readable, since it is immediately clear what's the actual tested value and what's the expected value.
 
 Now let's continue with further tests, applying the ZOMBIES principle
@@ -246,12 +246,13 @@ TODO:
 
 # Conclusion
 
-- apply the AAA pattern to structure the test and check only one aspect of the code at a time
+- apply the AAA pattern to structure the test and check only one aspect of the code per test case
+- don't test previously tested behavior
 - use the ZOMBIES principle to find sensible test cases
 - meaningful names for the tests to indicate what the test is supposed to do
 - name the test object `sut` to make it clear what object is tested
 - don't use magic numbers
-- instantiate objects on the stack or use smart pointer for large objects and avoid manual memory management with new/delete
+- instantiate objects on the stack or use smart pointers for large objects and avoid manual memory management with new/delete
 - use `ASSERT_*` before doing a potential dangerous action which might crash the test application, like accessing a `nullptr` or a `cxx::optional` with a `nullopt`
 - use mocks to reduce the complexity of the test arrangement
 - apply the **DRY** principle by using typed and parameterized tests
