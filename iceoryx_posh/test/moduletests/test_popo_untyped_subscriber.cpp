@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
+TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, takeChunk)
@@ -130,6 +130,7 @@ TEST_F(UntypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
     auto maybeChunk = sut.take();
     // ===== Verify ===== //
     ASSERT_FALSE(maybeChunk.has_error());
+    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->payload());
     // ===== Cleanup ===== //
     sut.releaseChunk(maybeChunk.value());
 }

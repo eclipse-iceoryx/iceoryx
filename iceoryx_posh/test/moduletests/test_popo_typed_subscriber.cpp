@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ TEST_F(TypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, takeChunk)
@@ -129,7 +129,24 @@ TEST_F(TypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
     // ===== Test ===== //
     auto maybeSample = sut.take();
     // ===== Verify ===== //
-    EXPECT_FALSE(maybeSample.has_error());
+    ASSERT_FALSE(maybeSample.has_error());
+    EXPECT_EQ(maybeSample.value().get(), chunkMock.chunkHeader()->payload());
+    // ===== Cleanup ===== //
+}
+
+TEST_F(TypedSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, takeChunk)
+    .Times(1)
+    .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+        const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
+    EXPECT_CALL(sut.port(), releaseChunk).Times(AtLeast(1));
+    // ===== Test ===== //
+    {
+        sut.take();
+    }
+    // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
 
