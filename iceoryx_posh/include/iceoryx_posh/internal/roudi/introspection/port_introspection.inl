@@ -484,20 +484,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(Connect
     {
         if (messageType == capro::CaproMessageType::SUB)
         {
-            nextState = ConnectionState::SUB_REQUESTED;
-        }
-        break;
-    }
-
-    case ConnectionState::SUB_REQUESTED:
-    {
-        if (messageType == capro::CaproMessageType::ACK)
-        {
             nextState = ConnectionState::CONNECTED;
-        }
-        else if (messageType == capro::CaproMessageType::NACK)
-        {
-            nextState = ConnectionState::DEFAULT;
         }
         break;
     }
