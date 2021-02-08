@@ -80,7 +80,16 @@ class BasePublisher
     BasePublisher() = default; // Required for testing.
     BasePublisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions);
 
+    ///
+    /// @brief port
+    /// @return const accessor of the underlying port
+    ///
     const port_t& port() const noexcept;
+
+    ///
+    /// @brief port
+    /// @return accessor of the underlying port
+    ///
     port_t& port() noexcept;
 
     port_t m_port{nullptr};

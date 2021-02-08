@@ -38,8 +38,6 @@ class UntypedPublisherImpl : public base_publisher_t
     using base_publisher_t::getUid;
     using base_publisher_t::hasSubscribers;
     using base_publisher_t::isOffered;
-    // using base_publisher_t::loan;
-    // using base_publisher_t::loanPreviousChunk;
     using base_publisher_t::offer;
     using base_publisher_t::stopOffer;
 
