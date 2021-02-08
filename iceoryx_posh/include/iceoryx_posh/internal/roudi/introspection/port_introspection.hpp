@@ -180,10 +180,21 @@ class PortIntrospection
 
         void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic) noexcept;
 
-        /// @brief compute the next connection state based on the current connection state and a capro message type
+        /// @brief compute the next connection state based on the communication policy, the current connection state and
+        /// a capro message type
         /// @param[in] currentState current connection state (e.g. CONNECTED)
         /// @param[in] messageType capro message type
         /// @return returns the new connection state
+        template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+        PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
+                                                        capro::CaproMessageType messageType) noexcept;
+
+        /// @brief compute the next connection state based on the communication policy, the current connection state and
+        /// a capro message type
+        /// @param[in] currentState current connection state (e.g. CONNECTED)
+        /// @param[in] messageType capro message type
+        /// @return returns the new connection state
+        template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
         PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
                                                         capro::CaproMessageType messageType) noexcept;
 

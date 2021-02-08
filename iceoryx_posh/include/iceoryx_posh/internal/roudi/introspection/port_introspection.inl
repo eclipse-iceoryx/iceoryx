@@ -182,7 +182,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateCo
     for (auto& pair : innerConnectionMap)
     {
         auto& connection = m_connectionContainer[pair.second];
-        connection.state = getNextState(connection.state, messageType);
+        connection.state = getNextState<iox::build::CommunicationPolicy>(connection.state, messageType);
     }
 
     setNew(true);
@@ -213,7 +213,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateSu
     }
 
     auto& connection = m_connectionContainer[iterInnerMap->second];
-    connection.state = getNextState(connection.state, messageType);
+    connection.state = getNextState<iox::build::CommunicationPolicy>(connection.state, messageType);
 
     setNew(true);
     return true;
@@ -410,6 +410,64 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSu
 }
 
 template <typename PublisherPort, typename SubscriberPort>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+inline typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
+                                                                         capro::CaproMessageType messageType) noexcept
+{
+    ConnectionState nextState = currentState; // stay in currentState as default transition
+
+    // publisher and subscriber can only send a subset of messages (e.g. no
+    // sub request from publisher), so it is not required to check whether
+    // publisher or subscriber has sent the message...
+
+    switch (currentState)
+    {
+    case ConnectionState::DEFAULT:
+    {
+        if (messageType == capro::CaproMessageType::SUB)
+        {
+            nextState = ConnectionState::SUB_REQUESTED;
+        }
+        break;
+    }
+
+    case ConnectionState::SUB_REQUESTED:
+    {
+        if (messageType == capro::CaproMessageType::ACK)
+        {
+            nextState = ConnectionState::CONNECTED;
+        }
+        else if (messageType == capro::CaproMessageType::NACK)
+        {
+            nextState = ConnectionState::DEFAULT;
+        }
+        break;
+    }
+
+    case ConnectionState::CONNECTED:
+    {
+        if (messageType == capro::CaproMessageType::STOP_OFFER)
+        {
+            nextState = ConnectionState::DEFAULT;
+        }
+        else if (messageType == capro::CaproMessageType::UNSUB)
+        {
+            nextState = ConnectionState::DEFAULT;
+        }
+        break;
+    }
+
+    default:
+    { // stay in current state
+    }
+    };
+
+    return nextState;
+}
+
+template <typename PublisherPort, typename SubscriberPort>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
 inline typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
 PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
                                                                          capro::CaproMessageType messageType) noexcept
