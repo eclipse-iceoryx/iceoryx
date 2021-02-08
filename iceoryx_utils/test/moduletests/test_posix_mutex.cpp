@@ -77,23 +77,8 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
 
     EXPECT_DEATH(
         {
-            std::thread* t;
-            {
-                iox::posix::mutex mtx{false};
-                constexpr iox::units::Duration mutexTimerDuration = 1000_ms;
-                constexpr iox::units::Duration threadTimerDuration = 5000_ms;
-                iox::cxx::DeadlineTimer mutexTimer(mutexTimerDuration);
-
-                t = new std::thread([&] {
-                    mtx.lock();
-                    iox::cxx::DeadlineTimer ct(threadTimerDuration);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(2 * threadTimerDuration.milliSeconds()));
-                });
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(2 * mutexTimerDuration.milliSeconds()));
-            }
-            t->join();
-            delete t;
+            iox::posix::mutex mtx{false};
+            mtx.lock();
         },
         ".*");
 
