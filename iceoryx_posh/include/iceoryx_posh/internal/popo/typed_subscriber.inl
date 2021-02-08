@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,15 +20,15 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::ServiceDescription& service,
-                                                              const SubscriberOptions& subscriberOptions)
+template <typename T, template <typename, typename, typename> class base_subscriber_t, typename port_t>
+inline TypedSubscriber<T, base_subscriber_t, port_t>::TypedSubscriber(const capro::ServiceDescription& service,
+                                                                      const SubscriberOptions& subscriberOptions)
     : BaseSubscriber(service, subscriberOptions)
 {
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline cxx::expected<Sample<const T>, ChunkReceiveResult> TypedSubscriber<T, base_subscriber_t>::take() noexcept
+template <typename T, template <typename, typename, typename> class base_subscriber_t, typename port_t>
+inline cxx::expected<Sample<const T>, ChunkReceiveResult> TypedSubscriber<T, base_subscriber_t, port_t>::take() noexcept
 {
     auto result = BaseSubscriber::takeChunk();
     if (result.has_error())

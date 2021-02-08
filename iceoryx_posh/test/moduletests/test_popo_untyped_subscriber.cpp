@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +14,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
@@ -20,7 +22,12 @@
 using namespace ::testing;
 using ::testing::_;
 
-using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber>;
+struct DummyData
+{
+    uint64_t val = 42;
+};
+
+using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber, MockSubscriberPortUser>;
 
 class UntypedSubscriberTest : public Test
 {
@@ -38,11 +45,9 @@ class UntypedSubscriberTest : public Test
     }
 
   protected:
+    ChunkMock<DummyData> chunkMock;
     TestUntypedSubscriber sut{{"", "", ""}};
 };
-
-#if 0
-//iox-#408 rewrite and reactivate after API adaptation
 
 TEST_F(UntypedSubscriberTest, GetsUIDViaBaseSubscriber)
 {
@@ -117,12 +122,16 @@ TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 TEST_F(UntypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, take).Times(1).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const void>>>())));
+    EXPECT_CALL(sut, takeChunk)
+        .Times(1)
+        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
-    sut.take();
+    auto maybeChunk = sut.take();
     // ===== Verify ===== //
+    ASSERT_FALSE(maybeChunk.has_error());
     // ===== Cleanup ===== //
+    sut.releaseChunk(maybeChunk.value());
 }
 
 TEST_F(UntypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
@@ -134,5 +143,3 @@ TEST_F(UntypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-
-#endif

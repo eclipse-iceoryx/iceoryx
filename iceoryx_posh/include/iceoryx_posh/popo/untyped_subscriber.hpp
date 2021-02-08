@@ -30,13 +30,12 @@ class Void
 {
 };
 
-template <template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
-class UntypedSubscriberImpl
-    : public base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>
+template <template <typename, typename, typename> class base_subscriber_t = BaseSubscriber,
+          typename port_t = iox::SubscriberPortUserType>
+class UntypedSubscriberImpl : public base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, port_t>
 {
   public:
-    using BaseSubscriber =
-        base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>;
+    using BaseSubscriber = base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, port_t>;
 
     UntypedSubscriberImpl(const capro::ServiceDescription& service,
                           const SubscriberOptions& subscriberOptions = SubscriberOptions());

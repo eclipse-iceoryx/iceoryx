@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,6 +38,7 @@ class MockSubscriberPortUser
     MockSubscriberPortUser(std::nullptr_t)
     {
     }
+
     MockSubscriberPortUser(iox::popo::SubscriberPortData*){};
     iox::capro::ServiceDescription getCaProServiceDescription() const noexcept
     {
@@ -66,7 +68,7 @@ class MockSubscriberPortUser
     MOCK_METHOD1(disableEvent, void(const iox::popo::SubscriberEvent));
 };
 
-template <typename T, typename Child, typename Port>
+template <typename T, typename Child, typename Port = MockSubscriberPortUser>
 class MockBaseSubscriber
 {
   public:
@@ -90,19 +92,18 @@ class MockBaseSubscriber
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
     MOCK_METHOD1(disableEvent, void(const iox::popo::SubscriberEvent));
-    MOCK_METHOD1(releaseChunk, void(const void*));
 
-    const MockSubscriberPortUser& port() const noexcept
+    const Port& port() const noexcept
     {
         return m_port;
     }
 
-    MockSubscriberPortUser& port() noexcept
+    Port& port() noexcept
     {
         return m_port;
     }
 
-    MockSubscriberPortUser m_port;
+    Port m_port;
 };
 
 #endif // IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP

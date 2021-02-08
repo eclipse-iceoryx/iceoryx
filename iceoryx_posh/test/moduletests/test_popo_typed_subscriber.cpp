@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020-2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +14,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
@@ -25,7 +27,7 @@ struct DummyData
     uint64_t val = 42;
 };
 
-using TestTypedSubscriber = iox::popo::TypedSubscriber<DummyData, MockBaseSubscriber>;
+using TestTypedSubscriber = iox::popo::TypedSubscriber<DummyData, MockBaseSubscriber, MockSubscriberPortUser>;
 
 class TypedSubscriberTest : public Test
 {
@@ -43,11 +45,9 @@ class TypedSubscriberTest : public Test
     }
 
   protected:
+    ChunkMock<DummyData> chunkMock;
     TestTypedSubscriber sut{{"", "", ""}, iox::popo::SubscriberOptions()};
 };
-
-#if 0
-//iox-#408 rewrite and reactivate after API adaptation
 
 TEST_F(TypedSubscriberTest, GetsUIDViaBaseSubscriber)
 {
@@ -122,11 +122,14 @@ TEST_F(TypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 TEST_F(TypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, take).Times(1).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const DummyData>>>())));
+    EXPECT_CALL(sut, takeChunk)
+        .Times(1)
+        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
-    sut.take();
+    auto maybeSample = sut.take();
     // ===== Verify ===== //
+    EXPECT_FALSE(maybeSample.has_error());
     // ===== Cleanup ===== //
 }
 
@@ -139,5 +142,3 @@ TEST_F(TypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-
-#endif
