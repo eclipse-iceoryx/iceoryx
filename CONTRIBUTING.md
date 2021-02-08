@@ -230,15 +230,15 @@ Each source file needs to have this header:
     // See the License for the specific language governing permissions and
     // limitations under the License.
     //
-    // SPDX-License-Identifier: Apache License 2.0
+    // SPDX-License-Identifier: Apache-2.0
 ```
-Note: `DATE` is either a year or a range of years with the first and last years of the range separated by a dash. So for example: "2004" (initial and last contribution in the same year) or "2000 - 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified. The year of the last contribution needs to be updated the content was modified in a new year. An option is to add a year by a comma for the case that a contributor did not modify in one year.
+Note: The date is either a year or a range of years with the first and last years of the range separated by a dash. For example: "2004" (initial and last contribution in the same year) or "2000 - 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified. The years of contribution should be ordered in chronological order, thus the last date in the list should be the year of the most recent contribution. If there is a gap between contributions of one or more calendar years, use a comma to separate the disconnected contribution periods (e.g. "2000 - 2004, 2006").
 
 Example:
 
 ```cpp
-    // Copyright (c) 2019 - 2020, 2022 by Contributor1. All rights reserved.
-    // Copyright (c) 2020 - 2022 by Contributor2. All rights reserved.
+    // Copyright (c) 2019 - 2020, 2022 by Acme Corporation. All rights reserved.
+    // Copyright (c) 2020 - 2022 by John Doe. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -252,9 +252,9 @@ Example:
     // See the License for the specific language governing permissions and
     // limitations under the License.
     //
-    // SPDX-License-Identifier: Apache License 2.0
+    // SPDX-License-Identifier: Apache-2.0
 ```
-**_NOTE:_**  For scripts or CMake files you can use `#` instead of `//` for the header.
+**_NOTE:_**  For scripts or CMake files you can use the respective comment syntax like `#` for the header.
 ## Quality levels
 
 CMake targets can be developed according to different quality levels. Despite developing some of our targets according
