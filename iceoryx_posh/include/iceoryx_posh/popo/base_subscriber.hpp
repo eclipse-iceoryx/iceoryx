@@ -98,23 +98,9 @@ class BaseSubscriber
     bool hasMissedData() noexcept;
 
     ///
-    /// @brief takeChunk Take the chunk from the top of the receive queue.
-    /// @return The header of the chunk taken.
-    /// @details No automatic cleaunp of the associated chunk is performed.
-    ///
-    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
-
-    ///
     /// @brief Releases any unread queued data.
     ///
     void releaseQueuedData() noexcept;
-
-    ///
-    /// @brief releaseChunk Releases the chunk associated with the header pointer.
-    /// @details The chunk must have been previosly provided by takeChunk and
-    ///          not have been already released.
-    ///
-    void releaseChunk(const mepoo::ChunkHeader* header) noexcept;
 
     template <uint64_t Capacity>
     friend class WaitSet;
@@ -122,6 +108,10 @@ class BaseSubscriber
   protected:
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions) noexcept;
+
+    /// @brief small helper method to unwrap the `expected<optional<ChunkHeader*>>` from the `tryGetChunk` method of the
+    /// port
+    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
 
     void invalidateTrigger(const uint64_t trigger) noexcept;
 
@@ -155,6 +145,17 @@ class BaseSubscriber
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached
     void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
+
+
+    ///
+    /// @brief const accessor of the underlying port
+    ///
+    const port_t& port() const noexcept;
+
+    ///
+    /// @brief accessor of the underlying port
+    ///
+    port_t& port() noexcept;
 
   protected:
     port_t m_port{nullptr};

@@ -69,6 +69,9 @@ class UntypedSubscriberImpl
     ///          not have been already released.
     ///
     void releaseChunk(const void* payload) noexcept;
+
+  protected:
+    using BaseSubscriber::port;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;

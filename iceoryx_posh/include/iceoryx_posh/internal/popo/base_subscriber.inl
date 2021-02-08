@@ -121,12 +121,6 @@ inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint6
 }
 
 template <typename T, typename Subscriber, typename port_t>
-void BaseSubscriber<T, Subscriber, port_t>::releaseChunk(const mepoo::ChunkHeader* header) noexcept
-{
-    m_port.releaseChunk(header);
-}
-
-template <typename T, typename Subscriber, typename port_t>
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
 BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
@@ -162,6 +156,18 @@ inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const Subscriber
 
     m_trigger.reset();
     m_port.unsetConditionVariable();
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline const port_t& BaseSubscriber<T, Subscriber, port_t>::port() const noexcept
+{
+    return m_port;
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline port_t& BaseSubscriber<T, Subscriber, port_t>::port() noexcept
+{
+    return m_port;
 }
 
 

@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
+#define IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
+
 #include "iceoryx_posh/popo/base_publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/popo/typed_publisher.hpp"
@@ -106,3 +109,5 @@ class MockBasePublisher
 
     MockPublisherPortUser m_port;
 };
+
+#endif // IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP

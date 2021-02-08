@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP
+#define IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP
+
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/base_subscriber.hpp"
@@ -88,4 +91,18 @@ class MockBaseSubscriber
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
     MOCK_METHOD1(disableEvent, void(const iox::popo::SubscriberEvent));
     MOCK_METHOD1(releaseChunk, void(const void*));
+
+    const MockSubscriberPortUser& port() const noexcept
+    {
+        return m_port;
+    }
+
+    MockSubscriberPortUser& port() noexcept
+    {
+        return m_port;
+    }
+
+    MockSubscriberPortUser m_port;
 };
+
+#endif // IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP
