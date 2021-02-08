@@ -656,3 +656,4 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirst
 }
 
 /// END SERVICEDESCRIPTION TESTS
+
