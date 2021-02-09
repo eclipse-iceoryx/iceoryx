@@ -140,9 +140,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     static bool isNameValid(const UdsName_t& name) noexcept;
 
-    /// @brief Tries to close the given filedescriptor
-    /// @return SmartC object
-    iox::cxx::SmartC<int(int), int, int> closeFd(int32_t fileDescriptor);
+    /// @brief Tries to close the given file descriptor
+    /// @return IpcChannelError if error occured
+    cxx::expected<IpcChannelError> closeFd(int32_t fileDescriptor);
 
   private:
     UdsName_t m_name;

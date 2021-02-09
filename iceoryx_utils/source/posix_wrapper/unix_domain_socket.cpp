@@ -114,7 +114,11 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 {
     if (this != &other)
     {
-        destroy();
+        if (destroy().has_error())
+        {
+            std::cerr << "Unable to cleanup unix domain socket \"" << m_name
+                      << "\" in the move constructor/move assingment operator" << std::endl;
+        }
         m_name = std::move(other.m_name);
         m_channelSide = std::move(other.m_channelSide);
         m_sockfd = std::move(other.m_sockfd);
@@ -159,34 +163,34 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
     }
 }
 
-iox::cxx::SmartC<int(int), int, int> UnixDomainSocket::closeFd(int32_t fileDescriptor)
+cxx::expected<IpcChannelError> UnixDomainSocket::closeFd(int32_t fileDescriptor)
 {
-    return cxx::makeSmartC(
+    auto closeCall = cxx::makeSmartC(
         closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, fileDescriptor);
+
+    if (!closeCall.hasErrors())
+    {
+        if (IpcChannelSide::SERVER == m_channelSide)
+        {
+            unlink(m_sockAddr.sun_path);
+        }
+
+        m_sockfd = INVALID_FD;
+        m_isInitialized = false;
+
+        return cxx::success<void>();
+    }
+    else
+    {
+        return createErrorFromErrnum(closeCall.getErrNum());
+    }
 }
 
 cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
 {
     if (m_isInitialized)
     {
-        auto closeCall = closeFd(m_sockfd);
-
-        if (!closeCall.hasErrors())
-        {
-            if (IpcChannelSide::SERVER == m_channelSide)
-            {
-                unlink(m_sockAddr.sun_path);
-            }
-
-            m_sockfd = INVALID_FD;
-            m_isInitialized = false;
-
-            return cxx::success<void>();
-        }
-        else
-        {
-            return createErrorFromErrnum(closeCall.getErrNum());
-        }
+        return closeFd(m_sockfd);
     }
 
     return cxx::success<void>();
@@ -379,7 +383,11 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
         }
         else
         {
-            closeFd(sockfd);
+            auto closeCall = closeFd(sockfd);
+            if (closeCall.has_error())
+            {
+                return cxx::error<IpcChannelError>(closeCall.get_error());
+            }
             return createErrorFromErrnum(bindCall.getErrNum());
         }
     }
@@ -397,12 +405,20 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
 
         if (connectCall.hasErrors())
         {
-            closeFd(sockfd);
+            auto closeCall = closeFd(sockfd);
+            if (closeCall.has_error())
+            {
+                return cxx::error<IpcChannelError>(closeCall.get_error());
+            }
             return createErrorFromErrnum(connectCall.getErrNum());
         }
         else if (connectCall.getErrNum() == ENOENT)
         {
-            closeFd(sockfd);
+            auto closeCall = closeFd(sockfd);
+            if (closeCall.has_error())
+            {
+                return cxx::error<IpcChannelError>(closeCall.get_error());
+            }
             return createErrorFromErrnum(connectCall.getErrNum());
         }
         else
