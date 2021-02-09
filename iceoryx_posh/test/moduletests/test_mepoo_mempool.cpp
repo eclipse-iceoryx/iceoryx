@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
@@ -21,8 +23,8 @@ using namespace ::testing;
 class alignas(32) MemPool_test : public Test
 {
   public:
-    static constexpr uint32_t NumberOfChunks{100};
-    static constexpr uint32_t ChunkSize{64};
+    static constexpr uint32_t NumberOfChunks{100U};
+    static constexpr uint32_t ChunkSize{64U};
 
     static constexpr uint32_t LoFFLiMemoryRequirement{
         iox::mepoo::MemPool::freeList_t::requiredMemorySize(NumberOfChunks) + 10000};
@@ -42,8 +44,48 @@ class alignas(32) MemPool_test : public Test
     iox::mepoo::MemPool sut;
 };
 
-TEST_F(MemPool_test, CTor)
+TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
 {
+    char memory[8192];
+    iox::posix::Allocator allocator1{memory, 8192U};
+
+    iox::mepoo::MemPool sut1(ChunkSize, NumberOfChunks, &allocator1, &allocator1);
+
+    EXPECT_THAT(sut1.getChunkSize(), Eq(64U));
+    EXPECT_THAT(sut1.getChunkCount(), Eq(100U));
+    EXPECT_THAT(sut1.getMinFree(), Eq(100U));
+}
+
+TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnError)
+{
+    char memory[8192U];
+    iox::posix::Allocator allocator1{memory, 100U};
+    uint32_t NotAlignedChunkSize = 33U;
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+        });
+
+    iox::mepoo::MemPool sut1(NotAlignedChunkSize, NumberOfChunks, &allocator1, &allocator1);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(
+        detectedError.value(),
+        Eq(iox::Error::
+               kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_THAN_SHARED_MEMORY_ALIGNMENT_AND_MULTIPLE_OF_ALIGNMENT));
+}
+
+TEST_F(MemPool_test, GetChunkMethodWhenAllTheChunksAreUsedReturnsNullPointer)
+{
+    for (uint8_t i = 0; i < NumberOfChunks; i++)
+    {
+        sut.getChunk();
+    }
+
+    EXPECT_THAT(sut.getChunk(), Eq(nullptr));
 }
 
 TEST_F(MemPool_test, WriteChunks)
@@ -57,7 +99,6 @@ TEST_F(MemPool_test, WriteChunks)
     EXPECT_THAT(*chunk, Eq(123));
     EXPECT_THAT(*chunk2, Eq(45));
 }
-
 
 TEST_F(MemPool_test, WriteAllChunks)
 {
@@ -76,27 +117,17 @@ TEST_F(MemPool_test, WriteAllChunks)
     }
 }
 
-TEST_F(MemPool_test, GetChunkWhenFull)
-{
-    for (uint8_t i = 0; i < NumberOfChunks; i++)
-    {
-        sut.getChunk();
-    }
-
-    EXPECT_THAT(sut.getChunk(), Eq(nullptr));
-}
-
-TEST_F(MemPool_test, getChunkSize)
+TEST_F(MemPool_test, GetChunkSizeMethodReturnsTheSizeOfTheChunk)
 {
     EXPECT_THAT(sut.getChunkSize(), Eq(ChunkSize));
 }
 
-TEST_F(MemPool_test, getChunkCount)
+TEST_F(MemPool_test, GetChunkCountMethodReturnsTheNumberOfChunks)
 {
     EXPECT_THAT(sut.getChunkCount(), Eq(NumberOfChunks));
 }
 
-TEST_F(MemPool_test, getUsedChunks)
+TEST_F(MemPool_test, GetUsedChunksMethodReturnsTheNumberOfUsedChunks)
 {
     for (uint32_t i = 0; i < NumberOfChunks; ++i)
     {
@@ -105,7 +136,7 @@ TEST_F(MemPool_test, getUsedChunks)
     }
 }
 
-TEST_F(MemPool_test, freeChunk)
+TEST_F(MemPool_test, VerifyFreeChunkMethodWhichFreesTheUsedChunk)
 {
     std::vector<uint8_t*> chunks;
     for (uint32_t i = 0; i < NumberOfChunks; ++i)
@@ -118,6 +149,35 @@ TEST_F(MemPool_test, freeChunk)
         EXPECT_THAT(sut.getUsedChunks(), Eq(NumberOfChunks - i));
         sut.freeChunk(chunks[i]);
     }
+}
+
+
+TEST_F(MemPool_test, FreeChunkMethodWhenSameChunkIsTriedToFreeTwiceReturnsError)
+{
+    std::vector<uint8_t*> chunks;
+    uint32_t index = 0U;
+    chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
+    sut.freeChunk(chunks[index]);
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+        });
+
+    sut.freeChunk(chunks[index]);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__MEMPOOL_POSSIBLE_DOUBLE_FREE));
+}
+
+TEST_F(MemPool_test, FreeChunkMethodWhenTheChunkIndexIsInvalidReturnsError)
+{
+    std::vector<uint8_t*> chunks;
+    uint32_t invalidindex = 1U;
+    chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
+
+    EXPECT_DEATH({ sut.freeChunk(chunks[invalidindex]); }, ".*");
 }
 
 TEST_F(MemPool_test, freeChunkAndGetChunkFull)
