@@ -401,14 +401,15 @@ TEST_F(ActiveCallSet_test, AttachingTillCapacityFilledSetsUpTriggerHandle)
 
 TEST_F(ActiveCallSet_test, DTorDetachesAllAttachedEvents)
 {
-    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
+    auto capacity = m_sut->capacity();
+    for (uint64_t i = 0U; i < capacity; ++i)
     {
         m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0>).has_error();
     }
 
     m_sut.reset();
 
-    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
+    for (uint64_t i = 0U; i < capacity; ++i)
     {
         EXPECT_FALSE(m_simpleEvents[i].m_handleHypnotoad.isValid());
     }
