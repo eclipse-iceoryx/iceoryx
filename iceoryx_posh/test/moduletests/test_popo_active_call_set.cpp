@@ -137,6 +137,7 @@ class ActiveCallSet_test : public Test
     static void triggerCallback(ActiveCallSet_test::SimpleEventClass* const event)
     {
         ActiveCallSet_test::m_triggerCallbackArg[N] = event;
+        std::this_thread::sleep_for(std::chrono::milliseconds(m_triggerCallbackRuntimeInMs));
     }
 
     void SetUp()
@@ -147,17 +148,23 @@ class ActiveCallSet_test : public Test
         }
         m_sut.emplace(&m_eventVarData);
         ActiveCallSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
+        ActiveCallSet_test::m_triggerCallbackRuntimeInMs = 0U;
     };
 
     void TearDown(){};
 
     using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1>;
     eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1};
+
     static std::array<SimpleEventClass*, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> m_triggerCallbackArg;
+    static constexpr uint64_t CALLBACK_WAIT_IN_MS = 10U;
+    static uint64_t m_triggerCallbackRuntimeInMs;
 };
 uint64_t ActiveCallSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
 std::array<ActiveCallSet_test::SimpleEventClass*, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
     ActiveCallSet_test::m_triggerCallbackArg;
+constexpr uint64_t ActiveCallSet_test::CALLBACK_WAIT_IN_MS;
+uint64_t ActiveCallSet_test::m_triggerCallbackRuntimeInMs;
 
 //////////////////////////////////
 // attach / detach test collection
@@ -397,8 +404,92 @@ TIMING_TEST_F(ActiveCallSet_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
         fuu, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0>);
 
     fuu.triggerStoepsel();
-    m_sut.reset();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
     TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0] == &fuu);
+});
+
+TIMING_TEST_F(ActiveCallSet_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [&] {
+    SimpleEventClass fuu1;
+    SimpleEventClass fuu2;
+    m_sut->attachEvent(
+        fuu1, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0>);
+    m_sut->attachEvent(
+        fuu2, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<1>);
+
+    fuu1.triggerStoepsel();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+    m_triggerCallbackArg[0] = nullptr;
+    fuu2.triggerStoepsel();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0] == nullptr);
+});
+
+TIMING_TEST_F(ActiveCallSet_test, TriggerWhileInCallbackLeadsToAnotherOneTimeCallback, Repeat(5), [&] {
+    SimpleEventClass fuu;
+    m_sut->attachEvent(
+        fuu, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0>);
+
+    m_triggerCallbackRuntimeInMs = 3 * CALLBACK_WAIT_IN_MS / 2;
+    fuu.triggerStoepsel();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+    m_triggerCallbackArg[0] = nullptr;
+    fuu.triggerStoepsel();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0] == &fuu);
+});
+
+TIMING_TEST_F(ActiveCallSet_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherOneTimeCallback, Repeat(5), [&] {
+    SimpleEventClass fuu;
+    m_sut->attachEvent(
+        fuu, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0>);
+
+    m_triggerCallbackRuntimeInMs = 3 * CALLBACK_WAIT_IN_MS / 2;
+    fuu.triggerStoepsel();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+    m_triggerCallbackArg[0] = nullptr;
+    fuu.triggerStoepsel();
+    fuu.triggerStoepsel();
+    fuu.triggerStoepsel();
+    fuu.triggerStoepsel();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+    m_triggerCallbackArg[0] = nullptr;
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS * 2));
+
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0] == nullptr);
+});
+
+TIMING_TEST_F(ActiveCallSet_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
+    SimpleEventClass fuu;
+    m_sut->attachEvent(
+        fuu, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0>);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0] == nullptr);
+});
+
+template <uint64_t N>
+struct AttachEvent;
+
+template <>
+struct AttachEvent<0>
+{
+};
+
+TIMING_TEST_F(ActiveCallSet_test, TriggeringAllEventsCallsAllCallbacksOnce, Repeat(5), [&] {
+    std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
+
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
+        m_sut->attachEvent(
+            events[i], ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<i>);
+
+    m_triggerCallbackRuntimeInMs = 3 * CALLBACK_WAIT_IN_MS / 2;
+    fuu.triggerStoepsel();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 2));
+
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0] == nullptr);
 });
 
