@@ -472,22 +472,37 @@ TIMING_TEST_F(ActiveCallSet_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
 });
 
 template <uint64_t N>
-struct AttachEvent;
+struct AttachEvent
+{
+    template <typename EventType>
+    static void doIt(ActiveCallSet_test::ActiveCallSetMock& sut,
+                     std::vector<ActiveCallSet_test::SimpleEventClass>& events,
+                     const EventType event)
+    {
+        sut.attachEvent(events[N], event, ActiveCallSet_test::triggerCallback<N>);
+        AttachEvent<N - 1>::doIt(sut, events, event);
+    }
+};
 
 template <>
 struct AttachEvent<0>
 {
+    template <typename EventType>
+    static void doIt(ActiveCallSet_test::ActiveCallSetMock& sut,
+                     std::vector<ActiveCallSet_test::SimpleEventClass>& events,
+                     const EventType event)
+    {
+        sut.attachEvent(events[0], event, ActiveCallSet_test::triggerCallback<0>);
+    }
 };
 
 TIMING_TEST_F(ActiveCallSet_test, TriggeringAllEventsCallsAllCallbacksOnce, Repeat(5), [&] {
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
 
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
-        m_sut->attachEvent(
-            events[i], ActiveCallSet_test::SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<i>);
+    AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>::doIt(
+        *m_sut, events, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty);
 
     m_triggerCallbackRuntimeInMs = 3 * CALLBACK_WAIT_IN_MS / 2;
-    fuu.triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 2));
 
     TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0] == nullptr);
