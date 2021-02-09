@@ -190,8 +190,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
     return timedSend(msg, units::Duration::fromSeconds(0ULL));
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
-                                                           const units::Duration& timeout) const noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout) const
+    noexcept
 {
     if (msg.size() >= m_maxMessageSize) // message sizes with null termination must be smaller than m_maxMessageSize
     {
@@ -265,8 +265,8 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
 }
 
 
-cxx::expected<std::string, IpcChannelError>
-UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout) const
+    noexcept
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
@@ -375,24 +375,31 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
     }
     else
     {
-        // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client is
-        // created and server not present)
-        auto connectCall = cxx::makeSmartC(connect,
-                                           cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                           {ERROR_CODE},
-                                           {},
-                                           sockfd,
-                                           (struct sockaddr*)&m_sockAddr,
-                                           static_cast<socklen_t>(sizeof(m_sockAddr)));
+        int32_t errNum{ENOENT};
 
-        if (!connectCall.hasErrors())
+        while (errNum == ENOENT)
         {
-            return cxx::success<int32_t>(sockfd);
+            // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
+            // is created and server not present)
+            auto connectCall = cxx::makeSmartC(connect,
+                                               cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                               {ERROR_CODE},
+                                               {ENOENT},
+                                               sockfd,
+                                               (struct sockaddr*)&m_sockAddr,
+                                               static_cast<socklen_t>(sizeof(m_sockAddr)));
+
+            if (!connectCall.hasErrors())
+            {
+                // In case the server is not present (ENOENT) we try again
+                errNum = connectCall.getErrNum();
+            }
+            else
+            {
+                return createErrorFromErrnum(connectCall.getErrNum());
+            }
         }
-        else
-        {
-            return createErrorFromErrnum(connectCall.getErrNum());
-        }
+        return cxx::success<int32_t>(sockfd);
     }
 }
 
