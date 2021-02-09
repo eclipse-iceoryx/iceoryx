@@ -114,6 +114,7 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 {
     if (this != &other)
     {
+        destroy();
         m_name = std::move(other.m_name);
         m_channelSide = std::move(other.m_channelSide);
         m_sockfd = std::move(other.m_sockfd);
@@ -123,6 +124,9 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
         other.m_sockfd = INVALID_FD;
         m_maxMessageSize = std::move(other.m_maxMessageSize);
         moveCreationPatternValues(std::move(other));
+
+        other.m_isInitialized = false;
+        other.m_sockfd = INVALID_FD;
     }
 
     return *this;
@@ -155,12 +159,17 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
     }
 }
 
+iox::cxx::SmartC<int(int), int, int> UnixDomainSocket::closeFd(int32_t fileDescriptor)
+{
+    return cxx::makeSmartC(
+        closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, fileDescriptor);
+}
+
 cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
 {
-    if (m_sockfd != INVALID_FD)
+    if (m_isInitialized)
     {
-        auto closeCall = cxx::makeSmartC(
-            closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
+        auto closeCall = closeFd(m_sockfd);
 
         if (!closeCall.hasErrors())
         {
@@ -370,36 +379,36 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
         }
         else
         {
+            closeFd(sockfd);
             return createErrorFromErrnum(bindCall.getErrNum());
         }
     }
     else
     {
-        int32_t errNum{ENOENT};
+        // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
+        // is created and server not present)
+        auto connectCall = cxx::makeSmartC(connect,
+                                           cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                           {ERROR_CODE},
+                                           {ENOENT},
+                                           sockfd,
+                                           (struct sockaddr*)&m_sockAddr,
+                                           static_cast<socklen_t>(sizeof(m_sockAddr)));
 
-        while (errNum == ENOENT)
+        if (connectCall.hasErrors())
         {
-            // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
-            // is created and server not present)
-            auto connectCall = cxx::makeSmartC(connect,
-                                               cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                               {ERROR_CODE},
-                                               {ENOENT},
-                                               sockfd,
-                                               (struct sockaddr*)&m_sockAddr,
-                                               static_cast<socklen_t>(sizeof(m_sockAddr)));
-
-            if (!connectCall.hasErrors())
-            {
-                // In case the server is not present (ENOENT) we try again
-                errNum = connectCall.getErrNum();
-            }
-            else
-            {
-                return createErrorFromErrnum(connectCall.getErrNum());
-            }
+            closeFd(sockfd);
+            return createErrorFromErrnum(connectCall.getErrNum());
         }
-        return cxx::success<int32_t>(sockfd);
+        else if (connectCall.getErrNum() == ENOENT)
+        {
+            closeFd(sockfd);
+            return createErrorFromErrnum(connectCall.getErrNum());
+        }
+        else
+        {
+            return cxx::success<int32_t>(sockfd);
+        }
     }
 }
 

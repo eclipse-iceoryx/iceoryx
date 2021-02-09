@@ -158,9 +158,20 @@ bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     m_mq.destroy();
 
     m_channelSide = channelSide;
-    IpcChannelType::create(
-        m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .and_then([this](auto& mq) { this->m_mq = std::move(mq); });
+
+    posix::IpcChannelError receivedError{posix::IpcChannelError::UNDEFINED};
+    // In case the server is not present yet (ENOENT), we try again
+    do
+    {
+        IpcChannelType::create(
+            m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
+            .and_then([this, &receivedError](auto& mq) {
+                this->m_mq = std::move(mq);
+                receivedError = posix::IpcChannelError::UNDEFINED;
+            })
+            .or_else([&receivedError](posix::IpcChannelError& error) { receivedError = error; });
+
+    } while (receivedError == posix::IpcChannelError::NO_SUCH_CHANNEL);
 
     return m_mq.isInitialized();
 }
