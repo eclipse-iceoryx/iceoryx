@@ -21,31 +21,35 @@ namespace iox
 {
 namespace popo
 {
-/// only one event listener per event variable
+/// @brief An EventListener performs a blocking wait on a shared event variable.
+///        When wait returns a list of all the EventNotifier id's which had
+///        triggered the EventVariable is returned and the state is reseted.
+///
+///        IMPORTANT! Do not use multiple EventListener at the same time for the
+///        samen EventVariable
 class EventListener
 {
   public:
     /// @brief creates new EventListener
     ///
-    /// @param dataRef reference to EventVariableData
+    /// @param[in] dataRef reference to EventVariableData
     EventListener(EventVariableData& dataRef) noexcept;
 
-    /// @brief returns vector of indices of active notifications; blocking if EventVariableData was not notified unless
-    /// toBeDestroyed flag is true
+    /// @brief returns vector of indices of active notifications; blocking if EventVariableData was
+    /// not notified unless destroy() was called before. The indices of active notifications is
+    /// never empty unless destroy() was called, then its always empty.
     ///
     /// @return vector of active notifications
     cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> wait() noexcept;
 
-    /// @brief sets toBeDestroyed flag to true
+    /// @brief Used in classes to signal a thread which waits in wait() to return
+    ///         and stop working. Destroy will send an empty notification to wait() and
+    ///         after this call wait() turns into a non blocking call which always
+    ///         returns an empty vector.
     void destroy() noexcept;
 
   private:
-    /// @brief sets entry of EventVariableData's activeNotifications array to false
-    ///
-    /// @param index index corresponding to trigger id
     void reset(const uint64_t index) noexcept;
-
-    /// @brief counts the semaphore down to zero
     void resetSemaphore() noexcept;
 
     std::atomic_bool m_toBeDestroyed{false};

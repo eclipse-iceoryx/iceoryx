@@ -21,6 +21,7 @@ namespace iox
 {
 namespace popo
 {
+/// @brief Shared member variable structure used by EventListener and EventNotifier
 struct EventVariableData : public ConditionVariableData
 {
     /// @brief sets all entries of notification array to false

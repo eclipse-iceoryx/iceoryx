@@ -21,17 +21,19 @@ namespace iox
 {
 namespace popo
 {
+/// @brief An EventNotifier notifies a corresponding EventListener via notify() which is
+///        waiting on the same EventVariable.
 class EventNotifier
 {
   public:
     /// @brief creates new EventNotifier
     ///
-    /// @param dataRef reference to EventVariableData
-    /// @param index index corresponding to trigger id
+    /// @param[in] dataRef reference to EventVariableData
+    /// @param[in] index index which identifies EventNotifier uniquely. The user has to ensure the uniqueness and the
+    /// index has to be in the range of [0, iox::MAX_EVENTS_PER_ACTIVE_CALLSET]
     EventNotifier(EventVariableData& dataRef, const uint64_t index) noexcept;
 
-    /// @brief sets corresponding entry in EventVariableData array to true which means that the respective signaller has
-    /// triggered the event variable
+    /// @brief wakes up the corresponding EventListener which is waiting in wait()
     void notify() noexcept;
 
   private:
