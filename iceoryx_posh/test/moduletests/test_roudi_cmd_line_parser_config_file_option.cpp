@@ -50,7 +50,7 @@ TEST_F(CmdLineParserConfigFileOption_test, NoConfigPathOptionLeadsToEmptyPath)
     char appName[] = "./foo";
     args[0] = &appName[0];
 
-    iox::config::CmdLineParserConfigFileOption sut;
+    CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -68,7 +68,7 @@ TEST_F(CmdLineParserConfigFileOption_test, ConfigPathShortOptionIsCorrectlyRead)
     args[1] = &option[0];
     args[2] = &path[0];
 
-    iox::config::CmdLineParserConfigFileOption sut;
+    CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -86,7 +86,7 @@ TEST_F(CmdLineParserConfigFileOption_test, ConfigPathLongOptionIsCorrectlyRead)
     args[1] = &option[0];
     args[2] = &path[0];
 
-    iox::config::CmdLineParserConfigFileOption sut;
+    CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -102,7 +102,7 @@ TEST_F(CmdLineParserConfigFileOption_test, HelpLongOptionLeadsProgrammNotRunning
     args[0] = &appName[0];
     args[1] = &option[0];
 
-    iox::config::CmdLineParserConfigFileOption sut;
+    CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -118,7 +118,7 @@ TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
     args[0] = &appName[0];
     args[1] = &option[0];
 
-    iox::config::CmdLineParserConfigFileOption sut;
+    CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(true));
@@ -136,7 +136,7 @@ TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParse
     args[1] = &option[0];
     args[2] = &value[0];
 
-    iox::config::CmdLineParserConfigFileOption sut;
+    CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -153,7 +153,7 @@ TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneReturnNoE
     args[0] = &appName[0];
     args[1] = &option[0];
 
-    iox::config::CmdLineParserConfigFileOption sut;
+    CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
     EXPECT_THAT(result.has_error(), Eq(false));

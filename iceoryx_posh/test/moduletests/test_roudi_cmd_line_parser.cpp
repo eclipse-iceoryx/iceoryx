@@ -58,7 +58,7 @@ class CmdLineParser_test : public Test
 
     void testLogLevel(uint8_t numberOfArgs, char* args[], LogLevel level)
     {
-        iox::config::CmdLineParser sut;
+        CmdLineParser sut;
         auto result = sut.parse(numberOfArgs, args);
 
         EXPECT_THAT(result.has_error(), Eq(false));
@@ -70,7 +70,7 @@ class CmdLineParser_test : public Test
 
     void testMonitoringMode(uint8_t numberOfArgs, char* args[], MonitoringMode mode)
     {
-        iox::config::CmdLineParser sut;
+        CmdLineParser sut;
         auto result = sut.parse(numberOfArgs, args);
 
         EXPECT_THAT(result.has_error(), Eq(false));
@@ -82,7 +82,7 @@ class CmdLineParser_test : public Test
 
     void testCompatibilityLevel(uint8_t numberOfArgs, char* args[], CompatibilityCheckLevel level)
     {
-        iox::config::CmdLineParser sut;
+        CmdLineParser sut;
         auto result = sut.parse(numberOfArgs, args);
 
         EXPECT_THAT(result.has_error(), Eq(false));
@@ -117,7 +117,7 @@ TEST_F(CmdLineParser_test, WrongOptionLeadsUnkownOptionResult)
     args[0] = &appName[0];
     args[1] = &option[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(true));
@@ -133,7 +133,7 @@ TEST_F(CmdLineParser_test, HelpLongOptionLeadsToProgrammNotRunning)
     args[0] = &appName[0];
     args[1] = &option[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -149,7 +149,7 @@ TEST_F(CmdLineParser_test, HelpShortOptionLeadsToProgrammNotRunning)
     args[0] = &appName[0];
     args[1] = &option[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -165,7 +165,7 @@ TEST_F(CmdLineParser_test, VersionShortOptionLeadsToProgrammNotRunning)
     args[0] = &appName[0];
     args[1] = &option[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -181,7 +181,7 @@ TEST_F(CmdLineParser_test, VersionLongOptionLeadsToProgrammNotRunning)
     args[0] = &appName[0];
     args[1] = &option[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -222,7 +222,7 @@ TEST_F(CmdLineParser_test, WrongMonitoringModeOptionLeadsToProgrammNotRunning)
     args[1] = &option[0];
     args[2] = &wrongValue[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -269,7 +269,7 @@ TEST_F(CmdLineParser_test, WrongLogLevelOptionLeadsToProgrammNotRunning)
     args[1] = &option[0];
     args[2] = &wrongValue[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -287,7 +287,7 @@ TEST_F(CmdLineParser_test, KillDelayLongOptionLeadsToCorrectDelay)
     args[1] = &option[0];
     args[2] = &value[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -305,7 +305,7 @@ TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
     args[1] = &option[0];
     args[2] = &value[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -323,7 +323,7 @@ TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
     args[1] = &option[0];
     args[2] = &value[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -369,7 +369,7 @@ TEST_F(CmdLineParser_test, WrongCompatibilityLevelOptionLeadsToProgrammNotRunnin
     args[1] = &option[0];
     args[2] = &wrongValue[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -387,7 +387,7 @@ TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
     args[1] = &option[0];
     args[2] = &value[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -406,7 +406,7 @@ TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
     args[1] = &option[0];
     args[2] = &value[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
@@ -425,7 +425,7 @@ TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
     args[1] = &option[0];
     args[2] = &wrongValue[0];
 
-    iox::config::CmdLineParser sut;
+    CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
