@@ -198,10 +198,47 @@ TEST_F(EventVariable_test, AllEntriesAreResetToFalseInsideWait)
     notifier2.notify();
     ASSERT_THAT(m_eventVarData.m_activeNotifications[index2], Eq(true));
 
-    listener.wait();
+    const auto& activeNotifications = listener.wait();
+    EXPECT_THAT(activeNotifications.size(), Eq(2U));
     for (const auto& notification : m_eventVarData.m_activeNotifications)
     {
         EXPECT_THAT(notification, Eq(false));
     }
+}
+
+TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
+{
+    EventListener sut(m_eventVarData);
+    sut.destroy();
+    const auto& activeNotifications = sut.wait();
+
+    EXPECT_THAT(activeNotifications.size(), Eq(0U));
+}
+
+TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsEmptyVector)
+{
+    EventListener sut(m_eventVarData);
+    sut.destroy();
+
+    EventNotifier notifier(m_eventVarData, 0U);
+    notifier.notify();
+
+    const auto& activeNotifications = sut.wait();
+    EXPECT_THAT(activeNotifications.size(), Eq(0U));
+}
+
+TEST_F(EventVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
+{
+    EventListener sut(m_eventVarData);
+
+    notificationVector activeNotifications;
+
+    std::thread waiter([&] {
+        activeNotifications = sut.wait();
+        EXPECT_THAT(activeNotifications.size(), Eq(0U));
+    });
+
+    sut.destroy();
+    waiter.join();
 }
 
