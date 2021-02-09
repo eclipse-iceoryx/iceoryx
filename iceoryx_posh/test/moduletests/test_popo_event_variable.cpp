@@ -185,35 +185,20 @@ TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5
     waiter.join();
 })
 
-TEST_F(EventVariable_test, ResetTrueEntryResultsInFalse)
+TEST_F(EventVariable_test, AllEntriesAreResetToFalseInsideWait)
 {
-    uint64_t index = 3U;
-    EventNotifier notifier(m_eventVarData, index);
+    uint64_t index1 = 3U;
+    uint64_t index2 = 1U;
+    EventNotifier notifier1(m_eventVarData, index1);
+    EventNotifier notifier2(m_eventVarData, index2);
     EventListener listener(m_eventVarData);
 
-    notifier.notify();
-    ASSERT_THAT(m_eventVarData.m_activeNotifications[index], Eq(true));
+    notifier1.notify();
+    ASSERT_THAT(m_eventVarData.m_activeNotifications[index1], Eq(true));
+    notifier2.notify();
+    ASSERT_THAT(m_eventVarData.m_activeNotifications[index2], Eq(true));
 
-    listener.reset(index);
-    EXPECT_THAT(m_eventVarData.m_activeNotifications[index], Eq(false));
-}
-
-TEST_F(EventVariable_test, ResetFalseEntryResultsInFalse)
-{
-    uint64_t index = 0U;
-    EventListener listener(m_eventVarData);
-
-    ASSERT_THAT(m_eventVarData.m_activeNotifications[index], Eq(false));
-    listener.reset(index);
-    EXPECT_THAT(m_eventVarData.m_activeNotifications[index], Eq(false));
-}
-
-TEST_F(EventVariable_test, ResetWithTooLargeIndexDoesNotChangeNotificationArray)
-{
-    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
-    EventListener listener(m_eventVarData);
-
-    listener.reset(index);
+    listener.wait();
     for (const auto& notification : m_eventVarData.m_activeNotifications)
     {
         EXPECT_THAT(notification, Eq(false));

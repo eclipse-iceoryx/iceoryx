@@ -29,10 +29,11 @@ class EventListener
 
     cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> wait() noexcept;
 
-    void reset(const uint64_t index) noexcept;
     void destroy() noexcept;
 
   private:
+    void reset(const uint64_t index) noexcept;
+
     void resetSemaphore() noexcept;
 
     std::atomic_bool m_toBeDestroyed{false};
