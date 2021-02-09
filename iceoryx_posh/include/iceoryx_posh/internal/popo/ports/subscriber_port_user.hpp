@@ -84,6 +84,8 @@ class SubscriberPortUser : public BasePort
     /// @brief attach a condition variable (via its pointer) to subscriber
     void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
+    // TODO: remove once ConditionVariable and EventVariable are combined
+    // do we need an unsetEventVariable method?
     void setEventVariable(EventVariableData& eventVariableData, const uint64_t eventId) noexcept;
 
     /// @brief detach a condition variable from subscriber
