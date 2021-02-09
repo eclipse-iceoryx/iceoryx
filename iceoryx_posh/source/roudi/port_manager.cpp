@@ -66,7 +66,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
     auto maybePublisher = acquirePublisherPortData(
-        IntrospectionPortService, options, MQ_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
+        IntrospectionPortService, options, IPC_CHANNEL_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortService";
@@ -75,8 +75,11 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     auto portGeneric = maybePublisher.value();
 
-    maybePublisher = acquirePublisherPortData(
-        IntrospectionPortThroughputService, options, MQ_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
+    maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
+                                              options,
+                                              IPC_CHANNEL_ROUDI_NAME,
+                                              introspectionMemoryManager,
+                                              PortConfigInfo());
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortThroughputService";
@@ -88,7 +91,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
                                               options,
-                                              MQ_ROUDI_NAME,
+                                              IPC_CHANNEL_ROUDI_NAME,
                                               introspectionMemoryManager,
                                               PortConfigInfo());
     if (maybePublisher.has_error())

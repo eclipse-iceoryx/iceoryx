@@ -187,7 +187,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
 {
     // we also support timedSend. The setsockopt call sets the timeout for all further sendto calls, so we must set
     // it to 0 to turn the timeout off
-    return timedSend(msg, units::Duration::seconds(0ULL));
+    return timedSend(msg, units::Duration::fromSeconds(0ULL));
 }
 
 cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,

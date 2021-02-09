@@ -80,7 +80,7 @@ class PortManager_test : public Test
 
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
         m_portManager->stopPortIntrospection();
-        m_portManager->deletePortsOfProcess(iox::roudi::MQ_ROUDI_NAME);
+        m_portManager->deletePortsOfProcess(iox::roudi::IPC_CHANNEL_ROUDI_NAME);
     }
 
     void TearDown() override
