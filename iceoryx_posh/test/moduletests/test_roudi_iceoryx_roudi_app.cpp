@@ -34,7 +34,7 @@ class IceoryxRoudiApp_Child : public IceOryxRouDiApp
 {
     public:
 
-    IceoryxRoudiApp_Child(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig):IceOryxRouDiApp(cmdLineParser,roudiConfig)
+    IceoryxRoudiApp_Child(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig):IceOryxRouDiApp(cmdLineArgs,roudiConfig)
     {
     }
 
@@ -60,25 +60,53 @@ class IceoryxRoudiApp_test : public Test
   public:
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
-    int argc;
-    char* argv[];
 
     virtual void setUp()
     {
-        cmdLineParser.parse(argc, argv);
+        
     }
 };
 
 TEST_F(IceoryxRoudiApp_test, CheckConstructorIsSuccessfull)
 {
-    IceoryxRoudiApp_Child roudi(cmdLineParser, iox::RouDiConfig_t().setDefaults());
+    constexpr uint8_t numberOfArgs{1U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    args[0] = &appName[0];
+
+    auto cmdLineArgs = cmdLineParser.parse(numberOfArgs, args);
+
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
     EXPECT_TRUE(roudi.getVariableMRun());
 }
 
+TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessfull)
+{
+    constexpr uint8_t numberOfArgs{1U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    args[0] = &appName[0];
+
+    auto cmdLineArgs = cmdLineParser.parse(numberOfArgs, args);
+
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+
+    IceoryxRoudiApp_Child roudiTest(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+
+    EXPECT_TRUE(roudiTest.getVariableMRun());
+}
+
 TEST_F(IceoryxRoudiApp_test, CheckRunMethodWithMRunFalseReturnExitSuccess)
 {
-    IceoryxRoudiApp_Child roudi(cmdLineParser, iox::RouDiConfig_t().setDefaults());
+    constexpr uint8_t numberOfArgs{1U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    args[0] = &appName[0];
+
+    auto cmdLineArgs = cmdLineParser.parse(numberOfArgs, args);
+
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
     roudi.setVariableMRun(false);
 
@@ -86,6 +114,51 @@ TEST_F(IceoryxRoudiApp_test, CheckRunMethodWithMRunFalseReturnExitSuccess)
 
     EXPECT_EQ(result, EXIT_SUCCESS);
 }
+
+TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFalse)
+{
+    constexpr uint8_t numberOfArgs{2U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    char option[] = "-v";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+
+    auto cmdLineArgs = cmdLineParser.parse(numberOfArgs, args);
+
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+
+    EXPECT_FALSE(roudi.getVariableMRun());
+}
+
+/*TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdSetRunVariableToFalse)
+{
+    constexpr uint8_t numberOfArgs{3U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    char option[] = "-u";
+    char value[] = "4242";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    auto cmdLineArgs = cmdLineParser.parse(numberOfArgs, args);
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+        });
+
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+
+    IceoryxRoudiApp_Child roudiTest(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(),
+                Eq(iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID));
+}*/
 
 } // namespace test
 } // namespace iox
