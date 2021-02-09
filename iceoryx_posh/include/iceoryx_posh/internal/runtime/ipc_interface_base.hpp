@@ -181,7 +181,7 @@ class IpcInterfaceBase
     /// @return If the IPC channel, which corresponds to a descriptor,
     ///         is still availabe in the file system it returns true,
     ///         otherwise it was deleted or the IPC channel was not open and returns false
-    bool mqMapsToFile() noexcept;
+    bool ipcChannelMapsToFile() noexcept;
 
     /// @brief The default constructor is explicitly deleted since every
     ///         IPC channel needs a unique string to be identified with.

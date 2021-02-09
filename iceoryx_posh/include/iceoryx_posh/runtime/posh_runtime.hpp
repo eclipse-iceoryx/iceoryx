@@ -190,7 +190,7 @@ class PoshRuntime
     const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
 
     const ProcessName_t m_appName;
-    mutable std::mutex m_appMqRequestMutex;
+    mutable std::mutex m_appIpcRequestMutex;
 
     // IPC channel interface for POSIX IPC from RouDi
     IpcRuntimeInterface m_ipcChannelInterface;

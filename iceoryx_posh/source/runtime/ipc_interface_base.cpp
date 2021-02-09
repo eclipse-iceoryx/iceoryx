@@ -177,7 +177,7 @@ bool IpcInterfaceBase::reopen() noexcept
     return openIpcChannel(m_channelSide);
 }
 
-bool IpcInterfaceBase::mqMapsToFile() noexcept
+bool IpcInterfaceBase::ipcChannelMapsToFile() noexcept
 {
     return !m_ipcChannel.isOutdated().value_or(true);
 }

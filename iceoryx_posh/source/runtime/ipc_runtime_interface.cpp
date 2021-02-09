@@ -49,7 +49,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
     auto regState = RegState::WAIT_FOR_ROUDI;
     while (!timer.hasExpired() && regState != RegState::FINISHED)
     {
-        if (!m_RoudiIpcInterface.isInitialized() || !m_RoudiIpcInterface.mqMapsToFile())
+        if (!m_RoudiIpcInterface.isInitialized() || !m_RoudiIpcInterface.ipcChannelMapsToFile())
         {
             LogDebug() << "reopen RouDi's IPC channel!";
             m_RoudiIpcInterface.reopen();
@@ -151,13 +151,13 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
 {
     if (!m_RoudiIpcInterface.send(msg))
     {
-        LogError() << "Could not send request via RouDi messagequeue interface.\n";
+        LogError() << "Could not send request via RouDi IPC channel interface.\n";
         return false;
     }
 
     if (!m_AppIpcInterface.receive(answer))
     {
-        LogError() << "Could not receive request via App messagequeue interface.\n";
+        LogError() << "Could not receive request via App IPC channel interface.\n";
         return false;
     }
 
@@ -168,7 +168,7 @@ bool IpcRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
 {
     if (!m_RoudiIpcInterface.send(msg))
     {
-        LogError() << "Could not send message via RouDi messagequeue interface.\n";
+        LogError() << "Could not send message via RouDi IPC channel interface.\n";
         return false;
     }
     return true;
@@ -189,7 +189,7 @@ void IpcRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
 
         if (m_RoudiIpcInterface.isInitialized())
         {
-            LogDebug() << "RouDi mqueue found!";
+            LogDebug() << "RouDi IPC Channel found!";
             break;
         }
 
