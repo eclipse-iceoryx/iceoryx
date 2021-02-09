@@ -124,6 +124,15 @@ class PortManager_test : public Test
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
+template <typename vector>
+void setDestroyFlagAndClearContainer(vector& Container)
+{
+    for (auto item : Container)
+    {
+        item->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    }
+    Container.clear();
+}
 
 TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
 {
@@ -409,7 +418,7 @@ TEST_F(PortManager_test, ConditionVariablesOverflow)
     }
 }
 
-TEST_F(PortManager_test, ConditionVariablesDestroy)
+TEST_F(PortManager_test, AcquireConditionVariablesDataAfterDestroyingPreviouslyAcquiredOnesIsSuccessful)
 {
     std::vector<iox::popo::ConditionVariableData*> condVarContainer;
 
@@ -430,12 +439,8 @@ TEST_F(PortManager_test, ConditionVariablesDestroy)
     }
 
     // set the destroy flag and let the discovery loop take care
-    for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
-    {
-        condVarContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
-    }
+    setDestroyFlagAndClearContainer(condVarContainer);
     m_portManager->doDiscovery();
-    condVarContainer.clear(); // These pointers are dangling now
 
     // so we should able to get some more now
     for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
@@ -528,7 +533,7 @@ TEST_F(PortManager_test, DeletingNodeWorks)
 }
 
 
-TEST_F(PortManager_test, DestroyNodeDataAndAddNewNodeDataSucceeds)
+TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsSuccessful)
 {
     iox::ProcessName_t process = "Humuhumunukunukuapua'a";
     iox::NodeName_t node = "Taumatawhakatangihangakoauauotamateaturipukakapikimaungahoronukupokaiwhenuakitanatahu";
@@ -547,12 +552,8 @@ TEST_F(PortManager_test, DestroyNodeDataAndAddNewNodeDataSucceeds)
     EXPECT_THAT(nodeData.has_error(), Eq(true));
 
     // set the destroy flag and let the discovery loop take care
-    for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
-    {
-        nodeContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
-    }
+    setDestroyFlagAndClearContainer(nodeContainer);
     m_portManager->doDiscovery();
-    nodeContainer.clear();
 
     // so we should be able to get some more now
     for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
@@ -676,7 +677,7 @@ TEST_F(PortManager_test, PortDestroy)
     }
 }
 
-TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfacePortData)
+TEST_F(PortManager_test, AcquireInterfacePortDataAfterDestroyingPreviouslyAcquiredOnesIsSuccessful)
 {
     std::vector<iox::popo::InterfacePortData*> interfaceContainer;
     std::string itf = "itf";
@@ -698,12 +699,8 @@ TEST_F(PortManager_test, UseDestroyInterfaceReturnsNotNullPtrToAcquireInterfaceP
     }
 
     // set the destroy flag and let the discovery loop take care
-    for (uint32_t i = 0U; i < iox::MAX_INTERFACE_NUMBER; i++)
-    {
-        interfaceContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
-    }
+    setDestroyFlagAndClearContainer(interfaceContainer);
     m_portManager->doDiscovery();
-    interfaceContainer.clear(); // These pointers are dangling now
 
     // so we should able to get some more now
     for (uint32_t i = 0U; i < iox::MAX_INTERFACE_NUMBER; i++)
@@ -727,5 +724,5 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
     publisher.offer();
     m_portManager->doDiscovery();
 
-    EXPECT_TRUE(initialCount + 1 == serviceCounter->load());
+    EXPECT_EQ(initialCount + 1 == serviceCounter->load(), true);
 }
