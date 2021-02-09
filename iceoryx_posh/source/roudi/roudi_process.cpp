@@ -762,7 +762,7 @@ void ProcessManager::addEventVariableForProcess(const ProcessName_t& processName
                 runtime::MqMessage sendBuffer;
                 sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_EVENT_VARIABLE_ACK)
                            << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-                process->sendToMQ(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new EventVariable for application " << processName;
             })
@@ -774,7 +774,7 @@ void ProcessManager::addEventVariableForProcess(const ProcessName_t& processName
                     sendBuffer << runtime::mqMessageErrorTypeToString(
                         runtime::MqMessageErrorType::EVENT_VARIABLE_LIST_FULL);
                 }
-                process->sendToMQ(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Could not create new EventVariable for application " << processName;
             });

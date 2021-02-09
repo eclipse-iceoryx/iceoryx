@@ -13,7 +13,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.5)
-project(example_waitset)
+project(example_callbacks)
 
 include(GNUInstallDirs)
 
