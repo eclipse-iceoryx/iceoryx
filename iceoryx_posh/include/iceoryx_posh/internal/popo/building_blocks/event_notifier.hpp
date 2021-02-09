@@ -24,8 +24,14 @@ namespace popo
 class EventNotifier
 {
   public:
+    /// @brief creates new EventNotifier
+    ///
+    /// @param dataRef reference to EventVariableData
+    /// @param index index corresponding to trigger id
     EventNotifier(EventVariableData& dataRef, const uint64_t index) noexcept;
 
+    /// @brief sets corresponding entry in EventVariableData array to true which means that the respective signaller has
+    /// triggered the event variable
     void notify() noexcept;
 
   private:

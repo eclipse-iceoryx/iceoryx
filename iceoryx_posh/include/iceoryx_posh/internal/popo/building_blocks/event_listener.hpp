@@ -25,15 +25,27 @@ namespace popo
 class EventListener
 {
   public:
+    /// @brief creates new EventListener
+    ///
+    /// @param dataRef reference to EventVariableData
     EventListener(EventVariableData& dataRef) noexcept;
 
+    /// @brief returns vector of indices of active notifications; blocking if EventVariableData was not notified unless
+    /// toBeDestroyed flag is true
+    ///
+    /// @return vector of active notifications
     cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> wait() noexcept;
 
+    /// @brief sets toBeDestroyed flag to true
     void destroy() noexcept;
 
   private:
+    /// @brief sets entry of EventVariableData's activeNotifications array to false
+    ///
+    /// @param index index corresponding to trigger id
     void reset(const uint64_t index) noexcept;
 
+    /// @brief counts the semaphore down to zero
     void resetSemaphore() noexcept;
 
     std::atomic_bool m_toBeDestroyed{false};

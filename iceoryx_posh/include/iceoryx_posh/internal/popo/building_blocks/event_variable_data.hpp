@@ -23,7 +23,12 @@ namespace popo
 {
 struct EventVariableData : public ConditionVariableData
 {
+    /// @brief sets all entries of notification array to false
     EventVariableData() noexcept;
+
+    /// @brief sets all entries of notification array to false and sets process name
+    ///
+    /// @param process name of process
     EventVariableData(const ProcessName_t& process) noexcept;
 
     std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
