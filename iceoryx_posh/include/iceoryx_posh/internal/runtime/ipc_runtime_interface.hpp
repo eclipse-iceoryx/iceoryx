@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +12,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
 #define IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
 
-#include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
 
 namespace iox
 {
@@ -29,8 +33,8 @@ class IpcRuntimeInterface
     /// @param[in] appName name of the appplication and its IPC channel
     /// @param[in] roudiWaitingTimeout timeout for searching the RouDi IPC channel
     IpcRuntimeInterface(const ProcessName_t& roudiName,
-                       const ProcessName_t& appName,
-                       const units::Duration roudiWaitingTimeout) noexcept;
+                        const ProcessName_t& appName,
+                        const units::Duration roudiWaitingTimeout) noexcept;
     ~IpcRuntimeInterface() = default;
 
     /// @brief Not needed therefore deleted
