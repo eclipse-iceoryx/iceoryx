@@ -31,6 +31,12 @@ class PortPool_test : public Test
   public:
     iox::roudi::PortPoolData portPoolData;
     iox::roudi::PortPool sut{portPoolData};
+
+    iox::capro::ServiceDescription serviceDescription{"service1", "instance1"};
+    iox::ProcessName_t applicationName{"AppNmae"};
+    iox::mepoo::MemoryManager memoryManager;
+    iox::popo::PublisherOptions publisherOptions;
+    iox::popo::SubscriberOptions subscriberOptions;
 };
 
 TEST_F(PortPool_test, AddNodeDataSuccessfully)
@@ -105,14 +111,17 @@ TEST_F(PortPool_test, GetMaxNodeDataListSuccessfully)
     ASSERT_THAT(nodeDataList.size(), Eq(iox::MAX_NODE_NUMBER));
 }
 
+TEST_F(PortPool_test, RemoveNodeDataSuccessfully)
+{
+    auto nodeData = sut.addNodeData("processName", "nodeName", 999U);
+    sut.removeNodeData(nodeData.value());
+    auto nodeDataList = sut.getNodeDataList();
+
+    ASSERT_THAT(nodeDataList.size(), Eq(0U));
+}
 
 TEST_F(PortPool_test, AddPublisherPortSuccessfully)
 {
-    iox::capro::ServiceDescription serviceDescription("service1", "instance1");
-    iox::mepoo::MemoryManager memoryManager;
-    iox::ProcessName_t applicationName("AppNmae");
-    iox::popo::PublisherOptions publisherOptions;
-
     auto publisherPort = sut.addPublisherPort(serviceDescription, &memoryManager, applicationName, publisherOptions);
 
     EXPECT_THAT(publisherPort.value()->m_serviceDescription, Eq(ServiceDescription{"service1", "instance1"}));
@@ -125,9 +134,6 @@ TEST_F(PortPool_test, AddPublisherPortSuccessfully)
 
 TEST_F(PortPool_test, AddMaxPublisherPortSuccessfully)
 {
-    iox::mepoo::MemoryManager memoryManager;
-    iox::popo::PublisherOptions publisherOptions;
-
     for (uint32_t i = 0; i < iox::MAX_PUBLISHERS; ++i)
     {
         std::string service = "service" + std::to_string(i);
@@ -154,9 +160,6 @@ TEST_F(PortPool_test, AddMaxPublisherPortSuccessfully)
 
 TEST_F(PortPool_test, AddPublisherPortOverflow)
 {
-    iox::mepoo::MemoryManager memoryManager;
-    iox::popo::PublisherOptions publisherOptions;
-
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -183,12 +186,46 @@ TEST_F(PortPool_test, AddPublisherPortOverflow)
     EXPECT_EQ(errorHandlerType, iox::Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW);
 }
 
+TEST_F(PortPool_test, GetPublisherPortDataListSuccessfully)
+{
+    sut.addPublisherPort(serviceDescription, &memoryManager, applicationName, publisherOptions);
+    auto publisherPortDataList = sut.getPublisherPortDataList();
+
+    ASSERT_THAT(publisherPortDataList.size(), Eq(1U));
+}
+
+TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
+{
+    for (uint32_t i = 0; i < iox::MAX_PUBLISHERS; ++i)
+    {
+        std::string service = "service" + std::to_string(i);
+        std::string instance = "instance" + std::to_string(i);
+        iox::ProcessName_t applicationName = {iox::cxx::TruncateToCapacity, "AppNmae" + std::to_string(i)};
+
+
+        auto publisherPort = sut.addPublisherPort({iox::capro::IdString_t(iox::cxx::TruncateToCapacity, service),
+                                                   iox::capro::IdString_t(iox::cxx::TruncateToCapacity, instance)},
+                                                  &memoryManager,
+                                                  applicationName,
+                                                  publisherOptions);
+    }
+
+    auto publisherPortDataList = sut.getPublisherPortDataList();
+
+    ASSERT_THAT(publisherPortDataList.size(), Eq(iox::MAX_PUBLISHERS));
+}
+
+TEST_F(PortPool_test, RemovePublisherPortSuccessfully)
+{
+    auto publisherPort = sut.addPublisherPort(serviceDescription, &memoryManager, applicationName, publisherOptions);
+    sut.removePublisherPort(publisherPort.value());
+    auto publisherPortDataList = sut.getPublisherPortDataList();
+
+    ASSERT_THAT(publisherPortDataList.size(), Eq(0U));
+}
+
 TEST_F(PortPool_test, AddSubscriberPortSuccessfully)
 {
-    iox::capro::ServiceDescription serviceDescription("service1", "instance1");
-    iox::ProcessName_t applicationName("AppNmae");
-    iox::popo::SubscriberOptions subscriberOptions;
-
     auto subscriberPort = sut.addSubscriberPort(serviceDescription, applicationName, subscriberOptions);
 
     EXPECT_THAT(subscriberPort.value()->m_serviceDescription, Eq(ServiceDescription{"service1", "instance1"}));
@@ -200,10 +237,8 @@ TEST_F(PortPool_test, AddSubscriberPortSuccessfully)
     EXPECT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
 }
 
-TEST_F(PortPool_test, AddMaximumSubscriberPortSuccessfully)
+TEST_F(PortPool_test, AddMaxSubscriberPortSuccessfully)
 {
-    iox::popo::SubscriberOptions subscriberOptions;
-
     for (uint32_t i = 0; i < iox::MAX_SUBSCRIBERS; ++i)
     {
         std::string service = "service" + std::to_string(i);
@@ -229,8 +264,6 @@ TEST_F(PortPool_test, AddMaximumSubscriberPortSuccessfully)
 
 TEST_F(PortPool_test, AddSubscriberPortOverflow)
 {
-    iox::popo::SubscriberOptions subscriberOptions;
-
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -254,6 +287,43 @@ TEST_F(PortPool_test, AddSubscriberPortOverflow)
 
     ASSERT_THAT(errorHandlerCalled, Eq(true));
     EXPECT_EQ(errorHandlerType, iox::Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW);
+}
+
+TEST_F(PortPool_test, GetSubscriberPortDataListSuccessfully)
+{
+    auto subscriberPort = sut.addSubscriberPort(serviceDescription, applicationName, subscriberOptions);
+    auto subscriberPortDataList = sut.getSubscriberPortDataList();
+
+    ASSERT_THAT(subscriberPortDataList.size(), Eq(1U));
+}
+
+TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledSuccessfully)
+{
+    for (uint32_t i = 0; i < iox::MAX_SUBSCRIBERS; ++i)
+    {
+        std::string service = "service" + std::to_string(i);
+        std::string instance = "instance" + std::to_string(i);
+        iox::ProcessName_t applicationName = {iox::cxx::TruncateToCapacity, "AppNmae" + std::to_string(i)};
+
+
+        auto publisherPort = sut.addSubscriberPort({iox::capro::IdString_t(iox::cxx::TruncateToCapacity, service),
+                                                    iox::capro::IdString_t(iox::cxx::TruncateToCapacity, instance)},
+                                                   applicationName,
+                                                   subscriberOptions);
+    }
+    auto subscriberPortDataList = sut.getSubscriberPortDataList();
+
+    ASSERT_THAT(subscriberPortDataList.size(), Eq(iox::MAX_SUBSCRIBERS));
+}
+
+TEST_F(PortPool_test, RemoveSubscriberPortSuccessfully)
+{
+    auto subscriberPort = sut.addSubscriberPort(serviceDescription, applicationName, subscriberOptions);
+
+    sut.removeSubscriberPort(subscriberPort.value());
+    auto subscriberPortDataList = sut.getSubscriberPortDataList();
+
+    ASSERT_THAT(subscriberPortDataList.size(), Eq(0U));
 }
 
 } // namespace test
