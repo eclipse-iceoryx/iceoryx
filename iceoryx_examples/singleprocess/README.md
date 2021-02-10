@@ -109,7 +109,7 @@ to the world.
 ```cpp
 iox::popo::PublisherOptions publisherOptions;
 publisherOptions.historyCapacity = 10U;
-iox::popo::TypedPublisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
+iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
 publisher.offer();
 ```
 After that we are sending numbers in ascending order with an 100ms interval in a `while` loop till the

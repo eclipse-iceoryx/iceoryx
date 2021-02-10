@@ -50,7 +50,7 @@ void publisher()
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
-    iox::popo::TypedPublisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
+    iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
     publisher.offer();
 
     uint64_t counter{0};

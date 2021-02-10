@@ -255,7 +255,7 @@ Starting again with the includes, there is now a different one:
 When it comes to the runtime, things are the same as in the untyped publisher. However, a typed publisher object is
 created
 ```cpp
-iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"});
+iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
 
 A similar while-loop is used to send the data to the subscriber. In contrast to the untyped publisher the typed one
@@ -263,16 +263,16 @@ offers two additional possibilities
 ```cpp
 // #3
 auto object = RadarObject(ct, ct, ct);
-typedPublisher.publishCopyOf(object);
+publisher.publishCopyOf(object);
 ```
 
 \#3 should only be used for small data types, as otherwise copies can lead to a larger runtime.
 
 ```cpp
 // #4
-typedPublisher.publishResultOf(getRadarObject, ct);
+publisher.publishResultOf(getRadarObject, ct);
 // OR
-typedPublisher.publishResultOf([&ct](RadarObject* object) { new (object) RadarObject(ct, ct, ct); });
+publisher.publishResultOf([&ct](RadarObject* object) { new (object) RadarObject(ct, ct, ct); });
 ```
 
 If you have a callable e.g. a function should be always called, #4 could be a good solution for you.

@@ -40,7 +40,7 @@ int main()
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
 
-    iox::popo::TypedPublisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
     publisher.offer();
 
     double ct = 0.0;

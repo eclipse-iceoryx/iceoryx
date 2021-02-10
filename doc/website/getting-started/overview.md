@@ -276,7 +276,7 @@ with [RAII](https://en.cppreference.com/w/cpp/language/raii).
 We create a publisher that offers our CounterTopic.
 
 ```cpp
-iox::popo::TypedPublisher<CounterTopic> publisher({"Group", "Instance", "CounterTopic"});
+iox::popo::Publisher<CounterTopic> publisher({"Group", "Instance", "CounterTopic"});
 publisher.offer();
 ```
 

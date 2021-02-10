@@ -29,7 +29,7 @@ namespace popo
 ///
 /// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.
 /// This allows any publisher specialization to be stored as a reference by the Sample class.
-/// It is also needed to avoid circular dependencies between Sample and TypedPublisher.
+/// It is also needed to avoid circular dependencies between Sample and Publisher.
 ///
 template <typename T>
 class PublisherInterface
@@ -43,19 +43,18 @@ class PublisherInterface
     PublisherInterface() = default;
 };
 template <typename T, typename base_publisher_t = BasePublisher<>>
-class TypedPublisher : public base_publisher_t, public PublisherInterface<T>
+class Publisher : public base_publisher_t, public PublisherInterface<T>
 {
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
-    static_assert(std::is_default_constructible<T>::value, "The TypedPublisher requires default-constructable types.");
+    static_assert(std::is_default_constructible<T>::value, "The Publisher requires default-constructable types.");
 
   public:
-    TypedPublisher(const capro::ServiceDescription& service,
-                   const PublisherOptions& publisherOptions = PublisherOptions());
-    TypedPublisher(const TypedPublisher& other) = delete;
-    TypedPublisher& operator=(const TypedPublisher&) = delete;
-    TypedPublisher(TypedPublisher&& rhs) = default;
-    TypedPublisher& operator=(TypedPublisher&& rhs) = default;
-    virtual ~TypedPublisher() = default;
+    Publisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions = PublisherOptions());
+    Publisher(const Publisher& other) = delete;
+    Publisher& operator=(const Publisher&) = delete;
+    Publisher(Publisher&& rhs) = default;
+    Publisher& operator=(Publisher&& rhs) = default;
+    virtual ~Publisher() = default;
 
     ///
     /// @brief loan Get a sample from loaned shared memory and consctruct the data with the given arguments.

@@ -42,7 +42,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher");
 
-    iox::popo::TypedPublisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
     publisher.offer();
 
     double ct = 0.0;
