@@ -16,7 +16,7 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <csignal>
@@ -36,7 +36,7 @@ int main()
     signal(SIGINT, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-typed");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber");
 
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;

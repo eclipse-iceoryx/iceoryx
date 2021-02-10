@@ -16,14 +16,14 @@ iox-roudi
 $ICEORYX_ROOT/build/iox-roudi
 
 
-build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
-# The untyped publisher is an alternative
 build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
+# The untyped publisher is an alternative
+build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 
 
-build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
+build/iceoryx_examples/icedelivery/iox-ex-subscriber
 # The untyped subscriber is an alternative
-build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
+build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 ```
 
 [![asciicast](https://asciinema.org/a/382036.svg)](https://asciinema.org/a/382036)
@@ -285,7 +285,7 @@ the `operator->()`.
 
 As with the typed publisher application there is an different include compared to the untyped subscriber:
 ```cpp
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 ```
 
 An instance of `TypedSubscriber` is created:

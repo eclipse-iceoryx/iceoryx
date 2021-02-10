@@ -61,6 +61,6 @@ class TypedSubscriber : public base_subscriber_t
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/typed_subscriber.inl"
+#include "iceoryx_posh/internal/popo/subscriber.inl"
 
 #endif // IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP

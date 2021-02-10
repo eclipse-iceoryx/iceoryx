@@ -45,11 +45,11 @@ target_link_libraries(iox-ex-publisher-untyped
 )
 target_compile_options(iox-ex-publisher-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-typed ./iox_subscriber_typed.cpp)
-target_link_libraries(iox-ex-subscriber-typed
+add_executable(iox-ex-subscriber ./iox_subscriber.cpp)
+target_link_libraries(iox-ex-subscriber
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-subscriber-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-subscriber-with-history ./iox_subscriber_with_history.cpp)
 target_link_libraries(iox-ex-subscriber-with-history
@@ -63,7 +63,7 @@ target_link_libraries(iox-ex-subscriber-untyped
 )
 target_compile_options(iox-ex-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
+set_target_properties(iox-ex-subscriber iox-ex-subscriber-untyped
                       iox-ex-publisher-with-history iox-ex-subscriber-with-history
                       iox-ex-publisher-typed iox-ex-publisher-untyped
                       PROPERTIES
@@ -76,5 +76,5 @@ set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
 
 install(TARGETS iox-ex-publisher-untyped iox-ex-publisher-typed
                 iox-ex-publisher-with-history iox-ex-subscriber-with-history
-                iox-ex-subscriber-untyped iox-ex-subscriber-typed
+                iox-ex-subscriber-untyped iox-ex-subscriber
         RUNTIME DESTINATION bin)
