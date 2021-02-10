@@ -488,24 +488,12 @@ TEST_F(PortManager_test, DeletingEventVariableWorks)
         ASSERT_THAT(eventVariableDataResult.has_error(), Eq(false));
     }
 
-    // test if overflow errors get hit
-    auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-        });
-
-    auto eventVariableDataResult = m_portManager->acquireEventVariableData("AnotherItalianActor");
-    ASSERT_THAT(eventVariableDataResult.has_error(), Eq(true));
-    ASSERT_THAT(errorHandlerCalled, Eq(true));
-    ASSERT_THAT(eventVariableDataResult.get_error(), Eq(PortPoolError::EVENT_VARIABLE_LIST_FULL));
-
     // delete one and add one eventVariableDataResult should be possible now
     unsigned int i = 0U;
     iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
     m_portManager->deletePortsOfProcess(newProcessName);
 
-    eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
+    auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
     EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
 }
 

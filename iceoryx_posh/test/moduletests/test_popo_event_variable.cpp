@@ -55,7 +55,7 @@ TEST_F(EventVariable_test, AllNotificationsAreFalseAfterConstructionWithProcessN
 
 TEST_F(EventVariable_test, NotifyActivatesCorrectIndex)
 {
-    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1;
+    uint64_t index = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
     EventNotifier sut(m_eventVarData, index);
     sut.notify();
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)

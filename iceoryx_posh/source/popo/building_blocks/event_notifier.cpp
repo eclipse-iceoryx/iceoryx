@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 namespace iox
 {
@@ -22,6 +23,10 @@ EventNotifier::EventNotifier(EventVariableData& dataRef, const uint64_t index) n
     : m_pointerToEventVariableData(&dataRef)
     , m_notificationIndex(index)
 {
+    if (index >= MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+    {
+        LogWarn() << "The provided index " << index << " is too large.";
+    }
 }
 
 void EventNotifier::notify() noexcept
