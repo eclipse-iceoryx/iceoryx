@@ -147,7 +147,7 @@ sender2.join();
 
 We create a subscriber via
 ```cpp
-iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
+iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
 ```
 
 and immediately subscribe.

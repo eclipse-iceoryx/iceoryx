@@ -26,19 +26,19 @@ namespace iox
 namespace popo
 {
 template <typename T, typename base_subscriber_t = BaseSubscriber<>>
-class TypedSubscriber : public base_subscriber_t
+class Subscriber : public base_subscriber_t
 {
-    using SelfType = TypedSubscriber<T, base_subscriber_t>;
+    using SelfType = Subscriber<T, base_subscriber_t>;
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
   public:
-    TypedSubscriber(const capro::ServiceDescription& service,
-                    const SubscriberOptions& subscriberOptions = SubscriberOptions());
-    TypedSubscriber(const TypedSubscriber& other) = delete;
-    TypedSubscriber& operator=(const TypedSubscriber&) = delete;
-    TypedSubscriber(TypedSubscriber&& rhs) = delete;
-    TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
-    virtual ~TypedSubscriber() = default;
+    Subscriber(const capro::ServiceDescription& service,
+               const SubscriberOptions& subscriberOptions = SubscriberOptions());
+    Subscriber(const Subscriber& other) = delete;
+    Subscriber& operator=(const Subscriber&) = delete;
+    Subscriber(Subscriber&& rhs) = delete;
+    Subscriber& operator=(Subscriber&& rhs) = delete;
+    virtual ~Subscriber() = default;
 
     ///
     /// @brief Take the samples from the top of the receive queue.

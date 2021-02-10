@@ -34,7 +34,7 @@ void receive()
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.nodeName = "uMgungundlovu";
 
-    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"}, subscriberOptions);
+    iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"}, subscriberOptions);
 
     subscriber.subscribe();
 

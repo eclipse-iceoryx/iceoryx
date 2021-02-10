@@ -30,10 +30,10 @@ struct DummyData
 };
 
 template <typename T, typename BaseSubscriber>
-class StubbedSubscriber : public iox::popo::TypedSubscriber<T, BaseSubscriber>
+class StubbedSubscriber : public iox::popo::Subscriber<T, BaseSubscriber>
 {
   public:
-    using SubscriberParent = iox::popo::TypedSubscriber<T, BaseSubscriber>;
+    using SubscriberParent = iox::popo::Subscriber<T, BaseSubscriber>;
 
     StubbedSubscriber(const iox::capro::ServiceDescription& service,
                       const iox::popo::SubscriberOptions& subscriberOptions = iox::popo::SubscriberOptions())
@@ -44,12 +44,12 @@ class StubbedSubscriber : public iox::popo::TypedSubscriber<T, BaseSubscriber>
     using SubscriberParent::port;
 };
 
-using TestTypedSubscriber = StubbedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
+using TestSubscriber = StubbedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
 
-class TypedSubscriberTest : public Test
+class SubscriberTest : public Test
 {
   public:
-    TypedSubscriberTest()
+    SubscriberTest()
     {
     }
 
@@ -63,10 +63,10 @@ class TypedSubscriberTest : public Test
 
   protected:
     ChunkMock<DummyData> chunkMock;
-    TestTypedSubscriber sut{{"", "", ""}, iox::popo::SubscriberOptions()};
+    TestSubscriber sut{{"", "", ""}, iox::popo::SubscriberOptions()};
 };
 
-TEST_F(TypedSubscriberTest, GetsUIDViaBaseSubscriber)
+TEST_F(SubscriberTest, GetsUIDViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getUid).Times(1);
@@ -76,7 +76,7 @@ TEST_F(TypedSubscriberTest, GetsUIDViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
+TEST_F(SubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getServiceDescription).Times(1);
@@ -86,7 +86,7 @@ TEST_F(TypedSubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
+TEST_F(SubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getSubscriptionState).Times(1);
@@ -96,7 +96,7 @@ TEST_F(TypedSubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, SubscribesViaBaseSubscriber)
+TEST_F(SubscriberTest, SubscribesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, subscribe).Times(1);
@@ -106,7 +106,7 @@ TEST_F(TypedSubscriberTest, SubscribesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, UnsubscribesViaBaseSubscriber)
+TEST_F(SubscriberTest, UnsubscribesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, unsubscribe).Times(1);
@@ -116,7 +116,7 @@ TEST_F(TypedSubscriberTest, UnsubscribesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
+TEST_F(SubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasData).Times(1);
@@ -126,7 +126,7 @@ TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
+TEST_F(SubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasMissedData).Times(1);
@@ -136,7 +136,7 @@ TEST_F(TypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
+TEST_F(SubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, takeChunk)
@@ -151,7 +151,7 @@ TEST_F(TypedSubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
+TEST_F(SubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, takeChunk)
@@ -167,7 +167,7 @@ TEST_F(TypedSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
+TEST_F(SubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, releaseQueuedData).Times(1);

@@ -288,12 +288,12 @@ As with the typed publisher application there is an different include compared t
 #include "iceoryx_posh/popo/subscriber.hpp"
 ```
 
-An instance of `TypedSubscriber` is created:
+An instance of `Subscriber` is created:
 ```cpp
-iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 ```
 
-Everything else is nearly the same. However, there is one crucial difference which makes the `TypedSubscriber` typed.
+Everything else is nearly the same. However, there is one crucial difference which makes the `Subscriber` typed.
 
 Compare this line from the `UntypedSubscriber`
 ```cpp
@@ -311,5 +311,5 @@ with
 })
 ```
 
-The difference is the type that is contained in `iox::popo::Sample`. In case of the `TypedSubscriber` it is a
+The difference is the type that is contained in `iox::popo::Sample`. In case of the `Subscriber` it is a
 `const RadarObject` instead of `const void`.

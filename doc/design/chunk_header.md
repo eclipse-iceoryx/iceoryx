@@ -247,7 +247,7 @@ pub.loan()
     });
 
 // subscriber
-auto sub = iox::popo::TypedSubscriber<MyPayload, MyHeader>(serviceDescription);
+auto sub = iox::popo::Subscriber<MyPayload, MyHeader>(serviceDescription);
 sub->take()
     .and_then([](auto& sample){
         std::cout << "Custom header data: " << sample.getHeader()->customHeader<MyHeader>()->data << std::endl;

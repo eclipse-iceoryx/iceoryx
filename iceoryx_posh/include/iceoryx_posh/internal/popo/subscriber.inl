@@ -23,14 +23,14 @@ namespace iox
 namespace popo
 {
 template <typename T, typename base_subscriber_t>
-inline TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::ServiceDescription& service,
-                                                              const SubscriberOptions& subscriberOptions)
+inline Subscriber<T, base_subscriber_t>::Subscriber(const capro::ServiceDescription& service,
+                                                    const SubscriberOptions& subscriberOptions)
     : base_subscriber_t(service, subscriberOptions)
 {
 }
 
 template <typename T, typename base_subscriber_t>
-inline cxx::expected<Sample<const T>, ChunkReceiveResult> TypedSubscriber<T, base_subscriber_t>::take() noexcept
+inline cxx::expected<Sample<const T>, ChunkReceiveResult> Subscriber<T, base_subscriber_t>::take() noexcept
 {
     auto result = base_subscriber_t::takeChunk();
     if (result.has_error())

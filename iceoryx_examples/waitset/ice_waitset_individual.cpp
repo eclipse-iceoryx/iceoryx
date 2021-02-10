@@ -43,8 +43,8 @@ int main()
     waitset.attachEvent(shutdownTrigger);
 
     // create two subscribers, subscribe to the service and attach them to the waitset
-    iox::popo::TypedSubscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
-    iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
 
     subscriber1.subscribe();
     subscriber2.subscribe();

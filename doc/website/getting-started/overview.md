@@ -367,7 +367,7 @@ well, were it will provide the benefit of zero-copy communication, uniform usage
 intraprocess communication) and lifetime management of the samples.
 
 ```cpp
-iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
+iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
 subscriber.subscribe();
 ```
 The template data type and the three string identifiers have to match those of the publisher, in other words the
