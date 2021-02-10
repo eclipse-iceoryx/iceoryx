@@ -81,6 +81,9 @@ class TypedSubscriber : public base_subscriber_t
     cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
                                             const SubscriberEvent subscriberEvent,
                                             const EventInfo::Callback<SelfType> callback) noexcept;
+
+  private:
+    SubscriberSampleDeleter m_sampleDeleter{port()};
 };
 
 } // namespace popo
