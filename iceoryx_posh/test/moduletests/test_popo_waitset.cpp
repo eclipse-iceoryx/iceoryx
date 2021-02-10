@@ -226,7 +226,7 @@ TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
 TEST_F(WaitSet_test, MultipleTimerRemovingThemselfFromWaitsetWhenGoingOutOfScope)
 {
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
-    for (uint64_t i = 0U; i + 3U < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 3U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
         m_sut.attachEvent(m_simpleEvents[i], 100U + i);
     }
