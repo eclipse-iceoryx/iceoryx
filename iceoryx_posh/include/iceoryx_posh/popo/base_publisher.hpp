@@ -34,7 +34,7 @@ using uid_t = UniquePortId;
 template <typename T, typename port_t = iox::PublisherPortUserType>
 class BasePublisher
 {
-  protected:
+  public:
     using PortType = port_t;
 
     BasePublisher(const BasePublisher& other) = delete;
@@ -77,6 +77,7 @@ class BasePublisher
     ///
     bool hasSubscribers() const noexcept;
 
+  protected:
     BasePublisher() = default; // Required for testing.
     BasePublisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions);
 

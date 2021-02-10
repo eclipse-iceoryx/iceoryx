@@ -52,13 +52,6 @@ class TypedPublisher : public base_publisher_t, public PublisherInterface<T>
     TypedPublisher& operator=(TypedPublisher&& rhs) = default;
     virtual ~TypedPublisher() = default;
 
-    using base_publisher_t::getServiceDescription;
-    using base_publisher_t::getUid;
-    using base_publisher_t::hasSubscribers;
-    using base_publisher_t::isOffered;
-    using base_publisher_t::offer;
-    using base_publisher_t::stopOffer;
-
     ///
     /// @brief loan Get a sample from loaned shared memory and consctruct the data with the given arguments.
     /// @param args Arguments used to construct the data.

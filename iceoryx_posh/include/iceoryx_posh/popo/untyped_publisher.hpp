@@ -34,13 +34,6 @@ class UntypedPublisherImpl : public base_publisher_t
     UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) = default;
     virtual ~UntypedPublisherImpl() = default;
 
-    using base_publisher_t::getServiceDescription;
-    using base_publisher_t::getUid;
-    using base_publisher_t::hasSubscribers;
-    using base_publisher_t::isOffered;
-    using base_publisher_t::offer;
-    using base_publisher_t::stopOffer;
-
     ///
     /// @brief loan Get a chunk from loaned shared memory.
     /// @param size The expected size of the chunk.
