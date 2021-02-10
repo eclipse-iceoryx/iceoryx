@@ -27,11 +27,11 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ()
 
-add_executable(iox-ex-publisher-typed ./iox_publisher_typed.cpp)
-target_link_libraries(iox-ex-publisher-typed
+add_executable(iox-ex-publisher ./iox_publisher.cpp)
+target_link_libraries(iox-ex-publisher
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-publisher-with-history ./iox_publisher_with_history.cpp)
 target_link_libraries(iox-ex-publisher-with-history
@@ -65,7 +65,7 @@ target_compile_options(iox-ex-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${I
 
 set_target_properties(iox-ex-subscriber iox-ex-subscriber-untyped
                       iox-ex-publisher-with-history iox-ex-subscriber-with-history
-                      iox-ex-publisher-typed iox-ex-publisher-untyped
+                      iox-ex-publisher iox-ex-publisher-untyped
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -74,7 +74,7 @@ set_target_properties(iox-ex-subscriber iox-ex-subscriber-untyped
 
 # ========================================================== //
 
-install(TARGETS iox-ex-publisher-untyped iox-ex-publisher-typed
+install(TARGETS iox-ex-publisher-untyped iox-ex-publisher
                 iox-ex-publisher-with-history iox-ex-subscriber-with-history
                 iox-ex-subscriber-untyped iox-ex-subscriber
         RUNTIME DESTINATION bin)

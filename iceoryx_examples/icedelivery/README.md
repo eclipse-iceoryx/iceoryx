@@ -16,7 +16,7 @@ iox-roudi
 $ICEORYX_ROOT/build/iox-roudi
 
 
-build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
+build/iceoryx_examples/icedelivery/iox-ex-publisher
 # The untyped publisher is an alternative
 build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 
@@ -70,7 +70,7 @@ It is included by:
 For the communication with RouDi a runtime object is created. The parameter of the method `initRuntime()` contains a
 unique string identifier for this publisher.
 ```cpp
-iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
+iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher");
 ```
 
 Now that RouDi knows our publisher application is existing, let's create a publisher instance and offer our charming struct
@@ -249,7 +249,7 @@ described before. In this summary, just the differences to the prior publisher a
 
 Starting again with the includes, there is now a different one:
 ```cpp
-#include "iceoryx_posh/popo/typed_publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 ```
 
 When it comes to the runtime, things are the same as in the untyped publisher. However, a typed publisher object is

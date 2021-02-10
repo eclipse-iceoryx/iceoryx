@@ -109,6 +109,6 @@ class TypedPublisher : public base_publisher_t, public PublisherInterface<T>
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/typed_publisher.inl"
+#include "iceoryx_posh/internal/popo/publisher.inl"
 
 #endif // IOX_POSH_POPO_TYPED_PUBLISHER_HPP
