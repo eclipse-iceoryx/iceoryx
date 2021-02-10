@@ -20,15 +20,15 @@ namespace iox
 {
 namespace popo
 {
-template <template <typename, typename, typename> class base_subscriber_t, typename port_t>
-inline UntypedSubscriberImpl<base_subscriber_t, port_t>::UntypedSubscriberImpl(
-    const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions)
+template <typename base_subscriber_t>
+inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service,
+                                                                       const SubscriberOptions& subscriberOptions)
     : BaseSubscriber(service, subscriberOptions)
 {
 }
 
-template <template <typename, typename, typename> class base_subscriber_t, typename port_t>
-inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base_subscriber_t, port_t>::take() noexcept
+template <typename base_subscriber_t>
+inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base_subscriber_t>::take() noexcept
 {
     auto result = BaseSubscriber::takeChunk();
     if (result.has_error())
@@ -38,11 +38,32 @@ inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base
     return cxx::success<const void*>(result.value()->payload());
 }
 
-template <template <typename, typename, typename> class base_subscriber_t, typename port_t>
-void UntypedSubscriberImpl<base_subscriber_t, port_t>::releaseChunk(const void* payload) noexcept
+template <typename base_subscriber_t>
+inline void UntypedSubscriberImpl<base_subscriber_t>::releaseChunk(const void* payload) noexcept
 {
     auto header = mepoo::ChunkHeader::fromPayload(payload);
     port().releaseChunk(header);
+}
+
+template <typename base_subscriber_t>
+template <uint64_t WaitSetCapacity>
+inline cxx::expected<WaitSetError>
+UntypedSubscriberImpl<base_subscriber_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                      const SubscriberEvent subscriberEvent,
+                                                      const uint64_t eventId,
+                                                      const EventInfo::Callback<SelfType> callback) noexcept
+{
+    return BaseSubscriber::enableEventInternal(waitset, subscriberEvent, eventId, callback);
+}
+
+template <typename base_subscriber_t>
+template <uint64_t WaitSetCapacity>
+inline cxx::expected<WaitSetError>
+UntypedSubscriberImpl<base_subscriber_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                                      const SubscriberEvent subscriberEvent,
+                                                      const EventInfo::Callback<SelfType> callback) noexcept
+{
+    return BaseSubscriber::enableEventInternal(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
 }
 
 } // namespace popo

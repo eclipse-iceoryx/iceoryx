@@ -23,12 +23,10 @@ namespace iox
 {
 namespace popo
 {
-template <typename T,
-          template <typename, typename, typename> class base_subscriber_t = BaseSubscriber,
-          typename port_t = iox::SubscriberPortUserType>
-class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, port_t>
+template <typename T, typename base_subscriber_t = BaseSubscriber<T>>
+class TypedSubscriber : public base_subscriber_t
 {
-    using BaseSubscriber = base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, port_t>;
+    using SelfType = TypedSubscriber<T, base_subscriber_t>;
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
   public:
@@ -48,8 +46,41 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     ///
     cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept;
 
-    using PortType = typename BaseSubscriber::PortType;
+    using PortType = typename base_subscriber_t::PortType;
     using SubscriberSampleDeleter = SampleDeleter<PortType>;
+
+    template <uint64_t Capacity>
+    friend class WaitSet;
+
+  protected:
+    using base_subscriber_t::port;
+
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
+    ///            identify an event uniquely or to group multiple events together when they share the same eventId
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const SubscriberEvent subscriberEvent,
+                                            const uint64_t eventId = EventInfo::INVALID_ID,
+                                            const EventInfo::Callback<SelfType> callback = nullptr) noexcept;
+
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const SubscriberEvent subscriberEvent,
+                                            const EventInfo::Callback<SelfType> callback) noexcept;
 };
 
 } // namespace popo

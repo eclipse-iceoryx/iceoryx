@@ -30,12 +30,12 @@ class Void
 {
 };
 
-template <template <typename, typename, typename> class base_subscriber_t = BaseSubscriber,
-          typename port_t = iox::SubscriberPortUserType>
-class UntypedSubscriberImpl : public base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, port_t>
+template <typename base_subscriber_t = BaseSubscriber<void>>
+class UntypedSubscriberImpl : public base_subscriber_t
 {
   public:
-    using BaseSubscriber = base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, port_t>;
+    using BaseSubscriber = base_subscriber_t;
+    using SelfType = UntypedSubscriberImpl<base_subscriber_t>;
 
     UntypedSubscriberImpl(const capro::ServiceDescription& service,
                           const SubscriberOptions& subscriberOptions = SubscriberOptions());
@@ -60,8 +60,38 @@ class UntypedSubscriberImpl : public base_subscriber_t<void, UntypedSubscriberIm
     ///
     void releaseChunk(const void* payload) noexcept;
 
+    template <uint64_t Capacity>
+    friend class WaitSet;
+
   protected:
     using BaseSubscriber::port;
+
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
+    ///            identify an event uniquely or to group multiple events together when they share the same eventId
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const SubscriberEvent subscriberEvent,
+                                            const uint64_t eventId = EventInfo::INVALID_ID,
+                                            const EventInfo::Callback<SelfType> callback = nullptr) noexcept;
+
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const SubscriberEvent subscriberEvent,
+                                            const EventInfo::Callback<SelfType> callback) noexcept;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;

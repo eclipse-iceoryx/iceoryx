@@ -43,7 +43,7 @@ enum class SubscriberEvent
 /// wouldn't have the type the user would have to cast it correctly via dynamic_cast or reinterpret_cast which can be
 /// error prone.
 /// @param[in] port_t type of the underlying port, required for testing
-template <typename T, typename Subscriber, typename port_t = iox::SubscriberPortUserType>
+template <typename T, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
   public:
@@ -100,7 +100,7 @@ class BaseSubscriber
     friend class WaitSet;
 
   protected:
-    using SelfType = BaseSubscriber<T, Subscriber, port_t>;
+    using SelfType = BaseSubscriber<T, port_t>;
     using PortType = port_t;
 
     BaseSubscriber() noexcept; // Required for testing.
@@ -117,7 +117,7 @@ class BaseSubscriber
 
     void invalidateTrigger(const uint64_t trigger) noexcept;
 
-    /// @brief attaches a WaitSet to the subscriber
+    /// @brief attaches a WaitSet to the subscriber; this has to be called by the concrete publisher
     /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
     /// @param[in] subscriberEvent the event which should be attached
     /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
@@ -126,23 +126,11 @@ class BaseSubscriber
     ///            later by the user
     /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
     ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
+    template <uint64_t WaitSetCapacity, typename Subscriber>
+    cxx::expected<WaitSetError> enableEventInternal(WaitSet<WaitSetCapacity>& waitset,
                                             const SubscriberEvent subscriberEvent,
                                             const uint64_t eventId = EventInfo::INVALID_ID,
                                             const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
-
-    /// @brief attaches a WaitSet to the subscriber
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
-    /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                            const SubscriberEvent subscriberEvent,
-                                            const EventInfo::Callback<Subscriber> callback) noexcept;
 
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached

@@ -27,7 +27,7 @@ struct DummyData
     uint64_t val = 42;
 };
 
-using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber, MockSubscriberPortUser>;
+using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber<void>>;
 
 class UntypedSubscriberTest : public Test
 {

@@ -27,7 +27,22 @@ struct DummyData
     uint64_t val = 42;
 };
 
-using TestTypedSubscriber = iox::popo::TypedSubscriber<DummyData, MockBaseSubscriber, MockSubscriberPortUser>;
+template <typename T, typename BaseSubscriber>
+class StubbedSubscriber : public iox::popo::TypedSubscriber<T, BaseSubscriber>
+{
+  public:
+    using SubscriberParent = iox::popo::TypedSubscriber<T, BaseSubscriber>;
+
+    StubbedSubscriber(const iox::capro::ServiceDescription& service,
+                      const iox::popo::SubscriberOptions& subscriberOptions = iox::popo::SubscriberOptions())
+        : SubscriberParent(service, subscriberOptions)
+    {
+    }
+
+    using SubscriberParent::port;
+};
+
+using TestTypedSubscriber = StubbedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
 
 class TypedSubscriberTest : public Test
 {
@@ -138,9 +153,9 @@ TEST_F(TypedSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, takeChunk)
-    .Times(1)
-    .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
-        const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
+        .Times(1)
+        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     EXPECT_CALL(sut.port(), releaseChunk).Times(AtLeast(1));
     // ===== Test ===== //
     {
