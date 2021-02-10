@@ -115,7 +115,7 @@ TEST_F(IceoryxRoudiApp_test, CheckRunMethodWithMRunFalseReturnExitSuccess)
     EXPECT_EQ(result, EXIT_SUCCESS);
 }
 
-TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdSetRunVariableToFalse)
+TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError)
 {
     constexpr uint8_t numberOfArgs{3U};
     char* args[numberOfArgs];
