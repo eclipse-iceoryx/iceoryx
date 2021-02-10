@@ -23,7 +23,7 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename base_subscriber_t = BaseSubscriber<T>>
+template <typename T, typename base_subscriber_t = BaseSubscriber<>>
 class TypedSubscriber : public base_subscriber_t
 {
     using SelfType = TypedSubscriber<T, base_subscriber_t>;

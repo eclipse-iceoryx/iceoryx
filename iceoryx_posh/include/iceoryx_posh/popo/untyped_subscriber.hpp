@@ -30,7 +30,7 @@ class Void
 {
 };
 
-template <typename base_subscriber_t = BaseSubscriber<void>>
+template <typename base_subscriber_t = BaseSubscriber<>>
 class UntypedSubscriberImpl : public base_subscriber_t
 {
   public:

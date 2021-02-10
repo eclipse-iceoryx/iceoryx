@@ -22,69 +22,69 @@ namespace popo
 {
 // ============================== BaseSubscriber ============================== //
 
-template <typename T, typename port_t>
-inline BaseSubscriber<T, port_t>::BaseSubscriber() noexcept
+template <typename port_t>
+inline BaseSubscriber<port_t>::BaseSubscriber() noexcept
 {
 }
 
-template <typename T, typename port_t>
-inline BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service,
-                                                 const SubscriberOptions& subscriberOptions) noexcept
+template <typename port_t>
+inline BaseSubscriber<port_t>::BaseSubscriber(const capro::ServiceDescription& service,
+                                              const SubscriberOptions& subscriberOptions) noexcept
     : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service, subscriberOptions))
 {
 }
 
-template <typename T, typename port_t>
-inline BaseSubscriber<T, port_t>::~BaseSubscriber()
+template <typename port_t>
+inline BaseSubscriber<port_t>::~BaseSubscriber()
 {
     m_port.destroy();
 }
 
-template <typename T, typename port_t>
-inline uid_t BaseSubscriber<T, port_t>::getUid() const noexcept
+template <typename port_t>
+inline uid_t BaseSubscriber<port_t>::getUid() const noexcept
 {
     return m_port.getUniqueID();
 }
 
-template <typename T, typename port_t>
+template <typename port_t>
 inline capro::ServiceDescription /// todo #25 make this a reference.
-BaseSubscriber<T, port_t>::getServiceDescription() const noexcept
+BaseSubscriber<port_t>::getServiceDescription() const noexcept
 {
     return m_port.getCaProServiceDescription();
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::subscribe() noexcept
+template <typename port_t>
+inline void BaseSubscriber<port_t>::subscribe() noexcept
 {
     m_port.subscribe();
 }
 
-template <typename T, typename port_t>
-inline SubscribeState BaseSubscriber<T, port_t>::getSubscriptionState() const noexcept
+template <typename port_t>
+inline SubscribeState BaseSubscriber<port_t>::getSubscriptionState() const noexcept
 {
     return m_port.getSubscriptionState();
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::unsubscribe() noexcept
+template <typename port_t>
+inline void BaseSubscriber<port_t>::unsubscribe() noexcept
 {
     m_port.unsubscribe();
 }
 
-template <typename T, typename port_t>
-inline bool BaseSubscriber<T, port_t>::hasData() const noexcept
+template <typename port_t>
+inline bool BaseSubscriber<port_t>::hasData() const noexcept
 {
     return m_port.hasNewChunks();
 }
 
-template <typename T, typename port_t>
-inline bool BaseSubscriber<T, port_t>::hasMissedData() noexcept
+template <typename port_t>
+inline bool BaseSubscriber<port_t>::hasMissedData() noexcept
 {
     return m_port.hasLostChunksSinceLastCall();
 }
 
-template <typename T, typename port_t>
-inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> BaseSubscriber<T, port_t>::takeChunk() noexcept
+template <typename port_t>
+inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> BaseSubscriber<port_t>::takeChunk() noexcept
 {
     auto result = m_port.tryGetChunk();
     if (result.has_error())
@@ -104,14 +104,14 @@ inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> BaseSubscrib
     return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::releaseQueuedData() noexcept
+template <typename port_t>
+inline void BaseSubscriber<port_t>::releaseQueuedData() noexcept
 {
     m_port.releaseQueuedChunks();
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
+template <typename port_t>
+inline void BaseSubscriber<port_t>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
     if (m_trigger.getUniqueId() == uniqueTriggerId)
     {
@@ -120,13 +120,13 @@ inline void BaseSubscriber<T, port_t>::invalidateTrigger(const uint64_t uniqueTr
     }
 }
 
-template <typename T, typename port_t>
+template <typename port_t>
 template <uint64_t WaitSetCapacity, typename Subscriber>
 inline cxx::expected<WaitSetError>
-BaseSubscriber<T, port_t>::enableEventInternal(WaitSet<WaitSetCapacity>& waitset,
-                                               [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                               const uint64_t eventId,
-                                               const EventInfo::Callback<Subscriber> callback) noexcept
+BaseSubscriber<port_t>::enableEventInternal(WaitSet<WaitSetCapacity>& waitset,
+                                            [[gnu::unused]] const SubscriberEvent subscriberEvent,
+                                            const uint64_t eventId,
+                                            const EventInfo::Callback<Subscriber> callback) noexcept
 {
     static_assert(std::is_base_of<SelfType, Subscriber>::value, "Subscriber must inherit from BaseSubscriber");
     Subscriber* self = reinterpret_cast<Subscriber*>(this);
@@ -140,8 +140,8 @@ BaseSubscriber<T, port_t>::enableEventInternal(WaitSet<WaitSetCapacity>& waitset
         });
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
+template <typename port_t>
+inline void BaseSubscriber<port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);
 
@@ -149,14 +149,14 @@ inline void BaseSubscriber<T, port_t>::disableEvent(const SubscriberEvent subscr
     m_port.unsetConditionVariable();
 }
 
-template <typename T, typename port_t>
-inline const port_t& BaseSubscriber<T, port_t>::port() const noexcept
+template <typename port_t>
+inline const port_t& BaseSubscriber<port_t>::port() const noexcept
 {
     return m_port;
 }
 
-template <typename T, typename port_t>
-inline port_t& BaseSubscriber<T, port_t>::port() noexcept
+template <typename port_t>
+inline port_t& BaseSubscriber<port_t>::port() noexcept
 {
     return m_port;
 }

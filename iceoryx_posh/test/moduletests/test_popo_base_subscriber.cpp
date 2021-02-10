@@ -34,11 +34,11 @@ struct DummyData
     uint64_t val = 42;
 };
 
-template <typename T, typename port_t>
-class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
+template <typename port_t>
+class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<port_t>
 {
   public:
-    using SubscriberParent = iox::popo::BaseSubscriber<T, port_t>;
+    using SubscriberParent = iox::popo::BaseSubscriber<port_t>;
 
     using SubscriberParent::disableEvent;
     using SubscriberParent::enableEventInternal;
@@ -48,7 +48,7 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
     using SubscriberParent::port;
 };
 
-using TestBaseSubscriber = StubbedBaseSubscriber<DummyData, MockSubscriberPortUser>;
+using TestBaseSubscriber = StubbedBaseSubscriber<MockSubscriberPortUser>;
 
 // ========================= Base Publisher Tests ========================= //
 

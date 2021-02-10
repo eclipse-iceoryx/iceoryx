@@ -37,13 +37,8 @@ enum class SubscriberEvent
 };
 
 /// @brief base class for all types of subscriber
-/// @param[in] T the sample data type
-/// @param[in] Subscriber type of the child which is inheriting from BaseSubscriber. This type is required for the
-/// TriggerCallback since a trigger provides a pointer to the originating class as parameter for the callback. If we
-/// wouldn't have the type the user would have to cast it correctly via dynamic_cast or reinterpret_cast which can be
-/// error prone.
 /// @param[in] port_t type of the underlying port, required for testing
-template <typename T, typename port_t = iox::SubscriberPortUserType>
+template <typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
   public:
@@ -100,7 +95,7 @@ class BaseSubscriber
     friend class WaitSet;
 
   protected:
-    using SelfType = BaseSubscriber<T, port_t>;
+    using SelfType = BaseSubscriber<port_t>;
     using PortType = port_t;
 
     BaseSubscriber() noexcept; // Required for testing.
@@ -128,9 +123,9 @@ class BaseSubscriber
     ///            the error
     template <uint64_t WaitSetCapacity, typename Subscriber>
     cxx::expected<WaitSetError> enableEventInternal(WaitSet<WaitSetCapacity>& waitset,
-                                            const SubscriberEvent subscriberEvent,
-                                            const uint64_t eventId = EventInfo::INVALID_ID,
-                                            const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
+                                                    const SubscriberEvent subscriberEvent,
+                                                    const uint64_t eventId = EventInfo::INVALID_ID,
+                                                    const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
 
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached
