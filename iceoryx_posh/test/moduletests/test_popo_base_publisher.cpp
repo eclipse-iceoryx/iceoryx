@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/base_publisher.hpp"
-#include "mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"
@@ -82,7 +81,6 @@ class BasePublisherTest : public Test
     }
 
   protected:
-    ChunkMock<DummyData> chunkMock;
     TestBasePublisher sut{{"", "", ""}};
 };
 
