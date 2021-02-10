@@ -273,7 +273,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
     EXPECT_EQ(publisherOptions.historyCapacity, publisherPort->m_chunkSenderData.m_historyCapacity);
 }
 
-TEST_F(PoshRuntime_test, MiddlewarePublisherMaxCapacityExceededReturnMaxCapacity)
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithHistoryGreaterMaxCapacityClampsHistoryToMaximum)
 {
     // arrange
     iox::popo::PublisherOptions publisherOptions;
@@ -370,7 +370,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
     EXPECT_EQ(subscriberOptions.queueCapacity, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
-TEST_F(PoshRuntime_test, MiddlewareSubscriberMaxCapacityExceededReturnMaxCapacity)
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueGreaterMaxCapacityClampsQueueToMaximum)
 {
     iox::popo::SubscriberOptions subscriberOptions;
     constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY;
