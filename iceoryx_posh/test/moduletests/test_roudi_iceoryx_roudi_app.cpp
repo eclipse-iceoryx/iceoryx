@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -24,17 +24,17 @@ using namespace ::testing;
 using ::testing::Return;
 
 using iox::roudi::IceOryxRouDiApp;
+using namespace iox::config;
 
 namespace iox
 {
 namespace test
 {
-
 class IceoryxRoudiApp_Child : public IceOryxRouDiApp
 {
-    public:
-
-    IceoryxRoudiApp_Child(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig):IceOryxRouDiApp(cmdLineArgs,roudiConfig)
+  public:
+    IceoryxRoudiApp_Child(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig)
+        : IceOryxRouDiApp(cmdLineArgs, roudiConfig)
     {
     }
 
@@ -58,13 +58,13 @@ class IceoryxRoudiApp_Child : public IceOryxRouDiApp
 class IceoryxRoudiApp_test : public Test
 {
   public:
+    CmdLineParserConfigFileOption cmdLineParser;
 
-    iox::config::CmdLineParserConfigFileOption cmdLineParser;
-
-    virtual void setUp()
+    void TearDown()
     {
-        
-    }
+        // Reset optind to be able to parse again
+        optind = 0;
+    };
 };
 
 TEST_F(IceoryxRoudiApp_test, CheckConstructorIsSuccessfull)
@@ -115,28 +115,12 @@ TEST_F(IceoryxRoudiApp_test, CheckRunMethodWithMRunFalseReturnExitSuccess)
     EXPECT_EQ(result, EXIT_SUCCESS);
 }
 
-TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFalse)
-{
-    constexpr uint8_t numberOfArgs{2U};
-    char* args[numberOfArgs];
-    char appName[] = "./foo";
-    char option[] = "-v";
-    args[0] = &appName[0];
-    args[1] = &option[0];
-
-    auto cmdLineArgs = cmdLineParser.parse(numberOfArgs, args);
-
-    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
-
-    EXPECT_FALSE(roudi.getVariableMRun());
-}
-
-/*TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdSetRunVariableToFalse)
+TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdSetRunVariableToFalse)
 {
     constexpr uint8_t numberOfArgs{3U};
     char* args[numberOfArgs];
     char appName[] = "./foo";
-    char option[] = "-u";
+    char option[] = "--unique-roudi-id";
     char value[] = "4242";
     args[0] = &appName[0];
     args[1] = &option[0];
@@ -156,9 +140,25 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFals
     IceoryxRoudiApp_Child roudiTest(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(),
-                Eq(iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID));
-}*/
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID));
+}
+
+TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFalse)
+{
+    constexpr uint8_t numberOfArgs{2U};
+    char* args[numberOfArgs];
+    char appName[] = "./foo";
+    char option[] = "-v";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+
+    auto cmdLineArgs = cmdLineParser.parse(numberOfArgs, args);
+
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+
+    EXPECT_FALSE(roudi.getVariableMRun());
+}
+
 
 } // namespace test
 } // namespace iox
