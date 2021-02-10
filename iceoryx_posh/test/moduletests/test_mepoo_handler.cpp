@@ -50,14 +50,59 @@ class MemoryManager_test : public Test
 };
 
 
-TEST_F(MemoryManager_test, addMemPoolWrongOrderAtLastElement)
+TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
 {
     mempoolconf.addMemPool({32, 10});
     mempoolconf.addMemPool({128, 10});
     mempoolconf.addMemPool({256, 10});
     mempoolconf.addMemPool({64, 10});
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+        });
 
-    EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE));
+}
+
+TEST_F(MemoryManager_test, AddingMempoolAfterGeneratingChunkManagementPoolReturnsError)
+{
+    mempoolconf.addMemPool({32, 10});
+    mempoolconf.addMemPool({64, 10});
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+        });
+
+    mempoolconf.addMemPool({128, 10});
+    mempoolconf.addMemPool({256, 10});
+
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL));
+}
+
+TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexReturnsZeroForAllMempoolAttributes)
+{
+    mempoolconf.addMemPool({32, 10});
+    mempoolconf.addMemPool({64, 10});
+    uint32_t invalidMempoolIndex = 2U;
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+
+    iox::mepoo::MemPoolInfo poolInfo = sut->getMemPoolInfo(invalidMempoolIndex);
+
+    EXPECT_EQ(poolInfo.m_chunkSize, 0U);
+    EXPECT_EQ(poolInfo.m_minFreeChunks, 0U);
+    EXPECT_EQ(poolInfo.m_numChunks, 0U);
+    EXPECT_EQ(poolInfo.m_usedChunks, 0U);
 }
 
 TEST_F(MemoryManager_test, getMempoolChunkSizeForPayloadSize)
@@ -86,14 +131,15 @@ TEST_F(MemoryManager_test, wrongcallConfigureMemoryManager)
     EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
 }
 
-TEST_F(MemoryManager_test, getNumberOfMemPools)
+TEST_F(MemoryManager_test, GetNumberOfMemPoolsMethodReturnsTheNumberOfMemPools)
 {
-    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(0u));
     mempoolconf.addMemPool({32, 10});
     mempoolconf.addMemPool({64, 10});
     mempoolconf.addMemPool({128, 10});
+
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(3u));
+
+    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(3U));
 }
 
 TEST_F(MemoryManager_test, getChunkWithNoMemPool)
