@@ -15,6 +15,7 @@
 #define IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -25,6 +26,12 @@ namespace iox
 {
 namespace config
 {
+enum class CmdLineParserResult
+{
+    UNKNOWN_OPTION_USED,
+    INFO_OUTPUT_ONLY /// @todo use this instead of CmdLineArgs_t.run after modularisation of RouDi
+};
+
 class CmdLineParser
 {
   public:
@@ -45,18 +52,12 @@ class CmdLineParser
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] cmdLineParsingMode selects to parse a single option or all options
-    virtual void parse(int argc,
-                       char* argv[],
-                       const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
-
-    void printParameters() const noexcept;
-
-    bool getRun() const noexcept;
-    iox::log::LogLevel getLogLevel() const noexcept;
-    roudi::MonitoringMode getMonitoringMode() const noexcept;
-    version::CompatibilityCheckLevel getCompatibilityCheckLevel() const noexcept;
-    cxx::optional<uint16_t> getUniqueRouDiId() const noexcept;
-    units::Duration getProcessKillDelay() const noexcept;
+    /// @param[out] Result wrapped in an cxx::expected, either the parsed arguments as CmdLineArgs_t struct or
+    /// CmdLineParserResult
+    virtual cxx::expected<CmdLineArgs_t, CmdLineParserResult>
+    parse(int argc,
+          char* argv[],
+          const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
 
   protected:
     bool m_run{true};

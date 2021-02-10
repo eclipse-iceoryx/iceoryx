@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ namespace iox
     error(NO_ERROR)\
     error(FILEREADER__FAILED_TO_OPEN_FILE) \
     error(POSH__ROUDI_PROCESS_SHUTDOWN_FAILED) \
-    error(POSH__ROUDI_PROCESS_SENDMQ_FAILED)\
+    error(POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED)\
     error(POSH__RUNTIME_FACTORY_IS_NOT_SET) \
     error(POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES) \
     error(POSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE) \

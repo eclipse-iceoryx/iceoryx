@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -200,7 +201,7 @@ class PoshRuntime
     const ProcessName_t m_appName;
     mutable std::mutex m_appMqRequestMutex;
 
-    // Message queue interface for POSIX IPC from RouDi
+    // IPC channel interface for POSIX IPC from RouDi
     MqRuntimeInterface m_MqInterface;
     // Shared memory interface for POSIX IPC from RouDi
     SharedMemoryUser m_ShmInterface;

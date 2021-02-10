@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 
 bool killswitch = false;
 
@@ -33,27 +32,35 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    iox_runtime_init("iox-c-ex-waitset-publisher");
+    iox_runtime_init("iox-c-publisher");
 
-    uint64_t historyRequest = 0U;
+    const uint64_t historyCapacity = 10U;
+    const char* const nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyCapacity, nodeName);
 
     iox_pub_offer(publisher);
 
-    for (uint32_t counter = 0U; !killswitch; ++counter)
+    double ct = 0.0;
+
+    while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct RadarObject)))
         {
-            struct CounterTopic* sample = (struct CounterTopic*)chunk;
-            sample->counter = counter;
+            struct RadarObject* sample = (struct RadarObject*)chunk;
 
-            printf("Sending: %u\n", counter);
+            sample->x = ct;
+            sample->y = ct;
+            sample->z = ct;
+
+            printf("Sent value: %.0f\n", ct);
 
             iox_pub_send_chunk(publisher, chunk);
 
-            sleep_for(1000);
+            ++ct;
+
+            sleep_for(400);
         }
         else
         {

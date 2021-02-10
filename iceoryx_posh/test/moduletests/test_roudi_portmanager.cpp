@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -79,7 +80,7 @@ class PortManager_test : public Test
 
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
         m_portManager->stopPortIntrospection();
-        m_portManager->deletePortsOfProcess(iox::roudi::MQ_ROUDI_NAME);
+        m_portManager->deletePortsOfProcess(iox::roudi::IPC_CHANNEL_ROUDI_NAME);
     }
 
     void TearDown() override

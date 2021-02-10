@@ -27,50 +27,68 @@ The DDS stack used by the gateway is abstracted and needs to made explicit at co
 ```bash
 sudo apt install cmake maven openjdk-14-jdk-headless
 ```
-## Scripted Build
-The easiest way to build the gateway is via the script `iceoryx/tools/iceoryx_build_test.sh`.
 
-To build, simply run:
-```bash
-iceoryx/tools/iceoryx_build_test.sh dds-gateway
+## CMake Build 
+You can use the standard iceoryx cmake build approach with an activated `-DDDS_GATEWAY=ON`
+switch.
+```sh
+cmake -Bbuild -Hiceoryx_meta -DDDS_GATEWAY=ON
+cd build
+make
 ```
 
-You may want to specify the build directory, this can be done via a flag. e.g.
-```bash
-iceoryx/tools/iceoryx_build_test.sh --build-dir ./my-build dds-gateway
+# Usage
+## Configuration
+In `/etc/iceoryx/gateway_config.toml` you find the dds gateway configuration.
+Every service which should be offered or to which you would like to 
+subscribe has to be listed in here.
+```toml
+[[services]]
+service     = "Radar"
+instance    = "FrontLeft"
+event       = "Object"
+
+[[services]]
+service     = "larry_robotics"
+instance    = "SystemMonitor"
+event       = "larry_info"
+```
+In this example we would like to offer or subscribe to the two services
+`Radar.FrontLeft.Object` from our [icedelivery example](../iceoryx_examples/icedelivery)
+and to one service `larry_robotics.SystemMonitor.larry_info` from our 
+[larry demonstrator](https://gitlab.com/larry.robotics/larry.robotics).
+
+## Running icedelivery via CycloneDDS
+We can use CycloneDDS to run our [icedelivery example](../iceoryx_examples/icedelivery) 
+via a local area network. First we have to adjust the gateway configuration file 
+in `/etc/iceoryx/gateway_config.toml` and have to add the publisher service description
+from our example.
+```toml
+[[services]]
+service     = "Radar"
+instance    = "FrontLeft"
+event       = "Object"
 ```
 
-Once complete, the gateway binaries can be found in `./my-build/install/prefix/bin`.
+Now two connected machines `A` and `B` can communicate over a local area network 
+via iceoryx.
 
-## CMake Build
-Alternatively, you may like to manually run the build via CMake. This option is useful especially during development.
+Open three terminals on machine `A` and execute the following commands:
 
-First, all of the gateway dependencies must be fetched, built, and installed into a common location.  The install location shall be referred to as `$INSTALL_DIR` from hereon.
+- Terminal 1: `./build/iox-roudi`
+- Terminal 2: `./build/iceoryx_dds/iox-gw-iceoryx2dds` to send all samples from the publisher to DDS
+- Terminal 3: `./build/iceoryx_examples/icedelivery/iox-ex-publisher-typed`
 
-This can be done manually, in which case the following dependencies must be installed to `$INSTALL_DIR`:
-* cpptoml
-* gtest (if testing)
-* cyclonedds
-* cyclonedds-cxx
-* idlpp-cxx
-* iceoryx_utils
-* iceoryx_posh
+Open another three terminals on machine `B` and execute the commands:
 
-A potentially easier method is, again, to take advantage of the script `iceoryx/tools/iceoryx_build_test.sh`.
+- Terminal 1: `./build/iox-roudi`
+- Terminal 2: `./build/iceoryx_dds/iox-gw-dds2iceoryx` to receive all samples from the publisher via DDS
+- Terminal 3: `./build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed`
 
-Through building the gateway once via the script, all dependencies will be automatically fetched and installed.
-They will be be found in, for example,  `./my-build/install/prefix`.
+If you would like to have a bidirectional communication just run `iox-gw-dds2iceoryx` and 
+`iox-gw-iceoryx2dds` on the same machine.
 
-Then, `iceoryx_dds` can be built via CMake like so:
-```
-INSTALL_DIR=./my-build/install/prefix
-mkdir -p ./my-build/dds_gateway
-cd ./my-build/dds_gateway
-cmake -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" ../../
-cmake --build . -j8
-cmake --build . --target install
-```
-# Running
+## Running with shared libraries
 Before running, you may need to add the install directory to the library load path if it is not standard (so that the runtime dependencies can be found).
 i.e.
 ```
@@ -84,3 +102,5 @@ e.g.
 $INSTALL_DIR/bin/iox-gw-iceoryx2dds
 $INSTALL_DIR/bin/iox-gw-dds2iceoryx
 ```
+
+
