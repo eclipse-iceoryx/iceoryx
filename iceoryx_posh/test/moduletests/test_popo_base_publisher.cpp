@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,50 +21,17 @@
 using namespace ::testing;
 using ::testing::_;
 
-struct DummyData
-{
-    uint64_t val = 42;
-};
-
-template <typename T, typename port_t>
-class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
+template <typename port_t>
+class StubbedBasePublisher : public iox::popo::BasePublisher<port_t>
 {
   public:
     StubbedBasePublisher(iox::capro::ServiceDescription)
-        : iox::popo::BasePublisher<T, port_t>::BasePublisher(){};
-    uid_t getUid() const noexcept
-    {
-        return iox::popo::BasePublisher<T, port_t>::getUid();
-    }
-    iox::capro::ServiceDescription getServiceDescription() const noexcept
-    {
-        return iox::popo::BasePublisher<T, port_t>::getServiceDescription();
-    }
+        : iox::popo::BasePublisher<port_t>::BasePublisher(){};
 
-    void offer() noexcept
-    {
-        return iox::popo::BasePublisher<T, port_t>::offer();
-    }
-    void stopOffer() noexcept
-    {
-        return iox::popo::BasePublisher<T, port_t>::stopOffer();
-    }
-    bool isOffered() const noexcept
-    {
-        return iox::popo::BasePublisher<T, port_t>::isOffered();
-    }
-    bool hasSubscribers() const noexcept
-    {
-        return iox::popo::BasePublisher<T, port_t>::hasSubscribers();
-    }
-
-    port_t& getMockedPort()
-    {
-        return this->port();
-    }
+    using iox::popo::BasePublisher<port_t>::port;
 };
 
-using TestBasePublisher = StubbedBasePublisher<DummyData, MockPublisherPortUser>;
+using TestBasePublisher = StubbedBasePublisher<MockPublisherPortUser>;
 
 class BasePublisherTest : public Test
 {
@@ -88,7 +56,7 @@ class BasePublisherTest : public Test
 TEST_F(BasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), offer).Times(1);
+    EXPECT_CALL(sut.port(), offer).Times(1);
     // ===== Test ===== //
     sut.offer();
     // ===== Verify ===== //
@@ -98,7 +66,7 @@ TEST_F(BasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
 TEST_F(BasePublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), stopOffer).Times(1);
+    EXPECT_CALL(sut.port(), stopOffer).Times(1);
     // ===== Test ===== //
     sut.stopOffer();
     // ===== Verify ===== //
@@ -108,7 +76,7 @@ TEST_F(BasePublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
 TEST_F(BasePublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), isOffered).Times(1);
+    EXPECT_CALL(sut.port(), isOffered).Times(1);
     // ===== Test ===== //
     sut.isOffered();
     // ===== Verify ===== //
@@ -118,7 +86,7 @@ TEST_F(BasePublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
 TEST_F(BasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), hasSubscribers).Times(1);
+    EXPECT_CALL(sut.port(), hasSubscribers).Times(1);
     // ===== Test ===== //
     sut.hasSubscribers();
     // ===== Verify ===== //
@@ -128,7 +96,7 @@ TEST_F(BasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
 TEST_F(BasePublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublisherPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), getServiceDescription).Times(1);
+    EXPECT_CALL(sut.port(), getServiceDescription).Times(1);
     // ===== Test ===== //
     sut.getServiceDescription();
     // ===== Verify ===== //
@@ -137,5 +105,5 @@ TEST_F(BasePublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublishe
 
 TEST_F(BasePublisherTest, DestroysUnderlyingPortOnDestruction)
 {
-    EXPECT_CALL(sut.getMockedPort(), destroy).Times(1);
+    EXPECT_CALL(sut.port(), destroy).Times(1);
 }
