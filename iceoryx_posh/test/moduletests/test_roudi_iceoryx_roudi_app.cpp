@@ -38,12 +38,27 @@ class IceoryxRoudiApp_Child : public IceOryxRouDiApp
     {
     }
 
-    bool getVariableMRun()
+    bool getVariableRun()
     {
         return m_run;
     }
 
-    void setVariableMRun(bool condition)
+    iox::log::LogLevel getLogLevel()
+    {
+        return m_logLevel;
+    }
+
+    roudi::MonitoringMode getMonitoringMode()
+    {
+        return m_monitoringMode;
+    }
+
+    RouDiConfig_t getConfig()
+    { 
+        return m_config;
+    }
+
+    void setVariableRun(bool condition)
     {
         m_run = condition;
     }
@@ -67,7 +82,7 @@ class IceoryxRoudiApp_test : public Test
     };
 };
 
-TEST_F(IceoryxRoudiApp_test, CheckConstructorIsSuccessfull)
+TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessfull)
 {
     constexpr uint8_t numberOfArgs{1U};
     char* args[numberOfArgs];
@@ -78,7 +93,9 @@ TEST_F(IceoryxRoudiApp_test, CheckConstructorIsSuccessfull)
 
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
-    EXPECT_TRUE(roudi.getVariableMRun());
+    EXPECT_TRUE(roudi.getVariableRun());
+    EXPECT_THAT(roudi.getLogLevel(), Eq(iox::log::LogLevel::kWarn));
+    EXPECT_THAT(roudi.getMonitoringMode(), Eq(roudi::MonitoringMode::ON));
 }
 
 TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessfull)
@@ -94,7 +111,7 @@ TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessfull)
 
     IceoryxRoudiApp_Child roudiTest(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
-    EXPECT_TRUE(roudiTest.getVariableMRun());
+    EXPECT_TRUE(roudiTest.getVariableRun());
 }
 
 TEST_F(IceoryxRoudiApp_test, CheckRunMethodWithMRunFalseReturnExitSuccess)
@@ -108,7 +125,7 @@ TEST_F(IceoryxRoudiApp_test, CheckRunMethodWithMRunFalseReturnExitSuccess)
 
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
-    roudi.setVariableMRun(false);
+    roudi.setVariableRun(false);
 
     uint8_t result = roudi.callRun();
 
@@ -156,7 +173,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFals
 
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
-    EXPECT_FALSE(roudi.getVariableMRun());
+    EXPECT_FALSE(roudi.getVariableRun());
 }
 
 
