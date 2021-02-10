@@ -12,6 +12,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
