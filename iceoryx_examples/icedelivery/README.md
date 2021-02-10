@@ -159,7 +159,7 @@ How can the subscriber application receive the data the publisher application ju
 
 Similar to the publisher we need to include the runtime and the subscriber as well as the topic data header:
 ```cpp
-#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 ```
