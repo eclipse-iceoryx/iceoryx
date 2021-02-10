@@ -57,9 +57,10 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
     {
         return iox::popo::BasePublisher<T, port_t>::hasSubscribers();
     }
+
     port_t& getMockedPort()
     {
-        return iox::popo::BasePublisher<T, port_t>::m_port;
+        return this->port();
     }
 };
 
@@ -85,96 +86,6 @@ class BasePublisherTest : public Test
     TestBasePublisher sut{{"", "", ""}};
 };
 
-#if 0
-TEST_F(BasePublisherTest, LoanForwardsAllocationErrorsToCaller)
-{
-    // ===== Setup ===== //
-    ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(
-            ByMove(iox::cxx::error<iox::popo::AllocationError>(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS))));
-    // ===== Test ===== //
-    auto result = sut.loanSample(sizeof(DummyData));
-    // ===== Verify ===== //
-    EXPECT_EQ(true, result.has_error());
-    EXPECT_EQ(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, result.get_error());
-    // ===== Cleanup ===== //
-}
-
-TEST_F(BasePublisherTest, LoanReturnsAllocatedTypedSampleOnSuccess)
-{
-    // ===== Setup ===== //
-    ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
-    // ===== Test ===== //
-    auto result = sut.loanSample(sizeof(DummyData));
-    // ===== Verify ===== //
-    // The memory location of the sample should be the same as the chunk payload.
-    EXPECT_EQ(chunkMock.chunkHeader()->payload(), result.value().get());
-    // ===== Cleanup ===== //
-}
-
-TEST_F(BasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
-{
-    // ===== Setup ===== //
-    ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
-    // ===== Test ===== //
-    auto result = sut.loanSample(sizeof(DummyData));
-    // ===== Verify ===== //
-    EXPECT_EQ(chunkMock.chunkHeader(), result.value().getHeader());
-    // ===== Cleanup ===== //
-}
-
-TEST_F(BasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
-{
-    // ===== Setup ===== //
-    ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
-
-    EXPECT_CALL(sut.getMockedPort(), releaseChunk(chunkMock.chunkHeader())).Times(AtLeast(1));
-
-    // ===== Test ===== //
-    {
-        auto result = sut.loanSample(sizeof(DummyData));
-    }
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(BasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
-{
-    // ===== Setup ===== //
-    ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
-    EXPECT_CALL(sut.getMockedPort(), sendChunk).Times(1);
-    // ===== Test ===== //
-    sut.loanSample(sizeof(DummyData)).and_then([](auto& sample) { sample.publish(); });
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(BasePublisherTest, PreviousSampleReturnsSampleWhenPreviousChunkIsRetrievable)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), tryGetPreviousChunk)
-        .WillOnce(Return(ByMove(iox::cxx::make_optional<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
-    // ===== Test ===== //
-    auto result = sut.loanPreviousSample();
-    // ===== Verify ===== //
-    EXPECT_EQ(true, result.has_value());
-    // ===== Cleanup ===== //
-}
-
-TEST_F(BasePublisherTest, PreviousSampleReturnsEmptyOptionalWhenChunkNotRetrievable)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), tryGetPreviousChunk).WillOnce(Return(ByMove(iox::cxx::nullopt)));
-    // ===== Test ===== //
-    auto result = sut.loanPreviousSample();
-    // ===== Verify ===== //
-    EXPECT_EQ(false, result.has_value());
-    // ===== Cleanup ===== //
-}
 
 TEST_F(BasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
 {
@@ -230,5 +141,3 @@ TEST_F(BasePublisherTest, DestroysUnderlyingPortOnDestruction)
 {
     EXPECT_CALL(sut.getMockedPort(), destroy).Times(1);
 }
-
-#endif
