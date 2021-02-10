@@ -82,6 +82,14 @@ TEST_F(expected_test, CreateError)
     EXPECT_THAT(sut.get_error().m_b, Eq(212));
 }
 
+// TEST_F(expected_test, CreateAndMove)
+// {
+//     auto sut = expected<int, Test>::create_value(73);
+//     auto movedValue = std::move(sut);
+//     EXPECT_FALSE(sut.is_valid());
+//     EXPECT_TRUE(movedValue.is_valid());
+// }
+
 TEST_F(expected_test, BoolOperatorError)
 {
     auto sut = expected<int, Test>::create_error(123, 321);

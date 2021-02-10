@@ -516,7 +516,6 @@ inline expected<ErrorType>::expected(error<ErrorType>&& errorValue) noexcept
 {
 }
 
-#if defined(_WIN32)
 template <typename ErrorType>
 template <typename ValueType>
 inline expected<ErrorType>::expected(const expected<ValueType, ErrorType>& rhs) noexcept
@@ -568,7 +567,6 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, E
     }
     m_hasError = rhs.has_error();
 }
-#endif
 
 template <typename ErrorType>
 inline expected<ErrorType> expected<ErrorType>::create_value() noexcept
