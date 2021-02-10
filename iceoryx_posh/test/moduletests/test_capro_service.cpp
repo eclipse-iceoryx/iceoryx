@@ -37,6 +37,16 @@ class ServiceDescription_test : public Test
 
 /// BEGIN CLASSHASH TESTS
 
+TEST_F(ServiceDescription_test, ServiceDescriptionClassHashDefaultCtorCreatesClassHashWithDefaultValues)
+{
+    ServiceDescription::ClassHash testHash{};
+
+    EXPECT_EQ(uint32_t(0), testHash[0]);
+    EXPECT_EQ(uint32_t(0), testHash[1]);
+    EXPECT_EQ(uint32_t(0), testHash[2]);
+    EXPECT_EQ(uint32_t(0), testHash[3]);
+}
+
 TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashWithValuesPassedToTheCtor)
 {
     ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
@@ -102,6 +112,18 @@ TEST_F(ServiceDescription_test, ClassHashWithValuesAssignedUsingAssignmentOperat
     EXPECT_THAT(testHash[1], Eq(2U));
     EXPECT_THAT(testHash[2], Eq(3U));
     EXPECT_THAT(testHash[3], Eq(4U));
+}
+
+TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
+{
+    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
+
+    testHash[0] = 1U;
+    testHash[1] = 2U;
+    testHash[2] = 3U;
+    testHash[3] = 4U;
+
+    EXPECT_DEATH({ testHash[4] = 5U; }, ".*");
 }
 
 /// END CLASSHASH TESTS
@@ -656,4 +678,3 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirst
 }
 
 /// END SERVICEDESCRIPTION TESTS
-
