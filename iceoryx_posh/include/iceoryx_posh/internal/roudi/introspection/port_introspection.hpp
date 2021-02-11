@@ -62,7 +62,9 @@ class PortIntrospection
 
         struct PublisherInfo
         {
-            PublisherInfo() noexcept {};
+            PublisherInfo() noexcept
+            {
+            }
 
             PublisherInfo(typename PublisherPort::MemberType_t& portData)
                 : portData(&portData)
@@ -315,7 +317,7 @@ class PortIntrospection
   private:
     PortData m_portData;
 
-    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
+    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
         concurrent::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
 };
