@@ -13,7 +13,7 @@
 # the License.
 
 cmake_minimum_required(VERSION 3.5)
-project(iceoryx_systemtest)
+project(iceoryx_integrationtest)
 
 include(GNUInstallDirs)
 
@@ -22,19 +22,19 @@ find_package(iceoryx_utils REQUIRED)
 find_package(cpptoml REQUIRED)
 find_package(ament_cmake REQUIRED)
 
-add_executable(iox-publisher-systemtest src/iox_publisher_systemtest.cpp)
+add_executable(iox-publisher-integrationtest src/iox_publisher_integrationtest.cpp)
 target_include_directories(
-  iox-publisher-systemtest
+  iox-publisher-integrationtest
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(iox-publisher-systemtest iceoryx_posh::iceoryx_posh)
+target_link_libraries(iox-publisher-integrationtest iceoryx_posh::iceoryx_posh)
 
-add_executable(iox-subscriber-systemtest src/iox_subscriber_systemtest.cpp)
+add_executable(iox-subscriber-integrationtest src/iox_subscriber_integrationtest.cpp)
 target_include_directories(
-  iox-subscriber-systemtest
+  iox-subscriber-integrationtest
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(iox-subscriber-systemtest iceoryx_posh::iceoryx_posh)
+target_link_libraries(iox-subscriber-integrationtest iceoryx_posh::iceoryx_posh)
 
 add_executable(iox-roudi src/roudi/roudi_main.cpp)
 set_target_properties(
@@ -54,18 +54,18 @@ target_include_directories(
           $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
           $<INSTALL_INTERFACE:include/${PREFIX}>)
 
-install(TARGETS iox-roudi iox-publisher-systemtest iox-subscriber-systemtest
+install(TARGETS iox-roudi iox-publisher-integrationtest iox-subscriber-integrationtest
         RUNTIME DESTINATION lib/${PROJECT_NAME})
 
-install(DIRECTORY iceoryx_systemtest DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY iceoryx_integrationtest DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
   find_package(ros_testing)
 
-  add_ros_test(iceoryx_systemtest/test_roudi_startup_shutdown.py)
-  add_ros_test(iceoryx_systemtest/test_data_exchange.py)
+  add_ros_test(iceoryx_integrationtest/test_roudi_startup_shutdown.py)
+  add_ros_test(iceoryx_integrationtest/test_data_exchange.py)
 endif()
 
 ament_package()

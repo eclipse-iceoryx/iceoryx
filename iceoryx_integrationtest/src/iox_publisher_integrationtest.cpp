@@ -35,7 +35,7 @@ int main()
     // the process correctly for the test
     signal(SIGTERM, sigHandler);
 
-    std::cout << "Application iox_publisher_systemtest started" << std::endl;
+    std::cout << "Application iox_publisher_integrationtest started" << std::endl;
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
 

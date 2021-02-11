@@ -31,7 +31,7 @@ def generate_test_description():
     proc_env = os.environ.copy()
 
     roudi_executable = ExecutableInPackage(
-        package='iceoryx_systemtest', executable='iox-roudi')
+        package='iceoryx_integrationtest', executable='iox-roudi')
     roudi_process = launch.actions.ExecuteProcess(
         cmd=[roudi_executable, '-l', 'debug'],
         env=proc_env, output='screen',
@@ -39,13 +39,13 @@ def generate_test_description():
     )
 
     publisher_executable = ExecutableInPackage(
-        package='iceoryx_systemtest', executable='iox-publisher-systemtest')
+        package='iceoryx_integrationtest', executable='iox-publisher-integrationtest')
     publisher_process = launch.actions.ExecuteProcess(
         cmd=[publisher_executable],
         env=proc_env, output='screen')
 
     subscriber_executable = ExecutableInPackage(
-        package='iceoryx_systemtest', executable='iox-subscriber-systemtest')
+        package='iceoryx_integrationtest', executable='iox-subscriber-integrationtest')
     subscriber_process = launch.actions.ExecuteProcess(
         cmd=[subscriber_executable],
         env=proc_env, output='screen')
@@ -66,9 +66,9 @@ class TestProcess(unittest.TestCase):
 
     def test_apps_ready(self, proc_output):
         proc_output.assertWaitFor(
-            'Application iox_publisher_systemtest started', timeout=45, stream='stdout')
+            'Application iox_publisher_integrationtest started', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Application iox_subscriber_systemtest started', timeout=45, stream='stdout')
+            'Application iox_subscriber_integrationtest started', timeout=45, stream='stdout')
 
     def test_simple_data_exchange(self, proc_output):
         proc_output.assertWaitFor(

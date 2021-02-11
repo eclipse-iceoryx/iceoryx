@@ -1,8 +1,9 @@
 # Iceoryx Systemtests
 
 ## Introduction
-To ensure quality standards in iceoryx, we are using automated testing to verify functionality on unittest and integrationtest level.
-Additionally we need to make sure that the customer-facing API is functional and system-level requirements are fulfilled.
+To ensure quality standards in iceoryx, we are using automated testing to verify functionality on unittest and integrationtest level in the respective components.
+Additionally we need to make sure that the customer-facing API is functional and software integration specifications are fulfilled.
+Test focus is here on SWE.5 according to ASPICE.
 
 For that purpose we bring in tests which simulate customer behavior to have automatic testing of (Mis)Use-cases.
 As testing framework we use the [launch_testing](https://github.com/ros2/launch/tree/master/launch_testing) framework from ROS 2.
@@ -47,7 +48,7 @@ iceoryx_workspace
         ├── iceoryx_examples
         ├── iceoryx_meta
         ├── iceoryx_posh
-        ├── iceoryx_systemtest
+        ├── iceoryx_integrationtest
         ├── iceoryx_utils
         └── tools
 ```
@@ -65,18 +66,18 @@ Colcon automatically creates the folders `build`, `install` and `log`.
 
 For executing tests you can use colcon too:
 ```bash
-colcon test --packages-select iceoryx_systemtest
+colcon test --packages-select iceoryx_integrationtest
 ```
 For the case that a test fails the output look like this
 ```bash
---- stderr: iceoryx_systemtest                     
+--- stderr: iceoryx_integrationtest                     
 Errors while running CTest
 ---
-Finished <<< iceoryx_systemtest [7.49s] [ with test failures ]
+Finished <<< iceoryx_integrationtest [7.49s] [ with test failures ]
 
 Summary: 13 packages finished [7.80s]
-  1 package had stderr output: iceoryx_systemtest
-  1 package had test failures: iceoryx_systemtest
+  1 package had stderr output: iceoryx_integrationtest
+  1 package had test failures: iceoryx_integrationtest
 ```
 
 For observing test logs in an error case you can use `colcon test-result`:
@@ -88,16 +89,16 @@ With colcon all tests in the systemtest package are executed. In particular case
 one test file. This can be done the following way:
 ```bash
 source install/setup.bash # your install directory created by colcon
-launch_test src/iceoryx/iceoryx_systemtest/iceoryx_systemtest/test_roudi_startup_shutdown.py 
+launch_test src/iceoryx/iceoryx_integrationtest/iceoryx_integrationtest/test_roudi_startup_shutdown.py 
 ```
 
 An output for a failing test could look like this:
 ```bash
     ======================================================================
-    FAIL: test_roudi_ready (iceoryx_systemtest.TestRouDiProcess)
+    FAIL: test_roudi_ready (iceoryx_integrationtest.TestRouDiProcess)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      File "iceoryx_workspace/src/iceoryx/iceoryx_systemtest/iceoryx_systemtest/test_roudi_startup_shutdown.py", line 52, in test_roudi_ready
+      File "iceoryx_workspace/src/iceoryx/iceoryx_integrationtest/iceoryx_integrationtest/test_roudi_startup_shutdown.py", line 52, in test_roudi_ready
         proc_output.assertWaitFor(
       File "/opt/ros/foxy/lib/python3.8/site-packages/launch_testing/io_handler.py", line 146, in assertWaitFor
         assert success, 'Waiting for output timed out'

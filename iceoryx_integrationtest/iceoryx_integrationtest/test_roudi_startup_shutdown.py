@@ -32,7 +32,7 @@ def generate_test_description():
     proc_env = os.environ.copy()
 
     roudi_executable = ExecutableInPackage(
-        package='iceoryx_systemtest', executable='iox-roudi')
+        package='iceoryx_integrationtest', executable='iox-roudi')
 
     dut_process = launch.actions.ExecuteProcess(
         cmd=[roudi_executable, '-l', 'debug'],

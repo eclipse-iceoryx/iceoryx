@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef ICEORYX_SYSTEMTEST_TOPIC_DATA_HPP
-#define ICEORYX_SYSTEMTEST_TOPIC_DATA_HPP
+#ifndef ICEORYX_INTEGRATIONTEST_TOPIC_DATA_HPP
+#define ICEORYX_INTEGRATIONTEST_TOPIC_DATA_HPP
 
 #include <cstdint>
 
@@ -32,4 +32,4 @@ struct RadarObject
     double z = 0.0;
 };
 
-#endif // ICEORYX_SYSTEMTEST_TOPIC_DATA_HPP
+#endif // ICEORYX_INTEGRATIONTEST_TOPIC_DATA_HPP
