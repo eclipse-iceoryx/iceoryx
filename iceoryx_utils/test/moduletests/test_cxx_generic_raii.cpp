@@ -34,101 +34,101 @@ class GenericRAII_test : public Test
 
 TEST_F(GenericRAII_test, InitFunctionIsCalledInCtorWhenSet)
 {
-    bool hasCalledInit = false;
-    GenericRAII sut([&] { hasCalledInit = true; }, std::function<void()>());
-    EXPECT_TRUE(hasCalledInit);
+    int hasCalledInit = 0;
+    GenericRAII sut([&] { ++hasCalledInit; }, std::function<void()>());
+    EXPECT_THAT(hasCalledInit, Eq(1));
 }
 
 TEST_F(GenericRAII_test, InitFunctionIsCalledInCtorWhenSetWithCleanupFunction)
 {
-    bool hasCalledInit = false;
-    bool hasCalledCleanup = false;
-    GenericRAII sut([&] { hasCalledInit = true; }, [&] { hasCalledCleanup = true; });
-    EXPECT_TRUE(hasCalledInit);
+    int hasCalledInit = 0;
+    int hasCalledCleanup = 0;
+    GenericRAII sut([&] { ++hasCalledInit; }, [&] { ++hasCalledCleanup; });
+    EXPECT_THAT(hasCalledInit, Eq(1));
 }
 
 TEST_F(GenericRAII_test, CleanupFunctionIsCalledInDtor)
 {
-    bool hasCalledInit = false;
-    bool hasCalledCleanup = false;
+    int hasCalledInit = 0;
+    int hasCalledCleanup = 0;
 
     {
-        GenericRAII sut([&] { hasCalledInit = true; }, [&] { hasCalledCleanup = true; });
+        GenericRAII sut([&] { ++hasCalledInit; }, [&] { ++hasCalledCleanup; });
     }
 
-    EXPECT_TRUE(hasCalledInit);
-    EXPECT_TRUE(hasCalledCleanup);
+    EXPECT_THAT(hasCalledInit, Eq(1));
+    EXPECT_THAT(hasCalledCleanup, Eq(1));
 }
 
 TEST_F(GenericRAII_test, CleanupFunctionIsCalledInDtorWhenUsingCleanupOnlyCTor)
 {
-    bool hasCalledCleanup = false;
+    int hasCalledCleanup = 0;
 
     {
         GenericRAII sut([&] { hasCalledCleanup = true; });
     }
 
-    EXPECT_TRUE(hasCalledCleanup);
+    EXPECT_THAT(hasCalledCleanup, Eq(1));
 }
 
 TEST_F(GenericRAII_test, CleanupFunctionIsCalledInDtorWithEmptyInitFunction)
 {
-    bool hasCalledCleanup = false;
+    int hasCalledCleanup = 0;
 
     {
-        GenericRAII sut(std::function<void()>(), [&] { hasCalledCleanup = true; });
+        GenericRAII sut(std::function<void()>(), [&] { ++hasCalledCleanup; });
     }
 
-    EXPECT_TRUE(hasCalledCleanup);
+    EXPECT_THAT(hasCalledCleanup, Eq(1));
 }
 
 TEST_F(GenericRAII_test, MoveCTorDoesNotCallCleanupFunctionOfOrigin)
 {
-    bool hasCalledCleanup = false;
+    int hasCalledCleanup = 0;
 
-    GenericRAII sut([&] { hasCalledCleanup = true; });
+    GenericRAII sut([&] { ++hasCalledCleanup; });
     GenericRAII sut2(std::move(sut));
 
-    EXPECT_FALSE(hasCalledCleanup);
+    EXPECT_THAT(hasCalledCleanup, Eq(0));
 }
 
 TEST_F(GenericRAII_test, MoveConstructedDoesCallCleanupFunctionWhenDestroyed)
 {
-    bool hasCalledCleanup = false;
+    int hasCalledCleanup = 0;
 
     {
-        GenericRAII sut([&] { hasCalledCleanup = true; });
+        GenericRAII sut([&] { ++hasCalledCleanup; });
         GenericRAII sut2(std::move(sut));
     }
 
-    EXPECT_TRUE(hasCalledCleanup);
+    EXPECT_THAT(hasCalledCleanup, Eq(1));
 }
 
 TEST_F(GenericRAII_test, MoveAssignmentCallsCleanup)
 {
-    bool hasCalledCleanup = false;
-    bool hasCalledCleanup2 = false;
+    int hasCalledCleanup = 0;
+    int hasCalledCleanup2 = 0;
 
-    GenericRAII sut([&] { hasCalledCleanup = true; });
-    GenericRAII sut2([&] { hasCalledCleanup2 = true; });
+    GenericRAII sut([&] { ++hasCalledCleanup; });
+    GenericRAII sut2([&] { ++hasCalledCleanup2; });
 
     sut = std::move(sut2);
 
-    EXPECT_TRUE(hasCalledCleanup);
+    EXPECT_THAT(hasCalledCleanup, Eq(1));
 }
 
 TEST_F(GenericRAII_test, MoveAssignedCallsCleanupWhenOutOfScope)
 {
-    bool hasCalledCleanup = false;
-    bool hasCalledCleanup2 = false;
+    int hasCalledCleanup = 0;
+    int hasCalledCleanup2 = 0;
 
     {
-        GenericRAII sut([&] { hasCalledCleanup = true; });
-        GenericRAII sut2([&] { hasCalledCleanup2 = true; });
+        GenericRAII sut([&] { ++hasCalledCleanup; });
+        GenericRAII sut2([&] { ++hasCalledCleanup2; });
 
         sut = std::move(sut2);
     }
 
-    EXPECT_TRUE(hasCalledCleanup);
-    EXPECT_TRUE(hasCalledCleanup2);
+    EXPECT_THAT(hasCalledCleanup, Eq(1));
+    EXPECT_THAT(hasCalledCleanup2, Eq(1));
 }
