@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -595,7 +598,8 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 if (error == PortPoolError::NODE_DATA_LIST_FULL)
                 {
-                    sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::NODE_DATA_LIST_FULL);
+                    sendBuffer << runtime::IpcMessageErrorTypeToString(
+                        runtime::IpcMessageErrorType::NODE_DATA_LIST_FULL);
                 }
                 process->sendViaIpcChannel(sendBuffer);
 

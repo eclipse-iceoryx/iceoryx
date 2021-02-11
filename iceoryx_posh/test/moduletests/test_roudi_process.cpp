@@ -1,4 +1,5 @@
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
@@ -97,7 +100,8 @@ TEST_F(RouDiProcess_test, sendViaIpcChannelFail)
     iox::cxx::optional<iox::Error> sendViaIpcChannelStatusFail;
 
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&sendViaIpcChannelStatusFail](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+        [&sendViaIpcChannelStatusFail](
+            const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             sendViaIpcChannelStatusFail.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });

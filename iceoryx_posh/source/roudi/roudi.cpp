@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,9 +12,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -21,7 +25,6 @@
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/posix_wrapper/thread.hpp"
-#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 
 namespace iox
 {
@@ -35,16 +38,16 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
     , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
-    , m_mempoolIntrospection(
-          *m_roudiMemoryInterface->introspectionMemoryManager()
-               .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
-          *m_roudiMemoryInterface->segmentManager().value(),
-          PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionMempoolService, IPC_CHANNEL_ROUDI_NAME)))
+    , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
+                                  .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
+                             *m_roudiMemoryInterface->segmentManager().value(),
+                             PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionMempoolService,
+                                                                                          IPC_CHANNEL_ROUDI_NAME)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    m_processIntrospection.registerPublisherPort(
-        PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, IPC_CHANNEL_ROUDI_NAME)));
+    m_processIntrospection.registerPublisherPort(PublisherPortUserType(
+        m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, IPC_CHANNEL_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.run();
