@@ -155,8 +155,9 @@ class expected<ErrorType>
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected(expected&&) = default;
+    expected(expected&& rhs) noexcept;
 
+#if defined(_WIN32)
     /// @brief copy conversion constructor to convert an expected which contains value and
     ///        error type to an expected which contains only an error
     template <typename ValueType>
@@ -166,7 +167,7 @@ class expected<ErrorType>
     ///        error type to an expected which contains only an error
     template <typename ValueType>
     expected(expected<ValueType, ErrorType>&& rhs) noexcept;
-
+#endif
     /// @brief calls the destructor of the success value or error value - depending on what
     ///         is stored in the expected
     ~expected() = default;
@@ -177,7 +178,7 @@ class expected<ErrorType>
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected& operator=(expected&&) = default;
+    expected& operator=(expected&& rhs) noexcept;
 
     /// @brief  calls the copy assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
@@ -213,6 +214,10 @@ class expected<ErrorType>
     /// @return expected signalling error
     template <typename... Targs>
     static expected create_error(Targs&&... args) noexcept;
+
+    /// @brief returns true if the expected is in a valid state either containing a value or an error
+    /// @return true if in valid state or false if in invalid state (e.g. after move)
+    bool is_initialized() const noexcept;
 
     /// @brief  returns true if the expected contains an error otherwise false
     /// @return bool which contains true if the expected contains an error
@@ -356,10 +361,9 @@ class expected<ErrorType>
 
   private:
     expected(variant<ErrorType>&& store, const bool hasError) noexcept;
-
-  private:
     variant<ErrorType> m_store;
     bool m_hasError;
+    bool m_isInitialized{true};
 };
 
 /// @brief specialization of the expected class which can contain an error as well as a success value
@@ -379,7 +383,7 @@ class expected<ValueType, ErrorType>
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected(expected&&) = default;
+    expected(expected&& rhs) noexcept;
 
     /// @brief calls the destructor of the success value or error value - depending on what
     ///         is stored in the expected
@@ -391,7 +395,7 @@ class expected<ValueType, ErrorType>
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected& operator=(expected&&) = default;
+    expected& operator=(expected&& rhs) noexcept;
 
     /// @brief  constructs an expected which is signaling success and uses the value
     ///         provided by successValue to copy construct its success value
@@ -426,6 +430,10 @@ class expected<ValueType, ErrorType>
     /// @return expected signalling error
     template <typename... Targs>
     static expected create_error(Targs&&... args) noexcept;
+
+    /// @brief returns true if the expected is in a valid state either containing a value or an error
+    /// @return true if in valid state or false if in invalid state (e.g. after move)
+    bool is_initialized() const noexcept;
 
     /// @brief  returns true if the expected contains an error otherwise false
     /// @return bool which contains true if the expected contains an error
@@ -788,10 +796,9 @@ class expected<ValueType, ErrorType>
 
   private:
     expected(variant<ValueType, ErrorType>&& f_store, const bool hasError) noexcept;
-
-  private:
     variant<ValueType, ErrorType> m_store;
     bool m_hasError;
+    bool m_isInitialized{true};
 };
 
 template <typename ErrorType>
