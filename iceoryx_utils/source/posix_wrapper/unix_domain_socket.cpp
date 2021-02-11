@@ -81,18 +81,16 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
     else
     {
         m_maxMessageSize = maxMsgSize;
-        auto createResult = createSocket(mode);
+        auto initalizeResult = initalizeSocket(mode);
 
-        if (!createResult.has_error())
+        if (!initalizeResult.has_error())
         {
             this->m_isInitialized = true;
-            this->m_errorValue = IpcChannelError::UNDEFINED;
-            this->m_sockfd = createResult.value();
         }
         else
         {
             this->m_isInitialized = false;
-            this->m_errorValue = createResult.get_error();
+            this->m_errorValue = initalizeResult.get_error();
         }
     }
 }
@@ -163,10 +161,10 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
     }
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor(const int32_t fileDescriptor) noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
-    auto closeCall = cxx::makeSmartC(
-        closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, fileDescriptor);
+    auto closeCall =
+        cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
 
     if (!closeCall.hasErrors())
     {
@@ -190,7 +188,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
 {
     if (m_isInitialized)
     {
-        return closeFileDescriptor(m_sockfd);
+        return closeFileDescriptor();
     }
 
     return cxx::success<void>();
@@ -336,7 +334,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
 }
 
 
-cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const IpcChannelMode mode) noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChannelMode mode) noexcept
 {
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
@@ -363,7 +361,7 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
         return createErrorFromErrnum(socketCall.getErrNum());
     }
 
-    int32_t sockfd = socketCall.getReturnValue();
+    m_sockfd = socketCall.getReturnValue();
 
     if (IpcChannelSide::SERVER == m_channelSide)
     {
@@ -373,17 +371,17 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
                                         cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                         {ERROR_CODE},
                                         {},
-                                        sockfd,
+                                        m_sockfd,
                                         reinterpret_cast<struct sockaddr*>(&m_sockAddr),
                                         static_cast<socklen_t>(sizeof(m_sockAddr)));
 
         if (!bindCall.hasErrors())
         {
-            return cxx::success<int32_t>(sockfd);
+            return cxx::success<>();
         }
         else
         {
-            closeFileDescriptor(sockfd);
+            closeFileDescriptor();
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return createErrorFromErrnum(bindCall.getErrNum());
         }
@@ -396,25 +394,25 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
                                            cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                            {ERROR_CODE},
                                            {ENOENT},
-                                           sockfd,
+                                           m_sockfd,
                                            (struct sockaddr*)&m_sockAddr,
                                            static_cast<socklen_t>(sizeof(m_sockAddr)));
 
         if (connectCall.hasErrors())
         {
-            closeFileDescriptor(sockfd);
+            closeFileDescriptor();
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return createErrorFromErrnum(connectCall.getErrNum());
         }
         else if (connectCall.getErrNum() == ENOENT)
         {
-            closeFileDescriptor(sockfd);
+            closeFileDescriptor();
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return createErrorFromErrnum(connectCall.getErrNum());
         }
         else
         {
-            return cxx::success<int32_t>(sockfd);
+            return cxx::success<>();
         }
     }
 }

@@ -132,7 +132,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief creates the unix domain socket
     /// @param mode blocking or non_blocking
     /// @return int with the socket file descriptor, IpcChannelError if error occured
-    cxx::expected<int32_t, IpcChannelError> createSocket(const IpcChannelMode mode) noexcept;
+    cxx::expected<IpcChannelError> initalizeSocket(const IpcChannelMode mode) noexcept;
 
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
@@ -143,7 +143,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief Tries to close the given file descriptor
     /// @param[in] file descriptor that shall be closed
     /// @return IpcChannelError if error occured
-    cxx::expected<IpcChannelError> closeFileDescriptor(const int32_t fileDescriptor) noexcept;
+    cxx::expected<IpcChannelError> closeFileDescriptor() noexcept;
 
   private:
     UdsName_t m_name;
