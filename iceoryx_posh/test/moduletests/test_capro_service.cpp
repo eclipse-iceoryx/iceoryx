@@ -59,16 +59,6 @@ TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashW
     EXPECT_EQ(uint32_t(4), testHash[3]);
 }
 
-TEST_F(ServiceDescription_test, ClassHashIndexOperatorReturnsTheValueInTheCorrespondingIndex)
-{
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
-
-    EXPECT_THAT(testHash[0], Eq(1U));
-    EXPECT_THAT(testHash[1], Eq(2U));
-    EXPECT_THAT(testHash[2], Eq(3U));
-    EXPECT_THAT(testHash[3], Eq(4U));
-}
-
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
 {
     ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
