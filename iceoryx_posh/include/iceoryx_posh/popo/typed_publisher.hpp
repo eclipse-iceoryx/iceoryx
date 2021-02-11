@@ -35,6 +35,8 @@ class PublisherInterface
   public:
     virtual void publish(Sample<T>&& sample) noexcept = 0;
 
+    virtual ~PublisherInterface(){};
+
   protected:
     PublisherInterface() = default;
 };
