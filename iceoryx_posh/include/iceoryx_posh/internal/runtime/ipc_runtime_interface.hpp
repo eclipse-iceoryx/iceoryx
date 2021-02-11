@@ -83,14 +83,14 @@ class IpcRuntimeInterface
 
     /// @brief
     /// @return
-    RegAckResult waitForRegAck(int64_t transmissionTimestamp) noexcept;
+    RegAckResult waitForRegAck(const int64_t transmissionTimestamp) noexcept;
 
   private:
     ProcessName_t m_appName;
     cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
     IpcInterfaceCreator m_AppIpcInterface;
     IpcInterfaceUser m_RoudiIpcInterface;
-    size_t m_shmTopicSize{0U};
+    uint64_t m_shmTopicSize{0U};
     uint64_t m_segmentId{0U};
 };
 
