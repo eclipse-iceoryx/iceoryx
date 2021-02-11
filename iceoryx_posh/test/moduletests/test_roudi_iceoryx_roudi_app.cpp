@@ -19,7 +19,6 @@
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 using namespace ::testing;
