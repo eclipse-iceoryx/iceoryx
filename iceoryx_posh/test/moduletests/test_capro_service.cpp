@@ -61,32 +61,32 @@ TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashW
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
 {
-    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
-    ServiceDescription::ClassHash testHash2{5U, 6U, 7U, 8U};
+    ServiceDescription::ClassHash testHash1{15U, 25U, 35U, 45U};
+    ServiceDescription::ClassHash testHash2{55U, 65U, 75U, 85U};
 
     EXPECT_FALSE(testHash1 == testHash2);
 }
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsTrue)
 {
-    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
-    ServiceDescription::ClassHash testHash2{1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash1{10U, 20U, 30U, 40U};
+    ServiceDescription::ClassHash testHash2{10U, 20U, 30U, 40U};
 
     EXPECT_TRUE(testHash1 == testHash2);
 }
 
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperatorReturnsTrue)
 {
-    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
-    ServiceDescription::ClassHash testHash2{5U, 6U, 7U, 8U};
+    ServiceDescription::ClassHash testHash1{12U, 24U, 36U, 48U};
+    ServiceDescription::ClassHash testHash2{60U, 72U, 84U, 96U};
 
     EXPECT_TRUE(testHash1 != testHash2);
 }
 
 TEST_F(ServiceDescription_test, ComparingTwoEqualClassHashWithNotEqualOperatorReturnsFalse)
 {
-    ServiceDescription::ClassHash testHash1{1U, 2U, 3U, 4U};
-    ServiceDescription::ClassHash testHash2{1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash1{11U, 22U, 33U, 44U};
+    ServiceDescription::ClassHash testHash2{11U, 22U, 33U, 44U};
 
     EXPECT_FALSE(testHash1 != testHash2);
 }
@@ -95,15 +95,15 @@ TEST_F(ServiceDescription_test, ClassHashWithValuesAssignedUsingAssignmentOperat
 {
     ServiceDescription::ClassHash testHash{};
 
-    testHash[0] = 1U;
-    testHash[1] = 2U;
-    testHash[2] = 3U;
-    testHash[3] = 4U;
+    testHash[0] = 10U;
+    testHash[1] = 20U;
+    testHash[2] = 30U;
+    testHash[3] = 40U;
 
-    EXPECT_THAT(testHash[0], Eq(1U));
-    EXPECT_THAT(testHash[1], Eq(2U));
-    EXPECT_THAT(testHash[2], Eq(3U));
-    EXPECT_THAT(testHash[3], Eq(4U));
+    EXPECT_THAT(testHash[0], Eq(10U));
+    EXPECT_THAT(testHash[1], Eq(20U));
+    EXPECT_THAT(testHash[2], Eq(30U));
+    EXPECT_THAT(testHash[3], Eq(40U));
 }
 
 TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
@@ -127,7 +127,7 @@ TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
 /// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDescriptionWithValuesPassedToTheCtor)
 {
-    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash = {11U, 21U, 31U, 41U};
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
@@ -172,7 +172,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDes
 /// only intended to check the functionality by injecting the valus directly.
 TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeSetsTheScopeToInvalid)
 {
-    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash = {14U, 28U, 42U, 56U};
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
@@ -204,7 +204,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithOutOfB
 TEST_F(ServiceDescription_test,
        ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceSetsTheInterfaceSourceToInterfaceEnd)
 {
-    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash = {17U, 34U, 51U, 68U};
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
@@ -277,7 +277,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
     testService = "1";
     testInstance = "2";
     testEvent = "3";
-    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash = {12U, 23U, 34U, 45U};
 
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
 
@@ -287,17 +287,17 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
     EXPECT_EQ(uint16_t(1), serviceDescription1.getServiceID());
     EXPECT_EQ(uint16_t(2), serviceDescription1.getInstanceID());
     EXPECT_EQ(uint16_t(3), serviceDescription1.getEventID());
-    EXPECT_EQ(uint32_t(1), serviceDescription1.getClassHash()[0]);
-    EXPECT_EQ(uint32_t(2), serviceDescription1.getClassHash()[1]);
-    EXPECT_EQ(uint32_t(3), serviceDescription1.getClassHash()[2]);
-    EXPECT_EQ(uint32_t(4), serviceDescription1.getClassHash()[3]);
+    EXPECT_EQ(uint32_t(12), serviceDescription1.getClassHash()[0]);
+    EXPECT_EQ(uint32_t(23), serviceDescription1.getClassHash()[1]);
+    EXPECT_EQ(uint32_t(34), serviceDescription1.getClassHash()[2]);
+    EXPECT_EQ(uint32_t(45), serviceDescription1.getClassHash()[3]);
 }
 TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithNonIntegerStringValuesSetTheIDsToInvalid)
 {
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
-    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash = {01U, 02U, 03U, 04U};
 
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
 
@@ -311,7 +311,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithZeroAsStringValu
     testService = "0";
     testInstance = "0";
     testEvent = "0";
-    ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash = {19U, 29U, 39U, 49U};
 
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
 
