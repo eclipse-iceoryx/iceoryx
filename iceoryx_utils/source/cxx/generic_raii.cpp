@@ -18,10 +18,18 @@ namespace iox
 {
 namespace cxx
 {
+GenericRAII::GenericRAII(const std::function<void()> cleanupFunction) noexcept
+    : GenericRAII(std::function<void()>(), cleanupFunction)
+{
+}
+
 GenericRAII::GenericRAII(const std::function<void()> initFunction, const std::function<void()> cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
-    initFunction();
+    if (initFunction)
+    {
+        initFunction();
+    }
 }
 
 GenericRAII::~GenericRAII() noexcept

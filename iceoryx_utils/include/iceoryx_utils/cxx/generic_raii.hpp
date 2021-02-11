@@ -40,6 +40,10 @@ namespace cxx
 class GenericRAII
 {
   public:
+    /// @brief constructor which creates GenericRAII that calls only the cleanupFunction on destruction
+    /// @param[in] cleanupFunction callable which will be called in the destructor
+    GenericRAII(const std::function<void()> cleanupFunction) noexcept;
+
     /// @brief constructor which calls initFunction and stores the cleanupFunction which will be
     ///           called in the destructor
     /// @param[in] initFunction callable which will be called in the constructor
