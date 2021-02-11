@@ -11,7 +11,7 @@ First and foremost, tests must be meaningful and **verify the code** to prevent 
 New code shall be created with testability in mind. Legacy code shall be refactored if it is not testable.
 
 In general, the **Arrange Act Assert** pattern shall be used.
-This makes it trivial to isolate a test failure, since only one aspect of the code is tested at a time.
+This makes it trivial to isolate a test failure, since only one state transition is tested at a time.
 These two [blog](https://defragdev.com/blog/2014/08/07/the-fundamentals-of-unit-testing-arrange-act-assert.html)
 [posts](https://medium.com/@pjbgf/title-testing-code-ocd-and-the-aaa-pattern-df453975ab80) explain the **AAA** pattern in more detail.
 
@@ -62,13 +62,11 @@ As a reminder, if a method takes a pointer to an object, this object can be inst
 A good reason to use the heap are large objects which might cause a stack overflow.
 Some operating system have a rather small stack of only a few kB, so this limit might be closer one might think.
 
-Sometimes it is necessary to access a pointer returned by a method.
-Using an `EXPECT_*` to check for a `nullptr` is not sufficient if the pointer is dereferenced afterwards.
-It might crash the test application if it indeed is a `nullptr`.
-The implementation of the test object might be broken and only after the successful test run it can be assumed to be correct.
-To prevent a crash, the `nullptr` check has to be done with an `ASSERT_*`. This gracefully aborts the current test case and continues with the next one.
-The same applies to other potential dangerous operations, like accessing the value of an `cxx::optional` or `cxx::expected`.
-This check can be omitted if another test case already ensured that the test object operates as expected.
+In general, the tests should be written in a fashion to not crash the application in case of a faulty implementation.
+It must be assumed that the implementation is broken and only a successful test run can prove otherwise.
+The `sut` (system under test) might return a `nullptr` instead of the expected valid pointer, so `nullptr` check has to be done with an `ASSERT_*` to gracefully abort the current test.
+Just using an `EXPECT_*` for the check is not sufficient since the potential `nullptr` will be dereferenced later on and will crash the application.
+The same applies to other potential dangerous operations, like accessing the value of an `cxx::optional` or `cxx::expected` or an out of bounds access of an `cxx::vector`.
 
 Last but not least, apply the **DRY** principle (don't repeat yourself) and use typed and parameterized test to check multiple implementations and variations without repeating much code.
 
@@ -139,7 +137,7 @@ TEST_F(SingleDigitNumber_test, TestClass)
 
 Done and we reached 100% coverage. We can clap ourselves on the shoulders and move on. Well, except that we can't.
 
-The test above has several major and minor flaws. The first thing that leaps to the eye, it doesn't follow the **AAA** pattern. When the test fails, we don't know why and have to look in the code to figure out what went wrong. But even if only one aspect of the class would have been tested, there would still be essentially just a `[  FAILED  ] SingleDigitNumber_test.TestClass` output and we would need to look at the code to know what exactly is broken. This test case checks too many aspects of the code and doesn't have a sensible name.
+The test above has several major and minor flaws. The first thing that leaps to the eye, it doesn't follow the **AAA** pattern. When the test fails, we don't know why and have to look in the code to figure out what went wrong. But even if only one aspect of the class would have been tested, there would still be essentially just a `[  FAILED  ] SingleDigitNumber_test.TestClass` output and we would need to look at the code to know what exactly is broken. This test case checks too many state transitions and doesn't have a sensible name.
 
 Furthermore, the default constructor is called in the test, but it is never checked to do the right thing. If there were a check, it would have revealed that `m_number` is not correctly initialized.
 
@@ -171,7 +169,7 @@ TEST_F(SingleDigitNumber_test, DefaultConstructedObjectIsCorrectlyInitialized)
 ```
 
 The test also has a meaningful name. If this fails in the CI, it is immediately clear what is broken.
-Additionally, the tested object is called `sut` (system under test). This makes it easy to identify the actual test object.
+Additionally, the tested object is called `sut`. This makes it easy to identify the actual test object.
 Lastly, a `constexpr` is used for the expected value. This removes a magic value and also makes the output of a failed test more readable, since it is immediately clear what's the actual tested value and what's the expected value.
 
 Now let's continue with further tests, applying the ZOMBIES principle
@@ -251,10 +249,10 @@ There is an [extensive gmock documentation](https://github.com/google/googletest
 
 # Conclusion
 
-- apply the AAA pattern to structure the test and check only one aspect of the code per test case
+- apply the AAA pattern to structure the test and check only one state transition per test case (all side effects of that transition must be checked, though)
 - don't test previously tested behavior
 - use the ZOMBIES principle to find sensible test cases
-- meaningful names for the tests to indicate what the test is supposed to do
+- meaningful names for the tests to indicate what the test is supposed to do and the expected outcome, like `...IsSuccessful`, `...Fails`, `...ResultsIn...`, `...LeadsTo...`, etc.
 - name the test object `sut` to make it clear what object is tested
 - don't use magic numbers
 - instantiate objects on the stack or use smart pointers for large objects and avoid manual memory management with new/delete
