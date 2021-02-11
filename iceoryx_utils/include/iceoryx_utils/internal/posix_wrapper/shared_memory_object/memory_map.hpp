@@ -34,15 +34,15 @@ class MemoryMap
                                            const int32_t f_fileDescriptor,
                                            const AccessMode f_accessMode = AccessMode::readWrite,
                                            const int32_t f_flags = MAP_SHARED,
-                                           const off_t f_offset = 0);
+                                           const off_t f_offset = 0) noexcept;
 
     MemoryMap(const MemoryMap&) = delete;
     MemoryMap& operator=(const MemoryMap&) = delete;
-    MemoryMap(MemoryMap&& rhs);
-    MemoryMap& operator=(MemoryMap&& rhs);
+    MemoryMap(MemoryMap&& rhs) noexcept;
+    MemoryMap& operator=(MemoryMap&& rhs) noexcept;
 
     ~MemoryMap();
-    void* getBaseAddress() const;
+    void* getBaseAddress() const noexcept;
 
     friend class posix::SharedMemoryObject;
     friend class cxx::optional<MemoryMap>;
@@ -53,8 +53,9 @@ class MemoryMap
               const int32_t f_fileDescriptor,
               const AccessMode f_accessMode,
               const int32_t f_flags = MAP_SHARED,
-              const off_t f_offset = 0);
-    bool isInitialized() const;
+              const off_t f_offset = 0) noexcept;
+    bool isInitialized() const noexcept;
+    void destroy() noexcept;
 
     bool m_isInitialized{false};
     bool m_isLocked{false};

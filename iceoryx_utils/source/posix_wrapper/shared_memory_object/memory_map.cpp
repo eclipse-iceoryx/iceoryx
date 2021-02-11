@@ -24,7 +24,7 @@ cxx::optional<MemoryMap> MemoryMap::create(const void* f_baseAddressHint,
                                            const int32_t f_fileDescriptor,
                                            const AccessMode f_accessMode,
                                            const int32_t f_flags,
-                                           const off_t f_offset)
+                                           const off_t f_offset) noexcept
 {
     cxx::optional<MemoryMap> returnValue;
     returnValue.emplace(f_baseAddressHint, f_length, f_fileDescriptor, f_accessMode, f_flags, f_offset);
@@ -44,7 +44,7 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
                      const int32_t f_fileDescriptor,
                      const AccessMode f_accessMode,
                      const int32_t f_flags,
-                     const off_t f_offset)
+                     const off_t f_offset) noexcept
     : m_length(f_length)
 {
     int32_t l_memoryProtection{PROT_NONE};
@@ -103,15 +103,16 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
 } // namespace posix
 
 
-MemoryMap::MemoryMap(MemoryMap&& rhs)
+MemoryMap::MemoryMap(MemoryMap&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-MemoryMap& MemoryMap::operator=(MemoryMap&& rhs)
+MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
 {
     if (this != &rhs)
     {
+        destroy();
         m_isInitialized = std::move(rhs.m_isInitialized);
         m_baseAddress = std::move(rhs.m_baseAddress);
         m_length = std::move(rhs.m_length);
@@ -123,20 +124,27 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs)
 
 MemoryMap::~MemoryMap()
 {
-    if (m_isInitialized)
-    {
-        cxx::makeSmartC(munmap, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_baseAddress, m_length);
-    }
+    destroy();
 }
 
-bool MemoryMap::isInitialized() const
+bool MemoryMap::isInitialized() const noexcept
 {
     return m_isInitialized;
 }
 
-void* MemoryMap::getBaseAddress() const
+void* MemoryMap::getBaseAddress() const noexcept
 {
     return m_baseAddress;
 }
+
+void MemoryMap::destroy() noexcept
+{
+    if (m_isInitialized)
+    {
+        cxx::makeSmartC(munmap, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_baseAddress, m_length);
+        m_isInitialized = false;
+    }
+}
+
 } // namespace posix
 } // namespace iox
