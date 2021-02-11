@@ -190,6 +190,7 @@ class ActiveCallSet_test : public Test
         ActiveCallSetMock* sut;
     };
 
+    // + 1U to test the maximum capacity
     using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1U>;
     eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1U};
 
@@ -244,7 +245,7 @@ TEST_F(ActiveCallSet_test, AttachWithoutEnumOneMoreThanCapacityFails)
 {
     for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>).has_error();
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>);
     }
     auto result = m_sut->attachEvent(m_simpleEvents[m_sut->capacity()], ActiveCallSet_test::triggerCallback<0U>);
 
@@ -277,10 +278,8 @@ TEST_F(ActiveCallSet_test, AttachWithEnumOneMoreThanCapacityFails)
 {
     for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        m_sut
-            ->attachEvent(
-                m_simpleEvents[i], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0U>)
-            .has_error();
+        m_sut->attachEvent(
+            m_simpleEvents[i], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0U>);
     }
     auto result = m_sut->attachEvent(m_simpleEvents[m_sut->capacity()],
                                      ActiveCallSet_test::SimpleEvent::Hypnotoad,
@@ -294,10 +293,8 @@ TEST_F(ActiveCallSet_test, DetachMakesSpaceForAnotherAttachWithEventEnum)
 {
     for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        m_sut
-            ->attachEvent(
-                m_simpleEvents[i], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0U>)
-            .has_error();
+        m_sut->attachEvent(
+            m_simpleEvents[i], ActiveCallSet_test::SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0U>);
     }
 
     m_sut->detachEvent(m_simpleEvents[0U], ActiveCallSet_test::SimpleEvent::Hypnotoad);
@@ -312,7 +309,7 @@ TEST_F(ActiveCallSet_test, DetachMakesSpaceForAnotherAttachWithoutEventEnum)
 {
     for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>).has_error();
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>);
     }
 
     m_sut->detachEvent(m_simpleEvents[0U]);
@@ -393,7 +390,7 @@ TEST_F(ActiveCallSet_test, AttachingTillCapacityFilledSetsUpTriggerHandle)
 {
     for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>).has_error();
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>);
     }
 
     for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
@@ -407,7 +404,7 @@ TEST_F(ActiveCallSet_test, DTorDetachesAllAttachedEvents)
     auto capacity = m_sut->capacity();
     for (uint64_t i = 0U; i < capacity; ++i)
     {
-        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>).has_error();
+        m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>);
     }
 
     m_sut.reset();
@@ -588,6 +585,11 @@ TIMING_TEST_F(ActiveCallSet_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5
     m_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
     events[0U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 2U));
+
+    // we triggered events[0] with a long runtime to safely trigger all events again
+    // while the callback is still running. to verify that events[0] is called again
+    // we reset the m_triggerCallbackArg[0] to nullptr (which is again set by the
+    // event[0] callback) and set the runtime of the callbacks to zero
     m_triggerCallbackArg[0U] = nullptr;
     m_triggerCallbackRuntimeInMs = 0U;
 
@@ -611,7 +613,6 @@ TIMING_TEST_F(ActiveCallSet_test, TriggeringAllEventsCallsAllCallbacksOnce, Repe
     m_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
     events[0U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 2U));
-    m_triggerCallbackArg[0U] = nullptr;
     m_triggerCallbackRuntimeInMs = 0U;
 
     for (auto& e : events)
