@@ -74,7 +74,7 @@ class TestProcess(unittest.TestCase):
 
     def test_simple_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Sent two times value: 5', timeout=45, stream='stdout')
+            'Sent value: 5', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
             'Got value: 5', timeout=45, stream='stdout')
 
@@ -86,11 +86,11 @@ class TestProcessOutput(unittest.TestCase):
 
     def test_publisher_sequence_output(self, proc_output, publisher_process):
         with assertSequentialStdout(proc_output, publisher_process) as cm:
-            cm.assertInStdout('Sent two times value: 1')
-            cm.assertInStdout('Sent two times value: 2')
-            cm.assertInStdout('Sent two times value: 3')
-            cm.assertInStdout('Sent two times value: 4')
-            cm.assertInStdout('Sent two times value: 5')
+            cm.assertInStdout('Sent value: 1')
+            cm.assertInStdout('Sent value: 2')
+            cm.assertInStdout('Sent value: 3')
+            cm.assertInStdout('Sent value: 4')
+            cm.assertInStdout('Sent value: 5')
 
     def test_subscriber_sequence_output(self, proc_output, subscriber_process):
         with assertSequentialStdout(proc_output, subscriber_process) as cm:

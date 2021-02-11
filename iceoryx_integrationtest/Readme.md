@@ -1,7 +1,7 @@
 # Iceoryx Systemtests
 
 ## Introduction
-To ensure quality standards in iceoryx, we are using automated testing to verify functionality on unittest and integrationtest level in the respective components.
+To ensure quality standards in iceoryx, we are using automated testing to ensure ISO26262 on unittest and integrationtest level in the respective components.
 Additionally we need to make sure that the customer-facing API is functional and software integration specifications are fulfilled.
 Test focus is here on SWE.5 according to ASPICE.
 

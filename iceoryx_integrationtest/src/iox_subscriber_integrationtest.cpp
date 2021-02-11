@@ -15,63 +15,82 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/typed_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
 
-#include <csignal>
 #include <iostream>
 
-bool killswitch = false;
+std::atomic_bool killSwitch{false};
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int32_t signal [[gnu::unused]])
 {
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
+    killSwitch.store(true);
+}
+
+void registerSigHandler()
+{
+    // register sigHandler for SIGINT, SIGTERM and SIGHUP
+    struct sigaction act;
+    sigemptyset(&act.sa_mask);
+    act.sa_handler = sigHandler;
+    act.sa_flags = 0;
+
+    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGINT, &act, nullptr)
+            .hasErrors())
+    {
+        std::cerr << "Calling sigaction() for SIGINT failed" << std::endl;
+    }
+
+    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr)
+            .hasErrors())
+    {
+        std::cerr << "Calling sigaction() for SIGTERM failed" << std::endl;
+    }
+
+    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr)
+            .hasErrors())
+    {
+        std::cerr << "Calling sigaction() for SIGHUP failed" << std::endl;
+    }
 }
 
 int main()
 {
-    // register sigHandler for SIGINT
-    signal(SIGINT, sigHandler);
-    // we register a sighandler for SIGTERM to check if Roudi exits 
-    // the process correctly for the test
-    signal(SIGTERM, sigHandler);
+    registerSigHandler();
 
     std::cout << "Application iox_subscriber_integrationtest started" << std::endl;
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
+    iox::runtime::PoshRuntime::initRuntime("iox_subscriber_integrationtest");
 
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    iox::popo::TypedSubscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
-    while (!killswitch)
+    while (!killSwitch.load())
     {
         if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
+            std::cout << "iox-ex-subscriber-typed subscribed" << std::endl;
             subscriber.take_1_0()
-                .and_then([&](const void* data) {
-                    auto object = static_cast<const RadarObject*>(data);
-                    std::cout << "Got value: " << object->x << std::endl;
-
-                    // note that we explicitly have to release the data
-                    // and afterwards the pointer access is undefined behavior
-                    subscriber.releaseChunk(object);
-                })
+                .and_then([](auto& sample) { std::cout << "Got value: " << sample->x << std::endl; })
                 .or_else([](auto& result) {
+                    // only has to be called if the alternative is of interest,
+                    // i.e. if nothing has to happen when no data is received and
+                    // a possible error alternative is not checked or_else is not needed
                     if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
                     {
-                        std::cout << "Error receiving chunk." << std::endl;
+                        std::cerr << "Error receiving chunk." << std::endl;
                     }
                 });
         }
         else
         {
-            std::cout << "Not subscribed!" << std::endl;
+            std::cout << "iox-ex-subscriber-typed not subscribed!" << std::endl;
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

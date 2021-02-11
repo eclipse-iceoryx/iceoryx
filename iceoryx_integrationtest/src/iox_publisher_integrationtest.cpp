@@ -15,77 +15,81 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/typed_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/smart_c.hpp"
 
 #include <iostream>
 
-bool killswitch = false;
+std::atomic_bool killSwitch{false};
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int32_t signal [[gnu::unused]])
 {
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
+    killSwitch.store(true);
+}
+
+void registerSigHandler()
+{
+    // register sigHandler for SIGINT, SIGTERM and SIGHUP
+    struct sigaction act;
+    sigemptyset(&act.sa_mask);
+    act.sa_handler = sigHandler;
+    act.sa_flags = 0;
+
+    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGINT, &act, nullptr)
+            .hasErrors())
+    {
+        std::cerr << "Calling sigaction() for SIGINT failed" << std::endl;
+    }
+
+    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr)
+            .hasErrors())
+    {
+        std::cerr << "Calling sigaction() for SIGTERM failed" << std::endl;
+    }
+
+    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr)
+            .hasErrors())
+    {
+        std::cerr << "Calling sigaction() for SIGHUP failed" << std::endl;
+    }
 }
 
 int main()
 {
-    // Register sigHandler for SIGINT
-    signal(SIGINT, sigHandler);
-    // we register a sighandler for SIGTERM to check if Roudi exits 
-    // the process correctly for the test
-    signal(SIGTERM, sigHandler);
+    registerSigHandler();
 
     std::cout << "Application iox_publisher_integrationtest started" << std::endl;
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
+    iox::runtime::PoshRuntime::initRuntime("iox_publisher_integrationtest");
 
-    iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::TypedPublisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
     publisher.offer();
 
-    double ct = 0.0;
-    while (!killswitch)
+    for (double ct = 0.0; !killSwitch.load(); ++ct)
     {
-        ++ct;
-
         // API Usage #1
-        //  * Loaned chunk can be held until ready to publish
-        auto result = publisher.loan_1_0(sizeof(RadarObject));
+        //  * Retrieve a typed sample from shared memory.
+        //  * Sample can be held until ready to publish.
+        //  * Data is default constructed during loan
+        auto result = publisher.loan_1_0();
         if (!result.has_error())
         {
-            // In the untyped API we get a void pointer to the payload, 
-            // therefore the data must be constructed
-            // in place
-            void* chunk = result.value();
-            auto data = new (chunk) RadarObject(ct, ct, ct);
-
-            // data and chunk should be equal. otherwise we have a misalignment
-            // (note that we only requested as many bytes as needed for the object to be send)
-            assert(chunk == data);
-            publisher.publish(chunk);
-        } else
+            auto& sample = result.value();
+            sample->x = ct;
+            sample->y = ct;
+            sample->z = ct;
+            sample.publish();
+            std::cout << "Sent value: " << ct << std::endl;
+        }
+        else
         {
             auto error = result.get_error();
-            // Do something with the error
+            std::cerr << "Error while loaning mempool chunk" << std::endl;
         }
-
-
-        // API Usage #2
-        // * Loan chunk and provide logic to populate it via a lambda
-        publisher.loan_1_0(sizeof(RadarObject))
-            .and_then([&](auto& chunk) {
-                auto data = new (chunk) RadarObject(ct, ct, ct);
-                assert(chunk == data);
-                publisher.publish(chunk);
-            })
-            .or_else([&](iox::popo::AllocationError error) {
-                // Do something with the error
-            });
-
-        std::cout << "Sent two times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    std::cout << "Exiting application iox-ex-publisher-untyped" << std::endl;
+    std::cout << "Exiting application iox_publisher_integrationtest" << std::endl;
     return 0;
 }

@@ -72,8 +72,8 @@ class TestRouDiProcessOutput(unittest.TestCase):
             if os.name != 'nt':
                 cm.assertInStdout("Joining 'ProcessMgmt' thread...")
                 cm.assertInStdout("...'ProcessMgmt' thread joined.")
-                cm.assertInStdout("Joining 'MQ-processing' thread...")
-                cm.assertInStdout("...'MQ-processing' thread joined.")
+                cm.assertInStdout("Joining 'IPC-msg-process' thread...")
+                cm.assertInStdout("...'IPC-msg-process' thread joined.")
 
     def test_out_of_order(self, proc_output, dut_process):
         with assertSequentialStdout(proc_output, dut_process) as cm:
