@@ -140,8 +140,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     static bool isNameValid(const UdsName_t& name) noexcept;
 
-    /// @brief Tries to close the given file descriptor
-    /// @param[in] file descriptor that shall be closed
+    /// @brief Tries to close the file descriptor
     /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> closeFileDescriptor() noexcept;
 
