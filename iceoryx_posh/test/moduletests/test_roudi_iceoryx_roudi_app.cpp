@@ -19,7 +19,7 @@
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 
-#include <gtest/gtest.h>
+#include "test.hpp"
 
 using namespace ::testing;
 using ::testing::Return;
@@ -115,7 +115,7 @@ TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessfull)
     EXPECT_TRUE(roudiTest.getVariableRun());
 }
 
-TEST_F(IceoryxRoudiApp_test, CheckRunMethodWithMRunFalseReturnExitSuccess)
+TEST_F(IceoryxRoudiApp_test, VerifyRunMethodWithFalseConditionReturnExitSuccess)
 {
     constexpr uint8_t numberOfArgs{1U};
     char* args[numberOfArgs];
