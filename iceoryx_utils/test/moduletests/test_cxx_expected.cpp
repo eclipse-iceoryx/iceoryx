@@ -88,6 +88,7 @@ TEST_F(expected_test, CreateValueAndMove)
     auto movedValue = std::move(sut);
     EXPECT_FALSE(sut.is_initialized());
     EXPECT_TRUE(movedValue.is_initialized());
+    EXPECT_THAT(movedValue.value(), Eq(73));
 }
 
 TEST_F(expected_test, BoolOperatorError)
@@ -185,10 +186,11 @@ TEST_F(expected_test, VoidCreateError)
 
 TEST_F(expected_test, VoidCreateErrorAndMove)
 {
-    auto sut = expected<float>::create_error(42);
+    auto sut = expected<float>::create_error(42.0f);
     auto movedValue = std::move(sut);
     EXPECT_FALSE(sut.is_initialized());
     EXPECT_TRUE(movedValue.is_initialized());
+    EXPECT_THAT(movedValue.get_error(), Eq(42.0f));
 }
 
 TEST_F(expected_test, VoidCreateFromSuccessType)
