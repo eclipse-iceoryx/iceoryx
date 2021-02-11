@@ -59,6 +59,9 @@ class GenericRAII
     GenericRAII& operator=(GenericRAII&& rhs) noexcept;
 
   private:
+    void destroy() noexcept;
+
+  private:
     std::function<void()> m_cleanupFunction;
 };
 
