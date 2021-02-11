@@ -26,10 +26,10 @@ namespace popo
 {
 /// @brief An EventListener performs a blocking wait on a shared event variable.
 ///        When wait returns a list of all the EventNotifier id's which had
-///        triggered the EventVariable is returned and the state is reseted.
+///        triggered the EventVariable is returned and the state is reset.
 ///
 ///        IMPORTANT! Do not use multiple EventListener at the same time for the
-///        samen EventVariable
+///        same EventVariable
 class EventListener
 {
   public:
@@ -40,7 +40,7 @@ class EventListener
 
     /// @brief returns vector of indices of active notifications; blocking if EventVariableData was
     /// not notified unless destroy() was called before. The indices of active notifications is
-    /// never empty unless destroy() was called, then its always empty.
+    /// never empty unless destroy() was called, then it's always empty.
     ///
     /// @return vector of active notifications
     cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> wait() noexcept;

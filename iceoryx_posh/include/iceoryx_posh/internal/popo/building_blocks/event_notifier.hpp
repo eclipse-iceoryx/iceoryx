@@ -33,7 +33,7 @@ class EventNotifier
     ///
     /// @param[in] dataRef reference to EventVariableData
     /// @param[in] index index which identifies EventNotifier uniquely. The user has to ensure the uniqueness and the
-    /// index has to be in the range of [0, iox::MAX_EVENTS_PER_ACTIVE_CALLSET]
+    /// index has to be in the range of [0, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
     EventNotifier(EventVariableData& dataRef, const uint64_t index) noexcept;
 
     /// @brief wakes up the corresponding EventListener which is waiting in wait()
