@@ -163,7 +163,7 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
     }
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::closeFd(int32_t fileDescriptor)
+cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor(const int32_t fileDescriptor) noexcept
 {
     auto closeCall = cxx::makeSmartC(
         closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, fileDescriptor);
@@ -190,7 +190,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
 {
     if (m_isInitialized)
     {
-        return closeFd(m_sockfd);
+        return closeFileDescriptor(m_sockfd);
     }
 
     return cxx::success<void>();
@@ -383,11 +383,8 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
         }
         else
         {
-            auto closeCall = closeFd(sockfd);
-            if (closeCall.has_error())
-            {
-                return cxx::error<IpcChannelError>(closeCall.get_error());
-            }
+            closeFileDescriptor(sockfd);
+            // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return createErrorFromErrnum(bindCall.getErrNum());
         }
     }
@@ -405,20 +402,14 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
 
         if (connectCall.hasErrors())
         {
-            auto closeCall = closeFd(sockfd);
-            if (closeCall.has_error())
-            {
-                return cxx::error<IpcChannelError>(closeCall.get_error());
-            }
+            closeFileDescriptor(sockfd);
+            // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return createErrorFromErrnum(connectCall.getErrNum());
         }
         else if (connectCall.getErrNum() == ENOENT)
         {
-            auto closeCall = closeFd(sockfd);
-            if (closeCall.has_error())
-            {
-                return cxx::error<IpcChannelError>(closeCall.get_error());
-            }
+            closeFileDescriptor(sockfd);
+            // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return createErrorFromErrnum(connectCall.getErrNum());
         }
         else
