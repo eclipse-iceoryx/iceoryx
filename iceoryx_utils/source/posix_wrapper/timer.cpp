@@ -452,7 +452,7 @@ Timer::Timer(const units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().value())
 {
-    if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
+    if (m_timeToWait.toNanoseconds() == 0U)
     {
         m_errorValue = TimerError::TIMEOUT_IS_ZERO;
     }
@@ -462,7 +462,7 @@ Timer::Timer(const units::Duration timeToWait, const std::function<void()>& call
     : m_timeToWait(timeToWait)
     , m_creationTime(now().value())
 {
-    if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
+    if (m_timeToWait.toNanoseconds() == 0U)
     {
         m_errorValue = TimerError::TIMEOUT_IS_ZERO;
         return;
@@ -499,7 +499,7 @@ cxx::expected<TimerError> Timer::stop() noexcept
 cxx::expected<TimerError>
 Timer::restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
-    if (timeToWait.nanoSeconds<uint64_t>() == 0u)
+    if (timeToWait.toNanoseconds() == 0U)
     {
         return cxx::error<TimerError>(TimerError::TIMEOUT_IS_ZERO);
     }
@@ -530,29 +530,6 @@ cxx::expected<uint64_t, TimerError> Timer::getOverruns() noexcept
     }
 
     return m_osTimer->getOverruns();
-}
-
-void Timer::resetCreationTime() noexcept
-{
-    // Get the current time
-    auto now = this->now();
-
-    m_creationTime = now.value();
-}
-
-bool Timer::hasExpiredComparedToCreationTime() noexcept
-{
-    // Get the current time
-    auto now = this->now();
-
-    // Calc the elapsed time, since Timer object was created
-    auto elapsedTime = now.value() - m_creationTime;
-
-    if (elapsedTime >= m_timeToWait)
-    {
-        return true;
-    }
-    return false; // not enabled, returns false
 }
 
 bool Timer::hasError() const noexcept

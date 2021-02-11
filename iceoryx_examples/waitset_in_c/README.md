@@ -16,7 +16,7 @@ in the same way as the C++ ones.
 
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced
-in the [icedelivery C example](../icedelivery_on_c).
+in the [icedelivery C example](../icedelivery_in_c).
 
 ### Gateway
 Let's say we would like to write a gateway and would like to forward every 
@@ -60,9 +60,10 @@ iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
 const uint64_t historyRequest = 1U;
 const uint64_t queueCapacity = 256U;
+const char* const nodeName = "iox-c-ex-waitSet-gateway-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
 
     iox_sub_subscribe(subscriber);
     iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
@@ -142,9 +143,10 @@ iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
 const uint64_t historyRequest = 1U;
 const uint64_t queueCapacity = 256U;
+const char* const nodeName = "iox-c-ex-waitset-grouping-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
 
     iox_sub_subscribe(subscriber[i]);
 }
@@ -252,8 +254,12 @@ the waitset without a callback and with the same trigger id.
 ```c
 const uint64_t historyRequest = 1U;
 const uint64_t queueCapacity = 256U;
-subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
-subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+
+const char* const nodeName1 = "iox-c-ex-waitset-individual-node1";
+const char* const nodeName2 = "iox-c-ex-waitset-individual-node2";
+
+subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName1);
+subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName2);
 
 iox_sub_subscribe(subscriber[0]);
 iox_sub_subscribe(subscriber[1]);

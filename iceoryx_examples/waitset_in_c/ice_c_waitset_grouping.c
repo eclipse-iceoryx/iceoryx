@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_EVENTS 3
-#define NUMBER_OF_SUBSCRIBERS 2
+#define NUMBER_OF_EVENTS 5
+#define NUMBER_OF_SUBSCRIBERS 4
 
 iox_user_trigger_storage_t shutdownTriggerStorage;
 iox_user_trigger_t shutdownTrigger;
@@ -41,7 +41,7 @@ static void sigHandler(int signalValue)
 
 int main()
 {
-    iox_runtime_init("iox-c-ex-waitset-individual");
+    iox_runtime_init("iox-c-ex-waitset-grouping");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -57,19 +57,32 @@ int main()
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
     iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
-    // create two subscribers, subscribe to the service and attach them to the waitset
+    // create subscriber and subscribe them to our service
     const uint64_t historyRequest = 1U;
     const uint64_t queueCapacity = 256U;
-    subscriber[0] =
-        iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
-    subscriber[1] =
-        iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+    const char* const nodeName = "iox-c-ex-waitset-grouping-node";
+    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
+    {
+        subscriber[i] = iox_sub_init(
+            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
 
-    iox_sub_subscribe(subscriber[0]);
-    iox_sub_subscribe(subscriber[1]);
+        iox_sub_subscribe(subscriber[i]);
+    }
 
-    iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
-    iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
+    const uint64_t FIRST_GROUP_ID = 123U;
+    const uint64_t SECOND_GROUP_ID = 456U;
+
+    // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
+    for (uint64_t i = 0U; i < 2U; ++i)
+    {
+        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, FIRST_GROUP_ID, NULL);
+    }
+
+    // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
+    for (uint64_t i = 2U; i < 4U; ++i)
+    {
+        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, SECOND_GROUP_ID, NULL);
+    }
 
 
     uint64_t missedElements = 0U;
@@ -93,25 +106,27 @@ int main()
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
             }
-            // process sample received by subscriber1
-            else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0U]))
+            // we print the received data for the first group
+            else if (iox_event_info_get_event_id(event) == FIRST_GROUP_ID)
             {
+                iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
                 const void* chunk;
-                if (iox_sub_get_chunk(subscriber[0U], &chunk))
+                if (iox_sub_get_chunk(subscriber, &chunk))
                 {
-                    printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                    printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
 
-                    iox_sub_release_chunk(subscriber[0U], chunk);
+                    iox_sub_release_chunk(subscriber, chunk);
                 }
             }
-            // dismiss sample received by subscriber2
-            else if (iox_event_info_does_originate_from_subscriber(event, subscriber[1]))
+            // dismiss the received data for the second group
+            else if (iox_event_info_get_event_id(event) == SECOND_GROUP_ID)
             {
+                printf("dismiss data\n");
+                iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
                 // We need to release the samples to reset the event hasSamples
                 // otherwise the WaitSet would notify us in `iox_ws_wait()` again
                 // instantly.
-                iox_sub_release_queued_chunks(subscriber[1U]);
-                printf("subscriber 2 received something - dont care\n");
+                iox_sub_release_queued_chunks(subscriber);
             }
         }
     }

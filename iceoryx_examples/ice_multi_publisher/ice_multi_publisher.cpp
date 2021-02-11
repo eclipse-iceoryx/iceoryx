@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,13 +29,17 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void send(uint32_t id, const char* instanceName, std::chrono::milliseconds delay)
+void send(uint32_t id, const char* instanceName, std::chrono::milliseconds delay, const char* node)
 {
     iox::capro::IdString_t instance{iox::cxx::TruncateToCapacity, instanceName};
 
+    iox::popo::PublisherOptions publisherOptions;
+    iox::NodeName_t nodeName{iox::cxx::TruncateToCapacity, node};
+    publisherOptions.nodeName = nodeName;
+
     // All three of the string identifiers together uniquely identify a topic
     // and can also depend on values known only at runtime (like instance in this case).
-    iox::popo::TypedPublisher<CounterTopic> publisher({"Group", instance, "Counter"});
+    iox::popo::TypedPublisher<CounterTopic> publisher({"Group", instance, "Counter"}, publisherOptions);
     publisher.offer();
 
     for (uint32_t counter = 0U; !killswitch; ++counter)
@@ -62,8 +66,8 @@ int main()
 
     // generates multiple publishers which send the same topic
     // at different sending frequencies independently of each other
-    std::thread sender1(send, 1, "Instance", std::chrono::milliseconds(500));
-    std::thread sender2(send, 2, "Instance", std::chrono::milliseconds(1000));
+    std::thread sender1(send, 1, "Instance", std::chrono::milliseconds(500), "Node1");
+    std::thread sender2(send, 2, "Instance", std::chrono::milliseconds(1000), "Node2");
 
     sender1.join();
     sender2.join();

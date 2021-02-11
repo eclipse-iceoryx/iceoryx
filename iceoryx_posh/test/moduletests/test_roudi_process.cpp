@@ -34,7 +34,7 @@ class MqInterfaceUser_Mock : public iox::roudi::RouDiProcess
         : iox::roudi::RouDiProcess("TestRoudiProcess", 200, nullptr, true, 0x654321, 255)
     {
     }
-    MOCK_METHOD1(sendToMQ, void(MqMessage));
+    MOCK_METHOD1(sendViaIpcChannel, void(MqMessage));
 };
 
 class RouDiProcess_test : public Test
@@ -85,28 +85,28 @@ TEST_F(RouDiProcess_test, getPayloadMemoryManager)
     EXPECT_THAT(roudiproc.getPayloadMemoryManager(), Eq(payloadMemoryManager));
 }
 
-TEST_F(RouDiProcess_test, sendToMQPass)
+TEST_F(RouDiProcess_test, sendViaIpcChannelPass)
 {
     iox::runtime::MqMessage data{"MESSAGE_NOT_SUPPORTED"};
-    EXPECT_CALL(mqIntrfceusermock, sendToMQ(_)).Times(1);
-    mqIntrfceusermock.sendToMQ(data);
+    EXPECT_CALL(mqIntrfceusermock, sendViaIpcChannel(_)).Times(1);
+    mqIntrfceusermock.sendViaIpcChannel(data);
 }
-TEST_F(RouDiProcess_test, sendToMQFail)
+TEST_F(RouDiProcess_test, sendViaIpcChannelFail)
 {
     iox::runtime::MqMessage data{""};
-    iox::cxx::optional<iox::Error> sendtoMQStatusFail;
+    iox::cxx::optional<iox::Error> sendViaIpcChannelStatusFail;
 
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&sendtoMQStatusFail](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-            sendtoMQStatusFail.emplace(error);
+        [&sendViaIpcChannelStatusFail](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            sendViaIpcChannelStatusFail.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    roudiproc.sendToMQ(data);
+    roudiproc.sendViaIpcChannel(data);
 
-    ASSERT_THAT(sendtoMQStatusFail.has_value(), Eq(true));
-    EXPECT_THAT(sendtoMQStatusFail.value(), Eq(iox::Error::kPOSH__ROUDI_PROCESS_SENDMQ_FAILED));
+    ASSERT_THAT(sendViaIpcChannelStatusFail.has_value(), Eq(true));
+    EXPECT_THAT(sendViaIpcChannelStatusFail.value(), Eq(iox::Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED));
 }
 
 TEST_F(RouDiProcess_test, TimeStamp)

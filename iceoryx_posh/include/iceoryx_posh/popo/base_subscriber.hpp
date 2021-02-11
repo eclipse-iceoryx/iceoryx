@@ -86,15 +86,15 @@ class BaseSubscriber
     ///
     bool hasMissedData() noexcept;
 
-    ///
     /// @brief Releases any unread queued data.
-    ///
     void releaseQueuedData() noexcept;
 
-    template <uint64_t Capacity>
-    friend class WaitSet;
+    friend class EventAttorney;
 
   protected:
+    /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
+    /// @param[in] uniqueTriggerId the id of the corresponding trigger
+    /// @brief Only usable by the WaitSet, not for public use
     using SelfType = BaseSubscriber<port_t>;
     using PortType = port_t;
 
@@ -112,22 +112,17 @@ class BaseSubscriber
 
     void invalidateTrigger(const uint64_t trigger) noexcept;
 
-    /// @brief attaches a WaitSet to the subscriber; this has to be called by the concrete publisher
-    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
+    /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] eventId a custom uint64_t which can be set by the user with no restriction. could be used to either
-    ///            identify an event uniquely or to group multiple events together when they share the same eventId
-    /// @param[in] callback callback which is attached to the trigger and which can be called
-    ///            later by the user
-    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
-    ///            the error
-    template <uint64_t WaitSetCapacity, typename Subscriber>
-    cxx::expected<WaitSetError> enableEventInternal(WaitSet<WaitSetCapacity>& waitset,
-                                                    const SubscriberEvent subscriberEvent,
-                                                    const uint64_t eventId = EventInfo::INVALID_ID,
-                                                    const EventInfo::Callback<Subscriber> callback = nullptr) noexcept;
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const SubscriberEvent subscriberEvent) noexcept;
 
-    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
+    /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to the event corresponding
+    /// hasTriggered method callback
+    /// @param[in] subscriberEvent the event to which the hasTriggeredCallback is required
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent(const SubscriberEvent subscriberEvent) const noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
     /// @param[in] subscriberEvent the event which should be detached
     void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
 

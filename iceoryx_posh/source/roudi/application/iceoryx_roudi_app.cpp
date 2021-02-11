@@ -23,8 +23,8 @@ namespace iox
 {
 namespace roudi
 {
-IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig) noexcept
-    : RouDiApp(cmdLineParser, roudiConfig)
+IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig) noexcept
+    : RouDiApp(cmdLineArgs, roudiConfig)
 {
 }
 
@@ -41,7 +41,7 @@ uint8_t IceOryxRouDiApp::run() noexcept
                                                      m_rouDiComponents.value().m_portManager,
                                                      RouDi::RoudiStartupParameters{m_monitoringMode,
                                                                                    true,
-                                                                                   RouDi::MQThreadStart::IMMEDIATE,
+                                                                                   RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
                                                                                    m_compatibilityCheckLevel,
                                                                                    m_processKillDelay});
         waitForSignal();

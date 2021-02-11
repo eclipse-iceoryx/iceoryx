@@ -121,32 +121,37 @@ inline void BaseSubscriber<port_t>::invalidateTrigger(const uint64_t uniqueTrigg
 }
 
 template <typename port_t>
-template <uint64_t WaitSetCapacity, typename Subscriber>
-inline cxx::expected<WaitSetError>
-BaseSubscriber<port_t>::enableEventInternal(WaitSet<WaitSetCapacity>& waitset,
-                                            [[gnu::unused]] const SubscriberEvent subscriberEvent,
-                                            const uint64_t eventId,
-                                            const EventInfo::Callback<Subscriber> callback) noexcept
-{
-    static_assert(std::is_base_of<SelfType, Subscriber>::value, "Subscriber must inherit from BaseSubscriber");
-    Subscriber* self = reinterpret_cast<Subscriber*>(this);
+inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
+                                                [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
 
-    return waitset
-        .acquireTriggerHandle(
-            self, {*this, &SelfType::hasData}, {*this, &SelfType::invalidateTrigger}, eventId, callback)
-        .and_then([this](TriggerHandle& trigger) {
-            m_trigger = std::move(trigger);
-            m_port.setConditionVariable(m_trigger.getConditionVariableData());
-        });
+{
+    m_trigger = std::move(triggerHandle);
+    m_port.setConditionVariable(m_trigger.getConditionVariableData());
+}
+
+
+template <typename port_t>
+inline WaitSetHasTriggeredCallback
+BaseSubscriber<port_t>::getHasTriggeredCallbackForEvent(const SubscriberEvent subscriberEvent) const noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::HAS_DATA:
+        return {*this, &SelfType::hasData};
+    }
+    return {};
 }
 
 template <typename port_t>
 inline void BaseSubscriber<port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
 {
-    static_cast<void>(subscriberEvent);
-
-    m_trigger.reset();
-    m_port.unsetConditionVariable();
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::HAS_DATA:
+        m_trigger.reset();
+        m_port.unsetConditionVariable();
+        break;
+    }
 }
 
 template <typename port_t>

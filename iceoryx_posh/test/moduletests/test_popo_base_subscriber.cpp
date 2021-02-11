@@ -41,8 +41,7 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<port_t>
     using SubscriberParent = iox::popo::BaseSubscriber<port_t>;
 
     using SubscriberParent::disableEvent;
-    using SubscriberParent::enableEventInternal;
-    using SubscriberParent::invalidateTrigger;
+    using SubscriberParent::enableEvent;
     using SubscriberParent::takeChunk;
 
     using SubscriberParent::port;
@@ -168,11 +167,10 @@ TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
 {
     iox::popo::ConditionVariableData condVar("Horscht");
     WaitSetMock waitSet(&condVar);
-    const iox::popo::EventInfo::Callback<TestBaseSubscriber> callback = nullptr;
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(&condVar)).Times(1);
     // ===== Test ===== //
-    sut.enableEventInternal(waitSet, iox::popo::SubscriberEvent::HAS_DATA, iox::popo::EventInfo::INVALID_ID, callback);
+    waitSet.attachEvent(sut, iox::popo::SubscriberEvent::HAS_DATA);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -182,9 +180,8 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
-    const iox::popo::EventInfo::Callback<TestBaseSubscriber> callback = nullptr;
     EXPECT_CALL(sut.port(), setConditionVariable(&condVar)).Times(1);
-    sut.enableEventInternal(*waitSet, iox::popo::SubscriberEvent::HAS_DATA, iox::popo::EventInfo::INVALID_ID, callback);
+    waitSet->attachEvent(sut, iox::popo::SubscriberEvent::HAS_DATA);
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);
     // ===== Verify ===== //
@@ -197,13 +194,11 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     std::unique_ptr<WaitSetMock> waitSet2{new WaitSetMock(&condVar)};
-    const iox::popo::EventInfo::Callback<TestBaseSubscriber> callback = nullptr;
     EXPECT_CALL(sut.port(), setConditionVariable(&condVar)).Times(1);
-    sut.enableEventInternal(*waitSet, iox::popo::SubscriberEvent::HAS_DATA, iox::popo::EventInfo::INVALID_ID, callback);
+    waitSet->attachEvent(sut, iox::popo::SubscriberEvent::HAS_DATA);
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(&condVar)).Times(1);
-    sut.enableEventInternal(
-        *waitSet2, iox::popo::SubscriberEvent::HAS_DATA, iox::popo::EventInfo::INVALID_ID, callback);
+    waitSet2->attachEvent(sut, iox::popo::SubscriberEvent::HAS_DATA);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     EXPECT_EQ(waitSet2->size(), 1U);
@@ -215,9 +210,8 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
-    const iox::popo::EventInfo::Callback<TestBaseSubscriber> callback = nullptr;
     EXPECT_CALL(sut.port(), setConditionVariable(&condVar)).Times(1);
-    sut.enableEventInternal(*waitSet, iox::popo::SubscriberEvent::HAS_DATA, iox::popo::EventInfo::INVALID_ID, callback);
+    waitSet->attachEvent(sut, iox::popo::SubscriberEvent::HAS_DATA);
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);
     sut.disableEvent(iox::popo::SubscriberEvent::HAS_DATA);

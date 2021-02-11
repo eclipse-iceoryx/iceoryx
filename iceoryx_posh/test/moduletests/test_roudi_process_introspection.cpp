@@ -204,7 +204,7 @@ TEST_F(ProcessIntrospection_test, addRemoveNode)
         const char NODE_2[] = "the_octagon";
         const char NODE_3[] = "the_hitman";
 
-        // invalid removal of unknown runnable of unknown process
+        // invalid removal of unknown node of unknown process
         introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
         auto chunk1 = createMemoryChunkAndSend(introspectionAccess);
         ASSERT_THAT(chunk1, Ne(nullptr));
@@ -213,14 +213,14 @@ TEST_F(ProcessIntrospection_test, addRemoveNode)
         // a new process
         introspectionAccess.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
 
-        // invalid removal of unknown runnable of known process
+        // invalid removal of unknown node of known process
         introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
         auto chunk2 = createMemoryChunkAndSend(introspectionAccess);
         ASSERT_THAT(chunk2, Ne(nullptr));
         EXPECT_THAT(chunk2->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk2->sample()->m_processList[0].m_nodes.size(), Eq(0U));
 
-        // add a runnable
+        // add a node
         introspectionAccess.addNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
         auto chunk3 = createMemoryChunkAndSend(introspectionAccess);
         ASSERT_THAT(chunk3, Ne(nullptr));
@@ -242,7 +242,7 @@ TEST_F(ProcessIntrospection_test, addRemoveNode)
         EXPECT_THAT(chunk5->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk5->sample()->m_processList[0].m_nodes.size(), Eq(3U));
 
-        // remove some runnables
+        // remove some nodes
         introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
         introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_3));
         auto chunk6 = createMemoryChunkAndSend(introspectionAccess);
@@ -251,7 +251,7 @@ TEST_F(ProcessIntrospection_test, addRemoveNode)
         EXPECT_THAT(chunk6->sample()->m_processList[0].m_nodes.size(), Eq(1U));
         EXPECT_THAT(strcmp(NODE_2, chunk6->sample()->m_processList[0].m_nodes[0].c_str()), Eq(0));
 
-        // remove last runnable list empty again
+        // remove last node, list empty again
         introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_2));
         auto chunk7 = createMemoryChunkAndSend(introspectionAccess);
         ASSERT_THAT(chunk7, Ne(nullptr));

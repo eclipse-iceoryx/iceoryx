@@ -59,6 +59,7 @@ class MockSubscriberPortUser
     MOCK_METHOD0(isConditionVariableSet, bool());
     MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(destroy, bool());
+    MOCK_CONST_METHOD0(getUniqueID, iox::UniquePortId());
 };
 
 template <typename T, typename Port = MockSubscriberPortUser>

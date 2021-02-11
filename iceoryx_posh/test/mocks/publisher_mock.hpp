@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,10 +66,7 @@ class MockPublisherPortUser
         return true;
     }
 
-    iox::UniquePortId getUniqueID()
-    {
-        return iox::UniquePortId();
-    };
+    MOCK_CONST_METHOD0(getUniqueID, iox::UniquePortId());
     MOCK_METHOD0(destroy, void());
 };
 

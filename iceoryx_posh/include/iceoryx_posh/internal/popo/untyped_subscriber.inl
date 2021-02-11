@@ -45,27 +45,6 @@ inline void UntypedSubscriberImpl<base_subscriber_t>::releaseChunk(const void* p
     port().releaseChunk(header);
 }
 
-template <typename base_subscriber_t>
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-UntypedSubscriberImpl<base_subscriber_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                      const SubscriberEvent subscriberEvent,
-                                                      const uint64_t eventId,
-                                                      const EventInfo::Callback<SelfType> callback) noexcept
-{
-    return BaseSubscriber::enableEventInternal(waitset, subscriberEvent, eventId, callback);
-}
-
-template <typename base_subscriber_t>
-template <uint64_t WaitSetCapacity>
-inline cxx::expected<WaitSetError>
-UntypedSubscriberImpl<base_subscriber_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
-                                                      const SubscriberEvent subscriberEvent,
-                                                      const EventInfo::Callback<SelfType> callback) noexcept
-{
-    return BaseSubscriber::enableEventInternal(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
-}
-
 } // namespace popo
 } // namespace iox
 

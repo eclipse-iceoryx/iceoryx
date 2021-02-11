@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ extern "C" {
 }
 
 static uint64_t event_info_vector_to_c_array(const WaitSet<>::EventInfoVector& triggerVector,
-                                          iox_event_info_t* eventInfoArray,
-                                          const uint64_t eventInfoArrayCapacity,
-                                          uint64_t* missedElements)
+                                             iox_event_info_t* eventInfoArray,
+                                             const uint64_t eventInfoArrayCapacity,
+                                             uint64_t* missedElements)
 {
     uint64_t eventInfoArraySize = 0U;
     uint64_t triggerVectorSize = triggerVector.size();
@@ -69,11 +69,7 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            uint64_t* missedElements)
 {
     return event_info_vector_to_c_array(
-        self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
-                        + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
-        eventInfoArray,
-        eventInfoArrayCapacity,
-        missedElements);
+        self->timedWait(units::Duration(timeout)), eventInfoArray, eventInfoArrayCapacity, missedElements);
 }
 
 uint64_t iox_ws_wait(iox_ws_t const self,
@@ -124,4 +120,3 @@ void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t co
 {
     self->detachEvent(*userTrigger);
 }
-
