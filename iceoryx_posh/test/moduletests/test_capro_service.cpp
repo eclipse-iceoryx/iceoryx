@@ -322,14 +322,16 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithZeroAsStringValu
 
 TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithOutOfBoundaryIntegerStringValuesSetTheIDsToInvalid)
 {
-    /// @note The value 65536 is assigned to the strings to set the condition to out of boundary when string is
-    /// converted to uint_16t.
-    testService = "65536";
-    testInstance = "65536";
-    testEvent = "65536";
+    IdString_t outOfBoundaryTestService(iox::cxx::TruncateToCapacity,
+                                        std::to_string(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
+    IdString_t outOfBoundaryTestInstance(iox::cxx::TruncateToCapacity,
+                                         std::to_string(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
+    IdString_t outOfBoundaryTestEvent(iox::cxx::TruncateToCapacity,
+                                      std::to_string(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
     ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
 
-    ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
+    ServiceDescription serviceDescription1 =
+        ServiceDescription(outOfBoundaryTestService, outOfBoundaryTestInstance, outOfBoundaryTestEvent, testHash);
 
     EXPECT_EQ(InvalidID, serviceDescription1.getServiceID());
     EXPECT_EQ(InvalidID, serviceDescription1.getInstanceID());
