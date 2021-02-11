@@ -576,8 +576,7 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
     }
 }
 
-
-TEST_F(PortManager_test, PortDestroy)
+TEST_F(PortManager_test, DestroyPortsInProcessP2ChangesStatesOfPortsInProcessP1)
 {
     iox::ProcessName_t p1 = "myProcess1";
     iox::ProcessName_t p2 = "myProcess2";
@@ -645,19 +644,38 @@ TEST_F(PortManager_test, PortDestroy)
             EXPECT_THAT(subscriber1.getSubscriptionState(), Eq(iox::SubscribeState::WAIT_FOR_OFFER));
         }
     }
+}
 
-    // re-create the ports of process p2
-    publisherData2 =
+TEST_F(PortManager_test, CleanupProcessP2ChangesStatesOfPortsInProcessP1)
+{
+    iox::ProcessName_t p1 = "myProcess1";
+    iox::ProcessName_t p2 = "myProcess2";
+    iox::capro::ServiceDescription cap1(1, 1, 1);
+    iox::capro::ServiceDescription cap2(2, 2, 2);
+    PublisherOptions publisherOptions{1, "node"};
+    SubscriberOptions subscriberOptions{1, 1, "node"};
+
+    // two processes p1 and p2 each with a publisher and subscriber that match to the other process
+    auto publisherData1 =
+        m_portManager->acquirePublisherPortData(cap1, publisherOptions, p1, m_payloadMemoryManager, PortConfigInfo())
+            .value();
+    auto subscriberData1 =
+        m_portManager->acquireSubscriberPortData(cap2, subscriberOptions, p1, PortConfigInfo()).value();
+
+    auto publisherData2 =
         m_portManager->acquirePublisherPortData(cap2, publisherOptions, p2, m_payloadMemoryManager, PortConfigInfo())
             .value();
-    subscriberData2 = m_portManager->acquireSubscriberPortData(cap1, subscriberOptions, p2, PortConfigInfo()).value();
+    auto subscriberData2 =
+        m_portManager->acquireSubscriberPortData(cap1, subscriberOptions, p2, PortConfigInfo()).value();
 
     // let them connect
     {
         PublisherPortUser publisher1(publisherData1);
         ASSERT_TRUE(publisher1);
+        publisher1.offer();
         SubscriberPortUser subscriber1(subscriberData1);
         ASSERT_TRUE(subscriber1);
+        subscriber1.subscribe();
 
         PublisherPortUser publisher2(publisherData2);
         ASSERT_TRUE(publisher2);
