@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_ACTIVE_CALL_SET_HPP
 #define IOX_POSH_POPO_ACTIVE_CALL_SET_HPP
@@ -38,6 +40,9 @@ enum class ActiveCallSetError
     EVENT_ALREADY_ATTACHED,
 };
 
+/// @brief The ActiveCallSet is a class which reacts to registered events by
+///        executing a corresponding callback concurrently. This is achieved via
+///        an encapsulated thread inside this class.
 class ActiveCallSet
 {
   public:
@@ -57,21 +62,51 @@ class ActiveCallSet
     ActiveCallSet& operator=(const ActiveCallSet&) = delete;
     ActiveCallSet& operator=(ActiveCallSet&&) = delete;
 
+    /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
+    ///        the corresponding callback which will be called when the event occurs.
+    /// @note This method can be called from any thread concurrently without any restrictions!
+    /// @tparam[in] T type of the class which will signal the event
+    /// @param[in] eventOrigin the object which will signal the event (the origin)
+    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs
+    /// @return If an error occurs the enum which describes the error.
     template <typename T>
     cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
 
+    /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin, an enum which further
+    ///        defines the event inside the class and the corresponding callback which will be called when the event
+    ///        occurs.
+    /// @note This method can be called from any thread concurrently without any restrictions!
+    /// @tparam[in] T type of the class which will signal the event
+    /// @param[in] eventOrigin the object which will signal the event (the origin)
+    /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
+    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs
+    /// @return If an error occurs the enum which describes the error.
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<ActiveCallSetError>
     attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept;
 
+    /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
+    ///        the eventType with further specifies the event inside of eventOrigin
+    /// @note This method can be called from any thread concurrently without any restrictions!
+    /// @tparam[in] T type of the class which will signal the event
+    /// @param[in] eventOrigin the object which will signal the event (the origin)
+    /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
     void detachEvent(T& eventOrigin, const EventType eventType) noexcept;
 
+    /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin.
+    /// @note This method can be called from any thread concurrently without any restrictions!
+    /// @tparam[in] T type of the class which will signal the event
+    /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
     template <typename T>
     void detachEvent(T& eventOrigin) noexcept;
 
+    /// @brief Returns the capacity of the ActiveCallSet
+    /// @return capacity of the ActiveCallSet
     static constexpr uint64_t capacity() noexcept;
 
+    /// @brief Returns the size of the ActiveCallSet
+    /// @return size of the ActiveCallSet
     uint64_t size() const noexcept;
 
   protected:
