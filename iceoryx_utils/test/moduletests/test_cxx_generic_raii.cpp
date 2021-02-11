@@ -15,7 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/generic_raii.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "test.hpp"
+
 
 using namespace ::testing;
 using namespace iox::cxx;
@@ -97,10 +99,11 @@ TEST_F(GenericRAII_test, MoveConstructedDoesCallCleanupFunctionWhenDestroyed)
     int hasCalledCleanup = 0;
 
     {
-        GenericRAII sut([&] { ++hasCalledCleanup; });
-        GenericRAII sut2(std::move(sut));
+        iox::cxx::optional<GenericRAII> sut(GenericRAII([&] { ++hasCalledCleanup; }));
+        GenericRAII sut2(std::move(*sut));
+        sut.reset();
+        EXPECT_THAT(hasCalledCleanup, Eq(0));
     }
-
     EXPECT_THAT(hasCalledCleanup, Eq(1));
 }
 
@@ -115,6 +118,7 @@ TEST_F(GenericRAII_test, MoveAssignmentCallsCleanup)
     sut = std::move(sut2);
 
     EXPECT_THAT(hasCalledCleanup, Eq(1));
+    EXPECT_THAT(hasCalledCleanup2, Eq(0));
 }
 
 TEST_F(GenericRAII_test, MoveAssignedCallsCleanupWhenOutOfScope)
@@ -127,8 +131,9 @@ TEST_F(GenericRAII_test, MoveAssignedCallsCleanupWhenOutOfScope)
         GenericRAII sut2([&] { ++hasCalledCleanup2; });
 
         sut = std::move(sut2);
+        EXPECT_THAT(hasCalledCleanup, Eq(1));
+        EXPECT_THAT(hasCalledCleanup2, Eq(0));
     }
 
-    EXPECT_THAT(hasCalledCleanup, Eq(1));
     EXPECT_THAT(hasCalledCleanup2, Eq(1));
 }
