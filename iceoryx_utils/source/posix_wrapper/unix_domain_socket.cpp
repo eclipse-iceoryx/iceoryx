@@ -163,25 +163,29 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
 
 cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
-    auto closeCall =
-        cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
-
-    if (!closeCall.hasErrors())
+    if (m_sockfd != INVALID_FD)
     {
-        if (IpcChannelSide::SERVER == m_channelSide)
+        auto closeCall = cxx::makeSmartC(
+            closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
+
+        if (!closeCall.hasErrors())
         {
-            unlink(m_sockAddr.sun_path);
+            if (IpcChannelSide::SERVER == m_channelSide)
+            {
+                unlink(m_sockAddr.sun_path);
+            }
+
+            m_sockfd = INVALID_FD;
+            m_isInitialized = false;
+
+            return cxx::success<void>();
         }
-
-        m_sockfd = INVALID_FD;
-        m_isInitialized = false;
-
-        return cxx::success<void>();
+        else
+        {
+            return createErrorFromErrnum(closeCall.getErrNum());
+        }
     }
-    else
-    {
-        return createErrorFromErrnum(closeCall.getErrNum());
-    }
+    return cxx::success<>();
 }
 
 cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
