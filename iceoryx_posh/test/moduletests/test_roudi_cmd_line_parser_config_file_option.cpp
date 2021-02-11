@@ -53,7 +53,7 @@ TEST_F(CmdLineParserConfigFileOption_test, NoConfigPathOptionLeadsToEmptyPath)
     CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    EXPECT_FALSE(result.has_error());
     EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(""));
 }
 
@@ -71,7 +71,7 @@ TEST_F(CmdLineParserConfigFileOption_test, ConfigPathShortOptionIsCorrectlyRead)
     CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    EXPECT_FALSE(result.has_error());
     EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(path));
 }
 
@@ -89,7 +89,7 @@ TEST_F(CmdLineParserConfigFileOption_test, ConfigPathLongOptionIsCorrectlyRead)
     CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    EXPECT_FALSE(result.has_error());
     EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(path));
 }
 
@@ -105,8 +105,8 @@ TEST_F(CmdLineParserConfigFileOption_test, HelpLongOptionLeadsProgrammNotRunning
     CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result.value().run, Eq(false));
+    EXPECT_FALSE(result.has_error());
+    EXPECT_FALSE(result.value().run);
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
@@ -121,7 +121,7 @@ TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
     CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(true));
+    EXPECT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(CmdLineParserResult::UNKNOWN_OPTION_USED));
 }
 
@@ -139,8 +139,8 @@ TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParse
     CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result.value().uniqueRouDiId.has_value(), Eq(true));
+    EXPECT_FALSE(result.has_error());
+    EXPECT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
 }
 
@@ -156,8 +156,8 @@ TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneReturnNoE
     CmdLineParserConfigFileOption sut;
     auto result = sut.parse(numberOfArgs, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result.value().run, Eq(false));
+    EXPECT_FALSE(result.has_error());
+    EXPECT_FALSE(result.value().run);
 }
 
 } // namespace test
