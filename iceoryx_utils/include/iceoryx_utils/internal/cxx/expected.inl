@@ -535,8 +535,7 @@ inline expected<ErrorType>::expected(expected<ErrorType>&& rhs) noexcept
 }
 
 template <typename ErrorType>
-inline expected<ErrorType>&
-expected< ErrorType>::operator=(expected<ErrorType>&& rhs) noexcept
+inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ErrorType>&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -568,6 +567,7 @@ template <typename ValueType>
 inline expected<ErrorType>::expected(const expected<ValueType, ErrorType>& rhs) noexcept
 {
     m_hasError = rhs.has_error();
+    m_isInitialized = rhs.is_initialized();
     if (m_hasError)
     {
         m_store.emplace_at_index<0>(rhs.get_error());
@@ -579,12 +579,12 @@ template <typename ValueType>
 inline expected<ErrorType>::expected(expected<ValueType, ErrorType>&& rhs) noexcept
 {
     m_hasError = rhs.has_error();
+    m_isInitialized = rhs.is_initialized();
     if (m_hasError)
     {
         m_store.emplace_at_index<0>(std::move(rhs.get_error()));
     }
 }
-#endif
 
 template <typename ErrorType>
 template <typename ValueType>
@@ -599,6 +599,7 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(const expected<ValueT
         m_store = variant<ErrorType>(in_place_type<ErrorType>(), rhs.get_error());
     }
     m_hasError = rhs.has_error();
+    m_isInitialized = rhs.is_initialized();
 }
 
 template <typename ErrorType>
@@ -614,9 +615,9 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, E
         m_store = variant<ErrorType>(in_place_type<ErrorType>(), std::move(rhs.get_error()));
     }
     m_hasError = rhs.has_error();
-    rhs.m_isInitialized = false;
+    m_isInitialized = rhs.is_initialized();
 }
-
+#endif
 
 template <typename ErrorType>
 inline expected<ErrorType> expected<ErrorType>::create_value() noexcept

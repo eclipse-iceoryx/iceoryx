@@ -180,6 +180,7 @@ class expected<ErrorType>
     ///         or the error value - depending on what is stored in the expected
     expected& operator=(expected&& rhs) noexcept;
 
+#if defined(_WIN32)
     /// @brief  calls the copy assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
     template <typename ValueType>
@@ -189,6 +190,7 @@ class expected<ErrorType>
     ///         or the error value - depending on what is stored in the expected
     template <typename ValueType>
     expected& operator=(expected<ValueType, ErrorType>&& rhs) noexcept;
+#endif
 
     /// @brief  constructs an expected which is signaling success
     /// @param[in] successValue value which will be stored in the expected
