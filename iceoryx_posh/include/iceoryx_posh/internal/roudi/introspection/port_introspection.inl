@@ -491,11 +491,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(Connect
 
     case ConnectionState::CONNECTED:
     {
-        if (messageType == capro::CaproMessageType::STOP_OFFER)
-        {
-            nextState = ConnectionState::DEFAULT;
-        }
-        else if (messageType == capro::CaproMessageType::UNSUB)
+        if (messageType == capro::CaproMessageType::UNSUB)
         {
             nextState = ConnectionState::DEFAULT;
         }
@@ -555,7 +551,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
             {
                 auto& connection = m_connectionContainer[connectionIndex];
                 SubscriberPortData subscriberData;
-                bool connected = connection.isConnected();
+                // bool connected = connection.isConnected();
                 auto& subscriberInfo = connection.subscriberInfo;
 
                 subscriberData.m_name = subscriberInfo.process;
@@ -564,10 +560,10 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
                 subscriberData.m_caproInstanceID = subscriberInfo.service.getInstanceIDString();
                 subscriberData.m_caproServiceID = subscriberInfo.service.getServiceIDString();
                 subscriberData.m_caproEventMethodID = subscriberInfo.service.getEventIDString();
-                if (connected)
-                { // publisherInfo is not nullptr, otherwise we would not be connected
-                    subscriberData.m_publisherIndex = connection.publisherInfo->index;
-                } // remark: index is -1 for not connected
+                // if (connected)
+                //{ // publisherInfo is not nullptr, otherwise we would not be connected
+                // subscriberData.m_publisherIndex = connection.publisherInfo->index;
+                //} // remark: index is -1 for not connected
                 m_subscriberList.emplace_back(subscriberData);
             }
         }

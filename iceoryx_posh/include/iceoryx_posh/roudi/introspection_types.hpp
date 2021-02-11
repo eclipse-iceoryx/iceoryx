@@ -75,7 +75,7 @@ struct SubscriberPortData : public PortData
 {
     /// @brief identifier of the publisher port to which this subscriber port is connected.
     /// If no matching publisher port exists, this should equal -1.
-    int32_t m_publisherIndex{-1};
+    // int32_t m_publisherIndex{-1};
 };
 
 /// @brief container for publisher port introspection data.

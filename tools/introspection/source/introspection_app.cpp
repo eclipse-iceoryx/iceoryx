@@ -407,7 +407,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     }
     wprintw(pad, "\n");
 
-    constexpr int32_t processUsedWidth{-41};
+    // constexpr int32_t processUsedWidth{-41};
     prettyPrint("Subscriber Ports\n", PrettyOptions::bold);
 
     wprintw(pad, " %*s |", serviceWidth, "Service");
@@ -416,8 +416,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", nodeNameWidth, "Node");
     wprintw(pad, " %*s |", subscriptionStateWidth, "Subscription");
     wprintw(pad, " %*s |", fifoWidth, "FiFo");
-    wprintw(pad, " %*s |", scopeWidth, "Propagation");
-    wprintw(pad, " %*s\n", processUsedWidth, "used by process");
+    wprintw(pad, " %*s\n", scopeWidth, "Propagation");
+    // wprintw(pad, " %*s\n", processUsedWidth, "used by process");
 
     wprintw(pad, " %*s |", serviceWidth, "");
     wprintw(pad, " %*s |", instanceWidth, "");
@@ -425,8 +425,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", nodeNameWidth, "");
     wprintw(pad, " %*s |", subscriptionStateWidth, "State");
     wprintw(pad, " %*s |", fifoWidth, "size / capacity");
-    wprintw(pad, " %*s |", scopeWidth, "scope");
-    wprintw(pad, " %*s\n", processUsedWidth, "   ^--- connected to publisher port process");
+    wprintw(pad, " %*s\n", scopeWidth, "scope");
+    // wprintw(pad, " %*s\n", processUsedWidth, "   ^--- connected to publisher port process");
 
     wprintw(pad, "---------------------------------------------------------------------------------------------------");
     wprintw(pad, "---------------------------------------------------\n");
@@ -478,13 +478,13 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
                 wprintw(pad, " %*s |", fifoWidth, "");
             }
             wprintw(pad,
-                    " %s |",
+                    " %s\n",
                     printEntry(scopeWidth,
                                std::string(capro::ScopeTypeString[static_cast<std::underlying_type<capro::Scope>::type>(
                                    subscriber.subscriberPortChangingData->propagationScope)]))
                         .c_str());
 
-            wprintw(pad, " %s\n", printEntry(processUsedWidth, subscriber.portData->m_name).c_str());
+            // wprintw(pad, " %s\n", printEntry(processUsedWidth, subscriber.portData->m_name).c_str());
             currentLine++;
         } while (needsLineBreak);
 
@@ -494,18 +494,18 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         wprintw(pad, " %*s |", nodeNameWidth, "");
         wprintw(pad, " %*s |", subscriptionStateWidth, "");
         wprintw(pad, " %*s |", fifoWidth, "");
-        wprintw(pad, " %*s |", scopeWidth, "");
-        wprintw(pad, "    ^--- ");
+        wprintw(pad, " %*s", scopeWidth, "");
+        // wprintw(pad, "    ^--- ");
 
-        if (subscriber.correspondingPublisherPort != nullptr)
-        {
-            // use the not sorted portData, because the m_publisherIndex refers to the original unsorted data
-            prettyPrint(subscriber.correspondingPublisherPort->m_name);
-        }
-        else
-        {
-            prettyPrint("disconnected", PrettyOptions::error);
-        }
+        // if (subscriber.correspondingPublisherPort != nullptr)
+        //{
+        //// use the not sorted portData, because the m_publisherIndex refers to the original unsorted data
+        // prettyPrint(subscriber.correspondingPublisherPort->m_name);
+        //}
+        // else
+        //{
+        // prettyPrint("disconnected", PrettyOptions::error);
+        //}
         wprintw(pad, "\n");
     }
 }
@@ -587,9 +587,9 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
         for (const auto& port : portData->m_subscriberList)
         {
             subscriberPortData.push_back({port,
-                                          (port.m_publisherIndex != -1)
-                                              ? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)]
-                                              : nullptr,
+                                          //(port.m_publisherIndex != -1)
+                                          //? &portData->m_publisherList[static_cast<uint64_t>(port.m_publisherIndex)]
+                                          //: nullptr,
                                           subscriberPortChangingData->subscriberPortChangingDataList[i++]});
         }
     }
