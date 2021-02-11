@@ -757,7 +757,7 @@ void ProcessManager::addEventVariableForProcess(const ProcessName_t& processName
     RouDiProcess* process = getProcessFromList(processName);
     if (nullptr != process)
     {
-        // Try to create a event variable
+        // Try to create an event variable
         m_portManager.acquireEventVariableData(processName)
             .and_then([&](auto condVar) {
                 auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
