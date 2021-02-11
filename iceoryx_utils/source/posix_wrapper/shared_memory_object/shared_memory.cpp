@@ -88,7 +88,7 @@ SharedMemory::SharedMemory(const char* f_name,
     m_isInitialized = open();
 }
 
-SharedMemory::~SharedMemory()
+SharedMemory::~SharedMemory() noexcept
 {
     destroy();
 }

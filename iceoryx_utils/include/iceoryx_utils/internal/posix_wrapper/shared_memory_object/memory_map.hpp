@@ -59,10 +59,9 @@ class MemoryMap
               const int32_t f_flags = MAP_SHARED,
               const off_t f_offset = 0) noexcept;
     bool isInitialized() const noexcept;
-    void destroy() noexcept;
+    bool destroy() noexcept;
 
     bool m_isInitialized{false};
-    bool m_isLocked{false};
     void* m_baseAddress{nullptr};
     uint64_t m_length{0};
 };

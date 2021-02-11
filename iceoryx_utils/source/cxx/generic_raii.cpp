@@ -22,11 +22,11 @@ namespace iox
 namespace cxx
 {
 GenericRAII::GenericRAII(const std::function<void()> cleanupFunction) noexcept
-    : GenericRAII(std::function<void()>(), cleanupFunction)
+    : GenericRAII(function_ref<void()>(), cleanupFunction)
 {
 }
 
-GenericRAII::GenericRAII(const std::function<void()> initFunction, const std::function<void()> cleanupFunction) noexcept
+GenericRAII::GenericRAII(const function_ref<void()> initFunction, const std::function<void()> cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
     if (initFunction)

@@ -51,7 +51,7 @@ class SharedMemory
     SharedMemory& operator=(const SharedMemory&) = delete;
     SharedMemory(SharedMemory&&) noexcept;
     SharedMemory& operator=(SharedMemory&&) noexcept;
-    ~SharedMemory();
+    ~SharedMemory() noexcept;
 
     int32_t getHandle() const noexcept;
     bool isInitialized() const noexcept;

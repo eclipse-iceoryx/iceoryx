@@ -76,7 +76,7 @@ TEST_F(GenericRAII_test, CleanupFunctionIsCalledInDtorWithEmptyInitFunction)
     int hasCalledCleanup = 0;
 
     {
-        GenericRAII sut(std::function<void()>(), [&] { ++hasCalledCleanup; });
+        GenericRAII sut(function_ref<void()>(), [&] { ++hasCalledCleanup; });
     }
 
     EXPECT_THAT(hasCalledCleanup, Eq(1));

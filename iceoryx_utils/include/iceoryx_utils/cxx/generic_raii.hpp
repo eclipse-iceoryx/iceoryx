@@ -18,6 +18,8 @@
 #ifndef IOX_UTILS_CXX_GENERIC_RAII_HPP
 #define IOX_UTILS_CXX_GENERIC_RAII_HPP
 
+#include "iceoryx_utils/cxx/function_ref.hpp"
+
 #include <functional>
 
 namespace iox
@@ -52,7 +54,7 @@ class GenericRAII
     ///           called in the destructor
     /// @param[in] initFunction callable which will be called in the constructor
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    GenericRAII(const std::function<void()> initFunction, const std::function<void()> cleanupFunction) noexcept;
+    GenericRAII(const function_ref<void()> initFunction, const std::function<void()> cleanupFunction) noexcept;
 
     /// @brief calls m_cleanupFunction callable if it was set in the constructor
     ~GenericRAII() noexcept;

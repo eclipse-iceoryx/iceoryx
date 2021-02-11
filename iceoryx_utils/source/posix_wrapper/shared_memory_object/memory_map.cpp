@@ -115,7 +115,11 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        destroy();
+        if (!destroy())
+        {
+            std::cerr << "move assignment failed to unmap mapped memory" << std::endl;
+        }
+
         m_isInitialized = std::move(rhs.m_isInitialized);
         m_baseAddress = std::move(rhs.m_baseAddress);
         m_length = std::move(rhs.m_length);
@@ -127,7 +131,10 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
 
 MemoryMap::~MemoryMap()
 {
-    destroy();
+    if (!destroy())
+    {
+        std::cerr << "destructor failed to unmap mapped memory" << std::endl;
+    }
 }
 
 bool MemoryMap::isInitialized() const noexcept
@@ -140,13 +147,21 @@ void* MemoryMap::getBaseAddress() const noexcept
     return m_baseAddress;
 }
 
-void MemoryMap::destroy() noexcept
+bool MemoryMap::destroy() noexcept
 {
     if (m_isInitialized)
     {
-        cxx::makeSmartC(munmap, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_baseAddress, m_length);
         m_isInitialized = false;
+        if (cxx::makeSmartC(munmap, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_baseAddress, m_length)
+                .hasErrors())
+        {
+            std::cerr << "unable to unmap mapped memory [ address = " << std::hex << m_baseAddress
+                      << ", size = " << std::dec << m_length << " ]" << std::endl;
+            return false;
+        }
     }
+
+    return true;
 }
 
 } // namespace posix
