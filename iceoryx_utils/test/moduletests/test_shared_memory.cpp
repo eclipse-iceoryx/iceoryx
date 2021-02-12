@@ -44,7 +44,7 @@ TEST_F(SharedMemory_Test, CTorWithValidArguments)
                                                 iox::posix::OwnerShip::mine,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
-    EXPECT_THAT(sut.has_value(), Eq(true));
+    EXPECT_THAT(sut.has_error(), Eq(false));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
@@ -54,24 +54,24 @@ TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
                                                  iox::posix::OwnerShip::mine,
                                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                  128)
-                    .has_value(),
-                Eq(false));
+                    .has_error(),
+                Eq(true));
 
     EXPECT_THAT(iox::posix::SharedMemory::create("",
                                                  iox::posix::AccessMode::readWrite,
                                                  iox::posix::OwnerShip::mine,
                                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                  128)
-                    .has_value(),
-                Eq(false));
+                    .has_error(),
+                Eq(true));
 
     EXPECT_THAT(iox::posix::SharedMemory::create("ignatz",
                                                  iox::posix::AccessMode::readWrite,
                                                  iox::posix::OwnerShip::mine,
                                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                  128)
-                    .has_value(),
-                Eq(false));
+                    .has_error(),
+                Eq(true));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
@@ -81,7 +81,7 @@ TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
                                                 iox::posix::OwnerShip::openExisting,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
-    EXPECT_THAT(sut.has_value(), Eq(false));
+    EXPECT_THAT(sut.has_error(), Eq(true));
 }
 
 TEST_F(SharedMemory_Test, MoveCTorWithValidValues)

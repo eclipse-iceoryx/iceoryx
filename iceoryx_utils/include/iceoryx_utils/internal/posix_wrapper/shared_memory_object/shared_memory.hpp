@@ -19,6 +19,7 @@
 #define IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
 
 #include <cstdint>
@@ -42,14 +43,13 @@ enum class OwnerShip : uint64_t
 };
 static constexpr char OWNERSHIP_STRING[2][24] = {"OwnerShip::mine", "OwnerShip::openExisting"};
 
-class SharedMemory
+enum class SharedMemoryError
+{
+};
+
+class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryError>
 {
   public:
-    static cxx::optional<SharedMemory> create(const char* f_name,
-                                              const AccessMode f_accessMode,
-                                              const OwnerShip f_ownerShip,
-                                              const mode_t f_permissions,
-                                              const uint64_t f_size) noexcept;
     SharedMemory(const SharedMemory&) = delete;
     SharedMemory& operator=(const SharedMemory&) = delete;
     SharedMemory(SharedMemory&&) noexcept;
@@ -57,22 +57,21 @@ class SharedMemory
     ~SharedMemory() noexcept;
 
     int32_t getHandle() const noexcept;
-    bool isInitialized() const noexcept;
 
-    friend class posix::SharedMemoryObject;
-    friend class cxx::optional<SharedMemory>;
+    friend class DesignPattern::Creation<SharedMemory, SharedMemoryError>;
 
   private:
-    SharedMemory(const char* f_name,
-                 const AccessMode f_accessMode,
-                 const OwnerShip f_ownerShip,
-                 const mode_t f_permissions,
-                 const uint64_t f_size) noexcept;
+    SharedMemory(const char* name,
+                 const AccessMode accessMode,
+                 const OwnerShip ownerShip,
+                 const mode_t permissions,
+                 const uint64_t size) noexcept;
 
     bool open() noexcept;
     bool unlink() noexcept;
     bool close() noexcept;
     void destroy() noexcept;
+    void reset() noexcept;
 
     static constexpr uint64_t NAME_SIZE = 128U;
 

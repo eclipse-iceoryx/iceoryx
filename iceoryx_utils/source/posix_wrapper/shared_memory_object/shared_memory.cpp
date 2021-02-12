@@ -30,60 +30,41 @@ namespace iox
 {
 namespace posix
 {
-cxx::optional<SharedMemory> SharedMemory::create(const char* f_name,
-                                                 const AccessMode f_accessMode,
-                                                 const OwnerShip f_ownerShip,
-                                                 const mode_t f_permissions,
-                                                 const uint64_t f_size) noexcept
-{
-    cxx::optional<SharedMemory> l_sharedMemory;
-    l_sharedMemory.emplace(f_name, f_accessMode, f_ownerShip, f_permissions, f_size);
-
-    if (l_sharedMemory->isInitialized())
-    {
-        return l_sharedMemory;
-    }
-    else
-    {
-        return cxx::nullopt_t();
-    }
-}
-
-SharedMemory::SharedMemory(const char* f_name,
-                           const AccessMode f_accessMode,
-                           const OwnerShip f_ownerShip,
-                           const mode_t f_permissions,
-                           const uint64_t f_size) noexcept
-    : m_ownerShip(f_ownerShip)
-    , m_permissions(f_permissions)
-    , m_size(f_size)
+SharedMemory::SharedMemory(const char* name,
+                           const AccessMode accessMode,
+                           const OwnerShip ownerShip,
+                           const mode_t permissions,
+                           const uint64_t size) noexcept
+    : m_ownerShip(ownerShip)
+    , m_permissions(permissions)
+    , m_size(size)
 {
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    if (f_name == nullptr || strlen(f_name) == 0U)
+    if (name == nullptr || strlen(name) == 0U)
     {
         std::cerr << "No shared memory name specified!" << std::endl;
         m_isInitialized = false;
         return;
     }
-    else if (f_name[0] != '/')
+    else if (name[0] != '/')
     {
         std::cerr << "Shared memory name must start with a leading slash!" << std::endl;
         m_isInitialized = false;
         return;
     }
 
-    if (strlen(f_name) >= NAME_SIZE)
+    if (strlen(name) >= NAME_SIZE)
     {
-        std::clog << "Shared memory name is too long! '" << f_name << "' will be truncated at position "
-                  << NAME_SIZE - 1U << "!" << std::endl;
+        std::clog << "Shared memory name is too long! '" << name << "' will be truncated at position " << NAME_SIZE - 1U
+                  << "!" << std::endl;
     }
 
     /// @note GCC drops here a warning that the destination char buffer length is equal to the max length to copy.
     /// This can potentially lead to a char array without null-terminator. We add the null-terminator afterwards.
-    strncpy(m_name, f_name, NAME_SIZE);
+    strncpy(m_name, name, NAME_SIZE);
     m_name[NAME_SIZE - 1U] = '\0';
-    m_oflags |= (f_accessMode == AccessMode::readOnly) ? O_RDONLY : O_RDWR;
-    m_oflags |= (f_ownerShip == OwnerShip::mine) ? O_CREAT | O_EXCL : 0;
+    m_oflags |= (accessMode == AccessMode::readOnly) ? O_RDONLY : O_RDWR;
+    m_oflags |= (ownerShip == OwnerShip::mine) ? O_CREAT | O_EXCL : 0;
 
     m_isInitialized = open();
 }
@@ -99,8 +80,18 @@ void SharedMemory::destroy() noexcept
     {
         close();
         unlink();
-        m_isInitialized = false;
     }
+    reset();
+}
+
+void SharedMemory::reset() noexcept
+{
+    m_isInitialized = false;
+    m_name[0] = '\0';
+    m_oflags = 0;
+    m_permissions = mode_t();
+    m_size = 0U;
+    m_handle = -1;
 }
 
 SharedMemory::SharedMemory(SharedMemory&& rhs) noexcept
@@ -113,6 +104,7 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
     if (this != &rhs)
     {
         destroy();
+
         m_isInitialized = std::move(rhs.m_isInitialized);
         strncpy(m_name, rhs.m_name, NAME_SIZE);
         m_ownerShip = std::move(rhs.m_ownerShip);
@@ -120,14 +112,9 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
         m_permissions = std::move(rhs.m_permissions);
         m_handle = std::move(rhs.m_handle);
 
-        rhs.m_isInitialized = false;
+        rhs.reset();
     }
     return *this;
-}
-
-bool SharedMemory::isInitialized() const noexcept
-{
-    return m_isInitialized;
 }
 
 int32_t SharedMemory::getHandle() const noexcept
@@ -214,10 +201,11 @@ bool SharedMemory::unlink() noexcept
 
 bool SharedMemory::close() noexcept
 {
-    if (m_isInitialized)
+    if (m_isInitialized && m_handle != -1)
     {
         auto closeCall =
             cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
+        m_handle = -1;
         if (closeCall.hasErrors())
         {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << closeCall.getErrorString()

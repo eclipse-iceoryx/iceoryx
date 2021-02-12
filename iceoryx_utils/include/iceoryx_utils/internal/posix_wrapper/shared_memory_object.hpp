@@ -67,7 +67,7 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
 
   private:
     uint64_t m_memorySizeInBytes;
-    SharedMemory m_sharedMemory;
+    cxx::optional<SharedMemory> m_sharedMemory;
     cxx::optional<MemoryMap> m_memoryMap;
     cxx::optional<Allocator> m_allocator;
 

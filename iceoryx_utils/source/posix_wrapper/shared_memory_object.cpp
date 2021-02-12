@@ -34,21 +34,21 @@ SharedMemoryObject::SharedMemoryObject(const char* name,
                                        const void* baseAddressHint,
                                        const mode_t permissions)
     : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
-    , m_sharedMemory(name, accessMode, ownerShip, permissions, m_memorySizeInBytes)
 {
     m_isInitialized = true;
 
-    if (!m_sharedMemory.isInitialized())
-    {
-        std::cerr << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource"
-                  << std::endl;
-        m_isInitialized = false;
-        m_errorValue = SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED;
-    }
+    SharedMemory::create(name, accessMode, ownerShip, permissions, m_memorySizeInBytes)
+        .and_then([this](auto& sharedMemory) { m_sharedMemory.emplace(std::move(sharedMemory)); })
+        .or_else([this](auto&) {
+            std::cerr << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource"
+                      << std::endl;
+            m_isInitialized = false;
+            m_errorValue = SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED;
+        });
 
     if (m_isInitialized)
     {
-        MemoryMap::create(baseAddressHint, m_memorySizeInBytes, m_sharedMemory.getHandle(), accessMode, MAP_SHARED, 0)
+        MemoryMap::create(baseAddressHint, m_memorySizeInBytes, m_sharedMemory->getHandle(), accessMode, MAP_SHARED, 0)
             .and_then([this](auto& memoryMap) { m_memoryMap.emplace(std::move(memoryMap)); })
             .or_else([this](auto) {
                 std::cerr << "Failed to map created shared memory into process!" << std::endl;
@@ -110,7 +110,7 @@ uint64_t SharedMemoryObject::getSizeInBytes() const
 
 int32_t SharedMemoryObject::getFileHandle() const
 {
-    return m_sharedMemory.getHandle();
+    return m_sharedMemory->getHandle();
 }
 
 } // namespace posix
