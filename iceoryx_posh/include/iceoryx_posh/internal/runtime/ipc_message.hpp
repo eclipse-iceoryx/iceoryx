@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 #ifndef IOX_POSH_RUNTIME_IPC_MESSAGE_HPP
 #define IOX_POSH_RUNTIME_IPC_MESSAGE_HPP
 

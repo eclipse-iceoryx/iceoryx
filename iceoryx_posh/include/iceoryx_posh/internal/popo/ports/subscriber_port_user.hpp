@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_

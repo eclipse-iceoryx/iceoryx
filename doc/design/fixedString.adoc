@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 == Fixed string implementation
 This document is intended to provide an overview of the fixed string implementation. The fixed string will be implemented in three steps. The first and second step are already completed and include:

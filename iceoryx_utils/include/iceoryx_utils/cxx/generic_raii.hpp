@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 #ifndef IOX_UTILS_CXX_GENERIC_RAII_HPP
 #define IOX_UTILS_CXX_GENERIC_RAII_HPP
 

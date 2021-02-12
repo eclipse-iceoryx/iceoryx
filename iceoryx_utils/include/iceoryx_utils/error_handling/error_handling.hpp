@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 #ifndef IOX_UTILS_ERROR_HANDLING_ERROR_HANDLING_HPP
 #define IOX_UTILS_ERROR_HANDLING_ERROR_HANDLING_HPP
 
