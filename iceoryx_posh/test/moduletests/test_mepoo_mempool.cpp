@@ -53,9 +53,9 @@ TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
 
     iox::mepoo::MemPool sut1(ChunkSize, NumberOfChunks, &allocator1, &allocator1);
 
-    EXPECT_THAT(sut1.getChunkSize(), Eq(64U));
-    EXPECT_THAT(sut1.getChunkCount(), Eq(100U));
-    EXPECT_THAT(sut1.getMinFree(), Eq(100U));
+    EXPECT_THAT(sut1.getChunkSize(), Eq(ChunkSize));
+    EXPECT_THAT(sut1.getChunkCount(), Eq(NumberOfChunks));
+    EXPECT_THAT(sut1.getMinFree(), Eq(NumberOfChunks));
 }
 
 TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnError)
@@ -80,6 +80,18 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
                kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_THAN_SHARED_MEMORY_ALIGNMENT_AND_MULTIPLE_OF_ALIGNMENT));
 }
 
+TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThan32BytesGetsTerminated)
+{
+    uint32_t chunkSizeSmallerThan32Bytes = 12U;
+    EXPECT_DEATH({ iox::mepoo::MemPool sut(chunkSizeSmallerThan32Bytes, NumberOfChunks, &allocator, &allocator); },
+                 ".*");
+}
+
+TEST_F(MemPool_test, MempoolCtorWhenNumberOfChunksIsSmallerThanZeroGetsTerminated)
+{
+    uint32_t invalidNumberOfChunks = 0U;
+    EXPECT_DEATH({ iox::mepoo::MemPool sut(ChunkSize, invalidNumberOfChunks, &allocator, &allocator); }, ".*");
+}
 TEST_F(MemPool_test, GetChunkMethodWhenAllTheChunksAreUsedReturnsNullPointer)
 {
     for (uint8_t i = 0; i < NumberOfChunks; i++)
@@ -90,19 +102,7 @@ TEST_F(MemPool_test, GetChunkMethodWhenAllTheChunksAreUsedReturnsNullPointer)
     EXPECT_THAT(sut.getChunk(), Eq(nullptr));
 }
 
-TEST_F(MemPool_test, WriteChunks)
-{
-    uint8_t* chunk = reinterpret_cast<uint8_t*>(sut.getChunk());
-    uint8_t* chunk2 = reinterpret_cast<uint8_t*>(sut.getChunk());
-
-    *chunk = 123;
-    *chunk2 = 45;
-
-    EXPECT_THAT(*chunk, Eq(123));
-    EXPECT_THAT(*chunk2, Eq(45));
-}
-
-TEST_F(MemPool_test, WriteAllChunks)
+TEST_F(MemPool_test, VerifyWritingDataToChunks)
 {
     std::vector<uint8_t*> chunks;
     for (uint8_t i = 0; i < NumberOfChunks; i++)
@@ -133,8 +133,8 @@ TEST_F(MemPool_test, GetUsedChunksMethodReturnsTheNumberOfUsedChunks)
 {
     for (uint32_t i = 0; i < NumberOfChunks; ++i)
     {
-        EXPECT_THAT(sut.getUsedChunks(), Eq(i));
         sut.getChunk();
+        EXPECT_THAT(sut.getUsedChunks(), Eq(i + 1U));
     }
 }
 
@@ -148,11 +148,10 @@ TEST_F(MemPool_test, VerifyFreeChunkMethodWhichFreesTheUsedChunk)
 
     for (uint32_t i = 0; i < NumberOfChunks; ++i)
     {
-        EXPECT_THAT(sut.getUsedChunks(), Eq(NumberOfChunks - i));
         sut.freeChunk(chunks[i]);
+        EXPECT_THAT(sut.getUsedChunks(), Eq(NumberOfChunks - (i + 1U)));
     }
 }
-
 
 TEST_F(MemPool_test, FreeChunkMethodWhenSameChunkIsTriedToFreeTwiceReturnsError)
 {
@@ -182,95 +181,12 @@ TEST_F(MemPool_test, FreeChunkMethodWhenTheChunkIndexIsInvalidReturnsError)
     EXPECT_DEATH({ sut.freeChunk(chunks[invalidindex]); }, ".*");
 }
 
-TEST_F(MemPool_test, freeChunkAndGetChunkFull)
+TEST_F(MemPool_test, GetMinFreeMethodReturnsTheNumberOfFreeChunks)
 {
     std::vector<uint8_t*> chunks;
     for (uint32_t i = 0; i < NumberOfChunks; ++i)
     {
         chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
+        EXPECT_THAT(sut.getMinFree(), Eq(NumberOfChunks - (i + 1U)));
     }
-
-    for (uint32_t i = 0; i < NumberOfChunks; ++i)
-    {
-        sut.freeChunk(chunks[i]);
-    }
-
-    chunks.clear();
-
-
-    for (uint8_t i = 0; i < NumberOfChunks; ++i)
-    {
-        chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
-        *chunks.back() = i;
-    }
-
-
-    for (uint8_t i = 0; i < NumberOfChunks; ++i)
-    {
-        EXPECT_THAT(*chunks[i], Eq(i));
-    }
-}
-
-TEST_F(MemPool_test, getMinFreeSimpleGetChunk)
-{
-    std::vector<uint8_t*> chunks;
-    for (uint32_t i = 0; i < NumberOfChunks / 2; ++i)
-    {
-        EXPECT_THAT(sut.getMinFree(), Eq(NumberOfChunks - i));
-        chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
-    }
-}
-
-TEST_F(MemPool_test, getMinFreeAfterFree)
-{
-    std::vector<uint8_t*> chunks;
-    for (uint32_t i = 0; i < NumberOfChunks / 2; ++i)
-    {
-        chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
-    }
-
-    for (auto chunk : chunks)
-    {
-        sut.freeChunk(chunk);
-        EXPECT_THAT(sut.getMinFree(), Eq(50u));
-    }
-}
-
-TEST_F(MemPool_test, getMinFreeWithSecondGetChunk)
-{
-    std::vector<uint8_t*> chunks;
-    for (uint32_t i = 0; i < NumberOfChunks / 2; ++i)
-    {
-        chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
-    }
-
-    for (auto chunk : chunks)
-    {
-        sut.freeChunk(chunk);
-    }
-
-    chunks.clear();
-
-
-    for (uint32_t i = 0; i < NumberOfChunks / 2; ++i)
-    {
-        chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
-    }
-
-
-    for (uint32_t i = 0; i < NumberOfChunks / 2; ++i)
-    {
-        EXPECT_THAT(sut.getMinFree(), Eq(NumberOfChunks / 2 - i));
-        chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
-    }
-}
-
-TEST_F(MemPool_test, dieWhenMempoolChunkSizeIsSmallerThan32Bytes)
-{
-    EXPECT_DEATH({ iox::mepoo::MemPool sut(12, 10, &allocator, &allocator); }, ".*");
-}
-
-TEST_F(MemPool_test, dieWhenMempoolChunkSizeIsNotPowerOf32)
-{
-    EXPECT_DEATH({ iox::mepoo::MemPool sut(333, 10, &allocator, &allocator); }, ".*");
 }
