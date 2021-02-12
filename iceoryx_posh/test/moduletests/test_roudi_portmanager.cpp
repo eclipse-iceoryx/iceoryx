@@ -126,7 +126,9 @@ class PortManager_test : public Test
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
-    void exhaustInterfacePorts(std::string itf, std::function<void(iox::popo::InterfacePortData*)> f = std::function<void(iox::popo::InterfacePortData*)>())
+    void exhaustInterfacePorts(
+        std::string itf,
+        std::function<void(iox::popo::InterfacePortData*)> f = std::function<void(iox::popo::InterfacePortData*)>())
     {
         for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
         {
@@ -137,6 +139,23 @@ class PortManager_test : public Test
             if (f)
             {
                 f(Interfaceport);
+            }
+        }
+    }
+
+    void exhaustCondVarPorts(std::string process,
+                             std::function<void(iox::popo::ConditionVariableData*)> f =
+                                 std::function<void(iox::popo::ConditionVariableData*)>())
+    {
+        for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
+        {
+            auto newProcessName = process + std::to_string(i);
+            auto CondVarport = m_portManager->acquireConditionVariableData(
+                iox::ProcessName_t(iox::cxx::TruncateToCapacity, newProcessName));
+            ASSERT_FALSE(CondVarport.has_error());
+            if (f)
+            {
+                f(CondVarport.value());
             }
         }
     }
@@ -417,13 +436,8 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFa
 {
     std::string process = "HypnoToadForEver";
 
-    for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
-    {
-        auto newProcessName = process + std::to_string(i);
-        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData(
-            iox::ProcessName_t(iox::cxx::TruncateToCapacity, newProcessName));
-        EXPECT_FALSE(conditionVariableDataResult.has_error());
-    }
+    // first aquire all possible condition variables
+    exhaustCondVarPorts(process);
 
     // test if overflow errors get hit
     {
@@ -444,13 +458,8 @@ TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIs
 {
     std::string process = "HypnoToadForEver";
 
-    for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
-    {
-        auto newProcessName = process + std::to_string(i);
-        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData(
-            iox::ProcessName_t(iox::cxx::TruncateToCapacity, newProcessName));
-        EXPECT_FALSE(conditionVariableDataResult.has_error());
-    }
+    // first aquire all possible condition variables
+    exhaustCondVarPorts(process);
 
     // delete one and add one should be possible now
     {
@@ -472,12 +481,7 @@ TEST_F(PortManager_test, AcquireConditionVariablesDataAfterDestroyingPreviouslyA
     std::string process = "HypnoToadForEver";
 
     // first aquire all possible condition variables
-    for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
-    {
-        auto conditionVariableDataResult = m_portManager->acquireConditionVariableData("JustFollowTheHypnoToad");
-        ASSERT_FALSE(conditionVariableDataResult.has_error());
-        condVarContainer.push_back(conditionVariableDataResult.value());
-    }
+    exhaustCondVarPorts(process, [&](auto CondVarport) { condVarContainer.push_back(CondVarport); });
 
     // so now no one should be available
     {
@@ -717,8 +721,7 @@ TEST_F(PortManager_test, AcquireInterfacePortDataAfterDestroyingPreviouslyAcquir
     std::string itf = "itf";
 
     // first aquire all possible interfaces
-    exhaustInterfacePorts(itf,[&](auto InterafcePort){
-    interfaceContainer.push_back(InterafcePort);});
+    exhaustInterfacePorts(itf, [&](auto InterafcePort) { interfaceContainer.push_back(InterafcePort); });
 
     // so now no one should be available
     {
