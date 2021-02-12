@@ -175,7 +175,8 @@ while (( "$#" )); do
         echo "    iceoryx_build_test.sh [--build-dir <dir>] [<args>]"
         echo "Options:"
         echo "    -b --build-dir         Specify a non-default build directory"
-        echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration'"
+        echo "    -c --coverage         Builds gcov and generate a html/xml report.
+        echo "                          Possible arguments: 'all', 'unit', 'integration', 'only-timing-tests'""
         echo "Args:"
         echo "    clean                 Deletes the build/ directory before"
         echo "    release               Build with -O3"
@@ -292,7 +293,7 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
 fi
 
 if [ "$COV_FLAG" == "ON" ]; then
-    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial $TEST_SCOPE #make an initial scan to cover also files with no coverage
 fi
 
 #====================================================================================================
@@ -333,10 +334,7 @@ done
 if [ "$COV_FLAG" == "ON" ]; then
     echo ">>>>>> Generate Gcov Report <<<<<<"
     cd $WORKSPACE
-    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE capture #scan all files after test execution
-    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE combine #combine tracefiles from initial scan with the latest one
-    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE remove #exclude all unnecessary files
-    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE genhtml #generate html
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE scan $TEST_SCOPE #scan all files after test execution
     echo ">>>>>> Report Generation complete <<<<<<"
 fi
 
