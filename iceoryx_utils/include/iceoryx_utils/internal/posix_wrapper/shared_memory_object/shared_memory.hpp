@@ -28,16 +28,19 @@ namespace iox
 namespace posix
 {
 class SharedMemoryObject;
-enum class AccessMode
+enum class AccessMode : uint64_t
 {
-    readOnly,
-    readWrite
+    readOnly = 0U,
+    readWrite = 1U
 };
-enum class OwnerShip
+static constexpr char ACCESS_MODE_STRING[2][22] = {"AccessMode::readOnly", "AccessMode::readWrite"};
+
+enum class OwnerShip : uint64_t
 {
-    mine,
-    openExisting
+    mine = 0U,
+    openExisting = 1U
 };
+static constexpr char OWNERSHIP_STRING[2][24] = {"OwnerShip::mine", "OwnerShip::openExisting"};
 
 class SharedMemory
 {

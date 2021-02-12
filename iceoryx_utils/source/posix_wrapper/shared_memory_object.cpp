@@ -63,8 +63,9 @@ SharedMemoryObject::SharedMemoryObject(const char* f_name,
         return;
     }
 
-    m_memoryMap = MemoryMap::create(
-        f_baseAddressHint, m_memorySizeInBytes, m_sharedMemory.getHandle(), f_accessMode, MAP_SHARED, 0);
+    MemoryMap::create(f_baseAddressHint, m_memorySizeInBytes, m_sharedMemory.getHandle(), f_accessMode, MAP_SHARED, 0)
+        .and_then([this](auto& memoryMap) { m_memoryMap.emplace(std::move(memoryMap)); })
+        .or_else([this](auto) { m_isInitialized = false; });
 
     if (!m_memoryMap.has_value())
     {
