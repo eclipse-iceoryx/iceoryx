@@ -26,6 +26,8 @@ namespace iox
 {
 namespace runtime
 {
+constexpr void* SharedMemoryUser::BASE_ADDRESS_HINT;
+
 SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                                    const size_t topicSize,
                                    const uint64_t segmentId,
