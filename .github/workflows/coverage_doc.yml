@@ -31,6 +31,8 @@ jobs:
 
       - name : Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Build, test and generate gcov report
         run: |
