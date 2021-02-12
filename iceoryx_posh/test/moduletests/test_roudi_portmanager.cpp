@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -331,7 +332,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
     }
 }
 
-TEST_F(PortManager_test, deleteInterfacePortfromMaximumNumberAndAddOneIsSuccessful)
+TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessful)
 {
     std::string itf = "itf";
 
@@ -382,7 +383,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfApplicationsFails)
     }
 }
 
-TEST_F(PortManager_test, deleteApplicationPortfromMaximumNumberAndAddOneIsSuccessful)
+TEST_F(PortManager_test, DeleteApplicationPortfromMaximumNumberAndAddOneIsSuccessful)
 {
     std::string app = "app";
 
@@ -434,7 +435,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFa
     }
 }
 
-TEST_F(PortManager_test, deleteConditionVariablePortfromMaximumNumberAndAddOneIsSuccessful)
+TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIsSuccessful)
 {
     std::string process = "HypnoToadForEver";
 
@@ -491,6 +492,22 @@ TEST_F(PortManager_test, AcquireConditionVariablesDataAfterDestroyingPreviouslyA
     }
 }
 
+TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
+{
+    std::string process = "Process";
+    std::string node = "Node";
+
+    for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
+    {
+        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+        iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, node + std::to_string(i));
+        auto nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
+        EXPECT_THAT(nodeData.has_error(), Eq(false));
+        EXPECT_THAT(nodeData.value()->m_node, StrEq(newNodeName));
+        EXPECT_THAT(nodeData.value()->m_process, StrEq(newProcessName));
+    }
+}
+
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
 {
     std::string process = "Process";
@@ -503,8 +520,6 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
         iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, node + std::to_string(i));
         auto nodeData = m_portManager->acquireNodeData(newProcessName, newNodeName);
         ASSERT_THAT(nodeData.has_error(), Eq(false));
-        EXPECT_THAT(nodeData.value()->m_node, StrEq(newNodeName));
-        EXPECT_THAT(nodeData.value()->m_process, StrEq(newProcessName));
     }
 
     // test if overflow errors get hit
@@ -520,7 +535,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
     EXPECT_THAT(nodeData.get_error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
 }
 
-TEST_F(PortManager_test, deleteNodePortfromMaximumNumberandAddOneIsSuccessful)
+TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 {
     std::string process = "Process";
     std::string node = "Node";
@@ -578,7 +593,7 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
     }
 }
 
-TEST_F(PortManager_test, DestroyPortsInProcessP2ChangesStatesOfPortsInProcessP1)
+TEST_F(PortManager_test, PortsDestroyInP2ChangeStatesOfPortsInProcessP1)
 {
     iox::ProcessName_t p1 = "myProcess1";
     iox::ProcessName_t p2 = "myProcess2";
@@ -646,38 +661,19 @@ TEST_F(PortManager_test, DestroyPortsInProcessP2ChangesStatesOfPortsInProcessP1)
             EXPECT_THAT(subscriber1.getSubscriptionState(), Eq(iox::SubscribeState::WAIT_FOR_OFFER));
         }
     }
-}
 
-TEST_F(PortManager_test, CleanupProcessP2ChangesStatesOfPortsInProcessP1)
-{
-    iox::ProcessName_t p1 = "myProcess1";
-    iox::ProcessName_t p2 = "myProcess2";
-    iox::capro::ServiceDescription cap1(1, 1, 1);
-    iox::capro::ServiceDescription cap2(2, 2, 2);
-    PublisherOptions publisherOptions{1, "node"};
-    SubscriberOptions subscriberOptions{1, 1, "node"};
-
-    // two processes p1 and p2 each with a publisher and subscriber that match to the other process
-    auto publisherData1 =
-        m_portManager->acquirePublisherPortData(cap1, publisherOptions, p1, m_payloadMemoryManager, PortConfigInfo())
-            .value();
-    auto subscriberData1 =
-        m_portManager->acquireSubscriberPortData(cap2, subscriberOptions, p1, PortConfigInfo()).value();
-
-    auto publisherData2 =
+    // re-create the ports of process p2
+    publisherData2 =
         m_portManager->acquirePublisherPortData(cap2, publisherOptions, p2, m_payloadMemoryManager, PortConfigInfo())
             .value();
-    auto subscriberData2 =
-        m_portManager->acquireSubscriberPortData(cap1, subscriberOptions, p2, PortConfigInfo()).value();
+    subscriberData2 = m_portManager->acquireSubscriberPortData(cap1, subscriberOptions, p2, PortConfigInfo()).value();
 
     // let them connect
     {
         PublisherPortUser publisher1(publisherData1);
         ASSERT_TRUE(publisher1);
-        publisher1.offer();
         SubscriberPortUser subscriber1(subscriberData1);
         ASSERT_TRUE(subscriber1);
-        subscriber1.subscribe();
 
         PublisherPortUser publisher2(publisherData2);
         ASSERT_TRUE(publisher2);
@@ -757,5 +753,5 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
     publisher.offer();
     m_portManager->doDiscovery();
 
-    EXPECT_EQ(initialCount + 1 == serviceCounter->load(), true);
+    EXPECT_EQ(serviceCounter->load(), initialCount + 1);
 }
