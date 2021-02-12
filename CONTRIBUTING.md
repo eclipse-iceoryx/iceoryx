@@ -127,7 +127,7 @@ All new code should follow the folder structure.
 We use [Google test](https://github.com/google/googletest) for our unit and integration tests. We require compatibility
 with the version 1.8.1.
 
-Have a look at our [best practice guidelines](.iceoryx/doc/website/advanced/best-practice-for-testing.md) for writing tests in iceoryx.
+Have a look at our [best practice guidelines](./doc/website/advanced/best-practice-for-testing.md) for writing tests in iceoryx.
 
 ### Unit tests (aka module tests)
 

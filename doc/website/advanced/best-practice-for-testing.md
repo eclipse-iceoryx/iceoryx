@@ -60,7 +60,7 @@ In some cases it might be necessary to instantiate an object on the heap. While 
 To avoid manual memory management with new/delete, smart pointer shall be used if possible.
 As a reminder, if a method takes a pointer to an object, this object can be instantiated on the stack and the address of this object can be passed to the method.
 A good reason to use the heap are large objects which might cause a stack overflow.
-Some operating system have a rather small stack of only a few kB, so this limit might be closer one might think.
+Some operating systems have a rather small stack of only a few kB, so this limit might be closer one might think.
 
 In general, the tests should be written in a fashion to not crash the application in case of a faulty implementation.
 It must be assumed that the implementation is broken and only a successful test run can prove otherwise.
@@ -68,7 +68,7 @@ The `sut` (system under test) might return a `nullptr` instead of the expected v
 Just using an `EXPECT_*` for the check is not sufficient since the potential `nullptr` will be dereferenced later on and will crash the application.
 The same applies to other potential dangerous operations, like accessing the value of an `cxx::optional` or `cxx::expected` or an out of bounds access of an `cxx::vector`.
 
-Last but not least, apply the **DRY** principle (don't repeat yourself) and use typed and parameterized test to check multiple implementations and variations without repeating much code.
+Last but not least, apply the **DRY** principle (don't repeat yourself) and use typed and parameterized tests to check multiple implementations and variations without repeating much code.
 
 # Practical Example
 
@@ -155,7 +155,7 @@ Some of this test might made it necessary to define the behavior of the class in
 
 ## How To Do It Better
 
-At first, the test is split into multiple test cases according the AAA pattern
+At first, the test is split into multiple test cases according to the AAA pattern
 
 ```c++
 TEST_F(SingleDigitNumber_test, DefaultConstructedObjectIsCorrectlyInitialized)
@@ -234,12 +234,12 @@ A more thorough [example](https://github.com/google/googletest/blob/release-1.8.
 
 ## Parameterized Tests
 
-Similar to typed tests, there are cases where the same test case should run with multiple parameter.
+Similar to typed tests, there are cases where the same test case should run with multiple parameters.
 One example is the conversion of `enum` values to strings. While this can be done in a loop, a better approach are parameterized test.
 
-[This](https://www.sandordargo.com/blog/2019/04/24/parameterized-testing-with-gtest) is quite a good blog post to get into parameterized tests. Additionally, there is the a section in the advanced [documentation](https://github.com/google/googletest/blob/master/docs/advanced.md#value-parameterized-tests) for gtest.
+[This](https://www.sandordargo.com/blog/2019/04/24/parameterized-testing-with-gtest) is quite a good blog post to get into parameterized tests. Additionally, there is a section in the advanced [documentation](https://github.com/google/googletest/blob/master/docs/advanced.md#value-parameterized-tests) for gtest.
 
-The block post mentions tuples to pass multiple parameter at once. Since tuples can become cumbersome to use, especially if parameters are rearranged, it is recommended to create a `struct` to wrap the parameters instead.
+The block post mentions tuples to pass multiple parameters at once. Since tuples can become cumbersome to use, especially if parameters are rearranged, it is recommended to create a `struct` to wrap the parameters instead.
 
 ## Mocks
 
