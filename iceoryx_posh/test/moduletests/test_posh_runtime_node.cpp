@@ -69,6 +69,15 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeEmptyNodeNameIsSuccess)
     EXPECT_THAT(node.getNodeName(), Eq(nodeName));
 }
 
+TEST_F(PoshRuntimeNode_test, ConstructorNodeWithMaximalSizeNodeNameIsSuccess)
+{
+    const NodeName_t nodeName{"aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd"};
+
+    Node node("aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd");
+
+    EXPECT_THAT(node.getNodeName(), Eq(nodeName));
+}
+
 TEST_F(PoshRuntimeNode_test, VerifyMoveAssignmentOperatorAssignsCorrectName)
 {
     const NodeName_t nodeName{"@!~*"};
