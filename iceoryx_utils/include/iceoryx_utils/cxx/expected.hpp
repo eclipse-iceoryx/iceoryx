@@ -151,7 +151,7 @@ class expected<ErrorType>
 
     /// @brief the copy constructor calls the copy constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected(const expected&) = default;
+    expected(const expected&) noexcept = default;
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
@@ -381,7 +381,7 @@ class expected<ValueType, ErrorType>
 
     /// @brief the copy constructor calls the copy constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected(const expected&) = default;
+    expected(const expected&) noexcept = default;
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
@@ -389,11 +389,11 @@ class expected<ValueType, ErrorType>
 
     /// @brief calls the destructor of the success value or error value - depending on what
     ///         is stored in the expected
-    ~expected() = default;
+    ~expected() noexcept = default;
 
     /// @brief  calls the copy assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected& operator=(const expected&) = default;
+    expected& operator=(const expected&) noexcept = default;
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected

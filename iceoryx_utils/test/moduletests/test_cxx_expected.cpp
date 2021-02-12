@@ -54,28 +54,50 @@ class expected_test : public Test
     };
 };
 
-TEST_F(expected_test, CreateWithPODTypeAndErrorIsSuccessful)
+TEST_F(expected_test, CreateWithPODTypeIsSuccessful)
 {
     auto sut = expected<int, float>::create_value(123);
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(sut.value(), Eq(123));
 }
 
-TEST_F(expected_test, CreateWithErrorLeadsToError)
+TEST_F(expected_test, CreateWithErrorResultsInError)
 {
     auto sut = expected<int, float>::create_error(123.12f);
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.get_error(), Eq(123.12f));
 }
 
-TEST_F(expected_test, CreateWithComplexTypeAndErrorIsSuccessful)
+TEST_F(expected_test, ErrorTypeOnlyConstCreateWithErrorResultsInError)
+{
+    const auto sut = expected<float>::create_error(5.8f);
+    ASSERT_THAT(std::move(sut.has_error()), Eq(true));
+    ASSERT_THAT(std::move(sut.get_error()), Eq(5.8f));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyCreateWithErrorResultsInError)
+{
+    auto sut = expected<float>::create_error(8.5f);
+    ASSERT_THAT(sut.has_error(), Eq(true));
+    ASSERT_THAT(sut.get_error(), Eq(8.5f));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyCreateFromConstErrorResultsInError)
+{
+    auto constError = error<float>(8.55f);
+    auto sut = expected<float>(constError);
+    ASSERT_THAT(sut.has_error(), Eq(true));
+    ASSERT_THAT(sut.get_error(), Eq(8.55f));
+}
+
+TEST_F(expected_test, CreateWithComplexTypeIsSuccessful)
 {
     auto sut = expected<Test, int>::create_value(12, 222);
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(sut.value().m_a, Eq(12));
 }
 
-TEST_F(expected_test, CreateWithComplexErrorAndPODValueLeadsToError)
+TEST_F(expected_test, CreateWithComplexErrorResultsInError)
 {
     auto sut = expected<int, Test>::create_error(313, 212);
     ASSERT_THAT(sut.has_error(), Eq(true));
@@ -87,7 +109,7 @@ TEST_F(expected_test, MoveAssignmentLeadsToInvalidation)
     auto sut = expected<int, Test>::create_value(73);
     auto movedValue = std::move(sut);
     EXPECT_FALSE(sut.is_initialized());
-    EXPECT_TRUE(movedValue.is_initialized());
+    ASSERT_TRUE(movedValue.is_initialized());
     EXPECT_THAT(movedValue.value(), Eq(73));
 }
 
@@ -106,14 +128,14 @@ TEST_F(expected_test, BoolOperatorReturnsNoError)
     EXPECT_THAT(sut.value().m_a, Eq(123));
 }
 
-TEST_F(expected_test, BoolOperatorErrorTypeOnlyReturnsError)
+TEST_F(expected_test, ErrorTypeOnlyBoolOperatorReturnsError)
 {
     auto sut = expected<float>::create_error(5.8f);
     ASSERT_THAT(sut.operator bool(), Eq(false));
     ASSERT_THAT(sut.get_error(), Eq(5.8f));
 }
 
-TEST_F(expected_test, BoolOperatorErrorTypeOnlyReturnsNoError)
+TEST_F(expected_test, ErrorTypeOnlyBoolOperatorReturnsNoError)
 {
     auto sut = expected<float>::create_value();
     ASSERT_THAT(sut.operator bool(), Eq(true));
@@ -131,89 +153,109 @@ TEST_F(expected_test, ValueOrWithErrorReturnsStoredValue)
     EXPECT_THAT(sut.value_or(90), Eq(165));
 }
 
+TEST_F(expected_test, GetValueOrWithError)
+{
+    auto sut = expected<int, float>::create_error(1234.56f);
+    EXPECT_THAT(sut.value_or(15), Eq(15));
+}
+
 TEST_F(expected_test, ConstGetValueOrWithError)
 {
     const auto sut = expected<int, float>::create_error(1652.12f);
-    EXPECT_THAT(sut.value_or(15), Eq(15));
+    EXPECT_THAT(sut.value_or(51), Eq(51));
+}
+
+TEST_F(expected_test, GetValueOrWithSuccess)
+{
+    auto sut = expected<int, float>::create_value(999);
+    EXPECT_THAT(sut.value_or(15), Eq(999));
 }
 
 TEST_F(expected_test, ConstGetValueOrWithSuccess)
 {
-    auto sut = expected<int, float>::create_value(652);
+    const auto sut = expected<int, float>::create_value(652);
     EXPECT_THAT(sut.value_or(15), Eq(652));
 }
 
-TEST_F(expected_test, ArrowOperator)
+TEST_F(expected_test, ArrowOperatorWorks)
 {
     auto sut = expected<Test, float>::create_value(55, 81);
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(sut->gimme(), Eq(136));
 }
 
-TEST_F(expected_test, ConstArrowOperator)
+TEST_F(expected_test, ConstArrowOperatorWorks)
 {
     const expected<Test, float> sut(success<Test>(Test(55, 81)));
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(sut->constGimme(), Eq(136));
 }
 
-TEST_F(expected_test, Dereferencing)
+TEST_F(expected_test, DereferencingOperatorWorks)
 {
     auto sut = expected<int, float>::create_value(1652);
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(*sut, Eq(1652));
 }
 
-TEST_F(expected_test, ConstDereferencing)
+TEST_F(expected_test, ConstDereferencingOperatorWorks)
 {
     const expected<int, float> sut(success<int>(981));
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(*sut, Eq(981));
 }
 
-TEST_F(expected_test, VoidCreateValue)
+TEST_F(expected_test, ErrorTypeOnlyCreateValueWithoutValueLeadsToValidSut)
 {
     auto sut = expected<float>::create_value();
     ASSERT_THAT(sut.has_error(), Eq(false));
 }
 
-TEST_F(expected_test, VoidCreateError)
+TEST_F(expected_test, ErrorTypeOnlyCreateErrorLeadsToError)
 {
     auto sut = expected<float>::create_error(12.2f);
     ASSERT_THAT(sut.has_error(), Eq(true));
     ASSERT_THAT(sut.get_error(), Eq(12.2f));
 }
 
-TEST_F(expected_test, VoidCreateErrorAndMove)
+TEST_F(expected_test, ErrorTypeOnlyCreateErrorAndMoveWorks)
 {
     auto sut = expected<float>::create_error(42.0f);
     auto movedValue = std::move(sut);
     EXPECT_FALSE(sut.is_initialized());
-    EXPECT_TRUE(movedValue.is_initialized());
+    ASSERT_TRUE(movedValue.is_initialized());
     EXPECT_THAT(movedValue.get_error(), Eq(42.0f));
 }
 
-TEST_F(expected_test, VoidCreateFromSuccessType)
+TEST_F(expected_test, CreateFromEmptySuccessTypeLeadsToValidSut)
 {
     expected<float> sut{success<>()};
     ASSERT_THAT(sut.has_error(), Eq(false));
 }
 
-TEST_F(expected_test, CreateFromSuccessType)
+TEST_F(expected_test, CreateFromSuccessTypeLeadsToValidSut)
 {
     expected<int, float> sut{success<int>(55)};
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(sut.value(), Eq(55));
 }
 
-TEST_F(expected_test, VoidCreateFromErrorType)
+TEST_F(expected_test, CreateFromErrorConstLeadsToCorrectError)
+{
+    const float f = 12.1f;
+    expected<float> sut{error<float>(f)};
+    ASSERT_THAT(sut.has_error(), Eq(true));
+    EXPECT_THAT(sut.get_error(), Eq(12.1f));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyCreateFromErrorLeadsToCorrectError)
 {
     expected<float> sut{error<float>(12.1f)};
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.get_error(), Eq(12.1f));
 }
 
-TEST_F(expected_test, CreateFromErrorType)
+TEST_F(expected_test, CreateFromErrorLeadsToCorrectError)
 {
     expected<int, float> sut{error<float>(112.1f)};
     ASSERT_THAT(sut.has_error(), Eq(true));
@@ -256,6 +298,15 @@ TEST_F(expected_test, ErrorTypeOnlyConstOrElseWhenHavingAnErrorWithResultErrorTy
     EXPECT_THAT(a, Eq(612.1f));
 }
 
+TEST_F(expected_test, ErrorTypeOnlyAndThenWhenHavingSuccessWithResult)
+{
+    expected<float> sut{success<>()};
+    int a = 0;
+    sut.and_then([&]() { a = 3; }).or_else([&](float& error) { a = error; });
+
+    EXPECT_THAT(a, Eq(3));
+}
+
 TEST_F(expected_test, ValueTypeAndThenWhenHavingSuccessWithResult)
 {
     expected<int, float> sut{success<int>(112)};
@@ -274,14 +325,21 @@ TEST_F(expected_test, ValueTypeConstOnSuccessWhenHavingSuccessWithResult)
     EXPECT_THAT(a, Eq(1142));
 }
 
-TEST_F(expected_test, ConvertNonVoidSuccessResultToVoidResult)
+TEST_F(expected_test, ConvertNonEmptySuccessResultToErrorTypeOnlyResult)
 {
     expected<int, float> sut{success<int>(123)};
     expected<float> sut2 = sut;
     EXPECT_THAT(sut2.has_error(), Eq(false));
 }
 
-TEST_F(expected_test, ConvertNonVoidErrorResultToVoidResult)
+TEST_F(expected_test, ConvertConstNonEmptySuccessResultToErrorTypeOnlyResult)
+{
+    const expected<int, float> sut{success<int>(123)};
+    expected<float> sut2 = sut;
+    EXPECT_THAT(sut2.has_error(), Eq(false));
+}
+
+TEST_F(expected_test, ConvertNonEmptyErrorResultToErrorTypeOnlyResult)
 {
     expected<int, float> sut{error<float>(1.23f)};
     expected<float> sut2 = sut;
@@ -297,7 +355,7 @@ TEST_F(expected_test, ExpectedWithValueConvertsToOptionalWithValue)
     EXPECT_THAT(*value, Eq(4711));
 }
 
-TEST_F(expected_test, ExpectedWithErrorConvertsToNullopt)
+TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
 {
     expected<int, float> sut{error<float>(47.11f)};
     optional<int> value = sut.to_optional();
