@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,18 +21,23 @@ namespace iox
 {
 namespace cxx
 {
-GenericRAII::GenericRAII(const std::function<void()> initFunction, const std::function<void()> cleanupFunction) noexcept
+GenericRAII::GenericRAII(const std::function<void()> cleanupFunction) noexcept
+    : GenericRAII(function_ref<void()>(), cleanupFunction)
+{
+}
+
+GenericRAII::GenericRAII(const function_ref<void()> initFunction, const std::function<void()> cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
-    initFunction();
+    if (initFunction)
+    {
+        initFunction();
+    }
 }
 
 GenericRAII::~GenericRAII() noexcept
 {
-    if (m_cleanupFunction)
-    {
-        m_cleanupFunction();
-    }
+    destroy();
 }
 
 GenericRAII::GenericRAII(GenericRAII&& rhs) noexcept
@@ -43,10 +49,20 @@ GenericRAII& GenericRAII::operator=(GenericRAII&& rhs) noexcept
 {
     if (this != &rhs)
     {
+        destroy();
         m_cleanupFunction = rhs.m_cleanupFunction;
         rhs.m_cleanupFunction = std::function<void()>();
     }
     return *this;
+}
+
+void GenericRAII::destroy() noexcept
+{
+    if (m_cleanupFunction)
+    {
+        m_cleanupFunction();
+        m_cleanupFunction = std::function<void()>();
+    }
 }
 
 } // namespace cxx

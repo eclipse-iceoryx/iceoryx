@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +34,7 @@ cxx::optional<SharedMemory> SharedMemory::create(const char* f_name,
                                                  const AccessMode f_accessMode,
                                                  const OwnerShip f_ownerShip,
                                                  const mode_t f_permissions,
-                                                 const uint64_t f_size)
+                                                 const uint64_t f_size) noexcept
 {
     cxx::optional<SharedMemory> l_sharedMemory;
     l_sharedMemory.emplace(f_name, f_accessMode, f_ownerShip, f_permissions, f_size);
@@ -52,7 +53,7 @@ SharedMemory::SharedMemory(const char* f_name,
                            const AccessMode f_accessMode,
                            const OwnerShip f_ownerShip,
                            const mode_t f_permissions,
-                           const uint64_t f_size)
+                           const uint64_t f_size) noexcept
     : m_ownerShip(f_ownerShip)
     , m_permissions(f_permissions)
     , m_size(f_size)
@@ -87,24 +88,31 @@ SharedMemory::SharedMemory(const char* f_name,
     m_isInitialized = open();
 }
 
-SharedMemory::~SharedMemory()
+SharedMemory::~SharedMemory() noexcept
+{
+    destroy();
+}
+
+void SharedMemory::destroy() noexcept
 {
     if (m_isInitialized)
     {
         close();
         unlink();
+        m_isInitialized = false;
     }
 }
 
-SharedMemory::SharedMemory(SharedMemory&& rhs)
+SharedMemory::SharedMemory(SharedMemory&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-SharedMemory& SharedMemory::operator=(SharedMemory&& rhs)
+SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
 {
     if (this != &rhs)
     {
+        destroy();
         m_isInitialized = std::move(rhs.m_isInitialized);
         strncpy(m_name, rhs.m_name, NAME_SIZE);
         m_ownerShip = std::move(rhs.m_ownerShip);
@@ -117,17 +125,17 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs)
     return *this;
 }
 
-bool SharedMemory::isInitialized() const
+bool SharedMemory::isInitialized() const noexcept
 {
     return m_isInitialized;
 }
 
-int32_t SharedMemory::getHandle() const
+int32_t SharedMemory::getHandle() const noexcept
 {
     return m_handle;
 }
 
-bool SharedMemory::open()
+bool SharedMemory::open() noexcept
 {
     cxx::Expects(static_cast<int64_t>(m_size) <= std::numeric_limits<int64_t>::max());
 
@@ -189,7 +197,7 @@ bool SharedMemory::open()
     return true;
 }
 
-bool SharedMemory::unlink()
+bool SharedMemory::unlink() noexcept
 {
     if (m_isInitialized && m_ownerShip == OwnerShip::mine)
     {
@@ -204,7 +212,7 @@ bool SharedMemory::unlink()
     return true;
 }
 
-bool SharedMemory::close()
+bool SharedMemory::close() noexcept
 {
     if (m_isInitialized)
     {

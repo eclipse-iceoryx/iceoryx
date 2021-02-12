@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,15 +45,15 @@ class SharedMemory
                                               const AccessMode f_accessMode,
                                               const OwnerShip f_ownerShip,
                                               const mode_t f_permissions,
-                                              const uint64_t f_size);
+                                              const uint64_t f_size) noexcept;
     SharedMemory(const SharedMemory&) = delete;
     SharedMemory& operator=(const SharedMemory&) = delete;
-    SharedMemory(SharedMemory&&);
-    SharedMemory& operator=(SharedMemory&&);
-    ~SharedMemory();
+    SharedMemory(SharedMemory&&) noexcept;
+    SharedMemory& operator=(SharedMemory&&) noexcept;
+    ~SharedMemory() noexcept;
 
-    int32_t getHandle() const;
-    bool isInitialized() const;
+    int32_t getHandle() const noexcept;
+    bool isInitialized() const noexcept;
 
     friend class posix::SharedMemoryObject;
     friend class cxx::optional<SharedMemory>;
@@ -62,11 +63,12 @@ class SharedMemory
                  const AccessMode f_accessMode,
                  const OwnerShip f_ownerShip,
                  const mode_t f_permissions,
-                 const uint64_t f_size);
+                 const uint64_t f_size) noexcept;
 
-    bool open();
-    bool unlink();
-    bool close();
+    bool open() noexcept;
+    bool unlink() noexcept;
+    bool close() noexcept;
+    void destroy() noexcept;
 
     static constexpr uint64_t NAME_SIZE = 128U;
 
