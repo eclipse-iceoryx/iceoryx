@@ -76,7 +76,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                                        posix::AccessMode::readWrite,
                                        posix::OwnerShip::mine,
                                        BASE_ADDRESS_HINT,
-                                       S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+                                       static_cast<mode_t>(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
             .and_then([this](auto& sharedMemoryObject) {
                 setSegmentId(iox::RelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
                                                                sharedMemoryObject.getSizeInBytes()));
