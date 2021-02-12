@@ -42,9 +42,6 @@ jobs:
         with:
           file: ./build/lcov/iceoryx_filter.info
           name: iceoryx
-          override_pr: ${{ github.event.pull_request.number }}
-          override_commit: ${{ github.event.pull_request.merge_commit_sha }}
-          override_branch: "refs/heads/master"
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
