@@ -77,7 +77,7 @@ constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {"WORLDWIDE", "INTERNAL"
 /// instance and the event id.
 /// In order to support different communication protocols, two types of members exist: integer and string identifiers.
 /// If string IDs are used, the integers are initialized to an invalid number. A class object can be
-/// serialized/deserialized, so it is possible to send the information e.g. over a message queue.
+/// serialized/deserialized, so it is possible to send the information e.g. over a IPC channel.
 class ServiceDescription
 {
   public:

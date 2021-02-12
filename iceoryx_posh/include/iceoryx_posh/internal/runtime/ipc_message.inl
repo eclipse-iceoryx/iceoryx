@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,24 +12,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL
-#define IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL
+//
+// SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#ifndef IOX_POSH_RUNTIME_IPC_MESSAGE_INL
+#define IOX_POSH_RUNTIME_IPC_MESSAGE_INL
+
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
 namespace iox
 {
 namespace runtime
 {
 template <typename T>
-void MqMessage::addEntry(const T& entry) noexcept
+void IpcMessage::addEntry(const T& entry) noexcept
 {
     std::stringstream newEntry;
     newEntry << entry;
 
     if (!isValidEntry(newEntry.str()))
     {
-        LogError() << "\'" << newEntry.str().c_str() << "\' is an invalid message queue entry";
+        LogError() << "\'" << newEntry.str().c_str() << "\' is an invalid IPC channel entry";
         m_isValid = false;
     }
     else
@@ -39,7 +43,7 @@ void MqMessage::addEntry(const T& entry) noexcept
 }
 
 template <typename T>
-MqMessage& MqMessage::operator<<(const T& entry) noexcept
+IpcMessage& IpcMessage::operator<<(const T& entry) noexcept
 {
     addEntry(entry);
     return *this;
@@ -48,4 +52,4 @@ MqMessage& MqMessage::operator<<(const T& entry) noexcept
 } // namespace runtime
 } // namespace iox
 
-#endif // IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL
+#endif // IOX_POSH_RUNTIME_IPC_MESSAGE_INL
