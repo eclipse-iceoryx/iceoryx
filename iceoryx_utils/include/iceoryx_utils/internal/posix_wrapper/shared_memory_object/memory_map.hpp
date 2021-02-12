@@ -71,7 +71,6 @@ class MemoryMap : public DesignPattern::Creation<MemoryMap, MemoryMapError>
     bool destroy() noexcept;
     MemoryMapError errnoToEnum(const int32_t errnum) const noexcept;
 
-    bool m_isInitialized{false};
     void* m_baseAddress{nullptr};
     uint64_t m_length{0U};
 };

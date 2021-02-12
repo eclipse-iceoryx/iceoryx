@@ -59,7 +59,7 @@ SharedMemoryObject::SharedMemoryObject(const char* name,
 
     if (m_isInitialized == false)
     {
-        std::cerr << "Unable to create shared memory with the following properties [ name = " << name
+        std::cerr << "Unable to create a shared memory object with the following properties [ name = " << name
                   << ", sizeInBytes = " << memorySizeInBytes
                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
                   << ", ownership = " << OWNERSHIP_STRING[static_cast<uint64_t>(ownerShip)]

@@ -45,6 +45,21 @@ static constexpr char OWNERSHIP_STRING[2][24] = {"OwnerShip::mine", "OwnerShip::
 
 enum class SharedMemoryError
 {
+    EMPTY_NAME,
+    NAME_WITHOUT_LEADING_SLASH,
+    INSUFFICIENT_PERMISSIONS,
+    DOES_EXIST,
+    PROCESS_LIMIT_OF_OPEN_FILES_REACHED,
+    SYSTEM_LIMIT_OF_OPEN_FILES_REACHED,
+    DOES_NOT_EXIST,
+    NOT_ENOUGH_MEMORY_AVAILABLE,
+    REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE,
+    PATH_IS_A_DIRECTORY,
+    TOO_MANY_SYMBOLIC_LINKS,
+    NO_FILE_RESIZE_SUPPORT,
+    NO_RESIZE_SUPPORT,
+    INVALID_FILEDESCRIPTOR,
+    UNKNOWN_ERROR
 };
 
 class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryError>
@@ -67,20 +82,18 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
                  const mode_t permissions,
                  const uint64_t size) noexcept;
 
-    bool open() noexcept;
+    bool open(const int oflags, const mode_t permissions, const uint64_t size) noexcept;
     bool unlink() noexcept;
     bool close() noexcept;
     void destroy() noexcept;
     void reset() noexcept;
 
+    SharedMemoryError errnoToEnum(const int32_t errnum) const noexcept;
+
     static constexpr uint64_t NAME_SIZE = 128U;
 
-    bool m_isInitialized{false};
     char m_name[NAME_SIZE];
     OwnerShip m_ownerShip;
-    int m_oflags{0};
-    mode_t m_permissions;
-    uint64_t m_size{0U};
     int m_handle{-1};
 };
 } // namespace posix
