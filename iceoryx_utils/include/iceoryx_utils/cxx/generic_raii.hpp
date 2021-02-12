@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +12,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_UTILS_CXX_GENERIC_RAII_HPP
 #define IOX_UTILS_CXX_GENERIC_RAII_HPP
+
+#include "iceoryx_utils/cxx/function_ref.hpp"
 
 #include <functional>
 
@@ -40,11 +46,15 @@ namespace cxx
 class GenericRAII
 {
   public:
+    /// @brief constructor which creates GenericRAII that calls only the cleanupFunction on destruction
+    /// @param[in] cleanupFunction callable which will be called in the destructor
+    GenericRAII(const std::function<void()> cleanupFunction) noexcept;
+
     /// @brief constructor which calls initFunction and stores the cleanupFunction which will be
     ///           called in the destructor
     /// @param[in] initFunction callable which will be called in the constructor
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    GenericRAII(const std::function<void()> initFunction, const std::function<void()> cleanupFunction) noexcept;
+    GenericRAII(const function_ref<void()> initFunction, const std::function<void()> cleanupFunction) noexcept;
 
     /// @brief calls m_cleanupFunction callable if it was set in the constructor
     ~GenericRAII() noexcept;
@@ -57,6 +67,9 @@ class GenericRAII
 
     /// @brief move assignment which moves a generic raii object without calling the cleanupFunction
     GenericRAII& operator=(GenericRAII&& rhs) noexcept;
+
+  private:
+    void destroy() noexcept;
 
   private:
     std::function<void()> m_cleanupFunction;
