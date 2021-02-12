@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,41 +14,28 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL
-#define IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL
 
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 
 namespace iox
 {
 namespace runtime
 {
-template <typename T>
-void MqMessage::addEntry(const T& entry) noexcept
+IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
+                                         const uint64_t maxMessages,
+                                         const uint64_t messageSize) noexcept
+    : IpcInterfaceBase(name, maxMessages, messageSize)
 {
-    std::stringstream newEntry;
-    newEntry << entry;
+    // check if the IPC channel is still there (e.g. because of no proper termination
+    // of the process)
+    cleanupOutdatedIpcChannel(name);
 
-    if (!isValidEntry(newEntry.str()))
-    {
-        LogError() << "\'" << newEntry.str().c_str() << "\' is an invalid message queue entry";
-        m_isValid = false;
-    }
-    else
-    {
-        m_msg.append(newEntry.str() + m_separator);
-        ++m_numberOfElements;
-    }
+    openIpcChannel(posix::IpcChannelSide::SERVER);
 }
 
-template <typename T>
-MqMessage& MqMessage::operator<<(const T& entry) noexcept
+void IpcInterfaceCreator::cleanupResource()
 {
-    addEntry(entry);
-    return *this;
+    m_ipcChannel.destroy();
 }
-
 } // namespace runtime
 } // namespace iox
-
-#endif // IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_INL

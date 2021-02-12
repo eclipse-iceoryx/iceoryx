@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +18,8 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "test.hpp"
 
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
@@ -33,10 +34,10 @@ using namespace iox;
 using namespace iox::units;
 using namespace iox::posix;
 
-using iox::runtime::MqBase;
-using iox::runtime::MqMessage;
-using iox::runtime::MqMessageType;
-using iox::runtime::MqRuntimeInterface;
+using iox::runtime::IpcInterfaceBase;
+using iox::runtime::IpcMessage;
+using iox::runtime::IpcMessageType;
+using iox::runtime::IpcRuntimeInterface;
 
 
 #if !defined(__APPLE__)
@@ -45,10 +46,10 @@ constexpr char DeleteRouDiMessageQueue[] = "rm /dev/mqueue/roudi";
 
 constexpr char MqAppName[] = "racer";
 
-class StringToMessage : public MqBase
+class StringToMessage : public IpcInterfaceBase
 {
   public:
-    using MqBase::setMessageFromString;
+    using IpcInterfaceBase::setMessageFromString;
 };
 
 class CMqInterfaceStartupRace_test : public Test
@@ -67,33 +68,33 @@ class CMqInterfaceStartupRace_test : public Test
     {
     }
 
-    MqMessage getMqMessage(const std::string& request) const
+    IpcMessage getIpcMessage(const std::string& request) const
     {
-        MqMessage msg;
+        IpcMessage msg;
         StringToMessage::setMessageFromString(request.c_str(), msg);
         return msg;
     }
 
-    void checkRegRequest(const MqMessage& msg) const
+    void checkRegRequest(const IpcMessage& msg) const
     {
         ASSERT_THAT(msg.getNumberOfElements(), Eq(6u));
 
         std::string cmd = msg.getElementAtIndex(0);
-        ASSERT_THAT(cmd.c_str(), StrEq(mqMessageTypeToString(MqMessageType::REG)));
+        ASSERT_THAT(cmd.c_str(), StrEq(IpcMessageTypeToString(IpcMessageType::REG)));
 
         std::string name = msg.getElementAtIndex(1);
         ASSERT_THAT(name.c_str(), StrEq(MqAppName));
     }
 
-    void sendRegAck(const MqMessage& oldMsg)
+    void sendRegAck(const IpcMessage& oldMsg)
     {
         std::lock_guard<std::mutex> lock(m_appQueueMutex);
-        MqMessage regAck;
+        IpcMessage regAck;
         constexpr uint32_t DUMMY_SHM_SIZE{37};
         constexpr uint32_t DUMMY_SHM_OFFSET{73};
         constexpr uint32_t DUMMY_SEGMENT_ID{13};
         constexpr uint32_t INDEX_OF_TIMESTAMP{4};
-        regAck << mqMessageTypeToString(MqMessageType::REG_ACK) << DUMMY_SHM_SIZE << DUMMY_SHM_OFFSET
+        regAck << IpcMessageTypeToString(IpcMessageType::REG_ACK) << DUMMY_SHM_SIZE << DUMMY_SHM_OFFSET
                << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID;
 
         if (m_appQueue.has_error())
@@ -128,7 +129,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
         // roudi mqueue
         auto request = m_roudiQueue->timedReceive(15_s);
         ASSERT_FALSE(request.has_error());
-        auto msg = getMqMessage(request.value());
+        auto msg = getIpcMessage(request.value());
         checkRegRequest(msg);
 
         // simulate the restart of RouDi with the mqueue cleanup
@@ -147,7 +148,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
         ASSERT_FALSE(request.has_error());
-        msg = getMqMessage(request.value());
+        msg = getIpcMessage(request.value());
         checkRegRequest(msg);
 
         sendRegAck(msg);
@@ -158,7 +159,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
         }
     });
 
-    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -191,7 +192,8 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
             std::cerr << "system call failed with error: " << sysC.getErrorString();
             exit(EXIT_FAILURE);
         }
-        auto newRoudi = IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto newRoudi =
+            IpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);
@@ -203,7 +205,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
             }
         }
         ASSERT_FALSE(request.has_error());
-        auto msg = getMqMessage(request.value());
+        auto msg = getIpcMessage(request.value());
         checkRegRequest(msg);
 
         sendRegAck(msg);
@@ -214,7 +216,7 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
         }
     });
 
-    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -235,10 +237,10 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         // wait for the REG request
         auto request = m_roudiQueue->timedReceive(5_s);
         ASSERT_FALSE(request.has_error());
-        auto msg = getMqMessage(request.value());
+        auto msg = getIpcMessage(request.value());
         checkRegRequest(msg);
 
-        MqMessage obsoleteMsg;
+        IpcMessage obsoleteMsg;
         for (uint32_t i = 0; i < 4; ++i)
         {
             obsoleteMsg << msg.getElementAtIndex(i);
@@ -254,13 +256,13 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         }
     });
 
-    MqRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
 
     std::lock_guard<std::mutex> lock(m_appQueueMutex);
-    // the app message queue should be empty after registration
+    // the app IPC channel should be empty after registration
     auto response = m_appQueue->timedReceive(10_ms);
     EXPECT_THAT(response.has_error(), Eq(true));
 }

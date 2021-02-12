@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 namespace iox
 {
@@ -27,7 +28,7 @@ IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig)
         // and close it immediatelly
         // if there was an outdated roudi IPC channel, it will be cleaned up
         // if there is an outdated IPC channel, the start of the apps will be terminated
-        runtime::MqBase::cleanupOutdatedMessageQueue(roudi::IPC_CHANNEL_ROUDI_NAME);
+        runtime::IpcInterfaceBase::cleanupOutdatedIpcChannel(roudi::IPC_CHANNEL_ROUDI_NAME);
 
         m_rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
             LogFatal() << "Could not create SharedMemory! Error: " << error;

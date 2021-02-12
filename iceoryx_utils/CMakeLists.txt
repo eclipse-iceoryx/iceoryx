@@ -62,7 +62,6 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
 
     add_library(iceoryx_utils_testing
         STATIC
-        testutils/mocks/mqueue_mock.cpp
         testutils/mocks/time_mock.cpp
         testutils/timing_test.cpp
         testutils/compile_test.cpp

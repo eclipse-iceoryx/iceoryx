@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +20,7 @@
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
@@ -64,7 +65,7 @@ class RouDiProcess
 
     const ProcessName_t getName() const noexcept;
 
-    void sendViaIpcChannel(const runtime::MqMessage& data) noexcept;
+    void sendViaIpcChannel(const runtime::IpcMessage& data) noexcept;
 
     /// @brief The session ID which is used to check outdated IPC channel transmissions for this process
     /// @return the session ID for this process
@@ -81,7 +82,7 @@ class RouDiProcess
 
   private:
     int m_pid;
-    runtime::MqInterfaceUser m_mq;
+    runtime::IpcInterfaceUser m_ipcChannel;
     mepoo::TimePointNs_t m_timestamp;
     mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
     bool m_isMonitored{true};

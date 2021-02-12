@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
 #include <algorithm>
 
@@ -22,9 +23,9 @@ namespace iox
 {
 namespace runtime
 {
-const char MqMessage::m_separator = ',';
+const char IpcMessage::m_separator = ',';
 
-MqMessage::MqMessage(const std::initializer_list<std::string>& msg) noexcept
+IpcMessage::IpcMessage(const std::initializer_list<std::string>& msg) noexcept
 {
     for (auto element : msg)
     {
@@ -32,17 +33,17 @@ MqMessage::MqMessage(const std::initializer_list<std::string>& msg) noexcept
     }
 }
 
-MqMessage::MqMessage(const std::string& msg) noexcept
+IpcMessage::IpcMessage(const std::string& msg) noexcept
 {
     setMessage(msg);
 }
 
-uint32_t MqMessage::getNumberOfElements() const noexcept
+uint32_t IpcMessage::getNumberOfElements() const noexcept
 {
     return m_numberOfElements;
 }
 
-std::string MqMessage::getElementAtIndex(const uint32_t index) const noexcept
+std::string IpcMessage::getElementAtIndex(const uint32_t index) const noexcept
 {
     std::string messageRemainder(m_msg);
     size_t startPos = 0u;
@@ -62,7 +63,7 @@ std::string MqMessage::getElementAtIndex(const uint32_t index) const noexcept
     return std::string();
 }
 
-bool MqMessage::isValidEntry(const std::string& entry) const noexcept
+bool IpcMessage::isValidEntry(const std::string& entry) const noexcept
 {
     if (entry.find(m_separator) != std::string::npos)
     {
@@ -71,17 +72,17 @@ bool MqMessage::isValidEntry(const std::string& entry) const noexcept
     return true;
 }
 
-bool MqMessage::isValid() const noexcept
+bool IpcMessage::isValid() const noexcept
 {
     return m_isValid;
 }
 
-std::string MqMessage::getMessage() const noexcept
+std::string IpcMessage::getMessage() const noexcept
 {
     return m_msg;
 }
 
-void MqMessage::setMessage(const std::string& msg) noexcept
+void IpcMessage::setMessage(const std::string& msg) noexcept
 {
     clearMessage();
 
@@ -97,14 +98,14 @@ void MqMessage::setMessage(const std::string& msg) noexcept
     }
 }
 
-void MqMessage::clearMessage() noexcept
+void IpcMessage::clearMessage() noexcept
 {
     m_msg.clear();
     m_numberOfElements = 0u;
     m_isValid = true;
 }
 
-bool MqMessage::operator==(const MqMessage& rhs) const noexcept
+bool IpcMessage::operator==(const IpcMessage& rhs) const noexcept
 {
     return this->getMessage() == rhs.getMessage();
 }
