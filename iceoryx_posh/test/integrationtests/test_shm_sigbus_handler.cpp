@@ -38,11 +38,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
         TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
     badShmProvider.addMemoryBlock(&badmempools);
 
-    EXPECT_DEATH(badShmProvider.create(),
-                 "\033\\[0;1;97;41mFatal error:\033\\[m the available memory is insufficient. Cannot allocate mempools "
-                 "in shared memory. Please make sure that enough memory is available. For this, consider also the "
-                 "memory which is required for the \\[/iceoryx_mgmt\\] segment. Please refer to "
-                 "share\\/doc\\/iceoryx\\/FAQ.md in your release delivery.");
+    EXPECT_DEATH(badShmProvider.create(), ".*");
 
     // try again with a config with low memory requirements; success clears shared memory allocated by the OS in e.g.
     // /dev/shm
