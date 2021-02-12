@@ -125,6 +125,21 @@ class PortManager_test : public Test
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
+
+    void exhaustInterfacePorts(std::string itf, std::function<void(iox::popo::InterfacePortData*)> f = std::function<void(iox::popo::InterfacePortData*)>())
+    {
+        for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
+        {
+            auto newItfName = itf + std::to_string(i);
+            auto Interfaceport = m_portManager->acquireInterfacePortData(
+                iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
+            ASSERT_NE(Interfaceport, nullptr);
+            if (f)
+            {
+                f(Interfaceport);
+            }
+        }
+    }
 };
 
 template <typename vector>
@@ -310,13 +325,8 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
 {
     std::string itf = "itf";
 
-    for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
-    {
-        auto newItfName = itf + std::to_string(i);
-        auto interp = m_portManager->acquireInterfacePortData(
-            iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
-        EXPECT_NE(interp, nullptr);
-    }
+    // first aquire all possible Interfaces
+    exhaustInterfacePorts(itf);
 
     // test if overflow errors get hit
     {
@@ -336,13 +346,8 @@ TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessf
 {
     std::string itf = "itf";
 
-    for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
-    {
-        auto newItfName = itf + std::to_string(i);
-        auto interp = m_portManager->acquireInterfacePortData(
-            iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
-        EXPECT_NE(interp, nullptr);
-    }
+    // first aquire all possible Interfaces
+    exhaustInterfacePorts(itf);
 
     // delete one and add one should be possible now
     {
@@ -711,15 +716,9 @@ TEST_F(PortManager_test, AcquireInterfacePortDataAfterDestroyingPreviouslyAcquir
     std::vector<iox::popo::InterfacePortData*> interfaceContainer;
     std::string itf = "itf";
 
-    // first aquire all possible condition variables
-    for (uint32_t i = 0U; i < iox::MAX_INTERFACE_NUMBER; i++)
-    {
-        auto newItfName = itf + std::to_string(i);
-        auto interp = m_portManager->acquireInterfacePortData(
-            iox::capro::Interfaces::INTERNAL, iox::ProcessName_t(iox::cxx::TruncateToCapacity, newItfName));
-        ASSERT_NE(interp, nullptr);
-        interfaceContainer.push_back(interp);
-    }
+    // first aquire all possible interfaces
+    exhaustInterfacePorts(itf,[&](auto InterafcePort){
+    interfaceContainer.push_back(InterafcePort);});
 
     // so now no one should be available
     {
