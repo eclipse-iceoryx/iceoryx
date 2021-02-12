@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
+
 # Build singleprocess example
 cmake_minimum_required(VERSION 3.5)
 project(example_singleprocess)
