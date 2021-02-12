@@ -50,20 +50,20 @@ TEST_F(SharedMemoryObject_Test, CTorWithValidArguments)
 {
     auto sut = iox::posix::SharedMemoryObject::create(
         "/validShmMem", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
-    EXPECT_THAT(sut.has_value(), Eq(true));
+    EXPECT_THAT(sut.has_error(), Eq(false));
 }
 
 TEST_F(SharedMemoryObject_Test, CTorOpenNonExistingSharedMemoryObject)
 {
     auto sut = iox::posix::SharedMemoryObject::create(
         "/pummeluff", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::openExisting, nullptr);
-    EXPECT_THAT(sut.has_value(), Eq(false));
+    EXPECT_THAT(sut.has_error(), Eq(true));
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
 {
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 16, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmAllocate", 16, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
     int* test = static_cast<int*>(sut->allocate(sizeof(int), 1));
     ASSERT_THAT(test, Ne(nullptr));
     *test = 123;
@@ -73,7 +73,7 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
 TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithOneChunk)
 {
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
 
     void* test = sut->allocate(8, 1);
     ASSERT_THAT(test, Ne(nullptr));
@@ -82,7 +82,7 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithOneChunk)
 TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
 {
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
 
     for (uint64_t i = 0; i < 8; ++i)
     {
@@ -95,7 +95,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 {
     uint64_t memorySize{8u};
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmAllocate", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
 
     PerformDeathTest([&] { sut->allocate(cxx::align(memorySize, posix::Allocator::MEMORY_ALIGNMENT) + 1, 1); });
 }
@@ -104,7 +104,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 {
     uint64_t memorySize{8u};
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmAllocate", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
 
     for (uint64_t i = 0; i < cxx::align(memorySize, posix::Allocator::MEMORY_ALIGNMENT); ++i)
     {
@@ -118,7 +118,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)
 {
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
     sut->finalizeAllocation();
 
     PerformDeathTest([&] { sut->allocate(2, 1); });
@@ -128,7 +128,7 @@ TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
 {
     uint64_t memorySize = 128;
     auto shmMemory = iox::posix::SharedMemoryObject::create(
-        "/shmSut", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmSut", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
     int* test = static_cast<int*>(shmMemory->allocate(sizeof(int), 1));
     *test = 4557;
     int* test2 = static_cast<int*>(shmMemory->allocate(sizeof(int), 1));

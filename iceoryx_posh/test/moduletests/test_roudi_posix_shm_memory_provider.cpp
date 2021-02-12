@@ -43,12 +43,12 @@ class PosixShmMemoryProvider_Test : public Test
 
     bool shmExists()
     {
-        return iox::posix::SharedMemoryObject::create(TEST_SHM_NAME.c_str(),
-                                                      8,
-                                                      iox::posix::AccessMode::readOnly,
-                                                      iox::posix::OwnerShip::openExisting,
-                                                      nullptr)
-            .has_value();
+        return !iox::posix::SharedMemoryObject::create(TEST_SHM_NAME.c_str(),
+                                                       8,
+                                                       iox::posix::AccessMode::readOnly,
+                                                       iox::posix::OwnerShip::openExisting,
+                                                       nullptr)
+                    .has_error();
     }
 
     MemoryBlockMock memoryBlock1;

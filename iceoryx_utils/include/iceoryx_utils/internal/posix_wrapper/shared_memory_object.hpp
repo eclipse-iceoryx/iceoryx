@@ -15,6 +15,7 @@
 #define IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
@@ -28,23 +29,22 @@ namespace posix
 {
 using byte_t = uint8_t;
 
-class SharedMemoryObject
+enum class SharedMemoryObjectError
+{
+    SHARED_MEMORY_CREATION_FAILED,
+    MAPPING_SHARED_MEMORY_FAILED,
+};
+
+class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, SharedMemoryObjectError>
 {
   public:
-    static cxx::optional<SharedMemoryObject> create(const char* f_name,
-                                                    const uint64_t f_memorySizeInBytes,
-                                                    const AccessMode f_accessMode,
-                                                    const OwnerShip f_ownerShip,
-                                                    const void* f_baseAddressHint,
-                                                    const mode_t f_permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP
-                                                                                 | S_IROTH | S_IWOTH);
     SharedMemoryObject(const SharedMemoryObject&) = delete;
     SharedMemoryObject& operator=(const SharedMemoryObject&) = delete;
     SharedMemoryObject(SharedMemoryObject&&) = default;
     SharedMemoryObject& operator=(SharedMemoryObject&&) = default;
     ~SharedMemoryObject() = default;
 
-    void* allocate(const uint64_t f_size, const uint64_t f_alignment = Allocator::MEMORY_ALIGNMENT);
+    void* allocate(const uint64_t size, const uint64_t alignment = Allocator::MEMORY_ALIGNMENT);
     void finalizeAllocation();
 
     Allocator* getAllocator();
@@ -53,15 +53,15 @@ class SharedMemoryObject
     uint64_t getSizeInBytes() const;
     int getFileHandle() const;
 
-    friend class cxx::optional<SharedMemoryObject>;
+    friend class DesignPattern::Creation<SharedMemoryObject, SharedMemoryObjectError>;
 
   private:
-    SharedMemoryObject(const char* f_name,
-                       const uint64_t f_memorySizeInBytes,
-                       const AccessMode f_accessMode,
-                       const OwnerShip f_ownerShip,
-                       const void* f_baseAddressHint,
-                       const mode_t f_permissions);
+    SharedMemoryObject(const char* name,
+                       const uint64_t memorySizeInBytes,
+                       const AccessMode accessMode,
+                       const OwnerShip ownerShip,
+                       const void* baseAddressHint,
+                       const mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 
     bool isInitialized() const;
 

@@ -18,6 +18,7 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
 
+#include <bitset>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -26,69 +27,60 @@ namespace iox
 {
 namespace posix
 {
-cxx::optional<SharedMemoryObject> SharedMemoryObject::create(const char* f_name,
-                                                             const uint64_t f_memorySizeInBytes,
-                                                             const AccessMode f_accessMode,
-                                                             const OwnerShip f_ownerShip,
-                                                             const void* f_baseAddressHint,
-                                                             const mode_t f_permissions)
+SharedMemoryObject::SharedMemoryObject(const char* name,
+                                       const uint64_t memorySizeInBytes,
+                                       const AccessMode accessMode,
+                                       const OwnerShip ownerShip,
+                                       const void* baseAddressHint,
+                                       const mode_t permissions)
+    : m_memorySizeInBytes(cxx::align(memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
+    , m_sharedMemory(name, accessMode, ownerShip, permissions, m_memorySizeInBytes)
 {
-    cxx::optional<SharedMemoryObject> returnValue;
-    returnValue.emplace(f_name, f_memorySizeInBytes, f_accessMode, f_ownerShip, f_baseAddressHint, f_permissions);
+    m_isInitialized = true;
 
-    if (returnValue->isInitialized())
-    {
-        return returnValue;
-    }
-    else
-    {
-        return cxx::nullopt_t();
-    }
-}
-
-SharedMemoryObject::SharedMemoryObject(const char* f_name,
-                                       const uint64_t f_memorySizeInBytes,
-                                       const AccessMode f_accessMode,
-                                       const OwnerShip f_ownerShip,
-                                       const void* f_baseAddressHint,
-                                       const mode_t f_permissions)
-    : m_memorySizeInBytes(cxx::align(f_memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
-    , m_sharedMemory(f_name, f_accessMode, f_ownerShip, f_permissions, m_memorySizeInBytes)
-{
     if (!m_sharedMemory.isInitialized())
     {
         std::cerr << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource"
                   << std::endl;
         m_isInitialized = false;
-        return;
+        m_errorValue = SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED;
     }
 
-    MemoryMap::create(f_baseAddressHint, m_memorySizeInBytes, m_sharedMemory.getHandle(), f_accessMode, MAP_SHARED, 0)
-        .and_then([this](auto& memoryMap) { m_memoryMap.emplace(std::move(memoryMap)); })
-        .or_else([this](auto) { m_isInitialized = false; });
-
-    if (!m_memoryMap.has_value())
+    if (m_isInitialized)
     {
-        std::cerr << "Unable to create SharedMemoryObject since we could not map the memory into the application"
-                  << std::endl;
-        m_isInitialized = false;
+        MemoryMap::create(baseAddressHint, m_memorySizeInBytes, m_sharedMemory.getHandle(), accessMode, MAP_SHARED, 0)
+            .and_then([this](auto& memoryMap) { m_memoryMap.emplace(std::move(memoryMap)); })
+            .or_else([this](auto) {
+                std::cerr << "Failed to map created shared memory into process!" << std::endl;
+                m_isInitialized = false;
+                m_errorValue = SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED;
+            });
+    }
+
+    if (m_isInitialized == false)
+    {
+        std::cerr << "Unable to create shared memory with the following properties [ name = " << name
+                  << ", sizeInBytes = " << memorySizeInBytes
+                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
+                  << ", ownership = " << OWNERSHIP_STRING[static_cast<uint64_t>(ownerShip)]
+                  << ", baseAddressHint = " << std::hex << baseAddressHint
+                  << ", permissions = " << std::bitset<sizeof(mode_t)>(permissions) << " ]" << std::endl;
         return;
     }
+
     m_allocator.emplace(m_memoryMap->getBaseAddress(), m_memorySizeInBytes);
-    m_isInitialized = true;
 
-    if (f_ownerShip == OwnerShip::mine && m_isInitialized)
+    if (ownerShip == OwnerShip::mine && m_isInitialized)
     {
-        std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << f_name << "]"
-                  << std::endl;
+        std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]" << std::endl;
         memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         std::clog << "[ Reserving shared memory successful ] " << std::endl;
     }
 }
 
-void* SharedMemoryObject::allocate(const uint64_t f_size, const uint64_t f_alignment)
+void* SharedMemoryObject::allocate(const uint64_t size, const uint64_t alignment)
 {
-    return m_allocator->allocate(f_size, f_alignment);
+    return m_allocator->allocate(size, alignment);
 }
 
 void SharedMemoryObject::finalizeAllocation()

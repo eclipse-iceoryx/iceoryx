@@ -18,6 +18,8 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 
+#include <bitset>
+
 namespace iox
 {
 namespace posix
@@ -56,9 +58,11 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
 
     if (mmapCall.hasErrors())
     {
-        std::cerr << "Failed to create memory mapping with [ baseAddressHint = " << std::hex << baseAddressHint
-                  << ", length = " << std::dec << m_length << ", fileDescriptor = " << fileDescriptor
-                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)] << std::endl;
+        std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
+                  << baseAddressHint << ", length = " << std::dec << m_length << ", fileDescriptor = " << fileDescriptor
+                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
+                  << ", flags = " << std::bitset<32>(static_cast<uint32_t>(flags)) << ", offset = " << std::hex
+                  << offset << std::dec << " ]" << std::endl;
         m_errorValue = errnoToEnum(mmapCall.getErrNum());
         m_isInitialized = false;
         m_baseAddress = nullptr;

@@ -66,24 +66,24 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
 
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
     auto shmName = "/" + f_writerGroup.getName();
-    auto retVal = SharedMemoryObjectType::create(shmName.c_str(),
-                                                 MemoryManager::requiredChunkMemorySize(f_mempoolConfig),
-                                                 posix::AccessMode::readWrite,
-                                                 posix::OwnerShip::mine,
-                                                 BASE_ADDRESS_HINT,
-                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-    if (!retVal.has_value())
-    {
-        errorHandler(Error::kMEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT);
-    }
 
-    setSegmentId(iox::RelativePointer::registerPtr(retVal->getBaseAddress(), retVal->getSizeInBytes()));
+    return std::move(
+        SharedMemoryObjectType::create(shmName.c_str(),
+                                       MemoryManager::requiredChunkMemorySize(f_mempoolConfig),
+                                       posix::AccessMode::readWrite,
+                                       posix::OwnerShip::mine,
+                                       BASE_ADDRESS_HINT,
+                                       S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+            .and_then([this](auto& sharedMemoryObject) {
+                setSegmentId(iox::RelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
+                                                               sharedMemoryObject.getSizeInBytes()));
 
-    LogDebug() << "Roudi registered payload segment "
-               << iox::log::HexFormat(reinterpret_cast<uint64_t>(retVal->getBaseAddress())) << " with size "
-               << retVal->getSizeInBytes() << " to id " << m_segmentId;
-
-    return std::move(retVal.value());
+                LogDebug() << "Roudi registered payload segment "
+                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
+                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << m_segmentId;
+            })
+            .or_else([](auto&) { errorHandler(Error::kMEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
+            .value());
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>

@@ -38,9 +38,14 @@ class SharedMemoryUser
     SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                      const size_t topicSize,
                      const uint64_t segmentId,
-                     RelativePointer::offset_t segmentManagerAddressOffset);
+                     const RelativePointer::offset_t segmentManagerAddressOffset);
 
   private:
+    void openDataSegments(const uint64_t segmentId,
+                          const RelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+
+  private:
+    static constexpr void* BASE_ADDRESS_HINT{nullptr};
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
     cxx::vector<posix::SharedMemoryObject, MAX_SHM_SEGMENTS> m_payloadShmObjects;
 };

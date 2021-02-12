@@ -28,11 +28,12 @@
 
 using namespace ::testing;
 using namespace iox::mepoo;
+using namespace iox::posix;
 
 class MePooSegment_test : public Test
 {
   public:
-    struct SharedMemoryObject_MOCK
+    struct SharedMemoryObject_MOCK : public DesignPattern::Creation<SharedMemoryObject_MOCK, int>
     {
         using createFct = std::function<void(const char*,
                                              const uint64_t,
@@ -40,26 +41,19 @@ class MePooSegment_test : public Test
                                              const iox::posix::OwnerShip,
                                              const void*,
                                              const mode_t)>;
-        static iox::cxx::optional<SharedMemoryObject_MOCK>
-        create(const char* f_name,
-               const uint64_t f_memorySizeInBytes,
-               const iox::posix::AccessMode f_accessMode,
-               const iox::posix::OwnerShip f_ownerShip,
-               void* f_baseAddressHint,
-               const mode_t f_permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
+        SharedMemoryObject_MOCK(const char* name,
+                                const uint64_t memorySizeInBytes,
+                                const AccessMode accessMode,
+                                const OwnerShip ownerShip,
+                                const void* baseAddressHint,
+                                const mode_t permissions)
+            : m_memorySizeInBytes(memorySizeInBytes)
+            , m_baseAddressHint(const_cast<void*>(baseAddressHint))
         {
             if (createVerificator)
             {
-                createVerificator(
-                    f_name, f_memorySizeInBytes, f_accessMode, f_ownerShip, f_baseAddressHint, f_permissions);
+                createVerificator(name, memorySizeInBytes, accessMode, ownerShip, baseAddressHint, permissions);
             }
-            return SharedMemoryObject_MOCK(f_memorySizeInBytes, f_baseAddressHint);
-        }
-
-        SharedMemoryObject_MOCK(const uint64_t f_memorySizeInBytes, void* f_baseAddressHint)
-            : m_memorySizeInBytes(f_memorySizeInBytes)
-            , m_baseAddressHint(f_baseAddressHint)
-        {
             filehandle = creat("/tmp/roudi_segment_test", S_IRWXU);
         }
 

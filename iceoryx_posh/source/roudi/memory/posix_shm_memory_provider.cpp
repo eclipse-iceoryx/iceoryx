@@ -81,9 +81,6 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
         return cxx::error<MemoryProviderError>(MemoryProviderError::SIGACTION_CALL_FAILED);
     }
 
-    // create and map a shared memory region
-    m_shmObject = posix::SharedMemoryObject::create(m_shmName.c_str(), size, m_accessMode, m_ownership, nullptr);
-
     // unregister signal handler
     if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGBUS, &oldAct, nullptr)
             .hasErrors())
@@ -92,6 +89,13 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
         errorHandler(Error::kROUDI_MEMORY__COULD_NOT_UNREGISTER_SIGBUS, nullptr, ErrorLevel::FATAL);
         return cxx::error<MemoryProviderError>(MemoryProviderError::SIGACTION_CALL_FAILED);
     }
+
+    // create and map a shared memory region
+    posix::SharedMemoryObject::create(m_shmName.c_str(), size, m_accessMode, m_ownership, nullptr)
+        .and_then([this](auto& sharedMemoryObject) {
+            sharedMemoryObject.finalizeAllocation();
+            m_shmObject.emplace(std::move(sharedMemoryObject));
+        });
 
     if (!m_shmObject.has_value())
     {
@@ -103,8 +107,6 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
     {
         return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
-
-    m_shmObject->finalizeAllocation();
 
     return cxx::success<void*>(baseAddress);
 }
