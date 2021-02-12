@@ -1,5 +1,12 @@
 # codecov yaml
 comment: yes # do not comment PR with the result
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: no  # if true: only post the comment if coverage changes
+  require_base: yes        # [yes :: must have a base report to post]
+  require_head: yes       # [yes :: must have a head report to post]
+  branches:               # branch names that can post comment
+    - "master"
 
 coverage:
   range: 50..90 
@@ -17,7 +24,7 @@ coverage:
         enabled: yes
         target: auto # auto % coverage target
         threshold: 100%  # we allow here 100% change to unblock PRs (will be set later)
-    changes: no
+    changes: yes
 
 parsers:
   gcov:

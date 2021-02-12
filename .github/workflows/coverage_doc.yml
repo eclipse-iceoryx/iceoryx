@@ -38,10 +38,13 @@ jobs:
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict debug build-all out-of-tree -c unit
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v1.2.1
         with:
           file: ./build/lcov/iceoryx_filter.info
           name: iceoryx
+          override_pr: ${{ github.event.pull_request.number }}
+          override_commit: ${{ github.event.pull_request.merge_commit_sha }}
+          override_branch: "refs/heads/master"
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
