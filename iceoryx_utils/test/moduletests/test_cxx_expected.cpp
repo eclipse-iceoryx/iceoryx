@@ -54,35 +54,35 @@ class expected_test : public Test
     };
 };
 
-TEST_F(expected_test, CreateWithValue)
+TEST_F(expected_test, CreateWithPODTypeAndErrorIsSuccessful)
 {
     auto sut = expected<int, float>::create_value(123);
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(sut.value(), Eq(123));
 }
 
-TEST_F(expected_test, CreateWitherror)
+TEST_F(expected_test, CreateWithErrorLeadsToError)
 {
     auto sut = expected<int, float>::create_error(123.12f);
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.get_error(), Eq(123.12f));
 }
 
-TEST_F(expected_test, CreateValue)
+TEST_F(expected_test, CreateWithComplexTypeAndErrorIsSuccessful)
 {
     auto sut = expected<Test, int>::create_value(12, 222);
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(sut.value().m_a, Eq(12));
 }
 
-TEST_F(expected_test, CreateError)
+TEST_F(expected_test, CreateWithComplexErrorAndPODValueLeadsToError)
 {
     auto sut = expected<int, Test>::create_error(313, 212);
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.get_error().m_b, Eq(212));
 }
 
-TEST_F(expected_test, CreateValueAndMove)
+TEST_F(expected_test, MoveAssignmentLeadsToInvalidation)
 {
     auto sut = expected<int, Test>::create_value(73);
     auto movedValue = std::move(sut);
@@ -91,14 +91,14 @@ TEST_F(expected_test, CreateValueAndMove)
     EXPECT_THAT(movedValue.value(), Eq(73));
 }
 
-TEST_F(expected_test, BoolOperatorError)
+TEST_F(expected_test, BoolOperatorReturnsError)
 {
     auto sut = expected<int, Test>::create_error(123, 321);
     ASSERT_THAT(sut.operator bool(), Eq(false));
     EXPECT_THAT(sut.get_error().m_b, Eq(321));
 }
 
-TEST_F(expected_test, BoolOperatorValue)
+TEST_F(expected_test, BoolOperatorReturnsNoError)
 {
     auto sut = expected<Test, int>::create_value(123, 321);
 
@@ -106,26 +106,26 @@ TEST_F(expected_test, BoolOperatorValue)
     EXPECT_THAT(sut.value().m_a, Eq(123));
 }
 
-TEST_F(expected_test, BoolOperatorExpectedErrorType)
+TEST_F(expected_test, BoolOperatorErrorTypeOnlyReturnsError)
 {
     auto sut = expected<float>::create_error(5.8f);
     ASSERT_THAT(sut.operator bool(), Eq(false));
     ASSERT_THAT(sut.get_error(), Eq(5.8f));
 }
 
-TEST_F(expected_test, BoolOperatorExpectedErrorTypeValue)
+TEST_F(expected_test, BoolOperatorErrorTypeOnlyReturnsNoError)
 {
     auto sut = expected<float>::create_value();
     ASSERT_THAT(sut.operator bool(), Eq(true));
 }
 
-TEST_F(expected_test, GetValueOrWithError)
+TEST_F(expected_test, ValueOrWithErrorReturnsGivenValue)
 {
     auto sut = expected<int, float>::create_error(16523.12f);
     EXPECT_THAT(sut.value_or(90), Eq(90));
 }
 
-TEST_F(expected_test, GetValueOrWithSuccess)
+TEST_F(expected_test, ValueOrWithErrorReturnsStoredValue)
 {
     auto sut = expected<int, float>::create_value(165);
     EXPECT_THAT(sut.value_or(90), Eq(165));
@@ -133,7 +133,7 @@ TEST_F(expected_test, GetValueOrWithSuccess)
 
 TEST_F(expected_test, ConstGetValueOrWithError)
 {
-    auto sut = expected<int, float>::create_error(1652.12f);
+    const auto sut = expected<int, float>::create_error(1652.12f);
     EXPECT_THAT(sut.value_or(15), Eq(15));
 }
 
