@@ -195,7 +195,7 @@ class IpcInterfaceBase
     IpcInterfaceBase(const ProcessName_t& InterfaceName,
                      const uint64_t maxMessages,
                      const uint64_t messageSize) noexcept;
-    virtual ~IpcInterfaceBase() = default;
+    virtual ~IpcInterfaceBase() noexcept = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
     IpcInterfaceBase(const IpcInterfaceBase&) = delete;

@@ -35,7 +35,7 @@ class IpcRuntimeInterface
     IpcRuntimeInterface(const ProcessName_t& roudiName,
                         const ProcessName_t& appName,
                         const units::Duration roudiWaitingTimeout) noexcept;
-    ~IpcRuntimeInterface() = default;
+    ~IpcRuntimeInterface() noexcept = default;
 
     /// @brief Not needed therefore deleted
     IpcRuntimeInterface(const IpcRuntimeInterface&) = delete;

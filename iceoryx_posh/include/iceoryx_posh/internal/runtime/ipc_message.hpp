@@ -44,7 +44,7 @@ class IpcMessage
 {
   public:
     /// @brief Creates an empty and valid IPC channel message.
-    IpcMessage() = default;
+    IpcMessage() noexcept = default;
 
     /// @brief Creates a separator separated string. If one element
     ///      contains a separator symbol the IpcMessage becomes invalid
