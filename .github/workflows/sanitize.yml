@@ -30,12 +30,13 @@ jobs:
       - name: Build
         run: |
           # build tests , dont run them
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize clang
+          sudo $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize clang test-add-user
 
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
-          ../tools/run_all_tests.sh
+          sudo ../tools/run_all_tests.sh
+          sudo ../tools/run_all_tests.sh only-timing-tests
 
  # This job builds & runs iceoryx tests (with sanitizer) in macos-10.15
   clang-sanitize-macos:

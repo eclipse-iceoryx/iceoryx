@@ -31,6 +31,7 @@ option(BINDING_C "Builds the C language bindings" ON)
 option(SANITIZE "Build with sanitizers" OFF)
 option(CLANG_TIDY "Execute Clang-Tidy" OFF)
 option(ROUDI_ENVIRONMENT "Build RouDi Environment for testing, is enabled when building tests" OFF)
+option(TEST_WITH_ADDITIONAL_USER "Build Test with additional user accounts for testing access control" OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # "Create compile_commands.json file"
 
 if(BUILD_ALL)
@@ -77,4 +78,5 @@ message("          CLANG_TIDY...........................: " ${CLANG_TIDY})
 message("          ROUDI_ENVIRONMENT....................: " ${ROUDI_ENVIRONMENT})
 message("          CMAKE_EXPORT_COMPILE_COMMANDS........: " ${CMAKE_EXPORT_COMPILE_COMMANDS})
 message("          ONE_TO_MANY_ONLY ....................: " ${ONE_TO_MANY_ONLY})
+message("          TEST_WITH_ADDITIONAL_USER ...........: " ${TEST_WITH_ADDITIONAL_USER})
 message("          BUILD_DOC............................: " ${BUILD_DOC})

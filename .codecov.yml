@@ -2,25 +2,25 @@
 comment: yes # do not comment PR with the result
   layout: "reach, diff, flags, files"
   behavior: default
-  require_changes: no  # if true: only post the comment if coverage changes
-  require_base: yes    # [yes :: must have a base report to post]
-  require_head: yes    # [yes :: must have a head report to post]
+  require_changes: yes  # only post the comment if coverage changes
+  require_base: no
+  require_head: yes
 
 coverage:
   range: 70..100 
 
   status:
-    project: # settings affecting project coverage
+    project:
       default:
         enabled: yes
-        target: 70% # auto % coverage target
-        threshold: 5%  # we allow here 100% change to unblock PRs (will be set later)
+        target: 70%
+        threshold: 2% # allow coverage to drop maximum by a defined value
 
     patch:
       default:
         enabled: yes
-        target: 70% # auto % coverage target
-        threshold: 5%  # we allow here 100% change to unblock PRs (will be set later)
+        target: 70%
+        threshold: 2% 
     changes: yes
 
 parsers:

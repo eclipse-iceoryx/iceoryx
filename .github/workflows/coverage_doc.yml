@@ -39,7 +39,7 @@ jobs:
           mkdir $GITHUB_WORKSPACE/lcov_results
           mkdir $GITHUB_WORKSPACE/lcov_results/unittest
           # add flag to include coverage
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all -c unit
+          sudo $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all test-add-user -c unit
           cp -rf $GITHUB_WORKSPACE/build/lcov/ $GITHUB_WORKSPACE/lcov_results/unittest/
 
       - name: Upload coverage to Codecov
@@ -51,7 +51,7 @@ jobs:
       - name: Generate doxygen documentation
         run: |
           # add flag to include coverage
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean doc
+          sudo $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean doc
 
       - name: Archive generated doxygen
         uses: actions/upload-artifact@v2

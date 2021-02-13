@@ -36,25 +36,25 @@ jobs:
 
        - name: Build sources
          run: |
-            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree build-shared
+            sudo $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree build-shared test-add-user
 
        - name: Build debian package
          run: |
-            $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh package
+            sudo $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh package
 
-       - name: Run timeless tests
+       - name: Run all tests, excluding timing_tests
          run: |
            cd $GITHUB_WORKSPACE/build
-           make all_tests
+           sudo make all_tests
 
        - name: Run timing tests
          run: |
            cd $GITHUB_WORKSPACE/build
-           make timing_tests
+           sudo make timing_tests
 
        - name: Build RouDi examples without TOML support
          run: |
-           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean
+           sudo $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh out-of-tree examples toml-config-off clean
 
  # This job builds & runs iceoryx tests in macos-10.14
   iceoryx-macos:
