@@ -14,39 +14,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_SAMPLE_DELETER_HPP
-#define IOX_POSH_POPO_SAMPLE_DELETER_HPP
+#ifndef IOX_POSH_POPO_SAMPLE_DELETER_INL
+#define IOX_POSH_POPO_SAMPLE_DELETER_INL
 
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/internal/popo/sample_deleter.hpp"
 
 namespace iox
 {
 namespace popo
 {
-///
-/// @brief The SampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-/// underlying memory chunk via the corresponding port..
-/// Each port should create its own instance of this deleter struct.
-///
+template <typename Port>
+SampleDeleter<Port>::SampleDeleter(Port& port)
+    : m_port(&port)
+{
+}
 
 template <typename Port>
-struct SampleDeleter
+template <typename T>
+void SampleDeleter<Port>::operator()(T* const payload) const
 {
-  public:
-    SampleDeleter(Port& port);
-
-    /// @brief Handles deletion of the sample.
-    /// @param[in] payload The pointer to the payload of the sample.
-    template <typename T>
-    void operator()(T* const payload) const;
-
-  private:
-    Port* m_port;
-};
+    auto header = iox::mepoo::ChunkHeader::fromPayload(payload);
+    m_port->releaseChunk(header);
+}
 
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/sample_deleter.inl"
-
-#endif // IOX_POSH_POPO_SAMPLE_DELETER_HPP
+#endif // IOX_POSH_POPO_SAMPLE_DELETER_INL
