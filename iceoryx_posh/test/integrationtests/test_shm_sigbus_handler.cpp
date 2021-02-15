@@ -10,10 +10,11 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.#include "test.hpp"
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #if !defined(__APPLE__)
-
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/internal/roudi/memory/mempool_collection_memory_block.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"

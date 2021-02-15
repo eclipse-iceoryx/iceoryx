@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #include "test.hpp"
 
 #include "iceoryx_posh/internal/capro/capro_message.hpp"

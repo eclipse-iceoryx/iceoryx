@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #ifndef IOX_POSH_POPO_TRIGGER_HPP
 #define IOX_POSH_POPO_TRIGGER_HPP
 

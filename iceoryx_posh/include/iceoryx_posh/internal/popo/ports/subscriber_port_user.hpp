@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #ifndef IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 

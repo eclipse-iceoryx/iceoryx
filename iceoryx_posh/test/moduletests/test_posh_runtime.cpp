@@ -1,5 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "test.hpp"
@@ -93,8 +92,8 @@ class PoshRuntime_test : public Test
     const iox::ProcessName_t m_runtimeName{"publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
-    MqMessage m_sendBuffer;
-    MqMessage m_receiveBuffer;
+    IpcMessage m_sendBuffer;
+    IpcMessage m_receiveBuffer;
     const iox::NodeName_t m_nodeName{"testNode"};
     const iox::NodeName_t m_invalidNodeName{"invalidNode,"};
     static bool m_errorHandlerCalled;
@@ -229,7 +228,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
 
 TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_runtimeName
+    m_sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_nodeName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
@@ -241,7 +240,7 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 
 TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_runtimeName
+    m_sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidNodeName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);

@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_utils/cxx/string.hpp"

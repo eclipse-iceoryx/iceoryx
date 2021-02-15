@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
@@ -77,7 +79,7 @@ constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {"WORLDWIDE", "INTERNAL"
 /// instance and the event id.
 /// In order to support different communication protocols, two types of members exist: integer and string identifiers.
 /// If string IDs are used, the integers are initialized to an invalid number. A class object can be
-/// serialized/deserialized, so it is possible to send the information e.g. over a message queue.
+/// serialized/deserialized, so it is possible to send the information e.g. over a IPC channel.
 class ServiceDescription
 {
   public:
