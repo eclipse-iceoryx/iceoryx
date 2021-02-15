@@ -31,7 +31,7 @@ constexpr void* SharedMemoryUser::BASE_ADDRESS_HINT;
 SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                                    const size_t topicSize,
                                    const uint64_t segmentId,
-                                   RelativePointer::offset_t segmentManagerAddressOffset)
+                                   const RelativePointer::offset_t segmentManagerAddressOffset)
 {
     if (doMapSharedMemoryIntoThread)
     {
