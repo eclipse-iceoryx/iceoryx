@@ -38,7 +38,9 @@ class UntypedPublisherImpl : public base_publisher_t
     ///
     /// @brief loan Get a chunk from loaned shared memory.
     /// @param size The expected size of the chunk.
-    /// @return A pointer to a chunk of memory with the requested size.
+    /// @return A pointer to a chunk of memory with the requested size or
+    ///         an AllocationError if no chunk could be loaned.
+    /// @note An AllocationError occurs if no chunk is available in the shared memory.
     ///
     cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
 
