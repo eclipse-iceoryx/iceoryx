@@ -179,9 +179,8 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessfu
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
     EXPECT_THAT(detectedError.value(),
-                Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE));
+                Eq(iox::Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_IPC_MESSAGE_RESPONSE));
 }
-
 
 TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
 {
@@ -494,7 +493,7 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNameLeadsToTermination)
     m_runtime->createNode(nodeProperty);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_MESSAGE_QUEUE_RESPONSE));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE));
 }
 
 TEST_F(PoshRuntime_test, OfferDefaultServiceDescriptionIsInvalid)
