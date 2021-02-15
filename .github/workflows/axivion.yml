@@ -21,6 +21,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           pip3 install requests
-          PIPELINE_ID="$(./tools/axivion/trigger_pipeline)"
-          ./tools/axivion/wait_for_pipeline "${PIPELINE_ID}"
-        
+          PIPELINE_ID="$(./tools/axivion/trigger_pipeline.py)"
+          ./tools/axivion/wait_for_pipeline.py "${PIPELINE_ID}"
+
