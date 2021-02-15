@@ -23,13 +23,19 @@ namespace popo
 {
 EventVariableData::EventVariableData() noexcept
 {
-    cxx::forEach(m_activeNotifications, [](auto& id) { id.store(false, std::memory_order_relaxed); });
+    for (auto& id : m_activeNotifications)
+    {
+        id.store(false, std::memory_order_relaxed);
+    }
 }
 
 EventVariableData::EventVariableData(const ProcessName_t& process) noexcept
     : ConditionVariableData(process)
 {
-    cxx::forEach(m_activeNotifications, [](auto& id) { id.store(false, std::memory_order_relaxed); });
+    for (auto& id : m_activeNotifications)
+    {
+        id.store(false, std::memory_order_relaxed);
+    }
 }
 } // namespace popo
 } // namespace iox
