@@ -56,7 +56,7 @@ class SharedChunk_Test : public Test
 TEST_F(SharedChunk_Test, PassingNullPointerToSharedChunkConstructorWithChunkManagmentStoresNullPointerInChunkManagement)
 {
     ChunkManagement* chunkManagement(nullptr);
-    iox::mepoo::SharedChunk sut{chunkManagement};
+    SharedChunk sut{chunkManagement};
 
     EXPECT_THAT(sut.getChunkHeader(), Eq(nullptr));
 }
@@ -66,7 +66,7 @@ TEST_F(SharedChunk_Test,
 {
     iox::relative_ptr<ChunkManagement> relativeptr(nullptr);
 
-    iox::mepoo::SharedChunk sut{relativeptr};
+    SharedChunk sut{relativeptr};
 
     EXPECT_THAT(sut.getChunkHeader(), Eq(nullptr));
 }
@@ -74,18 +74,18 @@ TEST_F(SharedChunk_Test,
 TEST_F(SharedChunk_Test, VerifyCopyConstructorForSharedChunkWithChunkManagementAsNullPointer)
 {
     ChunkManagement* chunkManagement(nullptr);
-    iox::mepoo::SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{chunkManagement};
 
-    iox::mepoo::SharedChunk sut2(sut1);
+    SharedChunk sut2(sut1);
 
     EXPECT_THAT(sut2.getChunkHeader(), Eq(nullptr));
 }
 
 TEST_F(SharedChunk_Test, VerifyCopyConstructorOfSharedChunk)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{chunkManagement};
 
-    iox::mepoo::SharedChunk sut2(sut1);
+    SharedChunk sut2(sut1);
 
     EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(),
                 Eq(sut1.releaseWithRelativePtr()->m_mempool->getChunkSize()));
@@ -93,9 +93,9 @@ TEST_F(SharedChunk_Test, VerifyCopyConstructorOfSharedChunk)
 
 TEST_F(SharedChunk_Test, VerifyMoveConstructorOfSharedChunk)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{chunkManagement};
 
-    iox::mepoo::SharedChunk sut2(std::move(sut1));
+    SharedChunk sut2(std::move(sut1));
 
     EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(chunkSize));
 }
@@ -103,17 +103,17 @@ TEST_F(SharedChunk_Test, VerifyMoveConstructorOfSharedChunk)
 TEST_F(SharedChunk_Test, VerifyMoveConstructorForSharedChunkWithChunkManagementAsNullPointer)
 {
     ChunkManagement* chunkManagement(nullptr);
-    iox::mepoo::SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{chunkManagement};
 
-    iox::mepoo::SharedChunk sut2(std::move(sut1));
+    SharedChunk sut2(std::move(sut1));
 
     EXPECT_THAT(sut2.releaseWithRelativePtr(), Eq(nullptr));
 }
 
 TEST_F(SharedChunk_Test, VerifiyCopyAssigmentWithSharedChunk)
 {
-    iox::mepoo::SharedChunk sut1(chunkManagement);
-    iox::mepoo::SharedChunk sut2(nullptr);
+    SharedChunk sut1(chunkManagement);
+    SharedChunk sut2(nullptr);
 
     sut2 = sut1;
 
@@ -123,7 +123,7 @@ TEST_F(SharedChunk_Test, VerifiyCopyAssigmentWithSharedChunk)
 
 TEST_F(SharedChunk_Test, VerifyCopyAssignmentForSharedChunkWithChunkManagementAsNullPointer)
 {
-    iox::mepoo::SharedChunk sut1(chunkManagement);
+    SharedChunk sut1(chunkManagement);
 
     sut1 = nullptr;
 
@@ -132,7 +132,7 @@ TEST_F(SharedChunk_Test, VerifyCopyAssignmentForSharedChunkWithChunkManagementAs
 
 TEST_F(SharedChunk_Test, VerifyCopyAssignmentForSameSharedChunkObject)
 {
-    iox::mepoo::SharedChunk sut1(chunkManagement);
+    SharedChunk sut1(chunkManagement);
 
     sut1 = sut1;
 
@@ -141,8 +141,8 @@ TEST_F(SharedChunk_Test, VerifyCopyAssignmentForSameSharedChunkObject)
 
 TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSharedChunk)
 {
-    iox::mepoo::SharedChunk sut1(chunkManagement);
-    iox::mepoo::SharedChunk sut2(chunkManagement);
+    SharedChunk sut1(chunkManagement);
+    SharedChunk sut2(chunkManagement);
 
     sut2 = std::move(sut1);
 
@@ -152,16 +152,16 @@ TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSharedChunk)
 TEST_F(SharedChunk_Test, VerifyMoveAssignmenForSharedChunkWithChunkManagementAsNullPointer)
 {
     ChunkManagement* chunkManagement(nullptr);
-    iox::mepoo::SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{chunkManagement};
 
-    iox::mepoo::SharedChunk sut2 = std::move(sut1);
+    SharedChunk sut2 = std::move(sut1);
 
     EXPECT_THAT(sut2.releaseWithRelativePtr(), Eq(nullptr));
 }
 
 TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSameSharedChunkObject)
 {
-    iox::mepoo::SharedChunk sut1(chunkManagement);
+    SharedChunk sut1(chunkManagement);
 
     sut1 = std::move(sut1);
 
@@ -178,76 +178,76 @@ TEST_F(SharedChunk_Test, GetChunkHeaderMethodReturnsNullPointerWhenSharedChunkOb
 TEST_F(SharedChunk_Test, GetChunkHeaderMethodReturnsValidPointerWhenSharedChunkObjectIsInitialisedWithAValidPointer)
 {
     void* newChunk = mempool.getChunk();
-    iox::mepoo::SharedChunk sut(GetChunkManagement(newChunk));
+    SharedChunk sut(GetChunkManagement(newChunk));
 
     EXPECT_THAT(sut.getChunkHeader(), Eq(newChunk));
 }
 
 TEST_F(SharedChunk_Test, EqualityOperatorOnTwoSharedChunkWithTheSameContentReturnsTrue)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
-    iox::mepoo::SharedChunk sut2{chunkManagement};
+    SharedChunk sut1{chunkManagement};
+    SharedChunk sut2{chunkManagement};
 
     EXPECT_TRUE(sut2 == sut1);
 }
 
 TEST_F(SharedChunk_Test, EqualityOperatorOnTwoSharedChunkWithDifferentContentReturnsFalse)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
-    iox::mepoo::SharedChunk sut2(nullptr);
+    SharedChunk sut1{chunkManagement};
+    SharedChunk sut2(nullptr);
 
     EXPECT_FALSE(sut1 == sut2);
 }
 
 TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithDifferentChunkManagementsReturnFalse)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
-    iox::mepoo::SharedChunk sut2{nullptr};
+    SharedChunk sut1{chunkManagement};
+    SharedChunk sut2{nullptr};
 
     EXPECT_FALSE(sut1 == sut2.getPayload());
 }
 
 TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithSameChunkManagementsReturnTrue)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
-    iox::mepoo::SharedChunk sut2{chunkManagement};
+    SharedChunk sut1{chunkManagement};
+    SharedChunk sut2{chunkManagement};
 
     EXPECT_TRUE(sut1 == sut2.getPayload());
 }
 
 TEST_F(SharedChunk_Test, BoolOperatorOnValidSharedChunkReturnsTrue)
 {
-    iox::mepoo::SharedChunk sut{chunkManagement};
+    SharedChunk sut{chunkManagement};
 
     EXPECT_TRUE(sut);
 }
 
 TEST_F(SharedChunk_Test, BoolOperatorOnSharedChunkWithChunkManagementAsNullPointerReturnsFalse)
 {
-    iox::mepoo::SharedChunk sut(nullptr);
+    SharedChunk sut(nullptr);
 
     EXPECT_FALSE(sut);
 }
 
 TEST_F(SharedChunk_Test, HasNoOtherOwnersMethodWithChunkManagementEqualNullPointerReturnTrue)
 {
-    iox::mepoo::SharedChunk sut(nullptr);
+    SharedChunk sut(nullptr);
 
     EXPECT_TRUE(sut.hasNoOtherOwners());
 }
 
 TEST_F(SharedChunk_Test, HasNoOtherOwnersMethodForSingleOwnerWhen_m_chunkmanagementisValidReturnsTrue)
 {
-    iox::mepoo::SharedChunk sut{chunkManagement};
+    SharedChunk sut{chunkManagement};
 
     EXPECT_TRUE(sut.hasNoOtherOwners());
 }
 
 TEST_F(SharedChunk_Test, HasNoOtherOwnersMethodForMultipleOwnerWhen_m_chunkmanagementisValidReturnsFalse)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{chunkManagement};
 
-    iox::mepoo::SharedChunk sut2(sut1);
+    SharedChunk sut2(sut1);
 
     EXPECT_FALSE(sut1.hasNoOtherOwners());
 }
@@ -265,7 +265,7 @@ TEST_F(SharedChunk_Test, GetPayloadMethodReturnsValidPointerWhen_m_chunkmanagmen
     new (newChunk) ChunkHeader();
     new (static_cast<int*>(newChunk->payload())) int{1337};
 
-    iox::mepoo::SharedChunk sut1(GetChunkManagement(newChunk));
+    SharedChunk sut1(GetChunkManagement(newChunk));
 
     EXPECT_THAT(*static_cast<int*>(sut1.getPayload()), Eq(1337));
 }
@@ -340,32 +340,32 @@ TEST_F(SharedChunk_Test, MultipleChunksCleanup)
 
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnTwoSharedChunkWithDifferentContentReturnsTrue)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
-    iox::mepoo::SharedChunk sut2;
+    SharedChunk sut1{chunkManagement};
+    SharedChunk sut2;
 
     EXPECT_TRUE(sut1 != sut2);
 }
 
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnTwoSharedChunkWithSameContentReturnsFalse)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
-    iox::mepoo::SharedChunk sut2(chunkManagement);
+    SharedChunk sut1{chunkManagement};
+    SharedChunk sut2(chunkManagement);
 
     EXPECT_FALSE(sut1 != sut2);
 }
 
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWithDifferentChunkManagementsReturnTrue)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
-    iox::mepoo::SharedChunk sut2(nullptr);
+    SharedChunk sut1{chunkManagement};
+    SharedChunk sut2(nullptr);
 
     EXPECT_TRUE(sut1 != sut2.getPayload());
 }
 
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWithSameChunkManagementsReturnFalse)
 {
-    iox::mepoo::SharedChunk sut1{chunkManagement};
-    iox::mepoo::SharedChunk sut2(chunkManagement);
+    SharedChunk sut1{chunkManagement};
+    SharedChunk sut2(chunkManagement);
 
     EXPECT_FALSE(sut1 != sut2.getPayload());
 }
@@ -373,7 +373,7 @@ TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWi
 TEST_F(SharedChunk_Test,
        ReleaseMethodReturnsChunkManagementPointerOfSharedChunkObjectAndSetsTheChunkManagementRelativePointerToNull)
 {
-    iox::mepoo::SharedChunk sut{chunkManagement};
+    SharedChunk sut{chunkManagement};
 
     ChunkManagement* returnValue = sut.release();
 
@@ -385,7 +385,7 @@ TEST_F(SharedChunk_Test,
 TEST_F(SharedChunk_Test,
        ReleaseMethodReturnsRelativeChunkManagementPointerOfSharedChunkObjectSetsTheChunkManagementRelativePointerToNull)
 {
-    iox::mepoo::SharedChunk sut{chunkManagement};
+    SharedChunk sut{chunkManagement};
 
     auto returnValue = sut.releaseWithRelativePtr();
 

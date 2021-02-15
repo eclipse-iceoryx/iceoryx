@@ -1,4 +1,5 @@
 // Copyright (c) 2019-2021 by  Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019-2020 by Apex. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,15 +50,19 @@ class MemoryManager_test : public Test
 
     iox::mepoo::MemoryManager* sut;
     iox::mepoo::MePooConfig mempoolconf;
+    static constexpr uint32_t chunkSize_32{32U};
+    static constexpr uint32_t chunkSize_64{64U};
+    static constexpr uint32_t chunkSize_128{128};
+    static constexpr uint32_t chunkSize_256{256U};
 };
-
 
 TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
 {
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({128, 10});
-    mempoolconf.addMemPool({256, 10});
-    mempoolconf.addMemPool({64, 10});
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_32, chunkCount});
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
+    mempoolconf.addMemPool({chunkSize_256, chunkCount});
+    mempoolconf.addMemPool({chunkSize_64, chunkCount});
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
@@ -73,8 +78,9 @@ TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
 
 TEST_F(MemoryManager_test, AddingMempoolAfterGeneratingChunkManagementPoolReturnsError)
 {
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({64, 10});
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_32, chunkCount});
+    mempoolconf.addMemPool({chunkSize_64, chunkCount});
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -83,19 +89,20 @@ TEST_F(MemoryManager_test, AddingMempoolAfterGeneratingChunkManagementPoolReturn
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });
 
-    mempoolconf.addMemPool({128, 10});
-    mempoolconf.addMemPool({256, 10});
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
+    mempoolconf.addMemPool({chunkSize_256, chunkCount});
 
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
 
-    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL));
 }
 
 TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexReturnsZeroForAllMempoolAttributes)
 {
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({64, 10});
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_32, chunkCount});
+    mempoolconf.addMemPool({chunkSize_64, chunkCount});
     uint32_t invalidMempoolIndex = 2U;
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
 
@@ -107,45 +114,54 @@ TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexRetur
     EXPECT_EQ(poolInfo.m_usedChunks, 0U);
 }
 
-TEST_F(MemoryManager_test, getMempoolChunkSizeForPayloadSize)
+TEST_F(MemoryManager_test,
+       GetMempoolChunkSizeMethodWhenPayloadSizeLessThanOrEqualToAdjustedSizeReturnsTheAdjustedChunkSize)
 {
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({64, 10});
-    mempoolconf.addMemPool({128, 10});
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_32, chunkCount});
+    mempoolconf.addMemPool({chunkSize_64, chunkCount});
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(50), Eq(adjustedChunkSize(64u)));
+
+    EXPECT_EQ(sut->getMempoolChunkSizeForPayloadSize(50U), adjustedChunkSize(64U));
 }
 
-TEST_F(MemoryManager_test, getChunkSizeForWrongSampleSize)
+TEST_F(MemoryManager_test, GetMempoolChunkSizeMethodWhenPayloadSizeGreaterThanAdjustedSizeReturnsZero)
 {
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({64, 10});
-    mempoolconf.addMemPool({128, 10});
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_32, chunkCount});
+    mempoolconf.addMemPool({chunkSize_64, chunkCount});
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(129), Eq(0u));
+
+    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(129U), Eq(0U));
 }
 
-TEST_F(MemoryManager_test, wrongcallConfigureMemoryManager)
+TEST_F(MemoryManager_test, WrongcallOfConfigureMemoryManagerResultsInTermination)
 {
-    mempoolconf.addMemPool({32, 10});
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_32, chunkCount});
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(1u));
+    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(1U));
+
     EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
 }
 
 TEST_F(MemoryManager_test, GetNumberOfMemPoolsMethodReturnsTheNumberOfMemPools)
 {
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({64, 10});
-    mempoolconf.addMemPool({128, 10});
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_32, chunkCount});
+    mempoolconf.addMemPool({chunkSize_64, chunkCount});
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
 
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
 
     EXPECT_THAT(sut->getNumberOfMemPools(), Eq(3U));
 }
 
-TEST_F(MemoryManager_test, getChunkWithNoMemPool)
+TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
 {
+    constexpr uint32_t size{15U};
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
@@ -153,18 +169,19 @@ TEST_F(MemoryManager_test, getChunkWithNoMemPool)
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
-    auto bla = sut->getChunk(15);
-    EXPECT_THAT(bla, Eq(false));
+    sut->getChunk(size);
 
-    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL));
 }
 
-TEST_F(MemoryManager_test, getTooLargeChunk)
+TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkSizeInMemPoolConfigReturnsError)
 {
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({64, 10});
-    mempoolconf.addMemPool({128, 10});
+    constexpr uint32_t chunkCount{10U};
+    constexpr uint32_t size{200U};
+    mempoolconf.addMemPool({chunkSize_32, chunkCount});
+    mempoolconf.addMemPool({chunkSize_64, chunkCount});
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
 
     iox::cxx::optional<iox::Error> detectedError;
@@ -174,19 +191,63 @@ TEST_F(MemoryManager_test, getTooLargeChunk)
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
-    auto bla = sut->getChunk(200);
-    EXPECT_THAT(bla, Eq(false));
+    sut->getChunk(size);
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE));
 }
 
-TEST_F(MemoryManager_test, getChunkSingleMemPoolSingleChunk)
+TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsError)
 {
-    mempoolconf.addMemPool({128, 10});
+    constexpr uint32_t chunkCount{1U};
+    constexpr uint32_t size{100U};
+    std::vector<iox::mepoo::SharedChunk> chunkStore;
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    auto bla = sut->getChunk(50);
-    EXPECT_THAT(bla, Eq(true));
+    chunkStore.push_back(sut->getChunk(100U));
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+        });
+
+    sut->getChunk(size);
+
+    ASSERT_TRUE(detectedError.has_value());
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS));
+}
+
+TEST_F(MemoryManager_test, VerifyGetChunkMethodWhenTheRequestedChunkIsAvailableInMemPoolConfig)
+{
+    constexpr uint32_t chunkCount{10U};
+    constexpr uint32_t size{50U};
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    auto receivedChunk = sut->getChunk(size);
+
+    ASSERT_TRUE(receivedChunk);
+    EXPECT_THAT(receivedChunk.releaseWithRelativePtr()->m_mempool->getChunkSize(),
+                Eq(sut->sizeWithChunkHeaderStruct(chunkSize_128)));
+}
+
+TEST_F(MemoryManager_test, RequiredChunkMemorySizeMethodReturnsTheTotalSizeOfTheChunkMemoryNeeded)
+{
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
+
+    EXPECT_THAT(sut->requiredChunkMemorySize(mempoolconf), Eq(sut->sizeWithChunkHeaderStruct(128U) * 10U));
+}
+
+TEST_F(MemoryManager_test,
+       RequiredFullMemorySizeMethodReturnsTheSumOfRequiredChunkMemorySizeAndRequiredManagementMemorySize)
+{
+    constexpr uint32_t chunkCount{10U};
+    mempoolconf.addMemPool({chunkSize_128, chunkCount});
+
+    EXPECT_THAT(sut->requiredFullMemorySize(mempoolconf),
+                Eq(sut->requiredChunkMemorySize(mempoolconf) + sut->requiredManagementMemorySize(mempoolconf)));
 }
 
 TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)

@@ -63,21 +63,21 @@ TEST_F(MePooConfig_Test, AddingMempoolWhenTheMemPoolConfigContainerIsFullReturns
 TEST_F(MePooConfig_Test, SetDefaultMethodAddsTheDefaultMemPoolConfigurationToTheMemPoolConfigContainer)
 {
     MePooConfig sut;
-    MePooConfig::Entry defaultEntry[7] = {{128, 10000},
-                                          {1024, 5000},
-                                          {1024 * 16, 1000},
-                                          {1024 * 128, 200},
-                                          {1024 * 512, 50},
-                                          {1024 * 1024, 30},
-                                          {1024 * 1024 * 4, 10}};
+    MePooConfig::Entry defaultEntry[7] = {{128U, 10000U},
+                                          {1024U, 5000U},
+                                          {1024U * 16U, 1000U},
+                                          {1024U * 128U, 200U},
+                                          {1024U * 512U, 50U},
+                                          {1024 * 1024, 30U},
+                                          {1024U * 1024U * 4U, 10U}};
 
     sut.setDefaults();
 
     EXPECT_EQ(sut.m_mempoolConfig.size(), 7U);
     for (size_t i = 0; i < 7; i++)
     {
-        EXPECT_THAT((sut.m_mempoolConfig[i].m_chunkCount), Eq(defaultEntry[i].m_chunkCount));
-        EXPECT_THAT((sut.m_mempoolConfig[i].m_size), Eq(defaultEntry[i].m_size));
+        EXPECT_EQ((sut.m_mempoolConfig[i].m_chunkCount), defaultEntry[i].m_chunkCount);
+        EXPECT_EQ((sut.m_mempoolConfig[i].m_size), defaultEntry[i].m_size);
     }
 }
 
@@ -88,7 +88,7 @@ TEST_F(MePooConfig_Test, GetMemoryConfigMethodReturnsTheMemPoolConfigContainerWi
     constexpr uint32_t size{128U};
     sut.addMemPool({size, chunkCount});
 
-    const iox::mepoo::MePooConfig::MePooConfigContainerType* mempoolconfptr = sut.getMemPoolConfig();
+    const MePooConfig::MePooConfigContainerType* mempoolconfptr = sut.getMemPoolConfig();
 
     EXPECT_THAT(mempoolconfptr->size(), Eq(1U));
     EXPECT_THAT((mempoolconfptr[0].data()->m_chunkCount), Eq(chunkCount));
@@ -106,7 +106,7 @@ TEST_F(MePooConfig_Test, OptimizeMethodCombinesTwoMempoolWithSameSizeAndDoublesT
     sut.optimize();
 
     EXPECT_THAT(sut.m_mempoolConfig.size(), Eq(1U));
-    EXPECT_THAT(sut.m_mempoolConfig[0].m_chunkCount, Eq(chunkCount * 2));
+    EXPECT_THAT(sut.m_mempoolConfig[0].m_chunkCount, Eq(chunkCount * 2U));
 }
 
 TEST_F(MePooConfig_Test, OptimizeMethodRemovesTheMempoolWithSizeZeroInTheMemPoolConfigContainer)

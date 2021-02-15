@@ -73,7 +73,7 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
 
     iox::mepoo::MemPool sut1(NotAlignedChunkSize, NumberOfChunks, &allocator1, &allocator1);
 
-    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(
         detectedError.value(),
         Eq(iox::Error::
@@ -87,7 +87,7 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThan32BytesGetsTerminated)
                  ".*");
 }
 
-TEST_F(MemPool_test, MempoolCtorWhenNumberOfChunksIsSmallerThanZeroGetsTerminated)
+TEST_F(MemPool_test, MempoolCtorWhenNumberOfChunksIsZeroGetsTerminated)
 {
     uint32_t invalidNumberOfChunks = 0U;
     EXPECT_DEATH({ iox::mepoo::MemPool sut(ChunkSize, invalidNumberOfChunks, &allocator, &allocator); }, ".*");
@@ -102,7 +102,7 @@ TEST_F(MemPool_test, GetChunkMethodWhenAllTheChunksAreUsedReturnsNullPointer)
     EXPECT_THAT(sut.getChunk(), Eq(nullptr));
 }
 
-TEST_F(MemPool_test, VerifyWritingDataToChunks)
+TEST_F(MemPool_test, WritingDataToAChunkStoresTheCorrespondingDataInTheChunk)
 {
     std::vector<uint8_t*> chunks;
     for (uint8_t i = 0; i < NumberOfChunks; i++)
@@ -168,7 +168,7 @@ TEST_F(MemPool_test, FreeChunkMethodWhenSameChunkIsTriedToFreeTwiceReturnsError)
 
     sut.freeChunk(chunks[index]);
 
-    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__MEMPOOL_POSSIBLE_DOUBLE_FREE));
 }
 
