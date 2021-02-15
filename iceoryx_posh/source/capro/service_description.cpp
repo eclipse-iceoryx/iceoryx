@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_posh/capro/service_description.hpp"
-
 #include <iomanip>
 
 namespace iox

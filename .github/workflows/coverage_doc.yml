@@ -13,11 +13,14 @@ on:
 jobs:
   # This job builds & runs iceoryx tests in ubuntu-18.04
   iceoryx-coverage-doxygen-ubuntu:
-    # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: compiler versions
+        run: |
+          echo $(gcc --version)
+          echo $(clang --version)
+
       - name: Install iceoryx dependencies
         # Softwares installed in ubuntu-18.04 instance
         # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
@@ -61,4 +64,3 @@ jobs:
           path: |
             ./build/doc/*.pdf
           retention-days: 30
-

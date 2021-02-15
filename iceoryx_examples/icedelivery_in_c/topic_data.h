@@ -11,25 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_BINDING_C_SLEEP_FOR_H
-#define IOX_BINDING_C_SLEEP_FOR_H
+#ifndef IOX_EXAMPLES_ICEDELIVERY_IN_C_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_ICEDELIVERY_IN_C_TOPIC_DATA_HPP
 
-#ifdef _WIN32
-#include <windows.h>
+#include <stdint.h>
 
-void sleep_for(uint64_t milliseconds)
+struct RadarObject
 {
-    Sleep(milliseconds);
-}
+    double x;
+    double y;
+    double z;
+};
 
-#else
-#include <unistd.h>
-
-void sleep_for(uint32_t milliseconds)
-{
-    usleep(milliseconds * 1000U);
-}
-#endif
-
-#endif
+#endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP

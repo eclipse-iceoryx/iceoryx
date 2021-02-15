@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 
@@ -62,7 +64,9 @@ class PortIntrospection
 
         struct PublisherInfo
         {
-            PublisherInfo() noexcept {};
+            PublisherInfo() noexcept
+            {
+            }
 
             PublisherInfo(typename PublisherPort::MemberType_t& portData)
                 : portData(&portData)
@@ -304,7 +308,7 @@ class PortIntrospection
   private:
     PortData m_portData;
 
-    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
+    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
         concurrent::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
 };

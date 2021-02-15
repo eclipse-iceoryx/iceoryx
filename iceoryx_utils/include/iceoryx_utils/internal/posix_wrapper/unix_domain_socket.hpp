@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 #define IOX_UTILS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 
@@ -46,7 +48,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
 
-    using UdsName_t = cxx::string<LONGEST_VALID_NAME>; 
+    using UdsName_t = cxx::string<LONGEST_VALID_NAME>;
 
     /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
@@ -72,8 +74,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @param NoPathPrefix signalling that this method does not add a path prefix
     /// @param name of the unix domain socket to unlink
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t,
-                                                               const UdsName_t& name) noexcept;
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t, const UdsName_t& name) noexcept;
 
     /// @brief close the unix domain socket.
     cxx::expected<IpcChannelError> destroy() noexcept;

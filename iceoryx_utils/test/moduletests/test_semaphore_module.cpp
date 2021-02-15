@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "timing_test.hpp"
 #if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
@@ -74,7 +76,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         }
     }
 
-    static constexpr unsigned long long TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds<long>()};
+    static constexpr unsigned long long TIMING_TEST_TIMEOUT{(100_ms).toNanoseconds()};
 
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
@@ -321,7 +323,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
     std::atomic_bool timedWaitFinish{false};
 
     std::thread t([&] {
-        auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
+        auto ts = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
         syncSemaphore->post();
         sut->wait();
         auto call = sut->timedWait(&ts, false);
@@ -347,7 +349,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
     std::atomic_bool timedWaitFinish{false};
 
     std::thread t([&] {
-        auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
+        auto ts = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
         syncSemaphore->post();
         sut->wait();
         auto call = sut->timedWait(&ts, false);

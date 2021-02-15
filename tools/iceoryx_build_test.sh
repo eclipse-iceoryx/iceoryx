@@ -13,6 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
 
 # This script builds iceoryx_utils und iceoryx_posh and executes all tests
 
@@ -271,7 +273,7 @@ fi
 if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     rm -rf $WORKSPACE/build_out_of_tree
     if [ "$BINDING_C_FLAG" == "ON" ]; then
-        EXAMPLES="${EXAMPLES} icedelivery_on_c waitset_on_c iceperf"
+        EXAMPLES="${EXAMPLES} icedelivery_in_c waitset_in_c iceperf"
     fi
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo ${EXAMPLES}
