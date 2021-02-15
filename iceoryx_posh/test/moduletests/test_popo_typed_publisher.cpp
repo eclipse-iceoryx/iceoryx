@@ -60,7 +60,7 @@ class TypedPublisherTest : public Test
 };
 
 
-TEST_F(TypedPublisherTest, LoansChunksLargeEnoughForTheType)
+TEST_F(TypedPublisherTest, LoansChunkLargeEnoughForTheType)
 {
     EXPECT_CALL(portMock, tryAllocateChunk(sizeof(DummyData)))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
@@ -241,7 +241,7 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishCopiesOfProvidedValues)
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedPublisherTest, LoanForwardsAllocationErrorsToCaller)
+TEST_F(TypedPublisherTest, LoanFailsAndForwardsAllocationErrorsToCaller)
 {
     EXPECT_CALL(portMock, tryAllocateChunk(sizeof(DummyData)))
         .WillOnce(Return(

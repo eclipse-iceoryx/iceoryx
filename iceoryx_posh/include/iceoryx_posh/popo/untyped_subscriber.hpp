@@ -60,9 +60,6 @@ class UntypedSubscriberImpl : public base_subscriber_t
     ///
     void releaseChunk(const void* payload) noexcept;
 
-    template <uint64_t Capacity>
-    friend class WaitSet;
-
   protected:
     using BaseSubscriber::port;
 };

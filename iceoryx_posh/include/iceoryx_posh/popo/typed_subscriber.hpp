@@ -49,9 +49,6 @@ class TypedSubscriber : public base_subscriber_t
     using PortType = typename base_subscriber_t::PortType;
     using SubscriberSampleDeleter = SampleDeleter<PortType>;
 
-    template <uint64_t Capacity>
-    friend class WaitSet;
-
   protected:
     using base_subscriber_t::port;
 

@@ -74,15 +74,15 @@ class BaseSubscriber
     void unsubscribe() noexcept;
 
     ///
-    /// @brief Check if samples are available.
-    /// @return True if new samples are available.
+    /// @brief Check if data is available.
+    /// @return True if data is available.
     ///
     bool hasData() const noexcept;
 
     ///
-    /// @brief Check if samples have been missed since the last call of this method.
-    /// @return True if samples have been missed.
-    /// @details Samples may be missed due to overflowing receive queue.
+    /// @brief Check if data has been missed since the last call of this method.
+    /// @return True if data has been missed.
+    /// @details Data may be missed due to overflowing receive queue.
     ///
     bool hasMissedData() noexcept;
 

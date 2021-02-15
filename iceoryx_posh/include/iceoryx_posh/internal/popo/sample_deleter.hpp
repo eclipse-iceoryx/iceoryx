@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
 #ifndef IOX_POSH_POPO_SAMPLE_DELETER_HPP
 #define IOX_POSH_POPO_SAMPLE_DELETER_HPP
 
@@ -29,7 +27,6 @@ namespace popo
 /// Each port should create its own instance of this deleter struct.
 ///
 
-/// @todo can we couple this to the lifetime of portdata instead of port?
 template <typename Port>
 struct SampleDeleter
 {
@@ -37,7 +34,6 @@ struct SampleDeleter
     SampleDeleter(Port& port)
         : m_port(&port)
     {
-        // m_portData = port.getMembers();
     }
 
     template <typename T>
@@ -45,12 +41,10 @@ struct SampleDeleter
     {
         auto header = iox::mepoo::ChunkHeader::fromPayload(ptr);
         m_port->releaseChunk(header);
-        // Port(m_portData).releaseChunk(header); //would be preferable
     }
 
   private:
     Port* m_port;
-    // PortData* m_portData; // we only rely on the port object stored in shared memory(!)
 };
 
 } // namespace popo
