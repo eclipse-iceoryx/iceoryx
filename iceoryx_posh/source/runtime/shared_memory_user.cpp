@@ -63,11 +63,8 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
     for (const auto& segment : segmentMapping)
     {
         auto accessMode = segment.m_isWritable ? posix::AccessMode::readWrite : posix::AccessMode::readOnly;
-        posix::SharedMemoryObject::create(segment.m_sharedMemoryName.c_str(),
-                                          segment.m_size,
-                                          accessMode,
-                                          posix::OwnerShip::openExisting,
-                                          BASE_ADDRESS_HINT)
+        posix::SharedMemoryObject::create(
+            segment.m_sharedMemoryName, segment.m_size, accessMode, posix::OwnerShip::openExisting, BASE_ADDRESS_HINT)
             .and_then([this, &segment](auto& sharedMemoryObject) {
                 if (static_cast<uint32_t>(m_payloadShmObjects.size()) >= MAX_SHM_SEGMENTS)
                 {

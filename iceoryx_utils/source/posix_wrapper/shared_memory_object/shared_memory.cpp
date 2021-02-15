@@ -31,7 +31,7 @@ namespace iox
 {
 namespace posix
 {
-SharedMemory::SharedMemory(const char* name,
+SharedMemory::SharedMemory(const Name_t& name,
                            const AccessMode accessMode,
                            const OwnerShip ownerShip,
                            const mode_t permissions,
@@ -40,13 +40,13 @@ SharedMemory::SharedMemory(const char* name,
 {
     m_isInitialized = true;
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    if (name == nullptr || strlen(name) == 0U)
+    if (name.empty())
     {
         std::cerr << "No shared memory name specified!" << std::endl;
         m_isInitialized = false;
         m_errorValue = SharedMemoryError::EMPTY_NAME;
     }
-    else if (name[0] != '/')
+    else if (name.c_str()[0] != '/')
     {
         std::cerr << "Shared memory name must start with a leading slash!" << std::endl;
         m_isInitialized = false;
@@ -55,14 +55,7 @@ SharedMemory::SharedMemory(const char* name,
 
     if (m_isInitialized)
     {
-        strncpy(m_name, name, NAME_SIZE);
-        m_name[NAME_SIZE - 1U] = '\0';
-        if (strlen(name) >= NAME_SIZE)
-        {
-            std::clog << "Shared memory name is too long! '" << name << "' will be truncated to " << m_name << "!"
-                      << std::endl;
-        }
-
+        m_name = name;
         /// @note GCC drops here a warning that the destination char buffer length is equal to the max length to copy.
         /// This can potentially lead to a char array without null-terminator. We add the null-terminator afterwards.
         int oflags = 0;
@@ -101,7 +94,7 @@ void SharedMemory::destroy() noexcept
 void SharedMemory::reset() noexcept
 {
     m_isInitialized = false;
-    m_name[0] = '\0';
+    m_name = Name_t();
     m_handle = -1;
 }
 
@@ -117,7 +110,7 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
         destroy();
 
         m_isInitialized = std::move(rhs.m_isInitialized);
-        strncpy(m_name, rhs.m_name, NAME_SIZE);
+        m_name = rhs.m_name;
         m_ownerShip = std::move(rhs.m_ownerShip);
         m_handle = std::move(rhs.m_handle);
 
@@ -142,15 +135,15 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
     if (oflags & O_CREAT)
     {
         auto shmUnlinkCall =
-            cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ENOENT}, m_name);
+            cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ENOENT}, m_name.c_str());
         if (!shmUnlinkCall.hasErrors() && shmUnlinkCall.getErrNum() != ENOENT)
         {
             std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
         }
     }
 
-    auto shmOpenCall =
-        cxx::makeSmartC(shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name, oflags, permissions);
+    auto shmOpenCall = cxx::makeSmartC(
+        shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str(), oflags, permissions);
     if (shmOpenCall.hasErrors())
     {
         m_errorValue = errnoToEnum(shmOpenCall.getErrNum());
@@ -179,7 +172,8 @@ bool SharedMemory::unlink() noexcept
 {
     if (m_isInitialized && m_ownerShip == OwnerShip::mine)
     {
-        auto unlinkCall = cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name);
+        auto unlinkCall =
+            cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str());
         if (unlinkCall.hasErrors())
         {
             std::cerr << "Unable to unlink SharedMemory (shm_unlink failed) : " << unlinkCall.getErrorString()

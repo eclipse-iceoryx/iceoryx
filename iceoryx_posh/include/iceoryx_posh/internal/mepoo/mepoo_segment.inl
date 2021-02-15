@@ -68,10 +68,10 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
     constexpr void* BASE_ADDRESS_HINT{nullptr};
 
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    auto shmName = "/" + f_writerGroup.getName();
+    posix::SharedMemory::Name_t shmName = "/" + f_writerGroup.getName();
 
     return std::move(
-        SharedMemoryObjectType::create(shmName.c_str(),
+        SharedMemoryObjectType::create(shmName,
                                        MemoryManager::requiredChunkMemorySize(f_mempoolConfig),
                                        posix::AccessMode::readWrite,
                                        posix::OwnerShip::mine,

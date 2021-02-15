@@ -37,7 +37,7 @@ class PosixShmMemoryProvider_Test : public Test
     {
         /// @note just is case a test left something behind, cleanup the shm by creating a new one with "mine" ownership
         iox::posix::SharedMemoryObject::create(
-            TEST_SHM_NAME.c_str(), 1024, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
+            TEST_SHM_NAME, 1024, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
     }
 
     void TearDown() override
@@ -46,11 +46,8 @@ class PosixShmMemoryProvider_Test : public Test
 
     bool shmExists()
     {
-        return !iox::posix::SharedMemoryObject::create(TEST_SHM_NAME.c_str(),
-                                                       8,
-                                                       iox::posix::AccessMode::readOnly,
-                                                       iox::posix::OwnerShip::openExisting,
-                                                       nullptr)
+        return !iox::posix::SharedMemoryObject::create(
+                    TEST_SHM_NAME, 8, iox::posix::AccessMode::readOnly, iox::posix::OwnerShip::openExisting, nullptr)
                     .has_error();
     }
 

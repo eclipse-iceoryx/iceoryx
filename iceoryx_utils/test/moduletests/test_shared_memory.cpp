@@ -52,14 +52,6 @@ TEST_F(SharedMemory_Test, CTorWithValidArguments)
 
 TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
-    EXPECT_THAT(iox::posix::SharedMemory::create(nullptr,
-                                                 iox::posix::AccessMode::readWrite,
-                                                 iox::posix::OwnerShip::mine,
-                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                 128)
-                    .has_error(),
-                Eq(true));
-
     EXPECT_THAT(iox::posix::SharedMemory::create("",
                                                  iox::posix::AccessMode::readWrite,
                                                  iox::posix::OwnerShip::mine,

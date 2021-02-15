@@ -94,7 +94,7 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
     }
 
     // create and map a shared memory region
-    posix::SharedMemoryObject::create(m_shmName.c_str(), size, m_accessMode, m_ownership, nullptr)
+    posix::SharedMemoryObject::create(m_shmName, size, m_accessMode, m_ownership, nullptr)
         .and_then([this](auto& sharedMemoryObject) {
             sharedMemoryObject.finalizeAllocation();
             m_shmObject.emplace(std::move(sharedMemoryObject));

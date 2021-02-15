@@ -59,7 +59,7 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
     friend class DesignPattern::Creation<SharedMemoryObject, SharedMemoryObjectError>;
 
   private:
-    SharedMemoryObject(const char* name,
+    SharedMemoryObject(const SharedMemory::Name_t& name,
                        const uint64_t memorySizeInBytes,
                        const AccessMode accessMode,
                        const OwnerShip ownerShip,

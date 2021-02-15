@@ -30,7 +30,7 @@ namespace iox
 {
 namespace posix
 {
-SharedMemoryObject::SharedMemoryObject(const char* name,
+SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const uint64_t memorySizeInBytes,
                                        const AccessMode accessMode,
                                        const OwnerShip ownerShip,

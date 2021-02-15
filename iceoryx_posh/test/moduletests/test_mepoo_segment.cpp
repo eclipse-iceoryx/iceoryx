@@ -38,13 +38,13 @@ class MePooSegment_test : public Test
   public:
     struct SharedMemoryObject_MOCK : public DesignPattern::Creation<SharedMemoryObject_MOCK, int>
     {
-        using createFct = std::function<void(const char*,
+        using createFct = std::function<void(const SharedMemory::Name_t,
                                              const uint64_t,
                                              const iox::posix::AccessMode,
                                              const iox::posix::OwnerShip,
                                              const void*,
                                              const mode_t)>;
-        SharedMemoryObject_MOCK(const char* name,
+        SharedMemoryObject_MOCK(const SharedMemory::Name_t& name,
                                 const uint64_t memorySizeInBytes,
                                 const AccessMode accessMode,
                                 const OwnerShip ownerShip,
@@ -130,7 +130,7 @@ TEST_F(MePooSegment_test, DISABLED_sharedMemoryFileHandleRightsAfterConstructor)
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationParameter))
 {
-    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const char* f_name,
+    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const SharedMemory::Name_t f_name,
                                                                        const uint64_t,
                                                                        const iox::posix::AccessMode f_accessMode,
                                                                        const iox::posix::OwnerShip f_ownerShip,
@@ -149,7 +149,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
 {
     uint64_t memorySizeInBytes{0};
-    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const char*,
+    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const SharedMemory::Name_t,
                                                                         const uint64_t f_memorySizeInBytes,
                                                                         const iox::posix::AccessMode,
                                                                         const iox::posix::OwnerShip,

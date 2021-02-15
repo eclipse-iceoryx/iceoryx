@@ -18,6 +18,7 @@
 #define IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
 
@@ -64,6 +65,9 @@ enum class SharedMemoryError
 class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryError>
 {
   public:
+    static constexpr uint64_t NAME_SIZE = 128U;
+    using Name_t = cxx::string<NAME_SIZE>;
+
     SharedMemory(const SharedMemory&) = delete;
     SharedMemory& operator=(const SharedMemory&) = delete;
     SharedMemory(SharedMemory&&) noexcept;
@@ -75,7 +79,7 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
     friend class DesignPattern::Creation<SharedMemory, SharedMemoryError>;
 
   private:
-    SharedMemory(const char* name,
+    SharedMemory(const Name_t& name,
                  const AccessMode accessMode,
                  const OwnerShip ownerShip,
                  const mode_t permissions,
@@ -89,9 +93,8 @@ class SharedMemory : public DesignPattern::Creation<SharedMemory, SharedMemoryEr
 
     SharedMemoryError errnoToEnum(const int32_t errnum) const noexcept;
 
-    static constexpr uint64_t NAME_SIZE = 128U;
 
-    char m_name[NAME_SIZE];
+    Name_t m_name;
     OwnerShip m_ownerShip;
     int m_handle{-1};
 };
