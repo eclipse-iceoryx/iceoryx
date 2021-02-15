@@ -410,7 +410,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareEventVariableIsSuccessful)
     EXPECT_THAT(eventVariable, Ne(nullptr));
 }
 
-TEST_F(PoshRuntime_test, GetMaxNumberOfMiddlewareEventVariables)
+TEST_F(PoshRuntime_test, GetMaxNumberOfMiddlewareEventVariablesIsSuccessful)
 {
     for (uint32_t i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; ++i)
     {

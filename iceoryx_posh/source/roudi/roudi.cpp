@@ -242,7 +242,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         if (message.getNumberOfElements() != 2)
         {
-            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_EVENT_VARIABLE\" from \""
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_EVENT_VARIABLE\" from \""
                        << processName << "\"received!";
             errorHandler(
                 Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::MODERATE);
