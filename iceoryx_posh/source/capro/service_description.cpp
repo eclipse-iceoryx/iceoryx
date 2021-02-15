@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,15 +13,18 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 #include "iceoryx_posh/capro/service_description.hpp"
-
 #include <iomanip>
 
 namespace iox
 {
 namespace capro
 {
+ServiceDescription::ClassHash::ClassHash() noexcept
+    : ClassHash{0U, 0U, 0U, 0U}
+{
+}
+
 ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& values) noexcept
 {
     uint64_t index = 0u;
@@ -35,12 +38,15 @@ ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& 
     }
 }
 
-uint32_t& ServiceDescription::ClassHash::operator[](const uint64_t index) noexcept
+uint32_t& ServiceDescription::ClassHash::operator[](
+    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
 {
     return data[index];
 }
 
-const uint32_t& ServiceDescription::ClassHash::operator[](const uint64_t index) const noexcept
+const uint32_t&
+    ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const
+    noexcept
 {
     return data[index];
 }
