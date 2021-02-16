@@ -153,55 +153,111 @@ inline bool expected<ValueType, ErrorType>::has_error() const noexcept
 template <typename ValueType, typename ErrorType>
 inline const ErrorType&& expected<ValueType, ErrorType>::get_error() const&& noexcept
 {
-    return std::move(*m_store.template get_at_index<1>());
+    if (!has_undefined_state())
+    {
+        return std::move(*m_store.template get_at_index<1>());
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ValueType, typename ErrorType>
     inline ErrorType&& expected<ValueType, ErrorType>::get_error() && noexcept
 {
-    return std::move(*m_store.template get_at_index<1>());
+    if (!has_undefined_state())
+    {
+        return std::move(*m_store.template get_at_index<1>());
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ValueType, typename ErrorType>
     inline ErrorType& expected<ValueType, ErrorType>::get_error() & noexcept
 {
-    return *m_store.template get_at_index<1>();
+    if (!has_undefined_state())
+    {
+        return *m_store.template get_at_index<1>();
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ValueType, typename ErrorType>
 inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexcept
 {
-    return *m_store.template get_at_index<1>();
+    if (!has_undefined_state())
+    {
+        return *m_store.template get_at_index<1>();
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ValueType, typename ErrorType>
     inline ValueType&& expected<ValueType, ErrorType>::value() && noexcept
 {
-    return std::move(*m_store.template get_at_index<0>());
+    if (!has_undefined_state())
+    {
+        return std::move(*m_store.template get_at_index<0>());
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ValueType, typename ErrorType>
 inline const ValueType& expected<ValueType, ErrorType>::value() const& noexcept
 {
-    return *m_store.template get_at_index<0>();
-}
+    if (!has_undefined_state())
+    {
+        return *m_store.template get_at_index<0>();
+    }
+    else
+    {
+        std::terminate();
+    }
+} // namespace cxx
 
 template <typename ValueType, typename ErrorType>
 inline const ValueType&& expected<ValueType, ErrorType>::value() const&& noexcept
 {
-    return std::move(*m_store.template get_at_index<0>());
-}
+    if (!has_undefined_state())
+    {
+        return std::move(*m_store.template get_at_index<0>());
+    }
+    else
+    {
+        std::terminate();
+    }
+} // namespace iox
 
 template <typename ValueType, typename ErrorType>
     inline ValueType& expected<ValueType, ErrorType>::value() & noexcept
 {
-    return *m_store.template get_at_index<0>();
+    if (!has_undefined_state())
+    {
+        return *m_store.template get_at_index<0>();
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ValueType, typename ErrorType>
 inline ValueType expected<ValueType, ErrorType>::value_or(const ValueType& value) noexcept
 {
-    if (this->has_error())
+    if (has_error() || has_undefined_state())
     {
         return value;
     }
@@ -218,7 +274,14 @@ inline ValueType expected<ValueType, ErrorType>::value_or(const ValueType& value
 template <typename ValueType, typename ErrorType>
 inline ValueType* expected<ValueType, ErrorType>::operator->() noexcept
 {
-    return m_store.template get_at_index<0>();
+    if (!has_undefined_state())
+    {
+        return m_store.template get_at_index<0>();
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ValueType, typename ErrorType>
@@ -230,7 +293,14 @@ inline const ValueType* expected<ValueType, ErrorType>::operator->() const noexc
 template <typename ValueType, typename ErrorType>
 inline ValueType& expected<ValueType, ErrorType>::operator*() noexcept
 {
-    return *m_store.template get_at_index<0>();
+    if (!has_undefined_state())
+    {
+        return *m_store.template get_at_index<0>();
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ValueType, typename ErrorType>
@@ -243,7 +313,7 @@ template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
 {
-    if (this->has_error())
+    if (!has_undefined_state() && has_error())
     {
         callable(get_error());
     }
@@ -269,7 +339,7 @@ template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&)>& callable) noexcept
 {
-    if (!this->has_error())
+    if (!has_undefined_state() && !has_error())
     {
         callable(value());
     }
@@ -291,7 +361,7 @@ template <typename Optional, typename std::enable_if<is_optional<Optional>::valu
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept
 {
-    if (!this->has_error())
+    if (!has_undefined_state() && !has_error())
     {
         auto& optional = value();
         if (optional.has_value())
@@ -349,7 +419,7 @@ template <typename ValueType, typename ErrorType>
 inline optional<ValueType> expected<ValueType, ErrorType>::to_optional() const noexcept
 {
     optional<ValueType> returnValue;
-    if (!this->has_error())
+    if (!has_undefined_state() && !has_error())
     {
         returnValue.emplace(this->value());
     }
@@ -501,31 +571,59 @@ inline bool expected<ErrorType>::has_error() const noexcept
 template <typename ErrorType>
     inline ErrorType&& expected<ErrorType>::get_error() && noexcept
 {
-    return std::move(*m_store.template get_at_index<0>());
+    if (!has_undefined_state())
+    {
+        return std::move(*m_store.template get_at_index<0>());
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ErrorType>
 inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
 {
-    return *m_store.template get_at_index<0>();
+    if (!has_undefined_state())
+    {
+        return *m_store.template get_at_index<0>();
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ErrorType>
 inline const ErrorType&& expected<ErrorType>::get_error() const&& noexcept
 {
-    return std::move(*m_store.template get_at_index<0>());
+    if (!has_undefined_state())
+    {
+        return std::move(*m_store.template get_at_index<0>());
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ErrorType>
     inline ErrorType& expected<ErrorType>::get_error() & noexcept
 {
-    return *m_store.template get_at_index<0>();
+    if (!has_undefined_state())
+    {
+        return *m_store.template get_at_index<0>();
+    }
+    else
+    {
+        std::terminate();
+    }
 }
 
 template <typename ErrorType>
 inline expected<ErrorType>& expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
 {
-    if (this->has_error())
+    if (!has_undefined_state() && has_error())
     {
         callable(get_error());
     }
@@ -543,7 +641,7 @@ expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable
 template <typename ErrorType>
 inline expected<ErrorType>& expected<ErrorType>::and_then(const cxx::function_ref<void()>& callable) noexcept
 {
-    if (!this->has_error())
+    if (!has_undefined_state() && !has_error())
     {
         callable();
     }
