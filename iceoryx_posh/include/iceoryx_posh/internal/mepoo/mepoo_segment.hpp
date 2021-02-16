@@ -46,8 +46,8 @@ class MePooSegment
     uint64_t getSegmentId() const;
 
   protected:
-    SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& f_mempoolConfig,
-                                                    const posix::PosixGroup& f_writerGroup);
+    SharedMemoryObjectType&& createSharedMemoryObject(const MePooConfig& f_mempoolConfig,
+                                                      const posix::PosixGroup& f_writerGroup);
 
   protected:
     SharedMemoryObjectType m_sharedMemoryObject;

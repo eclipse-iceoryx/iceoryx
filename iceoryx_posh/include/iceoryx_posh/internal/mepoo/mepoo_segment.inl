@@ -61,7 +61,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
-inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
+inline SharedMemoryObjectType&& MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
     const MePooConfig& f_mempoolConfig, const posix::PosixGroup& f_writerGroup)
 {
     // we let the OS decide where to map the shm segments

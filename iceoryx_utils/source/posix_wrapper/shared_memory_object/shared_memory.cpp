@@ -109,7 +109,8 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
     {
         destroy();
 
-        m_isInitialized = std::move(rhs.m_isInitialized);
+        CreationPattern_t::operator=(std::move(rhs));
+
         m_name = rhs.m_name;
         m_ownerShip = std::move(rhs.m_ownerShip);
         m_handle = std::move(rhs.m_handle);
@@ -186,11 +187,12 @@ bool SharedMemory::unlink() noexcept
 
 bool SharedMemory::close() noexcept
 {
-    if (m_isInitialized && m_handle != -1)
+    if (m_isInitialized)
     {
         auto closeCall =
             cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
         m_handle = -1;
+        m_isInitialized = false;
         if (closeCall.hasErrors())
         {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << closeCall.getErrorString()

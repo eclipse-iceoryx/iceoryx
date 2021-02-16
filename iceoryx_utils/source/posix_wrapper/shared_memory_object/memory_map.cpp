@@ -88,7 +88,7 @@ MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) const noexcept
             << "  4. PROT_WRITE is set but the file descriptor is set to append-only." << std::endl;
         return MemoryMapError::ACCESS_FAILED;
     case EAGAIN:
-        std::cerr << "Either to much memory has been locked or the file is already locked." << std::endl;
+        std::cerr << "Either too much memory has been locked or the file is already locked." << std::endl;
         return MemoryMapError::UNABLE_TO_LOCK;
     case EBADF:
         std::cerr << "Invalid file descriptor provided." << std::endl;
@@ -115,7 +115,8 @@ MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) const noexcept
                   << "  2. The maximum supported number of mappings is exceeded.\n"
                   << "  3. Partial unmapping of an already mapped memory region dividing it into two parts.\n"
                   << "  4. The processes maximum size of data segments is exceeded.\n"
-                  << "  5. The sum of the number of pages and offset are overflowing. (only 32-bit architecture)"
+                  << "  5. The sum of the number of pages used for length and the pages used for offset would overflow "
+                     "and unsigned long. (only 32-bit architecture)"
                   << std::endl;
         return MemoryMapError::NOT_ENOUGH_MEMORY_AVAILABLE;
     case EOVERFLOW:
@@ -150,11 +151,11 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
             std::cerr << "move assignment failed to unmap mapped memory" << std::endl;
         }
 
-        m_isInitialized = std::move(rhs.m_isInitialized);
+        CreationPattern_t::operator=(std::move(rhs));
+
         m_baseAddress = std::move(rhs.m_baseAddress);
         m_length = std::move(rhs.m_length);
 
-        rhs.m_isInitialized = false;
         rhs.m_baseAddress = nullptr;
         rhs.m_length = 0U;
     }

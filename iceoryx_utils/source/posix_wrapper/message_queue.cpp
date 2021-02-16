@@ -114,13 +114,13 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
             std::cerr << "unable to cleanup message queue \"" << m_name
                       << "\" during move operation - resource leaks are possible!" << std::endl;
         }
+        CreationPattern_t::operator=(std::move(other));
 
         m_name = std::move(other.m_name);
         m_attributes = std::move(other.m_attributes);
         m_mqDescriptor = std::move(other.m_mqDescriptor);
         m_channelSide = std::move(other.m_channelSide);
         other.m_mqDescriptor = INVALID_DESCRIPTOR;
-        moveCreationPatternValues(std::move(other));
     }
 
     return *this;

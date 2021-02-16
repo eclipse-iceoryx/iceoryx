@@ -24,6 +24,7 @@ template <typename DerivedClass, typename ErrorType>
 class Creation
 {
   public:
+    using CreationPattern_t = Creation<DerivedClass, ErrorType>;
     using result_t = iox::cxx::expected<DerivedClass, ErrorType>;
     using errorType_t = ErrorType;
 
@@ -59,19 +60,33 @@ class Creation
         return iox::cxx::success<>();
     }
 
+    Creation() noexcept = default;
+
+    Creation(Creation&& rhs) noexcept
+    {
+        *this = std::move(rhs);
+    }
+
+    Creation& operator=(Creation&& rhs) noexcept
+    {
+        if (this != &rhs)
+        {
+            m_isInitialized = rhs.m_isInitialized;
+            m_errorValue = rhs.m_errorValue;
+            rhs.m_isInitialized = false;
+        }
+        return *this;
+    }
+
+    Creation(const Creation& rhs) noexcept = default;
+    Creation& operator=(const Creation& rhs) noexcept = default;
+
     bool isInitialized() const noexcept
     {
         return m_isInitialized;
     }
 
   protected:
-    void moveCreationPatternValues(Creation&& other)
-    {
-        m_isInitialized = other.m_isInitialized;
-        m_errorValue = other.m_errorValue;
-        other.m_isInitialized = false;
-    }
-
     bool m_isInitialized{false};
     ErrorType m_errorValue;
 };

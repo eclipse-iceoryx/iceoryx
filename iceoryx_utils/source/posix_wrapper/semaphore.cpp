@@ -36,8 +36,10 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
     if (this != &rhs)
     {
         closeHandle();
+
+        CreationPattern_t::operator=(std::move(rhs));
+
         m_name = std::move(rhs.m_name);
-        m_isInitialized = std::move(rhs.m_isInitialized);
         m_isCreated = std::move(rhs.m_isCreated);
         m_isNamedSemaphore = std::move(rhs.m_isNamedSemaphore);
         m_handle = std::move(rhs.m_handle);
@@ -51,7 +53,6 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
             m_handlePtr = &m_handle;
         }
 
-        rhs.m_isInitialized = false;
         rhs.m_handlePtr = &rhs.m_handle;
     }
 
@@ -341,7 +342,8 @@ SemaphoreError Semaphore::errnoToEnum(const int errnoValue) const noexcept
         std::cerr << "call was interrupted by signal handler" << std::endl;
         return SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER;
     default:
-        std::cerr << "an unexpected error occurred in semaphore - this should never happen! errno: " << strerror(errnoValue) << std::endl;
+        std::cerr << "an unexpected error occurred in semaphore - this should never happen! errno: "
+                  << strerror(errnoValue) << std::endl;
         return SemaphoreError::UNDEFINED;
     }
 }
