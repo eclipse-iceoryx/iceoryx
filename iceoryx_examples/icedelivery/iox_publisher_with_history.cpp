@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/typed_publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
@@ -40,7 +40,7 @@ int main()
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
 
-    iox::popo::TypedPublisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
     publisher.offer();
 
     double ct = 0.0;

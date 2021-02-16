@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -622,8 +623,8 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
     subscriberOptions.historyRequest = 1U;
 
     // mempool
-    iox::popo::TypedSubscriber<MemPoolIntrospectionInfoContainer> memPoolSubscriber(IntrospectionMempoolService,
-                                                                                    subscriberOptions);
+    iox::popo::Subscriber<MemPoolIntrospectionInfoContainer> memPoolSubscriber(IntrospectionMempoolService,
+                                                                               subscriberOptions);
     if (introspectionSelection.mempool == true)
     {
         memPoolSubscriber.subscribe();
@@ -636,8 +637,8 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
     }
 
     // process
-    iox::popo::TypedSubscriber<ProcessIntrospectionFieldTopic> processSubscriber(IntrospectionProcessService,
-                                                                                 subscriberOptions);
+    iox::popo::Subscriber<ProcessIntrospectionFieldTopic> processSubscriber(IntrospectionProcessService,
+                                                                            subscriberOptions);
     if (introspectionSelection.process == true)
     {
         processSubscriber.subscribe();
@@ -650,10 +651,10 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
     }
 
     // port
-    iox::popo::TypedSubscriber<PortIntrospectionFieldTopic> portSubscriber(IntrospectionPortService, subscriberOptions);
-    iox::popo::TypedSubscriber<PortThroughputIntrospectionFieldTopic> portThroughputSubscriber(
+    iox::popo::Subscriber<PortIntrospectionFieldTopic> portSubscriber(IntrospectionPortService, subscriberOptions);
+    iox::popo::Subscriber<PortThroughputIntrospectionFieldTopic> portThroughputSubscriber(
         IntrospectionPortThroughputService, subscriberOptions);
-    iox::popo::TypedSubscriber<SubscriberPortChangingIntrospectionFieldTopic> subscriberPortChangingDataSubscriber(
+    iox::popo::Subscriber<SubscriberPortChangingIntrospectionFieldTopic> subscriberPortChangingDataSubscriber(
         IntrospectionSubscriberPortChangingDataService, subscriberOptions);
 
     if (introspectionSelection.port == true)

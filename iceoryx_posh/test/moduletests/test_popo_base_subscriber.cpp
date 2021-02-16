@@ -31,10 +31,15 @@
 using namespace ::testing;
 using ::testing::_;
 
+// anonymous namespace to prevent linker issues or sanitizer false positives
+// if a struct with the same name is used in other tests
+namespace
+{
 struct DummyData
 {
     uint64_t val = 42;
 };
+}
 
 template <typename port_t>
 class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<port_t>

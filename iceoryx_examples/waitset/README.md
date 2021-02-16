@@ -285,8 +285,8 @@ waitset.attachEvent(shutdownTrigger);
 Additionally, we create two subscribers, subscribe them to our topic and attach
 them to the waitset to let them inform us whenever they receive a new sample.
 ```cpp
-iox::popo::TypedSubscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
-iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
+iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
+iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
 
 subscriber1.subscribe();
 subscriber2.subscribe();
