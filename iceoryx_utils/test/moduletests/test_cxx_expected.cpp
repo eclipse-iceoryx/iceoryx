@@ -104,13 +104,40 @@ TEST_F(expected_test, CreateWithComplexErrorResultsInError)
     EXPECT_THAT(sut.get_error().m_b, Eq(212));
 }
 
-TEST_F(expected_test, MoveAssignmentLeadsToInvalidation)
+TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToInvalidation)
+{
+    auto sut = expected<int, Test>::create_value(66);
+    auto movedValue{std::move(sut)};
+    EXPECT_TRUE(sut.has_undefined_state());
+    ASSERT_FALSE(movedValue.has_undefined_state());
+    EXPECT_THAT(movedValue.value(), Eq(66));
+}
+
+TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToInvalidation)
+{
+    auto sut = expected<int, Test>::create_error(22, 33);
+    auto movedValue{std::move(sut)};
+    EXPECT_TRUE(sut.has_undefined_state());
+    ASSERT_FALSE(movedValue.has_undefined_state());
+    EXPECT_THAT(movedValue.get_error().m_b, Eq(33));
+}
+
+TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToInvalidation)
 {
     auto sut = expected<int, Test>::create_value(73);
     auto movedValue = std::move(sut);
     EXPECT_TRUE(sut.has_undefined_state());
     ASSERT_FALSE(movedValue.has_undefined_state());
     EXPECT_THAT(movedValue.value(), Eq(73));
+}
+
+TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToInvalidation)
+{
+    auto sut = expected<int, Test>::create_error(44, 55);
+    auto movedValue = std::move(sut);
+    EXPECT_TRUE(sut.has_undefined_state());
+    ASSERT_FALSE(movedValue.has_undefined_state());
+    EXPECT_THAT(movedValue.get_error().m_b, Eq(55));
 }
 
 TEST_F(expected_test, BoolOperatorReturnsError)
@@ -218,7 +245,16 @@ TEST_F(expected_test, ErrorTypeOnlyCreateErrorLeadsToError)
     ASSERT_THAT(sut.get_error(), Eq(12.2f));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyCreateErrorAndMoveWorks)
+TEST_F(expected_test, ErrorTypeOnlyMoveCtorLeadsToInvalidation)
+{
+    auto sut = expected<float>::create_error(43.0f);
+    auto movedValue{std::move(sut)};
+    EXPECT_TRUE(sut.has_undefined_state());
+    ASSERT_FALSE(movedValue.has_undefined_state());
+    EXPECT_THAT(movedValue.get_error(), Eq(43.0f));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyMoveAssignmentLeadsToInvalidation)
 {
     auto sut = expected<float>::create_error(42.0f);
     auto movedValue = std::move(sut);
@@ -262,7 +298,7 @@ TEST_F(expected_test, CreateFromErrorLeadsToCorrectError)
     EXPECT_THAT(sut.get_error(), Eq(112.1f));
 }
 
-TEST_F(expected_test, OrElseWhenHavingAnErrorWithResult)
+TEST_F(expected_test, WhenHavingAnErrorCallsOrElse)
 {
     expected<int, float> sut{error<float>(112.1f)};
     float a = 0.2f;
@@ -271,7 +307,7 @@ TEST_F(expected_test, OrElseWhenHavingAnErrorWithResult)
     EXPECT_THAT(a, Eq(112.1f));
 }
 
-TEST_F(expected_test, ConstOrElseWhenHavingAnErrorWithResult)
+TEST_F(expected_test, ConstWhenHavingAnErrorCallsOrElse)
 {
     const expected<int, float> sut{error<float>(12.1f)};
     float a = 7.1f;
@@ -280,7 +316,7 @@ TEST_F(expected_test, ConstOrElseWhenHavingAnErrorWithResult)
     EXPECT_THAT(a, Eq(12.1f));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyOrElseWhenHavingAnErrorWithResultErrorType)
+TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorCallsOrElse)
 {
     expected<float> sut{error<float>(7112.1f)};
     float a = 70.2f;
@@ -289,7 +325,7 @@ TEST_F(expected_test, ErrorTypeOnlyOrElseWhenHavingAnErrorWithResultErrorType)
     EXPECT_THAT(a, Eq(7112.1f));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyConstOrElseWhenHavingAnErrorWithResultErrorType)
+TEST_F(expected_test, ErrorTypeOnlyConstWhenHavingAnErrorCallsOrElse)
 {
     const expected<float> sut{error<float>(612.1f)};
     float a = 67.1f;
@@ -298,7 +334,7 @@ TEST_F(expected_test, ErrorTypeOnlyConstOrElseWhenHavingAnErrorWithResultErrorTy
     EXPECT_THAT(a, Eq(612.1f));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyAndThenWhenHavingSuccessWithResult)
+TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessCallsAndThen)
 {
     expected<float> sut{success<>()};
     int a = 0;
@@ -307,7 +343,7 @@ TEST_F(expected_test, ErrorTypeOnlyAndThenWhenHavingSuccessWithResult)
     EXPECT_THAT(a, Eq(3));
 }
 
-TEST_F(expected_test, ValueTypeAndThenWhenHavingSuccessWithResult)
+TEST_F(expected_test, WhenHavingSuccessCallsAndThen)
 {
     expected<int, float> sut{success<int>(112)};
     int a = 0;
@@ -316,13 +352,49 @@ TEST_F(expected_test, ValueTypeAndThenWhenHavingSuccessWithResult)
     EXPECT_THAT(a, Eq(112));
 }
 
-TEST_F(expected_test, ValueTypeConstOnSuccessWhenHavingSuccessWithResult)
+TEST_F(expected_test, ConstWhenHavingSuccessCallsAndThen)
 {
     const expected<int, float> sut{success<int>(1142)};
     int a = 0;
     sut.and_then([&](int& r) { a = r; }).or_else([&](float&) { a = 3; });
 
     EXPECT_THAT(a, Eq(1142));
+}
+
+TEST_F(expected_test, WhenHavingSuccessAndMoveAssignmentCallsNothing)
+{
+    expected<int, float> sut{success<int>(1143)};
+    auto movedValue = std::move(sut);
+    int a = 0;
+    sut.and_then([&](auto& value) { a = value; }).or_else([&](auto& error) { a = error; });
+    EXPECT_THAT(a, Eq(0));
+}
+
+TEST_F(expected_test, WhenHavingAnErrorAndMoveAssignmentCallsNothing)
+{
+    expected<int, float> sut{error<float>(33.44f)};
+    auto movedValue = std::move(sut);
+    int a = 0;
+    sut.and_then([&](auto& value) { a = value; }).or_else([&](auto& error) { a = error; });
+    EXPECT_THAT(a, Eq(0));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessAndMoveAssignmentCallsNothing)
+{
+    expected<float> sut{success<>()};
+    auto movedValue = std::move(sut);
+    int a = 0;
+    sut.and_then([&]() { a = 54; }).or_else([&](auto& error) { a = error; });
+    EXPECT_THAT(a, Eq(0));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorAndMoveAssignmentCallsNothing)
+{
+    expected<float> sut{error<float>(22.11f)};
+    auto movedValue = std::move(sut);
+    int a = 0;
+    sut.and_then([&]() { a = 45; }).or_else([&](auto& error) { a = error; });
+    EXPECT_THAT(a, Eq(0));
 }
 
 TEST_F(expected_test, ConvertNonEmptySuccessResultToErrorTypeOnlyResult)
