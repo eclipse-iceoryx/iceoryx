@@ -22,11 +22,16 @@
 using namespace ::testing;
 using ::testing::_;
 
+// anonymous namespace to prevent linker issues or sanitizer false positives
+// if a struct with the same name is used in other tests
+namespace
+{
 struct DummyData
 {
     DummyData() = default;
-    int val = 42;
+    uint32_t val = 42;
 };
+} // namespace
 
 template <typename T>
 class MockPublisherInterface : public iox::popo::PublisherInterface<T>

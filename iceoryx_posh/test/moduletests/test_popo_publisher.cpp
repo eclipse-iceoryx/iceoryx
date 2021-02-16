@@ -24,6 +24,10 @@
 using namespace ::testing;
 using ::testing::_;
 
+// anonymous namespace to prevent linker issues or sanitizer false positives
+// if a struct with the same name is used in other tests
+namespace
+{
 struct DummyData
 {
     DummyData() = default;
@@ -38,6 +42,7 @@ struct DummyData
     };
     uint64_t val{defaultVal()};
 };
+} // namespace
 
 using TestPublisher = iox::popo::Publisher<DummyData, MockBasePublisher<DummyData>>;
 
