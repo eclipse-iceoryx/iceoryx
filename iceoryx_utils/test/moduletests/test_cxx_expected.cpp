@@ -382,30 +382,3 @@ TEST_F(expected_test, AndThenNotCalledWhenEmptyOptionalValue)
 
     sut.and_then([&mocks](int&) { mocks.onSuccess(); });
 }
-
-TEST_F(expected_test, IfEmptyCalledWhenEmptyOptionalValue)
-{
-    auto sut = expected<iox::cxx::optional<int>, float>::create_value(iox::cxx::nullopt);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onEmpty).Times(1);
-
-    sut.if_empty([&mocks]() { mocks.onEmpty(); });
-}
-
-TEST_F(expected_test, IfEmptyNotCalledWhenValueTypeIsNonEmptyOptionalValue)
-{
-    auto sut = expected<iox::cxx::optional<int>, float>::create_value(123);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onEmpty).Times(0);
-
-    sut.if_empty([&mocks]() { mocks.onEmpty(); });
-}
-
-TEST_F(expected_test, IfEmptyNotCalledWhenErrorOccurs)
-{
-    auto sut = expected<iox::cxx::optional<int>, float>::create_error(42.42);
-    MockCallables mocks{};
-    EXPECT_CALL(mocks, onEmpty).Times(0);
-
-    sut.if_empty([&mocks]() { mocks.onEmpty(); });
-}

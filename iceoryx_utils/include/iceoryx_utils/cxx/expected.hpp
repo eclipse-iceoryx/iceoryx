@@ -582,7 +582,7 @@ class expected<ValueType, ErrorType>
     /// @endcode
     ///
     template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
-    const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
+    [[deprecated]] const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
 
     ///
     /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
@@ -598,7 +598,7 @@ class expected<ValueType, ErrorType>
     /// @endcode
     ///
     template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
-    expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
+    [[deprecated]] expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
 
     optional<ValueType> to_optional() const noexcept;
 
