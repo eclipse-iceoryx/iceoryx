@@ -87,8 +87,8 @@ void SharedMemory::destroy() noexcept
     {
         close();
         unlink();
+        reset();
     }
-    reset();
 }
 
 void SharedMemory::reset() noexcept
@@ -192,7 +192,6 @@ bool SharedMemory::close() noexcept
         auto closeCall =
             cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
         m_handle = -1;
-        m_isInitialized = false;
         if (closeCall.hasErrors())
         {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << closeCall.getErrorString()

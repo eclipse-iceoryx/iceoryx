@@ -123,8 +123,6 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
         m_channelSide = std::move(other.m_channelSide);
         m_sockfd = std::move(other.m_sockfd);
         m_sockAddr = std::move(other.m_sockAddr);
-        m_isInitialized = std::move(other.m_isInitialized);
-        m_errorValue = std::move(other.m_errorValue);
         other.m_sockfd = INVALID_FD;
         m_maxMessageSize = std::move(other.m_maxMessageSize);
     }
