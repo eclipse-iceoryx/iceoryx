@@ -33,7 +33,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
                                                                              const posix::PosixGroup& f_readerGroup,
                                                                              const posix::PosixGroup& f_writerGroup,
                                                                              const iox::mepoo::MemoryInfo& memoryInfo)
-    : m_sharedMemoryObject(createSharedMemoryObject(f_mempoolConfig, f_writerGroup))
+    : m_sharedMemoryObject(std::move(createSharedMemoryObject(f_mempoolConfig, f_writerGroup)))
     , m_readerGroup(f_readerGroup)
     , m_writerGroup(f_writerGroup)
     , m_memoryInfo(memoryInfo)
@@ -61,7 +61,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
-inline SharedMemoryObjectType&& MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
+inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
     const MePooConfig& f_mempoolConfig, const posix::PosixGroup& f_writerGroup)
 {
     // we let the OS decide where to map the shm segments
