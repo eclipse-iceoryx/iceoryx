@@ -54,7 +54,6 @@ class MockPublisherPortUser
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1(tryAllocateChunk,
                  iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
-    MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD1(releaseChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD1(sendChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD0(tryGetPreviousChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());

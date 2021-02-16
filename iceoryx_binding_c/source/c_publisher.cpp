@@ -73,7 +73,7 @@ iox_AllocationResult iox_pub_allocate_chunk(iox_pub_t const self, void** const c
 
 void iox_pub_free_chunk(iox_pub_t const self, void* const chunk)
 {
-    PublisherPortUser(self->m_portData).freeChunk(ChunkHeader::fromPayload(chunk));
+    PublisherPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
 }
 
 void iox_pub_send_chunk(iox_pub_t const self, void* const chunk)
