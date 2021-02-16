@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/publisher.h"
 #include "iceoryx_binding_c/runtime.h"
@@ -32,34 +34,28 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    iox_runtime_init("iox-c-publisher");
+    iox_runtime_init("iox-c-ex-waitset-publisher");
 
-    const uint64_t historyRequest = 10U;
+    const uint64_t historyCapacity = 0U;
+    const char* const nodeName = "iox-c-ex-waitset-publisher-node";
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyCapacity, nodeName);
 
     iox_pub_offer(publisher);
 
-    double ct = 0.0;
-
-    while (!killswitch)
+    for (uint32_t counter = 0U; !killswitch; ++counter)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct RadarObject)))
+        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
-            struct RadarObject* sample = (struct RadarObject*)chunk;
+            struct CounterTopic* sample = (struct CounterTopic*)chunk;
+            sample->counter = counter;
 
-            sample->x = ct;
-            sample->y = ct;
-            sample->z = ct;
-
-            printf("Sent value: %.0f\n", ct);
+            printf("Sending: %u\n", counter);
 
             iox_pub_send_chunk(publisher, chunk);
 
-            ++ct;
-
-            sleep_for(400);
+            sleep_for(1000);
         }
         else
         {

@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -83,11 +86,16 @@ void subscriber()
             do
             {
                 subscriber.take()
-                    .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
+                    .and_then([&](auto& sample) {
                         consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
                     })
-                    .if_empty([&] { hasMoreSamples = false; })
-                    .or_else([](auto) { std::cout << "Error receiving sample: " << std::endl; });
+                    .or_else([&](auto& result) {
+                        hasMoreSamples = false;
+                        if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                        {
+                            std::cout << "Error receiving chunk." << std::endl;
+                        }
+                    });
             } while (hasMoreSamples);
         }
 

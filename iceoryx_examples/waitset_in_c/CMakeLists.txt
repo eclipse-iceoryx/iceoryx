@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
-project(example_waitset_on_c)
+project(example_waitset_in_c)
 
 include(GNUInstallDirs)
 

@@ -114,7 +114,7 @@ For more information on how to use the Waitset see [Waitset](../../../iceoryx_ex
 Now, we show how the API can be used to establish a publish-subscribe communication in an iceoryx system.
 
 The API is offered in two languages, C and C++. In the next sections the C++ API is discussed. More information about
-the C API can be found in the [C example](../../../iceoryx_examples/icedelivery_on_c/README.md).
+the C API can be found in the [C example](../../../iceoryx_examples/icedelivery_in_c/README.md).
 
 Many parts of the C++ API follow a functional programming approach and allow the user to specify functions which handle
 the possible cases, e.g. what should happen when data is received.
@@ -458,7 +458,7 @@ by using an additional loop.
 ```cpp
 while (keepRunning)
 {
-    while (subscriber.hasSamples())
+    while (subscriber.hasData())
     {
         subscriber->take()
             .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
@@ -474,8 +474,7 @@ while (keepRunning)
 }
 ```
 
-Here we do not check whether we actually have data since we already know there is data available by calling
-``hasSamples``.
+Here we do not check whether we actually have data since we already know there is data available by calling `hasData`.
 
 ### Untyped API
 

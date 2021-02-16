@@ -94,8 +94,8 @@ class PoshRuntime_test : public Test
     const iox::ProcessName_t m_runtimeName{"publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
-    MqMessage m_sendBuffer;
-    MqMessage m_receiveBuffer;
+    IpcMessage m_sendBuffer;
+    IpcMessage m_receiveBuffer;
     const iox::NodeName_t m_nodeName{"testNode"};
     const iox::NodeName_t m_invalidNodeName{"invalidNode,"};
     static bool m_errorHandlerCalled;
@@ -243,7 +243,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
 
 TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_runtimeName
+    m_sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_nodeName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
@@ -255,7 +255,7 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 
 TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_runtimeName
+    m_sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidNodeName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);

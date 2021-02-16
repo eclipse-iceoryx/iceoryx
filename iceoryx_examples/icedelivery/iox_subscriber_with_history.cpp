@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "topic_data.hpp"
 
@@ -56,7 +58,7 @@ int main()
             // 400ms a new sample we will receive here more then one sample.
             do
             {
-                subscriber.take_1_0()
+                subscriber.take()
                     .and_then([](auto& object) { std::cout << "Got value: " << object->x << std::endl; })
                     .or_else([&](auto&) { hasMoreSamples = false; });
             } while (hasMoreSamples);

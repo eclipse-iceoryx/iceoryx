@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -65,7 +68,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
     auto maybePublisher = acquirePublisherPortData(
-        IntrospectionPortService, options, MQ_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
+        IntrospectionPortService, options, IPC_CHANNEL_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortService";
@@ -74,8 +77,11 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     auto portGeneric = maybePublisher.value();
 
-    maybePublisher = acquirePublisherPortData(
-        IntrospectionPortThroughputService, options, MQ_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
+    maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
+                                              options,
+                                              IPC_CHANNEL_ROUDI_NAME,
+                                              introspectionMemoryManager,
+                                              PortConfigInfo());
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortThroughputService";
@@ -87,7 +93,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
                                               options,
-                                              MQ_ROUDI_NAME,
+                                              IPC_CHANNEL_ROUDI_NAME,
                                               introspectionMemoryManager,
                                               PortConfigInfo());
     if (maybePublisher.has_error())
@@ -537,7 +543,7 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     LogDebug() << "Destroyed subscriber port";
 }
 
-runtime::MqMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
+runtime::IpcMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
 {
     // send find to all interfaces
     capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, service);
@@ -549,7 +555,7 @@ runtime::MqMessage PortManager::findService(const capro::ServiceDescription& ser
     }
 
     // add all found instances to instanceString
-    runtime::MqMessage instanceMessage;
+    runtime::IpcMessage instanceMessage;
 
     ServiceRegistry::InstanceSet_t instances;
     m_serviceRegistry.find(instances, service.getServiceIDString(), service.getInstanceIDString());

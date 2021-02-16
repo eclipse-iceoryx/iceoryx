@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_introspection/introspection_app.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
@@ -54,8 +56,8 @@ void IntrospectionApp::printHelp() noexcept
                  "  -h, --help        Display help and exit.\n"
                  "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
                  "                    [min: "
-              << MIN_UPDATE_PERIOD.milliSeconds() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds()
-              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds()
+              << MIN_UPDATE_PERIOD.toMilliseconds() << ", max: " << MAX_UPDATE_PERIOD.toMilliseconds()
+              << ", default: " << DEFAULT_UPDATE_PERIOD.toMilliseconds()
               << "]\n"
                  "  -v, --version     Display latest official iceoryx release version and exit.\n"
                  "\nSubscription:\n"
@@ -99,7 +101,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
             uint64_t newUpdatePeriodMs;
             if (cxx::convert::fromString(optarg, newUpdatePeriodMs))
             {
-                iox::units::Duration rate = iox::units::Duration::milliseconds(newUpdatePeriodMs);
+                iox::units::Duration rate = iox::units::Duration::fromMilliseconds(newUpdatePeriodMs);
                 updatePeriodMs = bounded(rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
             }
             else
@@ -519,7 +521,7 @@ bool IntrospectionApp::waitForSubscription(Subscriber& port)
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
-        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.toMilliseconds()));
     }
 
     return subscribed;
@@ -605,7 +607,7 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
     return subscriberPortData;
 }
 
-void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodMs,
+void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
                                         const IntrospectionSelection introspectionSelection)
 {
     iox::runtime::PoshRuntime::initRuntime(iox::roudi::INTROSPECTION_APP_NAME);
@@ -771,13 +773,13 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         refreshTerminal();
 
         // Watch user input for updatePeriodMs
-        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds());
+        auto tWaitRemaining = std::chrono::milliseconds(updatePeriod.toMilliseconds());
         auto tWaitBegin = std::chrono::system_clock::now();
         while (tWaitRemaining.count() >= 0)
         {
             waitForUserInput(static_cast<int32_t>(tWaitRemaining.count()));
             auto tWaitElapsed = std::chrono::system_clock::now() - tWaitBegin;
-            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds())
+            tWaitRemaining = std::chrono::milliseconds(updatePeriod.toMilliseconds())
                              - std::chrono::duration_cast<std::chrono::milliseconds>(tWaitElapsed);
         }
     }

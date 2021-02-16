@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +12,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
@@ -25,7 +29,22 @@ struct DummyData
     uint64_t val = 42;
 };
 
-using TestTypedSubscriber = iox::popo::TypedSubscriber<DummyData, MockBaseSubscriber>;
+template <typename T, typename BaseSubscriber>
+class StubbedSubscriber : public iox::popo::TypedSubscriber<T, BaseSubscriber>
+{
+  public:
+    using SubscriberParent = iox::popo::TypedSubscriber<T, BaseSubscriber>;
+
+    StubbedSubscriber(const iox::capro::ServiceDescription& service,
+                      const iox::popo::SubscriberOptions& subscriberOptions = iox::popo::SubscriberOptions())
+        : SubscriberParent(service, subscriberOptions)
+    {
+    }
+
+    using SubscriberParent::port;
+};
+
+using TestTypedSubscriber = StubbedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
 
 class TypedSubscriberTest : public Test
 {
@@ -43,6 +62,7 @@ class TypedSubscriberTest : public Test
     }
 
   protected:
+    ChunkMock<DummyData> chunkMock;
     TestTypedSubscriber sut{{"", "", ""}, iox::popo::SubscriberOptions()};
 };
 
@@ -99,9 +119,9 @@ TEST_F(TypedSubscriberTest, UnsubscribesViaBaseSubscriber)
 TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasSamples).Times(1);
+    EXPECT_CALL(sut, hasData).Times(1);
     // ===== Test ===== //
-    sut.hasSamples();
+    sut.hasData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -109,30 +129,50 @@ TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 TEST_F(TypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasMissedSamples).Times(1);
+    EXPECT_CALL(sut, hasMissedData).Times(1);
     // ===== Test ===== //
-    sut.hasMissedSamples();
+    sut.hasMissedData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, take).Times(1).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const DummyData>>>())));
+    EXPECT_CALL(sut, takeChunk)
+        .Times(1)
+        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
-    sut.take();
+    auto maybeSample = sut.take();
+    // ===== Verify ===== //
+    ASSERT_FALSE(maybeSample.has_error());
+    EXPECT_EQ(maybeSample.value().get(), chunkMock.chunkHeader()->payload());
+    // ===== Cleanup ===== //
+}
+
+TEST_F(TypedSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, takeChunk)
+        .Times(1)
+        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
+    EXPECT_CALL(sut.port(), releaseChunk).Times(AtLeast(1));
+    // ===== Test ===== //
+    {
+        sut.take();
+    }
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
 
-TEST_F(TypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, releaseQueuedSamples).Times(1);
+    EXPECT_CALL(sut, releaseQueuedData).Times(1);
     // ===== Test ===== //
-    sut.releaseQueuedSamples();
+    sut.releaseQueuedData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

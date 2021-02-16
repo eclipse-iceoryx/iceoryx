@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_INL
 #define IOX_POSH_POPO_TYPED_SUBSCRIBER_INL
@@ -19,23 +22,23 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
+template <typename T, typename base_subscriber_t>
 inline TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::ServiceDescription& service,
                                                               const SubscriberOptions& subscriberOptions)
-    : BaseSubscriber(service, subscriberOptions)
+    : base_subscriber_t(service, subscriberOptions)
 {
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline cxx::expected<Sample<const T>, ChunkReceiveResult> TypedSubscriber<T, base_subscriber_t>::take_1_0() noexcept
+template <typename T, typename base_subscriber_t>
+inline cxx::expected<Sample<const T>, ChunkReceiveResult> TypedSubscriber<T, base_subscriber_t>::take() noexcept
 {
-    auto result = BaseSubscriber::takeChunk();
+    auto result = base_subscriber_t::takeChunk();
     if (result.has_error())
     {
         return cxx::error<ChunkReceiveResult>(result.get_error());
     }
     auto payloadPtr = static_cast<T*>(result.value()->payload());
-    auto samplePtr = cxx::unique_ptr<T>(static_cast<T*>(payloadPtr), BaseSubscriber::m_sampleDeleter);
+    auto samplePtr = cxx::unique_ptr<T>(static_cast<T*>(payloadPtr), m_sampleDeleter);
     return cxx::success<Sample<const T>>(std::move(samplePtr));
 }
 

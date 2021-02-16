@@ -99,11 +99,11 @@ See [error-handling.md](./doc/error-handling.md) for additional information abou
 Please use [doxygen](http://www.doxygen.nl/) to document your code.
 
 The following doxygen comments are required for public API headers:
-
+```cpp
     /// @brief short description
     /// @param[in] / [out] / [in,out] name description
     /// @return description
-
+```
 A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
 
 ## Folder structure
@@ -126,6 +126,8 @@ All new code should follow the folder structure.
 
 We use [Google test](https://github.com/google/googletest) for our unit and integration tests. We require compatibility
 with the version 1.8.1.
+
+Have a look at our [best practice guidelines](./doc/website/advanced/best-practice-for-testing.md) for writing tests in iceoryx.
 
 ### Unit tests (aka module tests)
 
@@ -193,14 +195,14 @@ Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to g
 If one of the rules is not followed, a rationale is added in the following manner:
 
 With a comment in the same line:
-
+```cpp
     *mynullptr = foo; // PRQA S 4242 # Short description why
-
+```
 With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
-
+```cpp
     // PRQA S 4242 1 # Short description why
     *mynullptr = foo;
-
+```
 Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
 please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
 
@@ -215,8 +217,8 @@ requests. We're planning to introduce continuos integration checks in the near f
 
 Each source file needs to have this header:
 
-```
-    // Copyright (c) [DATE] by [INITIAL COPYRIGHT OWNER] [OTHER COPYRIGHT OWNERS]. All rights reserved.
+```cpp
+    // Copyright (c) [YEAR OF INITIAL CONTRIBUTION] - [YEAR LAST CONTRIBUTION] by [CONTRIBUTOR]. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -229,13 +231,16 @@ Each source file needs to have this header:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+    //
+    // SPDX-License-Identifier: Apache-2.0
 ```
-Note: `DATE` is either a year or a range of years with the first and last years of the range separated by a comma. So for example: "2004" or "2000, 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified.
+Note: The date is either a year or a range of years with the first and last years of the range separated by a dash. For example: "2004" (initial and last contribution in the same year) or "2000 - 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified. The years of contribution should be ordered in chronological order, thus the last date in the list should be the year of the most recent contribution. If there is a gap between contributions of one or more calendar years, use a comma to separate the disconnected contribution periods (e.g. "2000 - 2004, 2006").
 
 Example:
 
-```
-    // Copyright (c) 2018, 2020 by ACME Corp, Globex. All rights reserved.
+```cpp
+    // Copyright (c) 2019 - 2020, 2022 by Acme Corporation. All rights reserved.
+    // Copyright (c) 2020 - 2022 by Jane Doe <jane@example.com>. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -248,8 +253,10 @@ Example:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+    //
+    // SPDX-License-Identifier: Apache-2.0
 ```
-
+**_NOTE:_**  For scripts or CMake files you can use the respective comment syntax like `#` for the header.
 ## Quality levels
 
 CMake targets can be developed according to different quality levels. Despite developing some of our targets according

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,14 +11,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_EXAMPLES_ICECALLBACK_TOPIC_DATA_H
-#define IOX_EXAMPLES_ICECALLBACK_TOPIC_DATA_H
+//
+// SPDX-License-Identifier: Apache-2.0
 
-#include <stdint.h>
+#ifndef IOX_BINDING_C_SLEEP_FOR_H
+#define IOX_BINDING_C_SLEEP_FOR_H
 
-struct CounterTopic
+#ifdef _WIN32
+#include <windows.h>
+
+void sleep_for(uint64_t milliseconds)
 {
-    uint32_t counter;
-};
+    Sleep(milliseconds);
+}
 
-#endif // IOX_EXAMPLES_ICECALLBACK_TOPIC_DATA_H
+#else
+#include <unistd.h>
+
+void sleep_for(uint32_t milliseconds)
+{
+    usleep(milliseconds * 1000U);
+}
+#endif
+
+#endif

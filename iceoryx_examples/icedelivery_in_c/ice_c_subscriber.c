@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/subscriber.h"
@@ -40,10 +42,11 @@ void receiving()
     // samples send by the publisher when we subscribe.
     const uint64_t historyRequest = 10U;
     const uint64_t queueCapacity = 5U;
+    const char* const nodeName = "iox-c-subscriber-node";
     iox_sub_storage_t subscriberStorage;
 
     iox_sub_t subscriber =
-        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest);
+        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest, nodeName);
     iox_sub_subscribe(subscriber);
 
     while (!killswitch)

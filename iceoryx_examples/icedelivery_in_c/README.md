@@ -41,14 +41,16 @@ Let's take a look at the `receiving` function which comes with the
     tells the subscriber how many previously send samples it should receive
     right after the connection is established and the `queueCapacity` how many
     samples the subscriber can hold. These are samples which the publisher has
-    send before the subscriber was connected.
+    send before the subscriber was connected. The `nodeName` is the name of the
+    node the subscriber belongs to.
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c
     const uint64_t historyRequest = 10U;
     const uint64_t queueCapacity = 5U;
+    const char* const nodeName = "iox-c-subscriber-node";
     iox_sub_storage_t subscriberStorage;
-    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest);
+    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest, nodeName);
     ```
 
   3. We subscribe to the service.
@@ -115,8 +117,9 @@ Let's take a look at the `sending` function which comes with the
     {"Radar", "FrontLeft", "Counter"}
     ```c
     const uint64_t historyRequest = 10U;
+    const char* const nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest, nodeName);
     ```
  3. We offer our service to the world.
     ```c

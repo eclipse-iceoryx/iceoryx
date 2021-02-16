@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
@@ -21,7 +24,7 @@
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
@@ -74,7 +77,7 @@ class PoshRuntime
     /// InstanceContainer: on success, container that is filled with all matching instances
     /// Error: if any, encountered during the operation
     /// Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW : Number of instances can't fit in instanceContainer
-    /// Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ : Find Service Request could not be sent to RouDi
+    /// Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL : Find Service Request could not be sent to RouDi
     cxx::expected<InstanceContainer, Error> findService(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
@@ -137,7 +140,7 @@ class PoshRuntime
     /// @param[in] msg request message to send
     /// @param[out] response from the RouDi daemon
     /// @return true if sucessful request/response, false on error
-    bool sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept;
+    bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept;
 
   public:
     PoshRuntime(const PoshRuntime&) = delete;
@@ -177,23 +180,23 @@ class PoshRuntime
     static PoshRuntime& getInstance(cxx::optional<const ProcessName_t*> name) noexcept;
 
   private:
-    cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
-    requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept;
+    cxx::expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
+    requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
-    requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept;
+    cxx::expected<SubscriberPortUserType::MemberType_t*, IpcMessageErrorType>
+    requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
-    requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
+    cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
+    requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
     /// @brief checks the given application name for certain constraints like length or if is empty
     const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
 
     const ProcessName_t m_appName;
-    mutable std::mutex m_appMqRequestMutex;
+    mutable std::mutex m_appIpcRequestMutex;
 
-    // Message queue interface for POSIX IPC from RouDi
-    MqRuntimeInterface m_MqInterface;
+    // IPC channel interface for POSIX IPC from RouDi
+    IpcRuntimeInterface m_ipcChannelInterface;
     // Shared memory interface for POSIX IPC from RouDi
     SharedMemoryUser m_ShmInterface;
     popo::ApplicationPort m_applicationPort;

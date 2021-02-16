@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +12,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
@@ -20,7 +24,12 @@
 using namespace ::testing;
 using ::testing::_;
 
-using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber>;
+struct DummyData
+{
+    uint64_t val = 42;
+};
+
+using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber<void>>;
 
 class UntypedSubscriberTest : public Test
 {
@@ -38,6 +47,7 @@ class UntypedSubscriberTest : public Test
     }
 
   protected:
+    ChunkMock<DummyData> chunkMock;
     TestUntypedSubscriber sut{{"", "", ""}};
 };
 
@@ -94,9 +104,9 @@ TEST_F(UntypedSubscriberTest, UnsubscribesViaBaseSubscriber)
 TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasSamples).Times(1);
+    EXPECT_CALL(sut, hasData).Times(1);
     // ===== Test ===== //
-    sut.hasSamples();
+    sut.hasData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -104,30 +114,35 @@ TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, hasMissedSamples).Times(1);
+    EXPECT_CALL(sut, hasMissedData).Times(1);
     // ===== Test ===== //
-    sut.hasMissedSamples();
+    sut.hasMissedData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
+TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, take).Times(1).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const void>>>())));
+    EXPECT_CALL(sut, takeChunk)
+        .Times(1)
+        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
-    sut.take();
+    auto maybeChunk = sut.take();
     // ===== Verify ===== //
+    ASSERT_FALSE(maybeChunk.has_error());
+    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->payload());
     // ===== Cleanup ===== //
+    sut.releaseChunk(maybeChunk.value());
 }
 
-TEST_F(UntypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
+TEST_F(UntypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, releaseQueuedSamples).Times(1);
+    EXPECT_CALL(sut, releaseQueuedData).Times(1);
     // ===== Test ===== //
-    sut.releaseQueuedSamples();
+    sut.releaseQueuedData();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

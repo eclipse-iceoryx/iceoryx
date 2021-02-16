@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
 #define IOX_POSH_POPO_UNTYPED_PUBLISHER_INL
@@ -27,10 +29,35 @@ inline UntypedPublisherImpl<base_publisher_t>::UntypedPublisherImpl(const capro:
 }
 
 template <typename base_publisher_t>
-inline void UntypedPublisherImpl<base_publisher_t>::publish(void* allocatedMemory) noexcept
+inline void UntypedPublisherImpl<base_publisher_t>::publish(const void* chunk) noexcept
 {
-    auto header = mepoo::ChunkHeader::fromPayload(allocatedMemory);
-    base_publisher_t::m_port.sendChunk(header);
+    auto header = mepoo::ChunkHeader::fromPayload(chunk);
+    port().sendChunk(header);
+}
+
+template <typename base_publisher_t>
+inline cxx::expected<void*, AllocationError> UntypedPublisherImpl<base_publisher_t>::loan(const uint32_t size) noexcept
+{
+    auto result = port().tryAllocateChunk(size);
+    if (result.has_error())
+    {
+        return cxx::error<AllocationError>(result.get_error());
+    }
+    else
+    {
+        return cxx::success<void*>(result.value()->payload());
+    }
+}
+
+template <typename base_publisher_t>
+cxx::optional<void*> UntypedPublisherImpl<base_publisher_t>::loanPreviousChunk() noexcept
+{
+    auto result = port().tryGetPreviousChunk();
+    if (result.has_value())
+    {
+        return result.value()->payload();
+    }
+    return cxx::nullopt;
 }
 
 } // namespace popo

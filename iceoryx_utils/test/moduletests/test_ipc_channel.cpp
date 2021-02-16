@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32)
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
@@ -35,6 +37,13 @@ constexpr char anotherGoodName[] = "horst";
 constexpr char theUnknown[] = "WhoeverYouAre";
 constexpr char slashName[] = "/miau";
 
+/// @req
+/// @brief This test suite verifies that the abstract interface IpcChannelType is fulfilled by both the UnixDomainSocket
+/// class and the MessageQueue class
+/// @pre server and client object are allocated and move to the member object of the fixture
+/// @post StdErr is capture and outputed to StdCout
+/// @note Specific functionality of the underlying implementations of an IpcChannelType are tested in
+/// "UnixDomainSocket_test"
 template <typename T>
 class IpcChannel_test : public Test
 {
@@ -85,21 +94,32 @@ constexpr uint64_t IpcChannel_test<T>::MaxMsgNumber;
 TYPED_TEST_CASE(IpcChannel_test, IpcChannelTypes);
 #pragma GCC diagnostic pop
 
-TYPED_TEST(IpcChannel_test, createNoName)
+TYPED_TEST(IpcChannel_test, CreateWithTooLargeMessageSizeLeadsToError)
+{
+    auto serverResult = TestFixture::IpcChannelType::create(goodName,
+                                                            IpcChannelMode::BLOCKING,
+                                                            IpcChannelSide::SERVER,
+                                                            TestFixture::MaxMsgSize + 1,
+                                                            TestFixture::MaxMsgNumber);
+    EXPECT_TRUE(serverResult.has_error());
+    ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED));
+}
+
+TYPED_TEST(IpcChannel_test, CreateNoNameLeadsToError)
 {
     auto serverResult = TestFixture::IpcChannelType::create("", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_TRUE(serverResult.has_error());
     ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
-TYPED_TEST(IpcChannel_test, createWithLeadingSlash)
+TYPED_TEST(IpcChannel_test, CreateWithLeadingSlashWorks)
 {
     auto serverResult =
         TestFixture::IpcChannelType::create(slashName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
 }
 
-TYPED_TEST(IpcChannel_test, createAgain)
+TYPED_TEST(IpcChannel_test, CreateAgainWorks)
 {
     // if there is a leftover from a crashed channel, we can create a new one. This is simulated by creating twice
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
@@ -110,7 +130,7 @@ TYPED_TEST(IpcChannel_test, createAgain)
 }
 
 
-TYPED_TEST(IpcChannel_test, createAgainAndEmpty)
+TYPED_TEST(IpcChannel_test, CreateAgainAndEmptyWorks)
 {
     using namespace iox::units;
     using namespace std::chrono;
@@ -150,7 +170,7 @@ TYPED_TEST(IpcChannel_test, createAgainAndEmpty)
     ASSERT_THAT(received.get_error(), Eq(IpcChannelError::TIMEOUT));
 }
 
-TYPED_TEST(IpcChannel_test, clientWithoutServerFails)
+TYPED_TEST(IpcChannel_test, ClientWithoutServerLeadsToNoSuchChannelError)
 {
     auto clientResult =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
@@ -159,7 +179,7 @@ TYPED_TEST(IpcChannel_test, clientWithoutServerFails)
 }
 
 
-TYPED_TEST(IpcChannel_test, NotOutdatedOne)
+TYPED_TEST(IpcChannel_test, NotDestroyingServerLeadsToNonOutdatedClient)
 {
     auto serverResult =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
@@ -177,7 +197,7 @@ TYPED_TEST(IpcChannel_test, NotOutdatedOne)
 }
 
 
-TYPED_TEST(IpcChannel_test, OutdatedOne)
+TYPED_TEST(IpcChannel_test, DestroyingServerLeadsToOutdatedClient)
 {
     if (std::is_same<typename TestFixture::IpcChannelType, UnixDomainSocket>::value)
     {
@@ -204,7 +224,7 @@ TYPED_TEST(IpcChannel_test, OutdatedOne)
     EXPECT_TRUE(outdated.value());
 }
 
-TYPED_TEST(IpcChannel_test, unlinkExistingOne)
+TYPED_TEST(IpcChannel_test, UnlinkExistingOneWorks)
 {
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
@@ -213,14 +233,14 @@ TYPED_TEST(IpcChannel_test, unlinkExistingOne)
     EXPECT_TRUE(ret.value());
 }
 
-TYPED_TEST(IpcChannel_test, unlinkNonExistingOne)
+TYPED_TEST(IpcChannel_test, UnlinkNonExistingOneWorks)
 {
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(theUnknown);
     EXPECT_FALSE(ret.has_error());
     EXPECT_FALSE(ret.value());
 }
 
-TYPED_TEST(IpcChannel_test, sendAndReceive)
+TYPED_TEST(IpcChannel_test, SendAndReceiveWorks)
 {
     std::string message = "Hey, I'm talking to you";
     bool sent = this->client.send(message).has_error();
@@ -239,7 +259,7 @@ TYPED_TEST(IpcChannel_test, sendAndReceive)
     EXPECT_EQ(anotherMessage, *receivedMessage);
 }
 
-TYPED_TEST(IpcChannel_test, invalidAfterDestroy)
+TYPED_TEST(IpcChannel_test, InvalidAfterDestroy)
 {
     this->client.destroy();
     ASSERT_FALSE(this->client.isInitialized());
@@ -247,7 +267,7 @@ TYPED_TEST(IpcChannel_test, invalidAfterDestroy)
     ASSERT_FALSE(this->server.isInitialized());
 }
 
-TYPED_TEST(IpcChannel_test, sendAfterClientDestroy)
+TYPED_TEST(IpcChannel_test, SendAfterClientDestroyLeadsToError)
 {
     auto dest = this->client.destroy();
     ASSERT_FALSE(dest.has_error());
@@ -257,7 +277,7 @@ TYPED_TEST(IpcChannel_test, sendAfterClientDestroy)
     EXPECT_TRUE(sendError);
 }
 
-TYPED_TEST(IpcChannel_test, sendAfterServerDestroy)
+TYPED_TEST(IpcChannel_test, SendAfterServerDestroyLeadsToError)
 {
     if (std::is_same<typename TestFixture::IpcChannelType, MessageQueue>::value)
     {
@@ -275,7 +295,7 @@ TYPED_TEST(IpcChannel_test, sendAfterServerDestroy)
 }
 
 
-TYPED_TEST(IpcChannel_test, receiveAfterServerDestroy)
+TYPED_TEST(IpcChannel_test, ReceiveAfterServerDestroyLeadsToError)
 {
     std::string message = "hello world!";
     bool sendError = this->client.send(message).has_error();
@@ -288,7 +308,7 @@ TYPED_TEST(IpcChannel_test, receiveAfterServerDestroy)
     EXPECT_THAT(receiveError, Eq(true));
 }
 
-TYPED_TEST(IpcChannel_test, sendMoreThanAllowed)
+TYPED_TEST(IpcChannel_test, SendMoreThanAllowedLeadsToError)
 {
     std::string shortMessage = "Iceoryx rules.";
     ASSERT_THAT(this->client.send(shortMessage).has_error(), Eq(false));
@@ -301,7 +321,7 @@ TYPED_TEST(IpcChannel_test, sendMoreThanAllowed)
     EXPECT_EQ(shortMessage, receivedMessage.value());
 }
 
-TYPED_TEST(IpcChannel_test, sendMaxMessageSize)
+TYPED_TEST(IpcChannel_test, SendMaxMessageSizeWorks)
 {
     std::string message(this->MaxMsgSize - 1, 'x');
     auto clientReturn = this->client.send(message);
@@ -319,7 +339,7 @@ TYPED_TEST(IpcChannel_test, wildCreate)
 }
 
 #if !defined(__APPLE__)
-TYPED_TEST(IpcChannel_test, timedSend)
+TYPED_TEST(IpcChannel_test, TimedSendWorks)
 {
     using namespace iox::units;
     using namespace std::chrono;
@@ -354,7 +374,7 @@ TYPED_TEST(IpcChannel_test, timedSend)
 }
 #endif
 
-TYPED_TEST(IpcChannel_test, timedReceive)
+TYPED_TEST(IpcChannel_test, TimedReceiveWorks)
 {
     using namespace iox::units;
     using namespace std::chrono;

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "topic_data.hpp"
 
@@ -47,7 +49,7 @@ int main()
         ++ct;
 
         // Retrieve a sample, construct it with the given arguments and publish it via a lambda.
-        publisher.loan_1_0(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
+        publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
 
         std::cout << "Sent value: " << ct << std::endl;
 

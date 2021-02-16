@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,32 +11,28 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/event_info.h"
 #include "iceoryx_binding_c/runtime.h"
+#include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
 #include "sleep_for.h"
 #include "topic_data.h"
 
-#if !defined(_WIN32)
-#include <pthread.h>
-#endif
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_EVENTS 2
+#define NUMBER_OF_EVENTS 3
+#define NUMBER_OF_SUBSCRIBERS 2
 
 iox_user_trigger_storage_t shutdownTriggerStorage;
 iox_user_trigger_t shutdownTrigger;
-
-iox_user_trigger_storage_t cyclicTriggerStorage;
-iox_user_trigger_t cyclicTrigger;
-
-bool keepRunning = true;
 
 static void sigHandler(int signalValue)
 {
@@ -45,68 +41,59 @@ static void sigHandler(int signalValue)
     iox_user_trigger_trigger(shutdownTrigger);
 }
 
-void cyclicRun(iox_user_trigger_t trigger)
+// The callback of the trigger. Every callback must have an argument which is
+// a pointer to the origin of the Trigger. In our case the trigger origin is
+// an iox_sub_t.
+void subscriberCallback(iox_sub_t const subscriber)
 {
-    printf("activation callback\n");
-    // after every call we have to reset the trigger otherwise the waitset
-    // would immediately call us again since we still signal to the waitset that
-    // we have been triggered (waitset is state based)
-    iox_user_trigger_reset_trigger(trigger);
-}
-
-void* cyclicTriggerCallback(void* dontCare)
-{
-    (void)dontCare;
-    while (keepRunning)
+    const void* chunk;
+    if (iox_sub_get_chunk(subscriber, &chunk))
     {
-        iox_user_trigger_trigger(cyclicTrigger);
-        sleep_for(1000);
+        printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
+
+        iox_sub_release_chunk(subscriber, chunk);
     }
-    return NULL;
 }
 
 int main()
 {
-#if defined(_WIN32)
-    printf("This example does not work on Windows. But you can easily adapt it for now by starting a windows thread "
-           "which triggers the cyclicTrigger every second.\n");
-#endif
-
-    iox_runtime_init("iox-c-ex-waitset-sync");
+    iox_runtime_init("iox-c-ex-waitset-gateway");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
     shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
+    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
 
+    // array where the subscriber are stored
+    iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
-    // create and attach the cyclicTrigger with a callback to
-    // myCyclicRun
-    cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);
-    iox_ws_attach_user_trigger_event(waitSet, cyclicTrigger, 0, cyclicRun);
-
-    // start a thread which triggers cyclicTrigger every second
-#if !defined(_WIN32)
-    pthread_t cyclicTriggerThread;
-    if (pthread_create(&cyclicTriggerThread, NULL, cyclicTriggerCallback, NULL))
+    // create subscriber and subscribe them to our service
+    const uint64_t historyRequest = 1U;
+    const uint64_t queueCapacity = 256U;
+    const char* const nodeName = "iox-c-ex-waitSet-gateway-node";
+    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        printf("failed to create thread\n");
-        return -1;
+        iox_sub_t subscriber = iox_sub_init(
+            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
+
+        iox_sub_subscribe(subscriber);
+        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
     }
-#endif
+
 
     uint64_t missedElements = 0U;
     uint64_t numberOfEvents = 0U;
 
-    // array where all trigger from iox_ws_wait will be stored
+    // array where all event infos from iox_ws_wait will be stored
     iox_event_info_t eventArray[NUMBER_OF_EVENTS];
 
     // event loop
+    bool keepRunning = true;
     while (keepRunning)
     {
         numberOfEvents = iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
@@ -122,16 +109,19 @@ int main()
             }
             else
             {
-                // call myCyclicRun
+                // call the callback which was assigned to the event
                 iox_event_info_call(event);
             }
         }
     }
 
     // cleanup all resources
-#if !defined(_WIN32)
-    pthread_join(cyclicTriggerThread, NULL);
-#endif
+    for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
+    {
+        iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
+        iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
+    }
+
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownTrigger);
 

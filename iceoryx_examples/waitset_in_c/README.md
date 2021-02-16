@@ -16,7 +16,7 @@ in the same way as the C++ ones.
 
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced
-in the [icedelivery C example](../icedelivery_on_c).
+in the [icedelivery C example](../icedelivery_in_c).
 
 ### Gateway
 Let's say we would like to write a gateway and would like to forward every 
@@ -53,19 +53,20 @@ iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
 In the next steps we create 4 subscribers with `iox_sub_init`, 
 subscribe them to our topic
-and attach the event `SubscriberEvent_HAS_SAMPLES` to the WaitSet with
+and attach the event `SubscriberEvent_HAS_DATA` to the WaitSet with
 the `subscriberCallback` and an event id `1U`.
 ```c
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
 const uint64_t historyRequest = 1U;
 const uint64_t queueCapacity = 256U;
+const char* const nodeName = "iox-c-ex-waitSet-gateway-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
 
     iox_sub_subscribe(subscriber);
-    iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);
+    iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
 }
 ```
 
@@ -142,9 +143,10 @@ iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
 const uint64_t historyRequest = 1U;
 const uint64_t queueCapacity = 256U;
+const char* const nodeName = "iox-c-ex-waitset-grouping-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
 
     iox_sub_subscribe(subscriber[i]);
 }
@@ -152,7 +154,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 
 To distinct our two groups we set the eventId of the first group to
 `123` and of the second group to `456`. The first two subscribers are attached with
-the `Subscriber_HAS_SAMPLES` event and the event id of the first group to our waitset. 
+the `SubscriberEvent_HAS_DATA` event and the event id of the first group to our waitset.
 The third and forth subscriber is attached to the same
 waitset under the second group id.
 ```c
@@ -161,12 +163,12 @@ const uint64_t SECOND_GROUP_ID = 456;
 
 for (uint64_t i = 0U; i < 2U; ++i)
 {
-    iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_SAMPLES, FIRST_GROUP_ID, NULL);
+    iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, FIRST_GROUP_ID, NULL);
 }
 
 for (uint64_t i = 2U; i < 4U; ++i)
 {
-    iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_SAMPLES, SECOND_GROUP_ID, NULL);
+    iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, SECOND_GROUP_ID, NULL);
 }
 ```
 
@@ -252,14 +254,18 @@ the waitset without a callback and with the same trigger id.
 ```c
 const uint64_t historyRequest = 1U;
 const uint64_t queueCapacity = 256U;
-subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
-subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest);
+
+const char* const nodeName1 = "iox-c-ex-waitset-individual-node1";
+const char* const nodeName2 = "iox-c-ex-waitset-individual-node2";
+
+subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName1);
+subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName2);
 
 iox_sub_subscribe(subscriber[0]);
 iox_sub_subscribe(subscriber[1]);
 
-iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
-iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
+iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
+iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
 ```
 
 We are ready to start the event loop. We begin by acquiring the array of all
