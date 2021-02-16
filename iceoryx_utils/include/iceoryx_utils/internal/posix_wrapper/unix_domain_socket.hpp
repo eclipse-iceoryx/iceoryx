@@ -129,9 +129,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
 
-    /// @brief creates the unix domain socket
+    /// @brief initializes the unix domain socket
     /// @param mode blocking or non_blocking
-    /// @return int with the socket file descriptor, IpcChannelError if error occured
+    /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> initalizeSocket(const IpcChannelMode mode) noexcept;
 
     /// @brief create an IpcChannelError from the provides error code

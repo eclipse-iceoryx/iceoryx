@@ -81,17 +81,12 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
     else
     {
         m_maxMessageSize = maxMsgSize;
-        auto initalizeResult = initalizeSocket(mode);
-
-        if (!initalizeResult.has_error())
-        {
-            this->m_isInitialized = true;
-        }
-        else
-        {
-            this->m_isInitialized = false;
-            this->m_errorValue = initalizeResult.get_error();
-        }
+        initalizeSocket(mode)
+            .and_then([this]() { this->m_isInitialized = true; })
+            .or_else([this](IpcChannelError& error) {
+                this->m_isInitialized = false;
+                this->m_errorValue = error;
+            });
     }
 }
 
@@ -112,6 +107,8 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 {
     if (this != &other)
     {
+        DesignPattern::Creation<UnixDomainSocket, IpcChannelError>::operator=(std::move(other));
+
         if (destroy().has_error())
         {
             std::cerr << "Unable to cleanup unix domain socket \"" << m_name
