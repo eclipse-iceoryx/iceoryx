@@ -82,7 +82,7 @@ int main()
             &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
 
         iox_sub_subscribe(subscriber);
-        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_SAMPLES, 1U, subscriberCallback);
+        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
     }
 
 

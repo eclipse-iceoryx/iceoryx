@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,8 +26,24 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename base_publisher_t = BasePublisher<T>>
-class TypedPublisher : public base_publisher_t
+///
+/// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.
+/// This allows any publisher specialization to be stored as a reference by the Sample class.
+/// It is also needed to avoid circular dependencies between Sample and TypedPublisher.
+///
+template <typename T>
+class PublisherInterface
+{
+  public:
+    virtual void publish(Sample<T>&& sample) noexcept = 0;
+
+    virtual ~PublisherInterface(){};
+
+  protected:
+    PublisherInterface() = default;
+};
+template <typename T, typename base_publisher_t = BasePublisher<>>
+class TypedPublisher : public base_publisher_t, public PublisherInterface<T>
 {
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
     static_assert(std::is_default_constructible<T>::value, "The TypedPublisher requires default-constructable types.");
@@ -40,19 +57,6 @@ class TypedPublisher : public base_publisher_t
     TypedPublisher& operator=(TypedPublisher&& rhs) = default;
     virtual ~TypedPublisher() = default;
 
-    using base_publisher_t::getServiceDescription;
-    using base_publisher_t::getUid;
-    using base_publisher_t::hasSubscribers;
-    using base_publisher_t::isOffered;
-    using base_publisher_t::loanPreviousSample;
-    using base_publisher_t::offer;
-    using base_publisher_t::publish;
-    using base_publisher_t::stopOffer;
-
-    // iox-#408 replace with loan_1_0
-    cxx::expected<Sample<T>, AllocationError> loan() noexcept;
-
-
     ///
     /// @brief loan Get a sample from loaned shared memory and consctruct the data with the given arguments.
     /// @param args Arguments used to construct the data.
@@ -61,7 +65,19 @@ class TypedPublisher : public base_publisher_t
     /// @details The loaned sample is automatically released when it goes out of scope.
     ///
     template <typename... Args>
-    cxx::expected<Sample<T>, AllocationError> loan_1_0(Args&&... args) noexcept;
+    cxx::expected<Sample<T>, AllocationError> loan(Args&&... args) noexcept;
+
+    ///
+    /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
+    /// @return The previously loaned sample if retrieved.
+    ///
+    cxx::optional<Sample<T>> loanPreviousSample() noexcept;
+
+    ///
+    /// @brief publish Publishes the given sample and then releases its loan.
+    /// @param sample The sample to publish.
+    ///
+    void publish(Sample<T>&& sample) noexcept override;
 
     ///
     /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
@@ -77,6 +93,17 @@ class TypedPublisher : public base_publisher_t
     ///
     template <typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
+
+  protected:
+    using base_publisher_t::port;
+
+  private:
+    Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
+
+    cxx::expected<Sample<T>, AllocationError> loanSample(const uint32_t size) noexcept;
+
+    using PublisherSampleDeleter = SampleDeleter<typename base_publisher_t::PortType>;
+    PublisherSampleDeleter m_sampleDeleter{port()};
 };
 
 } // namespace popo

@@ -49,7 +49,7 @@ int main()
         ++ct;
 
         // Retrieve a sample, construct it with the given arguments and publish it via a lambda.
-        publisher.loan_1_0(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
+        publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
 
         std::cout << "Sent value: " << ct << std::endl;
 

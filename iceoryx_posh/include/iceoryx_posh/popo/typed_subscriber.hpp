@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,16 +18,17 @@
 #ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 
+#include "iceoryx_posh/internal/popo/sample_deleter.hpp"
 #include "iceoryx_posh/popo/base_subscriber.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename T, template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
-class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>
+template <typename T, typename base_subscriber_t = BaseSubscriber<>>
+class TypedSubscriber : public base_subscriber_t
 {
-    using BaseSubscriber = base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>;
+    using SelfType = TypedSubscriber<T, base_subscriber_t>;
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
   public:
@@ -38,23 +40,22 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
     virtual ~TypedSubscriber() = default;
 
-    using BaseSubscriber::getServiceDescription;
-    using BaseSubscriber::getSubscriptionState;
-    using BaseSubscriber::getUid;
-    using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasSamples;
-    using BaseSubscriber::invalidateTrigger;
-    using BaseSubscriber::releaseQueuedSamples;
-    using BaseSubscriber::subscribe;
-    using BaseSubscriber::take;
-    using BaseSubscriber::unsubscribe;
+    ///
+    /// @brief Take the samples from the top of the receive queue.
+    /// @return Either a sample or a ChunkReceiveResult.
+    /// @details The sample takes care of the cleanup. Don't store the raw pointer to the content of the sample, but
+    /// always the whole sample.
+    ///
+    cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept;
 
-    // iox-#408
-    // the _1_0 suffix is only used temporarily to not cause regressions in all examples and tests and keep the changes
-    // as small as possible, it will replace the function without suffix in a follow-up pull request (which changes
-    // all examples)
+    using PortType = typename base_subscriber_t::PortType;
+    using SubscriberSampleDeleter = SampleDeleter<PortType>;
 
-    inline cxx::expected<Sample<const T>, ChunkReceiveResult> take_1_0() noexcept;
+  protected:
+    using base_subscriber_t::port;
+
+  private:
+    SubscriberSampleDeleter m_sampleDeleter{port()};
 };
 
 } // namespace popo

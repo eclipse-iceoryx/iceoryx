@@ -41,7 +41,7 @@ cpp2c_Subscriber::getHasTriggeredCallbackForEvent(const iox_SubscriberEvent subs
 {
     switch (subscriberEvent)
     {
-    case SubscriberEvent_HAS_SAMPLES:
+    case SubscriberEvent_HAS_DATA:
         return {*this, &cpp2c_Subscriber::hasSamples};
     }
 
