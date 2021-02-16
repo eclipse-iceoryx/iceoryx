@@ -218,8 +218,8 @@ class expected<ErrorType>
     static expected create_error(Targs&&... args) noexcept;
 
     /// @brief returns true if the expected is in a valid state either containing a value or an error
-    /// @return true if in valid state or false if in invalid state (e.g. after move)
-    bool is_initialized() const noexcept;
+    /// @return true if in invalid state (e.g. after move) or false if in valid state
+    bool has_undefined_state() const noexcept;
 
     /// @brief  returns true if the expected contains an error otherwise false
     /// @return bool which contains true if the expected contains an error
@@ -435,7 +435,7 @@ class expected<ValueType, ErrorType>
 
     /// @brief returns true if the expected is in a valid state either containing a value or an error
     /// @return true if in valid state or false if in invalid state (e.g. after move)
-    bool is_initialized() const noexcept;
+    bool has_undefined_state() const noexcept;
 
     /// @brief  returns true if the expected contains an error otherwise false
     /// @return bool which contains true if the expected contains an error

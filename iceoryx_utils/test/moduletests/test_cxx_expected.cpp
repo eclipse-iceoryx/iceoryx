@@ -108,8 +108,8 @@ TEST_F(expected_test, MoveAssignmentLeadsToInvalidation)
 {
     auto sut = expected<int, Test>::create_value(73);
     auto movedValue = std::move(sut);
-    EXPECT_FALSE(sut.is_initialized());
-    ASSERT_TRUE(movedValue.is_initialized());
+    EXPECT_FALSE(sut.has_undefined_state());
+    ASSERT_TRUE(movedValue.has_undefined_state());
     EXPECT_THAT(movedValue.value(), Eq(73));
 }
 
@@ -222,8 +222,8 @@ TEST_F(expected_test, ErrorTypeOnlyCreateErrorAndMoveWorks)
 {
     auto sut = expected<float>::create_error(42.0f);
     auto movedValue = std::move(sut);
-    EXPECT_FALSE(sut.is_initialized());
-    ASSERT_TRUE(movedValue.is_initialized());
+    EXPECT_FALSE(sut.has_undefined_state());
+    ASSERT_TRUE(movedValue.has_undefined_state());
     EXPECT_THAT(movedValue.get_error(), Eq(42.0f));
 }
 

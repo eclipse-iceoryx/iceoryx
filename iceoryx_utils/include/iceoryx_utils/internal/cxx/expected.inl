@@ -133,9 +133,9 @@ inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_err
 }
 
 template <typename ValueType, typename ErrorType>
-bool expected<ValueType, ErrorType>::is_initialized() const noexcept
+bool expected<ValueType, ErrorType>::has_undefined_state() const noexcept
 {
-    return m_isInitialized;
+    return !m_isInitialized;
 }
 
 template <typename ValueType, typename ErrorType>
@@ -567,7 +567,7 @@ template <typename ValueType>
 inline expected<ErrorType>::expected(const expected<ValueType, ErrorType>& rhs) noexcept
 {
     m_hasError = rhs.has_error();
-    m_isInitialized = rhs.is_initialized();
+    m_isInitialized = rhs.has_undefined_state();
     if (m_hasError)
     {
         m_store.emplace_at_index<0>(rhs.get_error());
@@ -579,7 +579,7 @@ template <typename ValueType>
 inline expected<ErrorType>::expected(expected<ValueType, ErrorType>&& rhs) noexcept
 {
     m_hasError = rhs.has_error();
-    m_isInitialized = rhs.is_initialized();
+    m_isInitialized = rhs.has_undefined_state();
     if (m_hasError)
     {
         m_store.emplace_at_index<0>(std::move(rhs.get_error()));
@@ -599,7 +599,7 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(const expected<ValueT
         m_store = variant<ErrorType>(in_place_type<ErrorType>(), rhs.get_error());
     }
     m_hasError = rhs.has_error();
-    m_isInitialized = rhs.is_initialized();
+    m_isInitialized = rhs.has_undefined_state();
 }
 
 template <typename ErrorType>
@@ -615,7 +615,7 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, E
         m_store = variant<ErrorType>(in_place_type<ErrorType>(), std::move(rhs.get_error()));
     }
     m_hasError = rhs.has_error();
-    m_isInitialized = rhs.is_initialized();
+    m_isInitialized = rhs.has_undefined_state();
 }
 #endif
 
@@ -637,9 +637,9 @@ inline expected<ErrorType> expected<ErrorType>::create_error(Targs&&... args) no
 }
 
 template <typename ErrorType>
-bool expected<ErrorType>::is_initialized() const noexcept
+bool expected<ErrorType>::has_undefined_state() const noexcept
 {
-    return m_isInitialized;
+    return !m_isInitialized;
 }
 
 template <typename ErrorType>
