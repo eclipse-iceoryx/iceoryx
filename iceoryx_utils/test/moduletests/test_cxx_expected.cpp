@@ -97,11 +97,56 @@ TEST_F(expected_test, CreateWithComplexTypeIsSuccessful)
     EXPECT_THAT(sut.value().m_a, Eq(12));
 }
 
+TEST_F(expected_test, ConstCreateRValueAndGetValueResultsInCorrectValue)
+{
+    const auto&& sut = expected<int, Test>::create_value(1111);
+
+    EXPECT_THAT(sut.value(), Eq(1111));
+}
+
+TEST_F(expected_test, ConstCreateRValueAndMoveLeadsToTermination)
+{
+    // const auto&& sut = expected<int, Test>::create_value(2222);
+    // auto movedSut = std::move(sut);
+
+    // EXPECT_FALSE(movedSut.has_error());
+    // EXPECT_DEATH(sut.value(), ".*");
+}
+
+TEST_F(expected_test, CreateLValueAndMoveLeadsToTermination)
+{
+    // const auto& sut = expected<int, Test>::create_value(3333);
+    // auto movedSut = std::move(sut);
+
+    // EXPECT_DEATH(sut.value(), ".*");
+}
+
 TEST_F(expected_test, CreateWithComplexErrorResultsInError)
 {
     auto sut = expected<int, Test>::create_error(313, 212);
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.get_error().m_b, Eq(212));
+}
+
+TEST_F(expected_test, CreateRValueAndGetErrorResultsInCorrectError)
+{
+    auto error = expected<int, Test>::create_error(131, 121).get_error();
+
+    EXPECT_THAT(error.m_b, Eq(121));
+}
+
+TEST_F(expected_test, ConstCreateRValueAndGetErrorResultsInCorrectError)
+{
+    const auto&& sut = expected<int, Test>::create_error(131, 121);
+
+    EXPECT_THAT(sut.get_error().m_b, Eq(121));
+}
+
+TEST_F(expected_test, ConstCreateLValueAndGetErrorResultsInCorrectError)
+{
+    const auto& sut = expected<int, Test>::create_error(343, 232);
+
+    EXPECT_THAT(sut.get_error().m_b, Eq(232));
 }
 
 TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToInvalidation)
@@ -138,6 +183,22 @@ TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToInvalidation)
     EXPECT_TRUE(sut.has_undefined_state());
     ASSERT_FALSE(movedValue.has_undefined_state());
     EXPECT_THAT(movedValue.get_error().m_b, Eq(55));
+}
+
+TEST_F(expected_test, CreateInvalidExpectedAndCallGetErrorLeadsToTermination)
+{
+    auto sut = expected<int, float>::create_value(11);
+    auto movedValue = std::move(sut);
+
+    EXPECT_DEATH(sut.get_error(), ".*");
+}
+
+TEST_F(expected_test, ErrorTypeOnlyCreateInvalidExpectedAndCallGetErrorLeadsToTermination)
+{
+    auto sut = expected<float>::create_error(19.0f);
+    auto movedValue = std::move(sut);
+
+    EXPECT_DEATH(sut.get_error(), ".*");
 }
 
 TEST_F(expected_test, BoolOperatorReturnsError)
@@ -218,6 +279,13 @@ TEST_F(expected_test, ConstArrowOperatorWorks)
     EXPECT_THAT(sut->constGimme(), Eq(136));
 }
 
+TEST_F(expected_test, MoveAndCallArrowOperatorLeadsToTermination)
+{
+    auto sut = expected<Test, float>::create_value(55, 81);
+    auto movedSut = std::move(sut);
+    EXPECT_DEATH(sut->gimme(), ".*");
+}
+
 TEST_F(expected_test, DereferencingOperatorWorks)
 {
     auto sut = expected<int, float>::create_value(1652);
@@ -230,6 +298,13 @@ TEST_F(expected_test, ConstDereferencingOperatorWorks)
     const expected<int, float> sut(success<int>(981));
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(*sut, Eq(981));
+}
+
+TEST_F(expected_test, MoveAndCallDereferencingOperatorLeadsToTermination)
+{
+    auto sut = expected<Test, float>::create_value(81, 55);
+    auto movedSut = std::move(sut);
+    EXPECT_DEATH(*sut, ".*");
 }
 
 TEST_F(expected_test, ErrorTypeOnlyCreateValueWithoutValueLeadsToValidSut)
