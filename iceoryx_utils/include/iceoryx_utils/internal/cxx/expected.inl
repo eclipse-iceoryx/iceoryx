@@ -175,47 +175,6 @@ inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexc
 }
 
 template <typename ValueType, typename ErrorType>
-    inline ValueType&& expected<ValueType, ErrorType>::get_value() && noexcept
-{
-    return std::move(*m_store.template get_at_index<0>());
-}
-
-template <typename ValueType, typename ErrorType>
-inline const ValueType& expected<ValueType, ErrorType>::get_value() const& noexcept
-{
-    return *m_store.template get_at_index<0>();
-}
-
-template <typename ValueType, typename ErrorType>
-inline const ValueType&& expected<ValueType, ErrorType>::get_value() const&& noexcept
-{
-    return std::move(*m_store.template get_at_index<0>());
-}
-
-template <typename ValueType, typename ErrorType>
-    inline ValueType& expected<ValueType, ErrorType>::get_value() & noexcept
-{
-    return *m_store.template get_at_index<0>();
-}
-
-template <typename ValueType, typename ErrorType>
-inline ValueType expected<ValueType, ErrorType>::get_value_or(const ValueType& value) noexcept
-{
-    if (this->has_error())
-    {
-        return value;
-    }
-
-    return *m_store.template get_at_index<0>();
-}
-
-template <typename ValueType, typename ErrorType>
-inline ValueType expected<ValueType, ErrorType>::get_value_or(const ValueType& value) const noexcept
-{
-    return const_cast<expected*>(this)->get_value_or(value);
-}
-
-template <typename ValueType, typename ErrorType>
     inline ValueType&& expected<ValueType, ErrorType>::value() && noexcept
 {
     return std::move(*m_store.template get_at_index<0>());
@@ -282,44 +241,6 @@ inline const ValueType& expected<ValueType, ErrorType>::operator*() const noexce
 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_error(const cxx::function_ref<void(expected&)>& callable) noexcept
-{
-    if (this->has_error())
-    {
-        callable(*this);
-    }
-
-    return *this;
-}
-
-template <typename ValueType, typename ErrorType>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_error(const cxx::function_ref<void(expected&)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_error(callable);
-}
-
-template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_error(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
-{
-    if (this->has_error())
-    {
-        callable(get_error());
-    }
-
-    return *this;
-}
-
-template <typename ValueType, typename ErrorType>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_error(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_error(callable);
-}
-
-template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
 {
     if (this->has_error())
@@ -335,63 +256,6 @@ inline const expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept
 {
     return const_cast<expected*>(this)->or_else(callable);
-}
-
-template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_error(const cxx::function_ref<void()>& callable) noexcept
-{
-    if (this->has_error())
-    {
-        callable();
-    }
-
-    return *this;
-}
-
-template <typename ValueType, typename ErrorType>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_error(const cxx::function_ref<void()>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_error(callable);
-}
-
-template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void(expected&)>& callable) noexcept
-{
-    if (!this->has_error())
-    {
-        callable(*this);
-    }
-
-    return *this;
-}
-
-template <typename ValueType, typename ErrorType>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void(expected&)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_success(callable);
-}
-
-template <typename ValueType, typename ErrorType>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void(ValueType&)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_success(callable);
-}
-
-template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void(ValueType&)>& callable) noexcept
-{
-    if (!this->has_error())
-    {
-        callable(value());
-    }
-
-    return *this;
 }
 
 template <typename ValueType, typename ErrorType>
@@ -462,26 +326,6 @@ expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& ca
     }
 
     return *this;
-}
-
-
-template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void()>& callable) noexcept
-{
-    if (!this->has_error())
-    {
-        callable();
-    }
-
-    return *this;
-}
-
-template <typename ValueType, typename ErrorType>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void()>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_success(callable);
 }
 
 template <typename ValueType, typename ErrorType>
@@ -679,42 +523,6 @@ template <typename ErrorType>
 }
 
 template <typename ErrorType>
-inline expected<ErrorType>& expected<ErrorType>::on_error(const cxx::function_ref<void(expected&)>& callable) noexcept
-{
-    if (this->has_error())
-    {
-        callable(*this);
-    }
-
-    return *this;
-}
-
-template <typename ErrorType>
-inline const expected<ErrorType>&
-expected<ErrorType>::on_error(const cxx::function_ref<void(expected&)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_error(callable);
-}
-
-template <typename ErrorType>
-inline expected<ErrorType>& expected<ErrorType>::on_error(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
-{
-    if (this->has_error())
-    {
-        callable(get_error());
-    }
-
-    return *this;
-}
-
-template <typename ErrorType>
-inline const expected<ErrorType>&
-expected<ErrorType>::on_error(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_error(callable);
-}
-
-template <typename ErrorType>
 inline expected<ErrorType>& expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
 {
     if (this->has_error())
@@ -730,60 +538,6 @@ inline const expected<ErrorType>&
 expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept
 {
     return const_cast<expected*>(this)->or_else(callable);
-}
-
-template <typename ErrorType>
-inline expected<ErrorType>& expected<ErrorType>::on_error(const cxx::function_ref<void()>& callable) noexcept
-{
-    if (this->has_error())
-    {
-        callable();
-    }
-
-    return *this;
-}
-
-template <typename ErrorType>
-inline const expected<ErrorType>& expected<ErrorType>::on_error(const cxx::function_ref<void()>& callable) const
-    noexcept
-{
-    return const_cast<expected*>(this)->on_error(callable);
-}
-
-template <typename ErrorType>
-inline expected<ErrorType>& expected<ErrorType>::on_success(const cxx::function_ref<void(expected&)>& callable) noexcept
-{
-    if (!this->has_error())
-    {
-        callable(*this);
-    }
-
-    return *this;
-}
-
-template <typename ErrorType>
-inline const expected<ErrorType>&
-expected<ErrorType>::on_success(const cxx::function_ref<void(expected&)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->on_success(callable);
-}
-
-template <typename ErrorType>
-inline expected<ErrorType>& expected<ErrorType>::on_success(const cxx::function_ref<void()>& callable) noexcept
-{
-    if (!this->has_error())
-    {
-        callable();
-    }
-
-    return *this;
-}
-
-template <typename ErrorType>
-inline const expected<ErrorType>& expected<ErrorType>::on_success(const cxx::function_ref<void()>& callable) const
-    noexcept
-{
-    return const_cast<expected*>(this)->on_success(callable);
 }
 
 template <typename ErrorType>
