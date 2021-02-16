@@ -14,8 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
+#define IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
+
 #include "iceoryx_posh/popo/base_publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
+#include "iceoryx_posh/popo/typed_publisher.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 
 #include "test.hpp"
@@ -50,7 +54,7 @@ class MockPublisherPortUser
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1(tryAllocateChunk,
                  iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
-    MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
+    MOCK_METHOD1(releaseChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD1(sendChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD0(tryGetPreviousChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());
     MOCK_METHOD0(offer, void());
@@ -68,24 +72,36 @@ class MockPublisherPortUser
 };
 
 template <typename T>
-class MockBasePublisher : public iox::popo::PublisherInterface<T>
+class MockBasePublisher
 {
   public:
+    using PortType = MockPublisherPortUser;
+
     MockBasePublisher(const iox::capro::ServiceDescription&, const iox::popo::PublisherOptions&){};
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
-    MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
-    MOCK_METHOD1(loan_1_0, iox::cxx::expected<void*, iox::popo::AllocationError>(uint32_t));
-    MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&&));
-    MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::Sample<T>>());
-    MOCK_METHOD0(loanPreviousChunk, iox::cxx::optional<void*>());
     MOCK_METHOD0(offer, void(void));
     MOCK_METHOD0(stopOffer, void(void));
     MOCK_CONST_METHOD0(isOffered, bool(void));
     MOCK_CONST_METHOD0(hasSubscribers, bool(void));
-    void publish(iox::popo::Sample<T>&& sample) noexcept
+
+    const MockPublisherPortUser& port() const noexcept
     {
-        return publishMocked(std::move(sample));
-    };
+        return m_port;
+    }
+
+    MockPublisherPortUser& port() noexcept
+    {
+        return m_port;
+    }
+
+    // for testing
+    MockPublisherPortUser& mockPort() noexcept
+    {
+        return port();
+    }
+
     MockPublisherPortUser m_port;
 };
+
+#endif // IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP

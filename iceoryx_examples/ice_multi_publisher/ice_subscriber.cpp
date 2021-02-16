@@ -42,13 +42,11 @@ void receive()
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        while (subscriber.hasSamples())
+        while (subscriber.hasData())
         {
             subscriber.take()
-                .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                    std::cout << "Received: " << *sample.get() << std::endl;
-                })
-                .or_else([](iox::popo::ChunkReceiveResult) { std::cout << "Error while receiving." << std::endl; });
+                .and_then([](auto& sample) { std::cout << "Received: " << *sample.get() << std::endl; })
+                .or_else([](auto&) { std::cout << "Error while receiving." << std::endl; });
         };
         std::cout << "Waiting for data ... " << std::endl;
     }

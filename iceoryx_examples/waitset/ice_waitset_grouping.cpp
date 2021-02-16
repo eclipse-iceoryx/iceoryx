@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,13 +60,13 @@ int main()
     // attach the first two subscribers to waitset with a eventid of FIRST_GROUP_ID
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
-        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_SAMPLES, FIRST_GROUP_ID);
+        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, FIRST_GROUP_ID);
     }
 
     // attach the remaining subscribers to waitset with a eventid of SECOND_GROUP_ID
     for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_SAMPLES, SECOND_GROUP_ID);
+        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, SECOND_GROUP_ID);
     }
 
     // event loop
@@ -85,9 +85,10 @@ int main()
             else if (event->getEventId() == FIRST_GROUP_ID)
             {
                 auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
-                subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
-                    const CounterTopic* data = static_cast<const CounterTopic*>(sample.get());
+                subscriber->take().and_then([&](auto& payload) {
+                    const CounterTopic* data = static_cast<const CounterTopic*>(payload);
                     std::cout << "received: " << std::dec << data->counter << std::endl;
+                    subscriber->releaseChunk(payload);
                 });
             }
             // dismiss the received data for the second group
@@ -95,10 +96,10 @@ int main()
             {
                 std::cout << "dismiss data\n";
                 auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
-                // We need to release the samples to reset the trigger hasSamples
+                // We need to release the data to reset the trigger hasData
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.
-                subscriber->releaseQueuedSamples();
+                subscriber->releaseQueuedData();
             }
         }
 

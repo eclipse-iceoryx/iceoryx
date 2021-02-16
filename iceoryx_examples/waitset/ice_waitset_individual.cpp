@@ -49,8 +49,8 @@ int main()
     subscriber1.subscribe();
     subscriber2.subscribe();
 
-    waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_SAMPLES);
-    waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_DATA);
+    waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_DATA);
 
     // event loop
     while (true)
@@ -67,9 +67,8 @@ int main()
             // process sample received by subscriber1
             else if (event->doesOriginateFrom(&subscriber1))
             {
-                subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
-                    std::cout << " subscriber 1 received: " << sample->counter << std::endl;
-                });
+                subscriber1.take().and_then(
+                    [&](auto& sample) { std::cout << " subscriber 1 received: " << sample->counter << std::endl; });
             }
             // dismiss sample received by subscriber2
             if (event->doesOriginateFrom(&subscriber2))
@@ -77,7 +76,7 @@ int main()
                 // We need to release the samples to reset the trigger hasSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.
-                subscriber2.releaseQueuedSamples();
+                subscriber2.releaseQueuedData();
                 std::cout << "subscriber 2 received something - dont care\n";
             }
         }

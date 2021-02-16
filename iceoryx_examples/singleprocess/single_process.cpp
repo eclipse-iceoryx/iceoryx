@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -85,11 +86,16 @@ void subscriber()
             do
             {
                 subscriber.take()
-                    .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
+                    .and_then([&](auto& sample) {
                         consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
                     })
-                    .if_empty([&] { hasMoreSamples = false; })
-                    .or_else([](auto) { std::cout << "Error receiving sample: " << std::endl; });
+                    .or_else([&](auto& result) {
+                        hasMoreSamples = false;
+                        if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                        {
+                            std::cout << "Error receiving chunk." << std::endl;
+                        }
+                    });
             } while (hasMoreSamples);
         }
 

@@ -131,16 +131,20 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
 
-    /// @brief creates the unix domain socket
+    /// @brief initializes the unix domain socket
     /// @param mode blocking or non_blocking
-    /// @return int with the socket file descriptor, IpcChannelError if error occured
-    cxx::expected<int32_t, IpcChannelError> createSocket(const IpcChannelMode mode) noexcept;
+    /// @return IpcChannelError if error occured
+    cxx::expected<IpcChannelError> initalizeSocket(const IpcChannelMode mode) noexcept;
 
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
 
     static bool isNameValid(const UdsName_t& name) noexcept;
+
+    /// @brief Tries to close the file descriptor
+    /// @return IpcChannelError if error occured
+    cxx::expected<IpcChannelError> closeFileDescriptor() noexcept;
 
   private:
     UdsName_t m_name;

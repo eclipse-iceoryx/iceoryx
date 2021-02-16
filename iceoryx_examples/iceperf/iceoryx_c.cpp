@@ -77,14 +77,14 @@ void IceoryxC::shutdown() noexcept
 
 void IceoryxC::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    void* sample = nullptr;
-    if (iox_pub_allocate_chunk(m_publisher, &sample, payloadSizeInBytes) == AllocationResult_SUCCESS)
+    void* chunk = nullptr;
+    if (iox_pub_allocate_chunk(m_publisher, &chunk, payloadSizeInBytes) == AllocationResult_SUCCESS)
     {
-        auto sendSample = static_cast<PerfTopic*>(sample);
+        auto sendSample = static_cast<PerfTopic*>(chunk);
         sendSample->payloadSize = payloadSizeInBytes;
         sendSample->run = runFlag;
         sendSample->subPackets = 1;
-        iox_pub_send_chunk(m_publisher, sample);
+        iox_pub_send_chunk(m_publisher, chunk);
     }
 }
 

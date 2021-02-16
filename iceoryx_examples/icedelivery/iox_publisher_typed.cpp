@@ -53,7 +53,7 @@ int main()
         //  * Retrieve a typed sample from shared memory.
         //  * Sample can be held until ready to publish.
         //  * Data is default constructed during loan
-        auto result = publisher.loan_1_0();
+        auto result = publisher.loan();
         if (!result.has_error())
         {
             auto& sample = result.value();
@@ -72,7 +72,7 @@ int main()
         //  * Retrieve a typed sample from shared memory and construct data in-place
         //  * Sample can be held until ready to publish.
         //  * Data is constructed with the aruments provided.
-        result = publisher.loan_1_0(ct, ct, ct);
+        result = publisher.loan(ct, ct, ct);
         if (!result.has_error())
         {
             result.value().publish();
@@ -86,7 +86,7 @@ int main()
         // API Usage #3
         //  * Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
         //
-        publisher.loan_1_0()
+        publisher.loan()
             .and_then([&](auto& sample) {
                 auto object = sample.get();
                 // Do some stuff leading to eventually generating the data in the samples loaned memory...
