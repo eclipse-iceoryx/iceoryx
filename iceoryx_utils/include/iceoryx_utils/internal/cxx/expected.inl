@@ -159,6 +159,7 @@ inline const ErrorType&& expected<ValueType, ErrorType>::get_error() const&& noe
     }
     else
     {
+        std::cerr << "get_error() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -172,6 +173,7 @@ template <typename ValueType, typename ErrorType>
     }
     else
     {
+        std::cerr << "get_error() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -185,6 +187,7 @@ template <typename ValueType, typename ErrorType>
     }
     else
     {
+        std::cerr << "get_error() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -198,6 +201,7 @@ inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexc
     }
     else
     {
+        std::cerr << "get_error() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -211,6 +215,7 @@ template <typename ValueType, typename ErrorType>
     }
     else
     {
+        std::cerr << "value() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -224,6 +229,7 @@ inline const ValueType& expected<ValueType, ErrorType>::value() const& noexcept
     }
     else
     {
+        std::cerr << "value() called on invalid object" << std::endl;
         std::terminate();
     }
 } // namespace cxx
@@ -237,6 +243,7 @@ inline const ValueType&& expected<ValueType, ErrorType>::value() const&& noexcep
     }
     else
     {
+        std::cerr << "value() called on invalid object" << std::endl;
         std::terminate();
     }
 } // namespace iox
@@ -250,6 +257,7 @@ template <typename ValueType, typename ErrorType>
     }
     else
     {
+        std::cerr << "value() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -280,6 +288,7 @@ inline ValueType* expected<ValueType, ErrorType>::operator->() noexcept
     }
     else
     {
+        std::cerr << "operator->() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -299,6 +308,7 @@ inline ValueType& expected<ValueType, ErrorType>::operator*() noexcept
     }
     else
     {
+        std::cerr << "operator*() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -577,6 +587,7 @@ template <typename ErrorType>
     }
     else
     {
+        std::cerr << "get_error() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -590,6 +601,7 @@ inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
     }
     else
     {
+        std::cerr << "get_error() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -603,6 +615,7 @@ inline const ErrorType&& expected<ErrorType>::get_error() const&& noexcept
     }
     else
     {
+        std::cerr << "get_error() called on invalid object" << std::endl;
         std::terminate();
     }
 }
@@ -616,6 +629,7 @@ template <typename ErrorType>
     }
     else
     {
+        std::cerr << "get_error() called on invalid object" << std::endl;
         std::terminate();
     }
 }
