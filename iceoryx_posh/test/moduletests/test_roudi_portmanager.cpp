@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #include "test.hpp"
 
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
@@ -123,6 +122,22 @@ class PortManager_test : public Test
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
+
+    void acquireMaxNumberOfEventVariables(
+        const std::string& process,
+        std::function<void(iox::popo::EventVariableData*)> f = std::function<void(iox::popo::EventVariableData*)>())
+    {
+        for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
+        {
+            iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
+            auto eventVariableData = m_portManager->acquireEventVariableData(newProcessName);
+            ASSERT_THAT(eventVariableData.has_error(), Eq(false));
+            if (f)
+            {
+                f(eventVariableData.value());
+            }
+        }
+    }
 };
 
 
@@ -447,12 +462,7 @@ TEST_F(PortManager_test, AcquiringMaximumNumberOfEventVariablesWorks)
 {
     std::string process = "BuddyHolly";
 
-    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
-    {
-        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
-        auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
-        EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
-    }
+    acquireMaxNumberOfEventVariables(process);
 }
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfEventVariableFails)
@@ -460,12 +470,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfEventVariableFails)
     std::string process = "BuddyHollysBrille";
 
     // first acquire all possible event variables
-    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
-    {
-        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
-        auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
-        ASSERT_THAT(eventVariableDataResult.has_error(), Eq(false));
-    }
+    acquireMaxNumberOfEventVariables(process);
 
     // test if overflow errors get hit
     auto errorHandlerCalled{false};
@@ -485,12 +490,7 @@ TEST_F(PortManager_test, DeletingEventVariableWorks)
     std::string process = "BudSpencer";
 
     // first acquire all possible event variables
-    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
-    {
-        iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
-        auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
-        ASSERT_THAT(eventVariableDataResult.has_error(), Eq(false));
-    }
+    acquireMaxNumberOfEventVariables(process);
 
     // delete one and add one eventVariableDataResult should be possible now
     unsigned int i = 0U;
@@ -507,31 +507,19 @@ TEST_F(PortManager_test, DestroyEventVariableAndAddNewOneSucceeds)
     std::vector<iox::popo::EventVariableData*> eventVariableContainer;
 
     // first acquire all possible event variables
-    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
-    {
-        auto eventVariableDataResult = m_portManager->acquireEventVariableData(process);
-        EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
-        eventVariableContainer.push_back(eventVariableDataResult.value());
-    }
-
-    // so now no event variables should be available
-    auto eventVariableDataResult = m_portManager->acquireEventVariableData(process);
-    EXPECT_THAT(eventVariableDataResult.has_error(), Eq(true));
+    acquireMaxNumberOfEventVariables(
+        process, [&](auto eventVariableData) { eventVariableContainer.push_back(eventVariableData); });
 
     // set the destroy flag and let the discovery loop take care
-    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
+    for (const auto& eventVariable : eventVariableContainer)
     {
-        eventVariableContainer[i]->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+        eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     }
     m_portManager->doDiscovery();
     eventVariableContainer.clear();
 
-    // so we should be able to get some more now
-    for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
-    {
-        auto eventVariableDataResult = m_portManager->acquireEventVariableData(process);
-        EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
-    }
+    // we should be able to get some more now
+    acquireMaxNumberOfEventVariables(process);
 }
 
 TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)

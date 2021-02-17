@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
@@ -24,7 +27,7 @@ cxx::optional<MemoryMap> MemoryMap::create(const void* f_baseAddressHint,
                                            const int32_t f_fileDescriptor,
                                            const AccessMode f_accessMode,
                                            const int32_t f_flags,
-                                           const off_t f_offset)
+                                           const off_t f_offset) noexcept
 {
     cxx::optional<MemoryMap> returnValue;
     returnValue.emplace(f_baseAddressHint, f_length, f_fileDescriptor, f_accessMode, f_flags, f_offset);
@@ -44,7 +47,7 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
                      const int32_t f_fileDescriptor,
                      const AccessMode f_accessMode,
                      const int32_t f_flags,
-                     const off_t f_offset)
+                     const off_t f_offset) noexcept
     : m_length(f_length)
 {
     int32_t l_memoryProtection{PROT_NONE};
@@ -103,15 +106,20 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
 } // namespace posix
 
 
-MemoryMap::MemoryMap(MemoryMap&& rhs)
+MemoryMap::MemoryMap(MemoryMap&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-MemoryMap& MemoryMap::operator=(MemoryMap&& rhs)
+MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
 {
     if (this != &rhs)
     {
+        if (!destroy())
+        {
+            std::cerr << "move assignment failed to unmap mapped memory" << std::endl;
+        }
+
         m_isInitialized = std::move(rhs.m_isInitialized);
         m_baseAddress = std::move(rhs.m_baseAddress);
         m_length = std::move(rhs.m_length);
@@ -123,20 +131,38 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs)
 
 MemoryMap::~MemoryMap()
 {
-    if (m_isInitialized)
+    if (!destroy())
     {
-        cxx::makeSmartC(munmap, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_baseAddress, m_length);
+        std::cerr << "destructor failed to unmap mapped memory" << std::endl;
     }
 }
 
-bool MemoryMap::isInitialized() const
+bool MemoryMap::isInitialized() const noexcept
 {
     return m_isInitialized;
 }
 
-void* MemoryMap::getBaseAddress() const
+void* MemoryMap::getBaseAddress() const noexcept
 {
     return m_baseAddress;
 }
+
+bool MemoryMap::destroy() noexcept
+{
+    if (m_isInitialized)
+    {
+        m_isInitialized = false;
+        if (cxx::makeSmartC(munmap, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_baseAddress, m_length)
+                .hasErrors())
+        {
+            std::cerr << "unable to unmap mapped memory [ address = " << std::hex << m_baseAddress
+                      << ", size = " << std::dec << m_length << " ]" << std::endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
 } // namespace posix
 } // namespace iox

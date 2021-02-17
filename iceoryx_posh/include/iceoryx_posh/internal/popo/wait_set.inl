@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #ifndef IOX_POSH_POPO_WAIT_SET_INL
 #define IOX_POSH_POPO_WAIT_SET_INL
 

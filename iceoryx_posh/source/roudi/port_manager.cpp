@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -567,7 +566,7 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     LogDebug() << "Destroyed subscriber port";
 }
 
-runtime::MqMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
+runtime::IpcMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
 {
     // send find to all interfaces
     capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, service);
@@ -579,7 +578,7 @@ runtime::MqMessage PortManager::findService(const capro::ServiceDescription& ser
     }
 
     // add all found instances to instanceString
-    runtime::MqMessage instanceMessage;
+    runtime::IpcMessage instanceMessage;
 
     ServiceRegistry::InstanceSet_t instances;
     m_serviceRegistry.find(instances, service.getServiceIDString(), service.getInstanceIDString());

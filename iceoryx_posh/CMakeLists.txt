@@ -1,5 +1,5 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-
 cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_posh_VERSION)
 project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
@@ -114,8 +113,11 @@ add_library(iceoryx_posh
     source/popo/trigger_handle.cpp
     source/popo/user_trigger.cpp
     source/version/version_info.cpp
-    source/runtime/message_queue_interface.cpp
-    source/runtime/message_queue_message.cpp
+    source/runtime/ipc_interface_base.cpp
+    source/runtime/ipc_interface_user.cpp
+    source/runtime/ipc_interface_creator.cpp
+    source/runtime/ipc_runtime_interface.cpp
+    source/runtime/ipc_message.cpp
     source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
     source/runtime/posh_runtime_single_process.cpp

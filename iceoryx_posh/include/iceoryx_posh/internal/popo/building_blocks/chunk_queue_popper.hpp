@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_HPP
 
@@ -86,7 +85,7 @@ class ChunkQueuePopper
     /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
     void setConditionVariable(cxx::not_null<ConditionVariableData*> conditionVariableDataPtr) noexcept;
 
-    /// @todo remove once ConditionVariable and EventVariable are combined
+    /// @todo iox-#350 remove once ConditionVariable and EventVariable are combined
     // unset is done with unsetConditionVariable
     void setEventVariable(EventVariableData& eventVariableDataPtr, const uint64_t eventId) noexcept;
 
