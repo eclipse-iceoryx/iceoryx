@@ -72,7 +72,7 @@ class Creation
         if (this != &rhs)
         {
             m_isInitialized = rhs.m_isInitialized;
-            m_errorValue = rhs.m_errorValue;
+            m_errorValue = std::move(rhs.m_errorValue);
             rhs.m_isInitialized = false;
         }
         return *this;
