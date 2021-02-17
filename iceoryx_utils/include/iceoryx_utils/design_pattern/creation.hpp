@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,62 +30,21 @@ class Creation
     using errorType_t = ErrorType;
 
     template <typename... Targs>
-    static result_t create(Targs&&... args) noexcept
-    {
-        return verify(DerivedClass(std::forward<Targs>(args)...));
-    }
+    static result_t create(Targs&&... args) noexcept;
 
-    static result_t verify(DerivedClass&& newObject) noexcept
-    {
-        if (!newObject.m_isInitialized)
-        {
-            return iox::cxx::error<ErrorType>(newObject.m_errorValue);
-        }
-
-        return iox::cxx::success<DerivedClass>(std::move(newObject));
-    }
+    static result_t verify(DerivedClass&& newObject) noexcept;
 
     template <typename... Targs>
-    static iox::cxx::expected<ErrorType> placementCreate(void* const memory, Targs&&... args) noexcept
-    {
-        auto newClass = static_cast<DerivedClass*>(memory);
-        new (newClass) DerivedClass(std::forward<Targs>(args)...);
-
-        if (!newClass->m_isInitialized)
-        {
-            ErrorType errorValue = newClass->m_errorValue;
-            newClass->~DerivedClass();
-            return iox::cxx::error<ErrorType>(errorValue);
-        }
-
-        return iox::cxx::success<>();
-    }
+    static iox::cxx::expected<ErrorType> placementCreate(void* const memory, Targs&&... args) noexcept;
 
     Creation() noexcept = default;
+    Creation(Creation&& rhs) noexcept;
 
-    Creation(Creation&& rhs) noexcept
-    {
-        *this = std::move(rhs);
-    }
-
-    Creation& operator=(Creation&& rhs) noexcept
-    {
-        if (this != &rhs)
-        {
-            m_isInitialized = rhs.m_isInitialized;
-            m_errorValue = std::move(rhs.m_errorValue);
-            rhs.m_isInitialized = false;
-        }
-        return *this;
-    }
-
+    Creation& operator=(Creation&& rhs) noexcept;
     Creation(const Creation& rhs) noexcept = default;
     Creation& operator=(const Creation& rhs) noexcept = default;
 
-    bool isInitialized() const noexcept
-    {
-        return m_isInitialized;
-    }
+    bool isInitialized() const noexcept;
 
   protected:
     bool m_isInitialized{false};
@@ -92,5 +52,7 @@ class Creation
 };
 
 } // namespace DesignPattern
+
+#include "iceoryx_utils/internal/design_pattern/creation.inl"
 
 #endif // IOX_UTILS_DESIGN_PATTERN_CREATION_HPP
