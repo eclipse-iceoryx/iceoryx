@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_VECTOR_INL
 #define IOX_UTILS_CXX_VECTOR_INL
 
@@ -27,8 +29,11 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
 {
     if (count > Capacity)
     {
-        std::cerr << "Attemting to initialize a vector with more elements than its capacity!" << std::endl;
+        std::cerr << "Attemting to initialize a vector of capacity " << Capacity << " with " << count
+                  << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!"
+                  << std::endl;
     }
+
     for (uint64_t i = 0u; i < count && i < Capacity; ++i)
     {
         emplace_back(value);
@@ -37,8 +42,19 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
 
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count)
-    : vector(count, T())
 {
+    if (count > Capacity)
+    {
+        std::cerr << "Attemting to initialize a vector of capacity " << Capacity << " with " << count
+                  << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!"
+                  << std::endl;
+    }
+
+    m_size = std::min(count, Capacity);
+    for (uint64_t i = 0U; i < m_size; ++i)
+    {
+        new (&at(i)) T();
+    }
 }
 
 template <typename T, uint64_t Capacity>

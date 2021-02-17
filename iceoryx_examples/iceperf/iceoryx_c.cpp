@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_c.hpp"
 
@@ -18,9 +20,8 @@
 #include <thread>
 
 IceoryxC::IceoryxC(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
-    : m_publisher(iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", 0U))
-    , m_subscriber(iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", 10U, 0U))
-
+    : m_publisher(iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", 0U, "Slapstick"))
+    , m_subscriber(iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", 10U, 0U, "Slapstick"))
 {
 }
 
@@ -76,14 +77,14 @@ void IceoryxC::shutdown() noexcept
 
 void IceoryxC::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    void* sample = nullptr;
-    if (iox_pub_allocate_chunk(m_publisher, &sample, payloadSizeInBytes) == AllocationResult_SUCCESS)
+    void* chunk = nullptr;
+    if (iox_pub_allocate_chunk(m_publisher, &chunk, payloadSizeInBytes) == AllocationResult_SUCCESS)
     {
-        auto sendSample = static_cast<PerfTopic*>(sample);
+        auto sendSample = static_cast<PerfTopic*>(chunk);
         sendSample->payloadSize = payloadSizeInBytes;
         sendSample->run = runFlag;
         sendSample->subPackets = 1;
-        iox_pub_send_chunk(m_publisher, sample);
+        iox_pub_send_chunk(m_publisher, chunk);
     }
 }
 

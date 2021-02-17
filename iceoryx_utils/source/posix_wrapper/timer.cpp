@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
@@ -452,7 +454,7 @@ Timer::Timer(const units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().value())
 {
-    if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
+    if (m_timeToWait.toNanoseconds() == 0U)
     {
         m_errorValue = TimerError::TIMEOUT_IS_ZERO;
     }
@@ -462,7 +464,7 @@ Timer::Timer(const units::Duration timeToWait, const std::function<void()>& call
     : m_timeToWait(timeToWait)
     , m_creationTime(now().value())
 {
-    if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
+    if (m_timeToWait.toNanoseconds() == 0U)
     {
         m_errorValue = TimerError::TIMEOUT_IS_ZERO;
         return;
@@ -499,7 +501,7 @@ cxx::expected<TimerError> Timer::stop() noexcept
 cxx::expected<TimerError>
 Timer::restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
-    if (timeToWait.nanoSeconds<uint64_t>() == 0u)
+    if (timeToWait.toNanoseconds() == 0U)
     {
         return cxx::error<TimerError>(TimerError::TIMEOUT_IS_ZERO);
     }

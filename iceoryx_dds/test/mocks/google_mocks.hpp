@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
 #define IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
@@ -33,23 +35,19 @@ using namespace ::testing;
 using ::testing::_;
 
 template <typename T>
-class MockPublisher : public iox::popo::PublisherInterface<T>
+class MockPublisher
 {
   public:
     MockPublisher(const iox::capro::ServiceDescription&, const iox::popo::PublisherOptions&){};
     virtual ~MockPublisher() = default;
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
-    MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&&));
+    MOCK_METHOD1_T(publish, void(iox::popo::Sample<T>&&));
     MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::Sample<T>>());
     MOCK_METHOD0(offer, void(void));
     MOCK_METHOD0(stopOffer, void(void));
     MOCK_CONST_METHOD0(isOffered, bool(void));
     MOCK_CONST_METHOD0(hasSubscribers, bool(void));
-    void publish(iox::popo::Sample<T>&& sample) noexcept
-    {
-        return publishMocked(std::move(sample));
-    };
 };
 
 template <typename T>
@@ -62,11 +60,11 @@ class MockSubscriber
     MOCK_METHOD0(subscribe, void());
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
     MOCK_METHOD0(unsubscribe, void());
-    MOCK_CONST_METHOD0(hasSamples, bool());
-    MOCK_METHOD0(hasMissedSamples, bool());
+    MOCK_CONST_METHOD0(hasData, bool());
+    MOCK_METHOD0(hasMissedData, bool());
     MOCK_METHOD0_T(take,
                    iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveResult>());
-    MOCK_METHOD0(releaseQueuedSamples, void());
+    MOCK_METHOD0(releaseQueuedData, void());
     MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
     MOCK_METHOD0(unsetConditionVariable, bool(void));
     MOCK_METHOD0(hasTriggered, bool(void));

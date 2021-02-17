@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
@@ -190,7 +192,7 @@ TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 {
     UserTrigger sut;
-    m_waitSet.attachEvent(sut, 123U, UserTrigger_test::callback);
+    m_waitSet.attachEvent(sut, 123U, &UserTrigger_test::callback);
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();
@@ -203,7 +205,7 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
 {
     UserTrigger sut;
-    m_waitSet.attachEvent(sut, 0U, UserTrigger_test::callback);
+    m_waitSet.attachEvent(sut, 0U, &UserTrigger_test::callback);
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();

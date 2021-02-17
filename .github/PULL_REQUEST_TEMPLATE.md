@@ -10,7 +10,7 @@
    - Link to the relevant issue
 1. [ ] Relevant issues are linked
 1. [ ] Add sensible notes for the reviewer
-1. [ ] All checks have passed
+1. [ ] All checks have passed (except `task-list-completed`)
 1. [ ] Assign PR to reviewer
 
 [commit-guidelines]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html

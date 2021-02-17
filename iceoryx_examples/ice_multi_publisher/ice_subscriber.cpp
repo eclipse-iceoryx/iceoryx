@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
@@ -29,7 +31,10 @@ static void sigHandler(int sig [[gnu::unused]])
 
 void receive()
 {
-    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.nodeName = "uMgungundlovu";
+
+    iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"}, subscriberOptions);
 
     subscriber.subscribe();
 
@@ -37,13 +42,11 @@ void receive()
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        while (subscriber.hasSamples())
+        while (subscriber.hasData())
         {
             subscriber.take()
-                .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                    std::cout << "Received: " << *sample.get() << std::endl;
-                })
-                .or_else([](iox::popo::ChunkReceiveResult) { std::cout << "Error while receiving." << std::endl; });
+                .and_then([](auto& sample) { std::cout << "Received: " << *sample.get() << std::endl; })
+                .or_else([](auto&) { std::cout << "Error while receiving." << std::endl; });
         };
         std::cout << "Waiting for data ... " << std::endl;
     }

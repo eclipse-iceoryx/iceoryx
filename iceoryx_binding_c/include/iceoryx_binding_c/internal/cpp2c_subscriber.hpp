@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_BINDING_C_CPP2C_SUBSCRIBER_HPP
 #define IOX_BINDING_C_CPP2C_SUBSCRIBER_HPP
@@ -29,17 +31,16 @@ struct cpp2c_Subscriber
     cpp2c_Subscriber& operator=(const cpp2c_Subscriber&) = delete;
     cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) = delete;
 
-    iox::cxx::expected<iox::popo::WaitSetError>
-    enableEvent(iox::popo::WaitSet<>& waitset,
-                const iox_SubscriberEvent event,
-                const uint64_t eventId,
-                const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback) noexcept;
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const iox_SubscriberEvent subscriberEvent) noexcept;
 
     void disableEvent(const iox_SubscriberEvent event) noexcept;
 
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
     bool hasSamples() const noexcept;
+
+    iox::popo::WaitSetHasTriggeredCallback
+    getHasTriggeredCallbackForEvent(const iox_SubscriberEvent subscriberEvent) const noexcept;
 
 
     iox::popo::SubscriberPortData* m_portData{nullptr};
