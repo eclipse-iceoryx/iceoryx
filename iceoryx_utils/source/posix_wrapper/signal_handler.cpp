@@ -79,9 +79,9 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
 
     if (cxx::makeSmartC(sigemptyset, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &action.sa_mask).hasErrors())
     {
-        std::cerr << "Unable to create an empty sigaction set while registering signal handler. No signal handler will "
-                     "be registered!"
-                  << std::endl;
+        std::cerr << "This should never happen! Unable to create an empty sigaction set while registering a signal "
+                     "handler for the signal ["
+                  << static_cast<int>(signal) << "]. No signal handler will be registered!" << std::endl;
         return SignalGuard();
     }
 
@@ -99,7 +99,8 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
                         &previousAction)
             .hasErrors())
     {
-        std::cerr << "This should never happen! An error occurred while registering a signal handler." << std::endl;
+        std::cerr << "This should never happen! An error occurred while registering a signal handler for the signal ["
+                  << static_cast<int>(signal) << "]. " << std::endl;
     }
 
     return SignalGuard(signal, previousAction);
