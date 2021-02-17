@@ -25,22 +25,22 @@ using namespace ::testing;
 class alignas(32) MemPool_test : public Test
 {
   public:
-    static constexpr uint32_t NumberOfChunks{100U};
-    static constexpr uint32_t ChunkSize{64U};
+    static constexpr uint32_t NUMBER_OF_CHUNKS{100U};
+    static constexpr uint32_t CHUNK_SIZE{64U};
 
-    static constexpr uint32_t LoFFLiMemoryRequirement{
-        iox::mepoo::MemPool::freeList_t::requiredMemorySize(NumberOfChunks) + 10000};
+    static constexpr uint32_t LOFFLI_MEMORY_REQUIREMENT{
+        iox::mepoo::MemPool::freeList_t::requiredMemorySize(NUMBER_OF_CHUNKS) + 10000U};
 
     MemPool_test()
-        : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
-        , sut(ChunkSize, NumberOfChunks, &allocator, &allocator)
+        : allocator(m_rawMemory, NUMBER_OF_CHUNKS * CHUNK_SIZE + LOFFLI_MEMORY_REQUIREMENT)
+        , sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator)
     {
     }
 
     void SetUp(){};
     void TearDown(){};
 
-    alignas(32) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
+    alignas(32) uint8_t m_rawMemory[NUMBER_OF_CHUNKS * CHUNK_SIZE + LOFFLI_MEMORY_REQUIREMENT];
     iox::posix::Allocator allocator;
 
     iox::mepoo::MemPool sut;
@@ -49,20 +49,20 @@ class alignas(32) MemPool_test : public Test
 TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
 {
     char memory[8192];
-    iox::posix::Allocator allocator1{memory, 8192U};
+    iox::posix::Allocator allocator{memory, 8192U};
 
-    iox::mepoo::MemPool sut1(ChunkSize, NumberOfChunks, &allocator1, &allocator1);
+    iox::mepoo::MemPool sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator);
 
-    EXPECT_THAT(sut1.getChunkSize(), Eq(ChunkSize));
-    EXPECT_THAT(sut1.getChunkCount(), Eq(NumberOfChunks));
-    EXPECT_THAT(sut1.getMinFree(), Eq(NumberOfChunks));
+    EXPECT_THAT(sut.getChunkSize(), Eq(CHUNK_SIZE));
+    EXPECT_THAT(sut.getChunkCount(), Eq(NUMBER_OF_CHUNKS));
+    EXPECT_THAT(sut.getMinFree(), Eq(NUMBER_OF_CHUNKS));
 }
 
 TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnError)
 {
     char memory[8192U];
-    iox::posix::Allocator allocator1{memory, 100U};
-    uint32_t NotAlignedChunkSize = 33U;
+    iox::posix::Allocator allocator{memory, 100U};
+    constexpr uint32_t NOT_ALLIGNED_CHUNKED_SIZE{33U};
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -71,7 +71,7 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
         });
 
-    iox::mepoo::MemPool sut1(NotAlignedChunkSize, NumberOfChunks, &allocator1, &allocator1);
+    iox::mepoo::MemPool sut(NOT_ALLIGNED_CHUNKED_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator);
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(
@@ -82,19 +82,23 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
 
 TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThan32BytesGetsTerminated)
 {
-    uint32_t chunkSizeSmallerThan32Bytes = 12U;
-    EXPECT_DEATH({ iox::mepoo::MemPool sut(chunkSizeSmallerThan32Bytes, NumberOfChunks, &allocator, &allocator); },
-                 ".*");
+    constexpr uint32_t CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT = iox::mepoo::MemPool::MEMORY_ALIGNMENT - 1U;
+
+    EXPECT_DEATH(
+        {
+            iox::mepoo::MemPool sut(CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT, NUMBER_OF_CHUNKS, &allocator, &allocator);
+        },
+        ".*");
 }
 
 TEST_F(MemPool_test, MempoolCtorWhenNumberOfChunksIsZeroGetsTerminated)
 {
     uint32_t invalidNumberOfChunks = 0U;
-    EXPECT_DEATH({ iox::mepoo::MemPool sut(ChunkSize, invalidNumberOfChunks, &allocator, &allocator); }, ".*");
+    EXPECT_DEATH({ iox::mepoo::MemPool sut(CHUNK_SIZE, invalidNumberOfChunks, &allocator, &allocator); }, ".*");
 }
 TEST_F(MemPool_test, GetChunkMethodWhenAllTheChunksAreUsedReturnsNullPointer)
 {
-    for (uint8_t i = 0; i < NumberOfChunks; i++)
+    for (uint8_t i = 0U; i < NUMBER_OF_CHUNKS; i++)
     {
         sut.getChunk();
     }
@@ -105,7 +109,7 @@ TEST_F(MemPool_test, GetChunkMethodWhenAllTheChunksAreUsedReturnsNullPointer)
 TEST_F(MemPool_test, WritingDataToAChunkStoresTheCorrespondingDataInTheChunk)
 {
     std::vector<uint8_t*> chunks;
-    for (uint8_t i = 0; i < NumberOfChunks; i++)
+    for (uint8_t i = 0U; i < NUMBER_OF_CHUNKS; i++)
     {
         auto chunk = sut.getChunk();
         ASSERT_THAT(chunk, Ne(nullptr));
@@ -113,7 +117,7 @@ TEST_F(MemPool_test, WritingDataToAChunkStoresTheCorrespondingDataInTheChunk)
         *chunks.back() = i;
     }
 
-    for (uint8_t i = 0; i < NumberOfChunks; i++)
+    for (uint8_t i = 0U; i < NUMBER_OF_CHUNKS; i++)
     {
         EXPECT_THAT(*chunks[i], Eq(i));
     }
@@ -121,17 +125,17 @@ TEST_F(MemPool_test, WritingDataToAChunkStoresTheCorrespondingDataInTheChunk)
 
 TEST_F(MemPool_test, GetChunkSizeMethodReturnsTheSizeOfTheChunk)
 {
-    EXPECT_THAT(sut.getChunkSize(), Eq(ChunkSize));
+    EXPECT_THAT(sut.getChunkSize(), Eq(CHUNK_SIZE));
 }
 
 TEST_F(MemPool_test, GetChunkCountMethodReturnsTheNumberOfChunks)
 {
-    EXPECT_THAT(sut.getChunkCount(), Eq(NumberOfChunks));
+    EXPECT_THAT(sut.getChunkCount(), Eq(NUMBER_OF_CHUNKS));
 }
 
 TEST_F(MemPool_test, GetUsedChunksMethodReturnsTheNumberOfUsedChunks)
 {
-    for (uint32_t i = 0; i < NumberOfChunks; ++i)
+    for (uint32_t i = 0U; i < NUMBER_OF_CHUNKS; ++i)
     {
         sut.getChunk();
         EXPECT_THAT(sut.getUsedChunks(), Eq(i + 1U));
@@ -141,15 +145,15 @@ TEST_F(MemPool_test, GetUsedChunksMethodReturnsTheNumberOfUsedChunks)
 TEST_F(MemPool_test, VerifyFreeChunkMethodWhichFreesTheUsedChunk)
 {
     std::vector<uint8_t*> chunks;
-    for (uint32_t i = 0; i < NumberOfChunks; ++i)
+    for (uint32_t i = 0U; i < NUMBER_OF_CHUNKS; ++i)
     {
         chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
     }
 
-    for (uint32_t i = 0; i < NumberOfChunks; ++i)
+    for (uint32_t i = 0U; i < NUMBER_OF_CHUNKS; ++i)
     {
         sut.freeChunk(chunks[i]);
-        EXPECT_THAT(sut.getUsedChunks(), Eq(NumberOfChunks - (i + 1U)));
+        EXPECT_THAT(sut.getUsedChunks(), Eq(NUMBER_OF_CHUNKS - (i + 1U)));
     }
 }
 
@@ -184,9 +188,9 @@ TEST_F(MemPool_test, FreeChunkMethodWhenTheChunkIndexIsInvalidReturnsError)
 TEST_F(MemPool_test, GetMinFreeMethodReturnsTheNumberOfFreeChunks)
 {
     std::vector<uint8_t*> chunks;
-    for (uint32_t i = 0; i < NumberOfChunks; ++i)
+    for (uint32_t i = 0U; i < NUMBER_OF_CHUNKS; ++i)
     {
         chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
-        EXPECT_THAT(sut.getMinFree(), Eq(NumberOfChunks - (i + 1U)));
+        EXPECT_THAT(sut.getMinFree(), Eq(NUMBER_OF_CHUNKS - (i + 1U)));
     }
 }

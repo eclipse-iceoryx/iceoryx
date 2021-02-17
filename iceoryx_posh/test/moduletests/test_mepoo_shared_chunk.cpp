@@ -42,15 +42,16 @@ class SharedChunk_Test : public Test
         return v;
     }
 
-    uint32_t chunkSize{64U};
-    uint32_t numberOfChunks{10U};
+    static constexpr uint32_t CHUNK_SIZE{64U};
+    static constexpr uint32_t NUMBER_OF_CHUNKS{10U};
     char memory[4096];
     iox::posix::Allocator allocator{memory, 4096U};
 
-    MemPool mempool{chunkSize, numberOfChunks, &allocator, &allocator};
-    MemPool chunkMgmtPool{chunkSize, numberOfChunks, &allocator, &allocator};
+    MemPool mempool{CHUNK_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator};
+    MemPool chunkMgmtPool{CHUNK_SIZE, NUMBER_OF_CHUNKS, &allocator, &allocator};
     void* memoryChunk{mempool.getChunk()};
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);
+    SharedChunk sut{chunkManagement};
 };
 
 TEST_F(SharedChunk_Test, PassingNullPointerToSharedChunkConstructorWithChunkManagmentStoresNullPointerInChunkManagement)
@@ -97,7 +98,7 @@ TEST_F(SharedChunk_Test, VerifyMoveConstructorOfSharedChunk)
 
     SharedChunk sut2(std::move(sut1));
 
-    EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(chunkSize));
+    EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(CHUNK_SIZE));
 }
 
 TEST_F(SharedChunk_Test, VerifyMoveConstructorForSharedChunkWithChunkManagementAsNullPointer)
@@ -123,20 +124,9 @@ TEST_F(SharedChunk_Test, VerifiyCopyAssigmentWithSharedChunk)
 
 TEST_F(SharedChunk_Test, VerifyCopyAssignmentForSharedChunkWithChunkManagementAsNullPointer)
 {
-    SharedChunk sut1(chunkManagement);
+    sut = nullptr;
 
-    sut1 = nullptr;
-
-    EXPECT_THAT(sut1.releaseWithRelativePtr(), Eq(nullptr));
-}
-
-TEST_F(SharedChunk_Test, VerifyCopyAssignmentForSameSharedChunkObject)
-{
-    SharedChunk sut1(chunkManagement);
-
-    sut1 = sut1;
-
-    EXPECT_THAT(sut1.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(chunkSize));
+    EXPECT_THAT(sut.releaseWithRelativePtr(), Eq(nullptr));
 }
 
 TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSharedChunk)
@@ -146,7 +136,7 @@ TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSharedChunk)
 
     sut2 = std::move(sut1);
 
-    EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(chunkSize));
+    EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(CHUNK_SIZE));
 }
 
 TEST_F(SharedChunk_Test, VerifyMoveAssignmenForSharedChunkWithChunkManagementAsNullPointer)
@@ -157,15 +147,6 @@ TEST_F(SharedChunk_Test, VerifyMoveAssignmenForSharedChunkWithChunkManagementAsN
     SharedChunk sut2 = std::move(sut1);
 
     EXPECT_THAT(sut2.releaseWithRelativePtr(), Eq(nullptr));
-}
-
-TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSameSharedChunkObject)
-{
-    SharedChunk sut1(chunkManagement);
-
-    sut1 = std::move(sut1);
-
-    EXPECT_THAT(sut1.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(chunkSize));
 }
 
 TEST_F(SharedChunk_Test, GetChunkHeaderMethodReturnsNullPointerWhenSharedChunkObjectIsInitialisedWithNullPointer)
@@ -217,8 +198,6 @@ TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithS
 
 TEST_F(SharedChunk_Test, BoolOperatorOnValidSharedChunkReturnsTrue)
 {
-    SharedChunk sut{chunkManagement};
-
     EXPECT_TRUE(sut);
 }
 
@@ -238,8 +217,6 @@ TEST_F(SharedChunk_Test, HasNoOtherOwnersMethodWithChunkManagementEqualNullPoint
 
 TEST_F(SharedChunk_Test, HasNoOtherOwnersMethodForSingleOwnerWhen_m_chunkmanagementisValidReturnsTrue)
 {
-    SharedChunk sut{chunkManagement};
-
     EXPECT_TRUE(sut.hasNoOtherOwners());
 }
 
@@ -373,23 +350,19 @@ TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWi
 TEST_F(SharedChunk_Test,
        ReleaseMethodReturnsChunkManagementPointerOfSharedChunkObjectAndSetsTheChunkManagementRelativePointerToNull)
 {
-    SharedChunk sut{chunkManagement};
-
     ChunkManagement* returnValue = sut.release();
 
-    EXPECT_THAT(returnValue->m_mempool->getChunkSize(), chunkSize);
-    EXPECT_THAT(returnValue->m_mempool->getChunkCount(), numberOfChunks);
+    EXPECT_THAT(returnValue->m_mempool->getChunkSize(), CHUNK_SIZE);
+    EXPECT_THAT(returnValue->m_mempool->getChunkCount(), NUMBER_OF_CHUNKS);
     EXPECT_FALSE(sut);
 }
 
 TEST_F(SharedChunk_Test,
        ReleaseMethodReturnsRelativeChunkManagementPointerOfSharedChunkObjectSetsTheChunkManagementRelativePointerToNull)
 {
-    SharedChunk sut{chunkManagement};
-
     auto returnValue = sut.releaseWithRelativePtr();
 
-    EXPECT_THAT(returnValue->m_mempool->getChunkSize(), chunkSize);
-    EXPECT_THAT(returnValue->m_mempool->getChunkCount(), numberOfChunks);
+    EXPECT_THAT(returnValue->m_mempool->getChunkSize(), CHUNK_SIZE);
+    EXPECT_THAT(returnValue->m_mempool->getChunkCount(), NUMBER_OF_CHUNKS);
     EXPECT_FALSE(sut);
 }
