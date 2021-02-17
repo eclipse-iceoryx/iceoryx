@@ -16,7 +16,7 @@
 #ifndef IOX_UTILS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
 #define IOX_UTILS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
 
-#include <csignal>
+#include "iceoryx_utils/platform/signal.hpp"
 
 namespace iox
 {
@@ -78,4 +78,3 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
 } // namespace posix
 } // namespace iox
 #endif
-
