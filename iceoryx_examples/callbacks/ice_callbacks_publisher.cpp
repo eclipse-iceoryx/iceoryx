@@ -33,7 +33,7 @@ void sending()
 {
     iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-publisher");
 
-    iox::popo::TypedPublisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
     myPublisher.offer();
 
     for (uint32_t counter = 0U; !killswitch; ++counter)

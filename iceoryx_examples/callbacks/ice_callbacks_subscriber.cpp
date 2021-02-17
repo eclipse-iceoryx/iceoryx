@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/active_call_set.hpp"
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
@@ -41,9 +41,9 @@ void shutdownTriggerCallback(iox::popo::UserTrigger*)
     keepRunning.store(false);
 }
 
-void subscriberCallback(iox::popo::TypedSubscriber<CounterTopic>* subscriber)
+void subscriberCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
-    subscriber->take_1_0().and_then([](auto& sample) { printf("received: %d\n", sample->counter); });
+    subscriber->take().and_then([](auto& sample) { printf("received: %d\n", sample->counter); });
 }
 
 int main()
@@ -61,11 +61,11 @@ int main()
     // attach shutdownTrigger to handle CTRL+C
     callSet.attachEvent(shutdownTrigger, shutdownTriggerCallback);
 
-    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
 
     subscriber.subscribe();
 
-    callSet.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
+    callSet.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, subscriberCallback);
 
     while (keepRunning)
     {
@@ -73,7 +73,7 @@ int main()
     }
 
     callSet.detachEvent(shutdownTrigger);
-    callSet.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    callSet.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA);
 
     return (EXIT_SUCCESS);
 }
