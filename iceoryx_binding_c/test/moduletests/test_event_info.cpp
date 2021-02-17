@@ -126,7 +126,7 @@ TEST_F(iox_event_info_test, eventOriginIsUserTriggerPointerWhenItsOriginatingFro
 TEST_F(iox_event_info_test, eventOriginIsNotUserTriggerPointerWhenItsNotOriginatingFromThem)
 {
     constexpr uint64_t CHUNK_SIZE = 100U;
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
+    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(CHUNK_SIZE));
 
@@ -138,7 +138,7 @@ TEST_F(iox_event_info_test, eventOriginIsNotUserTriggerPointerWhenItsNotOriginat
 TEST_F(iox_event_info_test, eventOriginIsSubscriberPointerWhenItsOriginatingFromThem)
 {
     constexpr uint64_t CHUNK_SIZE = 100U;
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
+    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(CHUNK_SIZE));
 
@@ -173,7 +173,7 @@ TEST_F(iox_event_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingF
 TEST_F(iox_event_info_test, getOriginReturnsNullptrUserTriggerWhenNotOriginatingFromThem)
 {
     constexpr uint64_t CHUNK_SIZE = 100U;
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
+    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(CHUNK_SIZE));
 
@@ -186,7 +186,7 @@ TEST_F(iox_event_info_test, getOriginReturnsNullptrUserTriggerWhenNotOriginating
 TEST_F(iox_event_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThem)
 {
     constexpr uint64_t CHUNK_SIZE = 100U;
-    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
+    iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(CHUNK_SIZE));
 

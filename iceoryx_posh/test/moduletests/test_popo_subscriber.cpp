@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 
@@ -34,12 +34,27 @@ struct DummyData
 };
 } // namespace
 
-using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber<void>>;
-
-class UntypedSubscriberTest : public Test
+template <typename T, typename BaseSubscriber>
+class StubbedSubscriber : public iox::popo::Subscriber<T, BaseSubscriber>
 {
   public:
-    UntypedSubscriberTest()
+    using SubscriberParent = iox::popo::Subscriber<T, BaseSubscriber>;
+
+    StubbedSubscriber(const iox::capro::ServiceDescription& service,
+                      const iox::popo::SubscriberOptions& subscriberOptions = iox::popo::SubscriberOptions())
+        : SubscriberParent(service, subscriberOptions)
+    {
+    }
+
+    using SubscriberParent::port;
+};
+
+using TestSubscriber = StubbedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
+
+class SubscriberTest : public Test
+{
+  public:
+    SubscriberTest()
     {
     }
 
@@ -53,10 +68,10 @@ class UntypedSubscriberTest : public Test
 
   protected:
     ChunkMock<DummyData> chunkMock;
-    TestUntypedSubscriber sut{{"", "", ""}};
+    TestSubscriber sut{{"", "", ""}, iox::popo::SubscriberOptions()};
 };
 
-TEST_F(UntypedSubscriberTest, GetsUIDViaBaseSubscriber)
+TEST_F(SubscriberTest, GetsUIDViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getUid).Times(1);
@@ -66,7 +81,7 @@ TEST_F(UntypedSubscriberTest, GetsUIDViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
+TEST_F(SubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getServiceDescription).Times(1);
@@ -76,7 +91,7 @@ TEST_F(UntypedSubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
+TEST_F(SubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getSubscriptionState).Times(1);
@@ -86,7 +101,7 @@ TEST_F(UntypedSubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, SubscribesViaBaseSubscriber)
+TEST_F(SubscriberTest, SubscribesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, subscribe).Times(1);
@@ -96,7 +111,7 @@ TEST_F(UntypedSubscriberTest, SubscribesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, UnsubscribesViaBaseSubscriber)
+TEST_F(SubscriberTest, UnsubscribesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, unsubscribe).Times(1);
@@ -106,7 +121,7 @@ TEST_F(UntypedSubscriberTest, UnsubscribesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
+TEST_F(SubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasData).Times(1);
@@ -116,7 +131,7 @@ TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
+TEST_F(SubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasMissedData).Times(1);
@@ -126,7 +141,7 @@ TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
+TEST_F(SubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, takeChunk)
@@ -134,15 +149,30 @@ TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
         .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
             const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
-    auto maybeChunk = sut.take();
+    auto maybeSample = sut.take();
     // ===== Verify ===== //
-    ASSERT_FALSE(maybeChunk.has_error());
-    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->payload());
+    ASSERT_FALSE(maybeSample.has_error());
+    EXPECT_EQ(maybeSample.value().get(), chunkMock.chunkHeader()->payload());
     // ===== Cleanup ===== //
-    sut.releaseChunk(maybeChunk.value());
 }
 
-TEST_F(UntypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
+TEST_F(SubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, takeChunk)
+        .Times(1)
+        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
+    EXPECT_CALL(sut.port(), releaseChunk).Times(AtLeast(1));
+    // ===== Test ===== //
+    {
+        sut.take();
+    }
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(SubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, releaseQueuedData).Times(1);
