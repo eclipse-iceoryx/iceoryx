@@ -83,7 +83,5 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
             .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_SEGMENT_MAPP_ERR); });
     }
 }
-
-
 } // namespace runtime
 } // namespace iox
