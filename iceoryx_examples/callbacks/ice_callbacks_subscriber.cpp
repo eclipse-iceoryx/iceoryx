@@ -29,13 +29,16 @@ iox::popo::UserTrigger shutdownTrigger;
 iox::posix::Semaphore mainLoopBlocker =
     iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0).value();
 
+std::atomic_bool keepRunning{true};
+
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     shutdownTrigger.trigger();
 }
 
-void shutdownTriggerCallback(iox::popo::UserTrigger* trigger)
+void shutdownTriggerCallback(iox::popo::UserTrigger*)
 {
+    keepRunning.store(false);
 }
 
 void subscriberCallback(iox::popo::TypedSubscriber<CounterTopic>* subscriber)
@@ -45,7 +48,11 @@ void subscriberCallback(iox::popo::TypedSubscriber<CounterTopic>* subscriber)
 
 int main()
 {
-    signal(SIGINT, sigHandler);
+    struct sigaction act;
+    sigemptyset(&act.sa_mask);
+    act.sa_handler = sigHandler;
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, nullptr);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-subscriber");
 
@@ -60,7 +67,10 @@ int main()
 
     callSet.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES, subscriberCallback);
 
-    std::this_thread::sleep_for(std::chrono::seconds(100000));
+    while (keepRunning)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 
     callSet.detachEvent(shutdownTrigger);
     callSet.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLES);

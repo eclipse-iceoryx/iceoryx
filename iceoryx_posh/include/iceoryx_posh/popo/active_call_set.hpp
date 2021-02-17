@@ -165,7 +165,6 @@ class ActiveCallSet
         cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
     };
 
-    // TODO: integrate in LoFFLi?!
     class IndexManager_t
     {
       public:

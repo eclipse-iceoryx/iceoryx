@@ -191,8 +191,8 @@ class ActiveCallSet_test : public Test
     };
 
     // + 1U to test the maximum capacity
-    using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1U>;
-    eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1U};
+    using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET + 1U>;
+    eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET + 1U};
 
     static std::vector<ToBeAttached_t> m_toBeAttached;
     static std::vector<ToBeAttached_t> m_toBeDetached;
@@ -207,6 +207,32 @@ constexpr uint64_t ActiveCallSet_test::CALLBACK_WAIT_IN_MS;
 uint64_t ActiveCallSet_test::m_triggerCallbackRuntimeInMs;
 std::vector<ActiveCallSet_test::ToBeAttached_t> ActiveCallSet_test::m_toBeAttached;
 std::vector<ActiveCallSet_test::ToBeAttached_t> ActiveCallSet_test::m_toBeDetached;
+
+template <uint64_t N>
+struct AttachEvent
+{
+    template <typename EventType>
+    static void doIt(ActiveCallSet_test::ActiveCallSetMock& sut,
+                     std::vector<ActiveCallSet_test::SimpleEventClass>& events,
+                     const EventType event)
+    {
+        EXPECT_THAT(sut.attachEvent(events[N], event, ActiveCallSet_test::triggerCallback<N>).has_error(), Eq(false));
+        AttachEvent<N - 1U>::doIt(sut, events, event);
+    }
+};
+
+template <>
+struct AttachEvent<0U>
+{
+    template <typename EventType>
+    static void doIt(ActiveCallSet_test::ActiveCallSetMock& sut,
+                     std::vector<ActiveCallSet_test::SimpleEventClass>& events,
+                     const EventType event)
+    {
+        EXPECT_THAT(sut.attachEvent(events[0U], event, ActiveCallSet_test::triggerCallback<0U>).has_error(), Eq(false));
+    }
+};
+
 
 //////////////////////////////////
 // attach / detach
@@ -550,31 +576,6 @@ TIMING_TEST_F(ActiveCallSet_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
 
     TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0U] == nullptr);
 });
-
-template <uint64_t N>
-struct AttachEvent
-{
-    template <typename EventType>
-    static void doIt(ActiveCallSet_test::ActiveCallSetMock& sut,
-                     std::vector<ActiveCallSet_test::SimpleEventClass>& events,
-                     const EventType event)
-    {
-        EXPECT_THAT(sut.attachEvent(events[N], event, ActiveCallSet_test::triggerCallback<N>).has_error(), Eq(false));
-        AttachEvent<N - 1U>::doIt(sut, events, event);
-    }
-};
-
-template <>
-struct AttachEvent<0U>
-{
-    template <typename EventType>
-    static void doIt(ActiveCallSet_test::ActiveCallSetMock& sut,
-                     std::vector<ActiveCallSet_test::SimpleEventClass>& events,
-                     const EventType event)
-    {
-        EXPECT_THAT(sut.attachEvent(events[0U], event, ActiveCallSet_test::triggerCallback<0U>).has_error(), Eq(false));
-    }
-};
 
 TIMING_TEST_F(ActiveCallSet_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5), [&] {
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);

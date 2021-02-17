@@ -28,7 +28,7 @@ namespace popo
 ///        When wait returns a list of all the EventNotifier id's which had
 ///        triggered the EventVariable is returned and the state is reset.
 ///
-///        IMPORTANT! Do not use multiple EventListener at the same time for the
+/// @attention Do not use multiple EventListener at the same time for the
 ///        same EventVariable
 class EventListener
 {

@@ -166,8 +166,9 @@ TEST_F(WaitSet_test, AcquireMaximumAllowedPlusOneTriggerFails)
 
 TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
 {
-    m_sut.attachEvent(m_simpleEvents[0], 0U);
-    auto result2 = m_sut.attachEvent(m_simpleEvents[0], 0U);
+    uint64_t userDefinedEventId = 0U;
+    m_sut.attachEvent(m_simpleEvents[0], userDefinedEventId);
+    auto result2 = m_sut.attachEvent(m_simpleEvents[0], userDefinedEventId);
 
     ASSERT_TRUE(result2.has_error());
     EXPECT_THAT(result2.get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
@@ -175,8 +176,9 @@ TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
 
 TEST_F(WaitSet_test, AcquireSameTriggerWithNonNullIdTwiceResultsInError)
 {
-    m_sut.attachEvent(m_simpleEvents[0], 121U);
-    auto result2 = m_sut.attachEvent(m_simpleEvents[0], 121U);
+    uint64_t userDefinedEventId = 121U;
+    m_sut.attachEvent(m_simpleEvents[0], userDefinedEventId);
+    auto result2 = m_sut.attachEvent(m_simpleEvents[0], userDefinedEventId);
 
     ASSERT_TRUE(result2.has_error());
     EXPECT_THAT(result2.get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
@@ -184,8 +186,10 @@ TEST_F(WaitSet_test, AcquireSameTriggerWithNonNullIdTwiceResultsInError)
 
 TEST_F(WaitSet_test, AcquireSameTriggerWithDifferentIdResultsInError)
 {
-    m_sut.attachEvent(m_simpleEvents[0], 2101U);
-    auto result2 = m_sut.attachEvent(m_simpleEvents[0], 9121U);
+    uint64_t userDefinedEventId = 2101U;
+    uint64_t anotherUserDefinedEventId = 9121U;
+    m_sut.attachEvent(m_simpleEvents[0], userDefinedEventId);
+    auto result2 = m_sut.attachEvent(m_simpleEvents[0], anotherUserDefinedEventId);
 
     ASSERT_TRUE(result2.has_error());
     EXPECT_THAT(result2.get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
@@ -197,7 +201,8 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
     SimpleEventClass simpleEvent;
     {
         WaitSetMock sut{&m_condVarData};
-        sut.attachEvent(simpleEvent, 421337U);
+        uint64_t userDefinedEventId = 421337U;
+        sut.attachEvent(simpleEvent, userDefinedEventId);
         uniqueTriggerId = simpleEvent.getUniqueId();
     }
     EXPECT_THAT(SimpleEventClass::m_invalidateTriggerId, Eq(uniqueTriggerId));
@@ -211,15 +216,16 @@ TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
         m_sut.attachEvent(m_simpleEvents[i], 100U + i);
     }
 
+    uint64_t userDefinedEventId = 0U;
     {
         SimpleEventClass temporaryTrigger;
-        m_sut.attachEvent(temporaryTrigger, 0U);
+        m_sut.attachEvent(temporaryTrigger, userDefinedEventId);
         // goes out of scope here and creates space again for an additional trigger
         // if this doesn't work we are unable to acquire another trigger since the
         // waitset is already full
     }
 
-    auto result = m_sut.attachEvent(m_simpleEvents.back(), 0U);
+    auto result = m_sut.attachEvent(m_simpleEvents.back(), userDefinedEventId);
     EXPECT_FALSE(result.has_error());
 }
 
@@ -231,20 +237,21 @@ TEST_F(WaitSet_test, MultipleTimerRemovingThemselfFromWaitsetWhenGoingOutOfScope
         m_sut.attachEvent(m_simpleEvents[i], 100U + i);
     }
 
+    uint64_t userDefinedEventId = 0U;
     {
         SimpleEventClass temporaryTrigger1, temporaryTrigger2, temporaryTrigger3;
-        m_sut.attachEvent(temporaryTrigger1, 0U);
-        m_sut.attachEvent(temporaryTrigger2, 0U);
-        m_sut.attachEvent(temporaryTrigger3, 0U);
+        m_sut.attachEvent(temporaryTrigger1, userDefinedEventId);
+        m_sut.attachEvent(temporaryTrigger2, userDefinedEventId);
+        m_sut.attachEvent(temporaryTrigger3, userDefinedEventId);
 
         // goes out of scope here and creates space again for an additional trigger
         // if this doesn't work we are unable to acquire another trigger since the
         // waitset is already full
     }
 
-    auto result0 = m_sut.attachEvent(m_simpleEvents[0], 0U);
-    auto result1 = m_sut.attachEvent(m_simpleEvents[1], 0U);
-    auto result2 = m_sut.attachEvent(m_simpleEvents[2], 0U);
+    auto result0 = m_sut.attachEvent(m_simpleEvents[0], userDefinedEventId);
+    auto result1 = m_sut.attachEvent(m_simpleEvents[1], userDefinedEventId);
+    auto result2 = m_sut.attachEvent(m_simpleEvents[2], userDefinedEventId);
     EXPECT_FALSE(result0.has_error());
     EXPECT_FALSE(result1.has_error());
     EXPECT_FALSE(result2.has_error());

@@ -86,7 +86,7 @@ class ChunkQueuePopper
     /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
     void setConditionVariable(cxx::not_null<ConditionVariableData*> conditionVariableDataPtr) noexcept;
 
-    // TODO: remove once ConditionVariable and EventVariable are combined
+    /// @todo remove once ConditionVariable and EventVariable are combined
     // unset is done with unsetConditionVariable
     void setEventVariable(EventVariableData& eventVariableDataPtr, const uint64_t eventId) noexcept;
 

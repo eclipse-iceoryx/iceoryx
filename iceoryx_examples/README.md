@@ -22,6 +22,7 @@ cd someExample
 
 | Example                                                | Description |Level |
 |:-------------------------------------------------------|:------------|:----:|
+|[callbacks](./callbacks/)                           | Implement callbacks which are triggered by events. | Intermediate |
 |[icedelivery](./icedelivery/)                           | You are new to iceoryx then take a look at this example which demonstrates the basics of iceoryx by sending data from one process to another process. | Beginner |
 |[icedelivery_in_c](./icedelivery_in_c/)                 | Shows the same use case as the ice delivery example but with the iceoryx C API  | Beginner |
 |[ice_multi_publisher](./ice_multi_publisher/)           | Shows how multiple publishers can be used to publish on the same topic. | Intermediate |
