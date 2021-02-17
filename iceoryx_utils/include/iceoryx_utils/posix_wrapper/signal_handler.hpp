@@ -24,6 +24,8 @@ namespace posix
 {
 using SignalHandlerCallback_t = void (*)(int);
 
+/// @brief Corresponds to the SIG* macros defined in signal.h. The integer values
+///        are equal to the corresponding macro value.
 enum class Signal : int
 {
     BUS = SIGBUS,
@@ -33,6 +35,20 @@ enum class Signal : int
     ///            and sigaction returns the errno EINVAL
 };
 
+/// @attention NEVER USE THIS CLASS AS A MEMBER VARIABLE! A class which should be used
+///            only in method/function scopes.
+/// @brief The SignalGuard is a class returned by registerSignalHandler. When it goes
+///         out of scope it restores the previous signal action. Typical use case:
+///         One would like to override the signal action in main() or some C posix
+///         makes it necessary to override the standard signal action before and
+///         after the call.
+/// @code
+///    {
+///      auto sigHandler = registerSignalHandler(Signal::BUS, printErrorMessage);
+///      my_c_call_which_can_cause_SIGBUS();
+///    }
+///    // here we are out of scope and the signal action for Signal::BUS is restored
+/// @endcode
 class SignalGuard
 {
   public:
@@ -54,6 +70,10 @@ class SignalGuard
     bool m_doRestorePreviousAction{false};
 };
 
+/// @brief Register a callback for a specific posix signal (SIG***).
+/// @param[in] Signal the signal to which the callback should be attached
+/// @param[in] callback the callback which should be called when the signal is raised.
+/// @return SignalGuard, when it goes out of scope the previous signal action is restored.
 SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallback_t callback) noexcept;
 } // namespace posix
 } // namespace iox

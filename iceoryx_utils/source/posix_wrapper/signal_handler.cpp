@@ -24,6 +24,7 @@ namespace posix
 SignalGuard::SignalGuard(const Signal signal, const struct sigaction& previousAction) noexcept
     : m_signal{signal}
     , m_previousAction{previousAction}
+    , m_doRestorePreviousAction(true)
 {
 }
 
