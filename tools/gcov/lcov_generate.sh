@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 BUILD_FOLDER=${1:-$PWD}
-COMMAND=${2:-$capture}
+COMMAND=${2:-$scan}
 TEST_SCOPE=${3:-$unit}
 OUTPUT_FOLDER=$BUILD_FOLDER/build/lcov
 

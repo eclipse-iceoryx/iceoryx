@@ -15,9 +15,10 @@ Now lets execute the all tests:
 cd iceoryx/build
 make all_tests
 ```
-Some of the tests are timing critical and needs a stable environment. We call them timing tests and have them in a separate target available:
+Some of the tests are timing critical and needs a stable environment. We call them timing tests and have them in a separate targets available:
 ```
-make timing_tests
+make timing_moduletests
+make timing_integrationtests
 ```
 In iceoryx we distinguish between different testlevels. The most important are: Moduletests and Integrationtests.
 Moduletests are basically Unit-tests where the focus is on class level with black-box testing.

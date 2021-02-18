@@ -98,8 +98,8 @@ while (( "$#" )); do
         shift 1
         ;;
     "test-add-user")
-        TEST_FLAG="ON"
         TEST_ADD_USER="ON"
+        echo "Warning: Tests are running with user accounts 'roudi_testX', please make sure that add_test_users.sh has run before."
         shift 1
         ;;
     "dds-gateway")
@@ -176,36 +176,36 @@ while (( "$#" )); do
         ;;
     "help")
         echo "Build script for iceoryx."
-        echo "By default, iceoryx, the dds gateway and the examples are built."
+        echo "By default, iceoryx with C-Binding and TOML-config is built."
         echo ""
         echo "Usage:"
         echo "    iceoryx_build_test.sh [--build-dir <dir>] [<args>]"
         echo "Options:"
-        echo "    -b --build-dir         Specify a non-default build directory"
-        echo "    -c --coverage         Builds gcov and generate a html/xml report.
-        echo "                          Possible arguments: 'all', 'unit', 'integration', 'only-timing-tests'""
+        echo "    -b --build-dir        Specify a non-default build directory"
+        echo "    -c --coverage         Build with gcov and generate a html/xml report."
+        echo "                          Possible arguments: 'all', 'unit', 'integration', 'only-timing-tests'"
         echo "Args:"
-        echo "    clean                 Deletes the build/ directory before"
+        echo "    clean                 Delete the build/ directory before build-step"
         echo "    release               Build with -O3"
         echo "    debug                 Build debug configuration -g"
         echo "    relwithdebinfo        Build with -O2 -DNDEBUG"
         echo "    examples              Build all examples"
         echo "    build-all             Build all extensions and all examples"
-        echo "    out-of-tree           Out-of-tree build for CI build"
+        echo "    out-of-tree           Out-of-tree build for CI"
         echo "    build-strict          Build is performed with '-Werror'"
-        echo "    build-shared          Build shared libs (iceoryx is build as static lib per default)"
-        echo "    build-test            Builds all tests (doesn't run)"
-        echo "    test-add-user         Create additional useraccounts in system for testing access controll (default off)"
-        echo "    package               Creates a debian package from clean build in build_package"
-        echo "    test                  Builds and runs all tests in all iceoryx components"
-        echo "    toml-config-off       Builds without TOML File support"
-        echo "    dds-gateway           Builds the iceoryx dds gateway"
-        echo "    binding-c             Builds the iceoryx C-Binding"
-        echo "    one-to-many-only      Restricts to 1:n communication only"
+        echo "    build-shared          Build shared libs (iceoryx is built as static lib per default)"
+        echo "    build-test            Build all tests (doesn't run)"
+        echo "    test-add-user         Create additional useraccounts in system for testing access control (default off)"
+        echo "    package               Create a debian package from clean build in build_package"
+        echo "    test                  Build and run all tests in all iceoryx components"
+        echo "    toml-config-off       Build without TOML File support"
+        echo "    dds-gateway           Build the iceoryx dds gateway"
+        echo "    binding-c             Build the iceoryx C-Binding"
+        echo "    one-to-many-only      Restrict to 1:n communication only"
         echo "    clang                 Build with clang compiler (should be installed already)"
         echo "    sanitize              Build with sanitizers"
         echo "    roudi-env             Build the roudi environment"
-        echo "    help                  Prints this help"
+        echo "    help                  Print this help"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test"
         echo "for gcov report: iceoryx_build_test.sh clean -c unit"
@@ -303,27 +303,6 @@ fi
 
 if [ "$COV_FLAG" == "ON" ]; then
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial $TEST_SCOPE #make an initial scan to cover also files with no coverage
-fi
-
-#====================================================================================================
-#==== Step : Create local test users and groups for testing access control  =========================
-#====================================================================================================
-
-if [ "$TEST_ADD_USER" == "ON" ]; then
-    if [ $(getent group roudi_test1) ] && [ $(getent group roudi_test2) ] && [ $(getent group roudi_test3) ]; then
-        echo "users and groups for testing already exist"
-    else
-        if [ "$EUID" -ne 0 ]; then
-            echo "Please run the script as root with sudo"
-            exit 1
-        fi
-        USERS="roudi_test1 roudi_test2 roudi_test3"
-        for USER in $USERS; do
-            echo "adding users" $USER
-            sudo useradd -M $USER # create user without home dir
-            sudo usermod -L $USER # prevent login
-        done
-    fi
 fi
 
 #====================================================================================================
