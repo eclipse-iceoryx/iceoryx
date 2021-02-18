@@ -48,6 +48,17 @@ jobs:
         with:
           file: ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
           name: iceoryx
+          yml: ./codecov.yml
+          flags: unittests
+          fail_ci_if_error: true
+
+      - name: Archive generated lcov file
+        uses: actions/upload-artifact@v2
+        with:
+          name: iceoryx_lcov_result_unit-pdf
+          path: |
+            ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
+          retention-days: 1
 
       - name: Generate doxygen documentation
         run: |
