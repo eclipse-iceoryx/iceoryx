@@ -44,7 +44,7 @@ enum class Signal : int
 ///         after the call.
 /// @code
 ///    {
-///      auto sigHandler = registerSignalHandler(Signal::BUS, printErrorMessage);
+///      auto signalGuard = registerSignalHandler(Signal::BUS, printErrorMessage);
 ///      my_c_call_which_can_cause_SIGBUS();
 ///    }
 ///    // here we are out of scope and the signal action for Signal::BUS is restored
@@ -52,17 +52,19 @@ enum class Signal : int
 class SignalGuard
 {
   public:
-    SignalGuard() noexcept = default;
-    SignalGuard(const Signal signal, const struct sigaction& previousAction) noexcept;
-    SignalGuard(const SignalGuard&) = delete;
     SignalGuard(SignalGuard&& rhs) noexcept;
+    SignalGuard(const SignalGuard&) = delete;
     ~SignalGuard() noexcept;
 
     SignalGuard& operator=(const SignalGuard& rhs) = delete;
-    SignalGuard& operator=(SignalGuard&& rhs) noexcept;
+    SignalGuard& operator=(SignalGuard&& rhs) = delete;
+
+    friend SignalGuard registerSignalHandler(const Signal, const SignalHandlerCallback_t) noexcept;
 
   private:
     void restorePreviousAction() noexcept;
+    SignalGuard() noexcept = default;
+    SignalGuard(const Signal signal, const struct sigaction& previousAction) noexcept;
 
   private:
     Signal m_signal;
@@ -71,6 +73,11 @@ class SignalGuard
 };
 
 /// @brief Register a callback for a specific posix signal (SIG***).
+/// @attention if a signal callback was already registered for the provided signal with registerSignalHandler or
+///             with sigaction() or signal(), the signal callback is overridden
+///             until the SignalGuard goes out of scope and restores the previous callback. If you override the
+///             callbacks multiple times and the created SignalGuards goes out of scope in a different order then the
+///             callback is restored which was active when the last SignalGuard which is going out of scope was created.
 /// @param[in] Signal the signal to which the callback should be attached
 /// @param[in] callback the callback which should be called when the signal is raised.
 /// @return SignalGuard, when it goes out of scope the previous signal action is restored.

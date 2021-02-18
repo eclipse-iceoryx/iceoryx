@@ -30,27 +30,16 @@ SignalGuard::SignalGuard(const Signal signal, const struct sigaction& previousAc
 
 SignalGuard::SignalGuard(SignalGuard&& rhs) noexcept
 {
-    *this = std::move(rhs);
+    m_signal = std::move(rhs.m_signal);
+    m_previousAction = std::move(rhs.m_previousAction);
+    m_doRestorePreviousAction = std::move(rhs.m_doRestorePreviousAction);
+
+    rhs.m_doRestorePreviousAction = false;
 }
 
 SignalGuard::~SignalGuard() noexcept
 {
     restorePreviousAction();
-}
-
-SignalGuard& SignalGuard::operator=(SignalGuard&& rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        restorePreviousAction();
-
-        m_signal = std::move(rhs.m_signal);
-        m_previousAction = std::move(rhs.m_previousAction);
-        m_doRestorePreviousAction = std::move(rhs.m_doRestorePreviousAction);
-
-        rhs.m_doRestorePreviousAction = false;
-    }
-    return *this;
 }
 
 void SignalGuard::restorePreviousAction() noexcept

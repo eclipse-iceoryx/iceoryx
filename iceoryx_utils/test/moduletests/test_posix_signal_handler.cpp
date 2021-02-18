@@ -131,37 +131,3 @@ TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardRestoresPreviousState)
     EXPECT_THAT(signalOfCallback1, Eq(this->INVALID_SIGNAL));
     EXPECT_THAT(signalOfCallback2, Eq(static_cast<int>(signalValue)));
 }
-
-TYPED_TEST(SignalHandler_test, MoveAssignmentDoesNotUnregisterCallback)
-{
-    Signal signalValue = TestFixture::SIGNAL_VALUE;
-
-    auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
-    SignalGuard signalGuard2;
-
-    signalGuard2 = std::move(signalGuard);
-
-    raise(static_cast<int>(signalValue));
-
-    EXPECT_THAT(signalOfCallback1, Eq(static_cast<int>(signalValue)));
-    EXPECT_THAT(signalOfCallback2, Eq(this->INVALID_SIGNAL));
-}
-
-TYPED_TEST(SignalHandler_test, UnregisterCallbackWhenMoveAssignedSignalGuardGoesOutOfScope)
-{
-    Signal signalValue = TestFixture::SIGNAL_VALUE;
-
-    this->registerSignal(static_cast<int>(signalValue), this->signalHandler2);
-    {
-        auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
-        SignalGuard signalGuard2;
-
-        signalGuard2 = std::move(signalGuard);
-    }
-
-    raise(static_cast<int>(signalValue));
-
-    EXPECT_THAT(signalOfCallback1, Eq(this->INVALID_SIGNAL));
-    EXPECT_THAT(signalOfCallback2, Eq(static_cast<int>(signalValue)));
-}
-
