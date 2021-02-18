@@ -42,7 +42,9 @@ class EventListener
     /// never empty unless destroy() was called, then it's always empty.
     ///
     /// @return vector of active notifications
-    cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> wait() noexcept;
+    cxx::vector<std::remove_const<decltype(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)>::type,
+                MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
+    wait() noexcept;
 
     /// @brief Used in classes to signal a thread which waits in wait() to return
     ///         and stop working. Destroy will send an empty notification to wait() and

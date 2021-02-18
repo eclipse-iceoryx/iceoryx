@@ -229,8 +229,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_CONDITION_VARIABLE\" from \""
                        << processName << "\"received!";
-            errorHandler(
-                Error::kPORT_MANAGER__UNABLE_TO_ACQUIRE_CONDITION_VARIABLE, nullptr, iox::ErrorLevel::MODERATE);
         }
         else
         {
@@ -244,7 +242,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_EVENT_VARIABLE\" from \""
                        << processName << "\"received!";
-            errorHandler(Error::kPORT_MANAGER__UNABLE_TO_ACQUIRE_EVENT_VARIABLE, nullptr, iox::ErrorLevel::MODERATE);
         }
         else
         {

@@ -35,14 +35,18 @@ void EventListener::destroy() noexcept
     }
 }
 
-cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> EventListener::wait() noexcept
+cxx::vector<std::remove_const<decltype(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)>::type,
+            MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
+EventListener::wait() noexcept
 {
-    cxx::vector<uint64_t, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> activeNotifications;
+    cxx::vector<std::remove_const<decltype(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)>::type,
+                MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
+        activeNotifications;
 
     resetSemaphore();
     while (!m_toBeDestroyed.load(std::memory_order_relaxed))
     {
-        for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
+        for (uint8_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
         {
             if (m_pointerToEventVariableData->m_activeNotifications[i].load(std::memory_order_relaxed))
             {

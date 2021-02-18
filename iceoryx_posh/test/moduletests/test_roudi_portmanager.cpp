@@ -130,11 +130,11 @@ class PortManager_test : public Test
         for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
         {
             iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
-            auto eventVariableData = m_portManager->acquireEventVariableData(newProcessName);
-            ASSERT_THAT(eventVariableData.has_error(), Eq(false));
+            auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
+            ASSERT_THAT(eventVariableDataResult.has_error(), Eq(false));
             if (f)
             {
-                f(eventVariableData.value());
+                f(eventVariableDataResult.value());
             }
         }
     }

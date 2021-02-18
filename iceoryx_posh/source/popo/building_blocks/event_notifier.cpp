@@ -28,8 +28,9 @@ EventNotifier::EventNotifier(EventVariableData& dataRef, const uint64_t index) n
 {
     if (index >= MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
     {
-        LogWarn() << "The provided index " << index << " is too large. The index has to be in the range of [0, "
-                  << MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET << ").";
+        LogError() << "The provided index " << index << " is too large. The index has to be in the range of [0, "
+                   << MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET << "[.";
+        errorHandler(Error::kPOPO__EVENT_NOTIFIER_INDEX_TOO_LARGE, nullptr, ErrorLevel::MODERATE);
     }
 }
 
