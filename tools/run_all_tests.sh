@@ -65,7 +65,7 @@ for arg in "$@"; do
         ;;
     "asan-only")
         ASAN_ONLY=true
-        TEST_SCOPE="all"
+        TEST_SCOPE="no_timing_test"
         ;;
     "continue-on-error")
         CONTINUE_ON_ERROR=true
@@ -122,6 +122,11 @@ execute_test() {
 
     case $test_scope in
     "all")
+        make all_tests
+        make integration_tests
+        make timing_integrationtests
+        ;;
+    "no_timing_test")
         make all_tests
         ;;
     "unit")

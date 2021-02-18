@@ -46,9 +46,7 @@ jobs:
        - name: Run all tests
          run: |
            cd $GITHUB_WORKSPACE/build
-           make all_tests
-           make timing_moduletests
-           make timing_integrationtests
+           tools/run_all_tests.sh all
 
        - name: Build RouDi examples without TOML support
          run: |
