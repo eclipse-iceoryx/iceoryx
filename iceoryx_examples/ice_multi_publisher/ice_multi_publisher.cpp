@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
@@ -39,7 +41,7 @@ void send(uint32_t id, const char* instanceName, std::chrono::milliseconds delay
 
     // All three of the string identifiers together uniquely identify a topic
     // and can also depend on values known only at runtime (like instance in this case).
-    iox::popo::TypedPublisher<CounterTopic> publisher({"Group", instance, "Counter"}, publisherOptions);
+    iox::popo::Publisher<CounterTopic> publisher({"Group", instance, "Counter"}, publisherOptions);
     publisher.offer();
 
     for (uint32_t counter = 0U; !killswitch; ++counter)

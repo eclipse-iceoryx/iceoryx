@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "test.hpp"
@@ -1487,7 +1489,7 @@ TEST(Duration_test, AddDurationResultsInSaturationFromSeconds)
     EXPECT_THAT(sut2, Eq(DurationAccessor::max()));
 }
 
-TEST(Duration_test, SubstractDurationDoesNotChangeOriginalObject)
+TEST(Duration_test, SubtractDurationDoesNotChangeOriginalObject)
 {
     constexpr Duration EXPECTED_DURATION{13_s + 42_ns};
 
@@ -1501,7 +1503,7 @@ TEST(Duration_test, SubstractDurationDoesNotChangeOriginalObject)
     EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationWithTwoZeroDurationsResultsInZeroDuration)
+TEST(Duration_test, SubtractDurationWithTwoZeroDurationsResultsInZeroDuration)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
     auto duration1 = 0_s;
@@ -1512,7 +1514,7 @@ TEST(Duration_test, SubstractDurationWithTwoZeroDurationsResultsInZeroDuration)
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationWithDurationsWithSameValueResultsInZeroDuration)
+TEST(Duration_test, SubtractDurationWithDurationsWithSameValueResultsInZeroDuration)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
     auto duration1 = createDuration(10U, 123U);
@@ -1523,7 +1525,7 @@ TEST(Duration_test, SubstractDurationWithDurationsWithSameValueResultsInZeroDura
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationFromZeroDurationsResultsInZeroDuration)
+TEST(Duration_test, SubtractDurationFromZeroDurationsResultsInZeroDuration)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
     auto duration0 = 0_s;
@@ -1537,7 +1539,7 @@ TEST(Duration_test, SubstractDurationFromZeroDurationsResultsInZeroDuration)
     EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFromNanoseconds)
+TEST(Duration_test, SubtractDurationWithLargerDurationsResultsInZeroDurationFromNanoseconds)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
     auto duration1 = 10_ns;
@@ -1548,7 +1550,7 @@ TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFro
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFromSeconds)
+TEST(Duration_test, SubtractDurationWithLargerDurationsResultsInZeroDurationFromSeconds)
 {
     constexpr Duration EXPECTED_DURATION{0_s};
     auto duration1 = createDuration(10U, 123U);
@@ -1559,7 +1561,7 @@ TEST(Duration_test, SubstractDurationWithLargerDurationsResultsInZeroDurationFro
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationWithZeroDurationsResultsInOriginaDuration)
+TEST(Duration_test, SubtractDurationWithZeroDurationsResultsInOriginaDuration)
 {
     constexpr Duration EXPECTED_DURATION = createDuration(10U, 42U);
     auto duration1 = EXPECTED_DURATION;
@@ -1570,7 +1572,7 @@ TEST(Duration_test, SubstractDurationWithZeroDurationsResultsInOriginaDuration)
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResultsInMoreThanOneSecond)
+TEST(Duration_test, SubtractDurationMoreThanOneSecondWithLessThanOneSecondResultsInMoreThanOneSecond)
 {
     constexpr Duration EXPECTED_DURATION = createDuration(1U, 36U);
     auto duration1 = createDuration(1U, 73U);
@@ -1581,7 +1583,7 @@ TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResul
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResultsInLessThanOneSecond)
+TEST(Duration_test, SubtractDurationMoreThanOneSecondWithLessThanOneSecondResultsInLessThanOneSecond)
 {
     constexpr Duration EXPECTED_DURATION = createDuration(0U, NANOSECS_PER_SECOND - 36U);
     auto duration1 = createDuration(1U, 37U);
@@ -1592,7 +1594,7 @@ TEST(Duration_test, SubstractDurationMoreThanOneSecondWithLessThanOneSecondResul
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationMoreThanOneSecondWithMoreThanOneSecondResultsInLessThanOneSecond)
+TEST(Duration_test, SubtractDurationMoreThanOneSecondWithMoreThanOneSecondResultsInLessThanOneSecond)
 {
     constexpr Duration EXPECTED_DURATION = createDuration(0U, 36U);
     auto duration1 = createDuration(1U, 73U);
@@ -1603,7 +1605,7 @@ TEST(Duration_test, SubstractDurationMoreThanOneSecondWithMoreThanOneSecondResul
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubstractDurationWithSecondsAndNanosecondsCausingReductionOfSeconds)
+TEST(Duration_test, SubtractDurationWithSecondsAndNanosecondsCausingReductionOfSeconds)
 {
     constexpr Duration EXPECTED_DURATION = createDuration(0U, NANOSECS_PER_SECOND - 36U);
     auto duration1 = createDuration(2U, 37U);

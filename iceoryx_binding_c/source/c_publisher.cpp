@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
@@ -71,7 +73,7 @@ iox_AllocationResult iox_pub_allocate_chunk(iox_pub_t const self, void** const c
 
 void iox_pub_free_chunk(iox_pub_t const self, void* const chunk)
 {
-    PublisherPortUser(self->m_portData).freeChunk(ChunkHeader::fromPayload(chunk));
+    PublisherPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
 }
 
 void iox_pub_send_chunk(iox_pub_t const self, void* const chunk)

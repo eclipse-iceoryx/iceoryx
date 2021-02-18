@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/event_info.h"
@@ -72,8 +74,8 @@ int main()
     iox_sub_subscribe(subscriber[0]);
     iox_sub_subscribe(subscriber[1]);
 
-    iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
-    iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_SAMPLES, 0U, NULL);
+    iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
+    iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
 
 
     uint64_t missedElements = 0U;

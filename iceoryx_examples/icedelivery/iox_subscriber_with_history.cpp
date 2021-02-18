@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,10 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <csignal>
@@ -43,7 +45,7 @@ int main()
     // publisher has send. The history ensures that we at least get the last 5
     // samples sent by the publisher when we subscribe (if at least 5 were already sent).
     subscriberOptions.historyRequest = 5U;
-    iox::popo::TypedSubscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
@@ -56,7 +58,7 @@ int main()
             // 400ms a new sample we will receive here more then one sample.
             do
             {
-                subscriber.take_1_0()
+                subscriber.take()
                     .and_then([](auto& object) { std::cout << "Got value: " << object->x << std::endl; })
                     .or_else([&](auto&) { hasMoreSamples = false; });
             } while (hasMoreSamples);

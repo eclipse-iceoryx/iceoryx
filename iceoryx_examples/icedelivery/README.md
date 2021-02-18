@@ -16,14 +16,14 @@ iox-roudi
 $ICEORYX_ROOT/build/iox-roudi
 
 
-build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
+build/iceoryx_examples/icedelivery/iox-ex-publisher
 # The untyped publisher is an alternative
-build/iceoryx_examples/icedelivery/iox-ex-publisher-typed
+build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 
 
-build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
+build/iceoryx_examples/icedelivery/iox-ex-subscriber
 # The untyped subscriber is an alternative
-build/iceoryx_examples/icedelivery/iox-ex-subscriber-typed
+build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
 ```
 
 [![asciicast](https://asciinema.org/a/382036.svg)](https://asciinema.org/a/382036)
@@ -70,7 +70,7 @@ It is included by:
 For the communication with RouDi a runtime object is created. The parameter of the method `initRuntime()` contains a
 unique string identifier for this publisher.
 ```cpp
-iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-typed");
+iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher");
 ```
 
 Now that RouDi knows our publisher application is existing, let's create a publisher instance and offer our charming struct
@@ -159,7 +159,7 @@ How can the subscriber application receive the data the publisher application ju
 
 Similar to the publisher we need to include the runtime and the subscriber as well as the topic data header:
 ```cpp
-#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 ```
@@ -249,13 +249,13 @@ described before. In this summary, just the differences to the prior publisher a
 
 Starting again with the includes, there is now a different one:
 ```cpp
-#include "iceoryx_posh/popo/typed_publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 ```
 
 When it comes to the runtime, things are the same as in the untyped publisher. However, a typed publisher object is
 created
 ```cpp
-iox::popo::TypedPublisher<RadarObject> typedPublisher({"Radar", "FrontLeft", "Object"});
+iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
 
 A similar while-loop is used to send the data to the subscriber. In contrast to the untyped publisher the typed one
@@ -263,16 +263,16 @@ offers two additional possibilities
 ```cpp
 // #3
 auto object = RadarObject(ct, ct, ct);
-typedPublisher.publishCopyOf(object);
+publisher.publishCopyOf(object);
 ```
 
 \#3 should only be used for small data types, as otherwise copies can lead to a larger runtime.
 
 ```cpp
 // #4
-typedPublisher.publishResultOf(getRadarObject, ct);
+publisher.publishResultOf(getRadarObject, ct);
 // OR
-typedPublisher.publishResultOf([&ct](RadarObject* object) { new (object) RadarObject(ct, ct, ct); });
+publisher.publishResultOf([&ct](RadarObject* object) { new (object) RadarObject(ct, ct, ct); });
 ```
 
 If you have a callable e.g. a function should be always called, #4 could be a good solution for you.
@@ -285,15 +285,15 @@ the `operator->()`.
 
 As with the typed publisher application there is an different include compared to the untyped subscriber:
 ```cpp
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 ```
 
-An instance of `TypedSubscriber` is created:
+An instance of `Subscriber` is created:
 ```cpp
-iox::popo::TypedSubscriber<RadarObject> typedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 ```
 
-Everything else is nearly the same. However, there is one crucial difference which makes the `TypedSubscriber` typed.
+Everything else is nearly the same. However, there is one crucial difference which makes the `Subscriber` typed.
 
 Compare this line from the `UntypedSubscriber`
 ```cpp
@@ -311,5 +311,5 @@ with
 })
 ```
 
-The difference is the type that is contained in `iox::popo::Sample`. In case of the `TypedSubscriber` it is a
+The difference is the type that is contained in `iox::popo::Sample`. In case of the `Subscriber` it is a
 `const RadarObject` instead of `const void`.

@@ -13,7 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# SPDX-License-Identifier: Apache-2.0
 BUILD_FOLDER=${1:-$PWD}
 COMMAND=${2:-$capture} 
 OUTPUT_FOLDER=$BUILD_FOLDER/build/lcov
