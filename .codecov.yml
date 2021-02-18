@@ -15,7 +15,6 @@ coverage:
         enabled: yes
         target: 70%
         threshold: 2% # allow coverage to drop maximum by a defined value
-
     patch:
       default:
         enabled: yes
@@ -30,3 +29,6 @@ parsers:
       loop: yes
       method: yes
       macro: yes
+
+fixes:
+  - "/home/runner/work/iceoryx/::"
