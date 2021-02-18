@@ -31,4 +31,4 @@ parsers:
       macro: yes
 
 fixes:
-  - "/home/runner/work/iceoryx/::"
+  - "/home/runner/work/iceoryx/iceoryx/::"
