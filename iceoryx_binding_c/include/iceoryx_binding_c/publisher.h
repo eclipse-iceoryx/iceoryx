@@ -49,7 +49,7 @@ void iox_pub_deinit(iox_pub_t const self);
 /// @param[in] payloadSize size of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_AllocationResult iox_pub_allocate_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize);
+ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize);
 
 /// @brief frees a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher
@@ -59,13 +59,13 @@ void iox_pub_free_chunk(iox_pub_t const self, void* const chunk);
 /// @brief sends a previously allocated chunk
 /// @param[in] self handle of the publisher
 /// @param[in] chunk chunk which should be send
-void iox_pub_send_chunk(iox_pub_t const self, void* const chunk);
+void iox_pub_publish_chunk(iox_pub_t const self, void* const chunk);
 
 /// @brief returns the previously sended chunk
 /// @param[in] self handle of the publisher
 /// @return nullptr if no chunk was previously send otherwise a pointer to the
 ///           previous chunk
-const void* iox_pub_try_get_previous_chunk(iox_pub_t const self);
+const void* iox_pub_loan_previous_chunk(iox_pub_t const self);
 
 /// @brief offers the service
 /// @param[in] self handle of the publisher

@@ -47,7 +47,7 @@ static void sigHandler(int signalValue)
 void subscriberCallback(iox_sub_t const subscriber)
 {
     const void* chunk;
-    if (iox_sub_get_chunk(subscriber, &chunk))
+    if (iox_sub_take_chunk(subscriber, &chunk))
     {
         printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
 

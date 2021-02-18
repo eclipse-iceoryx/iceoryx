@@ -103,7 +103,7 @@ int main()
             else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0U]))
             {
                 const void* chunk;
-                if (iox_sub_get_chunk(subscriber[0U], &chunk))
+                if (iox_sub_take_chunk(subscriber[0U], &chunk))
                 {
                     printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
 

@@ -157,7 +157,7 @@ TEST_F(iox_pub_test, noSubscribersAfterUnsubscribe)
 TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
 {
     void* chunk = nullptr;
-    EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_allocate_chunk(&m_sut, &chunk, sizeof(DummySample)));
+    EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
 }
 
 TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
@@ -165,10 +165,10 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
     void* chunk = nullptr;
     for (int i = 0; i < 8 /* ///@todo actually it should be MAX_CHUNKS_HELD_PER_RECEIVER but it does not work*/; ++i)
     {
-        EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_allocate_chunk(&m_sut, &chunk, 100));
+        EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, 100));
     }
 
-    EXPECT_EQ(AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL, iox_pub_allocate_chunk(&m_sut, &chunk, 100));
+    EXPECT_EQ(AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL, iox_pub_loan_chunk(&m_sut, &chunk, 100));
 }
 
 TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
@@ -184,36 +184,36 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
     }
 
     void* chunk = nullptr;
-    EXPECT_EQ(AllocationResult_RUNNING_OUT_OF_CHUNKS, iox_pub_allocate_chunk(&m_sut, &chunk, 100));
+    EXPECT_EQ(AllocationResult_RUNNING_OUT_OF_CHUNKS, iox_pub_loan_chunk(&m_sut, &chunk, 100));
 }
 
 TEST_F(iox_pub_test, allocatingChunkAcquiresMemory)
 {
     void* chunk = nullptr;
-    iox_pub_allocate_chunk(&m_sut, &chunk, 100);
+    iox_pub_loan_chunk(&m_sut, &chunk, 100);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 }
 
 TEST_F(iox_pub_test, freeingAnAllocatedChunkReleasesTheMemory)
 {
     void* chunk = nullptr;
-    iox_pub_allocate_chunk(&m_sut, &chunk, 100);
+    iox_pub_loan_chunk(&m_sut, &chunk, 100);
     iox_pub_free_chunk(&m_sut, chunk);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
 TEST_F(iox_pub_test, noLastChunkWhenNothingSent)
 {
-    EXPECT_EQ(iox_pub_try_get_previous_chunk(&m_sut), nullptr);
+    EXPECT_EQ(iox_pub_loan_previous_chunk(&m_sut), nullptr);
 }
 
 TEST_F(iox_pub_test, lastChunkAvailableAfterSend)
 {
     void* chunk = nullptr;
-    iox_pub_allocate_chunk(&m_sut, &chunk, 100);
-    iox_pub_send_chunk(&m_sut, chunk);
+    iox_pub_loan_chunk(&m_sut, &chunk, 100);
+    iox_pub_publish_chunk(&m_sut, chunk);
 
-    const void* lastChunk = iox_pub_try_get_previous_chunk(&m_sut);
+    const void* lastChunk = iox_pub_loan_previous_chunk(&m_sut);
 
     EXPECT_EQ(chunk, lastChunk);
 }
@@ -223,9 +223,9 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     void* chunk = nullptr;
     iox_pub_offer(&m_sut);
     this->Subscribe(&m_publisherPortData);
-    iox_pub_allocate_chunk(&m_sut, &chunk, 100);
+    iox_pub_loan_chunk(&m_sut, &chunk, 100);
     static_cast<DummySample*>(chunk)->dummy = 4711;
-    iox_pub_send_chunk(&m_sut, chunk);
+    iox_pub_publish_chunk(&m_sut, chunk);
 
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> m_chunkQueuePopper(&m_chunkQueueData);
     auto maybeSharedChunk = m_chunkQueuePopper.tryPop();

@@ -157,7 +157,7 @@ TEST_F(iox_sub_test, UnsubscribeLeadsToUnscribeRequestedState)
 TEST_F(iox_sub_test, initialStateNoChunksAvailable)
 {
     const void* chunk = nullptr;
-    EXPECT_EQ(iox_sub_get_chunk(m_sut, &chunk), ChunkReceiveResult_NO_CHUNK_RECEIVED);
+    EXPECT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_NO_CHUNK_AVAILABLE);
 }
 
 TEST_F(iox_sub_test, receiveChunkWhenThereIsOne)
@@ -166,7 +166,7 @@ TEST_F(iox_sub_test, receiveChunkWhenThereIsOne)
     m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
     const void* chunk = nullptr;
-    EXPECT_EQ(iox_sub_get_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
+    EXPECT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
 }
 
 TEST_F(iox_sub_test, receiveChunkWithContent)
@@ -183,7 +183,7 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
 
     const void* chunk = nullptr;
 
-    ASSERT_EQ(iox_sub_get_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
+    ASSERT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
     EXPECT_THAT(static_cast<const data_t*>(chunk)->value, Eq(1234));
 }
 
@@ -194,11 +194,11 @@ TEST_F(iox_sub_test, receiveChunkWhenToManyChunksAreHold)
     for (uint64_t i = 0U; i < MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 1U; ++i)
     {
         m_chunkPusher.push(m_memoryManager.getChunk(100U));
-        iox_sub_get_chunk(m_sut, &chunk);
+        iox_sub_take_chunk(m_sut, &chunk);
     }
 
     m_chunkPusher.push(m_memoryManager.getChunk(100U));
-    EXPECT_EQ(iox_sub_get_chunk(m_sut, &chunk), ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+    EXPECT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 }
 
 TEST_F(iox_sub_test, releaseChunkWorks)
@@ -207,7 +207,7 @@ TEST_F(iox_sub_test, releaseChunkWorks)
     m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
     const void* chunk = nullptr;
-    iox_sub_get_chunk(m_sut, &chunk);
+    iox_sub_take_chunk(m_sut, &chunk);
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
     iox_sub_release_chunk(m_sut, chunk);

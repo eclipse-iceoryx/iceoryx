@@ -38,7 +38,7 @@ enum iox_SubscribeState
 enum iox_ChunkReceiveResult
 {
     ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
-    ChunkReceiveResult_NO_CHUNK_RECEIVED,
+    ChunkReceiveResult_NO_CHUNK_AVAILABLE,
     ChunkReceiveResult_UNDEFINED_ERROR,
     ChunkReceiveResult_SUCCESS,
 };

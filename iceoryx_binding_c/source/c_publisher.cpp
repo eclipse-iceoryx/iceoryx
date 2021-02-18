@@ -58,7 +58,7 @@ void iox_pub_deinit(iox_pub_t const self)
     self->~cpp2c_Publisher();
 }
 
-iox_AllocationResult iox_pub_allocate_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize)
+iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize)
 {
     auto result = PublisherPortUser(self->m_portData).tryAllocateChunk(payloadSize).and_then([&](ChunkHeader* h) {
         *chunk = h->payload();
@@ -76,12 +76,12 @@ void iox_pub_free_chunk(iox_pub_t const self, void* const chunk)
     PublisherPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
 }
 
-void iox_pub_send_chunk(iox_pub_t const self, void* const chunk)
+void iox_pub_publish_chunk(iox_pub_t const self, void* const chunk)
 {
     PublisherPortUser(self->m_portData).sendChunk(ChunkHeader::fromPayload(chunk));
 }
 
-const void* iox_pub_try_get_previous_chunk(iox_pub_t const self)
+const void* iox_pub_loan_previous_chunk(iox_pub_t const self)
 {
     const void* returnValue = nullptr;
     PublisherPortUser(self->m_portData).tryGetPreviousChunk().and_then([&](const ChunkHeader* h) {

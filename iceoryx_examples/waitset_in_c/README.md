@@ -30,7 +30,7 @@ prints out the subscriber pointer and the content of the received sample.
 void subscriberCallback(iox_sub_t const subscriber)
 {
     const void* chunk;
-    if (iox_sub_get_chunk(subscriber, &chunk))
+    if (iox_sub_take_chunk(subscriber, &chunk))
     {
         printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
 
@@ -203,7 +203,7 @@ for (uint64_t i = 0U; i < numberOfEvents; ++i)
     {
         iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
         const void* chunk;
-        if (iox_sub_get_chunk(subscriber, &chunk))
+        if (iox_sub_take_chunk(subscriber, &chunk))
         {
             printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
 
@@ -295,7 +295,7 @@ originated from the second subscriber we discard the data.
         else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0]))
         {
             const void* chunk;
-            if (iox_sub_get_chunk(subscriber[0], &chunk))
+            if (iox_sub_take_chunk(subscriber[0], &chunk))
             {
                 printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
 

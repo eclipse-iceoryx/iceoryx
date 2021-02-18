@@ -46,14 +46,14 @@ void sending()
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
             sample->counter = counter;
 
             printf("Sending: %u\n", counter);
 
-            iox_pub_send_chunk(publisher, chunk);
+            iox_pub_publish_chunk(publisher, chunk);
 
             sleep_for(1000);
         }

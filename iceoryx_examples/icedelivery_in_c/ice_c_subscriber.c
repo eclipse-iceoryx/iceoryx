@@ -56,7 +56,7 @@ void receiving()
             const void* chunk = NULL;
             // we will receive here more then one sample since the publisher is sending a
             // new sample every 400ms and we check for new samples only every second
-            while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
+            while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &chunk))
             {
                 const struct RadarObject* sample = (const struct RadarObject*)(chunk);
                 printf("Got value: %.0f\n", sample->x);

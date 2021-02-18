@@ -64,7 +64,7 @@ ENUM iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self);
 /// @param[in] chunk pointer in which the pointer to the chunk is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_ChunkReceiveResult iox_sub_get_chunk(iox_sub_t const self, const void** const chunk);
+ENUM iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const chunk);
 
 /// @brief release a previously acquired chunk (via iox_sub_getChunk)
 /// @param[in] self handle to the subscriber

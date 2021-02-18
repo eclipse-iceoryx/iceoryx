@@ -78,13 +78,13 @@ void IceoryxC::shutdown() noexcept
 void IceoryxC::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
     void* chunk = nullptr;
-    if (iox_pub_allocate_chunk(m_publisher, &chunk, payloadSizeInBytes) == AllocationResult_SUCCESS)
+    if (iox_pub_loan_chunk(m_publisher, &chunk, payloadSizeInBytes) == AllocationResult_SUCCESS)
     {
         auto sendSample = static_cast<PerfTopic*>(chunk);
         sendSample->payloadSize = payloadSizeInBytes;
         sendSample->run = runFlag;
         sendSample->subPackets = 1;
-        iox_pub_send_chunk(m_publisher, chunk);
+        iox_pub_publish_chunk(m_publisher, chunk);
     }
 }
 
@@ -96,7 +96,7 @@ PerfTopic IceoryxC::receivePerfTopic() noexcept
     do
     {
         const void* sample = nullptr;
-        if (iox_sub_get_chunk(m_subscriber, &sample) == ChunkReceiveResult_SUCCESS)
+        if (iox_sub_take_chunk(m_subscriber, &sample) == ChunkReceiveResult_SUCCESS)
         {
             receivedSample = *(static_cast<const PerfTopic*>(sample));
             hasReceivedSample = true;
