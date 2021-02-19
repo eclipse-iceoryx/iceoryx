@@ -116,10 +116,11 @@ Let's take a look at the `sending` function which comes with the
  2. We create a publisher with the service
     {"Radar", "FrontLeft", "Counter"}
     ```c
-    const uint64_t historyRequest = 10U;
-    const char* const nodeName = "iox-c-publisher-node";
+    iox_publisher_options_t options;
+    options.historyCapacity = 10U;
+    options.nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest, nodeName);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", options);
     ```
  3. We offer our service to the world.
     ```c

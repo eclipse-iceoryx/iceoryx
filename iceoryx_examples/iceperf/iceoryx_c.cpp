@@ -20,9 +20,16 @@
 #include <thread>
 
 IceoryxC::IceoryxC(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
-    : m_publisher(iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", 0U, "Slapstick"))
-    , m_subscriber(iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", 10U, 0U, "Slapstick"))
 {
+    iox_publisher_options_t publisherOptions;
+    publisherOptions.historyCapacity = 0U;
+    publisherOptions.nodeName = "SlapStick";
+    m_publisher = iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", publisherOptions);
+
+    // iox_subscriber_options_t subscriberOptions;
+    // subscriberOptions.historyCapacity = 0U;
+    // subscriberOptions.nodeName = "SlapStick";
+    m_subscriber = iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", 10U, 0U, "Slapstick");
 }
 
 IceoryxC::~IceoryxC()

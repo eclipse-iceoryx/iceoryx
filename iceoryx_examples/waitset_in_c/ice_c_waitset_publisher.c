@@ -36,10 +36,11 @@ void sending()
 {
     iox_runtime_init("iox-c-ex-waitset-publisher");
 
-    const uint64_t historyCapacity = 0U;
-    const char* const nodeName = "iox-c-ex-waitset-publisher-node";
+    iox_publisher_options_t options;
+    options.historyCapacity = 0U;
+    options.nodeName = "iox-c-ex-waitset-publisher-node";
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyCapacity, nodeName);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", options);
 
     iox_pub_offer(publisher);
 
