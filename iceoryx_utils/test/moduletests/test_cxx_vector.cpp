@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1067,18 +1068,19 @@ TEST_F(vector_test, PartiallyFullVectorDestroysElementsInReverseOrder)
 {
     static constexpr uint64_t VECTOR_CAPACITY = 40U;
     static constexpr uint64_t VECTOR_SIZE = 20U;
+    static constexpr uint64_t SOME_VALUE = 1337U;
     {
         vector<CTorTest, VECTOR_CAPACITY> sut;
 
         for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
         {
-            sut.emplace_back(i + VECTOR_CAPACITY);
+            sut.emplace_back(i + SOME_VALUE);
         }
     }
 
     ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_SIZE));
     for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
     {
-        EXPECT_THAT(dtorOrder[i], Eq(VECTOR_SIZE - i - 1U + VECTOR_CAPACITY));
+        EXPECT_THAT(dtorOrder[i], Eq(VECTOR_SIZE - i - 1U + SOME_VALUE));
     }
 }

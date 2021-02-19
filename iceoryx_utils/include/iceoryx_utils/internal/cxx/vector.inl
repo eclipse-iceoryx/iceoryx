@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -155,9 +156,19 @@ inline uint64_t vector<T, Capacity>::capacity() const
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clear()
 {
-    for (uint64_t i = m_size; i != 0U; --i)
+    if (m_size == 0U)
     {
-        at(i - 1).~T();
+        return;
+    }
+
+    for (uint64_t i = m_size - 1U;; --i)
+    {
+        at(i).~T();
+
+        if (i == 0U)
+        {
+            break;
+        }
     }
     m_size = 0U;
 }
