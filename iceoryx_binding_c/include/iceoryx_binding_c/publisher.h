@@ -39,7 +39,9 @@ typedef struct
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
+/// @param[in] options publisher options set by the user
 /// @return handle of the publisher
+/// @attention the options must be set to valid values
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const service,
                        const char* const instance,

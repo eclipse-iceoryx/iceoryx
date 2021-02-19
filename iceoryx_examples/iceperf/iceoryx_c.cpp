@@ -26,10 +26,11 @@ IceoryxC::IceoryxC(const iox::capro::IdString_t& publisherName, const iox::capro
     publisherOptions.nodeName = "SlapStick";
     m_publisher = iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", publisherOptions);
 
-    // iox_subscriber_options_t subscriberOptions;
-    // subscriberOptions.historyCapacity = 0U;
-    // subscriberOptions.nodeName = "SlapStick";
-    m_subscriber = iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", 10U, 0U, "Slapstick");
+    iox_subscriber_options_t subscriberOptions;
+    subscriberOptions.queueCapacity = 10U;
+    subscriberOptions.historyRequest = 0U;
+    subscriberOptions.nodeName = "Slapstick";
+    m_subscriber = iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", subscriberOptions);
 }
 
 IceoryxC::~IceoryxC()

@@ -46,11 +46,13 @@ Let's take a look at the `receiving` function which comes with the
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c
-    const uint64_t historyRequest = 10U;
-    const uint64_t queueCapacity = 5U;
-    const char* const nodeName = "iox-c-subscriber-node";
+    iox_subscriber_options_t options;
+    options.historyRequest = 10U;
+    options.queueCapacity = 5U;
+    options.nodeName = "iox-c-subscriber-node";
+
     iox_sub_storage_t subscriberStorage;
-    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest, nodeName);
+    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", options);
     ```
 
   3. We subscribe to the service.

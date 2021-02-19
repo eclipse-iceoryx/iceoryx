@@ -40,13 +40,14 @@ void receiving()
     // When starting the subscriber late it will miss the first samples which the
     // publisher has send. The history ensures that we at least get the last 10
     // samples send by the publisher when we subscribe.
-    const uint64_t historyRequest = 10U;
-    const uint64_t queueCapacity = 5U;
-    const char* const nodeName = "iox-c-subscriber-node";
+    iox_subscriber_options_t options;
+    options.historyRequest = 10U;
+    options.queueCapacity = 5U;
+    options.nodeName = "iox-c-subscriber-node";
     iox_sub_storage_t subscriberStorage;
 
     iox_sub_t subscriber =
-        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest, nodeName);
+        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", options);
     iox_sub_subscribe(subscriber);
 
     while (!killswitch)
