@@ -46,22 +46,22 @@ class CmdLineParserConfigFileOption_test : public Test
 
 TEST_F(CmdLineParserConfigFileOption_test, NoConfigPathOptionLeadsToEmptyPath)
 {
-    constexpr uint8_t numberOfArgs{1U};
-    char* args[numberOfArgs];
+    constexpr uint8_t NUMBER_OF_ARGS{1U};
+    char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
 
     CmdLineParserConfigFileOption sut;
-    auto result = sut.parse(numberOfArgs, args);
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    EXPECT_FALSE(result.has_error());
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(""));
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, ConfigPathShortOptionIsCorrectlyRead)
 {
-    constexpr uint8_t numberOfArgs{3U};
-    char* args[numberOfArgs];
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     char option[] = "-c";
     char path[] = "/foo/bar.toml";
@@ -70,16 +70,16 @@ TEST_F(CmdLineParserConfigFileOption_test, ConfigPathShortOptionIsCorrectlyRead)
     args[2] = &path[0];
 
     CmdLineParserConfigFileOption sut;
-    auto result = sut.parse(numberOfArgs, args);
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    EXPECT_FALSE(result.has_error());
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(path));
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, ConfigPathLongOptionIsCorrectlyRead)
 {
-    constexpr uint8_t numberOfArgs{3U};
-    char* args[numberOfArgs];
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     char option[] = "--config-file";
     char path[] = "/foo/bar/baz.toml";
@@ -88,48 +88,48 @@ TEST_F(CmdLineParserConfigFileOption_test, ConfigPathLongOptionIsCorrectlyRead)
     args[2] = &path[0];
 
     CmdLineParserConfigFileOption sut;
-    auto result = sut.parse(numberOfArgs, args);
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    EXPECT_FALSE(result.has_error());
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(path));
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, HelpLongOptionLeadsProgrammNotRunning)
 {
-    constexpr uint8_t numberOfArgs{2U};
-    char* args[numberOfArgs];
+    constexpr uint8_t NUMBER_OF_ARGS{2U};
+    char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     char option[] = "--help";
     args[0] = &appName[0];
     args[1] = &option[0];
 
     CmdLineParserConfigFileOption sut;
-    auto result = sut.parse(numberOfArgs, args);
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    EXPECT_FALSE(result.has_error());
+    ASSERT_FALSE(result.has_error());
     EXPECT_FALSE(result.value().run);
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
 {
-    constexpr uint8_t numberOfArgs{2U};
-    char* args[numberOfArgs];
+    constexpr uint8_t NUMBER_OF_ARGS{2U};
+    char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
-    char option[] = "--unknown";
+    char unknownOption[] = "--unknown";
     args[0] = &appName[0];
-    args[1] = &option[0];
+    args[1] = &unknownOption[0];
 
     CmdLineParserConfigFileOption sut;
-    auto result = sut.parse(numberOfArgs, args);
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    EXPECT_TRUE(result.has_error());
+    ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(CmdLineParserResult::UNKNOWN_OPTION_USED));
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParserParseReturningNoError)
 {
-    constexpr uint8_t numberOfArgs{3U};
-    char* args[numberOfArgs];
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     char option[] = "-u";
     char value[] = "4242";
@@ -138,27 +138,32 @@ TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParse
     args[2] = &value[0];
 
     CmdLineParserConfigFileOption sut;
-    auto result = sut.parse(numberOfArgs, args);
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    EXPECT_FALSE(result.has_error());
+    ASSERT_FALSE(result.has_error());
     EXPECT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
 }
 
-TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneReturnNoError)
+TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnlyTheFirstOption)
 {
-    constexpr uint8_t numberOfArgs{2U};
-    char* args[numberOfArgs];
+    constexpr uint8_t NUMBER_OF_ARGS{4U};
+    char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
-    char option[] = "--help";
+    char uniqueIdOption[] = "--help";
+    char customOption[] = "-c";
+    char path[] = "/foo/bar.toml";
     args[0] = &appName[0];
-    args[1] = &option[0];
+    args[1] = &uniqueIdOption[0];
+    args[2] = &customOption[0];
+    args[3] = &path[0];
 
     CmdLineParserConfigFileOption sut;
-    auto result = sut.parse(numberOfArgs, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
+    auto result = sut.parse(NUMBER_OF_ARGS, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
-    EXPECT_FALSE(result.has_error());
+    ASSERT_FALSE(result.has_error());
     EXPECT_FALSE(result.value().run);
+    EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(""));
 }
 
 } // namespace test

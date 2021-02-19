@@ -62,7 +62,7 @@ class CmdLineParser_test : public Test
         CmdLineParser sut;
         auto result = sut.parse(numberOfArgs, args);
 
-        EXPECT_THAT(result.has_error(), Eq(false));
+        ASSERT_FALSE(result.has_error());
         EXPECT_THAT(result.value().logLevel, Eq(level));
 
         // Reset optind to be able to parse again
@@ -74,7 +74,7 @@ class CmdLineParser_test : public Test
         CmdLineParser sut;
         auto result = sut.parse(numberOfArgs, args);
 
-        EXPECT_THAT(result.has_error(), Eq(false));
+        ASSERT_FALSE(result.has_error());
         EXPECT_THAT(result.value().monitoringMode, Eq(mode));
 
         // Reset optind to be able to parse again
@@ -86,7 +86,7 @@ class CmdLineParser_test : public Test
         CmdLineParser sut;
         auto result = sut.parse(numberOfArgs, args);
 
-        EXPECT_THAT(result.has_error(), Eq(false));
+        ASSERT_FALSE(result.has_error());
         EXPECT_THAT(result.value().compatibilityCheckLevel, Eq(level));
 
         // Reset optind to be able to parse again
@@ -105,7 +105,7 @@ TEST_F(CmdLineParser_test, NoOptionLeadsToDefaultValues)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value(), Eq(defaultValues));
 }
 
@@ -121,7 +121,7 @@ TEST_F(CmdLineParser_test, WrongOptionLeadsUnkownOptionResult)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(true));
+    ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(CmdLineParserResult::UNKNOWN_OPTION_USED));
 }
 
@@ -137,7 +137,7 @@ TEST_F(CmdLineParser_test, HelpLongOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 
@@ -153,7 +153,7 @@ TEST_F(CmdLineParser_test, HelpShortOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 
@@ -169,7 +169,7 @@ TEST_F(CmdLineParser_test, VersionShortOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 
@@ -185,7 +185,7 @@ TEST_F(CmdLineParser_test, VersionLongOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 
@@ -226,7 +226,7 @@ TEST_F(CmdLineParser_test, WrongMonitoringModeOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 
@@ -273,7 +273,7 @@ TEST_F(CmdLineParser_test, WrongLogLevelOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 
@@ -291,7 +291,7 @@ TEST_F(CmdLineParser_test, KillDelayLongOptionLeadsToCorrectDelay)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().processKillDelay, Eq(Duration::fromSeconds(73)));
 }
 
@@ -309,7 +309,7 @@ TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().processKillDelay, Eq(Duration::fromSeconds(42)));
 }
 
@@ -327,7 +327,7 @@ TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 
@@ -373,7 +373,7 @@ TEST_F(CmdLineParser_test, WrongCompatibilityLevelOptionLeadsToProgrammNotRunnin
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 
@@ -391,7 +391,7 @@ TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().uniqueRouDiId.has_value(), Eq(true));
     EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
 }
@@ -410,7 +410,7 @@ TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().uniqueRouDiId.has_value(), Eq(true));
     EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
 }
@@ -429,7 +429,7 @@ TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(numberOfArgs, args);
 
-    EXPECT_THAT(result.has_error(), Eq(false));
+    ASSERT_FALSE(result.has_error());
     EXPECT_THAT(result.value().run, Eq(false));
 }
 } // namespace test
