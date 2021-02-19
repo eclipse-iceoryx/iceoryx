@@ -155,7 +155,8 @@ class vector
     bool push_back(T&& value);
 
     /// @brief removes the last element of the vector; calling pop_back on an empty container does nothing
-    void pop_back();
+    /// @return true if the last element was removed. If the vector is empty it returns false.
+    bool pop_back();
 
     /// @brief removes an element at the given position. if this element is in
     ///         the middle of the vector every element is moved one place to the
