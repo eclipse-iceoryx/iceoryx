@@ -204,7 +204,7 @@ TEST_F(variant_Test, indexWhenUninitialized)
 TEST_F(variant_Test, indexWhenInitialized)
 {
     sut.emplace<float>(1231.22f);
-    EXPECT_THAT(sut.index(), Eq(1));
+    EXPECT_THAT(sut.index(), Eq(1U));
 }
 
 TEST_F(variant_Test, get_ifWhenUninitialized)
@@ -295,7 +295,7 @@ TEST_F(variant_Test, MoveCTorWithValue)
     iox::cxx::variant<int, char> ignatz(std::move(schlomo));
     ASSERT_THAT(ignatz.get<int>(), Ne(nullptr));
     EXPECT_THAT(*ignatz.get<int>(), Eq(123));
-    EXPECT_THAT(schlomo.index(), Eq(0));
+    EXPECT_THAT(schlomo.index(), Eq(0U));
 }
 
 TEST_F(variant_Test, MoveCTorWithoutValue)
@@ -373,7 +373,7 @@ TEST_F(variant_Test, DTorOnMoveCTor)
         {
             iox::cxx::variant<int, DTorTest> schlomo(std::move(ignatz));
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
-            EXPECT_THAT(ignatz.index(), Eq(1));
+            EXPECT_THAT(ignatz.index(), Eq(1U));
         }
         EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
         DTorTest::dtorWasCalled = false;
@@ -391,7 +391,7 @@ TEST_F(variant_Test, DTorOnMoveAssignment)
             iox::cxx::variant<int, DTorTest> schlomo;
             schlomo.emplace<int>(123);
             schlomo = std::move(ignatz);
-            EXPECT_THAT(ignatz.index(), Eq(1));
+            EXPECT_THAT(ignatz.index(), Eq(1U));
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
         }
         EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
@@ -404,7 +404,7 @@ TEST_F(variant_Test, DirectValueAssignment)
 {
     iox::cxx::variant<int, float> schlomo;
     schlomo = 123;
-    EXPECT_THAT(schlomo.index(), Eq(0));
+    EXPECT_THAT(schlomo.index(), Eq(0U));
 }
 
 TEST_F(variant_Test, DirectValueAssignmentWhenAlreadyAssignedWithDifferentType)
@@ -412,7 +412,7 @@ TEST_F(variant_Test, DirectValueAssignmentWhenAlreadyAssignedWithDifferentType)
     iox::cxx::variant<int, float> schlomo;
     schlomo = 123;
     schlomo = 123.01f;
-    EXPECT_THAT(schlomo.index(), Eq(0));
+    EXPECT_THAT(schlomo.index(), Eq(0U));
 }
 
 TEST_F(variant_Test, HoldsAlternativeForCorrectType)
@@ -442,7 +442,7 @@ TEST_F(variant_Test, SameTypeVariantIndex)
     iox::cxx::variant<int, float, int> schlomo;
 
     EXPECT_THAT(schlomo.emplace_at_index<1>(1.23f), Eq(true));
-    EXPECT_THAT(schlomo.index(), Eq(1));
+    EXPECT_THAT(schlomo.index(), Eq(1U));
 }
 
 TEST_F(variant_Test, GetInvalidIndex)
@@ -466,7 +466,7 @@ TEST_F(variant_Test, InPlaceAtIndexCTorEmplace)
 {
     iox::cxx::variant<int, float, int> schlomo(iox::cxx::in_place_index<0>(), 445);
 
-    ASSERT_THAT(schlomo.index(), Eq(0));
+    ASSERT_THAT(schlomo.index(), Eq(0U));
     EXPECT_THAT(*schlomo.get_at_index<0>(), Eq(445));
 }
 
@@ -474,7 +474,7 @@ TEST_F(variant_Test, InPlaceAtTypeCTorEmplace)
 {
     iox::cxx::variant<int, float, double> schlomo(iox::cxx::in_place_type<double>(), 90.12);
 
-    ASSERT_THAT(schlomo.index(), Eq(2));
+    ASSERT_THAT(schlomo.index(), Eq(2U));
     EXPECT_THAT(*schlomo.get_at_index<2>(), Eq(90.12));
 }
 
