@@ -1049,20 +1049,21 @@ TEST_F(vector_test, FullVectorDestroysElementsInReverseOrder)
 {
     static constexpr uint64_t VECTOR_CAPACITY = 35U;
     static constexpr uint64_t INDEX_END = VECTOR_CAPACITY - 1U;
+    static constexpr uint64_t SOME_OFFSET = 9128U;
 
     {
         vector<CTorTest, VECTOR_CAPACITY> sut;
 
         for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
         {
-            sut.emplace_back(i);
+            sut.emplace_back(i + SOME_OFFSET);
         }
     }
 
     ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_CAPACITY));
     for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
     {
-        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i));
+        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i + SOME_OFFSET));
     }
 }
 
@@ -1070,21 +1071,48 @@ TEST_F(vector_test, PartiallyFullVectorDestroysElementsInReverseOrder)
 {
     static constexpr uint64_t VECTOR_CAPACITY = 40U;
     static constexpr uint64_t VECTOR_SIZE = 20U;
-    static constexpr uint64_t INDEX_END = VECTOR_CAPACITY - 1U;
-    static constexpr uint64_t SOME_VALUE = 1337U;
+    static constexpr uint64_t INDEX_END = VECTOR_SIZE - 1U;
+    static constexpr uint64_t SOME_OFFSET = 1337U;
 
     {
         vector<CTorTest, VECTOR_CAPACITY> sut;
 
         for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
         {
-            sut.emplace_back(i + SOME_VALUE);
+            sut.emplace_back(i + SOME_OFFSET);
         }
     }
 
     ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_SIZE));
     for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
     {
-        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i + SOME_VALUE));
+        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i + SOME_OFFSET));
     }
+}
+
+TEST_F(vector_test, PopBackReturnsFalseOnEmptyVector)
+{
+    EXPECT_FALSE(sut.pop_back());
+}
+
+TEST_F(vector_test, PopBackReturnsTrueOnNonEmptyVector)
+{
+    sut.emplace_back(123);
+    EXPECT_TRUE(sut.pop_back());
+}
+
+TEST_F(vector_test, PopBackReturnsTrueTillItsEmpty)
+{
+    static constexpr uint64_t VECTOR_SIZE = 5U;
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        sut.emplace_back(i);
+    }
+
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_TRUE(sut.pop_back());
+    }
+
+    EXPECT_FALSE(sut.pop_back());
 }
