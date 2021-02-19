@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ void sending()
 {
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-waitset");
 
-    iox::popo::TypedPublisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
     myPublisher.offer();
 
     for (uint32_t counter = 0U; !killswitch; ++counter)

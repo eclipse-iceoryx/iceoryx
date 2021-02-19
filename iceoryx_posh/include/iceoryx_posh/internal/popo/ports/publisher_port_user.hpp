@@ -56,7 +56,7 @@ class PublisherPortUser : public BasePort
 
     /// @brief Free an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
-    void freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
+    void releaseChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Send an allocated chunk to all connected subscriber ports
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send

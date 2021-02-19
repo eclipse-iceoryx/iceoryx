@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -37,6 +38,7 @@ static constexpr char AnyServiceString[]{"65535"};
 static constexpr char AnyInstanceString[]{"65535"};
 static constexpr char AnyEventString[]{"65535"};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
+static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4u};
 
 /// @brief Describes from which interface the service is coming from
 enum class Interfaces : uint16_t
@@ -85,14 +87,14 @@ class ServiceDescription
   public:
     struct ClassHash
     {
+        ClassHash() noexcept;
         ClassHash(const std::initializer_list<uint32_t>& values) noexcept;
-        uint32_t& operator[](const uint64_t index) noexcept;
-        const uint32_t& operator[](const uint64_t index) const noexcept;
+        uint32_t& operator[](iox::cxx::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept;
+        const uint32_t& operator[](iox::cxx::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept;
         bool operator==(const ClassHash& rhs) const noexcept;
         bool operator!=(const ClassHash& rhs) const noexcept;
 
       private:
-        static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4u};
         uint32_t data[CLASS_HASH_ELEMENT_COUNT];
     };
 

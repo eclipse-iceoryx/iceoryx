@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,13 +32,12 @@ class Void
 {
 };
 
-template <template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
-class UntypedSubscriberImpl
-    : public base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>
+template <typename base_subscriber_t = BaseSubscriber<>>
+class UntypedSubscriberImpl : public base_subscriber_t
 {
   public:
-    using BaseSubscriber =
-        base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>;
+    using BaseSubscriber = base_subscriber_t;
+    using SelfType = UntypedSubscriberImpl<base_subscriber_t>;
 
     UntypedSubscriberImpl(const capro::ServiceDescription& service,
                           const SubscriberOptions& subscriberOptions = SubscriberOptions());
@@ -47,53 +47,23 @@ class UntypedSubscriberImpl
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
     virtual ~UntypedSubscriberImpl() = default;
 
-    using BaseSubscriber::getServiceDescription;
-    using BaseSubscriber::getSubscriptionState;
-    using BaseSubscriber::getUid;
-    using BaseSubscriber::hasMissedSamples;
-    using BaseSubscriber::hasSamples;
-    using BaseSubscriber::releaseQueuedSamples;
-
-    using BaseSubscriber::subscribe;
-    using BaseSubscriber::take; // iox-#408 replace
-    using BaseSubscriber::unsubscribe;
-
-    // iox-#408
-    // the 1_0 suffix is only used temporarily to not cause regressions in all examples and tests and keep the changes
-    // as small as possible, it will replace the function without suffix in a follow-up pull request (which changes
-    // all examples)
-
-    cxx::expected<const void*, ChunkReceiveResult> take_1_0() noexcept;
-
-    // iox-#408
-    // the untyped API is supposed to deal with chunks, hence the renaming iox #408 remove comment
-    // calling it chunks looks inappropriate in the function names (use data instead of chunks?)...
+    ///
+    /// @brief Take the chunk from the top of the receive queue.
+    /// @return The payload pointer of the chunk taken.
+    /// @details No automatic cleanup of the associated chunk is performed.
+    ///
+    cxx::expected<const void*, ChunkReceiveResult> take() noexcept;
 
     ///
-    /// @brief hasChunks Check if chunks are available.
-    /// @return True if a new chunk is available.
-    ///
-    bool hasChunks() const noexcept;
-
-    ///
-    /// @brief hasMissedChunks Check if chunks have been missed since the last hasMissedData() call.
-    /// @return True if chunks have been missed.
-    /// @details Chunks may be missed due to overflowing receive queue.
-    ///
-    bool hasMissedChunks() noexcept;
-
-    ///
-    /// @brief releaseQueuedChunks Releases any unread queued data chunk.
-    ///
-    void releaseQueuedChunks() noexcept;
-
-    ///
-    /// @brief releaseChunk Releases the chunk provided by the payload pointer.
+    /// @brief Releases the chunk provided by the payload pointer.
     /// @param payload pointer to the payload of the chunk to be released
-    /// @details The chunk must have been previosly provided by take_1_0 and
+    /// @details The chunk must have been previously provided by take and
     ///          not have been already released.
     ///
     void releaseChunk(const void* payload) noexcept;
+
+  protected:
+    using BaseSubscriber::port;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;
