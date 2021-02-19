@@ -16,12 +16,13 @@
 
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "test.hpp"
+#include <atomic>
 
 using namespace ::testing;
 using namespace iox::posix;
 
-int signalOfCallback1 = 0;
-int signalOfCallback2 = 0;
+std::atomic_int signalOfCallback1{0};
+std::atomic_int signalOfCallback2{0};
 
 template <Signal SignalValue>
 struct SignalType
