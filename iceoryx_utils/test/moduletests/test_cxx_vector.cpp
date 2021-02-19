@@ -1048,6 +1048,8 @@ TEST_F(vector_test, PartiallyEqualVectorsWithDifferentCapacityAreNotEqual)
 TEST_F(vector_test, FullVectorDestroysElementsInReverseOrder)
 {
     static constexpr uint64_t VECTOR_CAPACITY = 35U;
+    static constexpr uint64_t INDEX_END = VECTOR_CAPACITY - 1U;
+
     {
         vector<CTorTest, VECTOR_CAPACITY> sut;
 
@@ -1060,7 +1062,7 @@ TEST_F(vector_test, FullVectorDestroysElementsInReverseOrder)
     ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_CAPACITY));
     for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
     {
-        EXPECT_THAT(dtorOrder[i], Eq(VECTOR_CAPACITY - i - 1U));
+        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i));
     }
 }
 
@@ -1068,7 +1070,9 @@ TEST_F(vector_test, PartiallyFullVectorDestroysElementsInReverseOrder)
 {
     static constexpr uint64_t VECTOR_CAPACITY = 40U;
     static constexpr uint64_t VECTOR_SIZE = 20U;
+    static constexpr uint64_t INDEX_END = VECTOR_CAPACITY - 1U;
     static constexpr uint64_t SOME_VALUE = 1337U;
+
     {
         vector<CTorTest, VECTOR_CAPACITY> sut;
 
@@ -1081,6 +1085,6 @@ TEST_F(vector_test, PartiallyFullVectorDestroysElementsInReverseOrder)
     ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_SIZE));
     for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
     {
-        EXPECT_THAT(dtorOrder[i], Eq(VECTOR_SIZE - i - 1U + SOME_VALUE));
+        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i + SOME_VALUE));
     }
 }
