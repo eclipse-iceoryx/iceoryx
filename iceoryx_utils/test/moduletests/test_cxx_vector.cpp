@@ -17,6 +17,8 @@
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
 
+#include <vector>
+
 
 using namespace ::testing;
 using namespace iox::cxx;
@@ -32,6 +34,8 @@ class vector_test : public Test
     static int copyAssignment;
     static int dTor;
     static int classValue;
+
+    static std::vector<int> dtorOrder;
 
     class CTorTest
     {
@@ -83,6 +87,7 @@ class vector_test : public Test
         {
             dTor++;
             classValue = value;
+            dtorOrder.emplace_back(value);
         }
 
         int value = 0;
@@ -98,6 +103,7 @@ class vector_test : public Test
         copyAssignment = 0;
         dTor = 0;
         classValue = 0;
+        dtorOrder.clear();
     }
 
     vector<int, 10> sut;
@@ -111,6 +117,7 @@ int vector_test::moveAssignment;
 int vector_test::copyAssignment;
 int vector_test::dTor;
 int vector_test::classValue;
+std::vector<int> vector_test::dtorOrder;
 
 
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
@@ -1035,4 +1042,43 @@ TEST_F(vector_test, PartiallyEqualVectorsWithDifferentCapacityAreNotEqual)
 
     EXPECT_FALSE(a == b);
     EXPECT_TRUE(a != b);
+}
+
+TEST_F(vector_test, FullVectorDestroysElementsInReverseOrder)
+{
+    static constexpr uint64_t VECTOR_CAPACITY = 35U;
+    {
+        vector<CTorTest, VECTOR_CAPACITY> sut;
+
+        for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+        {
+            sut.emplace_back(i);
+        }
+    }
+
+    ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_CAPACITY));
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+    {
+        EXPECT_THAT(dtorOrder[i], Eq(VECTOR_CAPACITY - i - 1U));
+    }
+}
+
+TEST_F(vector_test, PartiallyFullVectorDestroysElementsInReverseOrder)
+{
+    static constexpr uint64_t VECTOR_CAPACITY = 40U;
+    static constexpr uint64_t VECTOR_SIZE = 20U;
+    {
+        vector<CTorTest, VECTOR_CAPACITY> sut;
+
+        for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+        {
+            sut.emplace_back(i + VECTOR_CAPACITY);
+        }
+    }
+
+    ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_SIZE));
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_THAT(dtorOrder[i], Eq(VECTOR_SIZE - i - 1U + VECTOR_CAPACITY));
+    }
 }

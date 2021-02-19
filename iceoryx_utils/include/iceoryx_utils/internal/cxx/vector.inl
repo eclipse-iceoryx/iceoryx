@@ -155,11 +155,11 @@ inline uint64_t vector<T, Capacity>::capacity() const
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clear()
 {
-    for (uint64_t i = 0u; i < m_size; ++i)
+    for (uint64_t i = m_size; i != 0U; --i)
     {
-        at(i).~T();
+        at(i - 1).~T();
     }
-    m_size = 0u;
+    m_size = 0U;
 }
 
 template <typename T, uint64_t Capacity>
