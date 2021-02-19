@@ -22,6 +22,7 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/semaphore.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
@@ -138,7 +139,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///             false = return on any error
     /// @return when successful the SemaphoreWaitState states if a timeout happened
     ///         or not otherwise the SemaphoreError contains the error
-    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const struct timespec* abs_timeout,
+    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration abs_timeout,
                                                                 const bool doContinueOnInterrupt) const noexcept;
 
     /// @brief see wait()

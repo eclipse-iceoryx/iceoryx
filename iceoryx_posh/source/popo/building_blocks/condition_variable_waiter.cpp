@@ -64,9 +64,8 @@ void ConditionVariableWaiter::wait() noexcept
 
 bool ConditionVariableWaiter::timedWait(units::Duration timeToWait) noexcept
 {
-    auto timeout = timeToWait.timespec(units::TimeSpecReference::Epoch);
     auto continueOnInterrupt{false};
-    auto result = getMembers()->m_semaphore.timedWait(&timeout, continueOnInterrupt);
+    auto result = getMembers()->m_semaphore.timedWait(timeToWait, continueOnInterrupt);
 
     if (result.has_error())
     {
