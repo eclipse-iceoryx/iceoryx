@@ -14,18 +14,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #include "iceoryx_posh/internal/popo/building_blocks/event_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 
 #include "test.hpp"
+#include "testutils/seppuku.hpp"
 #include "testutils/timing_test.hpp"
 
 #include <thread>
 
 using namespace ::testing;
 using namespace iox::popo;
+using namespace iox::units::duration_literals;
 
 class EventVariable_test : public Test
 {
@@ -34,6 +35,8 @@ class EventVariable_test : public Test
 
     const iox::ProcessName_t m_process{"Ferdinand"};
     EventVariableData m_eventVarData{m_process};
+
+    const iox::units::Duration m_timeToWait = 2_s;
 };
 
 TEST_F(EventVariable_test, AllNotificationsAreFalseAfterConstruction)
@@ -60,7 +63,7 @@ TEST_F(EventVariable_test, AllNotificationsAreFalseAfterConstructionWithProcessN
 
 TEST_F(EventVariable_test, NotifyActivatesCorrectIndex)
 {
-    const uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
+    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
     EventNotifier sut(m_eventVarData, EVENT_INDEX);
     sut.notify();
     for (uint8_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
@@ -78,7 +81,7 @@ TEST_F(EventVariable_test, NotifyActivatesCorrectIndex)
 
 TEST_F(EventVariable_test, NotifyActivatesNoIndexIfIndexIsTooLarge)
 {
-    const uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
+    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
     EventNotifier sut(m_eventVarData, EVENT_INDEX);
     sut.notify();
     for (const auto& notification : m_eventVarData.m_activeNotifications)
@@ -89,27 +92,35 @@ TEST_F(EventVariable_test, NotifyActivatesNoIndexIfIndexIsTooLarge)
 
 TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
 {
-    const uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
+    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
     EventNotifier notifier(m_eventVarData, EVENT_INDEX);
     EventListener listener(m_eventVarData);
 
+    Seppuku seppuku(m_timeToWait);
+    seppuku.doSeppuku([&] { listener.destroy(); });
+
     notifier.notify();
     const auto& activeNotifications = listener.wait();
+
     ASSERT_THAT(activeNotifications.size(), Eq(1U));
     EXPECT_THAT(activeNotifications[0], Eq(EVENT_INDEX));
 }
 
 TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAndWait)
 {
-    const uint8_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
-    const uint8_t SECOND_EVENT_INDEX = 0U;
+    constexpr uint8_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
+    constexpr uint8_t SECOND_EVENT_INDEX = 0U;
     EventNotifier notifier1(m_eventVarData, FIRST_EVENT_INDEX);
     EventNotifier notifier2(m_eventVarData, SECOND_EVENT_INDEX);
     EventListener listener(m_eventVarData);
 
+    Seppuku seppuku(m_timeToWait);
+    seppuku.doSeppuku([&] { listener.destroy(); });
+
     notifier1.notify();
     notifier2.notify();
     const auto& activeNotifications = listener.wait();
+
     ASSERT_THAT(activeNotifications.size(), Eq(2U));
     EXPECT_THAT(activeNotifications[0], Eq(SECOND_EVENT_INDEX));
     EXPECT_THAT(activeNotifications[1], Eq(FIRST_EVENT_INDEX));
@@ -117,10 +128,13 @@ TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAndWai
 
 TEST_F(EventVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 {
-    const uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
+    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
     EventNotifier notifier(m_eventVarData, EVENT_INDEX);
     EventListener listener(m_eventVarData);
     NotificationVector_t activeNotifications;
+
+    Seppuku seppuku(m_timeToWait);
+    seppuku.doSeppuku([&] { listener.destroy(); });
 
     std::thread waiter([&] {
         activeNotifications = listener.wait();
@@ -133,13 +147,16 @@ TEST_F(EventVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 }
 
 TIMING_TEST_F(EventVariable_test, WaitBlocks, Repeat(5), [&] {
-    const uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
+    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
     EventNotifier notifier(m_eventVarData, EVENT_INDEX);
     EventListener listener(m_eventVarData);
     NotificationVector_t activeNotifications;
     iox::posix::Semaphore threadSetupSemaphore =
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
+
+    Seppuku seppuku(m_timeToWait);
+    seppuku.doSeppuku([&] { listener.destroy(); });
 
     std::thread waiter([&] {
         threadSetupSemaphore.post();
@@ -159,8 +176,8 @@ TIMING_TEST_F(EventVariable_test, WaitBlocks, Repeat(5), [&] {
 })
 
 TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5), [&] {
-    const uint8_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 2U;
-    const uint8_t SECOND_EVENT_INDEX = 0U;
+    constexpr uint8_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 2U;
+    constexpr uint8_t SECOND_EVENT_INDEX = 0U;
     EventNotifier notifier1(m_eventVarData, FIRST_EVENT_INDEX);
     EventNotifier notifier2(m_eventVarData, SECOND_EVENT_INDEX);
     EventListener listener(m_eventVarData);
@@ -168,12 +185,19 @@ TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
 
+    Seppuku seppukuFirstWait(m_timeToWait);
+    seppukuFirstWait.doSeppuku([&] { listener.destroy(); });
+
     notifier1.notify();
     notifier2.notify();
     NotificationVector_t activeNotifications = listener.wait();
+
     ASSERT_THAT(activeNotifications.size(), Eq(2U));
     EXPECT_THAT(activeNotifications[0], Eq(SECOND_EVENT_INDEX));
     EXPECT_THAT(activeNotifications[1], Eq(FIRST_EVENT_INDEX));
+
+    Seppuku seppukuSecondWait(m_timeToWait);
+    seppukuSecondWait.doSeppuku([&] { listener.destroy(); });
 
     std::thread waiter([&] {
         threadSetupSemaphore.post();
@@ -181,6 +205,10 @@ TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
         EXPECT_THAT(activeNotifications[0], Eq(FIRST_EVENT_INDEX));
+        for (const auto& notification : m_eventVarData.m_activeNotifications)
+        {
+            EXPECT_THAT(notification, Eq(false));
+        }
     });
 
     threadSetupSemaphore.wait();
@@ -191,27 +219,6 @@ TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5
     EXPECT_THAT(hasWaited, Eq(true));
     waiter.join();
 })
-
-TEST_F(EventVariable_test, AllEntriesAreResetToFalseInsideWait)
-{
-    const uint8_t FIRST_EVENT_INDEX = 3U;
-    const uint8_t SECOND_EVENT_INDEX = 1U;
-    EventNotifier notifier1(m_eventVarData, FIRST_EVENT_INDEX);
-    EventNotifier notifier2(m_eventVarData, SECOND_EVENT_INDEX);
-    EventListener listener(m_eventVarData);
-
-    notifier1.notify();
-    ASSERT_THAT(m_eventVarData.m_activeNotifications[FIRST_EVENT_INDEX], Eq(true));
-    notifier2.notify();
-    ASSERT_THAT(m_eventVarData.m_activeNotifications[SECOND_EVENT_INDEX], Eq(true));
-
-    const auto& activeNotifications = listener.wait();
-    EXPECT_THAT(activeNotifications.size(), Eq(2U));
-    for (const auto& notification : m_eventVarData.m_activeNotifications)
-    {
-        EXPECT_THAT(notification, Eq(false));
-    }
-}
 
 TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
 {
