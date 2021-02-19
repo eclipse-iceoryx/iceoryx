@@ -13,7 +13,6 @@ on:
 jobs:
   # This job builds & runs iceoryx tests in ubuntu-18.04
   iceoryx-ubuntu:
-     # The type of runner that the job will run on
      runs-on: ubuntu-18.04
 
      # Steps represent a sequence of tasks that will be executed as part of the job
@@ -101,7 +100,6 @@ jobs:
     steps:
       - name : Checkout
         uses: actions/checkout@v2
-
 
       - name: Build sources
         run: |
