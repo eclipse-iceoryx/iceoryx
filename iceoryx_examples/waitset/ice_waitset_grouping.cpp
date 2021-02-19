@@ -37,7 +37,9 @@ int main()
     constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
     constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
 
-    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    // register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-grouping");
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;

@@ -29,7 +29,7 @@ bool killswitch = false;
 static void sigHandler(int signalValue)
 {
     (void)signalValue;
-    // caught SIGINT, now exit gracefully
+    // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
 }
 
@@ -79,6 +79,7 @@ void receiving()
 int main()
 {
     signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
 
     receiving();
 

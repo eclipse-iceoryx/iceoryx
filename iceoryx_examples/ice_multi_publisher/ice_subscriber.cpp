@@ -56,7 +56,8 @@ void receive()
 
 int main()
 {
-    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
     iox::runtime::PoshRuntime::initRuntime("iox-subscriber");
 
     std::thread receiver(receive);

@@ -27,14 +27,15 @@ bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    // caught SIGINT, now exit gracefully
+    // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
 }
 
 int main()
 {
-    // register sigHandler for SIGINT
-    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    // register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-with-history");

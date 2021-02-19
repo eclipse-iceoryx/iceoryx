@@ -54,6 +54,7 @@ int main()
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
 
     // array where the subscriber are stored
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];

@@ -32,7 +32,9 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void sending()
 {
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-waitset");
+    // register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
     myPublisher.offer();

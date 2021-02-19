@@ -70,6 +70,7 @@ void sending()
 int main()
 {
     signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
 
     sending();
 

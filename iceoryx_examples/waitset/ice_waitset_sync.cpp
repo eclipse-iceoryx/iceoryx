@@ -48,7 +48,10 @@ class SomeClass
 
 int main()
 {
-    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    // register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-sync");
     std::atomic_bool keepRunning{true};
 
