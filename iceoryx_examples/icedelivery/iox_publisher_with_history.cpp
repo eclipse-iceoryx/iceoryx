@@ -18,6 +18,7 @@
 
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
@@ -32,7 +33,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 int main()
 {
     // Register sigHandler for SIGINT
-    signal(SIGINT, sigHandler);
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-with-history");
 

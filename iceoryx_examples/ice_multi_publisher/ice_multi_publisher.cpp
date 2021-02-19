@@ -17,6 +17,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -62,7 +63,7 @@ void send(uint32_t id, const char* instanceName, std::chrono::milliseconds delay
 
 int main()
 {
-    signal(SIGINT, sigHandler);
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-publisher");
 

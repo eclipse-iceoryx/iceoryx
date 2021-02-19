@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -55,7 +56,7 @@ void receive()
 
 int main()
 {
-    signal(SIGINT, sigHandler);
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     iox::runtime::PoshRuntime::initRuntime("iox-subscriber");
 
     std::thread receiver(receive);

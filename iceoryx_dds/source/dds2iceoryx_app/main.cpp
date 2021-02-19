@@ -21,6 +21,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -57,8 +58,9 @@ std::atomic_bool ShutdownManager::s_shutdownRequested{false};
 int main()
 {
     // Set OS signal handlers
-    signal(SIGINT, ShutdownManager::scheduleShutdown);
-    signal(SIGTERM, ShutdownManager::scheduleShutdown);
+    auto signalGuardInt = iox::posix::registerSignalHandler(iox::posix::Signal::INT, ShutdownManager::scheduleShutdown);
+    auto signalGuardTerm =
+        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, ShutdownManager::scheduleShutdown);
 
     // Start application
     iox::runtime::PoshRuntime::initRuntime("iox-gw-dds2iceoryx");

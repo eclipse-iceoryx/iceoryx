@@ -25,6 +25,7 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 class ShutdownManager
 {
@@ -50,8 +51,9 @@ iox::posix::Semaphore ShutdownManager::s_semaphore =
 int main()
 {
     // Set OS signal handlers
-    signal(SIGINT, ShutdownManager::scheduleShutdown);
-    signal(SIGTERM, ShutdownManager::scheduleShutdown);
+    auto signalGuardInt = iox::posix::registerSignalHandler(iox::posix::Signal::INT, ShutdownManager::scheduleShutdown);
+    auto signalGuardTerm =
+        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, ShutdownManager::scheduleShutdown);
 
     // Start application
     iox::runtime::PoshRuntime::initRuntime("iox-gw-iceoryx2dds");

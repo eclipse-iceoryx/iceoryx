@@ -18,6 +18,7 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -33,7 +34,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 int main()
 {
-    signal(SIGINT, sigHandler);
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-individual");
 

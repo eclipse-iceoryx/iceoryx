@@ -18,6 +18,7 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -48,7 +49,7 @@ int main()
     constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
     constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
 
-    signal(SIGINT, sigHandler);
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-gateway");
 
