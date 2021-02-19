@@ -20,7 +20,6 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
-#include <csignal>
 #include <iostream>
 
 bool killswitch = false;

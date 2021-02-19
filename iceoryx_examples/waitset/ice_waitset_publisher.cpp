@@ -20,7 +20,6 @@
 #include "topic_data.hpp"
 
 #include <chrono>
-#include <csignal>
 #include <iostream>
 
 bool killswitch = false;

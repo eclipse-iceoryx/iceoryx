@@ -21,7 +21,6 @@
 #include "topic_data.hpp"
 
 #include <chrono>
-#include <csignal>
 #include <iostream>
 #include <string>
 
