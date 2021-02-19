@@ -41,7 +41,7 @@ void shutdownTriggerCallback(iox::popo::UserTrigger*)
     keepRunning.store(false);
 }
 
-void subscriberCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
+void onSampleReceived(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
     subscriber->take().and_then([](auto& sample) { printf("received: %d\n", sample->counter); });
 }
@@ -65,7 +65,7 @@ int main()
 
     subscriber.subscribe();
 
-    callSet.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, subscriberCallback);
+    callSet.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceived);
 
     while (keepRunning)
     {
