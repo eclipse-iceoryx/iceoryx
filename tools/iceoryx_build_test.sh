@@ -59,8 +59,6 @@ while (( "$#" )); do
         shift 2
         ;;
     -c|--coverage)
-        echo "$2"
-        TEST_SCOPE="$2"
         BUILD_TYPE="Debug"
         RUN_TEST=true
         COV_FLAG="ON"
@@ -69,8 +67,10 @@ while (( "$#" )); do
         then
             shift 1
         else
+            TEST_SCOPE="$2"
             shift 2
         fi
+        echo "$TEST_SCOPE"
         ;;
     "clean")
         CLEAN_BUILD=true
