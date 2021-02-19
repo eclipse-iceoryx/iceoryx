@@ -163,15 +163,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///
     /// iox_sem_timedwait() is the same as sem_wait(), except that abs_timeout
     /// specifies a limit on the amount of time that the call should block if
-    /// the decrement cannot be immediately performed.  The abs_time_out
-    /// argument points to a structure that specifies an absolute timeout in
-    /// seconds and nanoseconds since the Epoch, 1970-01-01 00:00:00 +0000
-    /// (UTC).  This structure is defined as follows:
-    ///
-    ///     struct timespec {
-    ///         time_t tv_sec;      /* Seconds */
-    ///         long   tv_nsec;     /* Nanoseconds [0 .. 999999999] */
-    ///     };
+    /// the decrement cannot be immediately performed.
     ///
     /// If the timeout has already expired by the time of the call, and the
     /// semaphore could not be locked immediately, then iox_sem_timedwait() fails
