@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,11 +70,6 @@ void RouDiApp::registerSigHandler() noexcept
     g_RouDiApp = this;
 
     // register sigHandler for SIGINT, SIGTERM and SIGHUP
-    struct sigaction act;
-    sigemptyset(&act.sa_mask);
-    act.sa_handler = roudiSigHandler;
-    act.sa_flags = 0;
-
     g_signalGuardInt.emplace(posix::registerSignalHandler(posix::Signal::INT, roudiSigHandler));
     g_signalGuardTerm.emplace(posix::registerSignalHandler(posix::Signal::TERM, roudiSigHandler));
     g_signalGuardHup.emplace(posix::registerSignalHandler(posix::Signal::HUP, roudiSigHandler));
