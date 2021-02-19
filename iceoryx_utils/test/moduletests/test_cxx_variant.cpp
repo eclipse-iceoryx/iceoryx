@@ -26,6 +26,9 @@ class variant_Test : public Test
     void SetUp() override
     {
         internal::CaptureStderr();
+        DoubleDelete::dtorCalls = 0;
+        DoubleDelete::ctorCalls = 0;
+        DTorTest::dtorWasCalled = false;
     }
 
     void TearDown() override
@@ -291,7 +294,7 @@ TEST_F(variant_Test, MoveCTorWithValue)
     iox::cxx::variant<int, char> ignatz(std::move(schlomo));
     ASSERT_THAT(ignatz.get<int>(), Ne(nullptr));
     EXPECT_THAT(*ignatz.get<int>(), Eq(123));
-    EXPECT_THAT(schlomo.index(), Eq(iox::cxx::INVALID_VARIANT_INDEX));
+    EXPECT_THAT(schlomo.index(), Eq(0));
 }
 
 TEST_F(variant_Test, MoveCTorWithoutValue)
@@ -369,11 +372,12 @@ TEST_F(variant_Test, DTorOnMoveCTor)
         {
             iox::cxx::variant<int, DTorTest> schlomo(std::move(ignatz));
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
+            EXPECT_THAT(ignatz.index(), Eq(1));
         }
         EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
         DTorTest::dtorWasCalled = false;
     }
-    EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
+    EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
 }
 
 TEST_F(variant_Test, DTorOnMoveAssignment)
@@ -386,12 +390,13 @@ TEST_F(variant_Test, DTorOnMoveAssignment)
             iox::cxx::variant<int, DTorTest> schlomo;
             schlomo.emplace<int>(123);
             schlomo = std::move(ignatz);
+            EXPECT_THAT(ignatz.index(), Eq(1));
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
         }
         EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
         DTorTest::dtorWasCalled = false;
     }
-    EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
+    EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
 }
 
 TEST_F(variant_Test, DirectValueAssignment)
