@@ -316,10 +316,10 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
     std::atomic_bool timedWaitFinish{false};
 
     std::thread t([&] {
-        auto ts = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
+        auto timeout = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
         syncSemaphore->post();
         sut->wait();
-        auto call = sut->timedWait(ts, false);
+        auto call = sut->timedWait(timeout, false);
         TIMING_TEST_ASSERT_FALSE(call.has_error());
         TIMING_TEST_EXPECT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
         timedWaitFinish.store(true);
@@ -342,10 +342,10 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
     std::atomic_bool timedWaitFinish{false};
 
     std::thread t([&] {
-        auto ts = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
+        auto timeout = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
         syncSemaphore->post();
         sut->wait();
-        auto call = sut->timedWait(ts, false);
+        auto call = sut->timedWait(timeout, false);
         TIMING_TEST_ASSERT_FALSE(call.has_error());
         TIMING_TEST_EXPECT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
         timedWaitFinish.store(true);
