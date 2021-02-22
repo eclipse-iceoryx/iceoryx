@@ -123,7 +123,7 @@ TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(CmdLineParserResult::UNKNOWN_OPTION_USED));
+    EXPECT_EQ(result.get_error(), CmdLineParserResult::UNKNOWN_OPTION_USED);
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParserParseReturningNoError)
@@ -142,28 +142,40 @@ TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParse
 
     ASSERT_FALSE(result.has_error());
     EXPECT_TRUE(result.value().uniqueRouDiId.has_value());
-    EXPECT_THAT(result.value().uniqueRouDiId.value(), Eq(4242));
+    EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnlyTheFirstOption)
 {
-    constexpr uint8_t NUMBER_OF_ARGS{4U};
+    constexpr uint8_t NUMBER_OF_ARGS{5U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
-    char uniqueIdOption[] = "--help";
+    char uniqueIdOption[] = "-u";
+    char value[] = "4242";
     char customOption[] = "-c";
     char path[] = "/foo/bar.toml";
     args[0] = &appName[0];
     args[1] = &uniqueIdOption[0];
-    args[2] = &customOption[0];
-    args[3] = &path[0];
+    args[2] = &value[0];
+    args[3] = &customOption[0];
+    args[4] = &path[0];
 
     CmdLineParserConfigFileOption sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(result.value().run);
+    EXPECT_TRUE(result.value().uniqueRouDiId.has_value());
+    EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
     EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(""));
+
+    optind = 0;
+
+    auto res = sut.parse(NUMBER_OF_ARGS, args);
+
+    ASSERT_FALSE(res.has_error());
+    EXPECT_TRUE(result.value().uniqueRouDiId.has_value());
+    EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
+    EXPECT_THAT(res.value().configFilePath.c_str(), StrEq(path));
 }
 
 } // namespace test
