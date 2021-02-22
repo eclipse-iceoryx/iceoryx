@@ -35,11 +35,10 @@ void EventListener::destroy() noexcept
     }
 }
 
-cxx::vector<std::remove_const<decltype(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)>::type,
-            MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
+cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
 EventListener::wait() noexcept
 {
-    cxx::vector<std::remove_const<decltype(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)>::type,
+    cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>,
                 MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
         activeNotifications;
 

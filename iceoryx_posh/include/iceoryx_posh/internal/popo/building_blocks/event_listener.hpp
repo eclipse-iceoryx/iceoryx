@@ -19,6 +19,7 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_EVENT_LISTENER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -42,7 +43,7 @@ class EventListener
     /// never empty unless destroy() was called, then it's always empty.
     ///
     /// @return vector of active notifications
-    cxx::vector<std::remove_const<decltype(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)>::type,
+    cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>,
                 MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
     wait() noexcept;
 
