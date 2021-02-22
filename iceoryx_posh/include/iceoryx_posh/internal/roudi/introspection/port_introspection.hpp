@@ -184,8 +184,8 @@ class PortIntrospection
 
         void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic) noexcept;
 
-        /// @brief compute the next connection state based on the communication policy, the current connection state and
-        /// a capro message type
+        /// @brief compute the next connection state based on the current connection state and a capro message type when
+        /// the communication policy is OneToMany
         /// @param[in] currentState current connection state (e.g. CONNECTED)
         /// @param[in] messageType capro message type
         /// @return returns the new connection state
@@ -193,8 +193,8 @@ class PortIntrospection
         PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
                                                         capro::CaproMessageType messageType) noexcept;
 
-        /// @brief compute the next connection state based on the communication policy, the current connection state and
-        /// a capro message type
+        /// @brief compute the next connection state based on the current connection state and a capro message type when
+        /// the communication policy is ManyToMany
         /// @param[in] currentState current connection state (e.g. CONNECTED)
         /// @param[in] messageType capro message type
         /// @return returns the new connection state

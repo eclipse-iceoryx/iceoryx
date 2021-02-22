@@ -476,10 +476,6 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(Connect
 {
     ConnectionState nextState = currentState; // stay in currentState as default transition
 
-    // publisher and subscriber can only send a subset of messages (e.g. no
-    // sub request from publisher), so it is not required to check whether
-    // publisher or subscriber has sent the message...
-
     switch (currentState)
     {
     case ConnectionState::DEFAULT:
@@ -553,7 +549,6 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
             {
                 auto& connection = m_connectionContainer[connectionIndex];
                 SubscriberPortData subscriberData;
-                // bool connected = connection.isConnected();
                 auto& subscriberInfo = connection.subscriberInfo;
 
                 subscriberData.m_name = subscriberInfo.process;
@@ -562,10 +557,6 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
                 subscriberData.m_caproInstanceID = subscriberInfo.service.getInstanceIDString();
                 subscriberData.m_caproServiceID = subscriberInfo.service.getServiceIDString();
                 subscriberData.m_caproEventMethodID = subscriberInfo.service.getEventIDString();
-                // if (connected)
-                //{ // publisherInfo is not nullptr, otherwise we would not be connected
-                // subscriberData.m_publisherIndex = connection.publisherInfo->index;
-                //} // remark: index is -1 for not connected
                 m_subscriberList.emplace_back(subscriberData);
             }
         }

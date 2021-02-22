@@ -59,15 +59,12 @@ struct ComposedPublisherPortData
 struct ComposedSubscriberPortData
 {
     ComposedSubscriberPortData(const SubscriberPortData& portData,
-                               // const PublisherPortData* correspondingPublisherPortData,
                                const SubscriberPortChangingData& subscriberPortChangingData)
         : portData(&portData)
-        //, correspondingPublisherPort(correspondingPublisherPortData)
         , subscriberPortChangingData(&subscriberPortChangingData)
     {
     }
     const SubscriberPortData* portData;
-    // const PublisherPortData* correspondingPublisherPort;
     const SubscriberPortChangingData* subscriberPortChangingData;
 };
 
