@@ -237,7 +237,7 @@ struct bestFittingType
 {
     using Type_t = typename bestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
                                                 (Value > std::numeric_limits<uint16_t>::max()),
-                                                (Value > std::numeric_limits<uint16_t>::max())>::Type_t;
+                                                (Value > std::numeric_limits<uint32_t>::max())>::Type_t;
 };
 
 template <uint64_t Value>
