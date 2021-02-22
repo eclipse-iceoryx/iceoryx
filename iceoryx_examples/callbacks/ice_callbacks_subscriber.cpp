@@ -19,6 +19,7 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -48,11 +49,8 @@ void onSampleReceived(iox::popo::Subscriber<CounterTopic>* subscriber)
 
 int main()
 {
-    struct sigaction act;
-    sigemptyset(&act.sa_mask);
-    act.sa_handler = sigHandler;
-    act.sa_flags = 0;
-    sigaction(SIGINT, &act, nullptr);
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-subscriber");
 
