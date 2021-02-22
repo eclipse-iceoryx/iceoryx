@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "test.hpp"
 
