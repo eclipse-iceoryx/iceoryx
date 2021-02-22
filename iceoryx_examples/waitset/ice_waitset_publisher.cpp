@@ -31,10 +31,6 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void sending()
 {
-    // register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
     myPublisher.offer();
 
@@ -52,6 +48,7 @@ void sending()
 int main()
 {
     auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     std::thread tx(sending);
     tx.join();

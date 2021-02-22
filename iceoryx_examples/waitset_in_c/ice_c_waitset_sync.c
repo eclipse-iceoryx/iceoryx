@@ -85,6 +85,7 @@ int main()
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
 
 
     // create and attach the cyclicTrigger with a callback to
