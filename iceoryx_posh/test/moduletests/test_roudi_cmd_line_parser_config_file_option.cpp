@@ -126,7 +126,7 @@ TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
     EXPECT_EQ(result.get_error(), CmdLineParserResult::UNKNOWN_OPTION_USED);
 }
 
-TEST_F(CmdLineParserConfigFileOption_test, UnknownOptionLeadsCallingCmdLineParserParseReturningNoError)
+TEST_F(CmdLineParserConfigFileOption_test, UniqueIdOptionLeadsCallingCmdLineParserParseReturningNoError)
 {
     constexpr uint8_t NUMBER_OF_ARGS{3U};
     char* args[NUMBER_OF_ARGS];
