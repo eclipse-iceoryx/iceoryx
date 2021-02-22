@@ -17,6 +17,11 @@
 #ifndef IOX_UTILS_TESTUTILS_SEPPUKU_HPP
 #define IOX_UTILS_TESTUTILS_SEPPUKU_HPP
 
+#include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+
+#include <functional>
+#include <gtest/gtest.h>
 #include <thread>
 
 using namespace iox::units::duration_literals;
@@ -38,9 +43,8 @@ class Seppuku
 
     void doSeppuku(std::function<void()> f) noexcept
     {
-        struct timespec timeout = m_timeToWait.timespec(iox::units::TimeSpecReference::Epoch);
         m_seppuku = std::thread([=] {
-            m_seppukuSemaphore.timedWait(&timeout, false)
+            m_seppukuSemaphore.timedWait(m_timeToWait, false)
                 .and_then([&](auto& result) {
                     if (result == iox::posix::SemaphoreWaitState::TIMEOUT)
                     {

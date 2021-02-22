@@ -45,7 +45,7 @@ ActiveCallSet::~ActiveCallSet()
     m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
-cxx::expected<uint64_t, ActiveCallSetError>
+cxx::expected<uint32_t, ActiveCallSetError>
 ActiveCallSet::addEvent(void* const origin,
                         const uint64_t eventType,
                         const uint64_t eventTypeHash,
@@ -55,7 +55,7 @@ ActiveCallSet::addEvent(void* const origin,
 {
     std::lock_guard<std::mutex> lock(m_addEventMutex);
 
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
+    for (uint32_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
     {
         if (m_events[i]->isEqualTo(origin, eventType, eventTypeHash))
         {
@@ -70,7 +70,7 @@ ActiveCallSet::addEvent(void* const origin,
     }
 
     m_events[index]->init(index, origin, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
-    return cxx::success<uint64_t>(index);
+    return cxx::success<uint32_t>(index);
 }
 
 void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept
@@ -87,7 +87,7 @@ void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType, co
 
 uint64_t ActiveCallSet::size() const noexcept
 {
-    return m_indexManager.size();
+    return m_indexManager.indicesInUse();
 }
 
 void ActiveCallSet::threadLoop() noexcept
@@ -201,7 +201,7 @@ bool ActiveCallSet::IndexManager_t::pop(uint32_t& value) noexcept
 {
     if (m_loffli.pop(value))
     {
-        ++m_size;
+        ++m_indicesInUse;
         return true;
     }
     return false;
@@ -210,12 +210,12 @@ bool ActiveCallSet::IndexManager_t::pop(uint32_t& value) noexcept
 void ActiveCallSet::IndexManager_t::push(const uint32_t index) noexcept
 {
     m_loffli.push(index);
-    --m_size;
+    --m_indicesInUse;
 }
 
-uint64_t ActiveCallSet::IndexManager_t::size() const noexcept
+uint64_t ActiveCallSet::IndexManager_t::indicesInUse() const noexcept
 {
-    return m_size.load(std::memory_order_relaxed);
+    return m_indicesInUse.load(std::memory_order_relaxed);
 }
 
 

@@ -116,7 +116,7 @@ class ActiveCallSet
     class Event_t;
 
     void threadLoop() noexcept;
-    cxx::expected<uint64_t, ActiveCallSetError>
+    cxx::expected<uint32_t, ActiveCallSetError>
     addEvent(void* const origin,
              const uint64_t eventType,
              const uint64_t eventTypeHash,
@@ -171,12 +171,12 @@ class ActiveCallSet
         IndexManager_t() noexcept;
         bool pop(uint32_t& index) noexcept;
         void push(const uint32_t index) noexcept;
-        uint64_t size() const noexcept;
+        uint64_t indicesInUse() const noexcept;
 
         uint32_t m_loffliStorage[concurrent::LoFFLi::requiredMemorySize(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
                                  / sizeof(uint32_t)];
         concurrent::LoFFLi m_loffli;
-        std::atomic<uint64_t> m_size{0U};
+        std::atomic<uint64_t> m_indicesInUse{0U};
     } m_indexManager;
 
 
