@@ -31,7 +31,8 @@ using namespace iox::units::duration_literals;
 class EventVariable_test : public Test
 {
   public:
-    using NotificationVector_t = iox::cxx::vector<uint8_t, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>;
+    using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>;
+    using NotificationVector_t = iox::cxx::vector<Type_t, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>;
 
     const iox::ProcessName_t m_process{"Ferdinand"};
     EventVariableData m_eventVarData{m_process};
@@ -63,10 +64,10 @@ TEST_F(EventVariable_test, AllNotificationsAreFalseAfterConstructionWithProcessN
 
 TEST_F(EventVariable_test, NotifyActivatesCorrectIndex)
 {
-    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
+    constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
     EventNotifier sut(m_eventVarData, EVENT_INDEX);
     sut.notify();
-    for (uint8_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
+    for (Type_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; i++)
     {
         if (i == EVENT_INDEX)
         {
@@ -81,7 +82,7 @@ TEST_F(EventVariable_test, NotifyActivatesCorrectIndex)
 
 TEST_F(EventVariable_test, NotifyActivatesNoIndexIfIndexIsTooLarge)
 {
-    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
+    constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
     EventNotifier sut(m_eventVarData, EVENT_INDEX);
     sut.notify();
     for (const auto& notification : m_eventVarData.m_activeNotifications)
@@ -90,9 +91,45 @@ TEST_F(EventVariable_test, NotifyActivatesNoIndexIfIndexIsTooLarge)
     }
 }
 
+TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
+{
+    EventListener sut(m_eventVarData);
+    sut.destroy();
+    const auto& activeNotifications = sut.wait();
+
+    EXPECT_THAT(activeNotifications.size(), Eq(0U));
+}
+
+TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsEmptyVector)
+{
+    EventListener sut(m_eventVarData);
+    sut.destroy();
+
+    EventNotifier notifier(m_eventVarData, 0U);
+    notifier.notify();
+
+    const auto& activeNotifications = sut.wait();
+    EXPECT_THAT(activeNotifications.size(), Eq(0U));
+}
+
+TEST_F(EventVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
+{
+    EventListener sut(m_eventVarData);
+
+    NotificationVector_t activeNotifications;
+
+    std::thread waiter([&] {
+        activeNotifications = sut.wait();
+        EXPECT_THAT(activeNotifications.size(), Eq(0U));
+    });
+
+    sut.destroy();
+    waiter.join();
+}
+
 TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
 {
-    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
+    constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
     EventNotifier notifier(m_eventVarData, EVENT_INDEX);
     EventListener listener(m_eventVarData);
 
@@ -108,8 +145,8 @@ TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
 
 TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAndWait)
 {
-    constexpr uint8_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
-    constexpr uint8_t SECOND_EVENT_INDEX = 0U;
+    constexpr Type_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U;
+    constexpr Type_t SECOND_EVENT_INDEX = 0U;
     EventNotifier notifier1(m_eventVarData, FIRST_EVENT_INDEX);
     EventNotifier notifier2(m_eventVarData, SECOND_EVENT_INDEX);
     EventListener listener(m_eventVarData);
@@ -128,7 +165,7 @@ TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAndWai
 
 TEST_F(EventVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 {
-    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
+    constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
     EventNotifier notifier(m_eventVarData, EVENT_INDEX);
     EventListener listener(m_eventVarData);
     NotificationVector_t activeNotifications;
@@ -147,7 +184,7 @@ TEST_F(EventVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 }
 
 TIMING_TEST_F(EventVariable_test, WaitBlocks, Repeat(5), [&] {
-    constexpr uint8_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
+    constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 5U;
     EventNotifier notifier(m_eventVarData, EVENT_INDEX);
     EventListener listener(m_eventVarData);
     NotificationVector_t activeNotifications;
@@ -176,8 +213,8 @@ TIMING_TEST_F(EventVariable_test, WaitBlocks, Repeat(5), [&] {
 })
 
 TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5), [&] {
-    constexpr uint8_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 2U;
-    constexpr uint8_t SECOND_EVENT_INDEX = 0U;
+    constexpr Type_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 2U;
+    constexpr Type_t SECOND_EVENT_INDEX = 0U;
     EventNotifier notifier1(m_eventVarData, FIRST_EVENT_INDEX);
     EventNotifier notifier2(m_eventVarData, SECOND_EVENT_INDEX);
     EventListener listener(m_eventVarData);
@@ -219,40 +256,4 @@ TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5
     EXPECT_THAT(hasWaited, Eq(true));
     waiter.join();
 })
-
-TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
-{
-    EventListener sut(m_eventVarData);
-    sut.destroy();
-    const auto& activeNotifications = sut.wait();
-
-    EXPECT_THAT(activeNotifications.size(), Eq(0U));
-}
-
-TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsEmptyVector)
-{
-    EventListener sut(m_eventVarData);
-    sut.destroy();
-
-    EventNotifier notifier(m_eventVarData, 0U);
-    notifier.notify();
-
-    const auto& activeNotifications = sut.wait();
-    EXPECT_THAT(activeNotifications.size(), Eq(0U));
-}
-
-TEST_F(EventVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
-{
-    EventListener sut(m_eventVarData);
-
-    NotificationVector_t activeNotifications;
-
-    std::thread waiter([&] {
-        activeNotifications = sut.wait();
-        EXPECT_THAT(activeNotifications.size(), Eq(0U));
-    });
-
-    sut.destroy();
-    waiter.join();
-}
 
