@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -159,7 +161,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_processKillDelay =
-                    units::Duration::seconds(static_cast<unsigned long long int>(processKillDelayInSeconds));
+                    units::Duration::fromSeconds(processKillDelayInSeconds);
             }
             break;
         }
@@ -213,7 +215,5 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
     return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{
         m_monitoringMode, m_logLevel, m_compatibilityCheckLevel, m_processKillDelay, m_uniqueRouDiId, m_run, ""});
 } // namespace roudi
-
-
 } // namespace config
 } // namespace iox

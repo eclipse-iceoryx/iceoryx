@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "topic_data.hpp"
 
@@ -47,14 +49,14 @@ int main()
     {
         if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            subscriber.take_1_0()
+            subscriber.take()
                 .and_then([&](const void* data) {
                     auto object = static_cast<const RadarObject*>(data);
                     std::cout << "Got value: " << object->x << std::endl;
 
                     // note that we explicitly have to release the data
                     // and afterwards the pointer access is undefined behavior
-                    subscriber.releaseChunk(object);
+                    subscriber.releaseChunk(data);
                 })
                 .or_else([](auto& result) {
                     if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)

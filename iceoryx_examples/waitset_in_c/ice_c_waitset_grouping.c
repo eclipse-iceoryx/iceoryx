@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/event_info.h"
@@ -75,13 +77,13 @@ int main()
     // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
     for (uint64_t i = 0U; i < 2U; ++i)
     {
-        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_SAMPLES, FIRST_GROUP_ID, NULL);
+        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, FIRST_GROUP_ID, NULL);
     }
 
     // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
     for (uint64_t i = 2U; i < 4U; ++i)
     {
-        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_SAMPLES, SECOND_GROUP_ID, NULL);
+        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, SECOND_GROUP_ID, NULL);
     }
 
 

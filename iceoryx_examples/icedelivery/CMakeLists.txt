@@ -1,4 +1,5 @@
-# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
 
 # Build icedelivery example
 cmake_minimum_required(VERSION 3.5)
@@ -26,11 +28,11 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ()
 
-add_executable(iox-ex-publisher-typed ./iox_publisher_typed.cpp)
-target_link_libraries(iox-ex-publisher-typed
+add_executable(iox-ex-publisher ./iox_publisher.cpp)
+target_link_libraries(iox-ex-publisher
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-publisher-with-history ./iox_publisher_with_history.cpp)
 target_link_libraries(iox-ex-publisher-with-history
@@ -44,11 +46,11 @@ target_link_libraries(iox-ex-publisher-untyped
 )
 target_compile_options(iox-ex-publisher-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-typed ./iox_subscriber_typed.cpp)
-target_link_libraries(iox-ex-subscriber-typed
+add_executable(iox-ex-subscriber ./iox_subscriber.cpp)
+target_link_libraries(iox-ex-subscriber
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-subscriber-typed PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-subscriber-with-history ./iox_subscriber_with_history.cpp)
 target_link_libraries(iox-ex-subscriber-with-history
@@ -62,9 +64,9 @@ target_link_libraries(iox-ex-subscriber-untyped
 )
 target_compile_options(iox-ex-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
+set_target_properties(iox-ex-subscriber iox-ex-subscriber-untyped
                       iox-ex-publisher-with-history iox-ex-subscriber-with-history
-                      iox-ex-publisher-typed iox-ex-publisher-untyped
+                      iox-ex-publisher iox-ex-publisher-untyped
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -73,7 +75,7 @@ set_target_properties(iox-ex-subscriber-typed iox-ex-subscriber-untyped
 
 # ========================================================== //
 
-install(TARGETS iox-ex-publisher-untyped iox-ex-publisher-typed
+install(TARGETS iox-ex-publisher-untyped iox-ex-publisher
                 iox-ex-publisher-with-history iox-ex-subscriber-with-history
-                iox-ex-subscriber-untyped iox-ex-subscriber-typed
+                iox-ex-subscriber-untyped iox-ex-subscriber
         RUNTIME DESTINATION bin)

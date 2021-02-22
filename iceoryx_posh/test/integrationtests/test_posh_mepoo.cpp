@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -161,7 +163,7 @@ class Mepoo_IntegrationTest : public Test
 
     void PrintTiming(iox::units::Duration start)
     {
-        auto totalMillisconds = start.milliSeconds();
+        auto totalMillisconds = start.toMilliseconds();
         auto milliseconds = totalMillisconds % 1000U;
         auto totalSeconds = totalMillisconds / 1000U;
         auto seconds = totalSeconds % 60U;
@@ -252,7 +254,7 @@ class Mepoo_IntegrationTest : public Test
         m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(*memoryManager, mempoolInfo);
 
         // internally, the chunks are adjusted to the additional management information;
-        // this needs to be substracted to be able to compare to the configured sizes
+        // this needs to be subtracted to be able to compare to the configured sizes
         for (auto& mempool : mempoolInfo)
         {
             if (mempool.m_chunkSize != 0)

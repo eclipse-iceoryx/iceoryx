@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32)
 #include "test.hpp"
@@ -286,7 +288,7 @@ TEST_F(CmdLineParser_test, KillDelayLongOptionLeadsToCorrectDelay)
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result.value().processKillDelay, Eq(Duration::seconds(73)));
+    EXPECT_THAT(result.value().processKillDelay, Eq(Duration::fromSeconds(73)));
 }
 
 TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
@@ -304,7 +306,7 @@ TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
     auto result = sut.parse(numberOfArgs, args);
 
     EXPECT_THAT(result.has_error(), Eq(false));
-    EXPECT_THAT(result.value().processKillDelay, Eq(Duration::seconds(42)));
+    EXPECT_THAT(result.value().processKillDelay, Eq(Duration::fromSeconds(42)));
 }
 
 TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToProgrammNotRunning)

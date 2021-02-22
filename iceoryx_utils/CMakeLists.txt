@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_utils_VERSION)
@@ -61,7 +62,6 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
 
     add_library(iceoryx_utils_testing
         STATIC
-        testutils/mocks/mqueue_mock.cpp
         testutils/mocks/time_mock.cpp
         testutils/timing_test.cpp
         testutils/compile_test.cpp
@@ -153,6 +153,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/timer.cpp
     source/posix_wrapper/timespec.cpp
     source/posix_wrapper/shared_memory_object.cpp
+    source/posix_wrapper/signal_handler.cpp
     source/posix_wrapper/message_queue.cpp
     source/posix_wrapper/unix_domain_socket.cpp
     source/posix_wrapper/shared_memory_object/allocator.cpp

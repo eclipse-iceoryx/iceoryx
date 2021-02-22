@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_binding_c/enums.h"
@@ -39,7 +41,7 @@ cpp2c_Subscriber::getHasTriggeredCallbackForEvent(const iox_SubscriberEvent subs
 {
     switch (subscriberEvent)
     {
-    case SubscriberEvent_HAS_SAMPLES:
+    case SubscriberEvent_HAS_DATA:
         return {*this, &cpp2c_Subscriber::hasSamples};
     }
 

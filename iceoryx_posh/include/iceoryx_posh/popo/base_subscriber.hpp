@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
@@ -32,26 +35,15 @@ using uid_t = UniquePortId;
 
 enum class SubscriberEvent
 {
-    HAS_SAMPLES
+    HAS_DATA
 };
 
 /// @brief base class for all types of subscriber
-/// @param[in] T the sample type
-/// @param[in] Subscriber type of the child which is inheriting from BaseSubscriber. This type is required for the
-/// TriggerCallback since a trigger provides a pointer to the originating class as parameter for the callback. If we
-/// wouldn't have the type the user would have to cast it correctly via dynamic_cast or reinterpret_cast which can be
-/// error prone.
 /// @param[in] port_t type of the underlying port, required for testing
-template <typename T, typename Subscriber, typename port_t = iox::SubscriberPortUserType>
+template <typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
-  protected:
-    using SelfType = BaseSubscriber<T, Subscriber, port_t>;
-
-    BaseSubscriber(const BaseSubscriber& other) = delete;
-    BaseSubscriber& operator=(const BaseSubscriber&) = delete;
-    BaseSubscriber(BaseSubscriber&& rhs) = delete;
-    BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
+  public:
     virtual ~BaseSubscriber();
 
     ///
@@ -83,51 +75,43 @@ class BaseSubscriber
     ///
     void unsubscribe() noexcept;
 
-    // iox-#408 replace
     ///
-    /// @brief hasData Check if sample is available.
-    /// @return True if a new sample is available.
+    /// @brief Check if data is available.
+    /// @return True if data is available.
     ///
-    bool hasSamples() const noexcept;
-
-    // iox-#408 replace
-    ///
-    /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
-    /// @return True if samples have been missed.
-    /// @details Samples may be missed due to overflowing receive queue.
-    ///
-    bool hasMissedSamples() noexcept;
-
-    // iox-#408 remove
-    ///
-    /// @brief take Take the a sample from the top of the receive queue.
-    /// @return An expected containing populated optional if there is a sample available, otherwise empty.
-    /// @details The memory loan for the sample is automatically released when it goes out of scope.
-    ///
-    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveResult> take() noexcept;
+    bool hasData() const noexcept;
 
     ///
-    /// @brief takeChunk Take the chunk from the top of the receive queue.
-    /// @return The header of the chunk taken.
-    /// @details No automatic cleaunp of the associated chunk is performed.
+    /// @brief Check if data has been missed since the last call of this method.
+    /// @return True if data has been missed.
+    /// @details Data may be missed due to overflowing receive queue.
     ///
-    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
+    bool hasMissedData() noexcept;
 
-    // iox-#408 replace
-    ///
-    /// @brief releaseQueuedSamples Releases any unread queued samples.
-    ///
-    void releaseQueuedSamples() noexcept;
-
-    /// @brief releaseChunk Releases the chunk associated with the header pointer.
-    /// @details The chunk must have been previosly provided by takeChunk and
-    ///          not have been already released.
-    void releaseChunk(const mepoo::ChunkHeader* header) noexcept;
+    /// @brief Releases any unread queued data.
+    void releaseQueuedData() noexcept;
 
     friend class EventAttorney;
+
+  protected:
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
     /// @param[in] uniqueTriggerId the id of the corresponding trigger
     /// @brief Only usable by the WaitSet, not for public use
+    using SelfType = BaseSubscriber<port_t>;
+    using PortType = port_t;
+
+    BaseSubscriber() noexcept; // Required for testing.
+    BaseSubscriber(const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions) noexcept;
+
+    BaseSubscriber(const BaseSubscriber& other) = delete;
+    BaseSubscriber& operator=(const BaseSubscriber&) = delete;
+    BaseSubscriber(BaseSubscriber&& rhs) = delete;
+    BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
+
+    /// @brief small helper method to unwrap the `expected<optional<ChunkHeader*>>` from the `tryGetChunk` method of the
+    /// port
+    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
+
     void invalidateTrigger(const uint64_t trigger) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
@@ -144,32 +128,19 @@ class BaseSubscriber
     /// @param[in] subscriberEvent the event which should be detached
     void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
 
-  protected:
-    BaseSubscriber() noexcept; // Required for testing.
-    BaseSubscriber(const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions) noexcept;
 
-  private:
     ///
-    /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-    /// underlying memory chunk via the subscriber port.
-    /// Each subscriber should create its own instance of this deleter struct to work with its specific port.
+    /// @brief const accessor of the underlying port
     ///
-    /// @note As this deleter is coupled to the Subscriber implementation, it should only be used within the subscriber
-    /// context.
-    ///
-    struct SubscriberSampleDeleter
-    {
-      public:
-        SubscriberSampleDeleter(port_t& port);
-        void operator()(T* const ptr) const;
+    const port_t& port() const noexcept;
 
-      private:
-        std::reference_wrapper<port_t> m_port;
-    };
+    ///
+    /// @brief accessor of the underlying port
+    ///
+    port_t& port() noexcept;
 
   protected:
     port_t m_port{nullptr};
-    SubscriberSampleDeleter m_sampleDeleter{m_port};
     TriggerHandle m_trigger;
 };
 
