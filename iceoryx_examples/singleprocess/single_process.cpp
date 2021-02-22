@@ -18,8 +18,8 @@
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/popo/typed_publisher.hpp"
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
@@ -50,7 +50,7 @@ void publisher()
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
-    iox::popo::TypedPublisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
+    iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
     publisher.offer();
 
     uint64_t counter{0};
@@ -72,7 +72,7 @@ void subscriber()
     iox::popo::SubscriberOptions options;
     options.queueCapacity = 10U;
     options.historyRequest = 5U;
-    iox::popo::TypedSubscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
+    iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
 
     subscriber.subscribe();
 

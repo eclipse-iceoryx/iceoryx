@@ -19,6 +19,8 @@
 
 #include "iceoryx_utils/cxx/expected.hpp"
 
+#include <utility>
+
 namespace DesignPattern
 {
 template <typename DerivedClass, typename ErrorType>

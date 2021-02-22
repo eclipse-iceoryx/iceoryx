@@ -153,6 +153,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/timer.cpp
     source/posix_wrapper/timespec.cpp
     source/posix_wrapper/shared_memory_object.cpp
+    source/posix_wrapper/signal_handler.cpp
     source/posix_wrapper/message_queue.cpp
     source/posix_wrapper/unix_domain_socket.cpp
     source/posix_wrapper/shared_memory_object/allocator.cpp

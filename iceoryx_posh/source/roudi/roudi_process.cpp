@@ -29,6 +29,7 @@
 #include "iceoryx_utils/platform/wait.hpp"
 
 #include <chrono>
+#include <csignal>
 #include <thread>
 
 using namespace iox::units::duration_literals;
