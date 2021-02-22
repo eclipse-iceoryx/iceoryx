@@ -18,22 +18,23 @@
 
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
-#include <csignal>
 #include <iostream>
 
 bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    // caught SIGINT, now exit gracefully
+    // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
 }
 
 int main()
 {
-    // register sigHandler for SIGINT
-    signal(SIGINT, sigHandler);
+    // register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-with-history");

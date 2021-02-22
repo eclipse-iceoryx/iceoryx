@@ -18,10 +18,10 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
-#include <csignal>
 #include <iostream>
 
 iox::popo::UserTrigger shutdownTrigger;
@@ -36,7 +36,9 @@ int main()
     constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
     constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
 
-    signal(SIGINT, sigHandler);
+    // register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-grouping");
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;

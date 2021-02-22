@@ -16,10 +16,10 @@
 
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
-#include <csignal>
 #include <iostream>
 
 bool killswitch = false;
@@ -32,7 +32,6 @@ static void sigHandler(int f_sig [[gnu::unused]])
 void sending()
 {
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-waitset");
-
     iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
     myPublisher.offer();
 
@@ -49,7 +48,8 @@ void sending()
 
 int main()
 {
-    signal(SIGINT, sigHandler);
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     std::thread tx(sending);
     tx.join();

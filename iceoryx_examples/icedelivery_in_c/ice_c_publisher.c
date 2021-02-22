@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@ bool killswitch = false;
 static void sigHandler(int signalValue)
 {
     (void)signalValue;
-    // caught SIGINT, now exit gracefully
+    // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
 }
 
@@ -77,6 +78,7 @@ void sending()
 int main()
 {
     signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
 
     sending();
 
