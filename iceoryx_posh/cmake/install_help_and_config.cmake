@@ -24,6 +24,11 @@ install(
   DESTINATION share/doc/iceoryx
   COMPONENT dev)
 
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../doc/3rd_party_licenses
+  DESTINATION share/doc/iceoryx
+  COMPONENT dev)
+
 if(TOML_CONFIG)
   install(
     FILES ${CMAKE_CURRENT_SOURCE_DIR}/etc/iceoryx/roudi_config_example.toml
