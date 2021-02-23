@@ -61,6 +61,7 @@ void receiving()
             {
                 const struct RadarObject* sample = (const struct RadarObject*)(chunk);
                 printf("Got value: %.0f\n", sample->x);
+                fflush(stdout);
                 iox_sub_release_chunk(subscriber, chunk);
             }
             printf("\n");

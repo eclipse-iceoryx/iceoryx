@@ -58,6 +58,7 @@ void sending()
             sample->z = ct;
 
             printf("Sent value: %.0f\n", ct);
+            fflush(stdout);
 
             iox_pub_send_chunk(publisher, chunk);
 
