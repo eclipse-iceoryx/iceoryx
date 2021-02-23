@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,10 +22,13 @@
 #include "iceoryx_utils/platform/unistd.hpp"
 #include "iceoryx_utils/platform/win32_errorHandling.hpp"
 
-
 #include <cstdio>
 #include <string>
 #include <sys/stat.h>
+
+// this header needs to be the last include in the file otherwise
+// windows will define some macros which makes the code uncompilable
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #define MAP_SHARED 0
 #define MAP_FAILED 1
