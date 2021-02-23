@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 
@@ -67,7 +67,7 @@ int main()
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    iox::popo::TypedSubscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
@@ -75,8 +75,8 @@ int main()
     {
         if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            std::cout << "iox-ex-subscriber-typed subscribed" << std::endl;
-            subscriber.take_1_0()
+            std::cout << "iox-ex-subscriber subscribed" << std::endl;
+            subscriber.take()
                 .and_then([](auto& sample) { std::cout << "Got value: " << sample->x << std::endl; })
                 .or_else([](auto& result) {
                     // only has to be called if the alternative is of interest,
@@ -90,7 +90,7 @@ int main()
         }
         else
         {
-            std::cout << "iox-ex-subscriber-typed not subscribed!" << std::endl;
+            std::cout << "iox-ex-subscriber not subscribed!" << std::endl;
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

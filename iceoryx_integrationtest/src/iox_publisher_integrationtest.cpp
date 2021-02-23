@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/typed_publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 
@@ -63,7 +63,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox_publisher_integrationtest");
 
-    iox::popo::TypedPublisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
     publisher.offer();
 
     for (double ct = 0.0; !killSwitch.load(); ++ct)
@@ -72,7 +72,7 @@ int main()
         //  * Retrieve a typed sample from shared memory.
         //  * Sample can be held until ready to publish.
         //  * Data is default constructed during loan
-        auto result = publisher.loan_1_0();
+        auto result = publisher.loan();
         if (!result.has_error())
         {
             auto& sample = result.value();
