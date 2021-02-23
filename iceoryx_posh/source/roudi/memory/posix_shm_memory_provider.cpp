@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
@@ -20,6 +23,7 @@
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 namespace iox
 {
@@ -67,30 +71,12 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
         return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
     }
 
-    // register signal handler for SIGBUS
-    struct sigaction oldAct;
-    struct sigaction newAct;
-    sigemptyset(&newAct.sa_mask);
-    newAct.sa_handler = sigbusHandler;
-    newAct.sa_flags = 0;
-    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGBUS, &newAct, &oldAct)
-            .hasErrors())
+    // register temporary signal handler for SIGBUS
     {
-        LogFatal() << "Could not set signal handler for SIGBUS!";
-        errorHandler(Error::kROUDI_MEMORY__COULD_NOT_REGISTER_SIGBUS, nullptr, ErrorLevel::FATAL);
-        return cxx::error<MemoryProviderError>(MemoryProviderError::SIGACTION_CALL_FAILED);
-    }
+        auto signalGuard = posix::registerSignalHandler(posix::Signal::BUS, sigbusHandler);
 
-    // create and map a shared memory region
-    m_shmObject = posix::SharedMemoryObject::create(m_shmName.c_str(), size, m_accessMode, m_ownership, nullptr);
-
-    // unregister signal handler
-    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGBUS, &oldAct, nullptr)
-            .hasErrors())
-    {
-        LogFatal() << "Could not reset signal handler for SIGBUS!";
-        errorHandler(Error::kROUDI_MEMORY__COULD_NOT_UNREGISTER_SIGBUS, nullptr, ErrorLevel::FATAL);
-        return cxx::error<MemoryProviderError>(MemoryProviderError::SIGACTION_CALL_FAILED);
+        // create and map a shared memory region
+        m_shmObject = posix::SharedMemoryObject::create(m_shmName.c_str(), size, m_accessMode, m_ownership, nullptr);
     }
 
     if (!m_shmObject.has_value())

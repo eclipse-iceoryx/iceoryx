@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_HPP
 #define IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_HPP
 
@@ -20,6 +23,7 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/semaphore.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
@@ -137,7 +141,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///             false = return on any error
     /// @return when successful the SemaphoreWaitState states if a timeout happened
     ///         or not otherwise the SemaphoreError contains the error
-    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const struct timespec* abs_timeout,
+    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration abs_timeout,
                                                                 const bool doContinueOnInterrupt) const noexcept;
 
     /// @brief see wait()
@@ -160,15 +164,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///
     /// iox_sem_timedwait() is the same as sem_wait(), except that abs_timeout
     /// specifies a limit on the amount of time that the call should block if
-    /// the decrement cannot be immediately performed.  The abs_time_out
-    /// argument points to a structure that specifies an absolute timeout in
-    /// seconds and nanoseconds since the Epoch, 1970-01-01 00:00:00 +0000
-    /// (UTC).  This structure is defined as follows:
-    ///
-    ///     struct timespec {
-    ///         time_t tv_sec;      /* Seconds */
-    ///         long   tv_nsec;     /* Nanoseconds [0 .. 999999999] */
-    ///     };
+    /// the decrement cannot be immediately performed.
     ///
     /// If the timeout has already expired by the time of the call, and the
     /// semaphore could not be locked immediately, then iox_sem_timedwait() fails

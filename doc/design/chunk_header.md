@@ -231,10 +231,10 @@ Furthermore, the `Publisher` and `Subscriber` have access to the `ChunkHeader` a
 ## Open Issues
 
 - the design was done with the intention to have a custom header of arbitrary size, if the size is limited to e.g. 32 bytes, some things could be simplified
-- typed publisher/subscriber API proposal
+- publisher/subscriber API proposal
 ```
 // publisher
-auto pub = iox::popo::TypedPublisher<MyPayload, MyHeader>(serviceDescription);
+auto pub = iox::popo::Publisher<MyPayload, MyHeader>(serviceDescription);
 pub.loan()
     .and_then([&](auto& sample) {
         sample.getHeader()->customHeader<MyHeader>()->data = 42;
@@ -247,7 +247,7 @@ pub.loan()
     });
 
 // subscriber
-auto sub = iox::popo::TypedSubscriber<MyPayload, MyHeader>(serviceDescription);
+auto sub = iox::popo::Subscriber<MyPayload, MyHeader>(serviceDescription);
 sub->take()
     .and_then([](auto& sample){
         std::cout << "Custom header data: " << sample.getHeader()->customHeader<MyHeader>()->data << std::endl;
@@ -269,7 +269,7 @@ class MyChunkHeaderHook : public ChunkHeaderHook
 };
 
 auto customHeaderHook = MyChunkHeaderHook<MyHeader>();
-auto pub = iox::popo::TypedPublisher<MyPayload>(serviceDescription, customHeaderHook);
+auto pub = iox::popo::Publisher<MyPayload>(serviceDescription, customHeaderHook);
 ```
         - it has to be decided if it's a good idea to give the user easy write access to the `ChunkHeader` or just to the `CustomHeader`
 - untyped publisher/subscriber API proposal

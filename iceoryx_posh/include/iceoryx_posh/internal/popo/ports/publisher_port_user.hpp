@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_PORTS_PUBLISHER_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_PUBLISHER_PORT_USER_HPP
 
@@ -54,7 +56,7 @@ class PublisherPortUser : public BasePort
 
     /// @brief Free an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
-    void freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
+    void releaseChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Send an allocated chunk to all connected subscriber ports
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
