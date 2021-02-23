@@ -109,13 +109,6 @@ TEST_F(expected_test, CreateWithErrorResultsInError)
     EXPECT_THAT(sut.get_error(), Eq(TestError::ERROR1));
 }
 
-// TEST_F(expected_test, ErrorTypeOnlyConstCreateWithErrorResultsInError)
-// {
-//     const auto sut = expected<TestError>::create_error(TestError::ERROR2);
-//     ASSERT_THAT(std::move(sut.has_error()), Eq(true));
-//     ASSERT_THAT(std::move(sut.get_error()), Eq(TestError::ERROR2));
-// }
-
 TEST_F(expected_test, ErrorTypeOnlyCreateWithErrorResultsInError)
 {
     auto sut = expected<TestError>::create_error(TestError::ERROR1);
@@ -145,26 +138,6 @@ TEST_F(expected_test, CreateWithSTLTypeIsSuccesful)
     EXPECT_THAT(sut.get_error(), Eq("RedAlert"));
 }
 
-// TEST_F(expected_test, ConstCreateRValueAndGetValueResultsInCorrectValue)
-// {
-//     const auto&& sut = expected<int, TestClass>::create_value(1111);
-//     EXPECT_THAT(sut.value(), Eq(1111));
-// }
-
-// TEST_F(expected_test, ConstCreateRValueAndMoveLeadsToInvalidState)
-// {
-//     const auto sut = expected<int, TestClass>::create_value(2222);
-//     EXPECT_THAT(std::move(sut).get_error(), Eq(TestClass::INVALID_STATE));
-// }
-
-// TEST_F(expected_test, CreateLValueAndMoveLeadsToInvalidState)
-// {
-//     const auto& sut = expected<int, TestClass>::create_value(3333);
-//     auto movedSut = std::move(sut);
-//     EXPECT_TRUE(sut.has_error());
-//     EXPECT_THAT(sut.get_error(), Eq(TestClass::INVALID_STATE));
-// }
-
 TEST_F(expected_test, CreateWithComplexErrorResultsInError)
 {
     auto sut = expected<int, TestClass>::create_error(313, 212);
@@ -177,18 +150,6 @@ TEST_F(expected_test, CreateRValueAndGetErrorResultsInCorrectError)
     auto sut = expected<int, TestClass>::create_error(131, 121).get_error();
     EXPECT_THAT(sut.m_b, Eq(121));
 }
-
-// TEST_F(expected_test, ConstCreateRValueAndGetErrorResultsInCorrectError)
-// {
-//     const auto&& sut = expected<int, TestClass>::create_error(131, 121);
-//     EXPECT_THAT(sut.get_error().m_b, Eq(121));
-// }
-
-// TEST_F(expected_test, ConstCreateLValueAndGetErrorResultsInCorrectError)
-// {
-//     const auto& sut = expected<int, TestClass>::create_error(343, 232);
-//     EXPECT_THAT(sut.get_error().m_b, Eq(232));
-// }
 
 TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToInvalidState)
 {
