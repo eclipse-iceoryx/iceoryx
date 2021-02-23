@@ -259,6 +259,11 @@ class expected<ErrorType>
     /// @return reference to the internally contained error
     ErrorType& get_error() & noexcept;
 
+    /// @brief  returns a const reference to the contained error value, if the expected
+    ///         does not contain an error this is undefined behavior
+    /// @return const reference to the internally contained error
+    const ErrorType& get_error() const& noexcept;
+
     /// @brief  returns a rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
@@ -391,6 +396,11 @@ class expected<ValueType, ErrorType>
     ///         does not contain an error this is undefined behavior
     /// @return reference to the internally contained error
     ErrorType& get_error() & noexcept;
+
+    /// @brief  returns a const reference to the contained error value, if the expected
+    ///         does not contain an error this is undefined behavior
+    /// @return const reference to the internally contained error
+    const ErrorType& get_error() const& noexcept;
 
     /// @brief  returns a rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior

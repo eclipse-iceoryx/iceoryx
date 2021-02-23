@@ -109,6 +109,13 @@ TEST_F(expected_test, CreateWithErrorResultsInError)
     EXPECT_THAT(sut.get_error(), Eq(TestError::ERROR1));
 }
 
+TEST_F(expected_test, ErrorTypeOnlyConstCreateWithErrorResultsInError)
+{
+    const auto sut = expected<TestError>::create_error(TestError::ERROR2);
+    ASSERT_THAT(sut.has_error(), Eq(true));
+    ASSERT_THAT(sut.get_error(), Eq(TestError::ERROR2));
+}
+
 TEST_F(expected_test, ErrorTypeOnlyCreateWithErrorResultsInError)
 {
     auto sut = expected<TestError>::create_error(TestError::ERROR1);
@@ -149,6 +156,12 @@ TEST_F(expected_test, CreateRValueAndGetErrorResultsInCorrectError)
 {
     auto sut = expected<int, TestClass>::create_error(131, 121).get_error();
     EXPECT_THAT(sut.m_b, Eq(121));
+}
+
+TEST_F(expected_test, ConstCreateLValueAndGetErrorResultsInCorrectError)
+{
+    const auto& sut = expected<int, TestClass>::create_error(343, 232);
+    EXPECT_THAT(sut.get_error().m_b, Eq(232));
 }
 
 TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToInvalidState)
