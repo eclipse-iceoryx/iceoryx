@@ -1,6 +1,8 @@
 # Limitations in iceoryx
+- limited Windows 10 support [\#33](https://github.com/eclipse-iceoryx/iceoryx/issues/33)
+- no support for 32-bit platforms, use at your own risk
 - Duplicated service description entries within gateway config toml file should not result in duplication of service entries [\#574](https://github.com/eclipse-iceoryx/iceoryx/issues/574)
-- Possible double free of memory chunks [\#562](https://github.com/eclipse-iceoryx/iceoryx/issues/562)
+- Possible double free of memory chunks on 32-bit systems [\#562](https://github.com/eclipse-iceoryx/iceoryx/issues/562)
 - Fix resource leak caused by move ctor/assignment [\#542](https://github.com/eclipse-iceoryx/iceoryx/issues/542)
 - Wrong handling of applications that are started multiple times in parallel [\#404](https://github.com/eclipse-iceoryx/iceoryx/issues/404)
 - Clean up all shared memory resources when corresponding user objects go out of scope [\#369](https://github.com/eclipse-iceoryx/iceoryx/issues/369)
@@ -8,5 +10,4 @@
 - Deadlock in shared mem mutex when apps are killed [\#325](https://github.com/eclipse-iceoryx/iceoryx/issues/325)
 - NewType Copy-Assign raises compiler warning on GCC 8.4.0 [\#282](https://github.com/eclipse-iceoryx/iceoryx/issues/282)
 - Topic Loopback in DDS Gateway [\#184](https://github.com/eclipse-iceoryx/iceoryx/issues/184)
-- limited Windows 10 support [\#33](https://github.com/eclipse-iceoryx/iceoryx/issues/33)
 - introspection output cannot be logged to file [\#31](https://github.com/eclipse-iceoryx/iceoryx/issues/31)
