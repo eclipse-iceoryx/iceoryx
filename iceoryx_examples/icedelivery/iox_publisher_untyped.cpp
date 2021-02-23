@@ -39,7 +39,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
 
-    iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::UntypedPublisher publisher({"Radar", "FrontRight", "Object"});
     publisher.offer();
 
     double ct = 0.0;
@@ -81,7 +81,7 @@ int main()
                 // Do something with the error
             });
 
-        std::cout << "Sent two times value: " << ct << std::endl;
+        std::cout << "Iox-Untyped-Publisher sent two times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

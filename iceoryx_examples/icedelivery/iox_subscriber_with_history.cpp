@@ -46,7 +46,7 @@ int main()
     // publisher has send. The history ensures that we at least get the last 5
     // samples sent by the publisher when we subscribe (if at least 5 were already sent).
     subscriberOptions.historyRequest = 5U;
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "RearLeft", "Object"}, subscriberOptions);
     subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
@@ -60,7 +60,7 @@ int main()
             do
             {
                 subscriber.take()
-                    .and_then([](auto& object) { std::cout << "Got value: " << object->x << std::endl; })
+                    .and_then([](auto& object) { std::cout << "Iox-Subscriber-with-history got value: " << object->x << std::endl; })
                     .or_else([&](auto&) { hasMoreSamples = false; });
             } while (hasMoreSamples);
         }

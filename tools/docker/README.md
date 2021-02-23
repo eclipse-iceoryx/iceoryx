@@ -45,11 +45,11 @@ To run the corresponding receiver application, bind another shell to the contain
 root@b10b3630f6d3:/# iox-ex-subscriber-untyped
 2020-12-18 09:04:21.692 [ Debug ]: Application registered management segment 0x7fcda1597000 with size 64244064 to id 1
 2020-12-18 09:04:21.692 [ Info  ]: Application registered payload segment 0x7fcd9875d000 with size 149134400 to id 2
-Got value: 10
-Got value: 10
-Got value: 11
-Got value: 11
-Got value: 12
+Untyped Subscriber got value: 10
+Untyped Subscriber got value: 10
+Untyped Subscriber got value: 11
+Untyped Subscriber got value: 11
+Untyped Subscriber got value: 12
 ...
 ```
 
@@ -92,12 +92,12 @@ root@b10b3630f6d3:/# screen
 root@b10b3630f6d3 /# iox-ex-subscriber-untyped
 2020-12-18 09:29:24.082 [ Debug ]: Application registered management segment 0x7f39fb9fe000 with size 64244064 to id 1
 2020-12-18 09:29:24.083 [ Info  ]: Application registered payload segment 0x7f39f2bc4000 with size 149134400 to id 2
-Got value: 14
-Got value: 14
-Got value: 15
-Got value: 15
-Got value: 16
-Got value: 16
+Untyped Subscriber got value: 14
+Untyped Subscriber got value: 14
+Untyped Subscriber got value: 15
+Untyped Subscriber got value: 15
+Untyped Subscriber got value: 16
+Untyped Subscriber got value: 16
 ...
 ```
 

@@ -116,7 +116,7 @@ int main()
         publisher.publishResultOf(getRadarObject, ct);
         publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); });
 
-        std::cout << "Sent six times value: " << ct << std::endl;
+        std::cout << "Iox-Publisher sent six times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

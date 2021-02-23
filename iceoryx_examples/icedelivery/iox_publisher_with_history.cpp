@@ -42,7 +42,7 @@ int main()
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
 
-    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+    iox::popo::Publisher<RadarObject> publisher({"Radar", "RearLeft", "Object"}, publisherOptions);
     publisher.offer();
 
     double ct = 0.0;
@@ -53,7 +53,7 @@ int main()
         // Retrieve a sample, construct it with the given arguments and publish it via a lambda.
         publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
 
-        std::cout << "Sent value: " << ct << std::endl;
+        std::cout << "Iox-Publisher-with-history sent value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
     }

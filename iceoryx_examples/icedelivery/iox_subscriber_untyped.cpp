@@ -43,7 +43,7 @@ int main()
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontRight", "Object"}, subscriberOptions);
     subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
@@ -54,7 +54,7 @@ int main()
             subscriber.take()
                 .and_then([&](const void* data) {
                     auto object = static_cast<const RadarObject*>(data);
-                    std::cout << "Got value: " << object->x << std::endl;
+                    std::cout << "Iox-Untyped-Subscriber got value: " << object->x << std::endl;
 
                     // note that we explicitly have to release the data
                     // and afterwards the pointer access is undefined behavior

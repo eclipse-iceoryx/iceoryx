@@ -68,6 +68,7 @@ if(BUILD_TESTING)
 
   add_ros_test(iceoryx_integrationtest/test_roudi_startup_shutdown.py)
   add_ros_test(iceoryx_integrationtest/test_data_exchange.py)
+  add_ros_test(iceoryx_integrationtest/test_multi_publisher_example.py)
 endif()
 
 ament_package()
