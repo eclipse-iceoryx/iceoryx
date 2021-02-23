@@ -413,7 +413,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSu
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
 PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
                                                                          capro::CaproMessageType messageType) noexcept
@@ -470,7 +470,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(Connect
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
 PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
                                                                          capro::CaproMessageType messageType) noexcept
