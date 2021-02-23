@@ -58,6 +58,22 @@ class alignas(32) TypedMemPool_test : public Test
     TypedMemPool<TestClass> sut;
 };
 
+namespace iox
+{
+namespace cxx
+{
+template <>
+struct ErrorTypeAdapter<cxx::variant<mepoo::TypedMemPoolError, posix::SemaphoreError>>
+{
+    static variant<mepoo::TypedMemPoolError, posix::SemaphoreError> getInvalidState()
+    {
+        return variant<mepoo::TypedMemPoolError, posix::SemaphoreError>(iox::cxx::in_place_index<0>(),
+                                                                        mepoo::TypedMemPoolError::INVALID_STATE);
+    };
+};
+} // namespace cxx
+} // namespace iox
+
 TEST_F(TypedMemPool_test, GetOneObject)
 {
     auto object = sut.createObject(1, 223);
@@ -111,14 +127,14 @@ class alignas(32) TypedMemPool_Semaphore_test : public Test
 
 TEST_F(TypedMemPool_Semaphore_test, CreateValidSemaphore)
 {
-    // auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
-    //    iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
-    // EXPECT_THAT(semaphorePtr.has_error(), Eq(false));
+    auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
+        iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
+    EXPECT_THAT(semaphorePtr.has_error(), Eq(false));
 }
 
 TEST_F(TypedMemPool_Semaphore_test, CreateInvalidSemaphore)
 {
-    // auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
-    //     iox::posix::CreateNamedSemaphore, "", S_IRUSR | S_IWUSR, 10);
-    // EXPECT_THAT(semaphorePtr.has_error(), Eq(true));
+    auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
+        iox::posix::CreateNamedSemaphore, "", S_IRUSR | S_IWUSR, 10);
+    EXPECT_THAT(semaphorePtr.has_error(), Eq(true));
 }
