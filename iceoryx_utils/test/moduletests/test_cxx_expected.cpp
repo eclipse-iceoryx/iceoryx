@@ -131,7 +131,7 @@ TEST_F(expected_test, CreateWithComplexTypeIsSuccessful)
     EXPECT_THAT(sut.value().m_a, Eq(12));
 }
 
-TEST_F(expected_test, CreateWithSTLTypeIsSuccesful)
+TEST_F(expected_test, CreateWithSTLTypeIsSuccessful)
 {
     auto sut = expected<int, std::string>::create_error("RedAlert");
     ASSERT_THAT(sut.has_error(), Eq(true));

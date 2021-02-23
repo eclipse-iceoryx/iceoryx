@@ -26,6 +26,34 @@ namespace iox
 {
 namespace cxx
 {
+/// @brief Type trait which verifies whether the passed type T has INVALID_STATE
+///        Overload chosen when INVALID_STATE is not present
+template <typename T, typename = void>
+struct has_invalid_state : std::false_type
+{
+};
+
+/// @brief Type trait which verifies whether the passed type T has INVALID_STATE
+///        Overload chosen when INVALID_STATE is present
+template <typename T>
+struct has_invalid_state<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
+{
+};
+
+/// @brief Generic adapter to access INVALID_STATE member or value
+/// @note Works for enum classes and classes having a member INVALID_STATE
+template <typename T>
+struct ErrorTypeAdapter
+{
+    static_assert(has_invalid_state<T>::value,
+                  "T must have a INVALID_STATE. Alternatively write an ErrorTypeAdapter specialisation for your type");
+
+    static T getInvalidState()
+    {
+        return T::INVALID_STATE;
+    }
+};
+
 /// @brief helper struct to create an expected which is signalling success more easily
 /// @param T type which the success helper class should contain
 /// @code
@@ -113,33 +141,10 @@ struct is_optional<iox::cxx::optional<T>> : std::true_type
 {
 };
 
-template <typename T, typename = void>
-struct has_invalid_state : std::false_type
-{
-};
-/// @brief Verifies whether the passed type T has INVALID_STATE
-template <typename T>
-struct has_invalid_state<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
-{
-};
-
-template <typename T>
-struct ErrorTypeAdapter
-{
-    static_assert(has_invalid_state<T>::value,
-                  "T must have a INVALID_STATE. Alternatively write an ErrorTypeAdapter specialisation for your type");
-
-    static T getInvalidState()
-    {
-        return T::INVALID_STATE;
-    }
-};
-
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
 ///         is inspired by the proposal but it has changes since we are not allowed to
 ///         throw an exception.
 /// @param ErrorType type of the error which can be stored in the expected
-/// @note  ErrorType must specific an INVALID_STATE as member or method
 ///
 /// @code
 ///     cxx::expected<int, float> callMe() {

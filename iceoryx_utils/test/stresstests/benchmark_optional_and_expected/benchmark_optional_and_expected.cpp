@@ -161,7 +161,7 @@ void complexErrorValueExpected()
 {
     complexErrorValueExpectedImpl()
         .and_then([](uint64_t value) { globalCounter += value; })
-        .or_else([](uint64_t error) { globalCounter -= error; });
+        .or_else([](uint64_t value) { globalCounter -= value; });
 }
 
 template <typename T>
