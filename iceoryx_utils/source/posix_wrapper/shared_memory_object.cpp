@@ -33,30 +33,15 @@ namespace iox
 namespace posix
 {
 constexpr void* SharedMemoryObject::NO_ADDRESS_HINT;
+constexpr uint64_t SIGBUS_ERROR_MESSAGE_LENGTH = 1024U;
 
-static struct
-{
-    SharedMemory::Name_t name;
-    uint64_t memorySizeInBytes;
-    AccessMode accessMode;
-    OwnerShip ownerShip;
-    const void* baseAddressHint;
-    mode_t permissions;
-    std::mutex sigbusHandlerMutex;
-} memsetSigbusDebugInfo;
+static char sigbusErrorMessage[SIGBUS_ERROR_MESSAGE_LENGTH];
+static std::mutex sigbusHandlerMutex;
 
 static void memsetSigbusHandler(int)
 {
-    std::cerr
-        << "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
-           "shared memory object with the following properties [ name = "
-        << memsetSigbusDebugInfo.name << ", sizeInBytes = " << memsetSigbusDebugInfo.memorySizeInBytes
-        << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(memsetSigbusDebugInfo.accessMode)]
-        << ", ownership = " << OWNERSHIP_STRING[static_cast<uint64_t>(memsetSigbusDebugInfo.ownerShip)]
-        << ", baseAddressHint = " << std::hex << memsetSigbusDebugInfo.baseAddressHint
-        << ", permissions = " << std::bitset<sizeof(mode_t)>(memsetSigbusDebugInfo.permissions) << " ]"
-        << " maybe requires more memory than it is currently available in the system." << std::endl;
-    exit(EXIT_FAILURE);
+    write(STDERR_FILENO, sigbusErrorMessage, strnlen(sigbusErrorMessage, SIGBUS_ERROR_MESSAGE_LENGTH));
+    _exit(EXIT_FAILURE);
 }
 
 SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
@@ -108,15 +93,22 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
         {
             // this lock is required for the case that multiple threads are creating multiple
             // shared memory objects concurrently
-            std::lock_guard<std::mutex> lock(memsetSigbusDebugInfo.sigbusHandlerMutex);
+            std::lock_guard<std::mutex> lock(sigbusHandlerMutex);
             auto memsetSigbusGuard = registerSignalHandler(Signal::BUS, memsetSigbusHandler);
 
-            memsetSigbusDebugInfo.name = name;
-            memsetSigbusDebugInfo.memorySizeInBytes = memorySizeInBytes;
-            memsetSigbusDebugInfo.accessMode = accessMode;
-            memsetSigbusDebugInfo.ownerShip = ownerShip;
-            memsetSigbusDebugInfo.baseAddressHint = baseAddressHint;
-            memsetSigbusDebugInfo.permissions = permissions;
+            snprintf(
+                sigbusErrorMessage,
+                SIGBUS_ERROR_MESSAGE_LENGTH,
+                "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
+                "shared memory object with the following properties [ name = %s, sizeInBytes = %lu, access mode = %s, "
+                "ownership = %s, baseAddressHint = %p, permissions = %lu ] maybe requires more memory than it is "
+                "currently available in the system.\n",
+                name.c_str(),
+                memorySizeInBytes,
+                ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
+                OWNERSHIP_STRING[static_cast<uint64_t>(ownerShip)],
+                baseAddressHint,
+                std::bitset<sizeof(mode_t)>(permissions).to_ulong());
 
             memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }
