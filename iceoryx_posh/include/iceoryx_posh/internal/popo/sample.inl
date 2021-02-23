@@ -39,87 +39,101 @@ inline SamplePrivateData<const T>::SamplePrivateData(cxx::unique_ptr<const T>&& 
 }
 } // namespace internal
 
-template <typename T>
+template <typename T, typename H>
 template <typename S, typename>
-inline Sample<T>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T>& publisher) noexcept
+inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T>& publisher) noexcept
     : m_members({std::move(sampleUniquePtr), publisher})
 {
 }
 
-template <typename T>
+template <typename T, typename H>
 template <typename S, typename>
-inline Sample<T>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept
+inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept
     : m_members(std::move(sampleUniquePtr))
 {
 }
 
-template <typename T>
-inline Sample<T>::Sample(std::nullptr_t) noexcept
+template <typename T, typename H>
+inline Sample<T, H>::Sample(std::nullptr_t) noexcept
 {
     m_members.sampleUniquePtr.reset();
 }
 
-template <typename T>
+template <typename T, typename H>
 template <typename S, typename>
-inline T* Sample<T>::operator->() noexcept
+inline T* Sample<T, H>::operator->() noexcept
 {
     return get();
 }
 
-template <typename T>
-inline const T* Sample<T>::operator->() const noexcept
+template <typename T, typename H>
+inline const T* Sample<T, H>::operator->() const noexcept
 {
     return get();
 }
 
-template <typename T>
+template <typename T, typename H>
 template <typename S, typename>
-inline S& Sample<T>::operator*() noexcept
+inline S& Sample<T, H>::operator*() noexcept
 {
     return *get();
 }
 
-template <typename T>
-inline const T& Sample<T>::operator*() const noexcept
+template <typename T, typename H>
+inline const T& Sample<T, H>::operator*() const noexcept
 {
     return *get();
 }
 
-template <typename T>
-inline Sample<T>::operator bool() const noexcept
+template <typename T, typename H>
+inline Sample<T, H>::operator bool() const noexcept
 {
     return get() != nullptr;
 }
 
-template <typename T>
+template <typename T, typename H>
 template <typename S, typename>
-inline T* Sample<T>::get() noexcept
+inline T* Sample<T, H>::get() noexcept
 {
     return m_members.sampleUniquePtr.get();
 }
 
-template <typename T>
-inline const T* Sample<T>::get() const noexcept
+template <typename T, typename H>
+inline const T* Sample<T, H>::get() const noexcept
 {
     return m_members.sampleUniquePtr.get();
 }
 
-template <typename T>
+template <typename T, typename H>
 template <typename S, typename>
-inline mepoo::ChunkHeader* Sample<T>::getHeader() noexcept
+inline mepoo::ChunkHeader* Sample<T, H>::getHeader() noexcept
 {
     return mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get());
 }
 
-template <typename T>
-inline const mepoo::ChunkHeader* Sample<T>::getHeader() const noexcept
+template <typename T, typename H>
+inline const mepoo::ChunkHeader* Sample<T, H>::getHeader() const noexcept
 {
     return mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get());
 }
 
-template <typename T>
+template <typename T, typename H>
 template <typename S, typename>
-inline void Sample<T>::publish() noexcept
+inline S& Sample<T, H>::getCustomHeader() noexcept
+{
+    return *static_cast<S*>(mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get())->customHeader());
+}
+
+template <typename T, typename H>
+template <typename S, typename>
+inline const S& Sample<T, H>::getCustomHeader() const noexcept
+{
+    return *static_cast<const S*>(mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get())->customHeader());
+}
+
+template <typename T, typename H>
+template <typename S, typename>
+inline void Sample<T, H>::publish() noexcept
 {
     if (m_members.sampleUniquePtr)
     {
@@ -132,8 +146,8 @@ inline void Sample<T>::publish() noexcept
     }
 }
 
-template <typename T>
-inline T* Sample<T>::release() noexcept
+template <typename T, typename H>
+inline T* Sample<T, H>::release() noexcept
 {
     return m_members.sampleUniquePtr.release();
 }
