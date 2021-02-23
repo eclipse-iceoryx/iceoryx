@@ -91,19 +91,19 @@ TEST_F(PortPool_test, AddNodeDataWhenNodeListIsFullReturnsError)
     ASSERT_EQ(errorHandlerType, Error::kPORT_POOL__NODELIST_OVERFLOW);
 }
 
-TEST_F(PortPool_test, GetNodeDataListWhenEmptyIsSuccessful)
-{
-    auto nodeDataList = sut.getNodeDataList();
-
-    ASSERT_EQ(nodeDataList.size(), 0U);
-}
-
 TEST_F(PortPool_test, GetNodeDataListIsSuccessful)
 {
     sut.addNodeData(m_processName, m_nodeName, m_nodeDeviceId);
     auto nodeDataList = sut.getNodeDataList();
 
     ASSERT_EQ(nodeDataList.size(), 1U);
+}
+
+TEST_F(PortPool_test, GetNodeDataListWhenEmptyIsSuccessful)
+{
+    auto nodeDataList = sut.getNodeDataList();
+
+    ASSERT_EQ(nodeDataList.size(), 0U);
 }
 
 TEST_F(PortPool_test, GetNodeDataListWithMaxCapacityIsSuccessful)
@@ -147,7 +147,7 @@ TEST_F(PortPool_test, AddPublisherPortIsSuccessful)
     ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
 }
 
-TEST_F(PortPool_test, AddMaxPublisherPortWithMaxCapacityIsSuccessful)
+TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
 {
     for (uint32_t i = 0; i < MAX_PUBLISHERS; ++i)
     {
@@ -313,20 +313,19 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReurnsError)
     ASSERT_EQ(errorHandlerType, Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW);
 }
 
-TEST_F(PortPool_test, GetSubscriberPortDataListWhenEmptyIsSuccessful)
-{
-    auto nodeDataList = sut.getSubscriberPortDataList();
-
-    ASSERT_EQ(nodeDataList.size(), 0U);
-}
-
-
 TEST_F(PortPool_test, GetSubscriberPortDataListIsSuccessful)
 {
     auto subscriberPort = sut.addSubscriberPort(m_serviceDescription, m_applicationName, m_subscriberOptions);
     auto subscriberPortDataList = sut.getSubscriberPortDataList();
 
     ASSERT_EQ(subscriberPortDataList.size(), 1U);
+}
+
+TEST_F(PortPool_test, GetSubscriberPortDataListWhenEmptyIsSuccessful)
+{
+    auto nodeDataList = sut.getSubscriberPortDataList();
+
+    ASSERT_EQ(nodeDataList.size(), 0U);
 }
 
 TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
@@ -336,7 +335,6 @@ TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
         ProcessName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
-
 
         auto publisherPort = sut.addSubscriberPort(
             {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
@@ -401,19 +399,19 @@ TEST_F(PortPool_test, AddInterfacePortWhenInterfaceListOverflowsReturnsError)
     ASSERT_EQ(errorHandlerType, Error::kPORT_POOL__INTERFACELIST_OVERFLOW);
 }
 
-TEST_F(PortPool_test, GetInterfacePortDataListWhenEmptyIsSuccessful)
-{
-    auto interfacePortDataList = sut.getInterfacePortDataList();
-
-    ASSERT_EQ(interfacePortDataList.size(), 0U);
-}
-
 TEST_F(PortPool_test, GetInterfacePortDataListIsSuccessful)
 {
     auto interfacePort = sut.addInterfacePort(m_applicationName, Interfaces::INTERNAL);
     auto interfacePortDataList = sut.getInterfacePortDataList();
 
     ASSERT_EQ(interfacePortDataList.size(), 1U);
+}
+
+TEST_F(PortPool_test, GetInterfacePortDataListWhenEmptyIsSuccessful)
+{
+    auto interfacePortDataList = sut.getInterfacePortDataList();
+
+    ASSERT_EQ(interfacePortDataList.size(), 0U);
 }
 
 TEST_F(PortPool_test, GetInterfacePortDataListCompletelyFilledIsSuccessful)
@@ -559,19 +557,19 @@ TEST_F(PortPool_test, AddConditionVariableDataWhenContainerIsFullReturnsError)
     ASSERT_EQ(errorHandlerType, Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW);
 }
 
-TEST_F(PortPool_test, GetConditionVariableDataListWhenEmptyIsSuccessful)
-{
-    auto condtionalVariableData = sut.getConditionVariableDataList();
-
-    ASSERT_EQ(condtionalVariableData.size(), 0U);
-}
-
 TEST_F(PortPool_test, GetConditionVariableDataListIsSuccessful)
 {
     sut.addConditionVariableData(m_applicationName);
     auto condtionalVariableData = sut.getConditionVariableDataList();
 
     ASSERT_EQ(condtionalVariableData.size(), 1U);
+}
+
+TEST_F(PortPool_test, GetConditionVariableDataListWhenEmptyIsSuccessful)
+{
+    auto condtionalVariableData = sut.getConditionVariableDataList();
+
+    ASSERT_EQ(condtionalVariableData.size(), 0U);
 }
 
 TEST_F(PortPool_test, GetConditionVariableDataListCompletelyFilledIsSuccessful)
