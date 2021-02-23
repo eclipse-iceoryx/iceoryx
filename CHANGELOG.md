@@ -1,7 +1,4 @@
 # Change Log
-
-git log --merges --first-parent master --pretty=format:"%h %<(10,trunc)%aN %C(white)%<(15)%ar%Creset %C(red bold)%<(15)%D%Creset %s" v0.17.0..v0.90.0 > diff_merge_commit.log
-
 ## [v0.90.0](https://github.com/eclipse-iceoryx/iceoryx/tree/ICEORYX_0.17.0) (2020-12-22)
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.17.0...v0.90.0)\
 Pre-Release for new and stable APIs and n:m pub/sub communication
@@ -168,6 +165,7 @@ Introspection, performance test and flexible mapping of shared memory
 - Payload size not updated by allocateChunk [\#10](https://github.com/eclipse-iceoryx/iceoryx/issues/10)
 - Failure in runnable creation [\#23](https://github.com/eclipse-iceoryx/iceoryx/issues/23)
 
-
-
-
+Command for generating git log for merge commits between two tags
+```bash
+git log --merges --first-parent master --pretty=format:"%h %<(10,trunc)%aN %C(white)%<(15)%aD%Creset %C(red bold)%<(15)%D%Creset %s" <TAG_BASE>...<TAG_TARGET> > diff_merge_commit.log
+```
