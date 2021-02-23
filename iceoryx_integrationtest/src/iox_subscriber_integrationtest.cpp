@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/platform/signal.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
@@ -28,36 +28,10 @@ static void sigHandler(int32_t signal [[gnu::unused]])
     killSwitch.store(true);
 }
 
-void registerSigHandler()
-{
-    // register sigHandler for SIGINT, SIGTERM and SIGHUP
-    struct sigaction act;
-    sigemptyset(&act.sa_mask);
-    act.sa_handler = sigHandler;
-    act.sa_flags = 0;
-
-    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGINT, &act, nullptr)
-            .hasErrors())
-    {
-        std::cerr << "Calling sigaction() for SIGINT failed" << std::endl;
-    }
-
-    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr)
-            .hasErrors())
-    {
-        std::cerr << "Calling sigaction() for SIGTERM failed" << std::endl;
-    }
-
-    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr)
-            .hasErrors())
-    {
-        std::cerr << "Calling sigaction() for SIGHUP failed" << std::endl;
-    }
-}
-
 int main()
 {
-    registerSigHandler();
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     std::cout << "Application iox_subscriber_integrationtest started" << std::endl;
 

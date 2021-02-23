@@ -18,6 +18,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
@@ -28,36 +29,10 @@ static void sigHandler(int32_t signal [[gnu::unused]])
     killSwitch.store(true);
 }
 
-void registerSigHandler()
-{
-    // register sigHandler for SIGINT, SIGTERM and SIGHUP
-    struct sigaction act;
-    sigemptyset(&act.sa_mask);
-    act.sa_handler = sigHandler;
-    act.sa_flags = 0;
-
-    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGINT, &act, nullptr)
-            .hasErrors())
-    {
-        std::cerr << "Calling sigaction() for SIGINT failed" << std::endl;
-    }
-
-    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr)
-            .hasErrors())
-    {
-        std::cerr << "Calling sigaction() for SIGTERM failed" << std::endl;
-    }
-
-    if (iox::cxx::makeSmartC(sigaction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr)
-            .hasErrors())
-    {
-        std::cerr << "Calling sigaction() for SIGHUP failed" << std::endl;
-    }
-}
-
 int main()
 {
-    registerSigHandler();
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     std::cout << "Application iox_publisher_integrationtest started" << std::endl;
 
@@ -68,25 +43,19 @@ int main()
 
     for (double ct = 0.0; !killSwitch.load(); ++ct)
     {
-        // API Usage #1
-        //  * Retrieve a typed sample from shared memory.
-        //  * Sample can be held until ready to publish.
-        //  * Data is default constructed during loan
-        auto result = publisher.loan();
-        if (!result.has_error())
-        {
-            auto& sample = result.value();
-            sample->x = ct;
-            sample->y = ct;
-            sample->z = ct;
-            sample.publish();
-            std::cout << "Sent value: " << ct << std::endl;
-        }
-        else
-        {
-            auto error = result.get_error();
-            std::cerr << "Error while loaning mempool chunk" << std::endl;
-        }
+        // API Usage #3
+        //  * Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
+        //
+        publisher.loan()
+            .and_then([&](auto& sample) {
+                auto object = sample.get();
+                // Do some stuff leading to eventually generating the data in the samples loaned memory...
+                *object = RadarObject(ct, ct, ct);
+                // ...then publish the sample
+                sample.publish();
+                std::cout << "Sent value: " << ct << std::endl;
+            })
+            .or_else([](iox::popo::AllocationError) { std::cerr << "Error while loaning mempool chunk" << std::endl; });
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
