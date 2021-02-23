@@ -41,6 +41,7 @@ enum class SharedMemoryObjectError
 class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, SharedMemoryObjectError>
 {
   public:
+    static constexpr void* NO_ADDRESS_HINT = nullptr;
     SharedMemoryObject(const SharedMemoryObject&) = delete;
     SharedMemoryObject& operator=(const SharedMemoryObject&) = delete;
     SharedMemoryObject(SharedMemoryObject&&) = default;

@@ -31,17 +31,17 @@ namespace posix
 class SharedMemoryObject;
 enum class AccessMode : uint64_t
 {
-    readOnly = 0U,
-    readWrite = 1U
+    READ_ONLY = 0U,
+    READ_WRITE = 1U
 };
-static constexpr char ACCESS_MODE_STRING[2][22] = {"AccessMode::readOnly", "AccessMode::readWrite"};
+static constexpr const char* ACCESS_MODE_STRING[] = {"AccessMode::READ_ONLY", "AccessMode::READ_WRITE"};
 
 enum class OwnerShip : uint64_t
 {
-    mine = 0U,
-    openExisting = 1U
+    MINE = 0U,
+    OPEN_EXISTING = 1U
 };
-static constexpr char OWNERSHIP_STRING[2][24] = {"OwnerShip::mine", "OwnerShip::openExisting"};
+static constexpr const char* OWNERSHIP_STRING[] = {"OwnerShip::MINE", "OwnerShip::OPEN_EXISTING"};
 
 enum class SharedMemoryError
 {

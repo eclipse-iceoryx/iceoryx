@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
@@ -56,11 +57,9 @@ SharedMemory::SharedMemory(const Name_t& name,
     if (m_isInitialized)
     {
         m_name = name;
-        /// @note GCC drops here a warning that the destination char buffer length is equal to the max length to copy.
-        /// This can potentially lead to a char array without null-terminator. We add the null-terminator afterwards.
         int oflags = 0;
-        oflags |= (accessMode == AccessMode::readOnly) ? O_RDONLY : O_RDWR;
-        oflags |= (ownerShip == OwnerShip::mine) ? O_CREAT | O_EXCL : 0;
+        oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
+        oflags |= (ownerShip == OwnerShip::MINE) ? O_CREAT | O_EXCL : 0;
 
         m_isInitialized = open(oflags, permissions, size);
     }
@@ -129,33 +128,35 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
 {
     cxx::Expects(static_cast<int64_t>(size) <= std::numeric_limits<int64_t>::max());
 
+
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
-
-    // if we create the shm, cleanup old resources
-    if (oflags & O_CREAT)
     {
-        auto shmUnlinkCall =
-            cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ENOENT}, m_name.c_str());
-        if (!shmUnlinkCall.hasErrors() && shmUnlinkCall.getErrNum() != ENOENT)
+        cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
+
+        // if we create the shm, cleanup old resources
+        if (oflags & O_CREAT)
         {
-            std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
+            auto shmUnlinkCall =
+                cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ENOENT}, m_name.c_str());
+            if (!shmUnlinkCall.hasErrors() && shmUnlinkCall.getErrNum() != ENOENT)
+            {
+                std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
+            }
         }
+
+        auto shmOpenCall = cxx::makeSmartC(
+            shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str(), oflags, permissions);
+        if (shmOpenCall.hasErrors())
+        {
+            m_errorValue = errnoToEnum(shmOpenCall.getErrNum());
+            return false;
+        }
+
+        m_handle = shmOpenCall.getReturnValue();
     }
 
-    auto shmOpenCall = cxx::makeSmartC(
-        shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str(), oflags, permissions);
-    if (shmOpenCall.hasErrors())
-    {
-        m_errorValue = errnoToEnum(shmOpenCall.getErrNum());
-        return false;
-    }
-
-    m_handle = shmOpenCall.getReturnValue();
-
-    umask(umaskSaved);
-
-    if (m_ownerShip == OwnerShip::mine)
+    if (m_ownerShip == OwnerShip::MINE)
     {
         auto l_truncateCall = cxx::makeSmartC(
             ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int64_t>(size));
@@ -171,7 +172,7 @@ bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64
 
 bool SharedMemory::unlink() noexcept
 {
-    if (m_isInitialized && m_ownerShip == OwnerShip::mine)
+    if (m_isInitialized && m_ownerShip == OwnerShip::MINE)
     {
         auto unlinkCall =
             cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str());

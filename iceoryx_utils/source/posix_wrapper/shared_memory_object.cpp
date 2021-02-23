@@ -30,6 +30,8 @@ namespace iox
 {
 namespace posix
 {
+constexpr void* SharedMemoryObject::NO_ADDRESS_HINT;
+
 SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const uint64_t memorySizeInBytes,
                                        const AccessMode accessMode,
@@ -73,7 +75,7 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
 
     m_allocator.emplace(m_memoryMap->getBaseAddress(), m_memorySizeInBytes);
 
-    if (ownerShip == OwnerShip::mine && m_isInitialized)
+    if (ownerShip == OwnerShip::MINE && m_isInitialized)
     {
         std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]" << std::endl;
         memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);

@@ -48,7 +48,6 @@ class SharedMemoryUser
                           const RelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
-    static constexpr void* BASE_ADDRESS_HINT{nullptr};
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
     cxx::vector<posix::SharedMemoryObject, MAX_SHM_SEGMENTS> m_payloadShmObjects;
 };

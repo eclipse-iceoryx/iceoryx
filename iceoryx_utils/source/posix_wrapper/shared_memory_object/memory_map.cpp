@@ -35,10 +35,10 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
     int32_t l_memoryProtection{PROT_NONE};
     switch (accessMode)
     {
-    case AccessMode::readOnly:
+    case AccessMode::READ_ONLY:
         l_memoryProtection = PROT_READ;
         break;
-    case AccessMode::readWrite:
+    case AccessMode::READ_WRITE:
         l_memoryProtection = PROT_READ | PROT_WRITE;
         break;
     }

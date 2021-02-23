@@ -137,8 +137,8 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
                                                                        const void*,
                                                                        const mode_t) {
         EXPECT_THAT(std::string(f_name), Eq(std::string("/roudi_test2")));
-        EXPECT_THAT(f_accessMode, Eq(iox::posix::AccessMode::readWrite));
-        EXPECT_THAT(f_ownerShip, Eq(iox::posix::OwnerShip::mine));
+        EXPECT_THAT(f_accessMode, Eq(iox::posix::AccessMode::READ_WRITE));
+        EXPECT_THAT(f_ownerShip, Eq(iox::posix::OwnerShip::MINE));
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
         mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}};

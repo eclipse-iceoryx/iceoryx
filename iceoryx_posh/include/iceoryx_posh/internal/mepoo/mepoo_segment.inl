@@ -73,8 +73,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
     return std::move(
         SharedMemoryObjectType::create(shmName,
                                        MemoryManager::requiredChunkMemorySize(f_mempoolConfig),
-                                       posix::AccessMode::readWrite,
-                                       posix::OwnerShip::mine,
+                                       posix::AccessMode::READ_WRITE,
+                                       posix::OwnerShip::MINE,
                                        BASE_ADDRESS_HINT,
                                        static_cast<mode_t>(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
             .and_then([this](auto& sharedMemoryObject) {

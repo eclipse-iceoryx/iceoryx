@@ -35,7 +35,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
     badconfig.addMemPool({1 << 30, 100});
     iox::roudi::MemPoolCollectionMemoryBlock badmempools(badconfig);
     iox::roudi::PosixShmMemoryProvider badShmProvider(
-        TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
+        TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OwnerShip::MINE);
     badShmProvider.addMemoryBlock(&badmempools);
 
     EXPECT_DEATH(badShmProvider.create(), ".*");
@@ -46,7 +46,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
     goodconfig.addMemPool({1024, 1});
     iox::roudi::MemPoolCollectionMemoryBlock goodmempools(goodconfig);
     iox::roudi::PosixShmMemoryProvider goodShmProvider(
-        TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
+        TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OwnerShip::MINE);
     goodShmProvider.addMemoryBlock(&goodmempools);
     goodShmProvider.create();
 }

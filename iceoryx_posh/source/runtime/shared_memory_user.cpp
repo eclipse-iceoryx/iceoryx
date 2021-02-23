@@ -26,8 +26,6 @@ namespace iox
 {
 namespace runtime
 {
-constexpr void* SharedMemoryUser::BASE_ADDRESS_HINT;
-
 SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                                    const size_t topicSize,
                                    const uint64_t segmentId,
@@ -36,8 +34,11 @@ SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
     if (doMapSharedMemoryIntoThread)
     {
         // create and map the already existing shared memory region
-        posix::SharedMemoryObject::create(
-            roudi::SHM_NAME, topicSize, posix::AccessMode::readWrite, posix::OwnerShip::openExisting, BASE_ADDRESS_HINT)
+        posix::SharedMemoryObject::create(roudi::SHM_NAME,
+                                          topicSize,
+                                          posix::AccessMode::READ_WRITE,
+                                          posix::OwnerShip::OPEN_EXISTING,
+                                          posix::SharedMemoryObject::NO_ADDRESS_HINT)
             .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
                 RelativePointer::registerPtr(
                     segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
@@ -62,9 +63,12 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
     auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
     for (const auto& segment : segmentMapping)
     {
-        auto accessMode = segment.m_isWritable ? posix::AccessMode::readWrite : posix::AccessMode::readOnly;
-        posix::SharedMemoryObject::create(
-            segment.m_sharedMemoryName, segment.m_size, accessMode, posix::OwnerShip::openExisting, BASE_ADDRESS_HINT)
+        auto accessMode = segment.m_isWritable ? posix::AccessMode::READ_WRITE : posix::AccessMode::READ_ONLY;
+        posix::SharedMemoryObject::create(segment.m_sharedMemoryName,
+                                          segment.m_size,
+                                          accessMode,
+                                          posix::OwnerShip::OPEN_EXISTING,
+                                          posix::SharedMemoryObject::NO_ADDRESS_HINT)
             .and_then([this, &segment](auto& sharedMemoryObject) {
                 if (static_cast<uint32_t>(m_payloadShmObjects.size()) >= MAX_SHM_SEGMENTS)
                 {
