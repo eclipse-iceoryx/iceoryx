@@ -75,7 +75,8 @@ class SignalHandler_test : public Test
     static constexpr int INVALID_SIGNAL = std::numeric_limits<int>::max();
 };
 
-using Implementations = Types<SignalType<Signal::INT>, SignalType<Signal::BUS>, SignalType<Signal::TERM>>;
+using Implementations =
+    Types<SignalType<Signal::INT>, SignalType<Signal::BUS>, SignalType<Signal::TERM>, SignalType<Signal::HUP>>;
 
 TYPED_TEST_CASE(SignalHandler_test, Implementations);
 

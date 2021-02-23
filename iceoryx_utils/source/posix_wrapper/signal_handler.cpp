@@ -66,6 +66,7 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
 {
     struct sigaction action;
 
+    // sigemptyset fails when a nullptr is provided and this should never happen with this logic
     if (cxx::makeSmartC(sigemptyset, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &action.sa_mask).hasErrors())
     {
         std::cerr << "This should never happen! Unable to create an empty sigaction set while registering a signal "
@@ -79,6 +80,8 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
 
     struct sigaction previousAction;
 
+    // sigaction fails when action is a nullptr (which we ensure that its not) or when the signal SIGSTOP or SIGKILL
+    // should be registered which can also never happen - ensured by the enum class.
     if (cxx::makeSmartC(sigaction,
                         cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
                         {0},
@@ -90,6 +93,7 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
     {
         std::cerr << "This should never happen! An error occurred while registering a signal handler for the signal ["
                   << static_cast<int>(signal) << "]. " << std::endl;
+        return SignalGuard();
     }
 
     return SignalGuard(signal, previousAction);

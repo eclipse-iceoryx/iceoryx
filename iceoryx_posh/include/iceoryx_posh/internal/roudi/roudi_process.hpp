@@ -28,7 +28,6 @@
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
-#include <csignal>
 #include <cstdint>
 #include <ctime>
 
