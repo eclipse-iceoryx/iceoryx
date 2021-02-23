@@ -43,6 +43,7 @@ MemoryMap::MemoryMap(const void* baseAddressHint,
         break;
     }
     // PRQA S 3066 1 # incompatibility with POSIX definition of mmap
+
     auto mmapCall = cxx::makeSmartC(static_cast<void* (*)(void*, size_t, int, int, int, off_t)>(mmap), // PRQA S 3066
                                     cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                     // we have to perform reinterpret cast since mmap returns MAP_FAILED on error which

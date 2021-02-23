@@ -20,17 +20,44 @@
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <bitset>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <mutex>
 
 namespace iox
 {
 namespace posix
 {
 constexpr void* SharedMemoryObject::NO_ADDRESS_HINT;
+
+static struct
+{
+    SharedMemory::Name_t name;
+    uint64_t memorySizeInBytes;
+    AccessMode accessMode;
+    OwnerShip ownerShip;
+    const void* baseAddressHint;
+    mode_t permissions;
+    std::mutex sigbusHandlerMutex;
+} memsetSigbusDebugInfo;
+
+static void memsetSigbusHandler(int)
+{
+    std::cerr
+        << "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
+           "shared memory object with the following properties [ name = "
+        << memsetSigbusDebugInfo.name << ", sizeInBytes = " << memsetSigbusDebugInfo.memorySizeInBytes
+        << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(memsetSigbusDebugInfo.accessMode)]
+        << ", ownership = " << OWNERSHIP_STRING[static_cast<uint64_t>(memsetSigbusDebugInfo.ownerShip)]
+        << ", baseAddressHint = " << std::hex << memsetSigbusDebugInfo.baseAddressHint
+        << ", permissions = " << std::bitset<sizeof(mode_t)>(memsetSigbusDebugInfo.permissions) << " ]"
+        << " maybe requires more memory than it is currently available in the system." << std::endl;
+    exit(EXIT_FAILURE);
+}
 
 SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                                        const uint64_t memorySizeInBytes,
@@ -78,7 +105,21 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
     if (ownerShip == OwnerShip::MINE && m_isInitialized)
     {
         std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << name << "]" << std::endl;
-        memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
+        {
+            // this lock is required for the case that multiple threads are creating multiple
+            // shared memory objects concurrently
+            std::lock_guard<std::mutex> lock(memsetSigbusDebugInfo.sigbusHandlerMutex);
+            auto memsetSigbusGuard = registerSignalHandler(Signal::BUS, memsetSigbusHandler);
+
+            memsetSigbusDebugInfo.name = name;
+            memsetSigbusDebugInfo.memorySizeInBytes = memorySizeInBytes;
+            memsetSigbusDebugInfo.accessMode = accessMode;
+            memsetSigbusDebugInfo.ownerShip = ownerShip;
+            memsetSigbusDebugInfo.baseAddressHint = baseAddressHint;
+            memsetSigbusDebugInfo.permissions = permissions;
+
+            memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
+        }
         std::clog << "[ Reserving shared memory successful ] " << std::endl;
     }
 }
