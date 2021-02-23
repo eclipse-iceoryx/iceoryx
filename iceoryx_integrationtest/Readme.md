@@ -1,4 +1,4 @@
-# Iceoryx Systemtests
+# Iceoryx Integrationtests
 
 ## Introduction
 To ensure quality standards in iceoryx, we are using automated testing to ensure ISO26262 on unittest and integrationtest level in the respective components.
@@ -85,7 +85,7 @@ For observing test logs in an error case you can use `colcon test-result`:
 colcon test-result --all --verbose
 ```
 
-With colcon all tests in the systemtest package are executed. In particular cases you want to execute only
+With colcon all tests in the iceoryx_integrationtest package are executed. In particular cases you want to execute only
 one test file. This can be done the following way:
 ```bash
 source install/setup.bash # your install directory created by colcon
