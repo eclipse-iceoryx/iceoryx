@@ -277,13 +277,6 @@ TEST_F(expected_test, ConstArrowOperatorWorks)
     EXPECT_THAT(sut->constGimme(), Eq(136));
 }
 
-TEST_F(expected_test, MoveAndCallArrowOperatorLeadsToTermination)
-{
-    auto sut = expected<TestClass, TestError>::create_value(55, 81);
-    auto movedSut = std::move(sut);
-    EXPECT_DEATH(sut->gimme(), ".*");
-}
-
 TEST_F(expected_test, DereferencingOperatorWorks)
 {
     auto sut = expected<int, TestError>::create_value(1652);
