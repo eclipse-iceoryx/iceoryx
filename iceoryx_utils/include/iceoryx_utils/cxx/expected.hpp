@@ -258,20 +258,10 @@ class expected<ErrorType>
     /// @return reference to the internally contained error
     ErrorType& get_error() & noexcept;
 
-    /// @brief  returns a const reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
-    /// @return const reference to the internally contained error
-    //const ErrorType& get_error() const& noexcept;
-
     /// @brief  returns a rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
     ErrorType&& get_error() && noexcept;
-
-    /// @brief  returns a const rvalue reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
-    /// @return rvalue reference to the internally contained error
-    //const ErrorType&& get_error() const&& noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
     ///         a reference to the ErrorType is given as an argument to the callable
@@ -403,11 +393,6 @@ class expected<ValueType, ErrorType>
     /// @return reference to the internally contained error
     ErrorType& get_error() & noexcept;
 
-    /// @brief  returns a const reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
-    /// @return const reference to the internally contained error
-    //const ErrorType& get_error() const& noexcept;
-
     /// @brief  returns a rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
@@ -432,11 +417,6 @@ class expected<ValueType, ErrorType>
     ///         does not contain a success value this is undefined behavior
     /// @return rvalue reference to the internally contained value
     ValueType&& value() && noexcept;
-
-    /// @brief  returns a const rvalue reference to the contained success value, if the expected
-    ///         does not contain a success value this is undefined behavior
-    /// @return const rvalue reference to the internally contained value
-    //const ValueType&& value() const&& noexcept;
 
     /// @brief  returns a copy of the contained success value if the expected does
     ///         contain a success value, otherwise it returns a copy of value
