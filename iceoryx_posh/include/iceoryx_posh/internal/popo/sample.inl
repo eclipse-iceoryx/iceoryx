@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +22,75 @@ namespace iox
 {
 namespace popo
 {
+namespace internal
+{
+// ============================== SamplePrivateData<T> ========================= //
+template <typename T>
+inline SamplePrivateData<T>::SamplePrivateData(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
+    : samplePtr(std::move(samplePtr))
+    , publisherRef(publisher)
+{
+}
+
+template <typename T>
+inline SamplePrivateData<T>& SamplePrivateData<T>::operator=(SamplePrivateData<T>&& rhs)
+{
+    if (this != &rhs)
+    {
+        publisherRef = rhs.publisherRef;
+        samplePtr = std::move(rhs.samplePtr);
+        rhs.samplePtr = nullptr;
+    }
+    return *this;
+}
+
+template <typename T>
+inline SamplePrivateData<T>::SamplePrivateData(SamplePrivateData<T>&& rhs)
+    : samplePtr(std::move(rhs.samplePtr))
+    , publisherRef(std::move(rhs.publisherRef))
+{
+    rhs.samplePtr = nullptr;
+}
+
+// ============================== SamplePrivateData<const T> ========================= //
+
+template <typename T>
+inline SamplePrivateData<const T>::SamplePrivateData(cxx::unique_ptr<const T>&& samplePtr) noexcept
+    : samplePtr(std::move(samplePtr))
+{
+}
+
+template <typename T>
+inline SamplePrivateData<const T>& SamplePrivateData<const T>::operator=(SamplePrivateData<const T>&& rhs)
+{
+    if (this != &rhs)
+    {
+        samplePtr = std::move(rhs.samplePtr);
+        rhs.samplePtr = nullptr;
+    }
+    return *this;
+}
+
+template <typename T>
+inline SamplePrivateData<const T>::SamplePrivateData(SamplePrivateData<const T>&& rhs)
+    : samplePtr(std::move(rhs.samplePtr))
+{
+    rhs.samplePtr = nullptr;
+}
+} // namespace internal
+
 // ============================== Sample<T> ========================= //
 template <typename T>
+template <typename S, typename>
 inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
-    : m_samplePtr(std::move(samplePtr))
-    , m_publisherRef(publisher)
+    : m_members({std::move(samplePtr), publisher})
+{
+}
+
+template <typename T>
+template <typename S, typename>
+inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
+    : m_members(std::move(samplePtr))
 {
 }
 
@@ -34,33 +99,31 @@ inline Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
 {
     if (this != &rhs)
     {
-        m_publisherRef = rhs.m_publisherRef;
-        m_samplePtr = std::move(rhs.m_samplePtr);
-        rhs.m_samplePtr = nullptr;
+        m_members = std::move(rhs.m_members);
     }
     return *this;
 }
 
 template <typename T>
 inline Sample<T>::Sample(Sample<T>&& rhs)
-    : m_publisherRef(rhs.m_publisherRef) // Need to initialize references in initializer list.
+    : m_members(std::move(rhs.m_members))
 {
-    *this = std::move(rhs);
 }
 
 template <typename T>
 inline Sample<T>::~Sample()
 {
-    m_samplePtr = nullptr;
+    m_members.samplePtr = nullptr;
 }
 
 template <typename T>
 inline Sample<T>::Sample(std::nullptr_t) noexcept
 {
-    m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
+    m_members.samplePtr = nullptr; // The pointer will take care of cleaning up resources.
 }
 
 template <typename T>
+template <typename S, typename>
 inline T* Sample<T>::operator->() noexcept
 {
     return get();
@@ -74,14 +137,13 @@ inline const T* Sample<T>::operator->() const noexcept
 
 template <typename T>
 template <typename S, typename>
-inline S& Sample<T>::operator*() noexcept
+inline T& Sample<T>::operator*() noexcept
 {
     return *get();
 }
 
 template <typename T>
-template <typename S, typename>
-inline const S& Sample<T>::operator*() const noexcept
+inline const T& Sample<T>::operator*() const noexcept
 {
     return *get();
 }
@@ -93,29 +155,38 @@ inline Sample<T>::operator bool() const
 }
 
 template <typename T>
+template <typename S, typename>
 inline T* Sample<T>::get() noexcept
 {
-    return m_samplePtr.get();
+    return m_members.samplePtr.get();
 }
 
 template <typename T>
 inline const T* Sample<T>::get() const noexcept
 {
-    return m_samplePtr.get();
+    return m_members.samplePtr.get();
 }
 
 template <typename T>
+template <typename S, typename>
 inline mepoo::ChunkHeader* Sample<T>::getHeader() noexcept
 {
-    return mepoo::ChunkHeader::fromPayload(m_samplePtr.get());
+    return mepoo::ChunkHeader::fromPayload(m_members.samplePtr.get());
 }
 
 template <typename T>
+inline const mepoo::ChunkHeader* Sample<T>::getHeader() const noexcept
+{
+    return mepoo::ChunkHeader::fromPayload(m_members.samplePtr.get());
+}
+
+template <typename T>
+template <typename S, typename>
 inline void Sample<T>::publish() noexcept
 {
-    if (m_samplePtr)
+    if (m_members.samplePtr)
     {
-        m_publisherRef.get().publish(std::move(*this));
+        m_members.publisherRef.get().publish(std::move(*this));
     }
 
     else
@@ -125,71 +196,10 @@ inline void Sample<T>::publish() noexcept
 }
 
 template <typename T>
+template <typename S, typename>
 inline void Sample<T>::release() noexcept
 {
-    m_samplePtr.release();
-}
-
-// ============================== Sample<const T> ========================= //
-
-template <typename T>
-inline Sample<const T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
-    : m_samplePtr(std::move(samplePtr))
-{
-}
-
-template <typename T>
-inline Sample<const T>::Sample(std::nullptr_t) noexcept
-{
-    m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
-}
-
-template <typename T>
-inline Sample<const T>& Sample<const T>::operator=(Sample<const T>&& rhs)
-{
-    if (this != &rhs)
-    {
-        m_samplePtr = std::move(rhs.m_samplePtr);
-        rhs.m_samplePtr = nullptr;
-    }
-    return *this;
-}
-
-template <typename T>
-inline Sample<const T>::Sample(Sample<const T>&& rhs)
-{
-    *this = std::move(rhs);
-}
-
-template <typename T>
-inline Sample<const T>::~Sample()
-{
-    m_samplePtr = nullptr;
-}
-
-template <typename T>
-inline const T* Sample<const T>::operator->() noexcept
-{
-    return get();
-}
-
-template <typename T>
-template <typename S, typename>
-inline const S& Sample<const T>::operator*() noexcept
-{
-    return *get();
-}
-
-template <typename T>
-inline const T* Sample<const T>::get() noexcept
-{
-    return m_samplePtr.get();
-}
-
-template <typename T>
-inline const mepoo::ChunkHeader* Sample<const T>::getHeader() noexcept
-{
-    return mepoo::ChunkHeader::fromPayload(m_samplePtr.get());
+    m_members.samplePtr.release();
 }
 
 } // namespace popo
