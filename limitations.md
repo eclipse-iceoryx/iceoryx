@@ -5,6 +5,7 @@
 - Wrong handling of applications that are started multiple times in parallel [\#404](https://github.com/eclipse-iceoryx/iceoryx/issues/404)
 - Clean up all shared memory resources when corresponding user objects go out of scope [\#369](https://github.com/eclipse-iceoryx/iceoryx/issues/369)
 - App crash with Mq Error Code 15 [\#332](https://github.com/eclipse-iceoryx/iceoryx/issues/332)
+- Deadlock in shared mem mutex when apps are killed [\#325](https://github.com/eclipse-iceoryx/iceoryx/issues/325)
 - NewType Copy-Assign raises compiler warning on GCC 8.4.0 [\#282](https://github.com/eclipse-iceoryx/iceoryx/issues/282)
 - Topic Loopback in DDS Gateway [\#184](https://github.com/eclipse-iceoryx/iceoryx/issues/184)
 - limited Windows 10 support [\#33](https://github.com/eclipse-iceoryx/iceoryx/issues/33)
