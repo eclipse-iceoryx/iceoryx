@@ -113,14 +113,19 @@ class Sample
     /// @return A T& to the encapsulated type.
     /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_const<S>::value, S>>
-    T& operator*() noexcept;
+    template <
+        typename S = T,
+        typename =
+            std::enable_if_t<std::is_same<S, T>::value && !std::is_same<S, void>::value && !std::is_const<S>::value, S>>
+    S& operator*() noexcept;
 
     ///
     /// @brief operator* Provide a const reference to the encapsulated type.
     /// @return A const T& to the encapsulated type.
     ///
-    const T& operator*() const noexcept;
+    template <typename S = T,
+              typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_same<S, void>::value, S>>
+    const S& operator*() const noexcept;
 
     ///
     /// @brief operator bool Indciates whether the sample is valid, i.e. refers to allocated memory.

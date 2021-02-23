@@ -137,13 +137,14 @@ inline const T* Sample<T>::operator->() const noexcept
 
 template <typename T>
 template <typename S, typename>
-inline T& Sample<T>::operator*() noexcept
+inline S& Sample<T>::operator*() noexcept
 {
     return *get();
 }
 
 template <typename T>
-inline const T& Sample<T>::operator*() const noexcept
+template <typename S, typename>
+inline const S& Sample<T>::operator*() const noexcept
 {
     return *get();
 }
