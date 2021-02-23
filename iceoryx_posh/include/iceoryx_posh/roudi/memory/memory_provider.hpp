@@ -31,6 +31,7 @@ class MemoryBlock;
 
 enum class MemoryProviderError
 {
+    INVALID_STATE,
     /// attempt to add more memory blocks than the capacity allows
     MEMORY_BLOCKS_EXHAUSTED,
     /// an action was performed which requires memory blocks

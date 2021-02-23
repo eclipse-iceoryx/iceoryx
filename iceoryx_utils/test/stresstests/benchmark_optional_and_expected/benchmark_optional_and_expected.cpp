@@ -19,6 +19,12 @@
 
 uint64_t globalCounter{0U};
 
+enum class BenchmarkError : uint64_t
+{
+    INVALID_STATE,
+
+};
+
 template <uint64_t Size>
 struct LargeObject
 {
@@ -125,14 +131,14 @@ void complexErrorValue()
     }
 }
 
-iox::cxx::expected<uint64_t, uint64_t> complexErrorValueExpectedImpl()
+iox::cxx::expected<uint64_t, BenchmarkError> complexErrorValueExpectedImpl()
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
 
     if (mod >= 4)
     {
-        return iox::cxx::error<uint64_t>(mod);
+        return iox::cxx::error<BenchmarkError>();
     }
 
     return iox::cxx::success<uint64_t>(mod);
@@ -142,7 +148,7 @@ void complexErrorValueExpected()
 {
     complexErrorValueExpectedImpl()
         .and_then([](uint64_t value) { globalCounter += value; })
-        .or_else([](uint64_t value) { globalCounter -= value; });
+        .or_else([](BenchmarkError error) { /*globalCounter -= error;*/ });
 }
 
 template <typename T>
@@ -236,12 +242,12 @@ int main()
     BENCHMARK(complexErrorValue, timeout);
     BENCHMARK(complexErrorValueExpected, timeout);
 
-    constexpr uint64_t LargeObjectSize = 1024;
-    BENCHMARK(largeObjectPopPlain<LargeObject<LargeObjectSize>>, timeout);
-    BENCHMARK(largeObjectPopOptional<LargeObject<LargeObjectSize>>, timeout);
-    BENCHMARK(largeObjectPopExpected<LargeObject<LargeObjectSize>>, timeout);
+    // constexpr uint64_t LargeObjectSize = 1024;
+    // BENCHMARK(largeObjectPopPlain<LargeObject<LargeObjectSize>>, timeout);
+    // BENCHMARK(largeObjectPopOptional<LargeObject<LargeObjectSize>>, timeout);
+    // BENCHMARK(largeObjectPopExpected<LargeObject<LargeObjectSize>>, timeout);
 
-    BENCHMARK(largeObjectPopPlain<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
-    BENCHMARK(largeObjectPopOptional<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
-    BENCHMARK(largeObjectPopExpected<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
+    // BENCHMARK(largeObjectPopPlain<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
+    // BENCHMARK(largeObjectPopOptional<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
+    // BENCHMARK(largeObjectPopExpected<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
 }

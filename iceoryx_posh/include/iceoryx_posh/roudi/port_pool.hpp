@@ -36,6 +36,7 @@ struct PortPoolDataBase;
 
 enum class PortPoolError : uint8_t
 {
+    INVALID_STATE,
     UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS,
     PUBLISHER_PORT_LIST_FULL,
     SUBSCRIBER_PORT_LIST_FULL,

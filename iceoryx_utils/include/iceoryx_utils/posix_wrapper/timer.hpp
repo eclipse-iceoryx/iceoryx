@@ -35,6 +35,7 @@ namespace posix
 {
 enum class TimerError
 {
+    INVALID_STATE,
     NO_ERROR,
     TIMER_NOT_INITIALIZED,
     NO_VALID_CALLBACK,

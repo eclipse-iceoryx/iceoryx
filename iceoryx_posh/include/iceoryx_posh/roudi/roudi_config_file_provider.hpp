@@ -34,6 +34,7 @@ namespace roudi
 /// MEMPOOL_WITHOUT_CHUNK_COUNT - chunk count not specified for the mempool
 enum class RouDiConfigFileParseError
 {
+    INVALID_STATE,
     NO_GENERAL_SECTION,
     INVALID_CONFIG_FILE_VERSION,
     NO_SEGMENTS,

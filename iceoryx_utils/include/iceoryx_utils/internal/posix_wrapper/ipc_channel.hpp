@@ -33,6 +33,7 @@ namespace posix
 {
 enum class IpcChannelError : uint8_t
 {
+    INVALID_STATE,
     NOT_INITIALIZED,
     ACCESS_DENIED,
     NO_SUCH_CHANNEL,

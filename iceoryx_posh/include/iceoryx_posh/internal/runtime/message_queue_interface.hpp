@@ -76,8 +76,9 @@ enum class MqMessageType : int32_t
 /// If MqMessageType::ERROR, this is the sub type for details about the error
 enum class MqMessageErrorType : int32_t
 {
-    BEGIN = -1,
-    NOTYPE = 0,
+    BEGIN,
+    INVALID_STATE,
+    NOTYPE,
     /// A publisher could not be created unique
     NO_UNIQUE_CREATED,
     REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE,

@@ -25,6 +25,7 @@ namespace dds
 {
 enum class DataReaderError : uint8_t
 {
+    INVALID_STATE,
     NOT_CONNECTED,
     INVALID_RECV_BUFFER,
     INVALID_DATA,

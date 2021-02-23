@@ -39,6 +39,7 @@ using namespace iox::units::duration_literals;
 
 enum class GatewayError : uint8_t
 {
+    INVALID_STATE,
     UNSUPPORTED_SERVICE_TYPE,
     UNSUCCESSFUL_CHANNEL_CREATION,
     NONEXISTANT_CHANNEL

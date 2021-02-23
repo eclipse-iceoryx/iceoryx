@@ -14,6 +14,8 @@
 #ifndef IOX_UTILS_CXX_EXPECTED_INL
 #define IOX_UTILS_CXX_EXPECTED_INL
 
+#include "iceoryx_utils/cxx/helplets.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -106,8 +108,8 @@ expected<ValueType, ErrorType>::operator=(expected<ValueType, ErrorType>&& rhs) 
     {
         m_store = std::move(rhs.m_store);
         m_hasError = rhs.m_hasError;
-        m_isInitialized = rhs.m_isInitialized;
-        rhs.m_isInitialized = false;
+        rhs.m_store.template emplace_at_index<1>(ErrorType::INVALID_STATE);
+        rhs.m_hasError = true;
     }
     return *this;
 }
@@ -133,12 +135,6 @@ inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_err
 }
 
 template <typename ValueType, typename ErrorType>
-bool expected<ValueType, ErrorType>::has_undefined_state() const noexcept
-{
-    return !m_isInitialized;
-}
-
-template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::operator bool() const noexcept
 {
     return !m_hasError;
@@ -150,122 +146,58 @@ inline bool expected<ValueType, ErrorType>::has_error() const noexcept
     return m_hasError;
 }
 
-template <typename ValueType, typename ErrorType>
-inline const ErrorType&& expected<ValueType, ErrorType>::get_error() const&& noexcept
-{
-    if (!has_undefined_state())
-    {
-        return std::move(*m_store.template get_at_index<1>());
-    }
-    else
-    {
-        std::cerr << "get_error() called on invalid object" << std::endl;
-        std::terminate();
-    }
-}
+// template <typename ValueType, typename ErrorType>
+// inline const ErrorType&& expected<ValueType, ErrorType>::get_error() const&& noexcept
+// {
+//     return std::move(*m_store.template get_at_index<1>());
+// }
 
 template <typename ValueType, typename ErrorType>
     inline ErrorType&& expected<ValueType, ErrorType>::get_error() && noexcept
 {
-    if (!has_undefined_state())
-    {
-        return std::move(*m_store.template get_at_index<1>());
-    }
-    else
-    {
-        std::cerr << "get_error() called on invalid object" << std::endl;
-        std::terminate();
-    }
+    return std::move(*m_store.template get_at_index<1>());
 }
 
 template <typename ValueType, typename ErrorType>
     inline ErrorType& expected<ValueType, ErrorType>::get_error() & noexcept
 {
-    if (!has_undefined_state())
-    {
-        return *m_store.template get_at_index<1>();
-    }
-    else
-    {
-        std::cerr << "get_error() called on invalid object" << std::endl;
-        std::terminate();
-    }
+    return *m_store.template get_at_index<1>();
 }
 
-template <typename ValueType, typename ErrorType>
-inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexcept
-{
-    if (!has_undefined_state())
-    {
-        return *m_store.template get_at_index<1>();
-    }
-    else
-    {
-        std::cerr << "get_error() called on invalid object" << std::endl;
-        std::terminate();
-    }
-}
+// template <typename ValueType, typename ErrorType>
+// inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexcept
+// {
+//     return *m_store.template get_at_index<1>();
+// }
 
 template <typename ValueType, typename ErrorType>
     inline ValueType&& expected<ValueType, ErrorType>::value() && noexcept
 {
-    if (!has_undefined_state())
-    {
-        return std::move(*m_store.template get_at_index<0>());
-    }
-    else
-    {
-        std::cerr << "value() called on invalid object" << std::endl;
-        std::terminate();
-    }
+    return std::move(*m_store.template get_at_index<0>());
 }
 
 template <typename ValueType, typename ErrorType>
 inline const ValueType& expected<ValueType, ErrorType>::value() const& noexcept
 {
-    if (!has_undefined_state())
-    {
-        return *m_store.template get_at_index<0>();
-    }
-    else
-    {
-        std::cerr << "value() called on invalid object" << std::endl;
-        std::terminate();
-    }
-} // namespace cxx
+    return *m_store.template get_at_index<0>();
+}
 
-template <typename ValueType, typename ErrorType>
-inline const ValueType&& expected<ValueType, ErrorType>::value() const&& noexcept
-{
-    if (!has_undefined_state())
-    {
-        return std::move(*m_store.template get_at_index<0>());
-    }
-    else
-    {
-        std::cerr << "value() called on invalid object" << std::endl;
-        std::terminate();
-    }
-} // namespace iox
+// template <typename ValueType, typename ErrorType>
+// inline const ValueType&& expected<ValueType, ErrorType>::value() const&& noexcept
+// {
+//     return std::move(*m_store.template get_at_index<0>());
+// }
 
 template <typename ValueType, typename ErrorType>
     inline ValueType& expected<ValueType, ErrorType>::value() & noexcept
 {
-    if (!has_undefined_state())
-    {
-        return *m_store.template get_at_index<0>();
-    }
-    else
-    {
-        std::cerr << "value() called on invalid object" << std::endl;
-        std::terminate();
-    }
+    return *m_store.template get_at_index<0>();
 }
 
 template <typename ValueType, typename ErrorType>
 inline ValueType expected<ValueType, ErrorType>::value_or(const ValueType& value) noexcept
 {
-    if (has_error() || has_undefined_state())
+    if (has_error())
     {
         return value;
     }
@@ -282,15 +214,7 @@ inline ValueType expected<ValueType, ErrorType>::value_or(const ValueType& value
 template <typename ValueType, typename ErrorType>
 inline ValueType* expected<ValueType, ErrorType>::operator->() noexcept
 {
-    if (!has_undefined_state())
-    {
-        return m_store.template get_at_index<0>();
-    }
-    else
-    {
-        std::cerr << "operator->() called on invalid object" << std::endl;
-        std::terminate();
-    }
+    return m_store.template get_at_index<0>();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -302,15 +226,7 @@ inline const ValueType* expected<ValueType, ErrorType>::operator->() const noexc
 template <typename ValueType, typename ErrorType>
 inline ValueType& expected<ValueType, ErrorType>::operator*() noexcept
 {
-    if (!has_undefined_state())
-    {
-        return *m_store.template get_at_index<0>();
-    }
-    else
-    {
-        std::cerr << "operator*() called on invalid object" << std::endl;
-        std::terminate();
-    }
+    return *m_store.template get_at_index<0>();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -323,7 +239,7 @@ template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
 {
-    if (!has_undefined_state() && has_error())
+    if (has_error() && (*m_store.template get<ErrorType>() != ErrorType::INVALID_STATE))
     {
         callable(get_error());
     }
@@ -349,7 +265,7 @@ template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&)>& callable) noexcept
 {
-    if (!has_undefined_state() && !has_error())
+    if (!has_error())
     {
         callable(value());
     }
@@ -371,7 +287,7 @@ template <typename Optional, typename std::enable_if<is_optional<Optional>::valu
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept
 {
-    if (!has_undefined_state() && !has_error())
+    if (!has_error())
     {
         auto& optional = value();
         if (optional.has_value())
@@ -385,18 +301,10 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename O
 
 template <typename ValueType, typename ErrorType>
 template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->if_empty(callable);
-}
-
-template <typename ValueType, typename ErrorType>
-template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) noexcept
 {
-    if (!this->has_error())
+    if (!has_error())
     {
         auto& optional = value();
         if (!optional.has_value())
@@ -412,8 +320,8 @@ template <typename ValueType, typename ErrorType>
 template <typename T>
 inline expected<ValueType, ErrorType>::operator expected<T>() noexcept
 {
-    if (this->has_error())
-        return error<ErrorType>(this->get_error());
+    if (has_error())
+        return error<ErrorType>(get_error());
     else
         return success<>();
 }
@@ -429,9 +337,9 @@ template <typename ValueType, typename ErrorType>
 inline optional<ValueType> expected<ValueType, ErrorType>::to_optional() const noexcept
 {
     optional<ValueType> returnValue;
-    if (!has_undefined_state() && !has_error())
+    if (!has_error())
     {
-        returnValue.emplace(this->value());
+        returnValue.emplace(value());
     }
     return returnValue;
 }
@@ -465,8 +373,8 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ErrorType>&&
     {
         m_store = std::move(rhs.m_store);
         m_hasError = rhs.m_hasError;
-        m_isInitialized = rhs.m_isInitialized;
-        rhs.m_isInitialized = false;
+        rhs.m_store = ErrorType::INVALID_STATE;
+        rhs.m_hasError = true;
     }
     return *this;
 }
@@ -491,7 +399,6 @@ template <typename ValueType>
 inline expected<ErrorType>::expected(const expected<ValueType, ErrorType>& rhs) noexcept
 {
     m_hasError = rhs.has_error();
-    m_isInitialized = rhs.has_undefined_state();
     if (m_hasError)
     {
         m_store.emplace_at_index<0>(rhs.get_error());
@@ -503,7 +410,6 @@ template <typename ValueType>
 inline expected<ErrorType>::expected(expected<ValueType, ErrorType>&& rhs) noexcept
 {
     m_hasError = rhs.has_error();
-    m_isInitialized = rhs.has_undefined_state();
     if (m_hasError)
     {
         m_store.emplace_at_index<0>(std::move(rhs.get_error()));
@@ -523,7 +429,6 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(const expected<ValueT
         m_store = variant<ErrorType>(in_place_type<ErrorType>(), rhs.get_error());
     }
     m_hasError = rhs.has_error();
-    m_isInitialized = rhs.has_undefined_state();
 }
 
 template <typename ErrorType>
@@ -539,7 +444,6 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, E
         m_store = variant<ErrorType>(in_place_type<ErrorType>(), std::move(rhs.get_error()));
     }
     m_hasError = rhs.has_error();
-    m_isInitialized = rhs.has_undefined_state();
 }
 #endif
 
@@ -561,12 +465,6 @@ inline expected<ErrorType> expected<ErrorType>::create_error(Targs&&... args) no
 }
 
 template <typename ErrorType>
-bool expected<ErrorType>::has_undefined_state() const noexcept
-{
-    return !m_isInitialized;
-}
-
-template <typename ErrorType>
 inline expected<ErrorType>::operator bool() const noexcept
 {
     return !m_hasError;
@@ -581,63 +479,31 @@ inline bool expected<ErrorType>::has_error() const noexcept
 template <typename ErrorType>
     inline ErrorType&& expected<ErrorType>::get_error() && noexcept
 {
-    if (!has_undefined_state())
-    {
-        return std::move(*m_store.template get_at_index<0>());
-    }
-    else
-    {
-        std::cerr << "get_error() called on invalid object" << std::endl;
-        std::terminate();
-    }
+    return std::move(*m_store.template get_at_index<0>());
 }
 
-template <typename ErrorType>
-inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
-{
-    if (!has_undefined_state())
-    {
-        return *m_store.template get_at_index<0>();
-    }
-    else
-    {
-        std::cerr << "get_error() called on invalid object" << std::endl;
-        std::terminate();
-    }
-}
+// template <typename ErrorType>
+// inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
+// {
+//     return *m_store.template get_at_index<0>();
+// }
 
-template <typename ErrorType>
-inline const ErrorType&& expected<ErrorType>::get_error() const&& noexcept
-{
-    if (!has_undefined_state())
-    {
-        return std::move(*m_store.template get_at_index<0>());
-    }
-    else
-    {
-        std::cerr << "get_error() called on invalid object" << std::endl;
-        std::terminate();
-    }
-}
+// template <typename ErrorType>
+// inline const ErrorType&& expected<ErrorType>::get_error() const&& noexcept
+// {
+//     return std::move(*m_store.template get_at_index<0>());
+// }
 
 template <typename ErrorType>
     inline ErrorType& expected<ErrorType>::get_error() & noexcept
 {
-    if (!has_undefined_state())
-    {
-        return *m_store.template get_at_index<0>();
-    }
-    else
-    {
-        std::cerr << "get_error() called on invalid object" << std::endl;
-        std::terminate();
-    }
+    return *m_store.template get_at_index<0>();
 }
 
 template <typename ErrorType>
 inline expected<ErrorType>& expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
 {
-    if (!has_undefined_state() && has_error())
+    if (has_error() && (*m_store.template get<ErrorType>() != ErrorType::INVALID_STATE))
     {
         callable(get_error());
     }
@@ -655,7 +521,7 @@ expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable
 template <typename ErrorType>
 inline expected<ErrorType>& expected<ErrorType>::and_then(const cxx::function_ref<void()>& callable) noexcept
 {
-    if (!has_undefined_state() && !has_error())
+    if (!has_error())
     {
         callable();
     }

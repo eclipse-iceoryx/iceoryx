@@ -28,6 +28,7 @@ namespace config
 {
 enum TomlGatewayConfigParseError
 {
+    INVALID_STATE,
     FILE_NOT_FOUND,
     INCOMPLETE_CONFIGURATION,
     INCOMPLETE_SERVICE_DESCRIPTION,

@@ -34,6 +34,7 @@ class MemoryProvider;
 
 enum class RouDiMemoryManagerError
 {
+    INVALID_STATE,
     /// attempt to add more memory provider than the capacity allows
     MEMORY_PROVIDER_EXHAUSTED,
     /// an action was performed which requires memory provider

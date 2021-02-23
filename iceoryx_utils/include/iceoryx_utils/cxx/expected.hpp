@@ -111,11 +111,37 @@ struct is_optional<iox::cxx::optional<T>> : std::true_type
 {
 };
 
+template <typename T, typename = void>
+struct has_invalid_state : std::false_type
+{
+};
+/// @brief Verifies whether the passed type T has a member INVALID_STATE
+template <typename T>
+struct has_invalid_state<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
+{
+};
+
+template <typename T, typename... Args>
+struct ErrorTypeWrapper
+{
+    ErrorTypeWrapper(Args&&... args)
+        : error(std::forward<Args>(args)...)
+    {
+    }
+
+    static T INVALID_STATE()
+    {
+        return T::INVALID_STATE;
+    }
+
+    T error;
+};
 
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
 ///         is inspired by the proposal but it has changes since we are not allowed to
 ///         throw an exception.
 /// @param ErrorType type of the error which can be stored in the expected
+/// @note  ErrorType must specific an INVALID_STATE as member or method
 ///
 /// @code
 ///     cxx::expected<int, float> callMe() {
@@ -144,6 +170,8 @@ struct is_optional<iox::cxx::optional<T>> : std::true_type
 template <typename ErrorType>
 class expected<ErrorType>
 {
+    static_assert(has_invalid_state<ErrorType>::value, "ErrorType must have INVALID_STATE");
+
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
     ///         expected contains a success value or an error value
@@ -174,7 +202,7 @@ class expected<ErrorType>
 
     /// @brief  calls the copy assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected& operator=(const expected&) = default;
+    expected& operator=(const expected&);
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
@@ -217,10 +245,6 @@ class expected<ErrorType>
     template <typename... Targs>
     static expected create_error(Targs&&... args) noexcept;
 
-    /// @brief returns true if the expected is in a valid state either containing a value or an error
-    /// @return true if in invalid state (e.g. after move) or false if in valid state
-    bool has_undefined_state() const noexcept;
-
     /// @brief  returns true if the expected contains an error otherwise false
     /// @return bool which contains true if the expected contains an error
     explicit operator bool() const noexcept;
@@ -237,7 +261,7 @@ class expected<ErrorType>
     /// @brief  returns a const reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return const reference to the internally contained error
-    const ErrorType& get_error() const& noexcept;
+    //const ErrorType& get_error() const& noexcept;
 
     /// @brief  returns a rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
@@ -247,7 +271,7 @@ class expected<ErrorType>
     /// @brief  returns a const rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
-    const ErrorType&& get_error() const&& noexcept;
+    //const ErrorType&& get_error() const&& noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
     ///         a reference to the ErrorType is given as an argument to the callable
@@ -297,7 +321,6 @@ class expected<ErrorType>
     expected(variant<ErrorType>&& store, const bool hasError) noexcept;
     variant<ErrorType> m_store;
     bool m_hasError;
-    bool m_isInitialized{true};
 };
 
 /// @brief specialization of the expected class which can contain an error as well as a success value
@@ -306,6 +329,8 @@ class expected<ErrorType>
 template <typename ValueType, typename ErrorType>
 class expected<ValueType, ErrorType>
 {
+    static_assert(has_invalid_state<ErrorType>::value, "ErrorType must have a member INVALID_STATE");
+
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
     ///         expected contains a success value or an error value
@@ -313,7 +338,7 @@ class expected<ValueType, ErrorType>
 
     /// @brief the copy constructor calls the copy constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected(const expected&) noexcept = default;
+    expected(const expected&) = default;
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
@@ -325,7 +350,7 @@ class expected<ValueType, ErrorType>
 
     /// @brief  calls the copy assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
-    expected& operator=(const expected&) noexcept = default;
+    expected& operator=(const expected&) noexcept;
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
@@ -365,10 +390,6 @@ class expected<ValueType, ErrorType>
     template <typename... Targs>
     static expected create_error(Targs&&... args) noexcept;
 
-    /// @brief returns true if the expected is in a valid state either containing a value or an error
-    /// @return true if in valid state or false if in invalid state (e.g. after move)
-    bool has_undefined_state() const noexcept;
-
     /// @brief  returns true if the expected contains an error otherwise false
     /// @return bool which contains true if the expected contains an error
     explicit operator bool() const noexcept;
@@ -385,7 +406,7 @@ class expected<ValueType, ErrorType>
     /// @brief  returns a const reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return const reference to the internally contained error
-    const ErrorType& get_error() const& noexcept;
+    //const ErrorType& get_error() const& noexcept;
 
     /// @brief  returns a rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
@@ -395,7 +416,7 @@ class expected<ValueType, ErrorType>
     /// @brief  returns a const rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
-    const ErrorType&& get_error() const&& noexcept;
+    //const ErrorType&& get_error() const&& noexcept;
 
     /// @brief  returns a reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
@@ -415,7 +436,7 @@ class expected<ValueType, ErrorType>
     /// @brief  returns a const rvalue reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return const rvalue reference to the internally contained value
-    const ValueType&& value() const&& noexcept;
+    //const ValueType&& value() const&& noexcept;
 
     /// @brief  returns a copy of the contained success value if the expected does
     ///         contain a success value, otherwise it returns a copy of value
@@ -606,7 +627,6 @@ class expected<ValueType, ErrorType>
     expected(variant<ValueType, ErrorType>&& f_store, const bool hasError) noexcept;
     variant<ValueType, ErrorType> m_store;
     bool m_hasError;
-    bool m_isInitialized{true};
 };
 
 template <typename ErrorType>

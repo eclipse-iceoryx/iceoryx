@@ -165,6 +165,8 @@ const char* MemoryProvider::getErrorString(const MemoryProviderError error)
 {
     switch (error)
     {
+    case MemoryProviderError::INVALID_STATE:
+        return "MEMORY_BLOCKS_INVALID_STATE";
     case MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED:
         return "MEMORY_BLOCKS_EXHAUSTED";
     case MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT:
