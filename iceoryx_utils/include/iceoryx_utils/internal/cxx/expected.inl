@@ -110,7 +110,7 @@ expected<ValueType, ErrorType>::operator=(expected<ValueType, ErrorType>&& rhs) 
     {
         m_store = std::move(rhs.m_store);
         m_hasError = rhs.m_hasError;
-        rhs.m_store.template emplace_at_index<1>(ErrorType::INVALID_STATE);
+        rhs.m_store.template emplace_at_index<1>(ErrorTypeAdapter<ErrorType>::getInvalidState());
         rhs.m_hasError = true;
     }
     return *this;
@@ -223,7 +223,7 @@ template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
 {
-    if (has_error() && (*m_store.template get<ErrorType>() != ErrorType::INVALID_STATE))
+    if (has_error() && (*m_store.template get<ErrorType>() != ErrorTypeAdapter<ErrorType>::getInvalidState()))
     {
         callable(get_error());
     }
@@ -357,7 +357,7 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ErrorType>&&
     {
         m_store = std::move(rhs.m_store);
         m_hasError = rhs.m_hasError;
-        rhs.m_store = ErrorType::INVALID_STATE;
+        rhs.m_store = ErrorTypeAdapter<ErrorType>::getInvalidState();
         rhs.m_hasError = true;
     }
     return *this;
@@ -475,7 +475,7 @@ template <typename ErrorType>
 template <typename ErrorType>
 inline expected<ErrorType>& expected<ErrorType>::or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept
 {
-    if (has_error() && (*m_store.template get<ErrorType>() != ErrorType::INVALID_STATE))
+    if (has_error() && (*m_store.template get<ErrorType>() != ErrorTypeAdapter<ErrorType>::getInvalidState()))
     {
         callable(get_error());
     }

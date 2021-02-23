@@ -117,26 +117,22 @@ template <typename T, typename = void>
 struct has_invalid_state : std::false_type
 {
 };
-/// @brief Verifies whether the passed type T has a member INVALID_STATE
+/// @brief Verifies whether the passed type T has INVALID_STATE
 template <typename T>
 struct has_invalid_state<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
 {
 };
 
-template <typename T, typename... Args>
-struct ErrorTypeWrapper
+template <typename T>
+struct ErrorTypeAdapter
 {
-    ErrorTypeWrapper(Args&&... args)
-        : error(std::forward<Args>(args)...)
-    {
-    }
+    static_assert(has_invalid_state<T>::value,
+                  "T must have a INVALID_STATE. Alternatively write an ErrorTypeAdapter specialisation for your type");
 
-    static T INVALID_STATE()
+    static T getInvalidState()
     {
         return T::INVALID_STATE;
     }
-
-    T error;
 };
 
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
@@ -172,8 +168,6 @@ struct ErrorTypeWrapper
 template <typename ErrorType>
 class expected<ErrorType>
 {
-    static_assert(has_invalid_state<ErrorType>::value, "ErrorType must have INVALID_STATE");
-
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
     ///         expected contains a success value or an error value
@@ -321,8 +315,6 @@ class expected<ErrorType>
 template <typename ValueType, typename ErrorType>
 class expected<ValueType, ErrorType>
 {
-    static_assert(has_invalid_state<ErrorType>::value, "ErrorType must have a member INVALID_STATE");
-
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
     ///         expected contains a success value or an error value
@@ -399,11 +391,6 @@ class expected<ValueType, ErrorType>
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
     ErrorType&& get_error() && noexcept;
-
-    /// @brief  returns a const rvalue reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
-    /// @return rvalue reference to the internally contained error
-    //const ErrorType&& get_error() const&& noexcept;
 
     /// @brief  returns a reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior

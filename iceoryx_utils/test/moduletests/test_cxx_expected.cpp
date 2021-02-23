@@ -57,49 +57,36 @@ class expected_test : public Test
 
         int m_a;
         int m_b;
-
-        static const TestClass INVALID_STATE;
     };
 };
-
-const expected_test::TestClass expected_test::TestClass::INVALID_STATE{-1, -1};
 
 namespace iox
 {
 namespace cxx
 {
-// template <>
-// struct ErrorTypeWrapper<std::string>
-// {
-//     ErrorTypeWrapper(std::string s)
-//         : error(s)
-//     {
-//     }
-
-//     static ErrorTypeWrapper<std::string> INVALID_STATE()
-//     {
-//         return ErrorTypeWrapper<std::string>("I am invalid!");
-//     }
-
-//     //static const ErrorTypeWrapper<std::string> INVALID_STATE;
-//     std::string error;
-// };
-// const ErrorTypeWrapper<std::string> ErrorTypeWrapper<std::string>::INVALID_STATE{"IAmInvalid"};
-
-struct StringErrorClass
+template <>
+struct ErrorTypeAdapter<expected_test::TestClass>
 {
-    StringErrorClass(std::string str)
-        : string(str)
+    static expected_test::TestClass getInvalidState()
     {
+        return expected_test::TestClass(-1, -1);
     }
-    std::string string;
-    static const StringErrorClass INVALID_STATE;
 };
-const StringErrorClass StringErrorClass::INVALID_STATE{"IAmInvalid"};
 
-
+template <>
+struct ErrorTypeAdapter<std::string>
+{
+    static std::string getInvalidState()
+    {
+        return std::string("IAmInvalid");
+    }
+};
 } // namespace cxx
 } // namespace iox
+
+
+using TestClassAdapter = iox::cxx::ErrorTypeAdapter<expected_test::TestClass>;
+
 enum class TestError : uint8_t
 {
     INVALID_STATE,
@@ -107,14 +94,6 @@ enum class TestError : uint8_t
     ERROR2,
     ERROR3
 };
-
-
-TEST_F(expected_test, Teschd)
-{
-    auto sut = expected<int, StringErrorClass>::create_error("RedAlert");
-    ASSERT_THAT(sut.has_error(), Eq(true));
-    EXPECT_THAT(sut.get_error().string, Eq("RedAlert"));
-}
 
 TEST_F(expected_test, CreateWithPODTypeIsSuccessful)
 {
@@ -157,6 +136,13 @@ TEST_F(expected_test, CreateWithComplexTypeIsSuccessful)
     auto sut = expected<TestClass, TestError>::create_value(12, 222);
     ASSERT_THAT(sut.has_error(), Eq(false));
     EXPECT_THAT(sut.value().m_a, Eq(12));
+}
+
+TEST_F(expected_test, CreateWithSTLTypeIsSuccesful)
+{
+    auto sut = expected<int, std::string>::create_error("RedAlert");
+    ASSERT_THAT(sut.has_error(), Eq(true));
+    EXPECT_THAT(sut.get_error(), Eq("RedAlert"));
 }
 
 // TEST_F(expected_test, ConstCreateRValueAndGetValueResultsInCorrectValue)
@@ -209,7 +195,7 @@ TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToInvalidState)
     auto sut = expected<int, TestClass>::create_value(177);
     auto movedValue{std::move(sut)};
     ASSERT_TRUE(sut.has_error());
-    ASSERT_THAT(sut.get_error(), Eq(TestClass::INVALID_STATE));
+    ASSERT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
 }
 
 TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToInvalidState)
@@ -217,7 +203,7 @@ TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToInvalidState)
     auto sut = expected<int, TestClass>::create_error(22, 33);
     auto movedValue{std::move(sut)};
     ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestClass::INVALID_STATE));
+    EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
 }
 
 TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToInvalidState)
@@ -225,7 +211,7 @@ TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToInvalidState)
     auto sut = expected<int, TestClass>::create_value(73);
     auto movedValue = std::move(sut);
     ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestClass::INVALID_STATE));
+    EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
 }
 
 TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToInvalidState)
@@ -233,7 +219,7 @@ TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToInvalidState)
     auto sut = expected<int, TestClass>::create_error(44, 55);
     auto movedValue = std::move(sut);
     ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(TestClass::INVALID_STATE));
+    EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
 }
 
 TEST_F(expected_test, CreateInvalidExpectedAndCallGetErrorLeadsToInvalidState)
