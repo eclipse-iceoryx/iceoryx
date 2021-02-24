@@ -33,7 +33,7 @@ typedef struct
     // number of chunks received after subscription if chunks are available
     uint64_t historyRequest;
 
-    // name of the node the publisher belongs to
+    // name of the node the subscriber belongs to
     const char* nodeName;
 } iox_subscriber_options_t;
 
@@ -87,12 +87,12 @@ void iox_sub_release_queued_chunks(iox_sub_t const self);
 
 /// @brief are new chunks available?
 /// @param[in] self handle to the subscriber
-/// @return true if there are chunks otherwise false
+/// @return true if there are chunks, otherwise false
 bool iox_sub_has_chunks(iox_sub_t const self);
 
 /// @brief are chunks lost?
 /// @param[in] self handle to the subscriber
-/// @return true if there are lost chunks otherwise false
+/// @return true if there are lost chunks due to overflowing queue, otherwise false
 bool iox_sub_has_lost_chunks(iox_sub_t const self);
 
 #endif

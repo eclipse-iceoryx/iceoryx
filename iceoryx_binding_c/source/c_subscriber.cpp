@@ -1,4 +1,5 @@
 // Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,12 +85,7 @@ iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** con
         return cpp2c::ChunkReceiveResult(result.get_error());
     }
 
-    if (!result->has_value())
-    {
-        return ChunkReceiveResult_NO_CHUNK_AVAILABLE;
-    }
-
-    *payload = (**result)->payload();
+    *payload = result.value()->payload();
     return ChunkReceiveResult_SUCCESS;
 }
 
