@@ -627,25 +627,25 @@ TIMING_TEST_F(ActiveCallSet_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5
     AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U>::doIt(
         *m_sut, events, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty);
 
-    m_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
+    blockTriggerCallback();
     events[0U].triggerStoepsel();
-    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 2U));
-
-    // we triggered events[0] with a long runtime to safely trigger all events again
-    // while the callback is still running. to verify that events[0] is called again
-    // we reset the m_triggerCallbackArg[0] to nullptr (which is again set by the
-    // event[0] callback) and set the runtime of the callbacks to zero
-    m_triggerCallbackArg[0U].m_source = nullptr;
-    m_triggerCallbackRuntimeInMs = 0U;
-
-    for (auto& e : events)
-        e.triggerStoepsel();
-
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
+    for (auto& e : events)
+    {
+        e.triggerStoepsel();
+    }
+
+    // 10 times more callback runs allowed to allow potential overtriggering
+    unblockTriggerCallback(10U * iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0].m_source == &events[0U]);
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0].m_count == 2U);
+    for (uint64_t i = 1U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
     {
         TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[i].m_source == &events[i]);
+        TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[i].m_count == 1U);
     }
 });
 
@@ -655,27 +655,28 @@ TIMING_TEST_F(ActiveCallSet_test, TriggeringAllEventsCallsAllCallbacksOnce, Repe
     AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1>::doIt(
         *m_sut, events, ActiveCallSet_test::SimpleEvent::StoepselBachelorParty);
 
-    m_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
+    blockTriggerCallback();
     events[0U].triggerStoepsel();
-    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 2U));
-    m_triggerCallbackRuntimeInMs = 0U;
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
     for (auto& e : events)
-        e.triggerStoepsel();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
-    for (auto& t : m_triggerCallbackArg)
     {
-        t.m_source = nullptr;
+        e.triggerStoepsel();
     }
+
+    // 10 times more callback runs allowed to allow potential overtriggering
+    unblockTriggerCallback(10U * iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
     events[0U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
     TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0].m_source == &events[0U]);
+    TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[0].m_count == 3U);
     for (uint64_t i = 1U; i < iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
     {
-        TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[i].m_source == nullptr);
+        TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[i].m_source == &events[i]);
+        TIMING_TEST_EXPECT_TRUE(m_triggerCallbackArg[i].m_count == 1U);
     }
 });
 
