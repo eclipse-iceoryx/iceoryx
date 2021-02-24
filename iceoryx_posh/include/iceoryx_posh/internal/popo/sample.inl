@@ -200,7 +200,7 @@ template <typename T>
 template <typename S, typename>
 inline void Sample<T>::release() noexcept
 {
-    m_members.samplePtr.release();
+    m_members.samplePtr.reset();
 }
 
 } // namespace popo

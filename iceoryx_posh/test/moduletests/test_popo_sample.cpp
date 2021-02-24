@@ -18,6 +18,9 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
+
+#include "mocks/chunk_mock.hpp"
+
 #include "test.hpp"
 
 using namespace ::testing;
@@ -66,7 +69,8 @@ class SampleTest : public Test
 TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
 {
     // ===== Setup ===== //
-    iox::cxx::unique_ptr<DummyData> testSamplePtr{new DummyData(), [](DummyData* ptr) { delete ptr; }};
+    ChunkMock<DummyData> chunk;
+    iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), [](DummyData*) {}};
     MockPublisherInterface<DummyData> mockPublisherInterface{};
 
     auto sut = iox::popo::Sample<DummyData>(std::move(testSamplePtr), mockPublisherInterface);
@@ -77,5 +81,26 @@ TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
     sut.publish();
 
     // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(SampleTest, ReleaseSampleViaPublisherInterfaceIsSuccessful)
+{
+    // ===== Setup ===== //
+    ChunkMock<DummyData> chunk;
+    uint64_t releaseCounter{0U};
+    auto deleter = [&](DummyData*) { ++releaseCounter; };
+
+    iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), deleter};
+    MockPublisherInterface<DummyData> mockPublisherInterface{};
+
+    auto sut = iox::popo::Sample<DummyData>(std::move(testSamplePtr), mockPublisherInterface);
+
+    // ===== Test ===== //
+    sut.release();
+
+    // ===== Verify ===== //
+    EXPECT_EQ(releaseCounter, 1U);
+
     // ===== Cleanup ===== //
 }

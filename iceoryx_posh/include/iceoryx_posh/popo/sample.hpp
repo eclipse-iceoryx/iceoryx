@@ -170,9 +170,8 @@ class Sample
     void publish() noexcept;
 
     ///
-    /// @brief release Manually release ownership of the loaned memory chunk.
-    /// @details This prevents the sample from automatically releasing ownership on destruction and is only available
-    /// for non-const type T.
+    /// @brief release Manually transfers ownership of the loaned memory chunk back to the mempool.
+    /// @details Only available for non-const type T.
     ///
     template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_const<S>::value, S>>
     void release() noexcept;
