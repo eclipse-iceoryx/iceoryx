@@ -20,6 +20,7 @@
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <assert.h>
+#include <cstdint>
 #include <iostream>
 #include <type_traits>
 
@@ -202,6 +203,14 @@ static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
 #define DISCARD_RESULT_VARIABLE(name, suffix) DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix)
 #define DISCARD_RESULT(expr) auto DISCARD_RESULT_VARIABLE(unusedOnLine, __LINE__) [[gnu::unused]] = expr
 // clang-format on
+
+/// @brief Prints a warning to std::cerr if called on a 32-bit system
+constexpr void printWarningOn32BitSystems()
+{
+#if INTPTR_MAX == INT32_MAX
+    std::cerr << "Warning! 32-bit architectures are unsupported! Use at your own risk!" std::endl;
+#endif
+}
 
 } // namespace cxx
 } // namespace iox

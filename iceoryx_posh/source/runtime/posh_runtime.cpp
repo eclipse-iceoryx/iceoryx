@@ -22,6 +22,7 @@
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
@@ -81,6 +82,7 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
                      m_ipcChannelInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
+    cxx::printWarningOn32BitSystems();
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 
@@ -389,8 +391,7 @@ NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
     }
 
     LogError() << "Got wrong response from RouDi while creating node:'" << receiveBuffer.getMessage() << "'";
-    errorHandler(
-        Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    errorHandler(Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
 }
 
