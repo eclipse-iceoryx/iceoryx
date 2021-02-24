@@ -66,6 +66,7 @@ Colcon automatically creates the folders `build`, `install` and `log`.
 
 For executing tests you can use colcon too:
 ```bash
+source install/setup.bash # your install directory created by colcon
 colcon test --packages-select iceoryx_integrationtest
 ```
 For the case that a test fails the output look like this
@@ -88,7 +89,6 @@ colcon test-result --all --verbose
 With colcon all tests in the iceoryx_integrationtest package are executed. In particular cases you want to execute only
 one test file. This can be done the following way:
 ```bash
-source install/setup.bash # your install directory created by colcon
 launch_test src/iceoryx/iceoryx_integrationtest/iceoryx_integrationtest/test_roudi_startup_shutdown.py 
 ```
 
