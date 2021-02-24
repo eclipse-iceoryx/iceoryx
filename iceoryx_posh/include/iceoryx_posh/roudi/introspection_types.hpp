@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All, Apex.AI Inc. rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,13 +73,7 @@ struct PortData
     NodeName_t m_node;
 };
 
-/// @brief container for subscriber port introspection data.
-struct SubscriberPortData : public PortData
-{
-    /// @brief identifier of the publisher port to which this subscriber port is connected.
-    /// If no matching publisher port exists, this should equal -1.
-    int32_t m_publisherIndex{-1};
-};
+using SubscriberPortData = PortData;
 
 /// @brief container for publisher port introspection data.
 struct PublisherPortData : public PortData
