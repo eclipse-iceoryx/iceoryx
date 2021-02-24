@@ -26,32 +26,42 @@ namespace iox
 {
 namespace cxx
 {
+namespace internal
+{
 /// @brief Type trait which verifies whether the passed type T has INVALID_STATE
 ///        Overload chosen when INVALID_STATE is not present
 template <typename T, typename = void>
-struct has_invalid_state : std::false_type
+struct has_invalid_state_member : std::false_type
 {
 };
 
 /// @brief Type trait which verifies whether the passed type T has INVALID_STATE
 ///        Overload chosen when INVALID_STATE is present
 template <typename T>
-struct has_invalid_state<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
+struct has_invalid_state_member<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
 {
 };
+
+template <typename... T>
+struct is_optional : std::false_type
+{
+};
+
+template <typename T>
+struct is_optional<iox::cxx::optional<T>> : std::true_type
+{
+};
+} // namespace internal
 
 /// @brief Generic adapter to access INVALID_STATE member or value
 /// @note Works for enum classes and classes having a member INVALID_STATE
 template <typename T>
 struct ErrorTypeAdapter
 {
-    static_assert(has_invalid_state<T>::value,
+    static_assert(internal::has_invalid_state_member<T>::value,
                   "T must have a INVALID_STATE. Alternatively write an ErrorTypeAdapter specialisation for your type");
 
-    static T getInvalidState()
-    {
-        return T::INVALID_STATE;
-    }
+    static T getInvalidState() noexcept;
 };
 
 /// @brief helper struct to create an expected which is signalling success more easily
@@ -130,16 +140,6 @@ struct error
 
 template <typename... T>
 class expected;
-
-template <typename... T>
-struct is_optional : std::false_type
-{
-};
-
-template <typename T>
-struct is_optional<iox::cxx::optional<T>> : std::true_type
-{
-};
 
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
 ///         is inspired by the proposal but it has changes since we are not allowed to
@@ -273,7 +273,6 @@ class expected<ErrorType>
     ///         a reference to the ErrorType is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains an error
     /// @return const reference to the expected itself
-    /// @note if the expected contains an INVALID_STATE the callable is not called
     /// @code
     ///     someExpected.or_else([](float& error){
     ///         std::cout << "error occured : " << error << std::endl;
@@ -285,7 +284,6 @@ class expected<ErrorType>
     ///         a reference to the ErrorType is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains an error
     /// @return const reference to the expected itself
-    /// @note if the expected contains an INVALID_STATE the callable is not called
     /// @code
     ///     someExpected.or_else([](float& error){
     ///         std::cout << "error occured : " << error << std::endl;
@@ -319,6 +317,7 @@ class expected<ErrorType>
     expected(variant<ErrorType>&& store, const bool hasError) noexcept;
     variant<ErrorType> m_store;
     bool m_hasError;
+    static constexpr uint64_t ERROR_INDEX = 0U;
 };
 
 /// @brief specialization of the expected class which can contain an error as well as a success value
@@ -507,7 +506,6 @@ class expected<ValueType, ErrorType>
     ///         a reference to the ErrorType is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains an error
     /// @return const reference to the expected itself
-    /// @note if the expected contains an INVALID_STATE the callable is not called
     /// @code
     ///     someExpected.or_else([](float& result){
     ///         std::cout << "error occured : " << error << std::endl;
@@ -519,7 +517,6 @@ class expected<ValueType, ErrorType>
     ///         a reference to the ErrorType is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains an error
     /// @return reference to the expected itself
-    /// @note if the expected contains an INVALID_STATE the callable is not called
     /// @code
     ///     someExpected.or_else([](float& error){
     ///         std::cout << "error occured : " << error << std::endl;
@@ -560,7 +557,8 @@ class expected<ValueType, ErrorType>
     ///     })
     /// @endcode
     ///
-    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    template <typename Optional = ValueType,
+              typename std::enable_if<internal::is_optional<Optional>::value, int>::type = 0>
     const expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const noexcept;
 
     ///
@@ -574,7 +572,8 @@ class expected<ValueType, ErrorType>
     ///     })
     /// @endcode
     ///
-    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    template <typename Optional = ValueType,
+              typename std::enable_if<internal::is_optional<Optional>::value, int>::type = 0>
     expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept;
 
     ///
@@ -590,7 +589,8 @@ class expected<ValueType, ErrorType>
     ///         })
     /// @endcode
     ///
-    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    template <typename Optional = ValueType,
+              typename std::enable_if<internal::is_optional<Optional>::value, int>::type = 0>
     [[deprecated]] const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
 
     ///
@@ -606,7 +606,8 @@ class expected<ValueType, ErrorType>
     ///         })
     /// @endcode
     ///
-    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    template <typename Optional = ValueType,
+              typename std::enable_if<internal::is_optional<Optional>::value, int>::type = 0>
     [[deprecated]] expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
 
     optional<ValueType> to_optional() const noexcept;
@@ -615,6 +616,8 @@ class expected<ValueType, ErrorType>
     expected(variant<ValueType, ErrorType>&& f_store, const bool hasError) noexcept;
     variant<ValueType, ErrorType> m_store;
     bool m_hasError;
+    static constexpr uint64_t VALUE_INDEX = 0U;
+    static constexpr uint64_t ERROR_INDEX = 1U;
 };
 
 template <typename ErrorType>

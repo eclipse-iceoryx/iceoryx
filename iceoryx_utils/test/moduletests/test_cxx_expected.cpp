@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -435,40 +436,40 @@ TEST_F(expected_test, ConstWhenHavingSuccessCallsAndThen)
     EXPECT_THAT(a, Eq(1142));
 }
 
-TEST_F(expected_test, WhenHavingSuccessAndMoveAssignmentCallsNothing)
+TEST_F(expected_test, WhenHavingSuccessAndMoveAssignmentCallsOrElse)
 {
     expected<int, TestError> sut{success<int>(1143)};
     auto movedValue = std::move(sut);
-    int a = 0;
-    sut.and_then([&](auto& value) { a = value; }).or_else([&](auto&) { a = 5; });
-    EXPECT_THAT(a, Eq(0));
+    TestError error{TestError::ERROR1};
+    sut.and_then([&](auto&) { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
+    EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
 }
 
-TEST_F(expected_test, WhenHavingAnErrorAndMoveAssignmentCallsNothing)
+TEST_F(expected_test, WhenHavingAnErrorAndMoveAssignmentCallsOrElse)
 {
     expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
     auto movedValue = std::move(sut);
-    int a = 0;
-    sut.and_then([&](auto& value) { a = value; }).or_else([&](auto&) { a = 7; });
-    EXPECT_THAT(a, Eq(0));
+    TestError error{TestError::ERROR1};
+    sut.and_then([&](auto&) { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
+    EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessAndMoveAssignmentCallsNothing)
+TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessAndMoveAssignmentCallsOrElse)
 {
     expected<TestError> sut{success<>()};
     auto movedValue = std::move(sut);
-    int a = 0;
-    sut.and_then([&]() { a = 54; }).or_else([&](auto&) { a = 8; });
-    EXPECT_THAT(a, Eq(0));
+    TestError error{TestError::ERROR1};
+    sut.and_then([&]() { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
+    EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorAndMoveAssignmentCallsNothing)
+TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorAndMoveAssignmentCallsOrElse)
 {
     expected<TestError> sut{error<TestError>(TestError::ERROR1)};
     auto movedValue = std::move(sut);
-    int a = 0;
-    sut.and_then([&]() { a = 45; }).or_else([&](auto&) { a = 9; });
-    EXPECT_THAT(a, Eq(0));
+    TestError error{TestError::ERROR1};
+    sut.and_then([&]() { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
+    EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
 }
 
 TEST_F(expected_test, ConvertNonEmptySuccessResultToErrorTypeOnlyResult)

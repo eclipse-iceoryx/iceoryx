@@ -141,7 +141,7 @@ Whether it is appropriate to use ``cxx::expected`` even if STL compatibility is 
 
 It should be noted that since currently `Expects` and `Ensures` are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
 
-Do not use `std::terminate` directly but use assert-like constructs such as ``Expects``, ``Ensures`` or ``assert`` or something else.
+Do not use `std::terminate` directly but use assert-like constructs such as ``Expects`` or ``Ensures``.
 
 ### Interface for 3rd Party Code
 
