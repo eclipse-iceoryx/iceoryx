@@ -100,11 +100,11 @@ SharedMemoryObject::SharedMemoryObject(const SharedMemory::Name_t& name,
                 sigbusErrorMessage,
                 SIGBUS_ERROR_MESSAGE_LENGTH,
                 "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
-                "shared memory object with the following properties [ name = %s, sizeInBytes = %lu, access mode = %s, "
+                "shared memory object with the following properties [ name = %s, sizeInBytes = %llu, access mode = %s, "
                 "ownership = %s, baseAddressHint = %p, permissions = %lu ] maybe requires more memory than it is "
                 "currently available in the system.\n",
                 name.c_str(),
-                memorySizeInBytes,
+                static_cast<unsigned long long>(memorySizeInBytes),
                 ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)],
                 OWNERSHIP_STRING[static_cast<uint64_t>(ownerShip)],
                 baseAddressHint,
