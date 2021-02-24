@@ -262,31 +262,19 @@ TEST_F(expected_test, ValueOrWithErrorReturnsGivenValue)
     EXPECT_THAT(sut.value_or(90), Eq(90));
 }
 
-TEST_F(expected_test, ValueOrWithErrorReturnsStoredValue)
-{
-    auto sut = expected<int, TestError>::create_value(165);
-    EXPECT_THAT(sut.value_or(90), Eq(165));
-}
-
-TEST_F(expected_test, GetValueOrWithError)
-{
-    auto sut = expected<int, TestError>::create_error(TestError::ERROR2);
-    EXPECT_THAT(sut.value_or(15), Eq(15));
-}
-
-TEST_F(expected_test, ConstGetValueOrWithError)
+TEST_F(expected_test, ConstValueOrWithErrorReturnsGivenValue)
 {
     const auto sut = expected<int, TestError>::create_error(TestError::ERROR1);
     EXPECT_THAT(sut.value_or(51), Eq(51));
 }
 
-TEST_F(expected_test, GetValueOrWithSuccess)
+TEST_F(expected_test, ValueOrWithSuccessReturnsStoredValue)
 {
     auto sut = expected<int, TestError>::create_value(999);
     EXPECT_THAT(sut.value_or(15), Eq(999));
 }
 
-TEST_F(expected_test, ConstGetValueOrWithSuccess)
+TEST_F(expected_test, ConstValueOrWithSuccessReturnsStoredValue)
 {
     const auto sut = expected<int, TestError>::create_value(652);
     EXPECT_THAT(sut.value_or(15), Eq(652));
@@ -423,10 +411,10 @@ TEST_F(expected_test, ErrorTypeOnlyConstWhenHavingAnErrorCallsOrElse)
 TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessCallsAndThen)
 {
     expected<TestError> sut{success<>()};
-    TestError error;
-    sut.and_then([&]() { error = TestError::ERROR1; }).or_else([&](auto& r) { error = r; });
+    int a = 0;
+    sut.and_then([&]() { a = 65; }).or_else([&](auto&) { a = 111111; });
 
-    EXPECT_THAT(error, Eq(TestError::ERROR1));
+    EXPECT_THAT(a, Eq(65));
 }
 
 TEST_F(expected_test, WhenHavingSuccessCallsAndThen)
