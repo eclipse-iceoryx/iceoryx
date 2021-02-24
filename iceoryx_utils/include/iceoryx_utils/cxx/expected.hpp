@@ -273,6 +273,7 @@ class expected<ErrorType>
     ///         a reference to the ErrorType is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains an error
     /// @return const reference to the expected itself
+    /// @note if the expected contains an INVALID_STATE the callable is not called
     /// @code
     ///     someExpected.or_else([](float& error){
     ///         std::cout << "error occured : " << error << std::endl;
@@ -284,6 +285,7 @@ class expected<ErrorType>
     ///         a reference to the ErrorType is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains an error
     /// @return const reference to the expected itself
+    /// @note if the expected contains an INVALID_STATE the callable is not called
     /// @code
     ///     someExpected.or_else([](float& error){
     ///         std::cout << "error occured : " << error << std::endl;
@@ -505,6 +507,7 @@ class expected<ValueType, ErrorType>
     ///         a reference to the ErrorType is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains an error
     /// @return const reference to the expected itself
+    /// @note if the expected contains an INVALID_STATE the callable is not called
     /// @code
     ///     someExpected.or_else([](float& result){
     ///         std::cout << "error occured : " << error << std::endl;
@@ -516,6 +519,7 @@ class expected<ValueType, ErrorType>
     ///         a reference to the ErrorType is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains an error
     /// @return reference to the expected itself
+    /// @note if the expected contains an INVALID_STATE the callable is not called
     /// @code
     ///     someExpected.or_else([](float& error){
     ///         std::cout << "error occured : " << error << std::endl;
