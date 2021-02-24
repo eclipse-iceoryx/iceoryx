@@ -70,18 +70,28 @@ struct SamplePrivateData<const T>
 template <typename T>
 class Sample
 {
+    template <typename S, typename TT>
+    using ForPublisherOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<S>::value, S>;
+
+    template <typename S, typename TT>
+    using ForSubscriberOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<S>::value, S>;
+
+    template <typename S, typename TT>
+    using myFuncyEnableIf =
+        std::enable_if_t<std::is_same<S, TT>::value && !std::is_same<S, void>::value && !std::is_const<S>::value, S>;
+
   public:
     /// @brief constructor for a Sample used by the Publisher
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param samplePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param publisher is a reference to the publisher to be able to use the `publish` and `release` methods
-    template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_const<S>::value, S>>
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
     Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher);
 
     /// @brief constructor for a Sample used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
     /// @param samplePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
-    template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && std::is_const<S>::value, S>>
+    template <typename S = T, typename = ForSubscriberOnly<S, T>>
     Sample(cxx::unique_ptr<T>&& samplePtr) noexcept;
 
     Sample(std::nullptr_t) noexcept;
@@ -99,7 +109,7 @@ class Sample
     /// @return a pointer to the encapsulated type.
     /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_const<S>::value, S>>
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
     T* operator->() noexcept;
 
     ///
@@ -113,19 +123,14 @@ class Sample
     /// @return A T& to the encapsulated type.
     /// @details Only available for non-const type T.
     ///
-    template <
-        typename S = T,
-        typename =
-            std::enable_if_t<std::is_same<S, T>::value && !std::is_same<S, void>::value && !std::is_const<S>::value, S>>
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
     S& operator*() noexcept;
 
     ///
     /// @brief operator* Provide a const reference to the encapsulated type.
     /// @return A const T& to the encapsulated type.
     ///
-    template <typename S = T,
-              typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_same<S, void>::value, S>>
-    const S& operator*() const noexcept;
+    const T& operator*() const noexcept;
 
     ///
     /// @brief operator bool Indciates whether the sample is valid, i.e. refers to allocated memory.
@@ -138,7 +143,7 @@ class Sample
     /// @return a pointer to the encapsulated type.
     /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_const<S>::value, S>>
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
     T* get() noexcept;
 
     ///
@@ -152,7 +157,7 @@ class Sample
     /// @return The ChunkHeader of the underlying memory chunk.
     /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_const<S>::value, S>>
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
     mepoo::ChunkHeader* getHeader() noexcept;
 
     ///
@@ -166,14 +171,14 @@ class Sample
     /// release ownership to it.
     /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_const<S>::value, S>>
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
     void publish() noexcept;
 
     ///
     /// @brief release Manually transfers ownership of the loaned memory chunk back to the mempool.
     /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = std::enable_if_t<std::is_same<S, T>::value && !std::is_const<S>::value, S>>
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
     void release() noexcept;
 
   protected:
