@@ -24,65 +24,23 @@ namespace popo
 {
 namespace internal
 {
-// ============================== SamplePrivateData<T> ========================= //
 template <typename T>
-inline SamplePrivateData<T>::SamplePrivateData(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
+inline SamplePrivateData<T>::SamplePrivateData(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher) noexcept
     : samplePtr(std::move(samplePtr))
     , publisherRef(publisher)
 {
 }
 
 template <typename T>
-inline SamplePrivateData<T>& SamplePrivateData<T>::operator=(SamplePrivateData<T>&& rhs)
-{
-    if (this != &rhs)
-    {
-        publisherRef = rhs.publisherRef;
-        samplePtr = std::move(rhs.samplePtr);
-        rhs.samplePtr = nullptr;
-    }
-    return *this;
-}
-
-template <typename T>
-inline SamplePrivateData<T>::SamplePrivateData(SamplePrivateData<T>&& rhs)
-    : samplePtr(std::move(rhs.samplePtr))
-    , publisherRef(std::move(rhs.publisherRef))
-{
-    rhs.samplePtr = nullptr;
-}
-
-// ============================== SamplePrivateData<const T> ========================= //
-
-template <typename T>
 inline SamplePrivateData<const T>::SamplePrivateData(cxx::unique_ptr<const T>&& samplePtr) noexcept
     : samplePtr(std::move(samplePtr))
 {
 }
-
-template <typename T>
-inline SamplePrivateData<const T>& SamplePrivateData<const T>::operator=(SamplePrivateData<const T>&& rhs)
-{
-    if (this != &rhs)
-    {
-        samplePtr = std::move(rhs.samplePtr);
-        rhs.samplePtr = nullptr;
-    }
-    return *this;
-}
-
-template <typename T>
-inline SamplePrivateData<const T>::SamplePrivateData(SamplePrivateData<const T>&& rhs)
-    : samplePtr(std::move(rhs.samplePtr))
-{
-    rhs.samplePtr = nullptr;
-}
 } // namespace internal
 
-// ============================== Sample<T> ========================= //
 template <typename T>
 template <typename S, typename>
-inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
+inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher) noexcept
     : m_members({std::move(samplePtr), publisher})
 {
 }
@@ -95,31 +53,9 @@ inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
 }
 
 template <typename T>
-inline Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
-{
-    if (this != &rhs)
-    {
-        m_members = std::move(rhs.m_members);
-    }
-    return *this;
-}
-
-template <typename T>
-inline Sample<T>::Sample(Sample<T>&& rhs)
-    : m_members(std::move(rhs.m_members))
-{
-}
-
-template <typename T>
-inline Sample<T>::~Sample()
-{
-    m_members.samplePtr = nullptr;
-}
-
-template <typename T>
 inline Sample<T>::Sample(std::nullptr_t) noexcept
 {
-    m_members.samplePtr = nullptr; // The pointer will take care of cleaning up resources.
+    m_members.samplePtr.reset();
 }
 
 template <typename T>
@@ -149,7 +85,7 @@ inline const T& Sample<T>::operator*() const noexcept
 }
 
 template <typename T>
-inline Sample<T>::operator bool() const
+inline Sample<T>::operator bool() const noexcept
 {
     return get() != nullptr;
 }
