@@ -25,37 +25,38 @@ namespace popo
 namespace internal
 {
 template <typename T>
-inline SamplePrivateData<T>::SamplePrivateData(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher) noexcept
-    : samplePtr(std::move(samplePtr))
+inline SamplePrivateData<T>::SamplePrivateData(cxx::unique_ptr<T>&& sampleUniquePtr,
+                                               PublisherInterface<T>& publisher) noexcept
+    : sampleUniquePtr(std::move(sampleUniquePtr))
     , publisherRef(publisher)
 {
 }
 
 template <typename T>
-inline SamplePrivateData<const T>::SamplePrivateData(cxx::unique_ptr<const T>&& samplePtr) noexcept
-    : samplePtr(std::move(samplePtr))
+inline SamplePrivateData<const T>::SamplePrivateData(cxx::unique_ptr<const T>&& sampleUniquePtr) noexcept
+    : sampleUniquePtr(std::move(sampleUniquePtr))
 {
 }
 } // namespace internal
 
 template <typename T>
 template <typename S, typename>
-inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher) noexcept
-    : m_members({std::move(samplePtr), publisher})
+inline Sample<T>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T>& publisher) noexcept
+    : m_members({std::move(sampleUniquePtr), publisher})
 {
 }
 
 template <typename T>
 template <typename S, typename>
-inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
-    : m_members(std::move(samplePtr))
+inline Sample<T>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept
+    : m_members(std::move(sampleUniquePtr))
 {
 }
 
 template <typename T>
 inline Sample<T>::Sample(std::nullptr_t) noexcept
 {
-    m_members.samplePtr.reset();
+    m_members.sampleUniquePtr.reset();
 }
 
 template <typename T>
@@ -94,33 +95,33 @@ template <typename T>
 template <typename S, typename>
 inline T* Sample<T>::get() noexcept
 {
-    return m_members.samplePtr.get();
+    return m_members.sampleUniquePtr.get();
 }
 
 template <typename T>
 inline const T* Sample<T>::get() const noexcept
 {
-    return m_members.samplePtr.get();
+    return m_members.sampleUniquePtr.get();
 }
 
 template <typename T>
 template <typename S, typename>
 inline mepoo::ChunkHeader* Sample<T>::getHeader() noexcept
 {
-    return mepoo::ChunkHeader::fromPayload(m_members.samplePtr.get());
+    return mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get());
 }
 
 template <typename T>
 inline const mepoo::ChunkHeader* Sample<T>::getHeader() const noexcept
 {
-    return mepoo::ChunkHeader::fromPayload(m_members.samplePtr.get());
+    return mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get());
 }
 
 template <typename T>
 template <typename S, typename>
 inline void Sample<T>::publish() noexcept
 {
-    if (m_members.samplePtr)
+    if (m_members.sampleUniquePtr)
     {
         m_members.publisherRef.get().publish(std::move(*this));
     }
@@ -135,7 +136,7 @@ template <typename T>
 template <typename S, typename>
 inline void Sample<T>::release() noexcept
 {
-    m_members.samplePtr.reset();
+    m_members.sampleUniquePtr.reset();
 }
 
 } // namespace popo

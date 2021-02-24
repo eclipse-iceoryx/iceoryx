@@ -34,7 +34,7 @@ namespace internal
 template <typename T>
 struct SamplePrivateData
 {
-    SamplePrivateData(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher) noexcept;
+    SamplePrivateData(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T>& publisher) noexcept;
 
     SamplePrivateData(SamplePrivateData&& rhs) noexcept = default;
     SamplePrivateData& operator=(SamplePrivateData&& rhs) noexcept = default;
@@ -42,7 +42,7 @@ struct SamplePrivateData
     SamplePrivateData(const SamplePrivateData&) = delete;
     SamplePrivateData& operator=(const SamplePrivateData&) = delete;
 
-    cxx::unique_ptr<T> samplePtr;
+    cxx::unique_ptr<T> sampleUniquePtr;
     std::reference_wrapper<PublisherInterface<T>> publisherRef;
 };
 
@@ -50,7 +50,7 @@ struct SamplePrivateData
 template <typename T>
 struct SamplePrivateData<const T>
 {
-    SamplePrivateData(cxx::unique_ptr<const T>&& samplePtr) noexcept;
+    SamplePrivateData(cxx::unique_ptr<const T>&& sampleUniquePtr) noexcept;
 
     SamplePrivateData(SamplePrivateData&& rhs) noexcept = default;
     SamplePrivateData& operator=(SamplePrivateData&& rhs) noexcept = default;
@@ -58,7 +58,7 @@ struct SamplePrivateData<const T>
     SamplePrivateData(const SamplePrivateData&) = delete;
     SamplePrivateData& operator=(const SamplePrivateData&) = delete;
 
-    cxx::unique_ptr<const T> samplePtr;
+    cxx::unique_ptr<const T> sampleUniquePtr;
 };
 } // namespace internal
 
@@ -78,16 +78,16 @@ class Sample
   public:
     /// @brief constructor for a Sample used by the Publisher
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
-    /// @param samplePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param sampleUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param publisher is a reference to the publisher to be able to use the `publish` and `release` methods
     template <typename S = T, typename = ForPublisherOnly<S, T>>
-    Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher) noexcept;
+    Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T>& publisher) noexcept;
 
     /// @brief constructor for a Sample used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
-    /// @param samplePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param sampleUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     template <typename S = T, typename = ForSubscriberOnly<S, T>>
-    Sample(cxx::unique_ptr<T>&& samplePtr) noexcept;
+    Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept;
 
     Sample(std::nullptr_t) noexcept;
     ~Sample() noexcept = default;
