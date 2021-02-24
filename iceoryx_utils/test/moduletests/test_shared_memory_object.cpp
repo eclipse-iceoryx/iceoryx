@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,22 +51,31 @@ class SharedMemoryObject_Test : public Test
 
 TEST_F(SharedMemoryObject_Test, CTorWithValidArguments)
 {
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/validShmMem", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
-    EXPECT_THAT(sut.has_value(), Eq(true));
+    auto sut = iox::posix::SharedMemoryObject::create("/validShmMem",
+                                                      100,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::MINE,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
+    EXPECT_THAT(sut.has_error(), Eq(false));
 }
 
 TEST_F(SharedMemoryObject_Test, CTorOpenNonExistingSharedMemoryObject)
 {
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/pummeluff", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::openExisting, nullptr);
-    EXPECT_THAT(sut.has_value(), Eq(false));
+    auto sut = iox::posix::SharedMemoryObject::create("/pummeluff",
+                                                      100,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::OPEN_EXISTING,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
+    EXPECT_THAT(sut.has_error(), Eq(true));
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
 {
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 16, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+    auto sut = iox::posix::SharedMemoryObject::create("/shmAllocate",
+                                                      16,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::MINE,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
     int* test = static_cast<int*>(sut->allocate(sizeof(int), 1));
     ASSERT_THAT(test, Ne(nullptr));
     *test = 123;
@@ -74,8 +84,11 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
 
 TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithOneChunk)
 {
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+    auto sut = iox::posix::SharedMemoryObject::create("/shmAllocate",
+                                                      8,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::MINE,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
 
     void* test = sut->allocate(8, 1);
     ASSERT_THAT(test, Ne(nullptr));
@@ -83,8 +96,11 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithOneChunk)
 
 TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
 {
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+    auto sut = iox::posix::SharedMemoryObject::create("/shmAllocate",
+                                                      8,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::MINE,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
 
     for (uint64_t i = 0; i < 8; ++i)
     {
@@ -96,8 +112,11 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 {
     uint64_t memorySize{8u};
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+    auto sut = iox::posix::SharedMemoryObject::create("/shmAllocate",
+                                                      memorySize,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::MINE,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
 
     PerformDeathTest([&] { sut->allocate(cxx::align(memorySize, posix::Allocator::MEMORY_ALIGNMENT) + 1, 1); });
 }
@@ -105,8 +124,11 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 {
     uint64_t memorySize{8u};
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+    auto sut = iox::posix::SharedMemoryObject::create("/shmAllocate",
+                                                      memorySize,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::MINE,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
 
     for (uint64_t i = 0; i < cxx::align(memorySize, posix::Allocator::MEMORY_ALIGNMENT); ++i)
     {
@@ -119,8 +141,11 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 
 TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)
 {
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+    auto sut = iox::posix::SharedMemoryObject::create("/shmAllocate",
+                                                      8,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::MINE,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
     sut->finalizeAllocation();
 
     PerformDeathTest([&] { sut->allocate(2, 1); });
@@ -129,15 +154,21 @@ TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)
 TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
 {
     uint64_t memorySize = 128;
-    auto shmMemory = iox::posix::SharedMemoryObject::create(
-        "/shmSut", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+    auto shmMemory = iox::posix::SharedMemoryObject::create("/shmSut",
+                                                            memorySize,
+                                                            iox::posix::AccessMode::READ_WRITE,
+                                                            iox::posix::OwnerShip::MINE,
+                                                            iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
     int* test = static_cast<int*>(shmMemory->allocate(sizeof(int), 1));
     *test = 4557;
     int* test2 = static_cast<int*>(shmMemory->allocate(sizeof(int), 1));
     *test2 = 8912;
 
-    auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmSut", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::openExisting, nullptr);
+    auto sut = iox::posix::SharedMemoryObject::create("/shmSut",
+                                                      memorySize,
+                                                      iox::posix::AccessMode::READ_WRITE,
+                                                      iox::posix::OwnerShip::OPEN_EXISTING,
+                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
     int* sutValue1 = static_cast<int*>(sut->allocate(sizeof(int), 1));
     int* sutValue2 = static_cast<int*>(sut->allocate(sizeof(int), 1));
 
