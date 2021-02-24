@@ -73,18 +73,6 @@ ActiveCallSet::addEvent(void* const origin,
     return cxx::success<uint32_t>(index);
 }
 
-void ActiveCallSet::removeEvent(void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept
-{
-    for (uint32_t index = 0U; index < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++index)
-    {
-        if (m_events[index]->resetIfEqualTo(origin, eventType, eventTypeHash))
-        {
-            m_indexManager.push(index);
-            break;
-        }
-    }
-}
-
 uint64_t ActiveCallSet::size() const noexcept
 {
     return m_indexManager.indicesInUse();
@@ -153,13 +141,6 @@ bool ActiveCallSet::Event_t::isEqualTo(const void* const origin,
                                        const uint64_t eventTypeHash) const noexcept
 {
     return (m_origin == origin && m_eventType == eventType && m_eventTypeHash == eventTypeHash);
-}
-
-bool ActiveCallSet::Event_t::resetIfEqualTo(const void* const origin,
-                                            const uint64_t eventType,
-                                            const uint64_t eventTypeHash) noexcept
-{
-    return (isEqualTo(origin, eventType, eventTypeHash)) ? reset() : false;
 }
 
 bool ActiveCallSet::Event_t::reset() noexcept

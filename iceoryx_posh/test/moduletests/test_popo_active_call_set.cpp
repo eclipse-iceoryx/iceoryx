@@ -482,6 +482,49 @@ TEST_F(ActiveCallSet_test, AttachedEventDTorDetachesItself)
     EXPECT_THAT(m_sut->size(), Eq(0U));
 }
 
+TEST_F(ActiveCallSet_test, AttachingSimpleEventSetsTriggerHandle)
+{
+    SimpleEventClass fuu;
+    m_sut->attachEvent(fuu, ActiveCallSet_test::triggerCallback<0U>);
+
+    EXPECT_TRUE(static_cast<bool>(fuu.m_handleHypnotoad));
+}
+
+TEST_F(ActiveCallSet_test, DetachingSimpleEventResetsTriggerHandle)
+{
+    SimpleEventClass fuu;
+    m_sut->attachEvent(fuu, ActiveCallSet_test::triggerCallback<0U>);
+    m_sut->detachEvent(fuu);
+
+    EXPECT_FALSE(static_cast<bool>(fuu.m_handleHypnotoad));
+}
+
+TEST_F(ActiveCallSet_test, AttachingEventWithEnumSetsTriggerHandle)
+{
+    SimpleEventClass fuu;
+    m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0U>);
+
+    EXPECT_TRUE(static_cast<bool>(fuu.m_handleStoepsel));
+}
+
+TEST_F(ActiveCallSet_test, DetachingEventWithEnumResetsTriggerHandle)
+{
+    SimpleEventClass fuu;
+    m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0U>);
+    m_sut->detachEvent(fuu, SimpleEvent::StoepselBachelorParty);
+
+    EXPECT_FALSE(static_cast<bool>(fuu.m_handleStoepsel));
+}
+
+TEST_F(ActiveCallSet_test, DetachingNonAttachedEventResetsNothing)
+{
+    SimpleEventClass fuu;
+    m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, ActiveCallSet_test::triggerCallback<0U>);
+    m_sut->detachEvent(fuu, SimpleEvent::Hypnotoad);
+
+    EXPECT_TRUE(static_cast<bool>(fuu.m_handleStoepsel));
+}
+
 ///////////////////////////////////
 // calling callbacks
 ///////////////////////////////////

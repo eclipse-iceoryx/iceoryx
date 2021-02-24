@@ -123,7 +123,6 @@ class ActiveCallSet
              CallbackRef_t<void> callback,
              TranslationCallbackRef_t translationCallback,
              const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
-    void removeEvent(void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept;
 
     void removeTrigger(const uint64_t index) noexcept;
 
@@ -139,7 +138,6 @@ class ActiveCallSet
         ~Event_t();
 
         bool isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept;
-        bool resetIfEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) noexcept;
         bool reset() noexcept;
         void init(const uint64_t eventId,
                   void* const origin,

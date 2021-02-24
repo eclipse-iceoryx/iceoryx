@@ -65,13 +65,13 @@ ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRe
 template <typename T, typename EventType, typename>
 inline void ActiveCallSet::detachEvent(T& eventOrigin, const EventType eventType) noexcept
 {
-    removeEvent(&eventOrigin, static_cast<uint64_t>(eventType), typeid(EventType).hash_code());
+    EventAttorney::disableEvent(eventOrigin, eventType);
 }
 
 template <typename T>
 inline void ActiveCallSet::detachEvent(T& eventOrigin) noexcept
 {
-    detachEvent(eventOrigin, NoEnumUsed::PLACEHOLDER);
+    EventAttorney::disableEvent(eventOrigin);
 }
 
 inline constexpr uint64_t ActiveCallSet::capacity() noexcept
