@@ -43,6 +43,24 @@ enum class ActiveCallSetError
 /// @brief The ActiveCallSet is a class which reacts to registered events by
 ///        executing a corresponding callback concurrently. This is achieved via
 ///        an encapsulated thread inside this class.
+/// @note  The ActiveCallSet is threadsafe and can be used without any restrictions concurrently.
+/// @attention Calling detachEvent for the same event from multiple threads is supported but
+///            can cause a race conditions if you attach the same event again concurrently from
+///            another thread.
+///            Example:
+///             1. One calls detachEvent [1] from thread A, B and C
+///             2. thread B wins and detaches event [1]
+///             3. A new thread D spawns and would like to attach event [1] again while thread A and C are
+///                 still waiting to detach [1].
+///             4. Thread A wins but cannot detach event [1] since it is not attached.
+///             5. Thread D wins and attaches event [1].
+///             6. Finally thread C can continue and detaches event [1] again.
+///
+///            If thread D is executed last then the event is attached. So depending on the operating
+///            system defined execution order the event is either attached or detached.
+///
+///            Best practice: Detach a specific event only from one specific thread and not
+///                           from multiple contexts.
 class ActiveCallSet
 {
   public:

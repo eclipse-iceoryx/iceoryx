@@ -611,13 +611,8 @@ TEST_F(PortManager_test, DestroyEventVariableAndAddNewOneSucceeds)
     acquireMaxNumberOfEventVariables(
         process, [&](auto eventVariableData) { eventVariableContainer.push_back(eventVariableData); });
 
-    // set the destroy flag and let the discovery loop take care
-    for (const auto& eventVariable : eventVariableContainer)
-    {
-        eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
-    }
+    setDestroyFlagAndClearContainer(eventVariableContainer);
     m_portManager->doDiscovery();
-    eventVariableContainer.clear();
 
     // we should be able to get some more now
     acquireMaxNumberOfEventVariables(process);
