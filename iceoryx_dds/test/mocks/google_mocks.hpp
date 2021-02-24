@@ -34,7 +34,6 @@
 using namespace ::testing;
 using ::testing::_;
 
-// template <typename T>
 class MockPublisher
 {
   public:
@@ -47,7 +46,6 @@ class MockPublisher
     MOCK_CONST_METHOD0(hasSubscribers, bool(void));
 };
 
-// template <typename T>
 class MockSubscriber
 {
   public:
