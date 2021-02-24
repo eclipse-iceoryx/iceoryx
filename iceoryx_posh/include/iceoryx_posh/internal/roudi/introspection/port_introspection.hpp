@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -184,10 +185,21 @@ class PortIntrospection
 
         void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic) noexcept;
 
-        /// @brief compute the next connection state based on the current connection state and a capro message type
+        /// @brief compute the next connection state based on the current connection state and a capro message type when
+        /// the communication policy is OneToMany
         /// @param[in] currentState current connection state (e.g. CONNECTED)
         /// @param[in] messageType capro message type
         /// @return returns the new connection state
+        template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+        PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
+                                                        capro::CaproMessageType messageType) noexcept;
+
+        /// @brief compute the next connection state based on the current connection state and a capro message type when
+        /// the communication policy is ManyToMany
+        /// @param[in] currentState current connection state (e.g. CONNECTED)
+        /// @param[in] messageType capro message type
+        /// @return returns the new connection state
+        template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
         PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
                                                         capro::CaproMessageType messageType) noexcept;
 
