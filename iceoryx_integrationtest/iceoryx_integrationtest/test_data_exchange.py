@@ -59,8 +59,10 @@ def generate_test_description():
         launch_testing.actions.ReadyToTest()
     ]), {'roudi_process': roudi_process, 'publisher_process': publisher_process, 'subscriber_process': subscriber_process}
 
-#These tests will run concurrently with the dut process. After this test is done,
-#the launch system will shut down RouDi
+# These tests will run concurrently with the dut process. After this test is done,
+# the launch system will shut down RouDi
+
+
 class TestProcess(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
@@ -79,6 +81,8 @@ class TestProcess(unittest.TestCase):
             'Got value: 5', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
+
+
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
     def test_exit_code(self, proc_info):

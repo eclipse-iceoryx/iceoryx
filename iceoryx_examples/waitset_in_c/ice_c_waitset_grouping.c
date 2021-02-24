@@ -117,6 +117,7 @@ int main()
                 if (iox_sub_get_chunk(subscriber, &chunk))
                 {
                     printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                    fflush(stdout);
 
                     iox_sub_release_chunk(subscriber, chunk);
                 }

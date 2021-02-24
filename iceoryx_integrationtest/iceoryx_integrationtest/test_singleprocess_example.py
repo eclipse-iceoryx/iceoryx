@@ -33,58 +33,51 @@ def generate_test_description():
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
 
-    roudi_executable = ExecutableInPackage(
-        package='iceoryx_integrationtest', executable='iox-roudi')
-    roudi_process = launch.actions.ExecuteProcess(
-        cmd=[roudi_executable, '-l', 'debug'],
-        env=proc_env, output='screen',
-        sigterm_timeout='20'
-    )
+    # roudi_executable = ExecutableInPackage(
+    #     package='iceoryx_integrationtest', executable='iox-roudi')
+    # roudi_process = launch.actions.ExecuteProcess(
+    #     cmd=[roudi_executable, '-l', 'debug'],
+    #     env=proc_env, output='screen',
+    #     sigterm_timeout='20'
+    # )
 
-    publisher_c_executable = os.path.join(
+    singleprocess_ex_executable = os.path.join(
         colcon_prefix_path,
-        'example_icedelivery_in_c/bin/',
-        'iox-c-publisher'
+        'example_singleprocess/bin/',
+        'single_process'
     )
-    publisher_c_process = launch.actions.ExecuteProcess(
-        cmd=[publisher_c_executable],
-        env=proc_env, output='screen')
-
-    subscriber_c_executable = os.path.join(
-        colcon_prefix_path,
-        'example_icedelivery_in_c/bin/',
-        'iox-c-subscriber'
-    )
-    subscriber_c_process = launch.actions.ExecuteProcess(
-        cmd=[subscriber_c_executable],
+    singleprocess_ex_process = launch.actions.ExecuteProcess(
+        cmd=[singleprocess_ex_executable],
         env=proc_env, output='screen')
 
     return launch.LaunchDescription([
-        publisher_c_process,
-        subscriber_c_process,
-        roudi_process,
+        singleprocess_ex_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'roudi_process': roudi_process, 'publisher_c_process': publisher_c_process, 'subscriber_c_process': subscriber_c_process}
+    ]), {'singleprocess_ex_process': singleprocess_ex_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
 
 
-class TestIcedeliveryInCExample(unittest.TestCase):
+class TestSingleProcessExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_icedelivery_in_c_data_exchange(self, proc_output):
+    def test_singleprocess_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Sent value: 5', timeout=45, stream='stdout')
+            'Sending   '+'\033[32m->\033[m '+'10', strip_ansi_escape_sequences=False, timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Got value: 5', timeout=45, stream='stdout')
+            'Receiving '+'\033[33m<-\033[m '+'10', strip_ansi_escape_sequences=False, timeout=45, stream='stdout')
+
+    def test_singleprocess_finished(self, proc_output):
+        proc_output.assertWaitFor(
+            'Finished', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
 
 @launch_testing.post_shutdown_test()
-class TestIcedeliveryInCExampleExitCodes(unittest.TestCase):
+class TestSingleProcessExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

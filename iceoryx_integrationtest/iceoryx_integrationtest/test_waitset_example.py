@@ -32,6 +32,22 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
+    executable_list = ['iox-ex-waitset-publisher', 'iox-ex-waitset-gateway',
+                       'iox-ex-waitset-grouping', 'iox-ex-waitset-individual',
+                       'iox-ex-waitset-sync', 'iox-ex-waitset-trigger']
+    process_list = []
+
+    for exec in executable_list:
+        tmp_exec = os.path.join(
+            colcon_prefix_path,
+            'example_waitset/bin/',
+            exec)
+        tmp_process = launch.actions.ExecuteProcess(
+            cmd=[tmp_exec],
+            env=proc_env, output='screen')
+        process_list.append(tmp_process)
+
+    print("Process list:", process_list)
 
     roudi_executable = ExecutableInPackage(
         package='iceoryx_integrationtest', executable='iox-roudi')
@@ -41,54 +57,46 @@ def generate_test_description():
         sigterm_timeout='20'
     )
 
-    multi_publisher_executable = os.path.join(
-        colcon_prefix_path,
-        'example_multi_publisher/bin/',
-        'iox-multi-publisher'
-    )
-    multi_publisher_process = launch.actions.ExecuteProcess(
-        cmd=[multi_publisher_executable],
-        env=proc_env, output='screen')
-
-    multi_subscriber_executable = os.path.join(
-        colcon_prefix_path,
-        'example_multi_publisher/bin/',
-        'iox-multi-subscriber'
-    )
-    multi_subscriber_process = launch.actions.ExecuteProcess(
-        cmd=[multi_subscriber_executable],
-        env=proc_env, output='screen')
-
     return launch.LaunchDescription([
+        process_list[0],
+        process_list[1],
+        process_list[2],
+        process_list[3],
+        process_list[4],
         roudi_process,
-        multi_publisher_process,
-        multi_subscriber_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'roudi_process': roudi_process, 'multi_publisher_process': multi_publisher_process, 'multi_subscriber_process': multi_subscriber_process}
+    ]), {'iox-ex-waitset-publisher': process_list[0], 'iox-ex-waitset-gateway': process_list[1],
+         'iox-ex-waitset-grouping': process_list[2], 'iox-ex-waitset-individual': process_list[3],
+         'iox-ex-waitset-sync': process_list[4], 'roudi_process': roudi_process}
 
-# These tests will run concurrently with the dut process. After this test is done,
-# the launch system will shut down RouDi
 
-
-class TestMultiPublisherExample(unittest.TestCase):
+class TestWaitSetExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_multi_publisher_data_exchange(self, proc_output):
+    def test_waitset_publisher(self, proc_output):
         proc_output.assertWaitFor(
-            'Counter Instance sending: id 1 counter 5', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'Counter Instance sending: id 2 counter 5', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'Received: id 1 counter 5', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'Received: id 2 counter 5', timeout=45, stream='stdout')
+            'Sending: 10', timeout=45, stream='stdout')
 
-# These tests run after shutdown and examine the stdout log
+    def test_waitset_grouping(self, proc_output):
+        proc_output.assertWaitFor(
+            'dismiss data', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'received: 10', timeout=45, stream='stdout')
+
+    def test_waitset_individual(self, proc_output):
+        proc_output.assertWaitFor(
+            'subscriber 2 received something - dont care', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'subscriber 1 received: 10', timeout=45, stream='stdout')
+
+    def test_waitset_sync(self, proc_output):
+        proc_output.assertWaitFor(
+            'activation callback', timeout=45, stream='stdout')
 
 
-@launch_testing.post_shutdown_test()
-class TestMultiPublisherExampleExitCodes(unittest.TestCase):
+@ launch_testing.post_shutdown_test()
+class TestWaitSetExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

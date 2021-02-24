@@ -32,15 +32,15 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
-    executable_list = ['iox-ex-publisher', 'iox-ex-subscriber',
-                       'iox-ex-publisher-untyped', 'iox-ex-subscriber-untyped',
-                       'iox-ex-publisher-with-history', 'iox-ex-subscriber-with-history']
+    executable_list = ['iox-ex-c-waitset-publisher', 'iox-ex-c-waitset-gateway',
+                       'iox-ex-c-waitset-grouping', 'iox-ex-c-waitset-individual',
+                       'iox-ex-c-waitset-sync']
     process_list = []
 
     for exec in executable_list:
         tmp_exec = os.path.join(
             colcon_prefix_path,
-            'example_icedelivery/bin/',
+            'example_waitset_in_c/bin/',
             exec)
         tmp_process = launch.actions.ExecuteProcess(
             cmd=[tmp_exec],
@@ -63,44 +63,40 @@ def generate_test_description():
         process_list[2],
         process_list[3],
         process_list[4],
-        process_list[5],
         roudi_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'iox-ex-publisher': process_list[0], 'iox-ex-subscriber': process_list[1],
-         'iox-ex-publisher-untyped': process_list[2], 'iox-ex-subscriber-untyped': process_list[3],
-         'iox-ex-publisher-with-history': process_list[4], 'iox-ex-subscriber-with-history': process_list[5], 'roudi_process': roudi_process}
-
-# These tests will run concurrently with the dut process. After this test is done,
-# the launch system will shut down RouDi
+    ]), {'iox-ex-c-waitset-sync': process_list[4], 'iox-ex-c-waitset-gateway': process_list[1],
+         'iox-ex-c-waitset-grouping': process_list[2], 'iox-ex-c-waitset-individual': process_list[3],
+         'iox-ex-c-waitset-publisher': process_list[0], 'roudi_process': roudi_process}
 
 
-class TestIcedeliveryExample(unittest.TestCase):
+class TestWaitSetInCExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_publisher_subscriber_data_exchange(self, proc_output):
+    def test_waitset_in_c_publisher(self, proc_output):
         proc_output.assertWaitFor(
-            'Iox-Publisher sent six times value: 15', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'Iox-Subscriber got value: 15', timeout=45, stream='stdout')
+            'Sending: 10', timeout=45, stream='stdout')
 
-    def test_publisher_subscriber_untyped_data_exchange(self, proc_output):
+    def test_waitset_in_c_grouping(self, proc_output):
         proc_output.assertWaitFor(
-            'Iox-Untyped-Publisher sent two times value: 15', timeout=45, stream='stdout')
+            'dismiss data', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Iox-Untyped-Subscriber got value: 15', timeout=45, stream='stdout')
+            'received: 10', timeout=45, stream='stdout')
 
-    def test_publisher_subscriber_with_history_data_exchange(self, proc_output):
+    def test_waitset_in_c_individual(self, proc_output):
         proc_output.assertWaitFor(
-            'Iox-Publisher-with-history sent value: 15', timeout=45, stream='stdout')
+            'subscriber 2 received something - dont care', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Iox-Subscriber-with-history got value: 15', timeout=45, stream='stdout')
+            'subscriber 1 received: 10', timeout=45, stream='stdout')
 
-# These tests run after shutdown and examine the stdout log
+    def test_waitset__in_c_sync(self, proc_output):
+        proc_output.assertWaitFor(
+            'activation callback', timeout=45, stream='stdout')
 
 
 @ launch_testing.post_shutdown_test()
-class TestIcedeliveryExampleExitCodes(unittest.TestCase):
+class TestWaitSetinCExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

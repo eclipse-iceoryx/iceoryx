@@ -107,6 +107,7 @@ int main()
                 if (iox_sub_get_chunk(subscriber[0U], &chunk))
                 {
                     printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                    fflush(stdout);
 
                     iox_sub_release_chunk(subscriber[0U], chunk);
                 }
@@ -119,6 +120,7 @@ int main()
                 // instantly.
                 iox_sub_release_queued_chunks(subscriber[1U]);
                 printf("subscriber 2 received something - dont care\n");
+                fflush(stdout);
             }
         }
     }

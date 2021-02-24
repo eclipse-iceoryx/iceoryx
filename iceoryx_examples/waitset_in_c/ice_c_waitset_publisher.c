@@ -53,6 +53,7 @@ void sending()
             sample->counter = counter;
 
             printf("Sending: %u\n", counter);
+            fflush(stdout);
 
             iox_pub_send_chunk(publisher, chunk);
 
