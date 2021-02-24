@@ -34,23 +34,20 @@
 using namespace ::testing;
 using ::testing::_;
 
-template <typename T>
+// template <typename T>
 class MockPublisher
 {
   public:
     MockPublisher(const iox::capro::ServiceDescription&, const iox::popo::PublisherOptions&){};
     virtual ~MockPublisher() = default;
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
-    MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
-    MOCK_METHOD1_T(publish, void(iox::popo::Sample<T>&&));
-    MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::Sample<T>>());
     MOCK_METHOD0(offer, void(void));
     MOCK_METHOD0(stopOffer, void(void));
     MOCK_CONST_METHOD0(isOffered, bool(void));
     MOCK_CONST_METHOD0(hasSubscribers, bool(void));
 };
 
-template <typename T>
+// template <typename T>
 class MockSubscriber
 {
   public:
@@ -62,8 +59,6 @@ class MockSubscriber
     MOCK_METHOD0(unsubscribe, void());
     MOCK_CONST_METHOD0(hasData, bool());
     MOCK_METHOD0(hasMissedData, bool());
-    MOCK_METHOD0_T(take,
-                   iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveResult>());
     MOCK_METHOD0(releaseQueuedData, void());
     MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
     MOCK_METHOD0(unsetConditionVariable, bool(void));
