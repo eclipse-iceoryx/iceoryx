@@ -118,17 +118,17 @@ inline const mepoo::ChunkHeader* Sample<T, H>::getHeader() const noexcept
 }
 
 template <typename T, typename H>
-template <typename S, typename>
-inline S& Sample<T, H>::getCustomHeader() noexcept
+template <typename R, typename>
+inline R& Sample<T, H>::getCustomHeader() noexcept
 {
-    return *static_cast<S*>(mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get())->customHeader());
+    return *mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get())->template customHeader<R>();
 }
 
 template <typename T, typename H>
-template <typename S, typename>
-inline const S& Sample<T, H>::getCustomHeader() const noexcept
+template <typename R, typename>
+inline const R& Sample<T, H>::getCustomHeader() const noexcept
 {
-    return *static_cast<const S*>(mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get())->customHeader());
+    return *mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get())->template customHeader<R>();
 }
 
 template <typename T, typename H>

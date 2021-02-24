@@ -66,7 +66,7 @@ struct SamplePrivateData<const T>
 /// @brief The Sample class is a mutable abstraction over types which are written to loaned shared memory.
 /// These samples are publishable to the iceoryx system.
 ///
-template <typename T, typename H = void>
+template <typename T, typename H = mepoo::NoCustomHeader>
 class Sample
 {
     template <typename S, typename TT>
@@ -75,12 +75,15 @@ class Sample
     template <typename S, typename TT>
     using ForSubscriberOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
 
-    template <typename S, typename TT, typename HH>
+    template <typename R, typename TT, typename HH>
     using HasCustomHeaderForPublisherOnly =
-        std::enable_if_t<std::is_same<S, HH>::value && !std::is_same<S, void>::value && !std::is_const<TT>::value, S>;
+        std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoCustomHeader>::value
+                             && !std::is_const<TT>::value,
+                         R>;
 
-    template <typename S, typename HH>
-    using HasCustomHeader = std::enable_if_t<std::is_same<S, HH>::value && !std::is_same<S, void>::value, S>;
+    template <typename R, typename HH>
+    using HasCustomHeader =
+        std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoCustomHeader>::value, R>;
 
   public:
     /// @brief constructor for a Sample used by the Publisher
@@ -172,15 +175,15 @@ class Sample
     /// @return The custom header of the underlying memory chunk.
     /// @details Only available for non-const type T.
     ///
-    template <typename S = H, typename = HasCustomHeaderForPublisherOnly<S, T, H>>
-    S& getCustomHeader() noexcept;
+    template <typename R = H, typename = HasCustomHeaderForPublisherOnly<R, T, H>>
+    R& getCustomHeader() noexcept;
 
     ///
     /// @brief Retrieve the custom header of the underlying memory chunk loaned to the sample.
     /// @return The custom header of the underlying memory chunk.
     ///
-    template <typename S = H, typename = HasCustomHeader<S, H>>
-    const S& getCustomHeader() const noexcept;
+    template <typename R = H, typename = HasCustomHeader<R, H>>
+    const R& getCustomHeader() const noexcept;
 
     ///
     /// @brief publish Publish the sample via the publisher from which it was loaned and automatically
