@@ -117,7 +117,6 @@ class MePooSegment_test : public Test
         std::shared_ptr<iox::posix::Allocator> allocator{new iox::posix::Allocator(memory, MEM_SIZE)};
         int filehandle;
         static createFct createVerificator;
-        bool m_isInitialized;
     };
 
     void SetUp(){};

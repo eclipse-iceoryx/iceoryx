@@ -123,7 +123,7 @@ execute_test() {
     case $test_scope in
     "all")
         make all_tests
-        make integration_tests
+        make timing_module_tests
         make timing_integration_tests
         ;;
     "no_timing_test")
