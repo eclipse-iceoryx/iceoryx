@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
@@ -33,6 +34,20 @@ using namespace ::testing;
 using namespace iox::mepoo;
 using namespace iox::posix;
 
+namespace iox
+{
+namespace cxx
+{
+template <>
+struct ErrorTypeAdapter<int>
+{
+    static int getInvalidState()
+    {
+        return -1;
+    }
+};
+} // namespace cxx
+} // namespace iox
 class MePooSegment_test : public Test
 {
   public:
