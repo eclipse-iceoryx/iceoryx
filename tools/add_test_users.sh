@@ -24,19 +24,24 @@ set -e
 #====================================================================================================
 #==== Step : Create local test users and groups for testing access control  =========================
 #====================================================================================================
+COMMAND=$1 # When called with argument "check" the script only look if the users exist
+USERS="iox_roudi_test1 iox_roudi_test2 iox_roudi_test3"
 
-
-if [ $(getent group roudi_test1) ] && [ $(getent group roudi_test2) ] && [ $(getent group roudi_test3) ]; then
-    echo "users and groups for testing already exist"
-else
-    if [ "$EUID" -ne 0 ]; then
-        echo "Please run the script as root with sudo"
-        exit 1
-    fi
-    USERS="roudi_test1 roudi_test2 roudi_test3"
-    for USER in $USERS; do
+for USER in ${USERS}  ; do
+    if [ $(getent group ${USER}) ]; then
+        echo "${USER} already exist, skipping"
+    else
+        if [ "$EUID" -ne 0 ] || [ "$COMMAND" == "check" ]; then
+            echo "Warning: ${USER} was not found on system"
+            echo "Warning: Tests are running with user accounts 'iox_roudi_testX', please make sure that add_test_users.sh has run as sudo before."
+            exit 1
+        fi
         echo "adding users" $USER
         sudo useradd -M $USER # create user without home dir
         sudo usermod -L $USER # prevent login
-    done
-fi
+    fi
+done
+
+
+
+
