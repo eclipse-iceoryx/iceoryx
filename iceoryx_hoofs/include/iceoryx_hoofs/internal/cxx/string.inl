@@ -297,6 +297,13 @@ inline constexpr bool string<Capacity>::empty() const noexcept
 }
 
 template <uint64_t Capacity>
+inline void string<Capacity>::clear() noexcept
+{
+    m_rawstring[0U] = '\0';
+    m_rawstringSize = 0U;
+}
+
+template <uint64_t Capacity>
 inline string<Capacity>::operator std::string() const noexcept
 {
     return std::string(c_str());

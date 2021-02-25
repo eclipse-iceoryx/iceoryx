@@ -409,6 +409,9 @@ class string
     /// @return true if size() == 0 otherwise false
     constexpr bool empty() const noexcept;
 
+    /// @brief clears the content of the string
+    void clear() noexcept;
+
     /// @brief converts the string to a std::string
     ///
     /// @return a std::string with data equivalent to those stored in the string
