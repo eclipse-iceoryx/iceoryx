@@ -27,11 +27,17 @@ namespace DesignPattern
 ///        to throw an exception in the constructor when you for instance would
 ///        like to manage a resource and the constructor was unable to acquire
 ///        that resource.
-///        In this case you inherit from Creation and your class has two more
-///        static factory methods - create and verify.
+///        In this case you inherit from `Creation` and your class has three more
+///        static factory methods - `create`, `placementCreate` and `verify`.
 ///        `create` forwards all arguments to the underlying class constructor and
 ///        if the construction was successful an expected containing the type is
 ///        returned, otherwise an error value which describes the error.
+///        Additionally, this class is providing two protected member variables
+///        `m_isInitialized` and `m_errorValue`. The user always has to set
+///        `m_isInitialized` to true when the object construction was successful
+///        otherwise one sets it to false and write the corresponding error cause
+///        in the provided `m_errorValue` variable which is then returned to
+///        the user.
 /// @code
 ///   enum class MyResourceAbstractionError {
 ///     ResourceNotAvailable,
@@ -60,6 +66,9 @@ namespace DesignPattern
 ///           // we are able to initialize the class an set m_isInitialized to true
 ///           m_isInitialized = true;
 ///         } else {
+///           // we are unable to construct the class therefore we have to set
+///           // m_isInitialized to false and store the error code in the
+///           // provided m_errorValue member
 ///           m_errorValue = MyResourceAbstractionError::ResourceNotAvailable;
 ///           m_isInitialized = false;
 ///         }
