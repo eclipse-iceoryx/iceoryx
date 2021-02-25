@@ -46,6 +46,8 @@ template <typename T>
 class SharedPointer : public DesignPattern::Creation<SharedPointer<T>, SharedPointerError>
 {
   public:
+    using CreationPattern_t = DesignPattern::Creation<SharedPointer<T>, SharedPointerError>;
+
     SharedPointer() = default;
     SharedPointer(const SharedPointer&) = default;
     SharedPointer(SharedPointer&&) = default;

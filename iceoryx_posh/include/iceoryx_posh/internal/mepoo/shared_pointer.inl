@@ -49,6 +49,9 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(const SharedPointer& rhs) n
     if (this != &rhs)
     {
         deleteManagedObjectIfNecessary();
+
+        CreationPattern_t::operator=(rhs);
+
         m_chunk = rhs.m_chunk;
     }
     return *this;
@@ -60,6 +63,9 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(SharedPointer&& rhs) noexce
     if (this != &rhs)
     {
         deleteManagedObjectIfNecessary();
+
+        CreationPattern_t::operator=(std::move(rhs));
+
         m_chunk = std::move(rhs.m_chunk);
     }
     return *this;

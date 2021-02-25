@@ -64,8 +64,8 @@ class PosixShmMemoryProvider : public MemoryProvider
 
   private:
     ShmName_t m_shmName;
-    posix::AccessMode m_accessMode{posix::AccessMode::readOnly};
-    posix::OwnerShip m_ownership{posix::OwnerShip::openExisting};
+    posix::AccessMode m_accessMode{posix::AccessMode::READ_ONLY};
+    posix::OwnerShip m_ownership{posix::OwnerShip::OPEN_EXISTING};
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
 };
 
