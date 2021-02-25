@@ -35,6 +35,11 @@ struct DummyData
     DummyData() = default;
     uint32_t val = 42;
 };
+struct DummyHeader
+{
+    DummyHeader() = default;
+    uint64_t counter = 0;
+};
 } // namespace
 
 template <typename T>
@@ -81,5 +86,40 @@ TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
     sut.publish();
 
     // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(SampleTest, getCutomHeaderFromNonConstTypeReturnCorrectAddress)
+{
+    // ===== Setup ===== //
+    ChunkMock<DummyData, DummyHeader> chunk;
+    iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), [](DummyData*) {}};
+    MockPublisherInterface<DummyData> mockPublisherInterface{};
+
+    auto sut = iox::popo::Sample<DummyData, const DummyHeader>(std::move(testSamplePtr), mockPublisherInterface);
+
+    // ===== Test ===== //
+    auto& customHeader = sut.getCustomHeader();
+
+    // ===== Verify ===== //
+    ASSERT_EQ(&customHeader, chunk.customHeader());
+
+    // ===== Cleanup ===== //
+}
+
+TEST_F(SampleTest, getCutomHeaderFromConstTypeReturnCorrectAddress)
+{
+    // ===== Setup ===== //
+    ChunkMock<DummyData, DummyHeader> chunk;
+    iox::cxx::unique_ptr<const DummyData> testSamplePtr{chunk.sample(), [](const DummyData*) {}};
+
+    auto sut = iox::popo::Sample<const DummyData, DummyHeader>(std::move(testSamplePtr));
+
+    // ===== Test ===== //
+    auto& customHeader = sut.getCustomHeader();
+
+    // ===== Verify ===== //
+    ASSERT_EQ(&customHeader, chunk.customHeader());
+
     // ===== Cleanup ===== //
 }
