@@ -51,6 +51,14 @@ namespace runtime
 class Node;
 class NodeData;
 
+enum class FindServiceError
+{
+    INVALID_STATE,
+    UNABLE_TO_WRITE_TO_ROUDI_CHANNEL,
+    INSTANCE_CONTAINER_OVERFLOW
+
+};
+
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
 class PoshRuntime
 {
@@ -76,9 +84,10 @@ class PoshRuntime
     /// @return cxx::expected<InstanceContainer,Error>
     /// InstanceContainer: on success, container that is filled with all matching instances
     /// Error: if any, encountered during the operation
-    /// Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW : Number of instances can't fit in instanceContainer
-    /// Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL : Find Service Request could not be sent to RouDi
-    cxx::expected<InstanceContainer, Error> findService(const capro::ServiceDescription& serviceDescription) noexcept;
+    /// FindServiceError::INSTANCE_CONTAINER_OVERFLOW : Number of instances can't fit in instanceContainer
+    /// FindServiceError::UNABLE_TO_WRITE_TO_ROUDI_CHANNEL : Find Service Request could not be sent to RouDi
+    cxx::expected<InstanceContainer, FindServiceError>
+    findService(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
     /// @param[in] serviceDescription service to offer

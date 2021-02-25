@@ -396,7 +396,7 @@ NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
     return nullptr;
 }
 
-cxx::expected<InstanceContainer, Error>
+cxx::expected<InstanceContainer, FindServiceError>
 PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
 {
     IpcMessage sendBuffer;
@@ -409,7 +409,7 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
     {
         LogError() << "Could not send FIND_SERVICE request to RouDi\n";
         errorHandler(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<Error>(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
+        return cxx::error<FindServiceError>(FindServiceError::UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
     }
 
     InstanceContainer instanceContainer;
@@ -429,7 +429,7 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
         LogWarn() << numberOfElements << " instances found for service \"" << serviceDescription.getServiceIDString()
                   << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_INSTANCES << "\n";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<Error>(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW);
+        return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);
     }
     return {cxx::success<InstanceContainer>(instanceContainer)};
 }
