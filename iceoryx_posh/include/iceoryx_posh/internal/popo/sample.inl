@@ -133,9 +133,9 @@ inline void Sample<T>::publish() noexcept
 }
 
 template <typename T>
-inline void Sample<T>::release() noexcept
+inline T* Sample<T>::release() noexcept
 {
-    m_members.sampleUniquePtr.release();
+    return m_members.sampleUniquePtr.release();
 }
 
 } // namespace popo

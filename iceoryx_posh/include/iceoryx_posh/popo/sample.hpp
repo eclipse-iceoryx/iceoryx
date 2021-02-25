@@ -174,7 +174,7 @@ class Sample
 
     /// @note used by the publisher to release the chunk ownership from the `Sample` after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter
-    void release() noexcept;
+    T* release() noexcept;
 
   private:
     internal::SamplePrivateData<T> m_members;

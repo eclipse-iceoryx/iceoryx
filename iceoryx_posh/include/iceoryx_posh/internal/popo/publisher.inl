@@ -83,9 +83,9 @@ Publisher<T, base_publisher_t>::loanSample(const uint32_t size) noexcept
 template <typename T, typename base_publisher_t>
 inline void Publisher<T, base_publisher_t>::publish(Sample<T>&& sample) noexcept
 {
-    auto header = mepoo::ChunkHeader::fromPayload(sample.get());
+    auto chunkPayload = sample.release(); // release the Samples ownership of the chunk before publishing
+    auto header = mepoo::ChunkHeader::fromPayload(chunkPayload);
     port().sendChunk(header);
-    sample.release(); // Must release ownership of the sample as the publisher port takes it when publishing.
 }
 
 template <typename T, typename base_publisher_t>
