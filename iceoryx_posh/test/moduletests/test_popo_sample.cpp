@@ -83,24 +83,3 @@ TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-
-TEST_F(SampleTest, ReleaseSampleViaPublisherInterfaceIsSuccessful)
-{
-    // ===== Setup ===== //
-    ChunkMock<DummyData> chunk;
-    uint64_t releaseCounter{0U};
-    auto deleter = [&](DummyData*) { ++releaseCounter; };
-
-    iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), deleter};
-    MockPublisherInterface<DummyData> mockPublisherInterface{};
-
-    auto sut = iox::popo::Sample<DummyData>(std::move(testSamplePtr), mockPublisherInterface);
-
-    // ===== Test ===== //
-    sut.release();
-
-    // ===== Verify ===== //
-    EXPECT_EQ(releaseCounter, 1U);
-
-    // ===== Cleanup ===== //
-}

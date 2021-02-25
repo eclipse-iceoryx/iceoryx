@@ -168,14 +168,15 @@ class Sample
     template <typename S = T, typename = ForPublisherOnly<S, T>>
     void publish() noexcept;
 
-    ///
-    /// @brief release Manually transfers ownership of the loaned memory chunk back to the mempool.
-    /// @details Only available for non-const type T.
-    ///
-    template <typename S = T, typename = ForPublisherOnly<S, T>>
+  private:
+    template <typename, typename>
+    friend class Publisher;
+
+    /// @note used by the publisher to release the chunk ownership from the `Sample` after publishing the chunk and
+    /// therefore preventing the invocation of the custom deleter
     void release() noexcept;
 
-  protected:
+  private:
     internal::SamplePrivateData<T> m_members;
 };
 
