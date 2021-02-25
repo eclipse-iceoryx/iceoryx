@@ -68,13 +68,13 @@ if (BUILD_TEST)
         endif()    
     endforeach()
 
-    add_custom_target( timing_moduletests
+    add_custom_target( timing_module_tests
         ${TIMING_MODULETEST_CMD}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )
 
-    add_custom_target( timing_integrationtests
+    add_custom_target( timing_integration_tests
         ${TIMING_INTEGRATIONTEST_CMD}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM

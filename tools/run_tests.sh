@@ -124,22 +124,22 @@ execute_test() {
     "all")
         make all_tests
         make integration_tests
-        make timing_integrationtests
+        make timing_integration_tests
         ;;
     "no_timing_test")
         make all_tests
         ;;
     "unit")
         make module_tests
-        make timing_moduletests
+        make timing_module_tests
         ;;
     "integration")
         make integration_tests
-        make timing_integrationtests
+        make timing_integration_tests
         ;;
     "timingtest")
-        make timing_moduletests
-        make timing_integrationtests
+        make timing_module_tests
+        make timing_integration_tests
         ;;
     *)
         echo "Wrong scope $test_scope!"

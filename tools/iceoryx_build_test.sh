@@ -99,7 +99,7 @@ while (( "$#" )); do
         ;;
     "test-add-user")
         TEST_ADD_USER="ON"
-        echo "Warning: Tests are running with user accounts 'roudi_testX', please make sure that add_test_users.sh has run before."
+        $WORKSPACE/tools/add_test_users.sh check
         shift 1
         ;;
     "dds-gateway")
@@ -311,11 +311,11 @@ fi
 # the absolute path of the directory assigned to the build
 cd $BUILD_DIR
 mkdir -p tools
-cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
+cp $WORKSPACE/tools/run_tests.sh $BUILD_DIR/tools/run_tests.sh
 
 if [ $RUN_TEST == true ]; then
     echo " [i] Running all tests"
-    $BUILD_DIR/tools/run_all_tests.sh $TEST_SCOPE
+    $BUILD_DIR/tools/run_tests.sh $TEST_SCOPE
 fi
 
 for COMPONENT in $COMPONENTS; do
