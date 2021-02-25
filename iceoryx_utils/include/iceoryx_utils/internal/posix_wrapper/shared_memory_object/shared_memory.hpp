@@ -45,6 +45,7 @@ static constexpr const char* OWNERSHIP_STRING[] = {"OwnerShip::MINE", "OwnerShip
 
 enum class SharedMemoryError
 {
+    INVALID_STATE,
     EMPTY_NAME,
     NAME_WITHOUT_LEADING_SLASH,
     INSUFFICIENT_PERMISSIONS,

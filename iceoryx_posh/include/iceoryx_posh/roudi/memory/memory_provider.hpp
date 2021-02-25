@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +34,7 @@ class MemoryBlock;
 
 enum class MemoryProviderError
 {
+    INVALID_STATE,
     /// attempt to add more memory blocks than the capacity allows
     MEMORY_BLOCKS_EXHAUSTED,
     /// an action was performed which requires memory blocks

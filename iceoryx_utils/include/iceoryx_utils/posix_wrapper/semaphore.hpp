@@ -36,6 +36,7 @@ namespace posix
 {
 enum class SemaphoreError
 {
+    INVALID_STATE,
     CREATION_FAILED,
     NAME_TOO_LONG,
     UNABLE_TO_OPEN_HANDLE,

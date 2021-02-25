@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +37,7 @@ class Condition;
 
 enum class WaitSetError : uint8_t
 {
+    INVALID_STATE,
     WAIT_SET_FULL,
     EVENT_ALREADY_ATTACHED,
     PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET,
