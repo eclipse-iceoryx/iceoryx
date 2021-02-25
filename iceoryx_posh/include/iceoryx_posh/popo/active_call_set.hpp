@@ -36,6 +36,7 @@ namespace popo
 {
 enum class ActiveCallSetError
 {
+    INVALID_STATE,
     ACTIVE_CALL_SET_FULL,
     EVENT_ALREADY_ATTACHED,
 };
