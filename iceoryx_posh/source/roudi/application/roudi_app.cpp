@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +31,7 @@
 #include "iceoryx_utils/platform/resource.hpp"
 #include "iceoryx_utils/platform/semaphore.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 #include "stdio.h"
@@ -43,6 +45,10 @@ namespace roudi
 namespace
 {
 iox::roudi::RouDiApp* g_RouDiApp;
+cxx::optional<posix::SignalGuard> g_signalGuardInt;
+cxx::optional<posix::SignalGuard> g_signalGuardTerm;
+cxx::optional<posix::SignalGuard> g_signalGuardHup;
+
 } // unnamed namespace
 
 void RouDiApp::roudiSigHandler(int32_t signal) noexcept
@@ -64,33 +70,9 @@ void RouDiApp::registerSigHandler() noexcept
     g_RouDiApp = this;
 
     // register sigHandler for SIGINT, SIGTERM and SIGHUP
-    struct sigaction act;
-    sigemptyset(&act.sa_mask);
-    act.sa_handler = roudiSigHandler;
-    act.sa_flags = 0;
-    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGINT, &act, nullptr)
-            .hasErrors())
-    {
-        LogFatal() << "Calling sigaction() failed";
-        errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
-        return;
-    }
-
-    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr)
-            .hasErrors())
-    {
-        LogFatal() << "Calling sigaction() failed";
-        errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
-        return;
-    }
-
-    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr)
-            .hasErrors())
-    {
-        LogFatal() << "Calling sigaction() failed";
-        errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
-        return;
-    }
+    g_signalGuardInt.emplace(posix::registerSignalHandler(posix::Signal::INT, roudiSigHandler));
+    g_signalGuardTerm.emplace(posix::registerSignalHandler(posix::Signal::TERM, roudiSigHandler));
+    g_signalGuardHup.emplace(posix::registerSignalHandler(posix::Signal::HUP, roudiSigHandler));
 }
 
 RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& config) noexcept

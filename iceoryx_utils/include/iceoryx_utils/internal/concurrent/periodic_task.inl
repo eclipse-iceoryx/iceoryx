@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -82,8 +82,7 @@ inline void PeriodicTask<T>::run() noexcept
         m_callable();
 
         /// @todo use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once available
-        auto targetTime = m_interval.timespec(units::TimeSpecReference::Epoch);
-        auto waitResult = m_stop.timedWait(&targetTime, true);
+        auto waitResult = m_stop.timedWait(m_interval, true);
         cxx::Expects(!waitResult.has_error());
 
         waitState = waitResult.value();

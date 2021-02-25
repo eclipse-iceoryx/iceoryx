@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,7 +84,6 @@ variant<Types...>::variant(variant&& f_rhs) noexcept
     {
         internal::call_at_index<0, Types...>::moveConstructor(m_type_index, f_rhs.m_storage, m_storage);
     }
-    f_rhs.m_type_index = INVALID_VARIANT_INDEX;
 }
 
 template <typename... Types>
@@ -99,7 +99,6 @@ variant<Types...>& variant<Types...>::operator=(variant&& f_rhs) noexcept
             {
                 internal::call_at_index<0, Types...>::moveConstructor(m_type_index, f_rhs.m_storage, m_storage);
             }
-            f_rhs.m_type_index = INVALID_VARIANT_INDEX;
         }
         else
         {
@@ -108,8 +107,6 @@ variant<Types...>& variant<Types...>::operator=(variant&& f_rhs) noexcept
                 internal::call_at_index<0, Types...>::move(m_type_index, f_rhs.m_storage, m_storage);
             }
         }
-
-        f_rhs.m_type_index = INVALID_VARIANT_INDEX;
     }
     return *this;
 }
@@ -208,8 +205,8 @@ inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type* varia
 
 template <typename... Types>
 template <uint64_t TypeIndex>
-inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type* variant<Types...>::get_at_index() const
-    noexcept
+inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type*
+variant<Types...>::get_at_index() const noexcept
 {
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
     return const_cast<const T*>(const_cast<variant*>(this)->get_at_index<TypeIndex>());
