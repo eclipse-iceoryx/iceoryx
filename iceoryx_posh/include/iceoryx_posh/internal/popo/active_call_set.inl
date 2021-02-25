@@ -23,7 +23,7 @@ namespace popo
 namespace internal
 {
 template <typename T>
-inline void callsetCallback(void* const origin, void (*underlyingCallback)(void* const))
+inline void translateAndCallTypelessCallback(void* const origin, void (*underlyingCallback)(void* const))
 {
     reinterpret_cast<void (*)(T* const)>(underlyingCallback)(static_cast<T*>(origin));
 }
@@ -37,7 +37,7 @@ inline cxx::expected<ActiveCallSetError> ActiveCallSet::attachEvent(T& eventOrig
                     static_cast<uint64_t>(NoEnumUsed::PLACEHOLDER),
                     typeid(NoEnumUsed).hash_code(),
                     reinterpret_cast<CallbackRef_t<void>>(eventCallback),
-                    internal::callsetCallback<T>,
+                    internal::translateAndCallTypelessCallback<T>,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(
@@ -53,7 +53,7 @@ ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRe
                     static_cast<uint64_t>(eventType),
                     typeid(EventType).hash_code(),
                     reinterpret_cast<CallbackRef_t<void>>(eventCallback),
-                    internal::callsetCallback<T>,
+                    internal::translateAndCallTypelessCallback<T>,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(eventOrigin,

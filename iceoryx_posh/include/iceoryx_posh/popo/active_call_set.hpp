@@ -87,7 +87,7 @@ class ActiveCallSet
     /// @tparam[in] T type of the class which will signal the event
     /// @param[in] eventOrigin the object which will signal the event (the origin)
     /// @param[in] eventCallback callback which will be executed concurrently when the event occurs
-    /// @return If an error occurs the enum which describes the error.
+    /// @return If an error occurs the enum packed inside an expected which describes the error.
     template <typename T>
     cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
 
@@ -99,7 +99,7 @@ class ActiveCallSet
     /// @param[in] eventOrigin the object which will signal the event (the origin)
     /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
     /// @param[in] eventCallback callback which will be executed concurrently when the event occurs
-    /// @return If an error occurs the enum which describes the error.
+    /// @return If an error occurs the enum packed inside an expected which describes the error.
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<ActiveCallSetError>
     attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept;
@@ -116,7 +116,6 @@ class ActiveCallSet
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin.
     /// @note This method can be called from any thread concurrently without any restrictions!
     /// @tparam[in] T type of the class which will signal the event
-    /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
     template <typename T>
     void detachEvent(T& eventOrigin) noexcept;
 
