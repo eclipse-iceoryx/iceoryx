@@ -42,7 +42,7 @@ class TomlGatewayConfigParserTest : public Test
         if (std::remove(TestFilePath.c_str()) != 0)
         {
             std::cerr << "Failed to remove temporary file '" << TestFilePath
-                      << "'. You'll have to remove it by yourself.";
+                      << "'. You'll have to remove it by yourself." << std::endl;
         }
     };
 
@@ -52,6 +52,10 @@ class TomlGatewayConfigParserTest : public Test
         if (fs.std::fstream::is_open())
         {
             fs << *toml;
+        }
+        else
+        {
+            ASSERT_STREQ("expected open fstream", "fstream not open");
         }
         fs.close();
     }

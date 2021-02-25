@@ -31,7 +31,7 @@ using namespace iox::gw;
 
 using iox::capro::IdString_t;
 
-class GatewayBaseTestSuite : public Test
+class GatewayBase_test : public TestWithParam<iox::capro::Interfaces>
 {
   public:
     void SetUp(){};
@@ -45,41 +45,46 @@ class GatewayBaseTestSuite : public Test
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
+
+    class GatewayBaseTestDestructor : public GatewayBase
+    {
+      public:
+        GatewayBaseTestDestructor(const iox::capro::Interfaces f_interface) noexcept
+            : GatewayBase(f_interface)
+        {
+        }
+        iox::popo::InterfacePort* getInterfaceImpl()
+        {
+            return &m_interfaceImpl;
+        }
+        ~GatewayBaseTestDestructor() noexcept
+        {
+        }
+    };
 };
 
-class GatewayBaseTestDestructor : public GatewayBase
-{
-  public:
-    GatewayBaseTestDestructor(const iox::capro::Interfaces f_interface) noexcept
-        : GatewayBase(f_interface)
-    {
-    }
-    iox::popo::InterfacePort* getInterfaceImpl()
-    {
-        return &m_interfaceImpl;
-    }
-    ~GatewayBaseTestDestructor() noexcept
-    {
-    }
-};
 
-TEST_F(GatewayBaseTestSuite, VerifyDestructorIsSuccessful)
+TEST_P(GatewayBase_test, InterfacePortWillBeDestroyedWhenGatewayGoesOutOfScope)
 {
-    GatewayBaseTestDestructor base{iox::capro::Interfaces::INTERNAL};
-    iox::popo::InterfacePort* interfaceImpl = base.getInterfaceImpl();
-    base.~GatewayBaseTestDestructor();
+    iox::popo::InterfacePort* interfaceImpl;
+
+    {
+        GatewayBaseTestDestructor base{iox::capro::Interfaces::INTERNAL};
+
+        interfaceImpl = base.getInterfaceImpl();
+    }
 
     EXPECT_TRUE(interfaceImpl->toBeDestroyed());
 }
 
-TEST_F(GatewayBaseTestSuite, GetCaProMessageMethodWithInvalidMessageReturnFalse)
+TEST_P(GatewayBase_test, GetCaProMessageMethodWithInvalidMessageReturnFalse)
 {
     iox::capro::CaproMessage notValidCaproMessage;
 
     EXPECT_FALSE(m_base.getCaProMessage(notValidCaproMessage));
 }
 
-TEST_F(GatewayBaseTestSuite, GetCaProMessageMethodWithValidMessageReturnTrue)
+TEST_P(GatewayBase_test, GetCaProMessageMethodWithValidMessageReturnTrue)
 {
     m_senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
