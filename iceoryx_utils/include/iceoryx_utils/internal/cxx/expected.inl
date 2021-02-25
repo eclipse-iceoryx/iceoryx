@@ -22,6 +22,25 @@ namespace iox
 {
 namespace cxx
 {
+namespace internal
+{
+template <typename T, typename>
+struct HasInvalidStateMember : std::false_type
+{
+};
+template <typename T>
+struct HasInvalidStateMember<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
+{
+};
+template <typename... T>
+struct IsOptional : std::false_type
+{
+};
+template <typename T>
+struct IsOptional<iox::cxx::optional<T>> : std::true_type
+{
+};
+} // namespace internal
 template <typename T>
 inline T ErrorTypeAdapter<T>::getInvalidState() noexcept
 {
@@ -270,7 +289,7 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename Optional, typename std::enable_if<internal::is_optional<Optional>::value, int>::type>
+template <typename Optional, typename std::enable_if<internal::IsOptional<Optional>::value, int>::type>
 inline const expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const
     noexcept
@@ -279,7 +298,7 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename O
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename Optional, typename std::enable_if<internal::is_optional<Optional>::value, int>::type>
+template <typename Optional, typename std::enable_if<internal::IsOptional<Optional>::value, int>::type>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept
 {
@@ -296,7 +315,7 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename O
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename Optional, typename std::enable_if<internal::is_optional<Optional>::value, int>::type>
+template <typename Optional, typename std::enable_if<internal::IsOptional<Optional>::value, int>::type>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) noexcept
 {

@@ -29,28 +29,13 @@ namespace cxx
 namespace internal
 {
 /// @brief Type trait which verifies whether the passed type T has INVALID_STATE
-///        Overload chosen when INVALID_STATE is not present
-template <typename T, typename = void>
-struct has_invalid_state_member : std::false_type
-{
-};
+///        std::true_type overload chosen when INVALID_STATE is present, otherwise std::false_type
+template <typename, typename = void>
+struct HasInvalidStateMember;
 
-/// @brief Type trait which verifies whether the passed type T has INVALID_STATE
-///        Overload chosen when INVALID_STATE is present
-template <typename T>
-struct has_invalid_state_member<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
-{
-};
-
-template <typename... T>
-struct is_optional : std::false_type
-{
-};
-
-template <typename T>
-struct is_optional<iox::cxx::optional<T>> : std::true_type
-{
-};
+/// @brief Type trait which verifies whether the passed type T is of type cxx::optional
+template <typename...>
+struct IsOptional;
 } // namespace internal
 
 /// @brief Generic adapter to access INVALID_STATE member or value
@@ -58,7 +43,7 @@ struct is_optional<iox::cxx::optional<T>> : std::true_type
 template <typename T>
 struct ErrorTypeAdapter
 {
-    static_assert(internal::has_invalid_state_member<T>::value,
+    static_assert(internal::HasInvalidStateMember<T>::value,
                   "T must have a INVALID_STATE. Alternatively write an ErrorTypeAdapter specialisation for your type");
 
     static T getInvalidState() noexcept;
@@ -558,7 +543,7 @@ class expected<ValueType, ErrorType>
     /// @endcode
     ///
     template <typename Optional = ValueType,
-              typename std::enable_if<internal::is_optional<Optional>::value, int>::type = 0>
+              typename std::enable_if<internal::IsOptional<Optional>::value, int>::type = 0>
     const expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const noexcept;
 
     ///
@@ -573,7 +558,7 @@ class expected<ValueType, ErrorType>
     /// @endcode
     ///
     template <typename Optional = ValueType,
-              typename std::enable_if<internal::is_optional<Optional>::value, int>::type = 0>
+              typename std::enable_if<internal::IsOptional<Optional>::value, int>::type = 0>
     expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept;
 
     ///
@@ -590,7 +575,7 @@ class expected<ValueType, ErrorType>
     /// @endcode
     ///
     template <typename Optional = ValueType,
-              typename std::enable_if<internal::is_optional<Optional>::value, int>::type = 0>
+              typename std::enable_if<internal::IsOptional<Optional>::value, int>::type = 0>
     [[deprecated]] const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
 
     ///
@@ -607,7 +592,7 @@ class expected<ValueType, ErrorType>
     /// @endcode
     ///
     template <typename Optional = ValueType,
-              typename std::enable_if<internal::is_optional<Optional>::value, int>::type = 0>
+              typename std::enable_if<internal::IsOptional<Optional>::value, int>::type = 0>
     [[deprecated]] expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
 
     optional<ValueType> to_optional() const noexcept;
