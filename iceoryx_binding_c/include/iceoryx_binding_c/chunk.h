@@ -19,10 +19,10 @@
 
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
-///@todo: we will need a way to access the chunkheader properly,
-/// define a structure for it and decide on functions operating on it
-/// (cf. chunkheader.hpp)
-/// otherwise you need C++ to do anything with the header safely
+/// @note: currently we can only use this header safely with the corresponding
+/// C++ ChunkHeader which defines the data layout
+/// once the functionality of the header is stable we can
+/// add free functions here to access its information
 
 /// consider to define void* payload_t as well
 

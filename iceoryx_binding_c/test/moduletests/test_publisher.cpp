@@ -28,6 +28,7 @@ using namespace iox::cxx;
 using namespace iox::posix;
 
 extern "C" {
+#include "iceoryx_binding_c/chunk.h"
 #include "iceoryx_binding_c/publisher.h"
 }
 
@@ -160,6 +161,23 @@ TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
     EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
 }
 
+TEST_F(iox_pub_test, chunkHeaderCanBeObtainedFromChunk)
+{
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
+    auto header = iox_chunk_payload_to_header(chunk);
+    EXPECT_NE(header, nullptr);
+}
+
+TEST_F(iox_pub_test, chunkHeaderCanBeConvertedBackToPayload)
+{
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
+    auto header = iox_chunk_payload_to_header(chunk);
+    auto payload = iox_chunk_header_to_payload(header);
+    EXPECT_EQ(payload, chunk);
+}
+
 TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
 {
     void* chunk = nullptr;
@@ -234,4 +252,3 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     EXPECT_TRUE(*maybeSharedChunk == chunk);
     EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
 }
-

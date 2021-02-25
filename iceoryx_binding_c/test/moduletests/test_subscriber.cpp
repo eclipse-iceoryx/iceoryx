@@ -31,6 +31,7 @@ using namespace iox::cxx;
 using namespace iox::posix;
 
 extern "C" {
+#include "iceoryx_binding_c/chunk.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/wait_set.h"
@@ -187,6 +188,26 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
     EXPECT_THAT(static_cast<const data_t*>(chunk)->value, Eq(1234));
 }
 
+TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
+{
+    this->Subscribe(&m_portPtr);
+    struct data_t
+    {
+        int value;
+    };
+
+    auto sharedChunk = m_memoryManager.getChunk(100U);
+    m_chunkPusher.push(sharedChunk);
+
+    const void* chunk = nullptr;
+
+    ASSERT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
+    auto header = iox_chunk_payload_to_header(chunk);
+    ASSERT_NE(header, nullptr);
+    auto payload = iox_chunk_header_to_payload(header);
+    EXPECT_EQ(payload, chunk);
+}
+
 TEST_F(iox_sub_test, receiveChunkWhenToManyChunksAreHold)
 {
     this->Subscribe(&m_portPtr);
@@ -295,8 +316,7 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectEventId)
 
 TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 {
-    iox_ws_attach_subscriber_event(
-        m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, iox_sub_test::triggerCallback);
+    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, iox_sub_test::triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
