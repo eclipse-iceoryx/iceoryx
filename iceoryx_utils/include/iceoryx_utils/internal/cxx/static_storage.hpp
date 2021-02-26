@@ -34,16 +34,10 @@ namespace cxx
 template <uint64_t Capacity, uint64_t Align = 1>
 class static_storage
 {
-  private:
-    alignas(Align) uint8_t m_bytes[Capacity];
-    void* m_ptr{nullptr};
-
-    static constexpr uint64_t align_delta(uint64_t align, uint64_t alignTarget);
-
   public:
-    static_storage() = default;
+    static_storage() noexcept = default;
 
-    ~static_storage();
+    ~static_storage() noexcept;
 
     // it is not supposed to be copied or moved for now
     // (construct a new one explicitly and populate it instead)
@@ -57,23 +51,32 @@ class static_storage
 
     /// @brief check whether the type T will fit in the buffer statically at compile time
     template <typename T>
-    static constexpr bool fits_statically();
+    static constexpr bool fits_statically() noexcept;
 
     /// @brief provide static memory for an object of type T
     /// @note  compilation fails if static memory is insufficient
     template <typename T>
-    T* allocate();
+    T* allocate() noexcept;
 
     /// @brief provide align aligned memory with a specific size
-    void* allocate(uint64_t align, uint64_t size);
+    void* allocate(uint64_t align, uint64_t size) noexcept;
 
     /// @brief mark the static memory as unused
     /// @note no dtor of the stored type is called (we cannot know the type)
     ///       nor is it overwritten
-    void deallocate();
+    void deallocate() noexcept;
 
     /// @brief set the managed static memory to all zeros
-    void clear();
+    void clear() noexcept;
+
+    /// @brief get the storage capacity in bytes
+    static constexpr uint64_t capacity() noexcept;
+
+  private:
+    alignas(Align) uint8_t m_bytes[Capacity];
+    void* m_ptr{nullptr};
+
+    static constexpr uint64_t align_delta(uint64_t align, uint64_t alignTarget) noexcept;
 };
 
 } // namespace cxx

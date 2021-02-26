@@ -459,5 +459,38 @@ TEST_F(function_test, StaticSwapWorks)
     EXPECT_EQ(sut2(1), f1(1));
 }
 
+TEST_F(function_test, functorOfSizeSmallerThanStorageBytesCanBeStored)
+{
+    // it will not compile if the storage is too small,
+    constexpr auto BYTES = test_function::storage_bytes_required<Functor>();
+    EXPECT_LE(sizeof(Functor), BYTES);
+    Functor f(73);
+    iox::cxx::function<signature, BYTES> sut(f);
+    EXPECT_TRUE(sut.operator bool());
+}
+
+TEST_F(function_test, isStorableIsConsistent)
+{
+    constexpr auto BYTES = test_function::storage_bytes_required<Functor>();
+    constexpr auto RESULT = iox::cxx::function<signature, BYTES>::is_storable<Functor>();
+    EXPECT_TRUE(RESULT);
+}
+
+TEST_F(function_test, isNotStorableDueToSize)
+{
+    constexpr auto BYTES = test_function::storage_bytes_required<Functor>();
+    constexpr auto RESULT = iox::cxx::function<signature, BYTES - alignof(Functor)>::is_storable<Functor>();
+    EXPECT_FALSE(RESULT);
+}
+
+TEST_F(function_test, isNotStorableDueToSignature)
+{
+    auto nonStorable = []() {};
+    using NonStorable = decltype(nonStorable);
+    constexpr auto BYTES = test_function::storage_bytes_required<NonStorable>();
+    constexpr auto RESULT = iox::cxx::function<signature, BYTES>::is_storable<NonStorable>();
+    EXPECT_FALSE(RESULT);
+}
+
 
 } // namespace

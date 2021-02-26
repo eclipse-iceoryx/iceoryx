@@ -78,13 +78,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
         }
     };
 
-    vtable m_vtable;
-
-    /// @note  in general we cannot know the alignment of the type we want to store at construction time
-    StorageType m_storage;
-    void* m_storedObj{nullptr};
-    function_ref<signature<ReturnType, Args...>> m_function;
-
   public:
     using signature_t = signature<ReturnType, Args...>;
 
@@ -132,7 +125,25 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @brief swap two functions
     static void swap(storable_function& f, storable_function& g) noexcept;
 
+    /// @brief size in bytes required to store a type T in a storable_function
+    /// @note this is not exact due to alignment, it may work with a smaller size but
+    ///       is not guaranteed
+    template <typename T>
+    static constexpr uint64_t storage_bytes_required() noexcept;
+
+    /// @brief checks whether T is storable
+    /// @return true if it can be stored, false if it is not guaranteed that it can be stored
+    /// @note it might be storable for some alignments of T even if it returns false,
+    ///       in this case it is advised to increase the size of storage via the StorageType
+    template <typename T>
+    static constexpr bool is_storable() noexcept;
+
   private:
+    vtable m_vtable;
+    StorageType m_storage;
+    void* m_storedObj{nullptr};
+    function_ref<signature<ReturnType, Args...>> m_function;
+
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,

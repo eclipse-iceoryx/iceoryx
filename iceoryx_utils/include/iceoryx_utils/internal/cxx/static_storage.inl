@@ -22,7 +22,7 @@ namespace iox
 namespace cxx
 {
 template <uint64_t Capacity, uint64_t Align>
-constexpr uint64_t static_storage<Capacity, Align>::align_delta(uint64_t align, uint64_t alignTarget)
+constexpr uint64_t static_storage<Capacity, Align>::align_delta(uint64_t align, uint64_t alignTarget) noexcept
 {
     auto r = align % alignTarget;
 
@@ -32,28 +32,28 @@ constexpr uint64_t static_storage<Capacity, Align>::align_delta(uint64_t align, 
 }
 
 template <uint64_t Capacity, uint64_t Align>
-static_storage<Capacity, Align>::~static_storage()
+static_storage<Capacity, Align>::~static_storage() noexcept
 {
     deallocate();
 }
 
 template <uint64_t Capacity, uint64_t Align>
 template <typename T>
-constexpr bool static_storage<Capacity, Align>::fits_statically()
+constexpr bool static_storage<Capacity, Align>::fits_statically() noexcept
 {
     return sizeof(T) + align_delta(alignof(m_bytes), alignof(T)) <= Capacity;
 }
 
 template <uint64_t Capacity, uint64_t Align>
 template <typename T>
-T* static_storage<Capacity, Align>::allocate()
+T* static_storage<Capacity, Align>::allocate() noexcept
 {
     static_assert(fits_statically<T>(), "type does not fit into static storage");
     return reinterpret_cast<T*>(allocate(alignof(T), sizeof(T)));
 }
 
 template <uint64_t Capacity, uint64_t Align>
-void* static_storage<Capacity, Align>::allocate(uint64_t align, uint64_t size)
+void* static_storage<Capacity, Align>::allocate(uint64_t align, uint64_t size) noexcept
 {
     if (m_ptr)
     {
@@ -73,17 +73,22 @@ void* static_storage<Capacity, Align>::allocate(uint64_t align, uint64_t size)
 }
 
 template <uint64_t Capacity, uint64_t Align>
-void static_storage<Capacity, Align>::deallocate()
+void static_storage<Capacity, Align>::deallocate() noexcept
 {
     m_ptr = nullptr;
 }
 
 template <uint64_t Capacity, uint64_t Align>
-void static_storage<Capacity, Align>::clear()
+void static_storage<Capacity, Align>::clear() noexcept
 {
     std::memset(m_bytes, 0, Capacity);
 }
 
+template <uint64_t Capacity, uint64_t Align>
+constexpr uint64_t static_storage<Capacity, Align>::capacity() noexcept
+{
+    return Capacity;
+}
 
 } // namespace cxx
 } // namespace iox

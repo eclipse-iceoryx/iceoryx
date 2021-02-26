@@ -78,7 +78,7 @@ storable_function<S, signature<ReturnType, Args...>>::operator=(const storable_f
 {
     if (&rhs != this)
     {
-        // note: src vtable is needed for destroy, then changed to src vtable
+        // note: vtable is needed for destroy, then changed to src vtable
         m_vtable.destroy(*this);
         m_function = nullptr; // only needed when the src has no object
         m_vtable = rhs.m_vtable;
@@ -151,7 +151,7 @@ void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Fu
     if (p)
     {
         // functor will fit, copy it
-        new (p) StoredType(functor);
+        p = new (p) StoredType(functor);
 
         // erase the functor type and store as reference to the call in storage
         m_function = *p;
@@ -242,6 +242,20 @@ void storable_function<S, signature<ReturnType, Args...>>::moveFreeFunction(stor
 {
     dest.m_function = src.m_function;
     src.m_function = nullptr;
+}
+
+template <typename S, typename ReturnType, typename... Args>
+template <typename T>
+constexpr uint64_t storable_function<S, signature<ReturnType, Args...>>::storage_bytes_required() noexcept
+{
+    return sizeof(T) + alignof(T);
+}
+
+template <typename S, typename ReturnType, typename... Args>
+template <typename T>
+constexpr bool storable_function<S, signature<ReturnType, Args...>>::is_storable() noexcept
+{
+    return (storage_bytes_required<T>() <= S::capacity()) && is_invocable_r<ReturnType, T, Args...>::value;
 }
 
 } // namespace cxx
