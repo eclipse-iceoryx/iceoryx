@@ -79,12 +79,6 @@ class Sample
     template <typename S, typename TT>
     using ForSubscriberOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
 
-    template <typename R, typename TT, typename HH>
-    using HasCustomHeaderForPublisherOnly =
-        std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoCustomHeader>::value
-                             && !std::is_const<TT>::value,
-                         R>;
-
     template <typename R, typename HH>
     using HasCustomHeader =
         std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoCustomHeader>::value, R>;
@@ -115,9 +109,7 @@ class Sample
     ///
     /// @brief operator -> Transparent access to the encapsulated type.
     /// @return a pointer to the encapsulated type.
-    /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = ForPublisherOnly<S, T>>
     T* operator->() noexcept;
 
     ///
@@ -129,10 +121,8 @@ class Sample
     ///
     /// @brief operator* Provide a reference to the encapsulated type.
     /// @return A T& to the encapsulated type.
-    /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = ForPublisherOnly<S, T>>
-    S& operator*() noexcept;
+    T& operator*() noexcept;
 
     ///
     /// @brief operator* Provide a const reference to the encapsulated type.
@@ -149,9 +139,7 @@ class Sample
     ///
     /// @brief allocation Access to the encapsulated type loaned to the sample.
     /// @return a pointer to the encapsulated type.
-    /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = ForPublisherOnly<S, T>>
     T* get() noexcept;
 
     ///
@@ -160,13 +148,12 @@ class Sample
     ///
     const T* get() const noexcept;
 
+    using ConditionalConstChunkHeader_t = typename cxx::add_const_conditionally<mepoo::ChunkHeader, T>::type;
     ///
     /// @brief header Retrieve the header of the underlying memory chunk loaned to the sample.
     /// @return The ChunkHeader of the underlying memory chunk.
-    /// @details Only available for non-const type T.
     ///
-    template <typename S = T, typename = ForPublisherOnly<S, T>>
-    mepoo::ChunkHeader* getHeader() noexcept;
+    ConditionalConstChunkHeader_t* getHeader() noexcept;
 
     ///
     /// @brief header Retrieve the header of the underlying memory chunk loaned to the sample.
@@ -177,9 +164,8 @@ class Sample
     ///
     /// @brief Retrieve the custom header of the underlying memory chunk loaned to the sample.
     /// @return The custom header of the underlying memory chunk.
-    /// @details Only available for non-const type T.
     ///
-    template <typename R = H, typename = HasCustomHeaderForPublisherOnly<R, T, H>>
+    template <typename R = H, typename = HasCustomHeader<R, H>>
     R& getCustomHeader() noexcept;
 
     ///
@@ -215,3 +201,4 @@ class Sample
 #include "iceoryx_posh/internal/popo/sample.inl"
 
 #endif // IOX_POSH_POPO_SAMPLE_HPP
+

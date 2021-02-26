@@ -60,7 +60,6 @@ inline Sample<T, H>::Sample(std::nullptr_t) noexcept
 }
 
 template <typename T, typename H>
-template <typename S, typename>
 inline T* Sample<T, H>::operator->() noexcept
 {
     return get();
@@ -73,8 +72,7 @@ inline const T* Sample<T, H>::operator->() const noexcept
 }
 
 template <typename T, typename H>
-template <typename S, typename>
-inline S& Sample<T, H>::operator*() noexcept
+inline T& Sample<T, H>::operator*() noexcept
 {
     return *get();
 }
@@ -92,7 +90,6 @@ inline Sample<T, H>::operator bool() const noexcept
 }
 
 template <typename T, typename H>
-template <typename S, typename>
 inline T* Sample<T, H>::get() noexcept
 {
     return m_members.sampleUniquePtr.get();
@@ -105,8 +102,7 @@ inline const T* Sample<T, H>::get() const noexcept
 }
 
 template <typename T, typename H>
-template <typename S, typename>
-inline mepoo::ChunkHeader* Sample<T, H>::getHeader() noexcept
+inline typename Sample<T, H>::ConditionalConstChunkHeader_t* Sample<T, H>::getHeader() noexcept
 {
     return mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get());
 }
