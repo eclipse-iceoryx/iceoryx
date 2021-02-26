@@ -237,6 +237,9 @@ else
 fi
 echo " [i] Building with $NUM_JOBS jobs"
 
+if [ "$PACKAGE" == "ON" ]; then
+    BUILD_DIR=$WORKSPACE/build_package
+fi
 
 # clean build folders
 if [ $CLEAN_BUILD == true ]
@@ -253,26 +256,20 @@ mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
-if [ "$PACKAGE" == "OFF" ]; then
-    echo ">>>>>> Start building iceoryx package <<<<<<"
-    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
-    -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG -DBUILD_DOC=$BUILD_DOC \
-    -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DBUILD_SHARED_LIBS=$BUILD_SHARED \
-    -DSANITIZE=$SANITIZE_FLAG -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $WORKSPACE/iceoryx_meta
 
-    cmake --build . --target install -- -j$NUM_JOBS
-    echo ">>>>>> Finished building iceoryx package <<<<<<"
-else
-    echo ">>>>>> Start building iceoryx package <<<<<<"
-    cd $WORKSPACE
-    rm -rf build_package
-    mkdir -p build_package
-    cd build_package 
+echo ">>>>>> Start building iceoryx <<<<<<"
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
+-DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG -DBUILD_DOC=$BUILD_DOC \
+-DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DBUILD_SHARED_LIBS=$BUILD_SHARED \
+-DSANITIZE=$SANITIZE_FLAG -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $WORKSPACE/iceoryx_meta
 
-    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=build_package/install/prefix/ $WORKSPACE/iceoryx_meta
-    cmake --build . --target install -- -j$NUM_JOBS
+cmake --build . --target install -- -j$NUM_JOBS
+echo ">>>>>> Finished building iceoryx <<<<<<"
+
+if [ "$PACKAGE" == "ON" ]; then
+    echo ">>>>>> Start building iceoryx package <<<<<<"
     cpack
-    echo ">>>>>> Finished building iceoryx package <<<<<<"    
+    echo ">>>>>> Finished building iceoryx package <<<<<<"
 fi
 
 
