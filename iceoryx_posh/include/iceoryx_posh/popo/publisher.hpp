@@ -31,22 +31,31 @@ namespace popo
 /// This allows any publisher specialization to be stored as a reference by the Sample class.
 /// It is also needed to avoid circular dependencies between Sample and Publisher.
 ///
-template <typename T>
+template <typename T, typename H>
 class PublisherInterface
 {
   public:
-    virtual void publish(Sample<T>&& sample) noexcept = 0;
+    virtual void publish(Sample<T, H>&& sample) noexcept = 0;
 
     virtual ~PublisherInterface(){};
 
   protected:
     PublisherInterface() = default;
 };
-template <typename T, typename base_publisher_t = BasePublisher<>>
-class Publisher : public base_publisher_t, public PublisherInterface<T>
+template <typename T, typename H = mepoo::NoCustomHeader, typename base_publisher_t = BasePublisher<>>
+class Publisher : public base_publisher_t, public PublisherInterface<T, H>
 {
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
-    static_assert(std::is_default_constructible<T>::value, "The Publisher requires default-constructable types.");
+    static_assert(!std::is_void<H>::value, "Custom header must not be void.");
+
+    /// @todo clarify in the PR if this can be removed for T.
+    /// This restriction is not necessary anymore, since `loan` takes ctor arguments.
+    static_assert(std::is_default_constructible<T>::value, "The Publisher requires default-constructable data types.");
+    static_assert(std::is_default_constructible<H>::value,
+                  "The Publisher requires default-constructable custom header types.");
+
+    static_assert(!std::is_const<T>::value, "The type must not be const.");
+    static_assert(!std::is_const<H>::value, "The custom header must not be const.");
 
   public:
     Publisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions = PublisherOptions());
@@ -64,19 +73,19 @@ class Publisher : public base_publisher_t, public PublisherInterface<T>
     /// @details The loaned sample is automatically released when it goes out of scope.
     ///
     template <typename... Args>
-    cxx::expected<Sample<T>, AllocationError> loan(Args&&... args) noexcept;
+    cxx::expected<Sample<T, H>, AllocationError> loan(Args&&... args) noexcept;
 
     ///
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
     /// @return The previously loaned sample if retrieved.
     ///
-    cxx::optional<Sample<T>> loanPreviousSample() noexcept;
+    cxx::optional<Sample<T, H>> loanPreviousSample() noexcept;
 
     ///
     /// @brief publish Publishes the given sample and then releases its loan.
     /// @param sample The sample to publish.
     ///
-    void publish(Sample<T>&& sample) noexcept override;
+    void publish(Sample<T, H>&& sample) noexcept override;
 
     ///
     /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
@@ -97,9 +106,9 @@ class Publisher : public base_publisher_t, public PublisherInterface<T>
     using base_publisher_t::port;
 
   private:
-    Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
+    Sample<T, H> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
 
-    cxx::expected<Sample<T>, AllocationError> loanSample() noexcept;
+    cxx::expected<Sample<T, H>, AllocationError> loanSample() noexcept;
 
     using PublisherSampleDeleter = SampleDeleter<typename base_publisher_t::PortType>;
     PublisherSampleDeleter m_sampleDeleter{port()};

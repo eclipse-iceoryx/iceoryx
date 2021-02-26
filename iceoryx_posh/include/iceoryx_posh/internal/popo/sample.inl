@@ -24,16 +24,16 @@ namespace popo
 {
 namespace internal
 {
-template <typename T>
-inline SamplePrivateData<T>::SamplePrivateData(cxx::unique_ptr<T>&& sampleUniquePtr,
-                                               PublisherInterface<T>& publisher) noexcept
+template <typename T, typename H>
+inline SamplePrivateData<T, H>::SamplePrivateData(cxx::unique_ptr<T>&& sampleUniquePtr,
+                                                  PublisherInterface<T, H>& publisher) noexcept
     : sampleUniquePtr(std::move(sampleUniquePtr))
     , publisherRef(publisher)
 {
 }
 
-template <typename T>
-inline SamplePrivateData<const T>::SamplePrivateData(cxx::unique_ptr<const T>&& sampleUniquePtr) noexcept
+template <typename T, typename H>
+inline SamplePrivateData<const T, H>::SamplePrivateData(cxx::unique_ptr<const T>&& sampleUniquePtr) noexcept
     : sampleUniquePtr(std::move(sampleUniquePtr))
 {
 }
@@ -41,7 +41,7 @@ inline SamplePrivateData<const T>::SamplePrivateData(cxx::unique_ptr<const T>&& 
 
 template <typename T, typename H>
 template <typename S, typename>
-inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T>& publisher) noexcept
+inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T, H>& publisher) noexcept
     : m_members({std::move(sampleUniquePtr), publisher})
 {
 }
@@ -139,10 +139,9 @@ inline void Sample<T, H>::publish() noexcept
     {
         m_members.publisherRef.get().publish(std::move(*this));
     }
-
     else
     {
-        /// @todo Notify caller of attempt to publish invalid chunk. Or something ?
+        std::cerr << "Tried to publish empty sample!" << std::endl;
     }
 }
 

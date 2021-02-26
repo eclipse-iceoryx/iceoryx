@@ -42,15 +42,15 @@ struct DummyHeader
 };
 } // namespace
 
-template <typename T>
-class MockPublisherInterface : public iox::popo::PublisherInterface<T>
+template <typename T, typename H = iox::mepoo::NoCustomHeader>
+class MockPublisherInterface : public iox::popo::PublisherInterface<T, H>
 {
   public:
-    void publish(iox::popo::Sample<T>&& sample) noexcept
+    void publish(iox::popo::Sample<T, H>&& sample) noexcept
     {
         return publishMock(std::move(sample));
     }
-    MOCK_METHOD1_T(publishMock, void(iox::popo::Sample<T>&&));
+    MOCK_METHOD1_T(publishMock, void(iox::popo::Sample<T, H>&&));
 };
 
 class SampleTest : public Test
@@ -94,9 +94,9 @@ TEST_F(SampleTest, getCutomHeaderFromNonConstTypeReturnCorrectAddress)
     // ===== Setup ===== //
     ChunkMock<DummyData, DummyHeader> chunk;
     iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), [](DummyData*) {}};
-    MockPublisherInterface<DummyData> mockPublisherInterface{};
+    MockPublisherInterface<DummyData, DummyHeader> mockPublisherInterface{};
 
-    auto sut = iox::popo::Sample<DummyData, const DummyHeader>(std::move(testSamplePtr), mockPublisherInterface);
+    auto sut = iox::popo::Sample<DummyData, DummyHeader>(std::move(testSamplePtr), mockPublisherInterface);
 
     // ===== Test ===== //
     auto& customHeader = sut.getCustomHeader();
@@ -113,7 +113,7 @@ TEST_F(SampleTest, getCutomHeaderFromConstTypeReturnCorrectAddress)
     ChunkMock<DummyData, DummyHeader> chunk;
     iox::cxx::unique_ptr<const DummyData> testSamplePtr{chunk.sample(), [](const DummyData*) {}};
 
-    auto sut = iox::popo::Sample<const DummyData, DummyHeader>(std::move(testSamplePtr));
+    auto sut = iox::popo::Sample<const DummyData, const DummyHeader>(std::move(testSamplePtr));
 
     // ===== Test ===== //
     auto& customHeader = sut.getCustomHeader();

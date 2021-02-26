@@ -25,16 +25,16 @@ namespace iox
 {
 namespace popo
 {
-template <typename T>
+template <typename T, typename H>
 class PublisherInterface;
 
 namespace internal
 {
 /// @brief helper struct for sample
-template <typename T>
+template <typename T, typename H>
 struct SamplePrivateData
 {
-    SamplePrivateData(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T>& publisher) noexcept;
+    SamplePrivateData(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T, H>& publisher) noexcept;
 
     SamplePrivateData(SamplePrivateData&& rhs) noexcept = default;
     SamplePrivateData& operator=(SamplePrivateData&& rhs) noexcept = default;
@@ -43,12 +43,12 @@ struct SamplePrivateData
     SamplePrivateData& operator=(const SamplePrivateData&) = delete;
 
     cxx::unique_ptr<T> sampleUniquePtr;
-    std::reference_wrapper<PublisherInterface<T>> publisherRef;
+    std::reference_wrapper<PublisherInterface<T, H>> publisherRef;
 };
 
 /// @brief specialization of helper struct for sample for const T
-template <typename T>
-struct SamplePrivateData<const T>
+template <typename T, typename H>
+struct SamplePrivateData<const T, H>
 {
     SamplePrivateData(cxx::unique_ptr<const T>&& sampleUniquePtr) noexcept;
 
@@ -69,6 +69,10 @@ struct SamplePrivateData<const T>
 template <typename T, typename H = mepoo::NoCustomHeader>
 class Sample
 {
+    // TODO enable when subscriber also has the custom header template parameter
+    // static_assert(std::is_const<T>::value == std::is_const<H>::value,
+    //              "The type and the custom header must be equal in their const qualifier!");
+
     template <typename S, typename TT>
     using ForPublisherOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;
 
@@ -91,7 +95,7 @@ class Sample
     /// @param sampleUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param publisher is a reference to the publisher to be able to use the `publish` and `release` methods
     template <typename S = T, typename = ForPublisherOnly<S, T>>
-    Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T>& publisher) noexcept;
+    Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T, H>& publisher) noexcept;
 
     /// @brief constructor for a Sample used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
@@ -194,7 +198,7 @@ class Sample
     void publish() noexcept;
 
   private:
-    template <typename, typename>
+    template <typename, typename, typename>
     friend class Publisher;
 
     /// @note used by the publisher to release the chunk ownership from the `Sample` after publishing the chunk and
@@ -202,7 +206,7 @@ class Sample
     T* release() noexcept;
 
   private:
-    internal::SamplePrivateData<T> m_members;
+    internal::SamplePrivateData<T, H> m_members;
 };
 
 } // namespace popo
