@@ -90,7 +90,7 @@ struct has_signature<Callable,
 };
 
 ///
-/// @brief Check whteher T is a function pointer with arbitrary signature
+/// @brief Check whether T is a function pointer with arbitrary signature
 ///
 template <typename T>
 struct is_function_pointer

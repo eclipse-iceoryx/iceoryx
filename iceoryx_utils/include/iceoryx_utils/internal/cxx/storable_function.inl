@@ -145,16 +145,16 @@ template <typename Functor, typename>
 void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Functor& functor) noexcept
 {
     using StoredType = typename std::remove_reference<Functor>::type;
-    auto p = m_storage.template allocate<StoredType>();
+    auto ptr = m_storage.template allocate<StoredType>();
 
-    if (p)
+    if (ptr)
     {
         // functor will fit, copy it
-        p = new (p) StoredType(functor);
+        ptr = new (ptr) StoredType(functor);
 
         // erase the functor type and store as reference to the call in storage
-        m_function = *p;
-        m_storedCallable = p;
+        m_function = *ptr;
+        m_storedCallable = ptr;
         m_vtable.copyFunction = copy<StoredType>;
         m_vtable.moveFunction = move<StoredType>;
         m_vtable.destroyFunction = destroy<StoredType>;
@@ -179,14 +179,14 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
         return;
     }
 
-    auto p = dest.m_storage.template allocate<T>();
+    auto ptr = dest.m_storage.template allocate<T>();
 
-    if (p)
+    if (ptr)
     {
         auto obj = reinterpret_cast<T*>(src.m_storedCallable);
-        p = new (p) T(*obj);
-        dest.m_function = *p;
-        dest.m_storedCallable = p;
+        ptr = new (ptr) T(*obj);
+        dest.m_function = *ptr;
+        dest.m_storedCallable = ptr;
     }
 }
 
@@ -203,13 +203,13 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
         return;
     }
 
-    auto p = dest.m_storage.template allocate<T>();
-    if (p)
+    auto ptr = dest.m_storage.template allocate<T>();
+    if (ptr)
     {
         auto obj = reinterpret_cast<T*>(src.m_storedCallable);
-        p = new (p) T(std::move(*obj));
-        dest.m_function = *p;
-        dest.m_storedCallable = p;
+        ptr = new (ptr) T(std::move(*obj));
+        dest.m_function = *ptr;
+        dest.m_storedCallable = ptr;
         src.m_vtable.destroy(src);
         src.m_function = nullptr;
         src.m_storedCallable = nullptr;
@@ -222,8 +222,8 @@ void storable_function<S, signature<ReturnType, Args...>>::destroy(storable_func
 {
     if (f.m_storedCallable)
     {
-        auto p = static_cast<T*>(f.m_storedCallable);
-        p->~T();
+        auto ptr = static_cast<T*>(f.m_storedCallable);
+        ptr->~T();
         f.m_storage.deallocate();
     }
 }

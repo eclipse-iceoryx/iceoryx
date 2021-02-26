@@ -44,11 +44,11 @@ class static_storage
 
     ~static_storage() noexcept;
 
-    // it is not supposed to be copied or moved for now
-    // (construct a new one explicitly and populate it instead)
-    // note: move would just be  copy and copy has the problem of
-    // that it would just can perform a memcpy, regardless of what is stored
-    // leading to potentially missed dtor calls
+    /// @note: It is not supposed to be copied or moved for now
+    /// (construct a new one explicitly and populate it instead).
+    /// Move would just be a copy and copy has the problem
+    /// that it would just can perform a memcpy regardless of what is stored
+    /// leading to potentially missed dtor calls
     static_storage(const static_storage&) = delete;
     static_storage& operator=(const static_storage&) = delete;
     static_storage(static_storage&&) = delete;

@@ -34,7 +34,7 @@ namespace cxx
 ///        to be invoked in a different process.
 ///
 ///        For the API see storable_function
-template <typename Signature, uint64_t Bytes = 128>
+template <typename Signature, uint64_t Bytes = 128U>
 using function = storable_function<static_storage<Bytes>, Signature>;
 
 /// @note This alias is needed to improve usability (reordering of template arguments)
@@ -45,11 +45,15 @@ using function = storable_function<static_storage<Bytes>, Signature>;
 /// @note the following would essentially be a complete std::function replacement
 /// which would allocate dynamically if the static storages of Bytes is not sufficient
 /// to store the callable (i.e. we use an optimized_storage)
+/// @code
 /// template <typename Signature, uint64_t Bytes = 128>
 /// using function = detail::storable_function<optimized_storage<Bytes>, Signature>;
+/// @endcode
 /// or alternatively
+/// @code
 /// template <typename Signature>
 /// using function = detail::storable_function<dynamic_storage, Signature>;
+/// @endcode
 ///
 /// optimized_storage and dynamic_storage would have to be implemented
 ///
