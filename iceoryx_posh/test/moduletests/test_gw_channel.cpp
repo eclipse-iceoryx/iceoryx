@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
@@ -22,17 +24,20 @@ using ::testing::_;
 
 // ======================================== Helpers ======================================== //
 
-using IdString = iox::cxx::string<100>;
+using iox::capro::IdString_t;
 
 // We do not need real channel terminals to test the base class.
 struct StubbedIceoryxTerminal
 {
-    StubbedIceoryxTerminal(iox::capro::ServiceDescription){};
+    struct Options
+    {
+    };
+    StubbedIceoryxTerminal(const iox::capro::ServiceDescription&, const Options&){};
 };
 
 struct StubbedExternalTerminal
 {
-    StubbedExternalTerminal(IdString, IdString, IdString){};
+    StubbedExternalTerminal(IdString_t, IdString_t, IdString_t){};
 };
 
 using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
@@ -48,5 +53,6 @@ class ChannelTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(ChannelTest, ReturnsEmptyOptionalIfObjectPoolExhausted)
 {
-    auto channel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create({"", "", ""});
+    auto channel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create(
+        {"", "", ""}, StubbedIceoryxTerminal::Options());
 }

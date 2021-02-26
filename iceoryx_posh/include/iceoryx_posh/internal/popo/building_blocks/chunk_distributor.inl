@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
 
@@ -60,6 +62,13 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
             getMembers()->m_queues.push_back(relative_ptr<ChunkQueueData_t>(queueToAdd));
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
+
+            if (requestedHistory > getMembers()->m_historyCapacity)
+            {
+                LogWarn() << "Chunk history request exceeds history capacity! Request is "
+                          << requestedHistory
+                          << ". Capacity is " << getMembers()->m_historyCapacity << ".";
+            }
 
             // if the current history is large enough we send the requested number of chunks, else we send the
             // total history
@@ -140,9 +149,7 @@ template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
-    // PRQA S 3803 2 # We intentionally do not return anything here as from a ChunkDistributor
-    // point of view it doesn't matter if the push succeeds or fails
-    ChunkQueuePusher_t(queue).tryPush(chunk);
+    ChunkQueuePusher_t(queue).push(chunk);
 }
 
 template <typename ChunkDistributorDataType>

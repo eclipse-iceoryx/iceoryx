@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -34,8 +37,10 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
     if (this != &rhs)
     {
         closeHandle();
+
+        CreationPattern_t::operator=(std::move(rhs));
+
         m_name = std::move(rhs.m_name);
-        m_isInitialized = std::move(rhs.m_isInitialized);
         m_isCreated = std::move(rhs.m_isCreated);
         m_isNamedSemaphore = std::move(rhs.m_isNamedSemaphore);
         m_handle = std::move(rhs.m_handle);
@@ -49,7 +54,6 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
             m_handlePtr = &m_handle;
         }
 
-        rhs.m_isInitialized = false;
         rhs.m_handlePtr = &rhs.m_handle;
     }
 
@@ -105,21 +109,18 @@ cxx::expected<SemaphoreError> Semaphore::post() noexcept
     return cxx::success<>();
 }
 
-cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const struct timespec* abs_timeout,
+cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout,
                                                                        const bool doContinueOnInterrupt) const noexcept
 {
+    const struct timespec timeout = abs_timeout.timespec(units::TimeSpecReference::Epoch);
     if (doContinueOnInterrupt)
     {
         // we wait so long until iox_sem_timedwait returns without an
         // interruption error
         while (true)
         {
-            auto cCall = cxx::makeSmartC(iox_sem_timedwait,
-                                         cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                         {-1},
-                                         {ETIMEDOUT},
-                                         m_handlePtr,
-                                         abs_timeout);
+            auto cCall = cxx::makeSmartC(
+                iox_sem_timedwait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ETIMEDOUT}, m_handlePtr, &timeout);
             if (cCall.hasErrors())
             {
                 return cxx::error<SemaphoreError>(errnoToEnum(cCall.getErrNum()));
@@ -137,7 +138,7 @@ cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const str
     else
     {
         auto cCall = cxx::makeSmartC(
-            iox_sem_timedwait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ETIMEDOUT}, m_handlePtr, abs_timeout);
+            iox_sem_timedwait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ETIMEDOUT}, m_handlePtr, &timeout);
         if (cCall.hasErrors() || cCall.getErrNum() == ETIMEDOUT)
         {
             return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
@@ -339,7 +340,8 @@ SemaphoreError Semaphore::errnoToEnum(const int errnoValue) const noexcept
         std::cerr << "call was interrupted by signal handler" << std::endl;
         return SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER;
     default:
-        std::cerr << "an undefined error occurred in semaphore - this should never happen!" << std::endl;
+        std::cerr << "an unexpected error occurred in semaphore - this should never happen! errno: "
+                  << strerror(errnoValue) << std::endl;
         return SemaphoreError::UNDEFINED;
     }
 }

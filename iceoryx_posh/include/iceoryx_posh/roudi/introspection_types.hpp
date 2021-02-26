@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_TYPES_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_TYPES_HPP
 
@@ -24,7 +27,8 @@ namespace iox
 namespace roudi
 {
 constexpr const char INTROSPECTION_SERVICE_ID[] = "Introspection";
-constexpr const char INTROSPECTION_APP_NAME[] = "/introspection";
+constexpr const char INTROSPECTION_APP_NAME[] = "introspection";
+constexpr const char INTROSPECTION_NODE_NAME[] = "introspection";
 const capro::ServiceDescription IntrospectionMempoolService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "MemPool");
 constexpr int MAX_GROUP_NAME_LENGTH = 32;
 
@@ -47,8 +51,8 @@ using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 struct MemPoolIntrospectionInfo
 {
     uint32_t m_id;
-    char m_writerGroupName[MAX_GROUP_NAME_LENGTH];
-    char m_readerGroupName[MAX_GROUP_NAME_LENGTH];
+    cxx::string<MAX_GROUP_NAME_LENGTH> m_writerGroupName;
+    cxx::string<MAX_GROUP_NAME_LENGTH> m_readerGroupName;
     MemPoolInfoContainer m_mempoolInfo;
 };
 
@@ -63,19 +67,13 @@ const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_I
 struct PortData
 {
     ProcessName_t m_name;
-    capro::IdString m_caproInstanceID;
-    capro::IdString m_caproServiceID;
-    capro::IdString m_caproEventMethodID;
+    capro::IdString_t m_caproInstanceID;
+    capro::IdString_t m_caproServiceID;
+    capro::IdString_t m_caproEventMethodID;
     NodeName_t m_node;
 };
 
-/// @brief container for subscriber port introspection data.
-struct SubscriberPortData : public PortData
-{
-    /// @brief identifier of the publisher port to which this subscriber port is connected.
-    /// If no matching publisher port exists, this should equal -1.
-    int32_t m_publisherIndex{-1};
-};
+using SubscriberPortData = PortData;
 
 /// @brief container for publisher port introspection data.
 struct PublisherPortData : public PortData

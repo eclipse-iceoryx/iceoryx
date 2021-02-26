@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
@@ -36,13 +38,13 @@ TEST(cpp2c_enum_translation_test, SubscribeState)
 
 TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
 {
-    EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL),
+    EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL),
               ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::ChunkReceiveResult(static_cast<iox::popo::ChunkReceiveError>(-1)),
+    EXPECT_EQ(cpp2c::ChunkReceiveResult(static_cast<iox::popo::ChunkReceiveResult>(-1)),
               ChunkReceiveResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
@@ -63,10 +65,9 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
 
 TEST(cpp2c_enum_translation_test, WaitSetResult)
 {
-    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::TRIGGER_VECTOR_OVERFLOW),
-              WaitSetResult_TRIGGER_VECTOR_OVERFLOW);
-    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::TRIGGER_ALREADY_ACQUIRED),
-              WaitSetResult_TRIGGER_ALREADY_ACQUIRED);
+    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::WAIT_SET_FULL), WaitSetResult_WAIT_SET_FULL);
+    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::EVENT_ALREADY_ATTACHED),
+              WaitSetResult_EVENT_ALREADY_ATTACHED);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push

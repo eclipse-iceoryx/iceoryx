@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
@@ -53,6 +55,10 @@ mutex::mutex(bool f_isRecursive)
 
     isInitialized &=
         !cxx::makeSmartC(pthread_mutex_init, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle, &attr)
+             .hasErrors();
+
+    isInitialized &=
+        !cxx::makeSmartC(pthread_mutexattr_destroy, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &attr)
              .hasErrors();
 
     if (!isInitialized)

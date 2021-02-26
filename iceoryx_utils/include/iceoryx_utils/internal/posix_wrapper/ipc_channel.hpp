@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,15 +12,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 #define IOX_UTILS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 
+#include "iceoryx_utils/cxx/string.hpp"
+
+
 namespace iox
 {
+#if defined(__APPLE__)
+/// @note on macOS the process name length needs to be decreased since the process name is used for the unix domain
+/// socket path which has a capacity for only 103 characters. The full path consists of UnixDomainSocket::PATH_PREFIX,
+/// which is currently 5 characters and the specified process name
+constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 98U;
+#else
+constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 100U;
+#endif
+
+using IpcChannelName_t = cxx::string<MAX_IPC_CHANNEL_NAME_LENGTH>;
 namespace posix
 {
 enum class IpcChannelError : uint8_t
 {
+    INVALID_STATE,
     NOT_INITIALIZED,
     ACCESS_DENIED,
     NO_SUCH_CHANNEL,

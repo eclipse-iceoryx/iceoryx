@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 
@@ -21,11 +24,11 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/platform/pthread.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/internal/concurrent/periodic_task.hpp"
 
 #include <atomic>
 #include <mutex>
-#include <thread>
 #include <vector>
 
 #include <map>
@@ -34,14 +37,11 @@ namespace iox
 {
 namespace roudi
 {
-/**
- * @brief This class handles the port intropection for RouDi.
- *        It is recommended to use the PortIntrospectionType alias which sets
- *        the intended template parameter required for the actual introspection.
- *
- *        The class manages a thread that periodically updates a field with port
- *        introspection data to which clients may subscribe.
- */
+/// @brief This class handles the port introspection for RouDi.
+///        It is recommended to use the PortIntrospectionType alias which sets
+///        the intended template parameter required for the actual introspection.
+///        The class manages a thread that periodically updates a field with port
+///        introspection data to which clients may subscribe.
 template <typename PublisherPort, typename SubscriberPort>
 class PortIntrospection
 {
@@ -59,79 +59,68 @@ class PortIntrospection
     class PortData
     {
       private:
-        // internal helper classes
+        /// internal helper classes
 
         struct ConnectionInfo;
 
         struct PublisherInfo
         {
-            PublisherInfo() = default;
+            PublisherInfo() noexcept
+            {
+            }
 
-            PublisherInfo(typename PublisherPort::MemberType_t* const portData,
-                          const ProcessName_t& name,
-                          const capro::ServiceDescription& service,
-                          const NodeName_t& node)
-                : portData(portData)
-                , name(name)
-                , service(service)
-                , node(node)
+            PublisherInfo(typename PublisherPort::MemberType_t& portData)
+                : portData(&portData)
+                , process(portData.m_processName)
+                , service(portData.m_serviceDescription)
+                , node(portData.m_nodeName)
             {
             }
 
             typename PublisherPort::MemberType_t* portData{nullptr};
-            ProcessName_t name;
+            ProcessName_t process;
             capro::ServiceDescription service;
             NodeName_t node;
 
-            using TimePointNs = mepoo::TimePointNs;
-            using DurationNs = mepoo::DurationNs;
-            TimePointNs m_sequenceNumberTimestamp = TimePointNs(DurationNs(0));
-            mepoo::SequenceNumberType m_sequenceNumber{0};
+            using TimePointNs_t = mepoo::TimePointNs_t;
+            using DurationNs_t = mepoo::DurationNs_t;
+            TimePointNs_t m_sequenceNumberTimestamp{DurationNs_t(0)};
+            mepoo::SequenceNumber_t m_sequenceNumber{0U};
 
-            // map from indices to object pointers
+            /// map from indices to object pointers
             std::map<int, ConnectionInfo*> connectionMap;
             int index{-1};
         };
 
         struct SubscriberInfo
         {
-            SubscriberInfo()
-            {
-            }
+            SubscriberInfo() noexcept = default;
 
-            SubscriberInfo(typename SubscriberPort::MemberType_t* const portData,
-                           const ProcessName_t& name,
-                           const capro::ServiceDescription& service,
-                           const NodeName_t& node)
-                : portData(portData)
-                , name(name)
-                , service(service)
-                , node(node)
+            SubscriberInfo(typename SubscriberPort::MemberType_t& portData)
+                : portData(&portData)
+                , process(portData.m_processName)
+                , service(portData.m_serviceDescription)
+                , node(portData.m_nodeName)
             {
             }
 
             typename SubscriberPort::MemberType_t* portData{nullptr};
-            ProcessName_t name;
+            ProcessName_t process;
             capro::ServiceDescription service;
             NodeName_t node;
         };
 
         struct ConnectionInfo
         {
-            ConnectionInfo()
-            {
-            }
+            ConnectionInfo() noexcept = default;
 
-            ConnectionInfo(typename SubscriberPort::MemberType_t* const portData,
-                           const ProcessName_t& name,
-                           const capro::ServiceDescription& service,
-                           const NodeName_t& node)
-                : subscriberInfo(portData, name, service, node)
+            ConnectionInfo(typename SubscriberPort::MemberType_t& portData)
+                : subscriberInfo(portData)
                 , state(ConnectionState::DEFAULT)
             {
             }
 
-            ConnectionInfo(SubscriberInfo& subscriberInfo)
+            ConnectionInfo(SubscriberInfo& subscriberInfo) noexcept
                 : subscriberInfo(subscriberInfo)
                 , state(ConnectionState::DEFAULT)
             {
@@ -141,132 +130,102 @@ class PortIntrospection
             PublisherInfo* publisherInfo{nullptr};
             ConnectionState state{ConnectionState::DEFAULT};
 
-            bool isConnected()
+            bool isConnected() const noexcept
             {
                 return publisherInfo && state == ConnectionState::CONNECTED;
             }
         };
 
       public:
-        PortData();
+        PortData() noexcept;
 
-        /*!
-         * @brief add a publisher port to be tracked by introspection
-         * there cannot be multiple publisher ports with the same capro id
-         *
-         * @param[in] port to be added
-         * @param[in] name of the port to be added
-         * @param[in] service capro service description of the port to be added
-         * @param[in] name of the node the port belongs to
-         *
-         * @return returns false if the port could not be added and true otherwise
-         */
-        bool addPublisher(typename PublisherPort::MemberType_t* const port,
-                          const ProcessName_t& name,
-                          const capro::ServiceDescription& service,
-                          const NodeName_t& node);
+        /// @brief add a publisher port to be tracked by introspection
+        /// @param[in] port to be added
+        /// @return returns false if the port could not be added and true otherwise
+        bool addPublisher(typename PublisherPort::MemberType_t& port);
 
+        /// @brief add a subscriber port to be tracked by introspection
+        /// @param[in] portData to be added
+        /// @return returns false if the port could not be added and true otherwise
+        bool addSubscriber(typename SubscriberPort::MemberType_t& portData);
 
-        /*!
-         * @brief add a subscriber port to be tracked by introspection
-         * multiple subscribers with the same capro id are possible as long as the names are different
-         *
-         * @param[in] portData to be added
-         * @param[in] name name of the port to be added
-         * @param[in] service capro service description of the port to be added
-         * @param[in] name of the node the port belongs to
-         *
-         * @return returns false if the port could not be added and true otherwise
-         */
-        bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
-                           const ProcessName_t& name,
-                           const capro::ServiceDescription& service,
-                           const NodeName_t& node);
+        /// @brief remove a publisher port from introspection
+        /// @param[in] port publisher port to be removed
+        /// @return returns false if the port could not be removed (since it did not exist)
+        ///              and true otherwise
+        bool removePublisher(const PublisherPort& port);
 
-        /*!
-         * @brief remove a publisher port from introspection
-         *
-         * @param[in] name name of the port to be added
-         * @param[in] service capro service description of the port to be added
-         *
-         * @return returns false if the port could not be removed (since it did not exist)
-         *              and true otherwise
-         */
-        bool removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service);
+        /// @brief remove a subscriber port from introspection
+        /// @param[in] port subscriber port to be removed
+        /// @return returns false if the port could not be removed (since it did not exist)
+        ///              and true otherwise
+        bool removeSubscriber(const SubscriberPort& port);
 
-        /*!
-         * @brief remove a subscriber port from introspection
-         *
-         * @param[in] name name of the port to be added
-         * @param[in] service capro service description of the port to be added
-         *
-         * @return returns false if the port could not be removed (since it did not exist)
-         *              and true otherwise
-         */
-        bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service);
+        /// @brief update the state of any connection identified by the capro id of a given message
+        ///        according to the message type (e.g. capro::SUB for a subscription request)
+        /// @param[in] message capro message to be processed
+        /// @return returns false there is no corresponding capro service and true otherwise
+        bool updateConnectionState(const capro::CaproMessage& message) noexcept;
 
-        /*!
-         * @brief update the state of any connection identified by the capro id of a given message
-         *        according to the message type (e.g. capro:SUB for a subscription request)
-         *
-         * @param[in] message capro message to be processed
-         *
-         * @return returns false there is no corresponding capro service and true otherwise
-         */
-        bool updateConnectionState(const capro::CaproMessage& message);
+        /// @brief update the subscriber connection state identified by the unique port id and the capro id of a given
+        /// message according to the message type (e.g. capro::SUB for a subscription request)
+        /// @param[in] message capro message to be processed
+        /// @param[in] id unique port id
+        /// @return false if there is no corresponding capro service or unique port id, otherwise true
+        /// @note introduced for identifying the subscriber port whose connection state has to be updated, e.g. if a
+        /// subscriber unsubscribes only its connection state should be updated - not the states of all subscribers
+        /// which are subscribed to the same topic
+        bool updateSubscriberConnectionState(const capro::CaproMessage& message, const UniquePortId& id);
 
-        /*!
-         * @brief prepare the topic to be send based on the internal connection state of all tracked ports
-         *
-         * @param[out] topic data structure to be prepared for sending
-         *
-         */
-        void prepareTopic(PortIntrospectionTopic& topic);
+        /// @brief prepare the topic to be send based on the internal connection state of all tracked ports
+        /// @param[out] topic data structure to be prepared for sending
+        void prepareTopic(PortIntrospectionTopic& topic) noexcept;
 
-        void prepareTopic(PortThroughputIntrospectionTopic& topic);
+        void prepareTopic(PortThroughputIntrospectionTopic& topic) noexcept;
 
-        void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic);
+        void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic) noexcept;
 
-        /*!
-         * @brief compute the next connection state based on the current connection state and a capro message type
-         *
-         * @param[in] currentState current connection state (e.g. CONNECTED)
-         * @param[in] messageType capro message type
-         *
-         * @return returns the new connection state
-         */
+        /// @brief compute the next connection state based on the current connection state and a capro message type when
+        /// the communication policy is OneToMany
+        /// @param[in] currentState current connection state (e.g. CONNECTED)
+        /// @param[in] messageType capro message type
+        /// @return returns the new connection state
+        template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
         PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
-                                                        capro::CaproMessageType messageType);
+                                                        capro::CaproMessageType messageType) noexcept;
 
-        /*!
-         * @brief indicates whether the logical object state has changed (i.e. the data is new)
-         *
-         * @return returns true if the data is new(e.g. new connections were established), false otherwise
-         */
-        bool isNew();
+        /// @brief compute the next connection state based on the current connection state and a capro message type when
+        /// the communication policy is ManyToMany
+        /// @param[in] currentState current connection state (e.g. CONNECTED)
+        /// @param[in] messageType capro message type
+        /// @return returns the new connection state
+        template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
+        PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
+                                                        capro::CaproMessageType messageType) noexcept;
 
-        /*!
-         * @brief sets the internal flag indicating new data
-         *
-         * @param[in] value value to be set
-         */
-        void setNew(bool value);
+        /// @brief indicates whether the logical object state has changed (i.e. the data is new)
+        /// @return returns true if the data is new(e.g. new connections were established), false otherwise
+        bool isNew() const noexcept;
+
+        /// @brief sets the internal flag indicating new data
+        /// @param[in] value value to be set
+        void setNew(bool value) noexcept;
 
       private:
         using PublisherContainer = FixedSizeContainer<PublisherInfo, MAX_PUBLISHERS>;
         using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
 
-        // index publisher and connections by capro Ids
-        std::map<capro::ServiceDescription, typename PublisherContainer::Index_t> m_publisherMap;
+        /// @brief inner map maps from unique port IDs to indices in the PublisherContainer
+        std::map<capro::ServiceDescription, std::map<UniquePortId, typename PublisherContainer::Index_t>>
+            m_publisherMap;
 
-        // TODO: replace inner map wih more approriate structure if possible
-        // inner map maps from process names to indices in the ConnectionContainer
-        std::map<capro::ServiceDescription, std::map<ProcessName_t, typename ConnectionContainer::Index_t>>
+        /// inner map maps from unique port IDs to indices in the ConnectionContainer
+        std::map<capro::ServiceDescription, std::map<UniquePortId, typename ConnectionContainer::Index_t>>
             m_connectionMap;
 
-        // Rationale: we avoid allocating the objects on the heap but can still use a map
-        // to locate/remove them fast(er)
-        // max number needs to be a compile time constant
+        /// @note we avoid allocating the objects on the heap but can still use a map
+        /// to locate/remove them fast(er)
+        /// max number needs to be a compile time constant
         PublisherContainer m_publisherContainer;
         ConnectionContainer m_connectionContainer;
 
@@ -277,9 +236,9 @@ class PortIntrospection
     // end of helper classes
 
   public:
-    PortIntrospection();
+    PortIntrospection() noexcept;
 
-    ~PortIntrospection();
+    ~PortIntrospection() noexcept;
 
     // delete copy constructor and assignment operator
     PortIntrospection(PortIntrospection const&) = delete;
@@ -288,116 +247,70 @@ class PortIntrospection
     PortIntrospection(PortIntrospection&&) = delete;
     PortIntrospection& operator=(PortIntrospection&&) = delete;
 
-    /*!
-     * @brief add a publisher port to be tracked by introspection
-     * there cannot be multiple publisher ports with the same capro id
-     *
-     * @param[in] port to be added
-     * @param[in] name of the port to be added
-     * @param[in] service capro service description of the port to be added
-     * @param[in] name of the node the port belongs to
-     *
-     * @return returns false if the port could not be added and true otherwise
-     */
-    bool addPublisher(typename PublisherPort::MemberType_t* port,
-                      const ProcessName_t& name,
-                      const capro::ServiceDescription& service,
-                      const NodeName_t& node);
+    /// @brief add a publisher port to be tracked by introspection
+    /// @param[in] port to be added
+    /// @return returns false if the port could not be added and true otherwise
+    bool addPublisher(typename PublisherPort::MemberType_t& port);
 
-    /*!
-     * @brief add a subscriber port to be tracked by introspection
-     * multiple subscribers with the same capro id are possible as long as the names are different
-     *
-     * @param[in] port to be added
-     * @param[in] name name of the port to be added
-     * @param[in] service capro service description of the port to be added
-     * @param[in] name of the node the port belongs to
-     *
-     * @return returns false if the port could not be added and true otherwise
-     */
-    bool addSubscriber(typename SubscriberPort::MemberType_t* port,
-                       const ProcessName_t& name,
-                       const capro::ServiceDescription& service,
-                       const NodeName_t& node);
+    /// @brief add a subscriber port to be tracked by introspection
+    /// @param[in] port to be added
+    /// @return returns false if the port could not be added and true otherwise
+    bool addSubscriber(typename SubscriberPort::MemberType_t& port);
 
+    /// @brief remove a publisher port from introspection
+    /// @param[in] port publisher port to be removed
+    /// @return returns false if the port could not be removed (since it did not exist)
+    ///              and true otherwise
+    bool removePublisher(const PublisherPort& port);
 
-    /*!
-     * @brief remove a publisher port from introspection
-     *
-     * @param[in] name name of the port to be added
-     * @param[in] service capro service description of the port to be added
-     *
-     * @return returns false if the port could not be removed (since it did not exist)
-     *              and true otherwise
-     */
-    bool removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service);
+    /// @brief remove a subscriber port from introspection
+    /// @param[in] port subscriber port to be removed
+    /// @return returns false if the port could not be removed (since it did not exist)
+    ///              and true otherwise
+    bool removeSubscriber(const SubscriberPort& port);
 
-    /*!
-     * @brief remove a subscriber port from introspection
-     *
-     * @param[in] name name of the port to be added
-     * @param[in] service capro service description of the port to be added
-     *
-     * @return returns false if the port could not be removed (since it did not exist)
-     *              and true otherwise
-     */
-    bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service);
+    /// @brief report a capro message to introspection (since this could change the state of active connections)
+    /// @param[in] message capro message to be processed
+    void reportMessage(const capro::CaproMessage& message) noexcept;
 
-    /*!
-     * @brief report a capro message to introspection (since this could change the state of active connections)
-     *
-     * @param[in] message capro message to be processed
-     *
-     */
-    void reportMessage(const capro::CaproMessage& message);
+    /// @brief report a capro message to introspection (since this could change the state of active connections)
+    /// @param[in] message capro message to be processed
+    /// @param[in] id unique port id
+    /// @note introduced for identifying the subscriber port whose connection state has to be updated, e.g. if a
+    /// subscriber unsubscribes only its connection state should be updated - not the states of all subscribers
+    /// which are subscribed to the same topic
+    void reportMessage(const capro::CaproMessage& message, const UniquePortId& id);
 
-    /*!
-     * @brief register publisher port used to send introspection
-     *
-     * @param[in] publisherPort publisher port to be registered
-     *
-     * @return true if registration was successful, false otherwise
-     */
+    /// @brief register publisher port used to send introspection
+    /// @param[in] publisherPort publisher port to be registered
+    /// @return true if registration was successful, false otherwise
     bool registerPublisherPort(PublisherPort&& publisherPortGeneric,
                                PublisherPort&& publisherPortThroughput,
-                               PublisherPort&& publisherPortSubscriberPortsData);
+                               PublisherPort&& publisherPortSubscriberPortsData) noexcept;
 
-    /*!
-     * @brief set the time interval used to send new introspection data
-     *
-     * @param[in] sendIntervalMs time interval in ms
-     *
-     */
-    void setSendInterval(unsigned int sendIntervalMs);
+    /// @brief set the time interval used to send new introspection data
+    /// @param[in] interval duration between two send invocations
+    void setSendInterval(const units::Duration interval) noexcept;
 
-    /*!
-     * @brief start the internal send thread
-     *
-     */
-    void run();
 
-    /*!
-     * @brief stop the internal send thread
-     *
-     */
-    void stop();
+    /// @brief start the internal send thread
+    void run() noexcept;
+
+    /// @brief stop the internal send thread
+    void stop() noexcept;
 
   protected:
-    /*!
-     * @brief sends the port data; this is used from the unittests
-     *
-     */
-    void sendPortData();
-    /*!
-     * @brief sends the throughput data; this is used from the unittests
-     *
-     */
-    void sendThroughputData();
-    /*!
-     * @brief sends the subscriberport changing data, this is used from the unittests
-     *
-     */
-    void sendSubscriberPortsData();
+    /// @brief sends the port data; this is used from the unittests
+    void sendPortData() noexcept;
+
+    /// @brief sends the throughput data; this is used from the unittests
+    void sendThroughputData() noexcept;
+
+    /// @brief sends the subscriberport changing data, this is used from the unittests
+    void sendSubscriberPortsData() noexcept;
+
+    /// @brief calls the three specific send functions from above, this is used from the periodic task
+    void send() noexcept;
 
   protected:
     cxx::optional<PublisherPort> m_publisherPort;
@@ -407,17 +320,13 @@ class PortIntrospection
   private:
     PortData m_portData;
 
-    std::atomic<bool> m_runThread;
-    std::thread m_thread;
-
-    unsigned int m_sendIntervalCount{10};
-    const std::chrono::milliseconds m_sendIntervalSleep{100};
+    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
+        concurrent::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
 };
 
-/**
- * @brief typedef for the templated port introspection class that is used by RouDi for the
- * actual port introspection functionality.
- */
+/// @brief typedef for the templated port introspection class that is used by RouDi for the
+/// actual port introspection functionality.
 using PortIntrospectionType = PortIntrospection<PublisherPortUserType, SubscriberPortUserType>;
 
 } // namespace roudi

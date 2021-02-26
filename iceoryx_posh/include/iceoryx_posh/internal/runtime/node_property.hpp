@@ -11,17 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_RUNTIME_NODE_PROPERTY_HPP
 #define IOX_POSH_RUNTIME_NODE_PROPERTY_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_utils/cxx/serialization.hpp"
 
 namespace iox
 {
 namespace runtime
 {
 /// @brief helper struct which is convertable to string and constructable from a string
-///         which is required to send the createNode request over the message queue
+///         which is required to send the createNode request over the IPC channel
 struct NodeProperty
 {
     /// @brief constructor
@@ -29,7 +32,7 @@ struct NodeProperty
     /// @param[in] nodeDeviceIdentifier identifier of the device on which the node will run
     NodeProperty(const iox::NodeName_t& name, const uint64_t nodeDeviceIdentifier) noexcept;
 
-    /// @brief serialization constructor, used by the message queue message to create NodeProperty
+    /// @brief serialization constructor, used by the IPC channel message to create NodeProperty
     ///         from a received message
     /// @param[in] serialized raw serialized string where all the values are stored
     NodeProperty(const cxx::Serialization& serialized) noexcept;

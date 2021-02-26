@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -114,7 +116,7 @@ TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(sizeof(DummySample), uniqueId);
 
     ASSERT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT((*maybeChunkHeader)->m_originId, Eq(uniqueId));
+    EXPECT_THAT((*maybeChunkHeader)->originId, Eq(uniqueId));
 }
 
 TEST_F(ChunkSender_test, allocate_MultipleChunks)
@@ -326,10 +328,12 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
         EXPECT_TRUE(popRet.has_value());
         auto dummySample = *reinterpret_cast<DummySample*>(popRet->getPayload());
         EXPECT_THAT(dummySample.dummy, Eq(i));
-        EXPECT_THAT(popRet->getChunkHeader()->m_info.m_sequenceNumber, Eq(i));
+        EXPECT_THAT(popRet->getChunkHeader()->sequenceNumber, Eq(i));
     }
 }
 
+/// @todo iox-#14: this needs to be ported to the ChunkHeaderHooks once available
+#if 0
 TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 {
     m_chunkSender.tryAddQueue(&m_chunkQueueData);
@@ -358,7 +362,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
         EXPECT_THAT(popRet->getChunkHeader()->m_info.m_sequenceNumber, Eq(i));
     }
 }
-
+#endif
 
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
@@ -373,8 +377,6 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 
         if (!maybeChunkHeader.has_error())
         {
-            (*maybeChunkHeader)->m_info.m_externalSequenceNumber_bl = true;
-            (*maybeChunkHeader)->m_info.m_sequenceNumber = i;
             auto sample = (*maybeChunkHeader)->payload();
             new (sample) DummySample();
             static_cast<DummySample*>(sample)->dummy = i;

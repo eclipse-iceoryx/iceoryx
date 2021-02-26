@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_BINDING_C_CPP2C_ENUM_TRANSLATION_H
 #define IOX_BINDING_C_CPP2C_ENUM_TRANSLATION_H
@@ -25,7 +27,7 @@
 namespace cpp2c
 {
 iox_SubscribeState SubscribeState(const iox::SubscribeState value);
-iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveError value);
+iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult value);
 iox_AllocationResult AllocationResult(const iox::popo::AllocationError value);
 iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value);
 } // namespace cpp2c

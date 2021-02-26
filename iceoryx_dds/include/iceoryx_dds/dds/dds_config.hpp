@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_DDS_CONFIG_HPP
 #define IOX_DDS_DDS_CONFIG_HPP
@@ -21,6 +23,7 @@ namespace iox
 {
 namespace dds
 {
+using namespace units::duration_literals;
 static constexpr units::Duration DISCOVERY_PERIOD = 1000_ms;
 static constexpr units::Duration FORWARDING_PERIOD = 50_ms;
 static constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128u;

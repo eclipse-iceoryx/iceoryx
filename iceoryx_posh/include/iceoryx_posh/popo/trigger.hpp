@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_TRIGGER_HPP
 #define IOX_POSH_POPO_TRIGGER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/popo/trigger_info.hpp"
+#include "iceoryx_posh/popo/event_info.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
 #include <type_traits>
@@ -37,7 +39,7 @@ class Trigger
     static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
 
     template <typename T>
-    using Callback = TriggerInfo::Callback<T>;
+    using Callback = EventInfo::Callback<T>;
 
     /// @brief Creates an empty Trigger
     Trigger() noexcept = default;
@@ -49,13 +51,13 @@ class Trigger
     /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
     /// empty callback is set the trigger is in a defined but invalid state.
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
-    /// @param[in] triggerId id of the trigger
+    /// @param[in] eventId id of the corresponding event
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
     Trigger(T* const origin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
-            const uint64_t triggerId,
+            const uint64_t eventId,
             const Callback<T> callback) noexcept;
 
     Trigger(const Trigger&) = delete;
@@ -90,7 +92,7 @@ class Trigger
     /// @brief returns true if the Triggers are logical equal otherwise false. Two Triggers are logical equal when
     ///       - origin == rhs.origin
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
-    ///       - triggerId == rhs.triggerId
+    ///       - eventId == rhs.eventId
     bool isLogicalEqualTo(const Trigger& rhs) const noexcept;
 
     /// @brief sets a new origin of the trigger
@@ -98,11 +100,11 @@ class Trigger
     template <typename T>
     void updateOrigin(T* const newOrigin) noexcept;
 
-    /// @brief returns the TriggerInfo
-    const TriggerInfo& getTriggerInfo() const noexcept;
+    /// @brief returns the EventInfo
+    const EventInfo& getEventInfo() const noexcept;
 
   private:
-    TriggerInfo m_triggerInfo;
+    EventInfo m_eventInfo;
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;

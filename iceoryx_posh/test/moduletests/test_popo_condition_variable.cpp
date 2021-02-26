@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
@@ -30,7 +32,7 @@ using namespace iox::units::duration_literals;
 class ConditionVariable_test : public Test
 {
   public:
-    ConditionVariableData m_condVarData;
+    ConditionVariableData m_condVarData{"Horscht"};
     ConditionVariableWaiter m_waiter{&m_condVarData};
     ConditionVariableSignaler m_signaler{&m_condVarData};
 

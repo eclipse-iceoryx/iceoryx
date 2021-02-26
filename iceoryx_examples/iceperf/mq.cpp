@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "mq.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
@@ -204,7 +206,6 @@ void MQ::send(const char* buffer, uint32_t length) noexcept
 
 void MQ::receive(char* buffer) noexcept
 {
-    char message[MAX_MESSAGE_SIZE];
     auto mqCall = iox::cxx::makeSmartC(mq_receive,
                                        iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                        {static_cast<ssize_t>(ERROR_CODE)},

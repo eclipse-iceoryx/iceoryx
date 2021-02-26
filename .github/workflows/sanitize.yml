@@ -1,0 +1,75 @@
+# This workflow builds & runs test cases in iceoryx
+
+name: Sanitize
+
+# Triggers the workflow on push or pull request events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  clang-sanitize:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: compiler versions
+        run: |
+          echo $(gcc --version)
+          echo $(clang --version)
+
+      - name: Install iceoryx dependencies
+        # Softwares installed in ubuntu-20.04 instance
+        # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu2004-README.md
+        run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          sudo $GITHUB_WORKSPACE/tools/add_test_users.sh
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize clang test-add-user
+
+      - name: Run tests
+        run: |
+          cd $GITHUB_WORKSPACE/build
+          tools/run_tests.sh all
+
+ # This job builds & runs iceoryx tests (with sanitizer) in macos-10.15
+  clang-sanitize-macos:
+    runs-on: macos-latest
+    # Softwares installed in macos-10.15 instance
+    # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: compiler version
+        run: |
+          echo $(clang --version)
+
+      - name: Build and install dependencies
+      # tinfo library which is required by iceoryx_introspection isn't available in mac
+        run: |
+          cd $GITHUB_WORKSPACE
+          mkdir -p build
+          cd build
+          git clone https://github.com/mirror/ncurses.git
+          cd ncurses
+          git checkout v6.2
+          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib
+          make
+          make install
+
+      - name: Build
+        run: |
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all sanitize
+
+      - name: Run tests
+        run: |
+          cd $GITHUB_WORKSPACE/build
+          tools/run_tests.sh asan-only

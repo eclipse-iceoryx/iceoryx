@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 #include "time_mock.hpp"
@@ -18,16 +20,6 @@
 
 std::unique_ptr<time_MOCK> time_MOCK::mock;
 bool time_MOCK::doUseMock = false;
-
-namespace time_orig
-{
-int (*clock_getres)(clockid_t,
-                    struct timespec*) = mocks::assignSymbol<int (*)(clockid_t, struct timespec*)>("clock_getres");
-int (*clock_gettime)(clockid_t,
-                     struct timespec*) = mocks::assignSymbol<int (*)(clockid_t, struct timespec*)>("clock_gettime");
-int (*clock_settime)(clockid_t, const struct timespec*) =
-    mocks::assignSymbol<int (*)(clockid_t, const struct timespec*)>("clock_settime");
-} // namespace time_orig
 
 time_MOCK::time_MOCK()
 {
@@ -39,7 +31,8 @@ int clock_getres(clockid_t clk_id, struct timespec* res)
 int clock_getres(clockid_t clk_id, struct timespec* res) noexcept
 #endif
 {
-    return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_getres(clk_id, res) : time_orig::clock_getres(clk_id, res);
+    return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_getres(clk_id, res)
+                                  : STATIC_FUNCTION_LOADER_AUTO_DEDUCE(clock_getres)(clk_id, res);
 }
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 int clock_gettime(clockid_t clk_id, struct timespec* res)
@@ -47,7 +40,8 @@ int clock_gettime(clockid_t clk_id, struct timespec* res)
 int clock_gettime(clockid_t clk_id, struct timespec* res) noexcept
 #endif
 {
-    return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_gettime(clk_id, res) : time_orig::clock_gettime(clk_id, res);
+    return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_gettime(clk_id, res)
+                                  : STATIC_FUNCTION_LOADER_AUTO_DEDUCE(clock_gettime)(clk_id, res);
 }
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
@@ -56,6 +50,7 @@ int clock_settime(clockid_t clk_id, const struct timespec* res)
 int clock_settime(clockid_t clk_id, const struct timespec* res) noexcept
 #endif
 {
-    return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_settime(clk_id, res) : time_orig::clock_settime(clk_id, res);
+    return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_settime(clk_id, res)
+                                  : STATIC_FUNCTION_LOADER_AUTO_DEDUCE(clock_settime)(clk_id, res);
 }
 #endif

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_UTILS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP
 #define IOX_UTILS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP
@@ -31,23 +33,23 @@ class CyclicIndex
 {
   public:
     static_assert(std::is_unsigned<ValueType>::value, "ValueType must be an unsigned integral type");
-    static_assert(CycleLength >= 1u, "CycleLength must be >= 1");
+    static_assert(CycleLength >= 1U, "CycleLength must be >= 1");
 
     using value_t = ValueType;
 
-    static constexpr ValueType MAX_INDEX = CycleLength - 1u;
+    static constexpr ValueType MAX_INDEX = CycleLength - 1U;
     static constexpr ValueType MAX_VALUE = std::numeric_limits<ValueType>::max();
 
     // assumes MAX_VALUE >= CycleLength, otherwise we could not fit in even one cycle
     static constexpr ValueType MAX_CYCLE = MAX_VALUE / CycleLength;
 
     static constexpr ValueType INDEX_AT_MAX_VALUE = MAX_VALUE % CycleLength;
-    static constexpr ValueType OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1u) % CycleLength;
+    static constexpr ValueType OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1U) % CycleLength;
 
-    static_assert(CycleLength < MAX_VALUE / 2, "CycleLength is too large, need at least one bit for cycle");
+    static_assert(CycleLength < MAX_VALUE / 2U, "CycleLength is too large, need at least one bit for cycle");
     static_assert(CycleLength > 0, "CycleLength must be > 0");
 
-    explicit CyclicIndex(ValueType value = 0u) noexcept;
+    explicit CyclicIndex(ValueType value = 0U) noexcept;
 
     CyclicIndex(ValueType index, ValueType cycle) noexcept;
 
@@ -80,7 +82,7 @@ class CyclicIndex
     int64_t operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const;
 
   private:
-    ValueType m_value{0};
+    ValueType m_value{0U};
 };
 
 } // namespace concurrent

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
@@ -29,26 +31,30 @@ extern "C" {
 }
 
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
-                       const char* service,
-                       const char* instance,
-                       const char* event,
-                       const uint64_t historyCapacity)
+                       const char* const service,
+                       const char* const instance,
+                       const char* const event,
+                       const uint64_t historyCapacity,
+                       const char* const nodeName)
 {
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
+    PublisherOptions options;
+    options.historyCapacity = historyCapacity;
+    options.nodeName = NodeName_t(TruncateToCapacity, nodeName);
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
         ServiceDescription{
-            IdString(TruncateToCapacity, service),
-            IdString(TruncateToCapacity, instance),
-            IdString(TruncateToCapacity, event),
+            IdString_t(TruncateToCapacity, service),
+            IdString_t(TruncateToCapacity, instance),
+            IdString_t(TruncateToCapacity, event),
         },
-        historyCapacity);
+        options);
     return me;
 }
 
 void iox_pub_deinit(iox_pub_t const self)
 {
-    self->m_portData->m_toBeDestroyed.store(true);
+    self->m_portData->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     self->~cpp2c_Publisher();
 }
 
@@ -67,12 +73,12 @@ iox_AllocationResult iox_pub_allocate_chunk(iox_pub_t const self, void** const c
 
 void iox_pub_free_chunk(iox_pub_t const self, void* const chunk)
 {
-    PublisherPortUser(self->m_portData).freeChunk(convertPayloadPointerToChunkHeader(chunk));
+    PublisherPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
 }
 
 void iox_pub_send_chunk(iox_pub_t const self, void* const chunk)
 {
-    PublisherPortUser(self->m_portData).sendChunk(convertPayloadPointerToChunkHeader(chunk));
+    PublisherPortUser(self->m_portData).sendChunk(ChunkHeader::fromPayload(chunk));
 }
 
 const void* iox_pub_try_get_previous_chunk(iox_pub_t const self)

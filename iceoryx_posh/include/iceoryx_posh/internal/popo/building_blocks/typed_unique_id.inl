@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_INL
 
@@ -36,7 +38,7 @@ inline TypedUniqueId<T>::TypedUniqueId() noexcept
 }
 
 template <typename T>
-inline TypedUniqueId<T>::TypedUniqueId(CreateInvalidId_t) noexcept
+inline TypedUniqueId<T>::TypedUniqueId(InvalidId_t) noexcept
     /// we have to cast INVALID_UNIQUE_ID with static_cast<uint64_t> otherwise it will not link
     /// with gcc-7.x - gcc-10.x. Who knows why?!
     : ThisType(cxx::newtype::internal::ProtectedConstructor, static_cast<uint64_t>(INVALID_UNIQUE_ID))
@@ -46,7 +48,7 @@ inline TypedUniqueId<T>::TypedUniqueId(CreateInvalidId_t) noexcept
 template <typename T>
 inline bool TypedUniqueId<T>::isValid() const noexcept
 {
-    return TypedUniqueId<T>(CreateInvalidId) != *this;
+    return TypedUniqueId<T>(InvalidId) != *this;
 }
 } // namespace popo
 } // namespace iox

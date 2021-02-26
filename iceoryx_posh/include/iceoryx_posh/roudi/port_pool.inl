@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_PORT_POOL_INL
 #define IOX_POSH_ROUDI_PORT_POOL_INL
 
@@ -20,27 +22,27 @@ namespace roudi
 {
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                                    const uint64_t& historyRequest,
                                                                     const ProcessName_t& applicationName,
+                                                                    const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
                                                           applicationName,
                                                           cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
-                                                          historyRequest,
+                                                          subscriberOptions,
                                                           memoryInfo);
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                                    const uint64_t& historyRequest,
                                                                     const ProcessName_t& applicationName,
+                                                                    const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
                                                           applicationName,
                                                           cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                                          historyRequest,
+                                                          subscriberOptions,
                                                           memoryInfo);
 }
 } // namespace roudi

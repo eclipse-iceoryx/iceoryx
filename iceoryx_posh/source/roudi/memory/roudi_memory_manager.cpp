@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 
@@ -22,6 +24,29 @@ namespace iox
 {
 namespace roudi
 {
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemoryManagerError& error)
+{
+    switch (error)
+    {
+    case RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED:
+        logstream << "MEMORY_PROVIDER_EXHAUSTED";
+        break;
+    case RouDiMemoryManagerError::NO_MEMORY_PROVIDER_PRESENT:
+        logstream << "NO_MEMORY_PROVIDER_PRESENT";
+        break;
+    case RouDiMemoryManagerError::MEMORY_CREATION_FAILED:
+        logstream << "MEMORY_CREATION_FAILED";
+        break;
+    case RouDiMemoryManagerError::MEMORY_DESTRUCTION_FAILED:
+        logstream << "MEMORY_DESTRUCTION_FAILED";
+        break;
+    default:
+        logstream << "ROUDI_MEMEMORY_ERROR_UNDEFINED";
+        break;
+    }
+    return logstream;
+}
+
 RouDiMemoryManager::~RouDiMemoryManager() noexcept
 {
     destroyMemory();

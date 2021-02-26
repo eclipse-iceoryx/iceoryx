@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
@@ -23,12 +25,12 @@ namespace iox
 {
 namespace roudi
 {
-IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig) noexcept
-    : RouDiApp(cmdLineParser, roudiConfig)
+IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig) noexcept
+    : RouDiApp(cmdLineArgs, roudiConfig)
 {
 }
 
-void IceOryxRouDiApp::run() noexcept
+uint8_t IceOryxRouDiApp::run() noexcept
 {
     if (m_run)
     {
@@ -41,11 +43,12 @@ void IceOryxRouDiApp::run() noexcept
                                                      m_rouDiComponents.value().m_portManager,
                                                      RouDi::RoudiStartupParameters{m_monitoringMode,
                                                                                    true,
-                                                                                   RouDi::MQThreadStart::IMMEDIATE,
+                                                                                   RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
                                                                                    m_compatibilityCheckLevel,
                                                                                    m_processKillDelay});
         waitForSignal();
     }
+    return EXIT_SUCCESS;
 }
 } // namespace roudi
 } // namespace iox

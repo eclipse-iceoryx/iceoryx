@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -198,13 +200,11 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
     }
     else
     {
-        new (chunk) ChunkHeader();
-        static_cast<ChunkHeader*>(chunk)->m_info.m_payloadSize = f_size;
-        static_cast<ChunkHeader*>(chunk)->m_info.m_usedSizeOfChunk = adjustedSize;
-        static_cast<ChunkHeader*>(chunk)->m_info.m_totalSizeOfChunk = totalSizeOfAquiredChunk;
-        ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool.front().getChunk());
-        new (chunkManagement)
-            ChunkManagement(static_cast<ChunkHeader*>(chunk), memPoolPointer, &m_chunkManagementPool.front());
+        auto chunkHeader = new (chunk) ChunkHeader();
+        chunkHeader->chunkSize = totalSizeOfAquiredChunk;
+        chunkHeader->payloadSize = f_size;
+        auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
+            ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
         return SharedChunk(chunkManagement);
     }
 }

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_MEPOO_SEGMENT_MANAGER_HPP
 #define IOX_POSH_MEPOO_SEGMENT_MANAGER_HPP
 
@@ -50,9 +52,7 @@ class SegmentManager
     struct SegmentMapping
     {
       public:
-        using string_t = cxx::string<128>;
-
-        SegmentMapping(const string_t& sharedMemoryName,
+        SegmentMapping(const ShmName_t& sharedMemoryName,
                        void* startAddress,
                        uint64_t size,
                        bool isWritable,
@@ -68,7 +68,7 @@ class SegmentManager
         {
         }
 
-        string_t m_sharedMemoryName{""};
+        ShmName_t m_sharedMemoryName{""};
         void* m_startAddress{nullptr};
         uint64_t m_size{0};
         bool m_isWritable{false};

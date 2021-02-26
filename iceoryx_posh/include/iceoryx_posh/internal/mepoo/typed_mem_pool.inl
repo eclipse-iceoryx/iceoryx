@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_MEPOO_TYPED_MEM_POOL_INL
 #define IOX_POSH_MEPOO_TYPED_MEM_POOL_INL
 
@@ -50,8 +52,7 @@ inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acqui
     }
 
     new (chunkHeader) ChunkHeader();
-    chunkHeader->m_info.m_payloadSize = sizeof(T);
-    chunkHeader->m_info.m_usedSizeOfChunk = MemoryManager::sizeWithChunkHeaderStruct(sizeof(T));
+    chunkHeader->payloadSize = sizeof(T);
 
     new (chunkManagement) ChunkManagement(chunkHeader, &m_memPool, &m_chunkManagementPool);
 

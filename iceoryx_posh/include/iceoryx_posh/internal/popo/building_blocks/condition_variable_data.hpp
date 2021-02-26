@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 
@@ -26,7 +28,7 @@ namespace popo
 {
 struct ConditionVariableData
 {
-    ConditionVariableData() noexcept = default;
+    ConditionVariableData(const ProcessName_t& process) noexcept;
     ConditionVariableData(const ConditionVariableData& rhs) = delete;
     ConditionVariableData(ConditionVariableData&& rhs) = delete;
     ConditionVariableData& operator=(const ConditionVariableData& rhs) = delete;
@@ -40,6 +42,9 @@ struct ConditionVariableData
                                        ErrorLevel::FATAL);
                       })
                       .value());
+
+    ProcessName_t m_process;
+    std::atomic_bool m_toBeDestroyed{false};
 };
 
 } // namespace popo

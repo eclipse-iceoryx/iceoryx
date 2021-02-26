@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CONCURRENT_TRIGGER_QUEUE_HPP
 #define IOX_UTILS_CONCURRENT_TRIGGER_QUEUE_HPP
 
@@ -153,7 +155,7 @@ class TriggerQueue
     TriggerQueue() = default;
 
     cxx::expected<posix::Semaphore, posix::SemaphoreError> m_semaphore =
-        posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0);
+        posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U);
     bool m_isInitialized = !m_semaphore.has_error();
 
     /// @todo remove with lockfree fifo implementation

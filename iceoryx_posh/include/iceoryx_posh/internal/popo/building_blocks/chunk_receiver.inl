@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL
 
@@ -43,7 +45,7 @@ ChunkReceiver<ChunkReceiverDataType>::getMembers() noexcept
 }
 
 template <typename ChunkReceiverDataType>
-inline cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError>
+inline cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveResult>
 ChunkReceiver<ChunkReceiverDataType>::tryGet() noexcept
 {
     auto popRet = this->tryPop();
@@ -62,7 +64,7 @@ ChunkReceiver<ChunkReceiverDataType>::tryGet() noexcept
         {
             // release the chunk
             sharedChunk = nullptr;
-            return cxx::error<ChunkReceiveError>(ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+            return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
         }
     }
     else

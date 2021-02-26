@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_HPP
 
@@ -44,10 +46,10 @@ uint16_t getUniqueRouDiId() noexcept;
 } // namespace internal
 
 /// @brief Struct to signal the constructor to create an invalid id
-struct CreateInvalidId_t
+struct InvalidId_t
 {
 };
-constexpr CreateInvalidId_t CreateInvalidId = CreateInvalidId_t();
+constexpr InvalidId_t InvalidId = InvalidId_t();
 
 /// @brief Unique ID depending on a type. If you would like to assign different
 ///         types consistent unique ids use this class. Every types gets its
@@ -111,7 +113,7 @@ class TypedUniqueId : public cxx::NewType<uint64_t,
     TypedUniqueId() noexcept;
 
     /// @brief constructor which creates an invalid id
-    TypedUniqueId(CreateInvalidId_t) noexcept;
+    TypedUniqueId(InvalidId_t) noexcept;
 
     bool isValid() const noexcept;
 

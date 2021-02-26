@@ -1,11 +1,7 @@
+<!-- @todo Move the content of this file to website/getting-started/overview.md or website/for-developers/* -->
 
-# Contents
-1. [Structure of an Iceoryx System](#Structure-of-an-iceoryx-System)
-2. [Shared Memory Management](#Shared-Memory-Management)
-3. [Communication Mechanisms](#Communication-Mechanisms)
+# Structure of an iceoryx system
 
-
-# Structure of an iceoryx System
 An iceoryx system consists of:
 
 * One RouDi Daemon
@@ -82,7 +78,7 @@ The number of segments used by an iceoryx system, along with the configuration o
 provided to the system via configuration.
 
 The configuration can be provided at compile time (as a header) or at runtime (as a toml-formatted text file).
-See the [usage guide](usage-guide.md) for more details.
+See the [usage guide](website/advanced/installation-guide-for-contributors.md#iceoryx-library-build) for more details.
 
 # Communication Mechanisms
 In this section we will have a look at the concepts employed to structure the communication between
@@ -152,7 +148,7 @@ the `iox::RelocatablePointer`.
 Using these types, the difference in memory mapping is not a factor when it comes to locating a memory chunk.
 
 A more detailed discussion about how these types work can be found
-[here](../iceoryx_utils/doc/relocatable_pointer/relocatable_pointer.md).
+[here](design/relocatable_pointer.md).
 
 ## Internode Communication
 Separate iceoryx systems residing on different hosts can be networked together via "Gateways". Gateways are responsible
@@ -161,4 +157,4 @@ together.
 
 ## Logging and Error Handling
 Iceoryx uses its own logger which is based on the Autosar **ara::log** API. For safety reasons it defines its own error handler to deal with errors (instead of using e.g. exceptions).
-Details of the error handling concept can be found in [error-handling.md](./error-handling.md).
+Details of the error handling concept can be found in [error-handling.md](./design/error-handling.md).

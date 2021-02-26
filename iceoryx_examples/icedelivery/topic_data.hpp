@@ -11,24 +11,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 #define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 
 #include <cstdint>
 
-struct CounterTopic
+struct RadarObject
 {
-    uint32_t counter;
-};
-
-struct Position
-{
-    Position() noexcept
-    {}
-    Position(double x, double y, double z) noexcept
+    RadarObject() noexcept
+    {
+    }
+    RadarObject(double x, double y, double z) noexcept
         : x(x)
         , y(y)
-        , z(z){};
+        , z(z)
+    {
+    }
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;

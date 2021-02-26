@@ -11,16 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
 #define IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
 
+#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
-class WaitSetMock : public iox::popo::WaitSet
+class WaitSetMock : public cpp2c_WaitSet
 {
   public:
     WaitSetMock(iox::popo::ConditionVariableData* condVarDataPtr) noexcept
-        : WaitSet(condVarDataPtr)
+        : cpp2c_WaitSet(condVarDataPtr)
     {
     }
 };

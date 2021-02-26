@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_POSIX_WRAPPER_TIMER_HPP
 #define IOX_UTILS_POSIX_WRAPPER_TIMER_HPP
 
@@ -35,6 +38,7 @@ namespace posix
 {
 enum class TimerError
 {
+    INVALID_STATE,
     NO_ERROR,
     TIMER_NOT_INITIALIZED,
     NO_VALID_CALLBACK,
@@ -281,13 +285,6 @@ class Timer
     /// @note Shall only be called when callback is given
     cxx::expected<TimerError>
     restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
-
-    /// @brief Resets the internal creation time
-    void resetCreationTime() noexcept;
-
-    /// @brief Checks if the timer has expired compared to its creation time
-    /// @return Is the elapsed time larger than timeToWait?
-    bool hasExpiredComparedToCreationTime() noexcept;
 
     // @brief Returns the time until the timer expires the next time
     /// @note Shall only be called when callback is given

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_IOX_TO_DDS_HPP
 #define IOX_DDS_IOX_TO_DDS_HPP
@@ -18,7 +20,7 @@
 #include "iceoryx_dds/dds/dds_types.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
 
 namespace iox
 {
@@ -38,7 +40,8 @@ class Iceoryx2DDSGateway : public gateway_t
     void forward(const channel_t& channel) noexcept;
 
   private:
-    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service) noexcept;
+    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service,
+                                                            const popo::SubscriberOptions&) noexcept;
 };
 
 } // namespace dds

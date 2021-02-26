@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
@@ -165,6 +168,8 @@ const char* MemoryProvider::getErrorString(const MemoryProviderError error)
 {
     switch (error)
     {
+    case MemoryProviderError::INVALID_STATE:
+        return "MEMORY_BLOCKS_INVALID_STATE";
     case MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED:
         return "MEMORY_BLOCKS_EXHAUSTED";
     case MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT:
@@ -189,6 +194,8 @@ const char* MemoryProvider::getErrorString(const MemoryProviderError error)
         return "MEMORY_DEALLOCATION_FAILED";
     case MemoryProviderError::MEMORY_UNMAPPING_FAILED:
         return "MEMORY_UNMAPPING_FAILED";
+    case MemoryProviderError::SIGACTION_CALL_FAILED:
+        return "SIGACTION_CALL_FAILED";
     }
 
     // this will actually never be reached, but the compiler issues a warning

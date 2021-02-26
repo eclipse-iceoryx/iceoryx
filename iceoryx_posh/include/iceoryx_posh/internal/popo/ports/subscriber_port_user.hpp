@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
@@ -19,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -47,9 +50,7 @@ class SubscriberPortUser : public BasePort
     ~SubscriberPortUser() = default;
 
     /// @brief try to subscribe to all matching publishers
-    /// @param[in] queueCapacity, capacity of the queue where chunks are stored before they are passed to the user with
-    /// tryGetChunk. Caution: Depending on the underlying queue there can be a different overflow behavior
-    void subscribe(const uint64_t queueCapacity = MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
+    void subscribe() noexcept;
 
     /// @brief unsubscribe from publishers, if there are any to which we are currently subscribed
     void unsubscribe() noexcept;
@@ -63,8 +64,8 @@ class SubscriberPortUser : public BasePort
     /// @brief Tries to get the next chunk from the queue. If there is a new one, the ChunkHeader of the oldest chunk in
     /// the queue is returned (FiFo queue)
     /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
-    /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> tryGetChunk() noexcept;
+    /// ChunkReceiveResult on error
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveResult> tryGetChunk() noexcept;
 
     /// @brief Release a chunk that was obtained with tryGetChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

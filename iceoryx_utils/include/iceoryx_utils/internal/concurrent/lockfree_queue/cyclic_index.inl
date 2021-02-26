@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 namespace iox
 {
@@ -91,7 +93,7 @@ bool CyclicIndex<CycleLength, ValueType>::isOneCycleBehind(const CyclicIndex& ot
 template <uint64_t CycleLength, typename ValueType>
 int64_t CyclicIndex<CycleLength, ValueType>::operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const
 {
-    return m_value - rhs.m_value;
+    return static_cast<int64_t>(m_value - rhs.m_value);
 }
 } // namespace concurrent
 } // namespace iox

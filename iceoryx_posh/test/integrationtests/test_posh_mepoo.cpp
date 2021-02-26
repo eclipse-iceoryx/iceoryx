@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -19,6 +21,7 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "testutils/timing_test.hpp"
 
 #include <algorithm>
@@ -42,10 +45,7 @@ using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
 using ::testing::Return;
 
-
-using TimePointNs = iox::mepoo::TimePointNs;
-using BaseClock = iox::mepoo::BaseClock;
-using Timer = iox::posix::Timer;
+using iox::posix::Timer;
 
 class Mepoo_IntegrationTest : public Test
 {
@@ -144,10 +144,10 @@ class Mepoo_IntegrationTest : public Test
 
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
-        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("/sender");
+        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("sender");
         publisherPort.emplace(senderRuntime.getMiddlewarePublisher(m_service_description));
 
-        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("/receiver");
+        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("receiver");
         subscriberPort.emplace(receiverRuntime.getMiddlewareSubscriber(m_service_description));
     }
 
@@ -163,9 +163,13 @@ class Mepoo_IntegrationTest : public Test
 
     void PrintTiming(iox::units::Duration start)
     {
-        std::cerr << "RouDi startup took " << start.milliSeconds<int>() << " milliseconds, "
-                  << "(which is " << start.seconds<int>() << " seconds)"
-                  << "(which is " << start.minutes<int>() << " minutes)" << std::endl;
+        auto totalMillisconds = start.toMilliseconds();
+        auto milliseconds = totalMillisconds % 1000U;
+        auto totalSeconds = totalMillisconds / 1000U;
+        auto seconds = totalSeconds % 60U;
+        auto minutes = totalSeconds / 60U;
+        std::cerr << "RouDi startup took " << minutes << " minutes " << seconds << " seconds and " << milliseconds
+                  << " milliseconds" << std::endl;
     }
 
     template <uint32_t size>
@@ -250,7 +254,7 @@ class Mepoo_IntegrationTest : public Test
         m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(*memoryManager, mempoolInfo);
 
         // internally, the chunks are adjusted to the additional management information;
-        // this needs to be substracted to be able to compare to the configured sizes
+        // this needs to be subtracted to be able to compare to the configured sizes
         for (auto& mempool : mempoolInfo)
         {
             if (mempool.m_chunkSize != 0)
@@ -300,7 +304,7 @@ class Mepoo_IntegrationTest : public Test
         {
             publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
                 new (sample->payload()) Topic;
-                sample->m_info.m_payloadSize = topicSize;
+                sample->payloadSize = topicSize;
                 publisherPort->sendChunk(sample);
                 m_roudiEnv->InterOpWait();
             });

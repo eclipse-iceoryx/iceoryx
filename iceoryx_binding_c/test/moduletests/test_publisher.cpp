@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
@@ -104,11 +106,13 @@ class iox_pub_test : public Test
     MemoryManager m_memoryManager;
 
     // publisher port w/o history
-    PublisherPortData m_publisherPortData{ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager};
+    PublisherPortData m_publisherPortData{
+        ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, PublisherOptions()};
 
     // publisher port w/ history
+    PublisherOptions m_publisherOptions{MAX_PUBLISHER_HISTORY};
     PublisherPortData m_publisherPortDataHistory{
-        capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, MAX_PUBLISHER_HISTORY};
+        capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_publisherOptions};
     cpp2c_Publisher m_sut;
 };
 
@@ -230,3 +234,4 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     EXPECT_TRUE(*maybeSharedChunk == chunk);
     EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
 }
+

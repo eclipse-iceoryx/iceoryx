@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 
@@ -37,7 +39,7 @@ ServerPortUser::MemberType_t* ServerPortUser::getMembers() noexcept
 }
 
 
-cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveError> ServerPortUser::getRequest() noexcept
+cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveResult> ServerPortUser::getRequest() noexcept
 {
     return cxx::success<cxx::optional<const RequestHeader*>>(cxx::nullopt_t());
 }

@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 
 project(cyclonedds-download NONE)
@@ -19,7 +20,7 @@ project(cyclonedds-download NONE)
 include(ExternalProject)
 ExternalProject_Add(ext_cyclonedds
   GIT_REPOSITORY    https://github.com/eclipse-cyclonedds/cyclonedds.git
-  GIT_TAG           0.6.0
+  GIT_TAG           0.7.0
   SOURCE_DIR        "${CMAKE_BINARY_DIR}/dependencies/cyclonedds/src"
   BINARY_DIR        "${CMAKE_BINARY_DIR}/dependencies/cyclonedds/build"
   CONFIGURE_COMMAND ""

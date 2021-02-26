@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_EXAMPLES_ICEPERF_BASE_HPP
 #define IOX_EXAMPLES_ICEPERF_BASE_HPP
 
@@ -29,7 +31,7 @@ class IcePerfBase
     void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept;
     void postPingPongLeader() noexcept;
     void releaseFollower() noexcept;
-    double pingPongLeader(int64_t numRoundTrips) noexcept;
+    double pingPongLeader(uint64_t numRoundTrips) noexcept;
     void pingPongFollower() noexcept;
 
   private:

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_CONVERT_HPP
 #define IOX_UTILS_CXX_CONVERT_HPP
 
@@ -47,6 +49,8 @@ class convert
         UNSIGNED_INTEGER,
         FLOAT
     };
+
+    static constexpr int32_t STRTOULL_BASE = 10;
 
     /// @brief Converts every type which is either a pod (plain old data) type or is convertable
     ///         to a string (this means that the operator std::string() is defined)

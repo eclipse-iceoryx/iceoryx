@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_DDS_DDS_TYPES_HPP
 #define IOX_DDS_DDS_DDS_TYPES_HPP
@@ -26,9 +28,6 @@ namespace iox
 {
 namespace dds
 {
-// Fixed strings
-using IdString = iox::cxx::string<100u>;
-
 // DDS implementation defined with compiler flags
 #ifdef USE_CYCLONE_DDS
 using data_reader_t = iox::dds::CycloneDataReader;

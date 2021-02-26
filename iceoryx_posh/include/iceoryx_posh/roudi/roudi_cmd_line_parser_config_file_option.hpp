@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_CONFIG_FILE_OPTION_HPP
 #define IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_CONFIG_FILE_OPTION_HPP
 
@@ -34,14 +36,15 @@ class CmdLineParserConfigFileOption : public CmdLineParser
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] cmdLineParsingMode selects to parse a single option or all options
-    void parse(int argc,
-               char* argv[],
-               const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept override;
-
-    ConfigFilePathString_t getConfigFilePath() const;
+    /// @param[out] Result wrapped in an cxx::expected, either the parsed arguments as CmdLineArgs_t struct or
+    /// CmdLineParserResult
+    cxx::expected<CmdLineArgs_t, CmdLineParserResult>
+    parse(int argc,
+          char* argv[],
+          const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept override;
 
   protected:
-    ConfigFilePathString_t m_customConfigFilePath;
+    roudi::ConfigFilePathString_t m_customConfigFilePath;
 };
 
 } // namespace config

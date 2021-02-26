@@ -34,7 +34,7 @@ Contact the project developers via the project's "dev" list.
 We love pull requests! The next sections try to cover most of the relevant questions. For larger contributions or
 architectural changes, we'd kindly ask you to either:
 
-* Raise the proposed changes during a [developer meetup](https://github.com/eclipse/iceoryx/wiki/Developer-meetup)
+* Raise the proposed changes during a [developer meetup](https://github.com/eclipse-iceoryx/iceoryx/wiki/Developer-meetup)
 
 or
 
@@ -42,7 +42,7 @@ or
 
 If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
 Please have a quick search upfront if a similar issue already exists. An
-[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritise the issues for a specific release.
+[release board](https://github.com/eclipse-iceoryx/iceoryx/projects) is used to prioritize the issues for a specific release.
 This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please
 contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
 
@@ -90,18 +90,20 @@ See [error-handling.md](./doc/error-handling.md) for additional information abou
 * Methods and variables in `lowerCamelCase`: `uint16_t myVariable`
 * Compile time constants, also enum values in `UPPER_SNAKE_CASE`: `static constexpr uint16_t MY_CONSTANT`
 * Class members start with `m_`: `m_myMember`
+    * Public members of structs and classes do not have the `m_` prefix
 * Namespaces in `lower_snake_case` : `my_namespace`
+* Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
 
 ### Doxygen
 
 Please use [doxygen](http://www.doxygen.nl/) to document your code.
 
 The following doxygen comments are required for public API headers:
-
+```cpp
     /// @brief short description
     /// @param[in] / [out] / [in,out] name description
     /// @return description
-
+```
 A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
 
 ## Folder structure
@@ -114,9 +116,9 @@ The folder structure boils down to:
   * include: public headers with stable API
     * internal: public headers with unstable API, which might change quite frequently
   * source: implementation files
-  * test: unit and integrations tests
+  * test: unit and integration tests
   * CMakeLists.txt: Build the component separately
-* examples_iceoryx: Examples described in the main [Readme.md](./README.md#user-content-examples)
+* examples_iceoryx: Examples described in [iceoryx_examples](./iceoryx_examples/README.md)
 
 All new code should follow the folder structure.
 
@@ -124,6 +126,8 @@ All new code should follow the folder structure.
 
 We use [Google test](https://github.com/google/googletest) for our unit and integration tests. We require compatibility
 with the version 1.8.1.
+
+Have a look at our [best practice guidelines](./doc/website/advanced/best-practice-for-testing.md) for writing tests in iceoryx.
 
 ### Unit tests (aka module tests)
 
@@ -137,39 +141,37 @@ Integration tests are composition of more than one class and test their interact
 
 To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with lcov and htmlgen.
 You will need to install the following packages:
-    ```
-    sudo apt install lcov
-    ```
+```bash
+sudo apt install lcov
+```
 
 In iceoryx we have multiple testlevels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all testlevels together. You can create reports for these different testlevels or for all tests. Coverage is done with gcc.
 The coverage scan applies to Quality level 3 and partly level 2 with branch coverage.
 
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
-You can do this with one command like this:
-    ```
-    ./tools/iceoryx_build_test.sh clean -c <testlevel> -j 4
-    ```
-
+You can do this with one command in iceroyx folder like this:
+```bash
+./tools/iceoryx_build_test.sh clean build-all -c <testlevel>
+```
+Optionally you can use build-all option to get coverage for extensions like DDS or C-Binding.
 The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
 example:
-    ```
-    ./tools/iceoryx_build_test.sh clean -c unit -j 4
-    ```
-For having only unittest reports. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
+```bash
+./tools/iceoryx_build_test.sh debug build-all -c unit
+```
+**NOTE**
+Iceoryx needs to be build as static library for working with gcov flags. The script does it automatically.
 
-All reports are stored in build/lcov as html report.
+The flag `-c unit` is for having only reports for unit-tests. In the script `tools/gcov/lcov_generate.sh` is the initial scan, filtering and report generation automatically done.
+
+All reports are stored locally in build/lcov as html report (index.html). In Github we are using for codecov for a general reporting of the code coverage. 
+Codecov gives a brief overview over the code coverage and also indicates in Pull-Requests if new added code is not covered by tests.
+If you want to download the detailed html reports from the Pull-Requests or master build you can do it by the following way:
+1. Open the "Checks" view in the PR
+2. Open the "Details" link for the check `iceoryx-coverage-doxygen-ubuntu` in `Test Coverage + Doxygen Documentation`
+3. On the right side you find a menu button `Artifacts` which shows `lcov-report` as download link
 
 ## Legal & Compliance
-
-### Dependencies
-
-* [POSIX](https://en.wikipedia.org/wiki/POSIX)
-Iceoryx aims to be fully POSIX-compliant towards the current revision POSIX.1-2017 (IEEE 1003.1-2017). Please write
-your code as portable as possible. Currently our focus is [QNX](https://blackberry.qnx.com/en) (QCC 5.4) and Linux (GCC 7.5.0).
-
-* [ACL](https://en.wikipedia.org/wiki/Access-control_list)
-
-* [ncurses](https://www.gnu.org/software/ncurses/)
 
 ### Safety & security
 
@@ -182,7 +184,7 @@ If you want to report a vulnerability, please use the [Eclipse process](https://
 We have a [partnership](https://www.perforce.com/blog/qac/why-eclipse-iceoryx-uses-helix-qac) with [Perforce](https://www.perforce.com) and use
 [Helix QAC++ 2019.2](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
 
-Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group issues into the rulesets:
+Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to group issues into the rulesets:
 
 | Ruleset name | Github issue label |
 |---|---|
@@ -193,14 +195,14 @@ Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group iss
 If one of the rules is not followed, a rationale is added in the following manner:
 
 With a comment in the same line:
-
+```cpp
     *mynullptr = foo; // PRQA S 4242 # Short description why
-
+```
 With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
-
+```cpp
     // PRQA S 4242 1 # Short description why
     *mynullptr = foo;
-
+```
 Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
 please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
 
@@ -215,8 +217,8 @@ requests. We're planning to introduce continuos integration checks in the near f
 
 Each source file needs to have this header:
 
-```
-    // Copyright (c) [DATE] by [INITIAL COPYRIGHT OWNER] [OTHER COPYRIGHT OWNERS]. All rights reserved.
+```cpp
+    // Copyright (c) [YEAR OF INITIAL CONTRIBUTION] - [YEAR LAST CONTRIBUTION] by [CONTRIBUTOR]. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -229,13 +231,16 @@ Each source file needs to have this header:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+    //
+    // SPDX-License-Identifier: Apache-2.0
 ```
-Note: `DATE` is either a year or a range of years with the first and last years of the range separated by a comma. So for example: "2004" or "2000, 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified.
+Note: The date is either a year or a range of years with the first and last years of the range separated by a dash. For example: "2004" (initial and last contribution in the same year) or "2000 - 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified. The years of contribution should be ordered in chronological order, thus the last date in the list should be the year of the most recent contribution. If there is a gap between contributions of one or more calendar years, use a comma to separate the disconnected contribution periods (e.g. "2000 - 2004, 2006").
 
 Example:
 
-```
-    // Copyright (c) 2018, 2020 by ACME Corp, Globex. All rights reserved.
+```cpp
+    // Copyright (c) 2019 - 2020, 2022 by Acme Corporation. All rights reserved.
+    // Copyright (c) 2020 - 2022 by Jane Doe <jane@example.com>. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -248,8 +253,10 @@ Example:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+    //
+    // SPDX-License-Identifier: Apache-2.0
 ```
-
+**_NOTE:_**  For scripts or CMake files you can use the respective comment syntax like `#` for the header.
 ## Quality levels
 
 CMake targets can be developed according to different quality levels. Despite developing some of our targets according

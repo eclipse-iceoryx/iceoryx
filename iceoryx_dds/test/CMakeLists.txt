@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 project(test_iox_to_dds VERSION 0)
 
@@ -36,9 +37,9 @@ set(TEST_LINK_LIBS
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS} /W3)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-unused -Wno-pedantic)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-unused -Wno-pedantic)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-unused -Wno-pedantic)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-unused -Wno-pedantic)
 endif()
 
 if(LINUX)

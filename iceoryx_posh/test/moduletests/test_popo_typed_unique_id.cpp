@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
@@ -160,6 +162,6 @@ TYPED_TEST(TypedUniqueId_test, CreatingAnUniqueIdWithDefaultCTorIsValid)
 
 TYPED_TEST(TypedUniqueId_test, InvalidIdIsInvalid)
 {
-    typename TestFixture::UniqueIDType a(CreateInvalidId);
+    typename TestFixture::UniqueIDType a(InvalidId);
     EXPECT_FALSE(a.isValid());
 }

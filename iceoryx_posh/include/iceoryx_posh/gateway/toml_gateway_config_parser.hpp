@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_GW_TOML_FILE_CONFIG_PARSER_HPP
 #define IOX_POSH_GW_TOML_FILE_CONFIG_PARSER_HPP
@@ -28,6 +31,7 @@ namespace config
 {
 enum TomlGatewayConfigParseError
 {
+    INVALID_STATE,
     FILE_NOT_FOUND,
     INCOMPLETE_CONFIGURATION,
     INCOMPLETE_SERVICE_DESCRIPTION,
@@ -52,7 +56,7 @@ class TomlGatewayConfigParser
 {
   public:
     static cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse();
-    static cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse(const ConfigFilePathString_t& path);
+    static cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse(const roudi::ConfigFilePathString_t& path);
 
   protected:
     static cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;

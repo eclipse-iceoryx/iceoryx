@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/system_configuration.hpp"
 
@@ -28,7 +30,7 @@ cxx::optional<uint64_t> pageSize()
         return cxx::nullopt_t();
     }
 
-    return cxx::make_optional<uint64_t>(size.getReturnValue());
+    return cxx::make_optional<uint64_t>(static_cast<uint64_t>(size.getReturnValue()));
 }
 } // namespace posix
 } // namespace iox

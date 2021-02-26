@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 
@@ -49,8 +51,8 @@ class ServerPortUser : public BasePort
     /// @brief Tries to get the next request from the queue. If there is a new one, the ChunkHeader of the oldest
     /// request in the queue is returned (FiFo queue)
     /// @return optional that has a new chunk header or no value if there are no new requests in the underlying queue,
-    /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveError> getRequest() noexcept;
+    /// ChunkReceiveResult on error
+    cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveResult> getRequest() noexcept;
 
     /// @brief Release a request that was obtained with getRequest
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

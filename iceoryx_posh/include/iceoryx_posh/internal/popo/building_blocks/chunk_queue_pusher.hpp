@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_HPP
 
@@ -44,9 +46,7 @@ class ChunkQueuePusher
 
     /// @brief push a new chunk to the chunk queue
     /// @param[in] shared chunk object
-    /// @return if the values was pushed successfully into the chunk queue it returns
-    ///         success, otherwise a ChunkQueueError
-    cxx::expected<ChunkQueueError> tryPush(mepoo::SharedChunk chunk) noexcept;
+    void push(mepoo::SharedChunk chunk) noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

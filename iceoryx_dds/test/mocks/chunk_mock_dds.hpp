@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_GATEWAY_MOCKS_CHUNK_MOCK_HPP
 #define IOX_DDS_GATEWAY_MOCKS_CHUNK_MOCK_HPP
@@ -48,7 +50,7 @@ class ChunkMockDDS
         memset(m_rawMemory, 0xFF, Size);
 
         m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader();
-        m_chunkHeader->m_info.m_payloadSize = sizeof(T);
+        m_chunkHeader->payloadSize = sizeof(T);
 
         // Set the value
         auto payloadPtr = reinterpret_cast<T*>(m_rawMemory + sizeof(iox::mepoo::ChunkHeader));

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_ICEORYX_ROUDI_APP_HPP
 #define IOX_POSH_ROUDI_ICEORYX_ROUDI_APP_HPP
 
@@ -26,10 +28,11 @@ class IceOryxRouDiApp : public RouDiApp
     /// @brief constructor to create the RouDi daemon with a given config
     /// @param[in] Command liner parser object, that provides the settings
     /// @param[in] RouDi config for mempool configuration
-    IceOryxRouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig) noexcept;
+    IceOryxRouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig) noexcept;
 
     /// @brief starts the execution of the RouDi daemon
-    void run() noexcept override;
+    /// @return Return code for programm execution
+    uint8_t run() noexcept override;
 };
 
 } // namespace roudi

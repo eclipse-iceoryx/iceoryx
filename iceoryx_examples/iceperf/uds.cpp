@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "uds.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 
 #include <chrono>
+#include <thread>
 
 UDS::UDS(const std::string& publisherName, const std::string& subscriberName) noexcept
     : m_publisherName(publisherName)
@@ -185,21 +188,31 @@ PerfTopic UDS::receivePerfTopic() noexcept
 
 void UDS::send(const char* buffer, uint32_t length) noexcept
 {
-    auto sendCall = iox::cxx::makeSmartC(sendto,
-                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                         {ERROR_CODE},
-                                         {},
-                                         m_sockfdPublisher,
-                                         buffer,
-                                         length,
-                                         static_cast<int>(0),
-                                         reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
-                                         static_cast<socklen_t>(sizeof(m_sockAddrPublisher)));
-
-    if (sendCall.hasErrors())
+    while (true)
     {
-        std::cout << std::endl << "send error" << std::endl;
-        exit(1);
+        auto sendCall = iox::cxx::makeSmartC(sendto,
+                                             iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                             {ERROR_CODE},
+                                             {ENOBUFS},
+                                             m_sockfdPublisher,
+                                             buffer,
+                                             length,
+                                             static_cast<int>(0),
+                                             reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
+                                             static_cast<socklen_t>(sizeof(m_sockAddrPublisher)));
+
+        if (sendCall.hasErrors() && sendCall.getErrNum() != ENOBUFS)
+        {
+            std::cout << std::endl << "send error" << std::endl;
+            exit(1);
+        }
+        // only return from this loop when the message could be send successfully
+        // if the OS socket message buffer if full, retry until it is free'd by
+        // the OS and the message could be send
+        else if (!sendCall.hasErrors() && sendCall.getErrNum() != ENOBUFS)
+        {
+            break;
+        }
     }
 }
 

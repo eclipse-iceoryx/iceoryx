@@ -11,10 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_posh/popo/trigger_info.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
@@ -32,30 +33,24 @@ using namespace ::testing;
 
 TEST(iox_types_test, WaitSetStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(WaitSet), Eq(sizeof(iox_ws_storage_t)));
-    EXPECT_THAT(alignof(WaitSet), Le(alignof(iox_ws_storage_t)));
+    EXPECT_THAT(sizeof(WaitSet<>), Le(sizeof(iox_ws_storage_t)));
+    EXPECT_THAT(alignof(WaitSet<>), Le(alignof(iox_ws_storage_t)));
 }
 
 TEST(iox_types_test, UserTriggerStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(UserTrigger), Eq(sizeof(iox_user_trigger_storage_t)));
+    EXPECT_THAT(sizeof(UserTrigger), Le(sizeof(iox_user_trigger_storage_t)));
     EXPECT_THAT(alignof(UserTrigger), Le(alignof(iox_user_trigger_storage_t)));
-}
-
-TEST(iox_types_test, TriggerInfoStorageSizeFits)
-{
-    EXPECT_THAT(sizeof(TriggerInfo), Eq(sizeof(iox_trigger_info_storage_t)));
-    EXPECT_THAT(alignof(TriggerInfo), Le(alignof(iox_trigger_info_storage_t)));
 }
 
 TEST(iox_types_test, cpp2c_SubscriberStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(cpp2c_Subscriber), Eq(sizeof(iox_sub_storage_t)));
+    EXPECT_THAT(sizeof(cpp2c_Subscriber), Le(sizeof(iox_sub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Subscriber), Le(alignof(iox_sub_storage_t)));
 }
 
 TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(cpp2c_Publisher), Eq(sizeof(iox_pub_storage_t)));
+    EXPECT_THAT(sizeof(cpp2c_Publisher), Le(sizeof(iox_pub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
 }

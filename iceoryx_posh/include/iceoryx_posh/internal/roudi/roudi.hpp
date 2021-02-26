@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 #define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
@@ -18,7 +21,7 @@
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
@@ -41,9 +44,9 @@ using namespace iox::units::duration_literals;
 class RouDi
 {
   public:
-    // indicate whether the message queue thread will start directly or deferred
-    // this is important for derived classes which may need to initialize their members before the thread starts
-    enum class MQThreadStart
+    /// @brief Indicate whether the thread processing messages from the runtimes will start directly or deferred
+    /// this is important for derived classes which may need to initialize their members before the thread starts
+    enum class RuntimeMessagesThreadStart
     {
         IMMEDIATE,
         DEFER_START
@@ -52,22 +55,22 @@ class RouDi
     struct RoudiStartupParameters
     {
         RoudiStartupParameters(
-            const config::MonitoringMode monitoringMode = config::MonitoringMode::ON,
+            const roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::ON,
             const bool killProcessesInDestructor = true,
-            const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE,
+            const RuntimeMessagesThreadStart RuntimeMessagesThreadStart = RuntimeMessagesThreadStart::IMMEDIATE,
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
-            const units::Duration processKillDelay = PROCESS_DEFAULT_KILL_DELAY) noexcept
+            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY) noexcept
             : m_monitoringMode(monitoringMode)
             , m_killProcessesInDestructor(killProcessesInDestructor)
-            , m_mqThreadStart(mqThreadStart)
+            , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
             , m_compatibilityCheckLevel(compatibilityCheckLevel)
             , m_processKillDelay(processKillDelay)
         {
         }
 
-        const config::MonitoringMode m_monitoringMode;
+        const roudi::MonitoringMode m_monitoringMode;
         const bool m_killProcessesInDestructor;
-        const MQThreadStart m_mqThreadStart;
+        const RuntimeMessagesThreadStart m_runtimesMessagesThreadStart;
         const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
         const units::Duration m_processKillDelay;
     };
@@ -82,30 +85,30 @@ class RouDi
     virtual ~RouDi();
 
   protected:
-    /// @brief Starts the roudi message queue thread
+    /// @brief Starts the thread processing messages from the runtimes
     /// Once this is done, applications can register and Roudi is fully operational.
-    void startMQThread();
+    void startProcessRuntimeMessagesThread();
 
     /// @brief Stops threads and kills all process known to RouDi
     /// Called in d'tor
     ///
     /// @note Intentionally not virtual to be able to call it in derived class
     void shutdown();
-    virtual void processMessage(const runtime::MqMessage& message,
-                                const iox::runtime::MqMessageType& cmd,
+    virtual void processMessage(const runtime::IpcMessage& message,
+                                const iox::runtime::IpcMessageType& cmd,
                                 const ProcessName_t& processName);
     virtual void cyclicUpdateHook();
-    void mqMessageErrorHandler();
+    void IpcMessageErrorHandler();
 
     version::VersionInfo
-    parseRegisterMessage(const runtime::MqMessage& message, int& pid, uid_t& userId, int64_t& transmissionTimestamp);
+    parseRegisterMessage(const runtime::IpcMessage& message, int& pid, uid_t& userId, int64_t& transmissionTimestamp);
 
     /// @brief Handles the registration request from process
-    /// @param [in] name of the process which wants to register at roudi; this is equal to the mqueue name
+    /// @param [in] name of the process which wants to register at roudi; this is equal to the IPC channel name
     /// @param [in] pid is the host system process id
     /// @param [in] user is the posix user id to which the process belongs
     /// @param [in] transmissionTimestamp is an ID for the application to check for the expected response
-    /// @param [in] sessionId is an ID generated by RouDi to prevent sending outdated mqueue transmission
+    /// @param [in] sessionId is an ID generated by RouDi to prevent sending outdated IPC channel transmission
     /// @param [in] versionInfo Version of iceoryx used
     /// @return Returns if the process could be added successfully.
     bool registerProcess(const ProcessName_t& name,
@@ -115,20 +118,20 @@ class RouDi
                          const uint64_t sessionId,
                          const version::VersionInfo& versionInfo);
 
-    /// @brief Creates a unique ID which can be used to check outdated mqueue transmissions
+    /// @brief Creates a unique ID which can be used to check outdated IPC channel transmissions
     /// @return a unique, monotonic and consecutive increasing number
     static uint64_t getUniqueSessionIdForProcess();
 
   private:
-    void mqThread();
+    void processRuntimeMessages();
 
-    void processThread();
+    void monitorAndDiscoveryUpdate();
 
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 
-    const units::Duration m_messageQueueTimeout{100_ms};
+    const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 
   protected:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
@@ -141,14 +144,14 @@ class RouDi
 
   private:
     std::thread m_processManagementThread;
-    std::thread m_processMQThread;
+    std::thread m_processRuntimeMessagesThread;
 
   protected:
     ProcessIntrospectionType m_processIntrospection;
     MemPoolIntrospectionType m_mempoolIntrospection;
 
   private:
-    config::MonitoringMode m_monitoringMode{config::MonitoringMode::ON};
+    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
     units::Duration m_processKillDelay;
 };
 

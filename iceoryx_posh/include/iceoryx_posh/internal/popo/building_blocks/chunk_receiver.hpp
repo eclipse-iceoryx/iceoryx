@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_HPP
 
@@ -25,9 +28,11 @@ namespace iox
 {
 namespace popo
 {
-enum class ChunkReceiveError
+enum class ChunkReceiveResult
 {
-    TOO_MANY_CHUNKS_HELD_IN_PARALLEL
+    INVALID_STATE,
+    TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
+    NO_CHUNK_AVAILABLE
 };
 
 /// @brief The ChunkReceiver is a building block of the shared memory communication infrastructure. It extends
@@ -55,8 +60,8 @@ class ChunkReceiver : public ChunkQueuePopper<typename ChunkReceiverDataType::Ch
     /// The ownerhip of the SharedChunk remains in the ChunkReceiver for being able to cleanup if the user process
     /// disappears
     /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
-    /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> tryGet() noexcept;
+    /// ChunkReceiveResult on error
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveResult> tryGet() noexcept;
 
     /// @brief Release a chunk that was obtained with get
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

@@ -11,10 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "test.hpp"
 
@@ -31,18 +34,19 @@ class CaproMessage_test : public Test
 
 TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
 {
-    constexpr uint16_t testServiceID{1u};
-    constexpr uint16_t testEventID{2u};
-    constexpr uint16_t testInstanceID{3u};
+    constexpr uint16_t testServiceID{1U};
+    constexpr uint16_t testEventID{2U};
+    constexpr uint16_t testInstanceID{3U};
     ServiceDescription sd(testServiceID, testEventID, testInstanceID);
-    iox::popo::SubscriberPortData recData{sd, "foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, 1};
+    iox::popo::SubscriberPortData recData{
+        sd, "foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, iox::popo::SubscriberOptions()};
 
     CaproMessage testObj(CaproMessageType::OFFER, sd, CaproMessageSubType::SERVICE, &recData);
 
     EXPECT_EQ(&recData, testObj.m_chunkQueueData);
     EXPECT_EQ(CaproMessageType::OFFER, testObj.m_type);
     EXPECT_EQ(CaproMessageSubType::SERVICE, testObj.m_subType);
-    EXPECT_EQ(0u, testObj.m_historyCapacity);
+    EXPECT_EQ(0U, testObj.m_historyCapacity);
     EXPECT_EQ(sd, testObj.m_serviceDescription);
 }
 

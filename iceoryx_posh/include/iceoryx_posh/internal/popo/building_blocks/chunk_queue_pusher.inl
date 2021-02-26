@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL
 
@@ -43,43 +45,33 @@ ChunkQueuePusher<ChunkQueueDataType>::getMembers() noexcept
 }
 
 template <typename ChunkQueueDataType>
-inline cxx::expected<ChunkQueueError> ChunkQueuePusher<ChunkQueueDataType>::tryPush(mepoo::SharedChunk chunk) noexcept
+inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk) noexcept
 {
     ChunkTuple chunkTupleIn(chunk.releaseWithRelativePtr());
 
     auto pushRet = getMembers()->m_queue.push(chunkTupleIn);
 
-    if (pushRet.has_error())
+
+    // drop the chunk if one is returned by an overflow
+    if (pushRet.has_value())
     {
-        // Inform the ChunkQueuePopper that our push failed
+        auto chunkTupleOut = pushRet.value();
+        auto chunkManagement =
+            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+        // this will release the chunk
+        auto returnedChunk = mepoo::SharedChunk(chunkManagement);
+        /// we have to set this to true to inform the higher levels that there
+        /// was a chunk lost
         getMembers()->m_queueHasOverflown.store(true, std::memory_order_relaxed);
-        return cxx::error<ChunkQueueError>(ChunkQueueError::QUEUE_OVERFLOW);
     }
-    else
+
     {
-        // drop the chunk if one is returned by a safe overflow
-        if ((*pushRet).has_value())
+        typename MemberType_t::LockGuard_t lock(*getMembers());
+        if (getMembers()->m_conditionVariableDataPtr)
         {
-            auto chunkTupleOut = **pushRet;
-            auto chunkManagement =
-                relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
-            // this will release the chunk
-            auto returnedChunk = mepoo::SharedChunk(chunkManagement);
-            /// we have to set this to true to inform the higher levels that there
-            /// was a chunk lost
-            getMembers()->m_queueHasOverflown.store(true, std::memory_order_relaxed);
+            ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
+            condVarSignaler.notifyOne();
         }
-
-        {
-            typename MemberType_t::LockGuard_t lock(*getMembers());
-            if (getMembers()->m_conditionVariableDataPtr)
-            {
-                ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
-                condVarSignaler.notifyOne();
-            }
-        }
-
-        return cxx::success<void>();
     }
 }
 

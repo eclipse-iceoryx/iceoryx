@@ -11,13 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_BINDING_C_TYPES_H
 #define IOX_BINDING_C_TYPES_H
 
 #include "internal/c2cpp_binding.h"
 
-/// The issue iox-308: https://github.com/eclipse/iceoryx/issues/308
+/// The issue iox-308: https://github.com/eclipse-iceoryx/iceoryx/issues/308
 /// was created to explore other options then a magic number to create
 /// the structs of a specific size in C.
 
@@ -28,7 +30,7 @@ struct iox_ws_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
-    uint64_t do_not_touch_me[2308];
+    uint64_t do_not_touch_me[2567];
 };
 typedef struct iox_ws_storage_t_ iox_ws_storage_t;
 
@@ -39,7 +41,7 @@ struct iox_user_trigger_storage_t_
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[16];
 #else
-    uint64_t do_not_touch_me[13];
+    uint64_t do_not_touch_me[14];
 #endif
 };
 typedef struct iox_user_trigger_storage_t_ iox_user_trigger_storage_t;
@@ -51,7 +53,7 @@ struct iox_sub_storage_t_
 #if defined(__APPLE__)
     uint64_t do_not_touch_me[16];
 #else
-    uint64_t do_not_touch_me[13];
+    uint64_t do_not_touch_me[14];
 #endif
 };
 typedef struct iox_sub_storage_t_ iox_sub_storage_t;
@@ -63,14 +65,5 @@ struct iox_pub_storage_t_
     uint64_t do_not_touch_me[1];
 };
 typedef struct iox_pub_storage_t_ iox_pub_storage_t;
-
-struct iox_trigger_info_storage_t_
-{
-    // the value of the array size is the result of the following formula:
-    // sizeof(cpp2c_Publisher) / 8
-    uint64_t do_not_touch_me[7];
-};
-typedef struct iox_trigger_info_storage_t_ iox_trigger_info_storage_t;
-
 
 #endif

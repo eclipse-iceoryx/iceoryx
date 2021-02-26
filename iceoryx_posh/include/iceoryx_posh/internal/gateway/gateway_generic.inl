@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_INL
 #define IOX_POSH_GW_GATEWAY_GENERIC_INL
@@ -70,8 +72,10 @@ inline GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(capro::Interfaces in
 }
 
 template <typename channel_t, typename gateway_t>
+template <typename IceoryxPubSubOptions>
 inline cxx::expected<channel_t, GatewayError>
-GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription& service) noexcept
+GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription& service,
+                                                 const IceoryxPubSubOptions& options) noexcept
 {
     // Filter out wildcard services
     if (service.getServiceID() == capro::AnyService || service.getInstanceID() == capro::AnyInstance
@@ -88,7 +92,7 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
     }
     else
     {
-        auto result = channel_t::create(service);
+        auto result = channel_t::create(service, options);
         if (result.has_error())
         {
             return cxx::error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
@@ -121,8 +125,8 @@ GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescr
 }
 
 template <typename channel_t, typename gateway_t>
-inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<void(channel_t&)> f) const
-    noexcept
+inline void
+GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<void(channel_t&)> f) const noexcept
 {
     auto guardedVector = m_channels.GetScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
@@ -163,7 +167,7 @@ inline void GatewayGeneric<channel_t, gateway_t>::discoveryLoop() noexcept
         {
             discover(msg);
         }
-        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_discoveryPeriod.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_discoveryPeriod.toMilliseconds()));
     }
 }
 
@@ -174,8 +178,7 @@ inline void GatewayGeneric<channel_t, gateway_t>::forwardingLoop() noexcept
     {
         auto startTime = std::chrono::steady_clock::now();
         forEachChannel([this](channel_t channel) { this->forward(channel); });
-        std::this_thread::sleep_until(startTime
-                                      + std::chrono::milliseconds(m_forwardingPeriod.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_forwardingPeriod.toMilliseconds()));
     };
 }
 

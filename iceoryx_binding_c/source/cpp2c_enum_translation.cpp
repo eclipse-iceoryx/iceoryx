@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/enums.h"
@@ -24,26 +26,26 @@ iox_SubscribeState SubscribeState(const iox::SubscribeState value)
 {
     switch (value)
     {
-    case SubscribeState::NOT_SUBSCRIBED:
+    case iox::SubscribeState::NOT_SUBSCRIBED:
         return iox_SubscribeState::SubscribeState_NOT_SUBSCRIBED;
-    case SubscribeState::SUBSCRIBE_REQUESTED:
+    case iox::SubscribeState::SUBSCRIBE_REQUESTED:
         return iox_SubscribeState::SubscribeState_SUBSCRIBE_REQUESTED;
-    case SubscribeState::SUBSCRIBED:
+    case iox::SubscribeState::SUBSCRIBED:
         return iox_SubscribeState::SubscribeState_SUBSCRIBED;
-    case SubscribeState::UNSUBSCRIBE_REQUESTED:
+    case iox::SubscribeState::UNSUBSCRIBE_REQUESTED:
         return iox_SubscribeState::SubscribeState_UNSUBSCRIBE_REQUESTED;
-    case SubscribeState::WAIT_FOR_OFFER:
+    case iox::SubscribeState::WAIT_FOR_OFFER:
         return iox_SubscribeState::SubscribeState_WAIT_FOR_OFFER;
     default:
         return iox_SubscribeState::SubscribeState_UNDEFINED_ERROR;
     }
 }
 
-iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveError value)
+iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult value)
 {
     switch (value)
     {
-    case ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
+    case ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
         return ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL;
     default:
         return ChunkReceiveResult_UNDEFINED_ERROR;
@@ -67,10 +69,10 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
 {
     switch (value)
     {
-    case WaitSetError::TRIGGER_VECTOR_OVERFLOW:
-        return WaitSetResult_TRIGGER_VECTOR_OVERFLOW;
-    case WaitSetError::TRIGGER_ALREADY_ACQUIRED:
-        return WaitSetResult_TRIGGER_ALREADY_ACQUIRED;
+    case WaitSetError::WAIT_SET_FULL:
+        return WaitSetResult_WAIT_SET_FULL;
+    case WaitSetError::EVENT_ALREADY_ATTACHED:
+        return WaitSetResult_EVENT_ALREADY_ATTACHED;
     default:
         return WaitSetResult_UNDEFINED_ERROR;
     }

@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_HPP
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
@@ -26,6 +29,7 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 
 #include <atomic>
 #include <thread>
@@ -34,8 +38,11 @@ namespace iox
 {
 namespace gw
 {
+using namespace iox::units::duration_literals;
+
 enum class GatewayError : uint8_t
 {
+    INVALID_STATE,
     UNSUPPORTED_SERVICE_TYPE,
     UNSUCCESSFUL_CHANNEL_CREATION,
     NONEXISTANT_CHANNEL
@@ -92,6 +99,7 @@ class GatewayGeneric : public gateway_t
     /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for
     /// later access.
     /// @param service The service to create a channel for.
+    /// @param options The PublisherOptions or SubscriberOptions with historyCapacity and queueCapacity.
     /// @return an expected containing a copy of the added channel, otherwise an error
     ///
     /// @note Wildcard services are not allowed and will be ignored.
@@ -104,7 +112,9 @@ class GatewayGeneric : public gateway_t
     /// The service description is perhaps too large for copying since they contain strings, however this should be
     /// addressed with a service description repository feature.
     ///
-    cxx::expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service) noexcept;
+    template <typename IceoryxPubSubOptions>
+    cxx::expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service,
+                                                      const IceoryxPubSubOptions& options) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns

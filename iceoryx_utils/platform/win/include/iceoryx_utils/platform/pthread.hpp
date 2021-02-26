@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_WIN_PLATFORM_PTHREAD_HPP
 #define IOX_UTILS_WIN_PLATFORM_PTHREAD_HPP
 
@@ -26,6 +28,16 @@ using pthread_mutexattr_t = int;
 using pthread_t = std::thread::native_handle_type;
 
 inline int pthread_setname_np(pthread_t thread, const char* name)
+{
+    return 0;
+}
+
+inline int iox_pthread_setname_np(pthread_t thread, const char* name)
+{
+    return pthread_setname_np(thread, name);
+}
+
+inline int pthread_getname_np(pthread_t thread, char* name, size_t len)
 {
     return 0;
 }

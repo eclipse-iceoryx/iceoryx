@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_USER_TRIGGER_HPP
 #define IOX_POSH_POPO_USER_TRIGGER_HPP
 
@@ -30,24 +32,11 @@ namespace popo
 class UserTrigger
 {
   public:
-    UserTrigger() noexcept = default;
+    UserTrigger() noexcept;
     UserTrigger(const UserTrigger& rhs) = delete;
     UserTrigger(UserTrigger&& rhs) = delete;
     UserTrigger& operator=(const UserTrigger& rhs) = delete;
     UserTrigger& operator=(UserTrigger&& rhs) = delete;
-
-    /// @brief attaches the UserTrigger to a WaitSet
-    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
-    /// @param[in] triggerId optional parameter, the id of the trigger
-    /// @param[in] callback optional parameter, the callback of the trigger
-    /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
-    /// the expected signals success
-    cxx::expected<WaitSetError> attachTo(WaitSet& waitset,
-                                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                                         const Trigger::Callback<UserTrigger> callback = nullptr) noexcept;
-
-    /// @brief detaches the UserTrigger from the waitset. If it was not attached to a waitset nothing happens.
-    void detach() noexcept;
 
     /// @brief If it is attached it will trigger otherwise it will do nothing
     void trigger() noexcept;
@@ -59,8 +48,22 @@ class UserTrigger
     /// @brief Resets the UserTrigger state to not triggered
     void resetTrigger() noexcept;
 
+    friend class EventAttorney;
+
   private:
+    /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
+    /// @param[in] uniqueTriggerId the id of the corresponding trigger
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to UserTrigger::hasTriggered
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent() const noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
+    /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;
+
+    /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
+    void disableEvent() noexcept;
 
   private:
     TriggerHandle m_trigger;

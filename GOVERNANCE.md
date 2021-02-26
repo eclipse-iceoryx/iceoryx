@@ -9,16 +9,16 @@ An up to date list of the maintainers can be found at the [Eclipse project page]
 
 ## Bi-weekly meetup
 
-Bi-weekly every Thursday for 1 hour. Everyone is welcome to join.
+Bi-weekly every first and third Thursday for 1 hour. Everyone is welcome to join.
 
-You can join by using this Zoom link: **ADD LINK HERE**
+You can join by using this Zoom link: https://eclipse.zoom.us/j/95918504483?pwd=RWM5Y1pkeStKVDZsU09EY1hnclREUT09
 
 ```
 08:00 PST (GMT - 8)
 16:00 GMT
 17:00 CET (GMT + 1)
 21:30 IST (GMT + 5.5)
-23:00 CST (GMT + 7)
+00:00 CST (GMT + 8)
 ```
 
 ### Topics
@@ -41,7 +41,7 @@ You can join by using this Zoom link: **ADD LINK HERE**
 
 ### Meeting minutes
 
-Meetinges minutes are stored in the [wiki](https://github.com/eclipse/iceoryx/wiki/Developer-meetup).
+Meeting minutes are stored in the [wiki](https://github.com/eclipse-iceoryx/iceoryx/wiki/Developer-meetup).
 An Eclipse maintainer will save the meeting minutes on a new page for every meeting.
 
 If you have points that you want to discuss, please send your points to the [mailing list](mailto:iceoryx-dev@eclipse.org) a couple of days before.
@@ -51,8 +51,11 @@ If you have points that you want to discuss, please send your points to the [mai
 ```
 # Eclipse iceoryx developer meetup
 
-Date: 1st January 1900
-Time: 17:00 CET
+**Date:** 1900/01/01
+
+**Time:** 17:00 CET
+
+**Link:** https://eclipse.zoom.us/j/95918504483?pwd=RWM5Y1pkeStKVDZsU09EY1hnclREUT09
 
 ## Attendees
 
@@ -61,7 +64,7 @@ Time: 17:00 CET
 
 ## Agenda
 
-1. General: Introduction of new participations, 42 mins
+1. General: Introduction of new participators, 42 mins
 2. General: Are there other agenda points?, 8 mins
 3. Agenda point 1, 4 mins
 4. Agenda point 2, 4 mins

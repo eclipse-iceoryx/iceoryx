@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_CONVERT_INL
 #define IOX_UTILS_CXX_CONVERT_INL
 
@@ -193,7 +195,7 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
         return false;
     }
 
-    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10u);
+    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, STRTOULL_BASE);
     if (call.hasErrors())
     {
         return false;
@@ -230,7 +232,7 @@ inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
         return false;
     }
 
-    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10u);
+    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, STRTOULL_BASE);
     if (call.hasErrors())
     {
         return false;

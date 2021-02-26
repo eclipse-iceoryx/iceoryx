@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_STUBS_GATEWAY_GENERIC_HPP
 #define IOX_POSH_STUBS_GATEWAY_GENERIC_HPP
@@ -54,10 +56,11 @@ class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
         // Stubbed.
     }
 
-    iox::cxx::expected<channel_t, iox::gw::GatewayError>
-    addChannel(const iox::capro::ServiceDescription& service) noexcept
+    template <typename IceoryxPubSubOptions>
+    iox::cxx::expected<channel_t, iox::gw::GatewayError> addChannel(const iox::capro::ServiceDescription& service,
+                                                                    const IceoryxPubSubOptions& options) noexcept
     {
-        return TestGatewayGeneric<channel_t>::addChannel(service);
+        return TestGatewayGeneric<channel_t>::addChannel(service, options);
     }
 
     iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) noexcept

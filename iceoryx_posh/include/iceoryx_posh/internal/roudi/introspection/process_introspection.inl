@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_INL
 
 #include "process_introspection.hpp"
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 #include <chrono>
 
@@ -25,13 +28,12 @@ namespace iox
 namespace roudi
 {
 template <typename PublisherPort>
-ProcessIntrospection<PublisherPort>::ProcessIntrospection()
-    : m_runThread(false)
+inline ProcessIntrospection<PublisherPort>::ProcessIntrospection() noexcept
 {
 }
 
 template <typename PublisherPort>
-ProcessIntrospection<PublisherPort>::~ProcessIntrospection()
+inline ProcessIntrospection<PublisherPort>::~ProcessIntrospection() noexcept
 {
     stop();
     if (m_publisherPort.has_value())
@@ -41,7 +43,7 @@ ProcessIntrospection<PublisherPort>::~ProcessIntrospection()
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::addProcess(int f_pid, const ProcessName_t& f_name)
+inline void ProcessIntrospection<PublisherPort>::addProcess(const int f_pid, const ProcessName_t& f_name) noexcept
 {
     ProcessIntrospectionData procIntrData;
     procIntrData.m_pid = f_pid;
@@ -55,7 +57,7 @@ void ProcessIntrospection<PublisherPort>::addProcess(int f_pid, const ProcessNam
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::removeProcess(int f_pid)
+inline void ProcessIntrospection<PublisherPort>::removeProcess(const int f_pid) noexcept
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -71,7 +73,8 @@ void ProcessIntrospection<PublisherPort>::removeProcess(int f_pid)
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_process, const NodeName_t& f_node)
+inline void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_process,
+                                                         const NodeName_t& f_node) noexcept
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -104,7 +107,8 @@ void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_process
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_process, const NodeName_t& f_node)
+inline void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_process,
+                                                            const NodeName_t& f_node) noexcept
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -138,7 +142,7 @@ void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_proc
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::registerPublisherPort(PublisherPort&& publisherPort)
+inline void ProcessIntrospection<PublisherPort>::registerPublisherPort(PublisherPort&& publisherPort) noexcept
 {
     // we do not want to call this twice
     if (!m_publisherPort.has_value())
@@ -148,7 +152,7 @@ void ProcessIntrospection<PublisherPort>::registerPublisherPort(PublisherPort&& 
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::run()
+inline void ProcessIntrospection<PublisherPort>::run() noexcept
 {
     // TODO: error handling for non debug builds
     cxx::Expects(m_publisherPort.has_value());
@@ -157,27 +161,11 @@ void ProcessIntrospection<PublisherPort>::run()
     send();
     m_publisherPort->offer();
 
-    m_runThread = true;
-    static uint32_t ct = 0;
-    m_thread = std::thread([this] {
-        while (m_runThread.load(std::memory_order_relaxed))
-        {
-            if (0 == (ct % m_sendIntervalCount))
-            {
-                send();
-            }
-            ++ct;
-
-            std::this_thread::sleep_for(m_sendIntervalSleep);
-        }
-    });
-
-    // set thread name
-    pthread_setname_np(m_thread.native_handle(), "ProcessIntr");
+    m_publishingTask.start(m_sendInterval);
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::send()
+inline void ProcessIntrospection<PublisherPort>::send() noexcept
 {
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_processListNewData)
@@ -200,25 +188,19 @@ void ProcessIntrospection<PublisherPort>::send()
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::stop()
+inline void ProcessIntrospection<PublisherPort>::stop() noexcept
 {
-    m_runThread = false;
-    if (m_thread.joinable())
-    {
-        m_thread.join();
-    }
+    m_publishingTask.stop();
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::setSendInterval(unsigned int interval_ms)
+inline void ProcessIntrospection<PublisherPort>::setSendInterval(const units::Duration interval) noexcept
 {
-    if (std::chrono::milliseconds(interval_ms) >= m_sendIntervalSleep)
+    m_sendInterval = interval;
+    if (m_publishingTask.isActive())
     {
-        m_sendIntervalCount = static_cast<unsigned int>(std::chrono::milliseconds(interval_ms) / m_sendIntervalSleep);
-    }
-    else
-    {
-        m_sendIntervalCount = 1;
+        m_publishingTask.stop();
+        m_publishingTask.start(m_sendInterval);
     }
 }
 

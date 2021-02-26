@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "mocks/wait_set_mock.hpp"
@@ -49,7 +51,7 @@ class iox_user_trigger_test : public Test
     iox_user_trigger_storage_t m_sutStorage;
     iox_user_trigger_t m_sut;
 
-    ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar{"Horscht"};
     WaitSetMock m_waitSet{&m_condVar};
     static bool wasTriggerCallbackCalled;
 };
@@ -69,7 +71,7 @@ TEST_F(iox_user_trigger_test, canBeTriggeredWhenNotAttached)
 
 TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
 {
-    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, NULL);
+    iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, NULL);
     iox_user_trigger_trigger(m_sut);
     EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
 }
@@ -82,32 +84,32 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 
 TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInNotTriggered)
 {
-    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, NULL);
+    iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, NULL);
     iox_user_trigger_trigger(m_sut);
     iox_user_trigger_reset_trigger(m_sut);
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectTriggerId)
+TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectEventId)
 {
-    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 88191, NULL);
+    iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 88191U, NULL);
     iox_user_trigger_trigger(m_sut);
 
-    auto triggerVector = m_waitSet.wait();
+    auto eventVector = m_waitSet.wait();
 
-    ASSERT_THAT(triggerVector.size(), Eq(1));
-    EXPECT_EQ(triggerVector[0].getTriggerId(), 88191);
+    ASSERT_THAT(eventVector.size(), Eq(1U));
+    EXPECT_EQ(eventVector[0U]->getEventId(), 88191U);
 }
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
 {
-    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, iox_user_trigger_test::triggerCallback);
+    iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, iox_user_trigger_test::triggerCallback);
     iox_user_trigger_trigger(m_sut);
 
-    auto triggerVector = m_waitSet.wait();
+    auto eventVector = m_waitSet.wait();
 
-    ASSERT_THAT(triggerVector.size(), Eq(1));
-    triggerVector[0]();
+    ASSERT_THAT(eventVector.size(), Eq(1U));
+    (*eventVector[0U])();
 
     EXPECT_TRUE(wasTriggerCallbackCalled);
 }
@@ -115,21 +117,20 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
 TEST_F(iox_user_trigger_test, attachingToAnotherWaitSetCleansupFirstWaitset)
 {
     WaitSetMock m_waitSet2{&m_condVar};
-    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, NULL);
+    iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, NULL);
 
-    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet2, 0, NULL);
+    iox_ws_attach_user_trigger_event(&m_waitSet2, m_sut, 0U, NULL);
 
-    EXPECT_EQ(m_waitSet.size(), 0);
-    EXPECT_EQ(m_waitSet2.size(), 1);
+    EXPECT_EQ(m_waitSet.size(), 0U);
+    EXPECT_EQ(m_waitSet2.size(), 1U);
 }
 
-TEST_F(iox_user_trigger_test, detachingItFromWaitsetCleansup)
+TEST_F(iox_user_trigger_test, disable_trigger_eventingItFromWaitsetCleansup)
 {
     WaitSetMock m_waitSet2{&m_condVar};
-    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, NULL);
+    iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, NULL);
 
-    iox_user_trigger_detach(m_sut);
+    iox_ws_detach_user_trigger_event(&m_waitSet, m_sut);
 
-    EXPECT_EQ(m_waitSet.size(), 0);
+    EXPECT_EQ(m_waitSet.size(), 0U);
 }
-

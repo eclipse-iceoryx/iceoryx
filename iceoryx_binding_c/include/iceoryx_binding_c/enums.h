@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_BINDING_C_ENUMS_H
 #define IOX_BINDING_C_ENUMS_H
@@ -18,7 +20,7 @@
 /// @brief describes events which can be triggered by a subscriber
 enum iox_SubscriberEvent
 {
-    SubscriberEvent_HAS_NEW_SAMPLES,
+    SubscriberEvent_HAS_DATA,
 };
 
 /// @brief describes the current state of a subscriber
@@ -52,8 +54,8 @@ enum iox_AllocationResult
 
 enum iox_WaitSetResult
 {
-    WaitSetResult_TRIGGER_VECTOR_OVERFLOW,
-    WaitSetResult_TRIGGER_ALREADY_ACQUIRED,
+    WaitSetResult_WAIT_SET_FULL,
+    WaitSetResult_EVENT_ALREADY_ATTACHED,
     WaitSetResult_UNDEFINED_ERROR,
     WaitSetResult_SUCCESS
 };

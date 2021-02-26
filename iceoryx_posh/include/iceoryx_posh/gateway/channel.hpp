@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_GW_CHANNEL_HPP
 #define IOX_POSH_GW_CHANNEL_HPP
@@ -29,6 +32,7 @@ namespace gw
 {
 enum class ChannelError : uint8_t
 {
+    INVALID_STATE,
     OBJECT_POOL_FULL
 };
 
@@ -67,9 +71,12 @@ class Channel
     ///
     /// @brief create Creates a channel for the given service whose terminals reside in a static object pool.
     /// @param service The service to create the channel for.
+    /// @param options The PublisherOptions or SubscriberOptions with historyCapacity and queueCapacity.
     /// @return A copy of the created channel, if successful.
     ///
-    static cxx::expected<Channel, ChannelError> create(const capro::ServiceDescription& service) noexcept;
+    template <typename IceoryxPubSubOptions>
+    static cxx::expected<Channel, ChannelError> create(const capro::ServiceDescription& service,
+                                                       const IceoryxPubSubOptions& options) noexcept;
 
     capro::ServiceDescription getServiceDescription() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;

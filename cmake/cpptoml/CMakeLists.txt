@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 project(cpptoml-build CXX)
 
@@ -30,7 +31,7 @@ if(WIN32)
     set(CREATE_PATH_COMMAND mkdir)
 else()
     set(CREATE_PATH_COMMAND mkdir -p)
-endif(WIN32)
+endif()
 
 # set download config, source and build paths
 set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/download)

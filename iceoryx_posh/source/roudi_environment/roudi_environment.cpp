@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
@@ -32,7 +34,7 @@ RouDiEnvironment::RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId)
 }
 
 RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,
-                                   config::MonitoringMode monitoringMode,
+                                   const roudi::MonitoringMode monitoringMode,
                                    const uint16_t uniqueRouDiId)
     : RouDiEnvironment(BaseCTor::BASE, uniqueRouDiId)
 {

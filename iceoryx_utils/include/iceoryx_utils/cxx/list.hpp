@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_UTILS_CXX_LIST_HPP
 #define IOX_UTILS_CXX_LIST_HPP
@@ -213,7 +215,7 @@ class list
 
     /// @brief remove all elements which matches the provided comparison function
     ///         requires a the template type T to have a operator== defined.
-    /// @param[in] pred unary predicate which returns ​true if the element should be removed
+    /// @param[in] pred unary predicate which returns true if the element should be removed
     /// @return the number of elements removed, return is C++20-conform
     template <typename UnaryPredicate>
     size_type remove_if(UnaryPredicate pred) noexcept;

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,15 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+//
+// SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_posh/capro/service_description.hpp"
-
 #include <iomanip>
 
 namespace iox
 {
 namespace capro
 {
+ServiceDescription::ClassHash::ClassHash() noexcept
+    : ClassHash{0U, 0U, 0U, 0U}
+{
+}
+
 ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& values) noexcept
 {
     uint64_t index = 0u;
@@ -33,12 +38,15 @@ ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& 
     }
 }
 
-uint32_t& ServiceDescription::ClassHash::operator[](const uint64_t index) noexcept
+uint32_t& ServiceDescription::ClassHash::operator[](
+    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
 {
     return data[index];
 }
 
-const uint32_t& ServiceDescription::ClassHash::operator[](const uint64_t index) const noexcept
+const uint32_t&
+    ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const
+    noexcept
 {
     return data[index];
 }
@@ -106,7 +114,7 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_instance
     m_hasServiceOnlyDescription = true;
 }
 
-ServiceDescription::ServiceDescription(const IdString& f_service, const IdString& f_instance) noexcept
+ServiceDescription::ServiceDescription(const IdString_t& f_service, const IdString_t& f_instance) noexcept
     : ServiceDescription(f_service, f_instance, InvalidIDString)
 {
     m_hasServiceOnlyDescription = true;
@@ -122,9 +130,9 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID,
 {
 }
 
-ServiceDescription::ServiceDescription(const IdString& f_service,
-                                       const IdString& f_instance,
-                                       const IdString& f_event,
+ServiceDescription::ServiceDescription(const IdString_t& f_service,
+                                       const IdString_t& f_instance,
+                                       const IdString_t& f_event,
                                        ClassHash f_classHash,
                                        Interfaces interfaceSource) noexcept
     : m_serviceString{f_service}
@@ -243,17 +251,17 @@ uint16_t ServiceDescription::getEventID() const noexcept
     return m_eventID;
 }
 
-IdString ServiceDescription::getServiceIDString() const noexcept
+IdString_t ServiceDescription::getServiceIDString() const noexcept
 {
     return m_serviceString;
 }
 
-IdString ServiceDescription::getInstanceIDString() const noexcept
+IdString_t ServiceDescription::getInstanceIDString() const noexcept
 {
     return m_instanceString;
 }
 
-IdString ServiceDescription::getEventIDString() const noexcept
+IdString_t ServiceDescription::getEventIDString() const noexcept
 {
     return m_eventString;
 }
@@ -287,6 +295,21 @@ ServiceDescription::ClassHash ServiceDescription::getClassHash() const noexcept
 Interfaces ServiceDescription::getSourceInterface() const noexcept
 {
     return m_interfaceSource;
+}
+
+bool ServiceDescription::isValid() const noexcept
+{
+    if (m_hasServiceOnlyDescription)
+    {
+        return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
+                 || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance);
+    }
+    else
+    {
+        return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
+                 || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance
+                 || m_eventString == iox::capro::InvalidIDString || m_eventID == iox::capro::AnyEvent);
+    }
 }
 
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept

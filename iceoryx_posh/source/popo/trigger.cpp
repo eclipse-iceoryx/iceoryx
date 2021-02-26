@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
@@ -46,14 +48,15 @@ void Trigger::reset() noexcept
     invalidate();
 }
 
-const TriggerInfo& Trigger::getTriggerInfo() const noexcept
+const EventInfo& Trigger::getEventInfo() const noexcept
 {
-    return m_triggerInfo;
+    return m_eventInfo;
 }
 
 void Trigger::invalidate() noexcept
 {
     m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
+    m_resetCallback = cxx::MethodCallback<void, uint64_t>();
 }
 
 Trigger::operator bool() const noexcept
@@ -68,9 +71,9 @@ bool Trigger::isValid() const noexcept
 
 bool Trigger::isLogicalEqualTo(const Trigger& rhs) const noexcept
 {
-    return (isValid() && rhs.isValid() && m_triggerInfo.m_triggerOrigin == rhs.m_triggerInfo.m_triggerOrigin
+    return (isValid() && rhs.isValid() && m_eventInfo.m_eventOrigin == rhs.m_eventInfo.m_eventOrigin
             && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback
-            && m_triggerInfo.m_triggerId == rhs.m_triggerInfo.m_triggerId);
+            && m_eventInfo.m_eventId == rhs.m_eventInfo.m_eventId);
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept
@@ -84,13 +87,13 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
     {
         reset();
 
-        // TriggerInfo
-        m_triggerInfo = std::move(rhs.m_triggerInfo);
+        // EventInfo
+        m_eventInfo = std::move(rhs.m_eventInfo);
 
         // Trigger
-        m_resetCallback = rhs.m_resetCallback;
-        m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
-        m_uniqueId = rhs.m_uniqueId;
+        m_resetCallback = std::move(rhs.m_resetCallback);
+        m_hasTriggeredCallback = std::move(rhs.m_hasTriggeredCallback);
+        m_uniqueId = std::move(rhs.m_uniqueId);
 
         rhs.invalidate();
     }
