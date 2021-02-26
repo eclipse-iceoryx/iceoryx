@@ -1305,12 +1305,8 @@ TYPED_TEST(stringTyped_test, ClearNotEmptyStringResultsInEmptyStringWithUnchange
 TYPED_TEST(stringTyped_test, ChangeStringAfterClearWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "58444d00-ec85-464f-8269-7838823f04c2");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString().capacity();
-
     this->testSubject.clear();
     this->testSubject = "M";
-    ASSERT_FALSE(this->testSubject.empty());
     EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
 }
 
