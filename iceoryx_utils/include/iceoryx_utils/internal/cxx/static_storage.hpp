@@ -23,10 +23,15 @@ namespace iox
 {
 namespace cxx
 {
-/// @brief static storage class to allocate memory for objects not yet known
-///        this storage is not aware of any underlying type
+/// @brief static storage class to allocate memory for objects of type not yet known.
+///        This storage is not aware of any underlying type.
+///        It can be used where abstract static memory for some object is required.
+///        Currently this memory is allocated on the stack but it could be implemented
+///        to use memory from the static memory segment.
+/// @param Capacity Number of bytes the static_storage will allocate statically.
+/// @param Align Alignment of the allocated memory.
 
-/// @note we can define optimized_storage (or dynamic_storage) with a similar interface
+/// @note We can define optimized_storage (or dynamic_storage) with a similar interface
 ///       but other allocation policies and use them where we need to store objects
 ///       with some interchangable storage policy (e.g. in storable_function)
 ///       optimized_storage would have a dynamic memory fallback when static memory is
@@ -54,7 +59,7 @@ class static_storage
     static constexpr bool fits_statically() noexcept;
 
     /// @brief provide static memory for an object of type T
-    /// @note  compilation fails if static memory is insufficient
+    /// @note  compilation fails if storage is insufficient for objects of type T
     template <typename T>
     T* allocate() noexcept;
 
@@ -62,8 +67,8 @@ class static_storage
     void* allocate(uint64_t align, uint64_t size) noexcept;
 
     /// @brief mark the static memory as unused
-    /// @note no dtor of the stored type is called (we cannot know the type)
-    ///       nor is it overwritten
+    /// @note no dtor of the stored type is called (we do not know the type)
+    ///       nor is it overwritten. Setting the memory to zero can be done with clear.
     void deallocate() noexcept;
 
     /// @brief set the managed static memory to all zeros

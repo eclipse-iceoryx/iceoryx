@@ -33,55 +33,19 @@ using signature = ReturnType(Args...);
 template <typename StorageType, typename T>
 class storable_function;
 
+/// @brief A storable alternative of std::function which not necessarily uses dynamic memory.
+/// @param StorageType The type of internal storage to store the actual data.
+///                    Needs to provide allocate and deallocate functions.
+///                    See static_storage.hpp for a static memory version.
+/// @param ReturnType  The return type of the stored callable.
+/// @param Args        The arguments of the stored callable.
 template <typename StorageType, typename ReturnType, typename... Args>
 class storable_function<StorageType, signature<ReturnType, Args...>>
 {
-  private:
-    // note that this vtable or a similar approach with virtual is needed to ensure we perform the correct
-    // operation with the underlying (erased) type
-    // this means storable_function cannot be used where pointers become invalid, e.g. across process boundaries
-    struct vtable
-    {
-        // exposing those is intentional, it is an internal structure
-        void (*copyFunction)(const storable_function& src, storable_function& dest){nullptr};
-        void (*moveFunction)(storable_function& src, storable_function& dest){nullptr};
-        void (*destroyFunction)(storable_function& f){nullptr};
-
-        vtable() = default;
-        vtable(const vtable& other) = default;
-        vtable& operator=(const vtable& other) = default;
-        vtable(vtable&& other) = default;
-        vtable& operator=(vtable&& other) = default;
-
-        void copy(const storable_function& src, storable_function& dest)
-        {
-            if (copyFunction)
-            {
-                copyFunction(src, dest);
-            }
-        }
-
-        void move(storable_function& src, storable_function& dest)
-        {
-            if (moveFunction)
-            {
-                moveFunction(src, dest);
-            }
-        }
-
-        void destroy(storable_function& f)
-        {
-            if (destroyFunction)
-            {
-                destroyFunction(f);
-            }
-        }
-    };
-
   public:
     using signature_t = signature<ReturnType, Args...>;
 
-    storable_function() = default;
+    storable_function() noexcept = default;
 
     /// @brief construct from functor (including lambda)
     template <typename Functor,
@@ -114,6 +78,8 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     ~storable_function() noexcept;
 
     /// @brief invoke the stored function
+    /// @note  invoking the function if there is no stored function (i.e. operator bool returns false)
+    ///        is undefined
     ReturnType operator()(Args... args);
 
     /// @brief indicates whether a function was stored
@@ -126,6 +92,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     static void swap(storable_function& f, storable_function& g) noexcept;
 
     /// @brief size in bytes required to store a type T in a storable_function
+    /// @return number of bytes StorageType must be able to allocate to store T
     /// @note this is not exact due to alignment, it may work with a smaller size but
     ///       is not guaranteed
     template <typename T>
@@ -139,9 +106,34 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     static constexpr bool is_storable() noexcept;
 
   private:
+    // note that this vtable or a similar approach with virtual is needed to ensure we perform the correct
+    // operation with the underlying (erased) type
+    // this means storable_function cannot be used where pointers become invalid, e.g. across process boundaries
+    /// when we store a storable_function in shared memory
+    struct vtable
+    {
+        // function pointers defining copy, move and destruction semantics
+        void (*copyFunction)(const storable_function& src, storable_function& dest){nullptr};
+        void (*moveFunction)(storable_function& src, storable_function& dest){nullptr};
+        void (*destroyFunction)(storable_function& f){nullptr};
+
+        vtable() = default;
+        vtable(const vtable& other) = default;
+        vtable& operator=(const vtable& other) = default;
+        vtable(vtable&& other) = default;
+        vtable& operator=(vtable&& other) = default;
+
+        void copy(const storable_function& src, storable_function& dest) noexcept;
+
+        void move(storable_function& src, storable_function& dest) noexcept;
+
+        void destroy(storable_function& f) noexcept;
+    };
+
+  private:
     vtable m_vtable;
     StorageType m_storage;
-    void* m_storedObj{nullptr};
+    void* m_storedCallable{nullptr};
     function_ref<signature<ReturnType, Args...>> m_function;
 
     template <typename Functor,
@@ -150,7 +142,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
                                                  void>::type>
     void storeFunctor(const Functor& functor) noexcept;
 
-    // we need these templates to preserve the actual type T for the underlying copy/move etc. call
+    // we need these templates to preserve the actual type T for the underlying copy/move call
     template <typename T>
     static void copy(const storable_function& src, storable_function& dest) noexcept;
 

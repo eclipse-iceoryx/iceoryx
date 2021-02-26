@@ -22,23 +22,38 @@ namespace iox
 {
 namespace cxx
 {
-/// @note set the storage type and reorder template arguments for the user API
-/// the storage type must precede the (required) variadic arguments in the internal one
-/// if the static storage is insufficient to store the callable we get a compile time error
-
-/// @note this alias is needed to improve usability
-///       for the API see storable_function
+/// @brief A static memory replacement for std::function
+///        Allows storing a callable with a given signature if its size does not exceed a limit.
+///        This limit can be adjusted by changing the Bytes parameter.
+///        In contrast to cxx::function_ref cxx::function objects own everything needed
+///        to invoke the underlying callable and can be safely stored.
+///        They also support copy and move semantics in natural way
+///        by copying or moving the underlying callable.
+///
+///        Similarly to std::function, they cannot be stored in Shared Memory
+///        to be invoked in a different process.
+///
+///        For the API see storable_function
 template <typename Signature, uint64_t Bytes = 128>
 using function = storable_function<static_storage<Bytes>, Signature>;
+
+/// @note This alias is needed to improve usability (reordering of template arguments)
+/// We reorder template arguments for the user API since
+/// the storage type must precede the (required) variadic arguments in the internal one
+/// if the static storage is insufficient to store the callable we get a compile time error
 
 /// @note the following would essentially be a complete std::function replacement
 /// which would allocate dynamically if the static storages of Bytes is not sufficient
 /// to store the callable (i.e. we use an optimized_storage)
-// template <typename Signature, uint64_t Bytes = 128>
-// using function = detail::storable_function<optimized_storage<Bytes>, Signature>;
-// or alternatively
-// template <typename Signature>
-// using function = detail::storable_function<dynamic_storage, Signature>;
+/// template <typename Signature, uint64_t Bytes = 128>
+/// using function = detail::storable_function<optimized_storage<Bytes>, Signature>;
+/// or alternatively
+/// template <typename Signature>
+/// using function = detail::storable_function<dynamic_storage, Signature>;
+///
+/// optimized_storage and dynamic_storage would have to be implemented
+///
+
 
 } // namespace cxx
 } // namespace iox

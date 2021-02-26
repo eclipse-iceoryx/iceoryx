@@ -32,7 +32,7 @@ template <typename S, typename ReturnType, typename... Args>
 storable_function<S, signature<ReturnType, Args...>>::storable_function(ReturnType (*function)(Args...)) noexcept
 {
     m_function = function;
-    m_storedObj = nullptr;
+    m_storedCallable = nullptr;
     m_vtable.copyFunction = copyFreeFunction;
     m_vtable.moveFunction = moveFreeFunction;
     // destroy is not needed for free functions
@@ -78,7 +78,7 @@ storable_function<S, signature<ReturnType, Args...>>::operator=(const storable_f
 {
     if (&rhs != this)
     {
-        // note: vtable is needed for destroy, then changed to src vtable
+        // this vtable is needed for destroy, then changed to src vtable
         m_vtable.destroy(*this);
         m_function = nullptr; // only needed when the src has no object
         m_vtable = rhs.m_vtable;
@@ -94,7 +94,7 @@ storable_function<S, signature<ReturnType, Args...>>::operator=(storable_functio
 {
     if (&rhs != this)
     {
-        // note: dest (this) vtable is needed for destroy, then changed to source (rhs) vtable
+        // this vtable is needed for destroy, then changed to source (rhs) vtable
         m_vtable.destroy(*this);
         m_function = nullptr; // only needed when the source has no object
         m_vtable = rhs.m_vtable;
@@ -144,7 +144,6 @@ template <typename S, typename ReturnType, typename... Args>
 template <typename Functor, typename>
 void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Functor& functor) noexcept
 {
-    ///@todo we may need something more to get the correct type in general...
     using StoredType = typename std::remove_reference<Functor>::type;
     auto p = m_storage.template allocate<StoredType>();
 
@@ -155,17 +154,17 @@ void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Fu
 
         // erase the functor type and store as reference to the call in storage
         m_function = *p;
-        m_storedObj = p;
+        m_storedCallable = p;
         m_vtable.copyFunction = copy<StoredType>;
         m_vtable.moveFunction = move<StoredType>;
         m_vtable.destroyFunction = destroy<StoredType>;
     }
 
-    // else we detect the problem at compile time or store nothing when memory is exhausted
+    // We detect the problem at compile time or store nothing when memory is exhausted
     // note that we have no other choice, it is used in the ctor and we cannot throw
     // the object will be valid but not callable (operator bool returns false)
 
-    // if used with static_storage we always detect this at compile time
+    // If used with StorageType = static_storage we always detect this at compile time.
 }
 
 template <typename S, typename ReturnType, typename... Args>
@@ -173,9 +172,9 @@ template <typename T>
 void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_function& src,
                                                                 storable_function& dest) noexcept
 {
-    if (!src.m_storedObj)
+    if (!src.m_storedCallable)
     {
-        dest.m_storedObj = nullptr;
+        dest.m_storedCallable = nullptr;
         dest.m_function = src.m_function;
         return;
     }
@@ -184,10 +183,10 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
 
     if (p)
     {
-        auto obj = reinterpret_cast<T*>(src.m_storedObj);
+        auto obj = reinterpret_cast<T*>(src.m_storedCallable);
         p = new (p) T(*obj);
         dest.m_function = *p;
-        dest.m_storedObj = p;
+        dest.m_storedCallable = p;
     }
 }
 
@@ -196,9 +195,9 @@ template <typename T>
 void storable_function<S, signature<ReturnType, Args...>>::move(storable_function& src,
                                                                 storable_function& dest) noexcept
 {
-    if (!src.m_storedObj)
+    if (!src.m_storedCallable)
     {
-        dest.m_storedObj = nullptr;
+        dest.m_storedCallable = nullptr;
         dest.m_function = src.m_function;
         src.m_function = nullptr;
         return;
@@ -207,13 +206,13 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
     auto p = dest.m_storage.template allocate<T>();
     if (p)
     {
-        auto obj = reinterpret_cast<T*>(src.m_storedObj);
+        auto obj = reinterpret_cast<T*>(src.m_storedCallable);
         p = new (p) T(std::move(*obj));
         dest.m_function = *p;
-        dest.m_storedObj = p;
+        dest.m_storedCallable = p;
         src.m_vtable.destroy(src);
         src.m_function = nullptr;
-        src.m_storedObj = nullptr;
+        src.m_storedCallable = nullptr;
     }
 }
 
@@ -221,9 +220,9 @@ template <typename S, typename ReturnType, typename... Args>
 template <typename T>
 void storable_function<S, signature<ReturnType, Args...>>::destroy(storable_function& f) noexcept
 {
-    if (f.m_storedObj)
+    if (f.m_storedCallable)
     {
-        auto p = static_cast<T*>(f.m_storedObj);
+        auto p = static_cast<T*>(f.m_storedCallable);
         p->~T();
         f.m_storage.deallocate();
     }
@@ -256,6 +255,35 @@ template <typename T>
 constexpr bool storable_function<S, signature<ReturnType, Args...>>::is_storable() noexcept
 {
     return (storage_bytes_required<T>() <= S::capacity()) && is_invocable_r<ReturnType, T, Args...>::value;
+}
+
+template <typename S, typename ReturnType, typename... Args>
+void storable_function<S, signature<ReturnType, Args...>>::vtable::copy(const storable_function& src,
+                                                                        storable_function& dest) noexcept
+{
+    if (copyFunction)
+    {
+        copyFunction(src, dest);
+    }
+}
+
+template <typename S, typename ReturnType, typename... Args>
+void storable_function<S, signature<ReturnType, Args...>>::vtable::move(storable_function& src,
+                                                                        storable_function& dest) noexcept
+{
+    if (moveFunction)
+    {
+        moveFunction(src, dest);
+    }
+}
+
+template <typename S, typename ReturnType, typename... Args>
+void storable_function<S, signature<ReturnType, Args...>>::vtable::destroy(storable_function& f) noexcept
+{
+    if (destroyFunction)
+    {
+        destroyFunction(f);
+    }
 }
 
 } // namespace cxx
