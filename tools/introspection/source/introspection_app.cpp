@@ -695,8 +695,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            memPoolSubscriber.take().and_then(
-                [&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) { memPoolSample = sample; });
+            memPoolSubscriber.take().and_then([&](auto& sample) { memPoolSample = sample; });
 
             if (memPoolSample)
             {
@@ -715,8 +714,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            processSubscriber.take().and_then(
-                [&](iox::popo::Sample<const ProcessIntrospectionFieldTopic>& sample) { processSample = sample; });
+            processSubscriber.take().and_then([&](auto& sample) { processSample = sample; });
 
             if (processSample)
             {
@@ -731,18 +729,12 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         // print port information
         if (introspectionSelection.port == true)
         {
-            portSubscriber.take().and_then(
-                [&](iox::popo::Sample<const PortIntrospectionFieldTopic>& sample) { portSample = sample; });
+            portSubscriber.take().and_then([&](auto& sample) { portSample = sample; });
 
-            portThroughputSubscriber.take().and_then(
-                [&](iox::popo::Sample<const PortThroughputIntrospectionFieldTopic>& sample) {
-                    portThroughputSample = sample;
-                });
+            portThroughputSubscriber.take().and_then([&](auto& sample) { portThroughputSample = sample; });
 
             subscriberPortChangingDataSubscriber.take().and_then(
-                [&](iox::popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>& sample) {
-                    subscriberPortChangingDataSamples = sample;
-                });
+                [&](auto& sample) { subscriberPortChangingDataSamples = sample; });
 
             if (portSample && portThroughputSample && subscriberPortChangingDataSamples)
             {

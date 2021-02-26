@@ -19,6 +19,7 @@
 #define IOX_POSH_POPO_SAMPLE_HPP
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 namespace iox
@@ -66,12 +67,11 @@ struct SamplePrivateData<const T, H>
 /// @brief The Sample class is a mutable abstraction over types which are written to loaned shared memory.
 /// These samples are publishable to the iceoryx system.
 ///
-template <typename T, typename H = mepoo::NoCustomHeader>
+template <typename T, typename H = typename cxx::add_const_conditionally<mepoo::NoCustomHeader, T>::type>
 class Sample
 {
-    // TODO enable when subscriber also has the custom header template parameter
-    // static_assert(std::is_const<T>::value == std::is_const<H>::value,
-    //              "The type and the custom header must be equal in their const qualifier!");
+    static_assert(std::is_const<T>::value == std::is_const<H>::value,
+                  "The type `T` and the custom header `H` must be equal in their const qualifier!");
 
     template <typename S, typename TT>
     using ForPublisherOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;

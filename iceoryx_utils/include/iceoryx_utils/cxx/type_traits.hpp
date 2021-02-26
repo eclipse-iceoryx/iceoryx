@@ -25,6 +25,22 @@ namespace iox
 namespace cxx
 {
 ///
+/// @brief Conditionally add const to type T if C has the const qualifier
+/// @tparam T is the type to conditionally add the const qualifier
+/// @tparam Condition is the type which determines if the const qualifier needs to be added to T
+///
+template <typename T, typename Condition>
+struct add_const_conditionally
+{
+    using type = T;
+};
+template <typename T, typename Condition>
+struct add_const_conditionally<T, const Condition>
+{
+    using type = const T;
+};
+
+///
 /// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
 ///
 template <typename Callable, typename... ArgTypes>
