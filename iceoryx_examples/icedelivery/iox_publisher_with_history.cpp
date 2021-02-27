@@ -41,8 +41,11 @@ int main()
     // create publisher options to set a historyCapacity of 10U
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
+    publisherOptions.offerOnCreate = false; 
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+
+    // we have to explicitely offer the publisher for making it visible to subscribers
     publisher.offer();
 
     double ct = 0.0;

@@ -37,9 +37,6 @@ void Iceoryx::initFollower() noexcept
 
 void Iceoryx::init() noexcept
 {
-    m_publisher.offer();
-    m_subscriber.subscribe();
-
     std::cout << "Waiting for: subscription" << std::flush;
     while (m_subscriber.getSubscriptionState() != iox::SubscribeState::SUBSCRIBED)
     {

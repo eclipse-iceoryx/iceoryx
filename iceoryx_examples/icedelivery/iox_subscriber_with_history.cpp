@@ -46,7 +46,11 @@ int main()
     // publisher has send. The history ensures that we at least get the last 5
     // samples sent by the publisher when we subscribe (if at least 5 were already sent).
     subscriberOptions.historyRequest = 5U;
+    subscriberOptions.subscribeOnCreate = false;
+    
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    
+    // We have to explicitly call subscribe() otherwise the subscriber will not try to connect to publishers
     subscriber.subscribe();
 
     // run until interrupted by Ctrl-C

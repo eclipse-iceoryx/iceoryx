@@ -45,7 +45,6 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher");
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
-    publisher.offer();
 
     double ct = 0.0;
     while (!killswitch)
