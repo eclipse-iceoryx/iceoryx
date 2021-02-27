@@ -209,8 +209,8 @@ void setDestroyFlagAndClearContainer(vector& container)
 
 TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
 {
-    PublisherOptions publisherOptions{1, "node"};
-    SubscriberOptions subscriberOptions{1, 1, "node"};
+    PublisherOptions publisherOptions{1, "node", false};
+    SubscriberOptions subscriberOptions{1, 1, "node", false};
 
     PublisherPortUser publisher(
         m_portManager
@@ -234,8 +234,8 @@ TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
 
 TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
 {
-    PublisherOptions publisherOptions{1, "node"};
-    SubscriberOptions subscriberOptions{1, 1, "node"};
+    PublisherOptions publisherOptions{1, "node", false};
+    SubscriberOptions subscriberOptions{1, 1, "node", false};
 
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
@@ -259,8 +259,8 @@ TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
 
 TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
 {
-    PublisherOptions publisherOptions{1, "node"};
-    SubscriberOptions subscriberOptions{1, 1, "node"};
+    PublisherOptions publisherOptions{1, "node", false};
+    SubscriberOptions subscriberOptions{1, 1, "node", false};
 
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
@@ -284,8 +284,8 @@ TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
 
 TEST_F(PortManager_test, doDiscovery_rightOrdering)
 {
-    PublisherOptions publisherOptions{1, "node"};
-    SubscriberOptions subscriberOptions{1, 1, "node"};
+    PublisherOptions publisherOptions{1, "node", false};
+    SubscriberOptions subscriberOptions{1, 1, "node", false};
 
     SubscriberPortUser subscriber1(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
@@ -313,6 +313,80 @@ TEST_F(PortManager_test, doDiscovery_rightOrdering)
     EXPECT_THAT(subscriber1.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
     EXPECT_THAT(subscriber2.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
+
+TEST_F(PortManager_test, subscribeOnCreate_subscribesWithoutDiscoveryLoopWhenPublisherAvailable)
+{
+    PublisherOptions publisherOptions{1, "node", false};
+    SubscriberOptions subscriberOptions{1, 1, "node", true};
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+            .value());
+    publisher.offer();
+    m_portManager->doDiscovery();
+
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, offerOnCreate_subscribesWithoutDiscoveryLoopWhenSubscriberAvailable)
+{
+    PublisherOptions publisherOptions{1, "node", true};
+    SubscriberOptions subscriberOptions{1, 1, "node", false};
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    subscriber.subscribe();
+    m_portManager->doDiscovery();
+
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+            .value());
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, offerOnCreateAndSubscribeOnCreate_needsNoMoreDiscoveryLoopSubscriberFirst)
+{
+    PublisherOptions publisherOptions{1, "node", true};
+    SubscriberOptions subscriberOptions{1, 1, "node", true};
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+            .value());
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, offerOnCreateAndSubscribeOnCreate_needsNoMoreDiscoveryLoopPublisherFirst)
+{
+    PublisherOptions publisherOptions{1, "node", true};
+    SubscriberOptions subscriberOptions{1, 1, "node", true};
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+            .value());
+            
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 {
@@ -623,8 +697,8 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
     iox::ProcessName_t processName2 = "myProcess2";
     iox::capro::ServiceDescription cap1(1, 1, 1);
     iox::capro::ServiceDescription cap2(2, 2, 2);
-    PublisherOptions publisherOptions{1, "node"};
-    SubscriberOptions subscriberOptions{1, 1, "node"};
+    PublisherOptions publisherOptions{1, "node", false};
+    SubscriberOptions subscriberOptions{1, 1, "node", false};
 
     // two processes process1 and process2 each with a publisher and subscriber that match to the other process
     auto publisherData1 =

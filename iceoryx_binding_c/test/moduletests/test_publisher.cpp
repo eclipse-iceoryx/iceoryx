@@ -116,9 +116,9 @@ class iox_pub_test : public Test
     cpp2c_Publisher m_sut;
 };
 
-TEST_F(iox_pub_test, initialStateIsNotOffered)
+TEST_F(iox_pub_test, initialStateIsOffered)
 {
-    EXPECT_FALSE(iox_pub_is_offered(&m_sut));
+    EXPECT_TRUE(iox_pub_is_offered(&m_sut));
 }
 
 TEST_F(iox_pub_test, is_offeredAfterOffer)
