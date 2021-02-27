@@ -57,13 +57,24 @@ class SubscriberPortSingleProducer_test : public Test
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
+    
+    iox::popo::SubscriberOptions m_noSubscribeOnCreateOptions {iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 0U, "", false};
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
         TEST_SERVICE_DESCRIPTION,
         "myApp",
         iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-        iox::popo::SubscriberOptions()};
+        m_noSubscribeOnCreateOptions};
     iox::popo::SubscriberPortUser m_sutUserSideSingleProducer{&m_subscriberPortDataSingleProducer};
     iox::popo::SubscriberPortSingleProducer m_sutRouDiSideSingleProducer{&m_subscriberPortDataSingleProducer};
+
+    iox::popo::SubscriberOptions m_defaultSubscriberOptions{};
+    iox::popo::SubscriberPortData m_subscriberPortDataDefaultOptions{
+        TEST_SERVICE_DESCRIPTION,
+        "myApp",
+        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+        m_defaultSubscriberOptions};
+    iox::popo::SubscriberPortUser m_sutUserSideDefaultOptions{&m_subscriberPortDataDefaultOptions};
+    iox::popo::SubscriberPortSingleProducer m_sutRouDiSideDefaultOptions{&m_subscriberPortDataDefaultOptions};
 };
 
 const iox::capro::ServiceDescription SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION("x", "y", "z");
@@ -87,11 +98,20 @@ TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksLost)
     EXPECT_FALSE(m_sutUserSideSingleProducer.hasLostChunksSinceLastCall());
 }
 
-TEST_F(SubscriberPortSingleProducer_test, initialStateReturnsNoCaProMessage)
+TEST_F(SubscriberPortSingleProducer_test, initialStateReturnsNoCaProMessageWhenNoSubOnCreate)
 {
     auto maybeCaproMessage = m_sutRouDiSideSingleProducer.tryGetCaProMessage();
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
+}
+
+TEST_F(SubscriberPortSingleProducer_test, initialStateReturnsSubCaProMessageWithDefaultOptions)
+{
+    auto maybeCaproMessage = m_sutRouDiSideDefaultOptions.tryGetCaProMessage();
+
+    EXPECT_TRUE(maybeCaproMessage.has_value());
+    auto caproMessage = maybeCaproMessage.value();
+    EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
 }
 
 TEST_F(SubscriberPortSingleProducer_test, subscribeCallResultsInSubCaProMessage)
@@ -360,11 +380,13 @@ TEST_F(SubscriberPortMultiProducer_test, initialStateNotSubscribed)
     EXPECT_THAT(m_sutUserSideMultiProducer.getSubscriptionState(), Eq(iox::SubscribeState::NOT_SUBSCRIBED));
 }
 
-TEST_F(SubscriberPortMultiProducer_test, initialStateReturnsNoCaProMessage)
+TEST_F(SubscriberPortMultiProducer_test, initialStateReturnsSubCaProMessageWithDefaultOptions)
 {
     auto maybeCaproMessage = m_sutRouDiSideMultiProducer.tryGetCaProMessage();
 
-    EXPECT_FALSE(maybeCaproMessage.has_value());
+    EXPECT_TRUE(maybeCaproMessage.has_value());
+    auto caproMessage = maybeCaproMessage.value();
+    EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
 }
 
 TEST_F(SubscriberPortMultiProducer_test, subscribeCallResultsInSubCaProMessage)

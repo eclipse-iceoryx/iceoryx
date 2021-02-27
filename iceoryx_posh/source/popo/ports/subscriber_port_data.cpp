@@ -29,6 +29,7 @@ SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceD
     : BasePortData(serviceDescription, processName, subscriberOptions.nodeName)
     , m_chunkReceiverData(queueType, memoryInfo)
     , m_historyRequest(subscriberOptions.historyRequest)
+    , m_subscribeRequested(subscriberOptions.subscribeOnCreate)
 {
     m_chunkReceiverData.m_queue.setCapacity(subscriberOptions.queueCapacity);
 }
