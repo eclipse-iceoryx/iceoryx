@@ -36,7 +36,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-with-history");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-with-options");
 
     // create publisher with some options set
     iox::popo::PublisherOptions publisherOptions;
@@ -48,7 +48,7 @@ int main()
     publisherOptions.offerOnCreate = false;
 
     // grouping of publishers and subscribers within a process
-    publisherOptions.nodeName = "Pub_Node_With_Options" 
+    publisherOptions.nodeName = "Pub_Node_With_Options"; 
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
 

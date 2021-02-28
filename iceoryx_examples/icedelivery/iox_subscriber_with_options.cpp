@@ -37,7 +37,7 @@ int main()
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-with-history");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-with-options");
 
     // create subscriber with some options set
     iox::popo::SubscriberOptions subscriberOptions;
@@ -55,7 +55,7 @@ int main()
     subscriberOptions.subscribeOnCreate = false;
     
     // grouping of publishers and subscribers within a process   
-    publisherOptions.nodeName = "Sub_Node_With_Options" 
+    subscriberOptions.nodeName = "Sub_Node_With_Options"; 
 
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
     
