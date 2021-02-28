@@ -38,10 +38,17 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-with-history");
 
-    // create publisher options to set a historyCapacity of 10U
+    // create publisher with some options set
     iox::popo::PublisherOptions publisherOptions;
-    publisherOptions.historyCapacity = 10U;
-    publisherOptions.offerOnCreate = false; 
+
+    // the publishers stores the last 10 samples for possible late joiners
+    publisherOptions.historyCapacity = 10U; 
+
+    // when the publisher is created, it is not yet visible 
+    publisherOptions.offerOnCreate = false;
+
+    // grouping of publishers and subscribers within a process
+    publisherOptions.nodeName = "Pub_Node_With_Options" 
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
 
