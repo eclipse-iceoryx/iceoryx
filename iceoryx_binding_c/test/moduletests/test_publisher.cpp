@@ -266,3 +266,9 @@ TEST_F(iox_pub_test, publisherOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
     EXPECT_EQ(sut.nodeName, nullptr);
 }
+
+TEST_F(iox_sub_test, publisherOptionInitializationWithNullptrDoesNotCrash)
+{
+    // we can only check that it compiles and executes without crashing
+    iox_pub_options_init(nullptr);
+}

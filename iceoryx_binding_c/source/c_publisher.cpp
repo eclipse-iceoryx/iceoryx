@@ -33,6 +33,11 @@ extern "C" {
 
 void iox_pub_options_init(iox_pub_options_t* options)
 {
+    if (options == nullptr)
+    {
+        return;
+    }
+
     PublisherOptions publisherOptions;
     options->historyCapacity = publisherOptions.historyCapacity;
     options->nodeName = nullptr;

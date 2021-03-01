@@ -358,3 +358,9 @@ TEST_F(iox_sub_test, subscriberOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
 }
+
+TEST_F(iox_sub_test, subscriberOptionInitializationWithNullptrDoesNotCrash)
+{
+    // we can only check that it compiles and executes without crashing
+    iox_sub_options_init(nullptr);
+}

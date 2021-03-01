@@ -38,6 +38,11 @@ extern "C" {
 
 void iox_sub_options_init(iox_sub_options_t* options)
 {
+    if (options == nullptr)
+    {
+        return;
+    }
+
     SubscriberOptions subscriberOptions;
     options->queueCapacity = subscriberOptions.queueCapacity;
     options->historyRequest = subscriberOptions.historyRequest;
