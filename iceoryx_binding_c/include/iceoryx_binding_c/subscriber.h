@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,9 +43,8 @@ typedef struct
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] options publisher options set by the user
+/// @param[in] options subscriber options set by the user
 /// @return handle of the subscriber
-/// @attention the options must be set to valid values
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,

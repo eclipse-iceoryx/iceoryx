@@ -19,23 +19,16 @@
 
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
-/// @note: currently we can only use this header safely with the corresponding
-/// C++ ChunkHeader which defines the data layout
-/// once the functionality of the header is stable we can
-/// add free functions here to access its information
-
-/// consider to define void* payload_t as well
-
 /// @brief handle of the chunk header
 typedef void* iox_chunk_header_t;
 
 /// @brief gets the payload from the chunk header
-/// @param[in] pointer to the chunk header
+/// @param[in] header pointer to the chunk header
 /// @return pointer to the payload
 void* iox_chunk_header_to_payload(iox_chunk_header_t const header);
 
 /// @brief gets the chunk header from the payload
-/// @param[in] pointer to the payload
+/// @param[in] payload pointer to the payload
 /// @return pointer to the chunk header
 iox_chunk_header_t iox_chunk_payload_to_header(const void* const payload);
 
