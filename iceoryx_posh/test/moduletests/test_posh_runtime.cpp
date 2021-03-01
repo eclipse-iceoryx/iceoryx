@@ -356,6 +356,27 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     }
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutOfferOnCreate)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.offerOnCreate = false;
+
+    const auto publisherPortData = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(99U, 1U, 20U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_FALSE(publisherPortData->m_offeringRequested);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithOfferOnCreate)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.offerOnCreate = true;
+
+    const auto publisherPortData = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(99U, 1U, 20U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_TRUE(publisherPortData->m_offeringRequested);
+}
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
 {
@@ -415,6 +436,28 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
 
     EXPECT_EQ(nullptr, subscriberPort);
     EXPECT_TRUE(subscriberlistOverflowDetected);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithoutSubscribeOnCreate)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.subscribeOnCreate = false;
+
+    auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_FALSE(subscriberPortData->m_subscribeRequested);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithSubscribeOnCreate)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.subscribeOnCreate = true;
+
+    auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_TRUE(subscriberPortData->m_subscribeRequested);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
