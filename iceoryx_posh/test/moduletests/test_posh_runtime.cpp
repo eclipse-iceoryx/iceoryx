@@ -356,24 +356,24 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     }
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutOfferOnCreate)
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutOfferOnCreateLeadsToNotOfferedSubscriberBeingCreated)
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.offerOnCreate = false;
 
     const auto publisherPortData = m_runtime->getMiddlewarePublisher(
-        iox::capro::ServiceDescription(99U, 1U, 20U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        iox::capro::ServiceDescription(69U, 96U, 1893U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_FALSE(publisherPortData->m_offeringRequested);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithOfferOnCreate)
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithOfferOnCreateLeadsToOfferedSubscriberBeingCreated)
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.offerOnCreate = true;
 
     const auto publisherPortData = m_runtime->getMiddlewarePublisher(
-        iox::capro::ServiceDescription(99U, 1U, 20U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        iox::capro::ServiceDescription(17U, 4U, 21U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_TRUE(publisherPortData->m_offeringRequested);
 }
@@ -438,24 +438,24 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
     EXPECT_TRUE(subscriberlistOverflowDetected);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithoutSubscribeOnCreate)
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithoutSubscribeOnCreateLeadsToSubscriberThatDoesNotWantToBeSubscribed)
 {
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.subscribeOnCreate = false;
 
     auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
-        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        iox::capro::ServiceDescription(17U, 17U, 17U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_FALSE(subscriberPortData->m_subscribeRequested);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithSubscribeOnCreate)
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithSubscribeOnCreateLeadsToSubscriberThatWantsToBeSubscribed)
 {
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.subscribeOnCreate = true;
 
     auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
-        iox::capro::ServiceDescription(99U, 1U, 20U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+        iox::capro::ServiceDescription(1U, 2U, 3U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_TRUE(subscriberPortData->m_subscribeRequested);
 }

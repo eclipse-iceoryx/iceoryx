@@ -207,7 +207,7 @@ void setDestroyFlagAndClearContainer(vector& container)
     container.clear();
 }
 
-TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
+TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 {
     PublisherOptions publisherOptions{1, "node", false};
     SubscriberOptions subscriberOptions{1, 1, "node", false};
@@ -232,7 +232,7 @@ TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
+TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 {
     PublisherOptions publisherOptions{1, "node", false};
     SubscriberOptions subscriberOptions{1, 1, "node", false};
@@ -257,7 +257,7 @@ TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
+TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscriberAndPublisher)
 {
     PublisherOptions publisherOptions{1, "node", false};
     SubscriberOptions subscriberOptions{1, 1, "node", false};
@@ -282,7 +282,7 @@ TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, doDiscovery_rightOrdering)
+TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreationOfPublisher)
 {
     PublisherOptions publisherOptions{1, "node", false};
     SubscriberOptions subscriberOptions{1, 1, "node", false};
@@ -314,7 +314,7 @@ TEST_F(PortManager_test, doDiscovery_rightOrdering)
     EXPECT_THAT(subscriber2.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, subscribeOnCreate_subscribesWithoutDiscoveryLoopWhenPublisherAvailable)
+TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPublisherAvailable)
 {
     PublisherOptions publisherOptions{1, "node", false};
     SubscriberOptions subscriberOptions{1, 1, "node", true};
@@ -333,7 +333,7 @@ TEST_F(PortManager_test, subscribeOnCreate_subscribesWithoutDiscoveryLoopWhenPub
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, offerOnCreate_subscribesWithoutDiscoveryLoopWhenSubscriberAvailable)
+TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscriberAvailable)
 {
     PublisherOptions publisherOptions{1, "node", true};
     SubscriberOptions subscriberOptions{1, 1, "node", false};
@@ -352,7 +352,7 @@ TEST_F(PortManager_test, offerOnCreate_subscribesWithoutDiscoveryLoopWhenSubscri
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, offerOnCreateAndSubscribeOnCreate_needsNoMoreDiscoveryLoopSubscriberFirst)
+TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopSubscriberFirst)
 {
     PublisherOptions publisherOptions{1, "node", true};
     SubscriberOptions subscriberOptions{1, 1, "node", true};
@@ -369,7 +369,7 @@ TEST_F(PortManager_test, offerOnCreateAndSubscribeOnCreate_needsNoMoreDiscoveryL
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, offerOnCreateAndSubscribeOnCreate_needsNoMoreDiscoveryLoopPublisherFirst)
+TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopPublisherFirst)
 {
     PublisherOptions publisherOptions{1, "node", true};
     SubscriberOptions subscriberOptions{1, 1, "node", true};

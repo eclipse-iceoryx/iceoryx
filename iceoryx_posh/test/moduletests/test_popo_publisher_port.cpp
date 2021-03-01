@@ -117,7 +117,7 @@ TEST_F(PublisherPort_test, initialStateReturnsOfferCaProMessageWithDefaultOption
 {
     auto maybeCaproMessage = m_sutWithDefaultOptionsRouDiSide.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
 }
@@ -143,7 +143,7 @@ TEST_F(PublisherPort_test, offerCallResultsInOfferCaProMessage)
 
     auto maybeCaproMessage = m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("a", "b", "c")));
@@ -170,7 +170,7 @@ TEST_F(PublisherPort_test, stopOfferCallResultsInStopOfferCaProMessage)
 
     auto maybeCaproMessage = m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::STOP_OFFER));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("a", "b", "c")));
@@ -192,7 +192,7 @@ TEST_F(PublisherPort_test,
     m_sutWithHistoryUserSide.offer();
 
     auto maybeCaproMessage = m_sutWithHistoryRouDiSide.tryGetCaProMessage();
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("x", "y", "z")));
@@ -265,7 +265,7 @@ TEST_F(PublisherPort_test, subscribeWhenNotOfferedReturnsNACK)
 
     auto maybeCaProMessage = m_sutNoOfferOnCreateRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
-    EXPECT_TRUE(maybeCaProMessage.has_value());
+    ASSERT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::NACK));
 }
@@ -282,7 +282,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenNotSubscribedReturnsNACK)
 
     auto maybeCaproMessage = m_sutNoOfferOnCreateRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::NACK));
 }
@@ -320,7 +320,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenSubscribedReturnsACKAndWeHaveNoMoreSub
 
     maybeCaProMessage = m_sutNoOfferOnCreateRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
-    EXPECT_TRUE(maybeCaProMessage.has_value());
+    ASSERT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
     EXPECT_FALSE(m_sutNoOfferOnCreateUserSide.hasSubscribers());
@@ -342,7 +342,7 @@ TEST_F(PublisherPort_test, subscribeManyIsFine)
     for (size_t i = 0; i < iox::MAX_SUBSCRIBERS_PER_PUBLISHER; i++)
     {
         auto maybeCaProMessage = m_sutNoOfferOnCreateRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
-        EXPECT_TRUE(maybeCaProMessage.has_value());
+        ASSERT_TRUE(maybeCaProMessage.has_value());
         auto caproMessageResponse = maybeCaProMessage.value();
         EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
         dummyPtr++;
@@ -371,7 +371,7 @@ TEST_F(PublisherPort_test, subscribeTillOverflowReturnsNACK)
 
     auto maybeCaProMessage = m_sutNoOfferOnCreateRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
-    EXPECT_TRUE(maybeCaProMessage.has_value());
+    ASSERT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::NACK));
 }
@@ -396,7 +396,7 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
 
     auto maybeSharedChunk = m_chunkQueuePopper.tryPop();
 
-    EXPECT_TRUE(maybeSharedChunk.has_value());
+    ASSERT_TRUE(maybeSharedChunk.has_value());
     auto sharedChunk = maybeSharedChunk.value();
     auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getPayload());
     EXPECT_THAT(dummySample.dummy, Eq(17U));
@@ -433,7 +433,7 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     // 4. We get the history value on subscribe
     auto maybeSharedChunk = m_chunkQueuePopper.tryPop();
 
-    EXPECT_TRUE(maybeSharedChunk.has_value());
+    ASSERT_TRUE(maybeSharedChunk.has_value());
     auto sharedChunk = maybeSharedChunk.value();
     auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getPayload());
     EXPECT_THAT(dummySample.dummy, Eq(17U));
@@ -455,7 +455,7 @@ TEST_F(PublisherPort_test, lastChunkAvailableAfterSend)
 
     auto maybeLastChunkHeader = m_sutNoOfferOnCreateUserSide.tryGetPreviousChunk();
 
-    EXPECT_TRUE(maybeLastChunkHeader.has_value());
+    ASSERT_TRUE(maybeLastChunkHeader.has_value());
     EXPECT_THAT(maybeLastChunkHeader.value()->payload(), Eq(firstPayloadPtr));
 }
 

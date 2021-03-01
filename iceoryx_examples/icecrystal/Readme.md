@@ -51,7 +51,7 @@ The process view will show you the processes (incl. PID), which are currently re
     --port            Subscribe to port introspection data.
 
 The port view shows both publisher and subscriber ports that are created by RouDi in the shared memory. Their respective
-service description (service, instance, event) is shown to identify them uniquely. The columns `Process`  displays to which process the ports.
+service description (service, instance, event) is shown to identify them uniquely. The columns `Process`  displays to which process the ports belong.
 Size in bytes of both sample size and chunk size (sample size + meta data) and statistical data of `Chunks [/Minute]` is provided as
 well. The service discovery protocol allows you to define the `Propagation scope` of the data. This can enable
 data forwarding to other machines e.g. over network or just consume them internally. When a `Callback` is

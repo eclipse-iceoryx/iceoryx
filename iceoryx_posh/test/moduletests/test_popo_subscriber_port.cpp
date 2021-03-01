@@ -111,7 +111,7 @@ TEST_F(SubscriberPortSingleProducer_test, initialStateReturnsSubCaProMessageWith
 {
     auto maybeCaproMessage = m_sutRouDiSideDefaultOptions.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
 }
@@ -122,7 +122,7 @@ TEST_F(SubscriberPortSingleProducer_test, subscribeCallResultsInSubCaProMessage)
 
     auto maybeCaproMessage = m_sutRouDiSideSingleProducer.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION));
@@ -176,7 +176,7 @@ TEST_F(SubscriberPortSingleProducer_test, offerInWaitForOfferTriggersSubMessage)
 
     auto maybeCaproMessage = m_sutRouDiSideSingleProducer.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::SUB));
     EXPECT_THAT(caproMessageResponse.m_serviceDescription,
@@ -240,7 +240,7 @@ TEST_F(SubscriberPortSingleProducer_test, unsubscribeInSubscribedTriggersUnsubMe
 
     auto maybeCaproMessage = m_sutRouDiSideSingleProducer.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::UNSUB));
     EXPECT_THAT(caproMessageResponse.m_serviceDescription,
@@ -386,7 +386,7 @@ TEST_F(SubscriberPortMultiProducer_test, initialStateReturnsSubCaProMessageWithD
 {
     auto maybeCaproMessage = m_sutRouDiSideMultiProducer.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
 }
@@ -397,7 +397,7 @@ TEST_F(SubscriberPortMultiProducer_test, subscribeCallResultsInSubCaProMessage)
 
     auto maybeCaproMessage = m_sutRouDiSideMultiProducer.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION));
@@ -449,7 +449,7 @@ TEST_F(SubscriberPortMultiProducer_test, offerInSubscribedTriggersSubMessage)
 
     auto maybeCaproMessage = m_sutRouDiSideMultiProducer.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::SUB));
     EXPECT_THAT(caproMessageResponse.m_serviceDescription,
@@ -495,7 +495,7 @@ TEST_F(SubscriberPortMultiProducer_test, unsubscribeInSubscribedTriggersUnsubMes
 
     auto maybeCaproMessage = m_sutRouDiSideMultiProducer.tryGetCaProMessage();
 
-    EXPECT_TRUE(maybeCaproMessage.has_value());
+    ASSERT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::UNSUB));
     EXPECT_THAT(caproMessageResponse.m_serviceDescription,
