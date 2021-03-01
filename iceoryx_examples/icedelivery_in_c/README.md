@@ -119,10 +119,11 @@ Let's take a look at the `sending` function which comes with the
     {"Radar", "FrontLeft", "Counter"}
     ```c
     iox_pub_options_t options;
+    iox_pub_options_init(&options);
     options.historyCapacity = 10U;
     options.nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", options);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", &options);
     ```
  3. We offer our service to the world.
     ```c

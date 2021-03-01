@@ -35,6 +35,10 @@ typedef struct
     const char* nodeName;
 } iox_pub_options_t;
 
+/// @brief initialize publisher options to default values
+/// @param[in] options pointer to options to be initialized
+void iox_pub_options_init(iox_pub_options_t* options);
+
 /// @brief creates a publisher handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_pub_storage_t)
 /// @param[in] service serviceString
@@ -46,7 +50,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const iox_pub_options_t options);
+                       const iox_pub_options_t* const options);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed

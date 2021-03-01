@@ -31,17 +31,28 @@ extern "C" {
 #include "iceoryx_binding_c/publisher.h"
 }
 
+void iox_pub_options_init(iox_pub_options_t* options)
+{
+    PublisherOptions publisherOptions;
+    options->historyCapacity = publisherOptions.historyCapacity;
+    options->nodeName = nullptr;
+}
+
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const iox_pub_options_t options)
+                       const iox_pub_options_t* const options)
 {
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
     PublisherOptions publisherOptions;
-    publisherOptions.historyCapacity = options.historyCapacity;
-    publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options.nodeName);
+    publisherOptions.historyCapacity = options->historyCapacity;
+    if (options->nodeName != nullptr)
+    {
+        publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
+    }
+
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
         ServiceDescription{
             IdString_t(TruncateToCapacity, service),
