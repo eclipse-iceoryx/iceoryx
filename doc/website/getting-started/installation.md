@@ -6,7 +6,7 @@ iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh 
 
 ### Dependencies
 
- - 64-bit hardware (e.g. x86_64 or aarch64)
+ - 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware might work, but is not supported)
  - [cmake](https://cmake.org), 3.5 or later
  - One of the following compilers:
    - [gcc](https://gcc.gnu.org), 7.4 or later

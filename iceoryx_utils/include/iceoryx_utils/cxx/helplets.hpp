@@ -205,12 +205,11 @@ static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
 #define DISCARD_RESULT(expr) auto DISCARD_RESULT_VARIABLE(unusedOnLine, __LINE__) [[gnu::unused]] = expr
 // clang-format on
 
-/// @brief Prints a warning to std::cerr if called on a 32-bit system
-constexpr void printWarningOn32BitSystems()
+/// @brief Returns info whether called on a 32-bit system
+/// @return True if called on 32-bit, false if not 32-bit system
+constexpr bool isCompiledOn32BitSystem()
 {
-#if INTPTR_MAX == INT32_MAX
-    std::cerr << "Warning! 32-bit architectures are unsupported! Use at your own risk!" std::endl;
-#endif
+    return INTPTR_MAX == INT32_MAX;
 }
 
 } // namespace cxx

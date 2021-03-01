@@ -47,7 +47,10 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    cxx::printWarningOn32BitSystems();
+    if (cxx::isCompiledOn32BitSystem())
+    {
+        LogWarn() << "Warning! Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
+    }
     m_processIntrospection.registerPublisherPort(PublisherPortUserType(
         m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, IPC_CHANNEL_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);

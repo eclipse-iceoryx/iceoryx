@@ -83,7 +83,10 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
                      m_ipcChannelInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
-    cxx::printWarningOn32BitSystems();
+    if (cxx::isCompiledOn32BitSystem())
+    {
+        LogWarn() << "Warning! Running applications on 32-bit architectures is not supported! Use at your own risk!";
+    }
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 
