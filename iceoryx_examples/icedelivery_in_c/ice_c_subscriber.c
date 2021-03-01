@@ -42,13 +42,14 @@ void receiving()
     // publisher has send. The history ensures that we at least get the last 10
     // samples send by the publisher when we subscribe.
     iox_sub_options_t options;
+    iox_sub_options_init(&options);
     options.historyRequest = 10U;
     options.queueCapacity = 5U;
     options.nodeName = "iox-c-subscriber-node";
     iox_sub_storage_t subscriberStorage;
 
     iox_sub_t subscriber =
-        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", options);
+        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", &options);
     iox_sub_subscribe(subscriber);
 
     while (!killswitch)

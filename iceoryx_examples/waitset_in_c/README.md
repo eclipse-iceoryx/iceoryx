@@ -59,12 +59,13 @@ the `subscriberCallback` and an event id `1U`.
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
 iox_sub_options_t options;
+iox_sub_options_init(&options);
 options.historyRequest = 1U;
 options.queueCapacity = 256U;
 options.nodeName = "iox-c-ex-waitSet-gateway-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", options);
+    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
     iox_sub_subscribe(subscriber);
     iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
@@ -143,12 +144,13 @@ iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
 iox_sub_options_t options;
+iox_sub_options_init(&options);
 options.historyRequest = 1U;
 options.queueCapacity = 256U;
 options.nodeName = "iox-c-ex-waitset-grouping-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", options);
+    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
     iox_sub_subscribe(subscriber[i]);
 }
@@ -254,17 +256,15 @@ iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 Now we create two subscriber, subscribe them to our topic and attach them to
 the waitset without a callback and with the same trigger id.
 ```c
-iox_sub_options_t options1, options2;
-options1.historyRequest = 1U;
-options1.queueCapacity = 256U;
-options1.nodeName = "iox-c-ex-waitset-individual-node1";
+iox_sub_options_t options;
+iox_sub_options_init(&options);
+options.historyRequest = 1U;
+options.queueCapacity = 256U;
+options.nodeName = "iox-c-ex-waitset-individual-node1";
     
-options2.historyRequest = 1U;
-options2.queueCapacity = 256U;
-options2.nodeName = "iox-c-ex-waitset-individual-node2";
-
-subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", options1);
-subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", options2);
+subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
+options.nodeName = "iox-c-ex-waitset-individual-node2";
+subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
 iox_sub_subscribe(subscriber[0]);
 iox_sub_subscribe(subscriber[1]);

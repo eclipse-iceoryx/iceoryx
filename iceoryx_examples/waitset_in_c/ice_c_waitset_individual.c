@@ -61,19 +61,18 @@ int main()
     iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
     // create two subscribers, subscribe to the service and attach them to the waitset
-    iox_sub_options_t options1, options2;
-    options1.historyRequest = 1U;
-    options1.queueCapacity = 256U;
-    options1.nodeName = "iox-c-ex-waitset-individual-node1";
-    
-    options2.historyRequest = 1U;
-    options2.queueCapacity = 256U;
-    options2.nodeName = "iox-c-ex-waitset-individual-node2";
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+    options.historyRequest = 1U;
+    options.queueCapacity = 256U;
+    options.nodeName = "iox-c-ex-waitset-individual-node1";
 
     subscriber[0] = iox_sub_init(
-        &(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", options1);
+        &(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
+
+    options.nodeName = "iox-c-ex-waitset-individual-node2";
     subscriber[1] = iox_sub_init(
-        &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", options2);
+        &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
     iox_sub_subscribe(subscriber[0]);
     iox_sub_subscribe(subscriber[1]);

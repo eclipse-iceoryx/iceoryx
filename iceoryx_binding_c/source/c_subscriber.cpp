@@ -36,18 +36,30 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
+void iox_sub_options_init(iox_sub_options_t* options)
+{
+    SubscriberOptions subscriberOptions;
+    options->queueCapacity = subscriberOptions.queueCapacity;
+    options->historyRequest = subscriberOptions.historyRequest;
+    options->nodeName = nullptr;
+}
+
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const iox_sub_options_t options)
+                       const iox_sub_options_t* const options)
 {
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
     SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = options.queueCapacity;
-    subscriberOptions.historyRequest = options.historyRequest;
-    subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options.nodeName);
+    subscriberOptions.queueCapacity = options->queueCapacity;
+    subscriberOptions.historyRequest = options->historyRequest;
+    if (options->nodeName != nullptr)
+    {
+        subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
+    }
+
     me->m_portData =
         PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
                                                                               IdString_t(TruncateToCapacity, instance),

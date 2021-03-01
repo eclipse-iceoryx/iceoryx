@@ -77,13 +77,14 @@ int main()
     // create subscriber and subscribe them to our service
 
     iox_sub_options_t options;
+    iox_sub_options_init(&options);
     options.historyRequest = 1U;
     options.queueCapacity = 256U;
     options.nodeName = "iox-c-ex-waitSet-gateway-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         iox_sub_t subscriber = iox_sub_init(
-            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", options);
+            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
         iox_sub_subscribe(subscriber);
         iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);

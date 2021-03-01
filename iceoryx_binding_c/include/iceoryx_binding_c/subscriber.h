@@ -38,6 +38,10 @@ typedef struct
     const char* nodeName;
 } iox_sub_options_t;
 
+/// @brief initialize subscriber options to default values
+/// @param[in] options pointer to options to be initialized
+void iox_sub_options_init(iox_sub_options_t* const options);
+
 /// @brief initialize subscriber handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
 /// @param[in] service serviceString
@@ -49,7 +53,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const iox_sub_options_t options);
+                       const iox_sub_options_t* const options);
 
 /// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed
