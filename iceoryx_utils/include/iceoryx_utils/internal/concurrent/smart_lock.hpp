@@ -47,7 +47,7 @@ namespace concurrent
 ///         }
 ///     }
 /// @endcode
-template <typename T, typename MutexType = std::mutex>
+template <typename T, typename MutexType = ::std::mutex>
 class smart_lock
 {
   private:
@@ -147,7 +147,7 @@ class smart_lock
 
   private:
     T base;
-    MutexType lock;
+    mutable MutexType lock;
 };
 } // namespace concurrent
 } // namespace iox

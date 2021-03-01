@@ -21,6 +21,7 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
@@ -76,7 +77,7 @@ class SimpleEventClass
 
     void enableEvent(iox::popo::TriggerHandle&& handle) noexcept
     {
-        m_handleHypnotoad = std::move(handle);
+        m_handleNoEventEnum = std::move(handle);
     }
 
     void invalidateTrigger(const uint64_t id) noexcept
@@ -89,6 +90,10 @@ class SimpleEventClass
         else if (m_handleStoepsel.getUniqueId() == id)
         {
             m_handleStoepsel.invalidate();
+        }
+        else if (m_handleNoEventEnum.getUniqueId() == id)
+        {
+            m_handleNoEventEnum.invalidate();
         }
     }
 
@@ -107,9 +112,8 @@ class SimpleEventClass
 
     void disableEvent() noexcept
     {
-        m_handleHypnotoad.reset();
+        m_handleNoEventEnum.reset();
     }
-
     void triggerStoepsel() noexcept
     {
         m_hasTriggered.store(true);
@@ -123,6 +127,7 @@ class SimpleEventClass
 
     iox::popo::TriggerHandle m_handleHypnotoad;
     iox::popo::TriggerHandle m_handleStoepsel;
+    iox::popo::TriggerHandle m_handleNoEventEnum;
     mutable std::atomic_bool m_hasTriggered{false};
 };
 
@@ -147,8 +152,8 @@ struct TriggerSourceAndCount
     std::atomic<uint64_t> m_count{0U};
 };
 
-std::vector<EventAndSutPair_t> g_toBeAttached;
-std::vector<EventAndSutPair_t> g_toBeDetached;
+iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeAttached;
+iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeDetached;
 std::array<TriggerSourceAndCount, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET> g_triggerCallbackArg;
 uint64_t g_triggerCallbackRuntimeInMs = 0U;
 iox::cxx::optional<iox::posix::Semaphore> g_callbackBlocker;
@@ -171,7 +176,7 @@ class ActiveCallSet_test : public Test
 
     static void attachCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeAttached)
+        for (auto& e : g_toBeAttached.GetCopy())
         {
             e.sut->attachEvent(*e.object, SimpleEvent::StoepselBachelorParty, triggerCallback<0U>);
         }
@@ -179,7 +184,7 @@ class ActiveCallSet_test : public Test
 
     static void detachCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeDetached)
+        for (auto& e : g_toBeDetached.GetCopy())
         {
             e.sut->detachEvent(*e.object, SimpleEvent::StoepselBachelorParty);
         }
@@ -187,7 +192,7 @@ class ActiveCallSet_test : public Test
 
     static void notifyAndThenDetachStoepselCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeDetached)
+        for (auto& e : g_toBeDetached.GetCopy())
         {
             e.object->triggerStoepsel();
             e.sut->detachEvent(*e.object, SimpleEvent::StoepselBachelorParty);
@@ -206,8 +211,8 @@ class ActiveCallSet_test : public Test
         m_sut.emplace(&m_eventVarData);
         g_invalidateTriggerId = 0U;
         g_triggerCallbackRuntimeInMs = 0U;
-        g_toBeAttached.clear();
-        g_toBeDetached.clear();
+        g_toBeAttached->clear();
+        g_toBeDetached->clear();
     };
 
     void activateTriggerCallbackBlocker() noexcept
@@ -373,10 +378,10 @@ TEST_F(ActiveCallSet_test, DetachMakesSpaceForAnotherAttachWithoutEventEnum)
         m_sut->attachEvent(m_simpleEvents[m_sut->capacity()], ActiveCallSet_test::triggerCallback<0U>).has_error());
 }
 
-TEST_F(ActiveCallSet_test, AttachingEventWithoutEventTypeLeadsToAttachedTriggerHandle)
+TEST_F(ActiveCallSet_test, AttachingEventWithoutEventTypeLeadsToAttachedNoEventEnumTriggerHandle)
 {
     m_sut->attachEvent(m_simpleEvents[0U], ActiveCallSet_test::triggerCallback<0U>);
-    EXPECT_TRUE(m_simpleEvents[0U].m_handleHypnotoad.isValid());
+    EXPECT_TRUE(m_simpleEvents[0U].m_handleNoEventEnum.isValid());
 }
 
 TEST_F(ActiveCallSet_test, AttachingEventWithEventTypeLeadsToAttachedTriggerHandle)
@@ -431,7 +436,7 @@ TEST_F(ActiveCallSet_test, DetachingDifferentClassWithSameEventEnumChangesNothin
     EXPECT_THAT(m_sut->size(), Eq(1U));
 }
 
-TEST_F(ActiveCallSet_test, AttachingTillCapacityFilledSetsUpTriggerHandle)
+TEST_F(ActiveCallSet_test, AttachingWithoutEnumTillCapacityFilledSetsUpNoEventEnumTriggerHandle)
 {
     for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
@@ -440,7 +445,7 @@ TEST_F(ActiveCallSet_test, AttachingTillCapacityFilledSetsUpTriggerHandle)
 
     for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
     {
-        EXPECT_TRUE(m_simpleEvents[i].m_handleHypnotoad.isValid());
+        EXPECT_TRUE(m_simpleEvents[i].m_handleNoEventEnum.isValid());
     }
 }
 
@@ -470,12 +475,12 @@ TEST_F(ActiveCallSet_test, AttachedEventDTorDetachesItself)
     EXPECT_THAT(m_sut->size(), Eq(0U));
 }
 
-TEST_F(ActiveCallSet_test, AttachingSimpleEventSetsTriggerHandle)
+TEST_F(ActiveCallSet_test, AttachingSimpleEventWithoutEnumSetsNoEventEnumTriggerHandle)
 {
     SimpleEventClass fuu;
     m_sut->attachEvent(fuu, ActiveCallSet_test::triggerCallback<0U>);
 
-    EXPECT_TRUE(static_cast<bool>(fuu.m_handleHypnotoad));
+    EXPECT_TRUE(static_cast<bool>(fuu.m_handleNoEventEnum));
 }
 
 TEST_F(ActiveCallSet_test, DetachingSimpleEventResetsTriggerHandle)
@@ -864,10 +869,10 @@ TIMING_TEST_F(ActiveCallSet_test, AttachingDetachingRunsIndependentOfCallback, R
 // BEGIN attach / detach in callbacks
 //////////////////////////////////
 TIMING_TEST_F(ActiveCallSet_test, DetachingSelfInCallbackWorks, Repeat(5), [&] {
-    g_toBeDetached.clear();
+    g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
-    g_toBeDetached.push_back({&events[0U], &*m_sut});
+    g_toBeDetached->push_back({&events[0U], &*m_sut});
     m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, detachCallback);
 
     events[0U].triggerStoepsel();
@@ -878,10 +883,10 @@ TIMING_TEST_F(ActiveCallSet_test, DetachingSelfInCallbackWorks, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(ActiveCallSet_test, DetachingNonSelfEventInCallbackWorks, Repeat(5), [&] {
-    g_toBeDetached.clear();
+    g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
-    g_toBeDetached.push_back({&events[1U], &*m_sut});
+    g_toBeDetached->push_back({&events[1U], &*m_sut});
     m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, detachCallback);
     m_sut->attachEvent(events[1U], SimpleEvent::StoepselBachelorParty, triggerCallback<1U>);
 
@@ -893,10 +898,10 @@ TIMING_TEST_F(ActiveCallSet_test, DetachingNonSelfEventInCallbackWorks, Repeat(5
 });
 
 TIMING_TEST_F(ActiveCallSet_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefore, Repeat(5), [&] {
-    g_toBeDetached.clear();
+    g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
-    g_toBeDetached.push_back({&events[1U], &*m_sut});
+    g_toBeDetached->push_back({&events[1U], &*m_sut});
     m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, notifyAndThenDetachStoepselCallback);
     m_sut->attachEvent(events[1U], SimpleEvent::StoepselBachelorParty, triggerCallback<1U>);
 
@@ -915,10 +920,10 @@ TIMING_TEST_F(ActiveCallSet_test, DetachedCallbacksAreNotBeingCalledWhenTriggere
 });
 
 TIMING_TEST_F(ActiveCallSet_test, AttachingInCallbackWorks, Repeat(1), [&] {
-    g_toBeAttached.clear();
+    g_toBeAttached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
-    g_toBeAttached.push_back({&events[1U], &*m_sut});
+    g_toBeAttached->push_back({&events[1U], &*m_sut});
     m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, attachCallback);
 
     events[0U].triggerStoepsel();
