@@ -27,21 +27,21 @@
 using namespace iox::units::duration_literals;
 
 // class for killing the application if a test takes too much time to finish
-class Seppuku
+class Watchdog
 {
   public:
-    Seppuku(const iox::units::Duration& timeToWait) noexcept
+    Watchdog(const iox::units::Duration& timeToWait) noexcept
         : m_timeToWait(timeToWait)
     {
     }
 
-    ~Seppuku() noexcept
+    ~Watchdog() noexcept
     {
         m_seppukuSemaphore.post();
         m_seppuku.join();
     }
 
-    void doSeppuku(std::function<void()> f) noexcept
+    void watchAndActOnFailure(std::function<void()> f) noexcept
     {
         m_seppuku = std::thread([=] {
             m_seppukuSemaphore.timedWait(m_timeToWait, false)

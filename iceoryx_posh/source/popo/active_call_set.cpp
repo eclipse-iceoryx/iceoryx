@@ -190,7 +190,7 @@ bool ActiveCallSet::IndexManager_t::pop(uint32_t& value) noexcept
 
 void ActiveCallSet::IndexManager_t::push(const uint32_t index) noexcept
 {
-    m_loffli.push(index);
+    cxx::Expects(m_loffli.push(index));
     --m_indicesInUse;
 }
 

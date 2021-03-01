@@ -599,17 +599,14 @@ popo::EventVariableData* PoshRuntime::getMiddlewareEventVariable() noexcept
         switch (maybeEventVariable.get_error())
         {
         case IpcMessageErrorType::EVENT_VARIABLE_LIST_FULL:
-            LogWarn() << "Could not create event variable as we are out of memory for event variables.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_EVENT_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
         case IpcMessageErrorType::REQUEST_EVENT_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE:
-            LogWarn() << "Could not create event variables; received wrong message queue response.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_EVENT_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE,
                          nullptr,
                          iox::ErrorLevel::SEVERE);
             break;
         default:
-            LogWarn() << "Undefined behavior occurred while creating event variable";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_EVENT_VARIABLE_CREATION_UNDEFINED_BEHAVIOR,
                          nullptr,
                          iox::ErrorLevel::SEVERE);

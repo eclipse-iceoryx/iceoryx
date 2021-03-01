@@ -33,6 +33,9 @@ namespace popo
 class EventListener
 {
   public:
+    using NotificationVector_t = cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>,
+                                             MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>;
+
     /// @brief creates new EventListener
     ///
     /// @param[in] dataRef reference to EventVariableData
@@ -43,9 +46,7 @@ class EventListener
     /// never empty unless destroy() was called, then it's always empty.
     ///
     /// @return vector of active notifications
-    cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>,
-                MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
-    wait() noexcept;
+    NotificationVector_t wait() noexcept;
 
     /// @brief Used in classes to signal a thread which waits in wait() to return
     ///         and stop working. Destroy will send an empty notification to wait() and

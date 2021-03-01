@@ -35,8 +35,7 @@ void EventListener::destroy() noexcept
     }
 }
 
-cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
-EventListener::wait() noexcept
+EventListener::NotificationVector_t EventListener::wait() noexcept
 {
     cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>,
                 MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>
