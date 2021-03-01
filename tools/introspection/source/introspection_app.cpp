@@ -415,6 +415,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", serviceWidth, "Service");
     wprintw(pad, " %*s |", instanceWidth, "Instance");
     wprintw(pad, " %*s |", eventWidth, "Event");
+    wprintw(pad, " %*s |", processNameWidth, "Process");
     wprintw(pad, " %*s |", nodeNameWidth, "Node");
     wprintw(pad, " %*s |", subscriptionStateWidth, "Subscription");
     wprintw(pad, " %*s |", fifoWidth, "FiFo");
@@ -423,6 +424,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", serviceWidth, "");
     wprintw(pad, " %*s |", instanceWidth, "");
     wprintw(pad, " %*s |", eventWidth, "");
+    wprintw(pad, " %*s |", processNameWidth, "");
     wprintw(pad, " %*s |", nodeNameWidth, "");
     wprintw(pad, " %*s |", subscriptionStateWidth, "State");
     wprintw(pad, " %*s |", fifoWidth, "size / capacity");
@@ -458,6 +460,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             wprintw(pad, " %s |", printEntry(serviceWidth, subscriber.portData->m_caproServiceID).c_str());
             wprintw(pad, " %s |", printEntry(instanceWidth, subscriber.portData->m_caproInstanceID).c_str());
             wprintw(pad, " %s |", printEntry(eventWidth, subscriber.portData->m_caproEventMethodID).c_str());
+            wprintw(pad, " %s |", printEntry(processNameWidth, subscriber.portData->m_name).c_str());
             wprintw(pad, " %s |", printEntry(nodeNameWidth, subscriber.portData->m_node).c_str());
             wprintw(pad,
                     " %s |",
@@ -490,6 +493,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         wprintw(pad, " %*s |", serviceWidth, "");
         wprintw(pad, " %*s |", instanceWidth, "");
         wprintw(pad, " %*s |", eventWidth, "");
+        wprintw(pad, " %*s |", processNameWidth, "");
         wprintw(pad, " %*s |", nodeNameWidth, "");
         wprintw(pad, " %*s |", subscriptionStateWidth, "");
         wprintw(pad, " %*s |", fifoWidth, "");
