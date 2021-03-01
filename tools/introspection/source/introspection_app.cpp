@@ -312,7 +312,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     constexpr int32_t chunksWidth{12};
     constexpr int32_t intervalWidth{19};
     constexpr int32_t subscriptionStateWidth{14};
-    constexpr int32_t fifoWidth{17};
+    // constexpr int32_t fifoWidth{17};    // uncomment once this information is needed
     constexpr int32_t scopeWidth{12};
     constexpr int32_t interfaceSourceWidth{8};
 
@@ -418,7 +418,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", processNameWidth, "Process");
     wprintw(pad, " %*s |", nodeNameWidth, "Node");
     wprintw(pad, " %*s |", subscriptionStateWidth, "Subscription");
-    wprintw(pad, " %*s |", fifoWidth, "FiFo");
+    // wprintw(pad, " %*s |", fifoWidth, "FiFo"); // uncomment once this information is needed
     wprintw(pad, " %*s\n", scopeWidth, "Propagation");
 
     wprintw(pad, " %*s |", serviceWidth, "");
@@ -427,7 +427,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", processNameWidth, "");
     wprintw(pad, " %*s |", nodeNameWidth, "");
     wprintw(pad, " %*s |", subscriptionStateWidth, "State");
-    wprintw(pad, " %*s |", fifoWidth, "size / capacity");
+    // wprintw(pad, " %*s |", fifoWidth, "size / capacity"); // uncomment once this information is needed
     wprintw(pad, " %*s\n", scopeWidth, "scope");
 
     wprintw(pad, "---------------------------------------------------------------------------------------------------");
@@ -467,19 +467,20 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
                     printEntry(subscriptionStateWidth,
                                subscriptionStateToString(subscriber.subscriberPortChangingData->subscriptionState))
                         .c_str());
-            if (currentLine == 0)
-            {
-                std::string fifoSize{"n/a"};     // std::to_string(subscriber.subscriberPortChangingData->fifoSize))
-                std::string fifoCapacity{"n/a"}; // std::to_string(subscriber.subscriberPortChangingData->fifoCapacity))
-                wprintw(pad,
-                        " %s / %s |",
-                        printEntry(((fifoWidth / 2) - 1), fifoSize).c_str(),
-                        printEntry(((fifoWidth / 2) - 1), fifoCapacity).c_str());
-            }
-            else
-            {
-                wprintw(pad, " %*s |", fifoWidth, "");
-            }
+            // uncomment once this information is needed
+            // if (currentLine == 0)
+            //{
+            // std::string fifoSize{"n/a"};     // std::to_string(subscriber.subscriberPortChangingData->fifoSize))
+            // std::string fifoCapacity{"n/a"}; // std::to_string(subscriber.subscriberPortChangingData->fifoCapacity))
+            // wprintw(pad,
+            //" %s / %s |",
+            // printEntry(((fifoWidth / 2) - 1), fifoSize).c_str(),
+            // printEntry(((fifoWidth / 2) - 1), fifoCapacity).c_str());
+            //}
+            // else
+            //{
+            // wprintw(pad, " %*s |", fifoWidth, "");
+            //}
             wprintw(pad,
                     " %s\n",
                     printEntry(scopeWidth,
@@ -496,7 +497,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         wprintw(pad, " %*s |", processNameWidth, "");
         wprintw(pad, " %*s |", nodeNameWidth, "");
         wprintw(pad, " %*s |", subscriptionStateWidth, "");
-        wprintw(pad, " %*s |", fifoWidth, "");
+        // wprintw(pad, " %*s |", fifoWidth, ""); // uncomment once this information is needed
         wprintw(pad, " %*s", scopeWidth, "");
         wprintw(pad, "\n");
     }
