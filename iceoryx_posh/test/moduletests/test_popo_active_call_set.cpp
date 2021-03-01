@@ -400,7 +400,7 @@ TEST_F(ActiveCallSet_test, AttachingSameEventWithEventEnumTwiceFails)
     EXPECT_THAT(result.get_error(), Eq(ActiveCallSetError::EVENT_ALREADY_ATTACHED));
 }
 
-TEST_F(ActiveCallSet_test, AttachingSameEventWithoutEventEnumTwiceFails)
+TEST_F(ActiveCallSet_test, OverridingAlreadyAttachedEventWithoutEnumFails)
 {
     m_sut->attachEvent(m_simpleEvents[0U], ActiveCallSet_test::triggerCallback<0U>);
 
@@ -409,7 +409,7 @@ TEST_F(ActiveCallSet_test, AttachingSameEventWithoutEventEnumTwiceFails)
     EXPECT_THAT(result.get_error(), Eq(ActiveCallSetError::EVENT_ALREADY_ATTACHED));
 }
 
-TEST_F(ActiveCallSet_test, AttachingSameClassWithTwoDifferentEventsWorks)
+TEST_F(ActiveCallSet_test, OverridingAlreadyAttachedEventWithEnumFails)
 {
     m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0U>);
 
