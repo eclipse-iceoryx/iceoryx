@@ -39,8 +39,7 @@ struct SubscriberOptions
     iox::NodeName_t nodeName{""};
 
     /// @brief The option whether the subscriber shall try to subscribe when creating it
-    bool subscribeOnCreate = {true};
-
+    bool subscribeOnCreate{true};
 };
 
 } // namespace popo

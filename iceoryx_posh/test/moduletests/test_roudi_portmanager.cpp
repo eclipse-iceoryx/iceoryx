@@ -378,10 +378,10 @@ TEST_F(PortManager_test, offerOnCreateAndSubscribeOnCreate_needsNoMoreDiscoveryL
             ->acquirePublisherPortData(
                 {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
-            
+
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
-        
+
 
     ASSERT_TRUE(publisher.hasSubscribers());
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));

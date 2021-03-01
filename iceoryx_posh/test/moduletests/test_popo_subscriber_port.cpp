@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,8 +58,9 @@ class SubscriberPortSingleProducer_test : public Test
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-    
-    iox::popo::SubscriberOptions m_noSubscribeOnCreateOptions {iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 0U, "", false};
+
+    iox::popo::SubscriberOptions m_noSubscribeOnCreateOptions{
+        iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 0U, "", false};
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
         TEST_SERVICE_DESCRIPTION,
         "myApp",

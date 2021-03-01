@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,7 +73,8 @@ class PublisherPort_test : public Test
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
-    iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{0U, "", false};;
+    iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{0U, "", false};
+    ;
 
     // publisher port w/o offer on create
     iox::popo::PublisherPortData m_publisherPortData{
@@ -80,14 +82,14 @@ class PublisherPort_test : public Test
     iox::popo::PublisherPortRouDi m_sutNoOfferOnCreateRouDiSide{&m_publisherPortData};
     iox::popo::PublisherPortUser m_sutNoOfferOnCreateUserSide{&m_publisherPortData};
 
-    // publisher port w/ history 
+    // publisher port w/ history
     iox::popo::PublisherOptions m_withHistoryPublisherOptions{iox::MAX_PUBLISHER_HISTORY, "", true};
     iox::popo::PublisherPortData m_publisherPortDataHistory{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withHistoryPublisherOptions};
     iox::popo::PublisherPortUser m_sutWithHistoryUserSide{&m_publisherPortDataHistory};
     iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
 
-    // publisher port w/ default options 
+    // publisher port w/ default options
     iox::popo::PublisherOptions m_withDefaultPublisherOptions{};
     iox::popo::PublisherPortData m_publisherPortDataDefault{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withDefaultPublisherOptions};

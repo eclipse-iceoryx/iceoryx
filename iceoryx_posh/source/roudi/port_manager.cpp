@@ -160,14 +160,13 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
         {
             this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                                    caproMessage.m_serviceDescription.getInstanceIDString());
+                                                 caproMessage.m_serviceDescription.getInstanceIDString());
         }
         else
         {
             // protocol error
-            errorHandler(Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
-                            nullptr,
-                            iox::ErrorLevel::MODERATE);
+            errorHandler(
+                Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
         }
 
         this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
@@ -214,8 +213,8 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
         {
             // protocol error
             errorHandler(Error::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
-                            nullptr,
-                            iox::ErrorLevel::MODERATE);
+                         nullptr,
+                         iox::ErrorLevel::MODERATE);
         }
     });
 }
@@ -635,7 +634,7 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
         if (subscriberPortData)
         {
             m_portIntrospection.addSubscriber(*subscriberPortData);
-            
+
             // we do discovery here for trying to connect with publishers if subscribe on create is desired
             SubscriberPortType subscriberPort(subscriberPortData);
             doDiscoveryForSubscriberPort(subscriberPort);

@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -234,4 +235,3 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     EXPECT_TRUE(*maybeSharedChunk == chunk);
     EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
 }
-
