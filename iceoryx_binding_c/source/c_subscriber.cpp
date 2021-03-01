@@ -40,7 +40,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const iox_subscriber_options_t options)
+                       const iox_sub_options_t options)
 {
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);

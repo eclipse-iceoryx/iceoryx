@@ -33,7 +33,7 @@ typedef struct
 
     // name of the node the publisher belongs to
     const char* nodeName;
-} iox_publisher_options_t;
+} iox_pub_options_t;
 
 /// @brief creates a publisher handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_pub_storage_t)
@@ -46,7 +46,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const iox_publisher_options_t options);
+                       const iox_pub_options_t options);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed

@@ -46,7 +46,7 @@ Let's take a look at the `receiving` function which comes with the
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c
-    iox_subscriber_options_t options;
+    iox_sub_options_t options;
     options.historyRequest = 10U;
     options.queueCapacity = 5U;
     options.nodeName = "iox-c-subscriber-node";
@@ -118,7 +118,7 @@ Let's take a look at the `sending` function which comes with the
  2. We create a publisher with the service
     {"Radar", "FrontLeft", "Counter"}
     ```c
-    iox_publisher_options_t options;
+    iox_pub_options_t options;
     options.historyCapacity = 10U;
     options.nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;

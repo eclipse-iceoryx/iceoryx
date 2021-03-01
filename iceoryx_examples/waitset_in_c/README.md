@@ -58,7 +58,7 @@ the `subscriberCallback` and an event id `1U`.
 ```c
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
-iox_subscriber_options_t options;
+iox_sub_options_t options;
 options.historyRequest = 1U;
 options.queueCapacity = 256U;
 options.nodeName = "iox-c-ex-waitSet-gateway-node";
@@ -142,7 +142,7 @@ After that we can create a list of subscribers and subscribe them to our topic.
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
-iox_subscriber_options_t options;
+iox_sub_options_t options;
 options.historyRequest = 1U;
 options.queueCapacity = 256U;
 options.nodeName = "iox-c-ex-waitset-grouping-node";
@@ -254,7 +254,7 @@ iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 Now we create two subscriber, subscribe them to our topic and attach them to
 the waitset without a callback and with the same trigger id.
 ```c
-iox_subscriber_options_t options1, options2;
+iox_sub_options_t options1, options2;
 options1.historyRequest = 1U;
 options1.queueCapacity = 256U;
 options1.nodeName = "iox-c-ex-waitset-individual-node1";

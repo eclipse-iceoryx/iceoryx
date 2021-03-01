@@ -21,12 +21,12 @@
 
 IceoryxC::IceoryxC(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
 {
-    iox_publisher_options_t publisherOptions;
+    iox_pub_options_t publisherOptions;
     publisherOptions.historyCapacity = 0U;
     publisherOptions.nodeName = "SlapStick";
     m_publisher = iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", publisherOptions);
 
-    iox_subscriber_options_t subscriberOptions;
+    iox_sub_options_t subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
     subscriberOptions.historyRequest = 0U;
     subscriberOptions.nodeName = "Slapstick";

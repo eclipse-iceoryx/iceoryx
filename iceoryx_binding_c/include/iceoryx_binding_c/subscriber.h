@@ -36,7 +36,7 @@ typedef struct
 
     // name of the node the subscriber belongs to
     const char* nodeName;
-} iox_subscriber_options_t;
+} iox_sub_options_t;
 
 /// @brief initialize subscriber handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
@@ -49,7 +49,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const iox_subscriber_options_t options);
+                       const iox_sub_options_t options);
 
 /// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed

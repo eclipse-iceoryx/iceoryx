@@ -37,7 +37,7 @@ void sending()
 {
     iox_runtime_init("iox-c-publisher");
 
-    iox_publisher_options_t options;
+    iox_pub_options_t options;
     options.historyCapacity = 10U;
     options.nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;

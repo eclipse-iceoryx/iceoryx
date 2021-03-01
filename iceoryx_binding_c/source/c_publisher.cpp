@@ -35,7 +35,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
-                       const iox_publisher_options_t options)
+                       const iox_pub_options_t options)
 {
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);

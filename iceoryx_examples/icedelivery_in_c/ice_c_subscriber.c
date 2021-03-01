@@ -41,7 +41,7 @@ void receiving()
     // When starting the subscriber late it will miss the first samples which the
     // publisher has send. The history ensures that we at least get the last 10
     // samples send by the publisher when we subscribe.
-    iox_subscriber_options_t options;
+    iox_sub_options_t options;
     options.historyRequest = 10U;
     options.queueCapacity = 5U;
     options.nodeName = "iox-c-subscriber-node";

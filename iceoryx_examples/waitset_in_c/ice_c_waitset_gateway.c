@@ -76,7 +76,7 @@ int main()
 
     // create subscriber and subscribe them to our service
 
-    iox_subscriber_options_t options;
+    iox_sub_options_t options;
     options.historyRequest = 1U;
     options.queueCapacity = 256U;
     options.nodeName = "iox-c-ex-waitSet-gateway-node";
