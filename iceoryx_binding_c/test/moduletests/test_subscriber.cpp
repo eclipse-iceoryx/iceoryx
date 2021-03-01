@@ -344,7 +344,7 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     free(subscriber);
 }
 
-TEST_F(iox_sub_test, subscriberOptionsAreInitializedCorrectly)
+TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
 {
     iox_sub_options_t sut;
     sut.queueCapacity = 37;
@@ -359,8 +359,13 @@ TEST_F(iox_sub_test, subscriberOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.nodeName, nullptr);
 }
 
-TEST_F(iox_sub_test, subscriberOptionInitializationWithNullptrDoesNotCrash)
+TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash)
 {
-    // we can only check that it compiles and executes without crashing
-    iox_sub_options_init(nullptr);
+    EXPECT_EXIT(
+        {
+            iox_sub_options_init(nullptr);
+            exit(0);
+        },
+        ::testing::ExitedWithCode(0),
+        ".*");
 }

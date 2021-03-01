@@ -254,7 +254,7 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
 }
 
-TEST_F(iox_pub_test, publisherOptionsAreInitializedCorrectly)
+TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
 {
     iox_pub_options_t sut;
     sut.historyCapacity = 37;
@@ -267,8 +267,13 @@ TEST_F(iox_pub_test, publisherOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.nodeName, nullptr);
 }
 
-TEST_F(iox_sub_test, publisherOptionInitializationWithNullptrDoesNotCrash)
+TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
 {
-    // we can only check that it compiles and executes without crashing
-    iox_pub_options_init(nullptr);
+    EXPECT_EXIT(
+        {
+            iox_pub_options_init(nullptr);
+            exit(0);
+        },
+        ::testing::ExitedWithCode(0),
+        ".*");
 }
