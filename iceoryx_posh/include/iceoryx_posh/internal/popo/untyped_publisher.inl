@@ -60,6 +60,13 @@ cxx::optional<void*> UntypedPublisherImpl<base_publisher_t>::loanPreviousChunk()
     return cxx::nullopt;
 }
 
+template <typename base_publisher_t>
+inline void UntypedPublisherImpl<base_publisher_t>::releaseChunk(const void* chunk) noexcept
+{
+    auto header = mepoo::ChunkHeader::fromPayload(chunk);
+    port().releaseChunk(header);
+}
+
 } // namespace popo
 } // namespace iox
 

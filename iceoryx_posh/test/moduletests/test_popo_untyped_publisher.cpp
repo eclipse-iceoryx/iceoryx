@@ -94,6 +94,23 @@ TEST_F(UntypedPublisherTest, LoanPreviousChunkFails)
     // ===== Cleanup ===== //
 }
 
+TEST_F(UntypedPublisherTest, ReleaseChunkDelegatesCallToPort)
+{
+    constexpr uint32_t ALLOCATION_SIZE = 7U;
+    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE))
+        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
+
+    auto result = sut.loan(ALLOCATION_SIZE);
+    ASSERT_FALSE(result.has_error());
+    auto chunk = result.value();
+
+    // ===== Test ===== //
+    EXPECT_CALL(portMock, releaseChunk(chunkMock.chunkHeader())).Times(1);
+    sut.releaseChunk(chunk);
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
 TEST_F(UntypedPublisherTest, PublishesPayloadViaUnderlyingPort)
 {
     // ===== Setup ===== //
