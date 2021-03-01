@@ -343,3 +343,18 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 
     free(subscriber);
 }
+
+TEST_F(iox_sub_test, subscriberOptionsAreInitializedCorrectly)
+{
+    iox_sub_options_t sut;
+    sut.queueCapacity = 37;
+    sut.historyRequest = 73;
+    sut.nodeName = "DrGonzo";
+
+    SubscriberOptions options;
+
+    iox_sub_options_init(&sut);
+    EXPECT_EQ(sut.queueCapacity, options.queueCapacity);
+    EXPECT_EQ(sut.historyRequest, options.historyRequest);
+    EXPECT_EQ(sut.nodeName, nullptr);
+}

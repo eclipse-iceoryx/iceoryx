@@ -253,3 +253,16 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     EXPECT_TRUE(*maybeSharedChunk == chunk);
     EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
 }
+
+TEST_F(iox_pub_test, publisherOptionsAreInitializedCorrectly)
+{
+    iox_pub_options_t sut;
+    sut.historyCapacity = 37;
+    sut.nodeName = "DrGonzo";
+
+    PublisherOptions options;
+
+    iox_pub_options_init(&sut);
+    EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
+    EXPECT_EQ(sut.nodeName, nullptr);
+}

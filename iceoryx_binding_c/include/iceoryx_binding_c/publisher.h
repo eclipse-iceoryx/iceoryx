@@ -32,6 +32,7 @@ typedef struct
     uint64_t historyCapacity;
 
     // name of the node the publisher belongs to
+    // nullptr indicates that the default node name is used
     const char* nodeName;
 } iox_pub_options_t;
 

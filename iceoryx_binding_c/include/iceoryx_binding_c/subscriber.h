@@ -32,6 +32,7 @@ typedef struct
     uint64_t queueCapacity;
 
     // number of chunks received after subscription if chunks are available
+    // nullptr indicates that the default node name is used
     uint64_t historyRequest;
 
     // name of the node the subscriber belongs to
