@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,7 +67,7 @@ class ProcessIntrospection_test : public Test
 
     ChunkMock<Topic>* createMemoryChunkAndSend(ProcessIntrospectionAccess& introspectionAccess)
     {
-        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
             .WillOnce(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
                 m_chunk.get()->chunkHeader())));
 
@@ -159,7 +160,7 @@ TEST_F(ProcessIntrospection_test, thread)
 
         introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
-        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
             .WillRepeatedly(
                 Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
                     m_chunk.get()->chunkHeader())));

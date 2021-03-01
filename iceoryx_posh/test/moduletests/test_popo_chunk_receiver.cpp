@@ -56,6 +56,15 @@ class ChunkReceiver_test : public Test
     {
     }
 
+
+    iox::mepoo::SharedChunk getChunkFromMemoryManager()
+    {
+        return m_memoryManager.getChunk(sizeof(DummySample),
+                                        alignof(DummySample),
+                                        iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                        iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+    }
+
     static constexpr size_t MEGABYTE = 1 << 20;
     static constexpr size_t MEMORY_SIZE = 4 * MEGABYTE;
     std::unique_ptr<char[]> m_memory{new char[MEMORY_SIZE]};
@@ -89,7 +98,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
 {
     {
         // have a scope her to release the shared chunk we allocate
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
         EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
         m_chunkQueuePusher.push(sharedChunk);
@@ -110,7 +119,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
 
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY; i++)
     {
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
         auto sample = sharedChunk.getPayload();
         new (sample) DummySample();
@@ -143,7 +152,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
     // therefore MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY+1
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 1; i++)
     {
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
 
         m_chunkQueuePusher.push(sharedChunk);
@@ -153,7 +162,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
     }
 
     // but now it breaks
-    auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+    auto sharedChunk = getChunkFromMemoryManager();
     EXPECT_TRUE(sharedChunk);
 
     m_chunkQueuePusher.push(sharedChunk);
@@ -167,7 +176,7 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
 {
     {
         // have a scope her to release the shared chunk we allocate
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
         EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
         m_chunkQueuePusher.push(sharedChunk);
@@ -195,7 +204,7 @@ TEST_F(ChunkReceiver_test, Cleanup)
     for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; i++)
     {
         // MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY on user side and MAX_SUBSCRIBER_QUEUE_CAPACITY in the queue
-        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
         m_chunkQueuePusher.push(sharedChunk);
 

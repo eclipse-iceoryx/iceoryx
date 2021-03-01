@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,6 +43,10 @@ class MemoryManager_test : public Test
         // internally, the chunks are adjusted to the additional management information
         return chunkSize + sizeof(iox::mepoo::ChunkHeader);
     }
+
+    static constexpr uint32_t PAYLOAD_ALIGNMENT = iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT;
+    static constexpr uint32_t CUSTOM_HEADER_SIZE = iox::CHUNK_NO_CUSTOM_HEADER_SIZE;
+    static constexpr uint32_t CUSTOM_HEADER_ALIGNMENT = iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
 
     iox::posix::Allocator* allocator;
     void* rawMemory;
@@ -107,7 +112,7 @@ TEST_F(MemoryManager_test, getChunkWithNoMemPool)
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
-    auto bla = sut->getChunk(15);
+    auto bla = sut->getChunk(15, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_THAT(bla, Eq(false));
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
@@ -128,7 +133,7 @@ TEST_F(MemoryManager_test, getTooLargeChunk)
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
-    auto bla = sut->getChunk(200);
+    auto bla = sut->getChunk(200, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_THAT(bla, Eq(false));
 
     ASSERT_THAT(detectedError.has_value(), Eq(true));
@@ -139,7 +144,7 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolSingleChunk)
 {
     mempoolconf.addMemPool({128, 10});
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    auto bla = sut->getChunk(50);
+    auto bla = sut->getChunk(50, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_THAT(bla, Eq(true));
 }
 
@@ -153,7 +158,7 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
     {
-        chunkStore.push_back(sut->getChunk(50));
+        chunkStore.push_back(sut->getChunk(50, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
     }
 
@@ -170,10 +175,10 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolToMuchChunks)
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
     {
-        chunkStore.push_back(sut->getChunk(128));
+        chunkStore.push_back(sut->getChunk(128, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
     }
-    EXPECT_THAT(sut->getChunk(128), Eq(false));
+    EXPECT_THAT(sut->getChunk(128, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT), Eq(false));
 }
 
 
@@ -188,19 +193,19 @@ TEST_F(MemoryManager_test, freeChunkSingleMemPoolFullToEmptyToFull)
         sut->configureMemoryManager(mempoolconf, allocator, allocator);
         for (size_t i = 0; i < ChunkCount; i++)
         {
-            chunkStore.push_back(sut->getChunk(128));
+            chunkStore.push_back(sut->getChunk(128, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
             EXPECT_THAT(chunkStore.back(), Eq(true));
         }
 
         EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(ChunkCount));
     }
 
-    EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(0));
+    EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(0U));
 
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
     {
-        chunkStore.push_back(sut->getChunk(128));
+        chunkStore.push_back(sut->getChunk(128, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
     }
 
@@ -216,16 +221,16 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolSingleChunk)
 
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
 
-    auto bla = sut->getChunk(32);
+    auto bla = sut->getChunk(32, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_THAT(bla, Eq(true));
 
-    bla = sut->getChunk(64);
+    bla = sut->getChunk(64, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_THAT(bla, Eq(true));
 
-    bla = sut->getChunk(128);
+    bla = sut->getChunk(128, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_THAT(bla, Eq(true));
 
-    bla = sut->getChunk(256);
+    bla = sut->getChunk(256, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_THAT(bla, Eq(true));
 }
 
@@ -242,16 +247,16 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolAllChunks)
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
     {
-        chunkStore.push_back(sut->getChunk(32));
+        chunkStore.push_back(sut->getChunk(32U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
 
-        chunkStore.push_back(sut->getChunk(64));
+        chunkStore.push_back(sut->getChunk(64U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
 
-        chunkStore.push_back(sut->getChunk(128));
+        chunkStore.push_back(sut->getChunk(128U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
 
-        chunkStore.push_back(sut->getChunk(256));
+        chunkStore.push_back(sut->getChunk(256U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
     }
 
@@ -274,16 +279,16 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolTooMuchChunks)
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
     {
-        chunkStore.push_back(sut->getChunk(32));
-        chunkStore.push_back(sut->getChunk(64));
-        chunkStore.push_back(sut->getChunk(128));
-        chunkStore.push_back(sut->getChunk(256));
+        chunkStore.push_back(sut->getChunk(32U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
+        chunkStore.push_back(sut->getChunk(64U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
+        chunkStore.push_back(sut->getChunk(128U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
+        chunkStore.push_back(sut->getChunk(256U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
     }
 
-    EXPECT_THAT(sut->getChunk(32), Eq(false));
-    EXPECT_THAT(sut->getChunk(64), Eq(false));
-    EXPECT_THAT(sut->getChunk(128), Eq(false));
-    EXPECT_THAT(sut->getChunk(256), Eq(false));
+    EXPECT_THAT(sut->getChunk(32U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT), Eq(false));
+    EXPECT_THAT(sut->getChunk(64U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT), Eq(false));
+    EXPECT_THAT(sut->getChunk(128U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT), Eq(false));
+    EXPECT_THAT(sut->getChunk(256U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT), Eq(false));
 }
 
 TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
@@ -302,10 +307,10 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
 
         for (size_t i = 0; i < ChunkCount; i++)
         {
-            chunkStore.push_back(sut->getChunk(32));
-            chunkStore.push_back(sut->getChunk(64));
-            chunkStore.push_back(sut->getChunk(128));
-            chunkStore.push_back(sut->getChunk(256));
+            chunkStore.push_back(sut->getChunk(32U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
+            chunkStore.push_back(sut->getChunk(64U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
+            chunkStore.push_back(sut->getChunk(128U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
+            chunkStore.push_back(sut->getChunk(256U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         }
 
         EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(ChunkCount));
@@ -322,16 +327,16 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
     {
-        chunkStore.push_back(sut->getChunk(32));
+        chunkStore.push_back(sut->getChunk(32U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
 
-        chunkStore.push_back(sut->getChunk(64));
+        chunkStore.push_back(sut->getChunk(64U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
 
-        chunkStore.push_back(sut->getChunk(128));
+        chunkStore.push_back(sut->getChunk(128U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
 
-        chunkStore.push_back(sut->getChunk(256));
+        chunkStore.push_back(sut->getChunk(256U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
         EXPECT_THAT(chunkStore.back(), Eq(true));
     }
 
@@ -343,7 +348,7 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
 
 TEST_F(MemoryManager_test, getChunkWithSizeZeroShouldFail)
 {
-    EXPECT_DEATH({ sut->getChunk(0); }, ".*");
+    EXPECT_DEATH({ sut->getChunk(0U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT); }, ".*");
 }
 
 TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)

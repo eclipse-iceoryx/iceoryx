@@ -75,6 +75,15 @@ class iox_event_info_test : public Test
         m_lastEventCallbackArgument = arg;
     }
 
+    iox::mepoo::SharedChunk getChunkFromMemoryManager()
+    {
+        constexpr uint32_t PAYLOAD_SIZE{100U};
+        return m_memoryManager.getChunk(PAYLOAD_SIZE,
+                                        iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                        iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                        iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+    }
+
 
     static UserTrigger* m_lastEventCallbackArgument;
     ConditionVariableData m_condVar{"myApp"};
@@ -108,7 +117,7 @@ TEST_F(iox_event_info_test, eventInfoHasCorrectId)
 
     auto eventInfoVector = m_waitSet.wait();
 
-    ASSERT_THAT(eventInfoVector.size(), Eq(1));
+    ASSERT_THAT(eventInfoVector.size(), Eq(1U));
     EXPECT_EQ(iox_event_info_get_event_id(eventInfoVector[0]), ARBITRARY_EVENT_ID);
 }
 
@@ -125,10 +134,9 @@ TEST_F(iox_event_info_test, eventOriginIsUserTriggerPointerWhenItsOriginatingFro
 
 TEST_F(iox_event_info_test, eventOriginIsNotUserTriggerPointerWhenItsNotOriginatingFromThem)
 {
-    constexpr uint64_t CHUNK_SIZE = 100U;
     iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.push(m_memoryManager.getChunk(CHUNK_SIZE));
+    m_chunkPusher.push(getChunkFromMemoryManager());
 
     auto eventInfoVector = m_waitSet.wait();
 
@@ -137,10 +145,9 @@ TEST_F(iox_event_info_test, eventOriginIsNotUserTriggerPointerWhenItsNotOriginat
 
 TEST_F(iox_event_info_test, eventOriginIsSubscriberPointerWhenItsOriginatingFromThem)
 {
-    constexpr uint64_t CHUNK_SIZE = 100U;
     iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.push(m_memoryManager.getChunk(CHUNK_SIZE));
+    m_chunkPusher.push(getChunkFromMemoryManager());
 
     auto eventInfoVector = m_waitSet.wait();
 
@@ -172,10 +179,9 @@ TEST_F(iox_event_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingF
 
 TEST_F(iox_event_info_test, getOriginReturnsNullptrUserTriggerWhenNotOriginatingFromThem)
 {
-    constexpr uint64_t CHUNK_SIZE = 100U;
     iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.push(m_memoryManager.getChunk(CHUNK_SIZE));
+    m_chunkPusher.push(getChunkFromMemoryManager());
 
     auto eventInfoVector = m_waitSet.wait();
 
@@ -185,10 +191,9 @@ TEST_F(iox_event_info_test, getOriginReturnsNullptrUserTriggerWhenNotOriginating
 
 TEST_F(iox_event_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThem)
 {
-    constexpr uint64_t CHUNK_SIZE = 100U;
     iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.push(m_memoryManager.getChunk(CHUNK_SIZE));
+    m_chunkPusher.push(getChunkFromMemoryManager());
 
     auto eventInfoVector = m_waitSet.wait();
 

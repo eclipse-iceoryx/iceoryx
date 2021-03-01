@@ -103,7 +103,10 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::send() noexcept
 template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::sendPortData() noexcept
 {
-    auto maybeChunkHeader = m_publisherPort->tryAllocateChunk(sizeof(PortIntrospectionFieldTopic));
+    auto maybeChunkHeader = m_publisherPort->tryAllocateChunk(sizeof(PortIntrospectionFieldTopic),
+                                                              alignof(PortIntrospectionFieldTopic),
+                                                              CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                              CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
     if (!maybeChunkHeader.has_error())
     {
         auto sample = static_cast<PortIntrospectionFieldTopic*>(maybeChunkHeader.value()->payload());
@@ -118,7 +121,10 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::sendPortData() noe
 template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData() noexcept
 {
-    auto maybeChunkHeader = m_publisherPortThroughput->tryAllocateChunk(sizeof(PortThroughputIntrospectionFieldTopic));
+    auto maybeChunkHeader = m_publisherPortThroughput->tryAllocateChunk(sizeof(PortThroughputIntrospectionFieldTopic),
+                                                                        alignof(PortThroughputIntrospectionFieldTopic),
+                                                                        CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                                        CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
     if (!maybeChunkHeader.has_error())
     {
         auto throughputSample =
@@ -135,7 +141,10 @@ template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPortsData() noexcept
 {
     auto maybeChunkHeader =
-        m_publisherPortSubscriberPortsData->tryAllocateChunk(sizeof(SubscriberPortChangingIntrospectionFieldTopic));
+        m_publisherPortSubscriberPortsData->tryAllocateChunk(sizeof(SubscriberPortChangingIntrospectionFieldTopic),
+                                                             alignof(SubscriberPortChangingIntrospectionFieldTopic),
+                                                             CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                             CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
     if (!maybeChunkHeader.has_error())
     {
         auto subscriberPortChangingDataSample =

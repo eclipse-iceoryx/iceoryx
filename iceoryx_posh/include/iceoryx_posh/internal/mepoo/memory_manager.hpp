@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,7 +52,10 @@ class MemoryManager
                                 posix::Allocator* f_managementAllocator,
                                 posix::Allocator* f_payloadAllocator);
 
-    SharedChunk getChunk(const MaxSize_t f_size);
+    SharedChunk getChunk(const MaxSize_t f_size,
+                         const uint32_t payloadAlignment,
+                         const uint32_t customHeaderSize,
+                         const uint32_t customHeaderAlignment);
 
     uint32_t getMempoolChunkSizeForPayloadSize(const uint32_t f_size) const;
 

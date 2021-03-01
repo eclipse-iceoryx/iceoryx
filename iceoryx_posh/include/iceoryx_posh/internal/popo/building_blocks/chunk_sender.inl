@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,7 +42,11 @@ inline typename ChunkSender<ChunkSenderDataType>::MemberType_t* ChunkSender<Chun
 
 template <typename ChunkSenderDataType>
 inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
-ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize, const UniquePortId originId) noexcept
+ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize,
+                                              const UniquePortId originId,
+                                              const uint32_t payloadAlignment,
+                                              const uint32_t customHeaderSize,
+                                              const uint32_t customHeaderAlignment) noexcept
 {
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
     const uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
@@ -63,7 +68,8 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize, const 
     {
         // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
         // get a new chunk
-        mepoo::SharedChunk chunk = getMembers()->m_memoryMgr->getChunk(payloadSize);
+        mepoo::SharedChunk chunk =
+            getMembers()->m_memoryMgr->getChunk(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
 
         if (chunk)
         {

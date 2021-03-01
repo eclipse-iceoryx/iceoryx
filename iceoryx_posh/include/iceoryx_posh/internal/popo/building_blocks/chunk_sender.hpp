@@ -67,7 +67,10 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
     cxx::expected<mepoo::ChunkHeader*, AllocationError> tryAllocate(const uint32_t payloadSize,
-                                                                    const UniquePortId originId) noexcept;
+                                                                    const UniquePortId originId,
+                                                                    const uint32_t payloadAlignment,
+                                                                    const uint32_t customHeaderSize,
+                                                                    const uint32_t customHeaderAlignment) noexcept;
 
     /// @brief Release an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
