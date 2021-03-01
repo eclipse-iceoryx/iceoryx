@@ -115,8 +115,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 {
     if (other == nullptr)
     {
-        m_rawstring[0U] = '\0';
-        m_rawstringSize = 0U;
+        clear();
     }
     else if (Capacity < count)
     {
@@ -332,8 +331,7 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     std::memcpy(&(m_rawstring[0]), rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
-    rhs.m_rawstring[0U] = '\0';
-    rhs.m_rawstringSize = 0U;
+    rhs.clear();
     return *this;
 }
 
