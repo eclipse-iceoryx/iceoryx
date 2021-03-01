@@ -15,9 +15,10 @@ Now lets execute the all tests:
 cd iceoryx/build
 make all_tests
 ```
-Some of the tests are timing critical and needs a stable environment. We call them timing tests and have them in a separate target available:
+Some of the tests are timing critical and needs a stable environment. We call them timing tests and have them in a separate targets available:
 ```
-make timing_tests
+make timing_module_tests
+make timing_integration_tests
 ```
 In iceoryx we distinguish between different testlevels. The most important are: Moduletests and Integrationtests.
 Moduletests are basically Unit-tests where the focus is on class level with black-box testing.
@@ -59,7 +60,7 @@ Then you need to compile the iceoryx with the sanitizer flags:
 After that we can run the tests with enabled sanitizer options:
 ```bash
 cd build
-../tools/run_all_tests.sh
+../tools/run_tests.sh
 ```
 When the tests are running without errors then it is fine, else an error report is shown with a stacktrace to find the place where the leak occurs. If the leak comes from an external dependency or shall be handled later then it is possible to set a function on a suppression list.
 This should be only rarely used and only in coordination with an iceoryx maintainer.

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 
@@ -85,7 +87,7 @@ class MemPoolIntrospection
     void copyMemPoolInfo(const MemoryManager& memoryManager, MemPoolInfoContainer& dest) noexcept;
 
   private:
-    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
+    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
         concurrent::PeriodicTaskManualStart, "MemPoolIntr", *this, &MemPoolIntrospection::send};
 };

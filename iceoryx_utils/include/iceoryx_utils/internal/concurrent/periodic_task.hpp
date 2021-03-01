@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_UTILS_CONCURRENT_PERIODIC_TASK_HPP
 #define IOX_UTILS_CONCURRENT_PERIODIC_TASK_HPP
@@ -118,7 +120,7 @@ class PeriodicTask
   private:
     T m_callable;
     posix::ThreadName_t m_taskName;
-    units::Duration m_interval{units::Duration::milliseconds<long double>(0.0)};
+    units::Duration m_interval{units::Duration::fromMilliseconds(0U)};
     /// @todo use a refactored posix::Timer object once available
     posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
     std::thread m_taskExecutor;

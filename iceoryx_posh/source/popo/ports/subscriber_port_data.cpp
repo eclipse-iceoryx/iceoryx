@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
@@ -24,7 +26,7 @@ SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceD
                                        cxx::VariantQueueTypes queueType,
                                        const SubscriberOptions& subscriberOptions,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, processName)
+    : BasePortData(serviceDescription, processName, subscriberOptions.nodeName)
     , m_chunkReceiverData(queueType, memoryInfo)
     , m_historyRequest(subscriberOptions.historyRequest)
 {

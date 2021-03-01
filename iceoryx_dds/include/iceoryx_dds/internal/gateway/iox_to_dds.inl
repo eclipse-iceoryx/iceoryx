@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_IOX_TO_DDS_INL
 #define IOX_DDS_IOX_TO_DDS_INL
@@ -103,11 +105,13 @@ template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto subscriber = channel.getIceoryxTerminal();
-    while (subscriber->hasSamples())
+    while (subscriber->hasData())
     {
-        subscriber->take().and_then([&channel](popo::Sample<const void>& sample) {
+        subscriber->take().and_then([&](const void* payload) {
             auto dataWriter = channel.getExternalTerminal();
-            dataWriter->write(static_cast<const uint8_t*>(sample.get()), sample.getHeader()->payloadSize);
+            auto header = iox::mepoo::ChunkHeader::fromPayload(payload);
+            dataWriter->write(static_cast<const uint8_t*>(payload), header->payloadSize);
+            subscriber->releaseChunk(payload);
         });
     }
 }

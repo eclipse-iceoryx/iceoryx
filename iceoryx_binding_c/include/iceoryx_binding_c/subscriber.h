@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_BINDING_C_SUBSCRIBER_H
 #define IOX_BINDING_C_SUBSCRIBER_H
@@ -22,20 +24,22 @@
 /// @brief Subscriber handle
 typedef struct cpp2c_Subscriber* iox_sub_t;
 
-/// @brief initialize subscriber handle in the default runtime node
+/// @brief initialize subscriber handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
 /// @param[in] queueCapacity size of the receiver queue
 /// @param[in] historyRequest of chunks received after subscription if chunks are available
+/// @param[in] nodeName name of node where the subscriber belongs to
 /// @return handle of the subscriber
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
                        const uint64_t queueCapacity,
-                       const uint64_t historyRequest);
+                       const uint64_t historyRequest,
+                       const char* const nodeName);
 
 /// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed

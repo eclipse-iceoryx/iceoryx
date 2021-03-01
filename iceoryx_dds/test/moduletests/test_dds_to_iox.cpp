@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "helpers/fixture_dds_gateway.hpp"
 
@@ -26,12 +28,12 @@ using namespace ::testing;
 using ::testing::_;
 
 // ======================================== Helpers ======================================== //
-using TestChannel = iox::gw::Channel<MockPublisher<void>, MockDataReader>;
+using TestChannel = iox::gw::Channel<MockPublisher, MockDataReader>;
 using TestGateway =
     iox::dds::DDS2IceoryxGateway<TestChannel, MockGenericGateway<TestChannel, iox::popo::PublisherOptions>>;
 
 // ======================================== Fixture ======================================== //
-class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher<void>, MockDataReader>
+class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher, MockDataReader>
 {
 };
 

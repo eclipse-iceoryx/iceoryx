@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/units/duration.hpp"
 
@@ -43,7 +45,7 @@ void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units:
         }
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(duration.milliSeconds<uint64_t>()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(duration.toMilliseconds()));
     keepRunning = false;
     t.join();
 

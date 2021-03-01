@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -26,6 +29,7 @@
 #include "iceoryx_utils/platform/wait.hpp"
 
 #include <chrono>
+#include <csignal>
 #include <thread>
 
 using namespace iox::units::duration_literals;
@@ -41,7 +45,7 @@ RouDiProcess::RouDiProcess(const ProcessName_t& name,
                            const uint64_t payloadSegmentId,
                            const uint64_t sessionId) noexcept
     : m_pid(pid)
-    , m_mq(name)
+    , m_ipcChannel(name)
     , m_timestamp(mepoo::BaseClock_t::now())
     , m_payloadMemoryManager(payloadMemoryManager)
     , m_isMonitored(isMonitored)
@@ -57,16 +61,16 @@ int32_t RouDiProcess::getPid() const noexcept
 
 const ProcessName_t RouDiProcess::getName() const noexcept
 {
-    return ProcessName_t(cxx::TruncateToCapacity, m_mq.getInterfaceName());
+    return ProcessName_t(cxx::TruncateToCapacity, m_ipcChannel.getInterfaceName());
 }
 
-void RouDiProcess::sendToMQ(const runtime::MqMessage& data) noexcept
+void RouDiProcess::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
 {
-    bool sendSuccess = m_mq.send(data);
+    bool sendSuccess = m_ipcChannel.send(data);
     if (!sendSuccess)
     {
         LogWarn() << "RouDiProcess cannot send message over communication channel";
-        errorHandler(Error::kPOSH__ROUDI_PROCESS_SENDMQ_FAILED, nullptr, ErrorLevel::SEVERE);
+        errorHandler(Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, nullptr, ErrorLevel::SEVERE);
     }
 }
 
@@ -157,8 +161,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
             i = 0;
 
             // give processes some time to terminate before checking their state
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.milliSeconds<int64_t>()));
+            std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
 
             for (auto& process : m_processList)
             {
@@ -205,7 +208,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
             if (processStillRunning[i])
             {
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' is still running after SIGTERM was sent " << processKillDelay.seconds<int>()
+                          << "' is still running after SIGTERM was sent " << processKillDelay.toSeconds()
                           << " seconds ago. RouDi is sending SIGKILL now.";
                 processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL);
             }
@@ -224,7 +227,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
                 if (processStillRunning[i])
                 {
                     LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                              << "' is still running after SIGKILL was sent " << processKillDelay.seconds<int>()
+                              << "' is still running after SIGKILL was sent " << processKillDelay.toSeconds()
                               << " seconds ago. RouDi is ignoring this process.";
                 }
                 ++i;
@@ -271,15 +274,12 @@ bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
     {
         return false;
     }
-    else
+
+    if (checkCommand.hasErrors())
     {
-        if (checkCommand.hasErrors())
-        {
-            evaluateKillError(
-                process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
-        }
-        return true;
+        evaluateKillError(process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
     }
+
     return true;
 }
 
@@ -416,14 +416,14 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
     m_processList.emplace_back(name, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
 
     // send REG_ACK and BaseAddrString
-    runtime::MqMessage sendBuffer;
+    runtime::IpcMessage sendBuffer;
 
     auto offset = RelativePointer::getOffset(m_mgmtSegmentId, m_segmentManager);
-    sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::REG_ACK)
+    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_ACK)
                << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << offset << transmissionTimestamp
                << m_mgmtSegmentId;
 
-    m_processList.back().sendToMQ(sendBuffer);
+    m_processList.back().sendViaIpcChannel(sendBuffer);
 
     // set current timestamp again (already done in RouDiProcess's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock_t::now());
@@ -493,8 +493,8 @@ void ProcessManager::findServiceForProcess(const ProcessName_t& name, const capr
     RouDiProcess* process = getProcessFromList(name);
     if (nullptr != process)
     {
-        runtime::MqMessage instanceString({m_portManager.findService(service)});
-        process->sendToMQ(instanceString);
+        runtime::IpcMessage instanceString({m_portManager.findService(service)});
+        process->sendViaIpcChannel(instanceString);
         LogDebug() << "Sent InstanceString to application " << name;
     }
     else
@@ -518,10 +518,10 @@ void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
         // send ReceiverPort to app as a serialized relative pointer
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
 
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_INTERFACE_ACK)
+        runtime::IpcMessage sendBuffer;
+        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        process->sendToMQ(sendBuffer);
+        process->sendViaIpcChannel(sendBuffer);
 
         LogDebug() << "Created new interface for application " << name;
     }
@@ -540,9 +540,9 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const ProcessName
         // send counter to app as a serialized relative pointer
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
 
-        runtime::MqMessage sendBuffer;
+        runtime::IpcMessage sendBuffer;
         sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        process->sendToMQ(sendBuffer);
+        process->sendViaIpcChannel(sendBuffer);
     }
     else
     {
@@ -561,10 +561,10 @@ void ProcessManager::addApplicationForProcess(const ProcessName_t& name) noexcep
 
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
 
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_APPLICATION_ACK)
+        runtime::IpcMessage sendBuffer;
+        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_APPLICATION_ACK)
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        process->sendToMQ(sendBuffer);
+        process->sendViaIpcChannel(sendBuffer);
 
         LogDebug() << "Created new ApplicationPort for application " << name;
     }
@@ -581,18 +581,31 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
     RouDiProcess* process = getProcessFromList(processName);
     if (nullptr != process)
     {
-        runtime::NodeData* node = m_portManager.acquireNodeData(processName, nodeName);
+        m_portManager.acquireNodeData(processName, nodeName)
+            .and_then([&](auto nodeData) {
+                auto offset = RelativePointer::getOffset(m_mgmtSegmentId, nodeData);
 
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, node);
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
+                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_NODE_ACK) << std::to_string(offset)
-                   << std::to_string(m_mgmtSegmentId);
+                process->sendViaIpcChannel(sendBuffer);
+                m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
+                                                NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
+                LogDebug() << "Created new node " << nodeName << " for process " << processName;
+            })
+            .or_else([&](PortPoolError error) {
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                if (error == PortPoolError::NODE_DATA_LIST_FULL)
+                {
+                    sendBuffer << runtime::IpcMessageErrorTypeToString(
+                        runtime::IpcMessageErrorType::NODE_DATA_LIST_FULL);
+                }
+                process->sendViaIpcChannel(sendBuffer);
 
-        process->sendToMQ(sendBuffer);
-        m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
-                                        NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
-        LogDebug() << "Created new node " << nodeName << " for process " << processName;
+                LogDebug() << "Could not create new node for process " << processName;
+            });
     }
     else
     {
@@ -607,9 +620,9 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
     RouDiProcess* process = getProcessFromList(name);
     if (nullptr != process)
     {
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::MESSAGE_NOT_SUPPORTED);
-        process->sendToMQ(sendBuffer);
+        runtime::IpcMessage sendBuffer;
+        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::MESSAGE_NOT_SUPPORTED);
+        process->sendViaIpcChannel(sendBuffer);
 
         LogError() << "Application " << name << " sent a message, which is not supported by this RouDi";
     }
@@ -618,7 +631,6 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
 void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
                                              const capro::ServiceDescription& service,
                                              const popo::SubscriberOptions& subscriberOptions,
-                                             const NodeName_t& node,
                                              const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -628,26 +640,26 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
     {
         // create a SubscriberPort
         auto maybeSubscriber =
-            m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, node, portConfigInfo);
+            m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, portConfigInfo);
 
         if (!maybeSubscriber.has_error())
         {
             // send SubscriberPort to app as a serialized relative pointer
             auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSubscriber.value());
 
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SUBSCRIBER_ACK)
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
                        << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-            process->sendToMQ(sendBuffer);
+            process->sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new SubscriberPort for application " << name;
         }
         else
         {
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
-            sendBuffer << runtime::mqMessageErrorTypeToString(runtime::MqMessageErrorType::SUBSCRIBER_LIST_FULL);
-            process->sendToMQ(sendBuffer);
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+            sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SUBSCRIBER_LIST_FULL);
+            process->sendViaIpcChannel(sendBuffer);
             LogError() << "Could not create SubscriberPort for application " << name;
         }
     }
@@ -660,7 +672,6 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
 void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
                                             const capro::ServiceDescription& service,
                                             const popo::PublisherOptions& publisherOptions,
-                                            const NodeName_t& node,
                                             const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -670,29 +681,29 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
     {
         // create a PublisherPort
         auto maybePublisher = m_portManager.acquirePublisherPortData(
-            service, publisherOptions, name, process->getPayloadMemoryManager(), node, portConfigInfo);
+            service, publisherOptions, name, process->getPayloadMemoryManager(), portConfigInfo);
 
         if (!maybePublisher.has_error())
         {
             // send PublisherPort to app as a serialized relative pointer
             auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybePublisher.value());
 
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_PUBLISHER_ACK)
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
                        << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-            process->sendToMQ(sendBuffer);
+            process->sendViaIpcChannel(sendBuffer);
 
             LogDebug() << "Created new PublisherPort for application " << name;
         }
         else
         {
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
-            sendBuffer << runtime::mqMessageErrorTypeToString( // map error codes
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+            sendBuffer << runtime::IpcMessageErrorTypeToString( // map error codes
                 (maybePublisher.get_error() == PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS
-                     ? runtime::MqMessageErrorType::NO_UNIQUE_CREATED
-                     : runtime::MqMessageErrorType::PUBLISHER_LIST_FULL));
-            process->sendToMQ(sendBuffer);
+                     ? runtime::IpcMessageErrorType::NO_UNIQUE_CREATED
+                     : runtime::IpcMessageErrorType::PUBLISHER_LIST_FULL));
+            process->sendViaIpcChannel(sendBuffer);
             LogError() << "Could not create PublisherPort for application " << name;
         }
     }
@@ -714,22 +725,22 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
             .and_then([&](auto condVar) {
                 auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
 
-                runtime::MqMessage sendBuffer;
-                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_CONDITION_VARIABLE_ACK)
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
                            << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-                process->sendToMQ(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Created new ConditionVariable for application " << processName;
             })
             .or_else([&](PortPoolError error) {
-                runtime::MqMessage sendBuffer;
-                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 if (error == PortPoolError::CONDITION_VARIABLE_LIST_FULL)
                 {
-                    sendBuffer << runtime::mqMessageErrorTypeToString(
-                        runtime::MqMessageErrorType::CONDITION_VARIABLE_LIST_FULL);
+                    sendBuffer << runtime::IpcMessageErrorTypeToString(
+                        runtime::IpcMessageErrorType::CONDITION_VARIABLE_LIST_FULL);
                 }
-                process->sendToMQ(sendBuffer);
+                process->sendViaIpcChannel(sendBuffer);
 
                 LogDebug() << "Could not create new ConditionVariable for application " << processName;
             });
@@ -749,7 +760,7 @@ void ProcessManager::run() noexcept
 {
     monitorProcesses();
     discoveryUpdate();
-    std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.milliSeconds<int64_t>()));
+    std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.toMilliseconds()));
 }
 
 popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service,
@@ -759,8 +770,9 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
 
     popo::PublisherOptions options;
     options.historyCapacity = 1;
+    options.nodeName = INTROSPECTION_NODE_NAME;
     auto maybePublisher = m_portManager.acquirePublisherPortData(
-        service, options, process_name, m_introspectionMemoryManager, "runnable", PortConfigInfo());
+        service, options, process_name, m_introspectionMemoryManager, PortConfigInfo());
 
     if (maybePublisher.has_error())
     {
@@ -801,17 +813,14 @@ void ProcessManager::monitorProcesses() noexcept
     {
         if (processIterator->isMonitored())
         {
-            auto timediff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp
-                                                                                     - processIterator->getTimestamp())
-                                   .count();
+            auto timediff = units::Duration(currentTimestamp - processIterator->getTimestamp());
 
             static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
                           "keep alive timeout too small");
-            if (std::chrono::milliseconds(timediff_ms)
-                > std::chrono::milliseconds(runtime::PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
+            if (timediff > runtime::PROCESS_KEEP_ALIVE_TIMEOUT)
             {
                 LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
-                          << timediff_ms << " milliseconds ago) --> removing it";
+                          << timediff.toMilliseconds() << " milliseconds ago) --> removing it";
 
                 // note: if we would want to use the removeProcess function, it would search for the process again
                 // (but we already found it and have an iterator to remove it)
@@ -822,8 +831,6 @@ void ProcessManager::monitorProcesses() noexcept
                 m_portManager.deletePortsOfProcess(processIterator->getName());
 
                 m_processIntrospection->removeProcess(processIterator->getPid());
-
-                /// @todo #369 Need to delete condition variables used by terminating processes...
 
                 // delete application
                 processIterator = m_processList.erase(processIterator);

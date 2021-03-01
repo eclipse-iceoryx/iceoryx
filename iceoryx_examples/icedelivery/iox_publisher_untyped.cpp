@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +12,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "topic_data.hpp"
 
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
@@ -23,14 +27,15 @@ bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    // caught SIGINT, now exit gracefully
+    // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
 }
 
 int main()
 {
-    // Register sigHandler for SIGINT
-    signal(SIGINT, sigHandler);
+    // Register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
 
@@ -44,7 +49,7 @@ int main()
 
         // API Usage #1
         //  * Loaned chunk can be held until ready to publish
-        auto result = publisher.loan_1_0(sizeof(RadarObject));
+        auto result = publisher.loan(sizeof(RadarObject));
         if (!result.has_error())
         {
             // In the untyped API we get a void pointer to the payload, therefore the data must be constructed
@@ -66,7 +71,7 @@ int main()
 
         // API Usage #2
         // * Loan chunk and provide logic to populate it via a lambda
-        publisher.loan_1_0(sizeof(RadarObject))
+        publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& chunk) {
                 auto data = new (chunk) RadarObject(ct, ct, ct);
                 assert(chunk == data);

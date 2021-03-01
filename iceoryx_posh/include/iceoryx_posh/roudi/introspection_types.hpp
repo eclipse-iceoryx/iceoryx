@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All, Apex.AI Inc. rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_TYPES_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_TYPES_HPP
 
@@ -25,6 +28,7 @@ namespace roudi
 {
 constexpr const char INTROSPECTION_SERVICE_ID[] = "Introspection";
 constexpr const char INTROSPECTION_APP_NAME[] = "introspection";
+constexpr const char INTROSPECTION_NODE_NAME[] = "introspection";
 const capro::ServiceDescription IntrospectionMempoolService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "MemPool");
 constexpr int MAX_GROUP_NAME_LENGTH = 32;
 
@@ -69,13 +73,7 @@ struct PortData
     NodeName_t m_node;
 };
 
-/// @brief container for subscriber port introspection data.
-struct SubscriberPortData : public PortData
-{
-    /// @brief identifier of the publisher port to which this subscriber port is connected.
-    /// If no matching publisher port exists, this should equal -1.
-    int32_t m_publisherIndex{-1};
-};
+using SubscriberPortData = PortData;
 
 /// @brief container for publisher port introspection data.
 struct PublisherPortData : public PortData
