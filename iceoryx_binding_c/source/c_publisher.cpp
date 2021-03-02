@@ -68,11 +68,10 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
     {
         if (!iox_pub_options_is_initialized(options))
         {
-            std::cout << "******* terminate" << std::endl;
             // note that they may have been initialized but the initCheck
             // pattern overwritten afterwards, we cannot be sure but it is a misuse
-            LogError() << "publisher options may not have been initialized with iox_pub_init";
-            std::terminate();
+            LogFatal() << "publisher options may not have been initialized with iox_pub_init";
+            errorHandler(Error::kBINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED);
         }
         publisherOptions.historyCapacity = options->historyCapacity;
         if (options->nodeName != nullptr)
