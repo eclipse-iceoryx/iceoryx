@@ -38,6 +38,9 @@ typedef struct
 
 /// @brief initialize publisher options to default values
 /// @param[in] options pointer to options to be initialized
+/// @attention This must always be called on a newly created options struct to
+///            prevent uninitialized values. The options may get extended
+///            in the future.
 void iox_pub_options_init(iox_pub_options_t* options);
 
 /// @brief creates a publisher handle

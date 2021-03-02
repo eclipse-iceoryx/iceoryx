@@ -60,10 +60,12 @@ class UntypedPublisherImpl : public base_publisher_t
     void publish(const void* chunk) noexcept;
 
     ///
-    /// @brief Releases the chunk provided by its payload pointer.
+    /// @brief Releases the ownership of the chunk provided by the payload pointer.
     /// @param chunk pointer to the payload of the chunk to be released
-    /// @details The chunk must have been previously provided by loan or loanPreviousChunk and
+    /// @details The chunk must have been previously provided by take and
     ///          not have been already released.
+    ///          The chunk must not be accessed afterwards as its memory may have
+    ///          been reclaimed.
     ///
     void releaseChunk(const void* chunk) noexcept;
 

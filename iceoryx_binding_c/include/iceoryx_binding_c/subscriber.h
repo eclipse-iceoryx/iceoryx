@@ -41,6 +41,9 @@ typedef struct
 
 /// @brief initialize subscriber options to default values
 /// @param[in] options pointer to options to be initialized
+/// @attention This must always be called on a newly created options struct to
+///            prevent uninitialized values. The options may get extended
+///            in the future.
 void iox_sub_options_init(iox_sub_options_t* const options);
 
 /// @brief initialize subscriber handle
