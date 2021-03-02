@@ -32,7 +32,7 @@ class EventVariable_test : public Test
 {
   public:
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>;
-    using NotificationVector_t = iox::cxx::vector<Type_t, iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>;
+    using NotificationVector_t = EventListener::NotificationVector_t;
 
     const iox::ProcessName_t m_process{"Ferdinand"};
     EventVariableData m_eventVarData{m_process};
