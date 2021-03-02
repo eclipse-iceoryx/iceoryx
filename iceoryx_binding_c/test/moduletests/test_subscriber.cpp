@@ -33,6 +33,7 @@ using namespace iox::posix;
 
 extern "C" {
 #include "iceoryx_binding_c/chunk.h"
+#include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/wait_set.h"
@@ -382,4 +383,12 @@ TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash
         },
         ::testing::ExitedWithCode(0),
         ".*");
+}
+
+TEST(iox_sub_options_test, subscriberInitializationTerminatesIfOptionsAreNotInitialized)
+{
+    iox_sub_options_t options;
+    iox_sub_storage_t storage;
+
+    EXPECT_DEATH({ iox_sub_init(&storage, "a", "b", "c", &options); }, ".*");
 }

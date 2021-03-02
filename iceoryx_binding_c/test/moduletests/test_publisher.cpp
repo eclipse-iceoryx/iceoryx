@@ -291,3 +291,11 @@ TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
         ::testing::ExitedWithCode(0),
         ".*");
 }
+
+TEST(iox_pub_options_test, publisherInitializationTerminatesIfOptionsAreNotInitialized)
+{
+    iox_pub_options_t options;
+    iox_pub_storage_t storage;
+
+    EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
+}
