@@ -70,7 +70,7 @@ class PortManager_test : public Test
     void SetUp() override
     {
         testing::internal::CaptureStderr();
-        m_instIdCounter = m_sIdCounter = 1;
+        m_instIdCounter = m_sIdCounter = 1U;
         m_eventIdCounter = 0;
         // starting at {1,1,1}
 
@@ -108,11 +108,11 @@ class PortManager_test : public Test
         m_eventIdCounter++;
         if (m_eventIdCounter == std::numeric_limits<uint16_t>::max())
         {
-            m_eventIdCounter = 1;
+            m_eventIdCounter = 1U;
             m_instIdCounter++; // not using max (wildcard)
             if (m_instIdCounter == std::numeric_limits<uint16_t>::max())
             {
-                m_instIdCounter = 1;
+                m_instIdCounter = 1U;
                 m_sIdCounter++;
                 if (m_sIdCounter == std::numeric_limits<uint16_t>::max())
                 {
@@ -209,20 +209,20 @@ void setDestroyFlagAndClearContainer(vector& container)
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 {
-    PublisherOptions publisherOptions{1, "node", false};
-    SubscriberOptions subscriberOptions{1, 1, "node", false};
+    PublisherOptions publisherOptions{1U, "node", false};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
 
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
     // no doDiscovery() at this position is intentional
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
 
@@ -234,11 +234,11 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 {
-    PublisherOptions publisherOptions{1, "node", false};
-    SubscriberOptions subscriberOptions{1, 1, "node", false};
+    PublisherOptions publisherOptions{1U, "node", false};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
     // no doDiscovery() at this position is intentional
@@ -246,7 +246,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -259,11 +259,11 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 
 TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscriberAndPublisher)
 {
-    PublisherOptions publisherOptions{1, "node", false};
-    SubscriberOptions subscriberOptions{1, 1, "node", false};
+    PublisherOptions publisherOptions{1U, "node", false};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
     m_portManager->doDiscovery();
@@ -271,7 +271,7 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -284,11 +284,11 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
 
 TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreationOfPublisher)
 {
-    PublisherOptions publisherOptions{1, "node", false};
-    SubscriberOptions subscriberOptions{1, 1, "node", false};
+    PublisherOptions publisherOptions{1U, "node", false};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
 
     SubscriberPortUser subscriber1(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber1);
     subscriber1.subscribe();
 
@@ -297,13 +297,13 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
 
     SubscriberPortUser subscriber2(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "ingnatz", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "ingnatz", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber2);
     subscriber2.subscribe();
 
@@ -316,18 +316,18 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
 
 TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPublisherAvailable)
 {
-    PublisherOptions publisherOptions{1, "node", false};
-    SubscriberOptions subscriberOptions{1, 1, "node", true};
+    PublisherOptions publisherOptions{1U, "node", false};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", true};
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
     publisher.offer();
     m_portManager->doDiscovery();
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
     EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
@@ -335,17 +335,17 @@ TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPubl
 
 TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscriberAvailable)
 {
-    PublisherOptions publisherOptions{1, "node", true};
-    SubscriberOptions subscriberOptions{1, 1, "node", false};
+    PublisherOptions publisherOptions{1U, "node", true};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
     subscriber.subscribe();
     m_portManager->doDiscovery();
 
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -354,15 +354,15 @@ TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscrib
 
 TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopSubscriberFirst)
 {
-    PublisherOptions publisherOptions{1, "node", true};
-    SubscriberOptions subscriberOptions{1, 1, "node", true};
+    PublisherOptions publisherOptions{1U, "node", true};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", true};
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
 
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -371,16 +371,16 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
 
 TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopPublisherFirst)
 {
-    PublisherOptions publisherOptions{1, "node", true};
-    SubscriberOptions subscriberOptions{1, 1, "node", true};
+    PublisherOptions publisherOptions{1U, "node", true};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", true};
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1, 1, 1}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
             .value());
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
 
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -391,7 +391,7 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 {
     iox::ProcessName_t processName = "test1";
-    PublisherOptions publisherOptions{1, "run1"};
+    PublisherOptions publisherOptions{1U, "run1"};
 
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {
@@ -420,7 +420,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 {
     iox::ProcessName_t processName1 = "test1";
-    SubscriberOptions subscriberOptions{1, 1, "run1"};
+    SubscriberOptions subscriberOptions{1U, 1U, "run1"};
 
     for (unsigned int i = 0; i < iox::MAX_SUBSCRIBERS; i++)
     {
@@ -697,8 +697,8 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
     iox::ProcessName_t processName2 = "myProcess2";
     iox::capro::ServiceDescription cap1(1, 1, 1);
     iox::capro::ServiceDescription cap2(2, 2, 2);
-    PublisherOptions publisherOptions{1, "node", false};
-    SubscriberOptions subscriberOptions{1, 1, "node", false};
+    PublisherOptions publisherOptions{1U, "node", false};
+    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
 
     // two processes process1 and process2 each with a publisher and subscriber that match to the other process
     auto publisherData1 =
@@ -817,7 +817,7 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
     PublisherOptions publisherOptions{1};
 
     auto publisherPortData = m_portManager->acquirePublisherPortData(
-        {1, 1, 1}, publisherOptions, m_ProcessName, m_payloadMemoryManager, PortConfigInfo());
+        {1U, 1U, 1U}, publisherOptions, m_ProcessName, m_payloadMemoryManager, PortConfigInfo());
     ASSERT_FALSE(publisherPortData.has_error());
 
     PublisherPortUser publisher(publisherPortData.value());

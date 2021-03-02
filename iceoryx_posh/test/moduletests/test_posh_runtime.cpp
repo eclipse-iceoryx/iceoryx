@@ -356,7 +356,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
     }
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutOfferOnCreateLeadsToNotOfferedSubscriberBeingCreated)
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutOfferOnCreateLeadsToNotOfferedPublisherBeingCreated)
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.offerOnCreate = false;
@@ -367,7 +367,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutOfferOnCreateLeadsToNotOff
     EXPECT_FALSE(publisherPortData->m_offeringRequested);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithOfferOnCreateLeadsToOfferedSubscriberBeingCreated)
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithOfferOnCreateLeadsToOfferedPublisherBeingCreated)
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.offerOnCreate = true;
