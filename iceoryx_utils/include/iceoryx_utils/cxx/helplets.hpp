@@ -235,9 +235,13 @@ static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
 template <uint64_t Value>
 struct bestFittingType
 {
+/// ignore the warnings because we need the comparisons to find the best fitting type
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
     using Type_t = typename internal::bestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
                                                           (Value > std::numeric_limits<uint16_t>::max()),
                                                           (Value > std::numeric_limits<uint32_t>::max())>::Type_t;
+#pragma GCC diagnostic pop
 };
 
 template <uint64_t Value>
