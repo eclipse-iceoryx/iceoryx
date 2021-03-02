@@ -49,7 +49,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
 {
     if (cxx::isCompiledOn32BitSystem())
     {
-        LogWarn() << "Warning! Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
+        LogWarn() << "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
     }
     m_processIntrospection.registerPublisherPort(PublisherPortUserType(
         m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, IPC_CHANNEL_ROUDI_NAME)));

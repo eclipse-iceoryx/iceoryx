@@ -85,7 +85,7 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
 {
     if (cxx::isCompiledOn32BitSystem())
     {
-        LogWarn() << "Warning! Running applications on 32-bit architectures is not supported! Use at your own risk!";
+        LogWarn() << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
     }
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
