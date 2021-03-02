@@ -51,6 +51,7 @@ TEST_F(TriggerHandle_test, defaultCTorConstructsInvalidHandle)
     TriggerHandle sut2;
 
     EXPECT_FALSE(sut2.isValid());
+    EXPECT_THAT(sut2.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
     EXPECT_FALSE(sut2);
 }
 
@@ -60,6 +61,7 @@ TEST_F(TriggerHandle_test, InvalidateCreatesInvalidTriggerHandle)
 
     EXPECT_FALSE(m_sut.isValid());
     EXPECT_FALSE(m_sut);
+    EXPECT_THAT(m_sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
 }
 
 TEST_F(TriggerHandle_test, ResetCreatesInvalidTriggerHandle)
@@ -68,12 +70,14 @@ TEST_F(TriggerHandle_test, ResetCreatesInvalidTriggerHandle)
 
     EXPECT_FALSE(m_sut.isValid());
     EXPECT_FALSE(m_sut);
+    EXPECT_THAT(m_sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
 }
 
 TEST_F(TriggerHandle_test, ResetCallsResetCallbackWhenHandleIsValid)
 {
     m_sut.reset();
     EXPECT_EQ(m_resetCallbackId, 12);
+    EXPECT_THAT(m_sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
 }
 
 TEST_F(TriggerHandle_test, ResetDoesNotCallResetCallbackWhenHandleIsInvalid)
@@ -81,6 +85,7 @@ TEST_F(TriggerHandle_test, ResetDoesNotCallResetCallbackWhenHandleIsInvalid)
     m_sut.invalidate();
     m_sut.reset();
     EXPECT_EQ(m_resetCallbackId, 0);
+    EXPECT_THAT(m_sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
 }
 
 TEST_F(TriggerHandle_test, getConditionVariableDataReturnsCorrectVar)

@@ -120,7 +120,7 @@ void TriggerHandle::invalidate() noexcept
 
     m_conditionVariableDataPtr = nullptr;
     m_resetCallback = cxx::MethodCallback<void, uint64_t>();
-    m_uniqueTriggerId = 0U;
+    m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
 }
 
 ConditionVariableData* TriggerHandle::getConditionVariableData() noexcept

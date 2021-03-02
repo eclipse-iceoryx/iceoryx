@@ -119,6 +119,25 @@ TEST_F(Trigger_test, MovedAssignedValidTriggerIsValid)
     EXPECT_TRUE(static_cast<bool>(sut));
 }
 
+TEST_F(Trigger_test, MovedConstructedOriginIsInvalidTriggerAfterMove)
+{
+    Trigger trigger = createValidTrigger();
+    Trigger sut{std::move(trigger)};
+
+    EXPECT_FALSE(trigger.isValid());
+    EXPECT_THAT(trigger.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
+}
+
+TEST_F(Trigger_test, MovedAssignedOriginIsInvalidTriggerAfterMove)
+{
+    Trigger sut;
+    Trigger trigger = createValidTrigger();
+    sut = std::move(trigger);
+
+    EXPECT_FALSE(trigger.isValid());
+    EXPECT_THAT(trigger.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
+}
+
 TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
 {
     uint64_t eventId = 0U;
@@ -179,9 +198,18 @@ TEST_F(Trigger_test, InvalidateInvalidatesTrigger)
 TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
 {
     Trigger sut = createValidTrigger();
+    auto uniqueId = sut.getUniqueId();
     sut.reset();
 
-    EXPECT_EQ(m_triggerClass.m_resetCallTriggerArg, sut.getUniqueId());
+    EXPECT_EQ(m_triggerClass.m_resetCallTriggerArg, uniqueId);
+}
+
+TEST_F(Trigger_test, ResetSetsTriggerIdToInvalid)
+{
+    Trigger sut = createValidTrigger();
+    sut.reset();
+
+    EXPECT_EQ(sut.getUniqueId(), Trigger::INVALID_TRIGGER_ID);
 }
 
 TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
@@ -255,9 +283,10 @@ TEST_F(Trigger_test, UpdateOriginLeadsToDifferentResetCallback)
     TriggerClass secondTriggerClass;
 
     sut.updateOrigin(&secondTriggerClass);
+    auto uniqueId = sut.getUniqueId();
     sut.reset();
 
-    EXPECT_EQ(secondTriggerClass.m_resetCallTriggerArg, sut.getUniqueId());
+    EXPECT_EQ(secondTriggerClass.m_resetCallTriggerArg, uniqueId);
 }
 
 TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin)
@@ -271,9 +300,10 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
                 TriggerClass::callback);
 
     sut.updateOrigin(&secondTriggerClass);
+    auto uniqueId = sut.getUniqueId();
     sut.reset();
 
-    EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, sut.getUniqueId());
+    EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, uniqueId);
 }
 
 TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfEventInfo)

@@ -107,7 +107,7 @@ class Trigger
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
-    uint64_t m_uniqueId = 0U;
+    uint64_t m_uniqueId = INVALID_TRIGGER_ID;
 
     static std::atomic<uint64_t> uniqueIdCounter; // = 0U;
 };

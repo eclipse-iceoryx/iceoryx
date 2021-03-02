@@ -22,6 +22,7 @@ namespace iox
 namespace popo
 {
 std::atomic<uint64_t> Trigger::uniqueIdCounter{0U};
+constexpr uint64_t Trigger::INVALID_TRIGGER_ID;
 
 Trigger::~Trigger()
 {
@@ -57,6 +58,7 @@ void Trigger::invalidate() noexcept
 {
     m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
     m_resetCallback = cxx::MethodCallback<void, uint64_t>();
+    m_uniqueId = INVALID_TRIGGER_ID;
 }
 
 Trigger::operator bool() const noexcept

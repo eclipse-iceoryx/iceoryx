@@ -22,6 +22,7 @@
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
+#include <limits>
 #include <mutex>
 
 namespace iox
@@ -92,7 +93,7 @@ class TriggerHandle
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
-    uint64_t m_uniqueTriggerId = 0U;
+    uint64_t m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
     bool m_doesContainEventVariable = false;
     mutable std::recursive_mutex m_mutex;
 };
