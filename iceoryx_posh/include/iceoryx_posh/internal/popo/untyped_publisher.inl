@@ -62,7 +62,7 @@ cxx::optional<void*> UntypedPublisherImpl<base_publisher_t>::loanPreviousChunk()
 }
 
 template <typename base_publisher_t>
-inline void UntypedPublisherImpl<base_publisher_t>::releaseChunk(const void* chunk) noexcept
+inline void UntypedPublisherImpl<base_publisher_t>::release(const void* chunk) noexcept
 {
     auto header = mepoo::ChunkHeader::fromPayload(chunk);
     port().releaseChunk(header);

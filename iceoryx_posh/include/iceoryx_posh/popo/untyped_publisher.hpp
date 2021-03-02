@@ -67,7 +67,7 @@ class UntypedPublisherImpl : public base_publisher_t
     ///          The chunk must not be accessed afterwards as its memory may have
     ///          been reclaimed.
     ///
-    void releaseChunk(const void* chunk) noexcept;
+    void release(const void* chunk) noexcept;
 
   protected:
     using base_publisher_t::port;

@@ -94,7 +94,7 @@ TEST_F(UntypedPublisherTest, LoanPreviousChunkFails)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedPublisherTest, ReleaseChunkDelegatesCallToPort)
+TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
 {
     constexpr uint32_t ALLOCATION_SIZE = 7U;
     EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE))
@@ -106,7 +106,7 @@ TEST_F(UntypedPublisherTest, ReleaseChunkDelegatesCallToPort)
 
     // ===== Test ===== //
     EXPECT_CALL(portMock, releaseChunk(chunkMock.chunkHeader())).Times(1);
-    sut.releaseChunk(chunk);
+    sut.release(chunk);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
