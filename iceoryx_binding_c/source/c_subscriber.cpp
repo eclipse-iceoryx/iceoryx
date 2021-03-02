@@ -56,11 +56,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
 
 bool iox_sub_options_is_initialized(const iox_sub_options_t* const options)
 {
-    if (options && options->initCheck == SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT)
-    {
-        return true;
-    }
-    return false;
+    return options && options->initCheck == SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
 }
 
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,

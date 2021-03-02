@@ -39,7 +39,7 @@ typedef struct
     const char* nodeName;
 
     // this value will be set exclusively by iox_sub_options_init
-    // and is not supposed to modified otherwise
+    // and is not supposed to be modified otherwise
     uint64_t initCheck;
 } iox_sub_options_t;
 

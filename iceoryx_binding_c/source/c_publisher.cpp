@@ -50,11 +50,7 @@ void iox_pub_options_init(iox_pub_options_t* options)
 
 bool iox_pub_options_is_initialized(const iox_pub_options_t* const options)
 {
-    if (options && options->initCheck == PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT)
-    {
-        return true;
-    }
-    return false;
+    return options && options->initCheck == PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT;
 }
 
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
