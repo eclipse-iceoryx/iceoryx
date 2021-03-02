@@ -1,0 +1,68 @@
+@startuml Eclipse iceoryx component overview
+skinparam BackgroundColor transparent
+skinparam componentStyle uml2
+
+skinparam component {
+backgroundColor<<namespace>> yellow
+}
+
+skinparam package {
+backgroundColor green
+}
+
+header Eclipse iceoryx component overview
+
+package posh {
+   component "capro" <<namespace>>{
+
+   }
+   component "gateway" <<namespace>> as gateway_posh
+   component "mepoo" <<namespace>>
+   component "popo" <<namespace>>
+   component "roudi" <<namespace>>
+   component "runtime" <<namespace>>
+   component "version" <<namespace>>
+   component "build" <<namespace>>
+}
+
+package utils  {
+   component "concurrent" <<namespace>>
+   component "cxx" <<namespace>>
+   component "DesignPattern" <<namespace>>
+   component "error_handling" <<namespace>> 
+   component "log" <<namespace>>
+   component "posix" <<namespace>>
+}
+
+package dds  {
+   component "ddss" <<namespace>>
+   component "gateway" <<namespace>> as gateway_dds
+}
+
+package binding_c  {
+   component "enums.h" <<file>>
+   component "publisher.h" <<file>>
+   component "subscriber.h" <<file>>
+   component "node.h" <<file>>
+   component "types.h" <<file>>
+   component "wait_set.h" <<file>>
+   component "user_trigger.h" <<file>>
+}
+
+package experimental  {
+   component "bar" <<namespace>>
+   component "foo" <<namespace>>
+}
+
+package examples  {
+   component "icedelivery" <<module>>
+   component "icedelivery_on_c" <<module>>
+}
+
+
+posh  ..>  utils  : use
+examples  ..>  posh  : use
+dds  ..>  posh  : use
+binding_c  ..>  posh  : use
+experimental  ..>  utils  : use
+@enduml
