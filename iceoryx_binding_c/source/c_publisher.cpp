@@ -31,7 +31,7 @@ extern "C" {
 #include "iceoryx_binding_c/publisher.h"
 }
 
-static uint64_t PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT = 123454321;
+constexpr uint64_t PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT = 123454321;
 
 void iox_pub_options_init(iox_pub_options_t* options)
 {
@@ -68,7 +68,10 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
     {
         if (!iox_pub_options_is_initialized(options))
         {
-            LogWarn() << "publisher options may not have been initialized with iox_pub_init";
+            // note that they may have been initialized but the initCheck
+            // pattern overwritten afterwards, we cannot be sure but it is a misuse
+            LogError() << "publisher options may not have been initialized with iox_pub_init";
+            std::terminate();
         }
         publisherOptions.historyCapacity = options->historyCapacity;
         if (options->nodeName != nullptr)

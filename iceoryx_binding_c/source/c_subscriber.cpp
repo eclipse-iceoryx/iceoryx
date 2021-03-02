@@ -36,7 +36,7 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
-static uint64_t SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT = 543212345;
+constexpr uint64_t SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT = 543212345;
 
 void iox_sub_options_init(iox_sub_options_t* options)
 {
@@ -74,7 +74,10 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
     {
         if (!iox_sub_options_is_initialized(options))
         {
-            LogWarn() << "subscriber options may not have been initialized with iox_sub_init";
+            // note that they may have been initialized but the initCheck
+            // pattern overwritten afterwards, we cannot be sure but it is a misuse
+            LogError() << "subscriber options may not have been initialized with iox_sub_init";
+            std::terminate();
         }
         subscriberOptions.queueCapacity = options->queueCapacity;
         subscriberOptions.historyRequest = options->historyRequest;
