@@ -357,6 +357,20 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.queueCapacity, options.queueCapacity);
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
+    EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
+}
+
+TEST(iox_sub_options_test, subscriberOptionsInitializationCheckReturnsTrueAfterDefaultInit)
+{
+    iox_sub_options_t sut;
+    iox_sub_options_init(&sut);
+    EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
+}
+
+TEST(iox_sub_options_test, subscriberOptionsInitializationCheckReturnsFalseWithoutDefaultInit)
+{
+    iox_sub_options_t sut;
+    EXPECT_FALSE(iox_sub_options_is_initialized(&sut));
 }
 
 TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash)

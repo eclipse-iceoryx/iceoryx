@@ -258,13 +258,27 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
 {
     iox_pub_options_t sut;
     sut.historyCapacity = 37;
-    sut.nodeName = "DrGonzo";
+    sut.nodeName = "Dr.Gonzo";
 
     PublisherOptions options;
 
     iox_pub_options_init(&sut);
     EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
     EXPECT_EQ(sut.nodeName, nullptr);
+    EXPECT_TRUE(iox_pub_options_is_initialized(&sut));
+}
+
+TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsTrueAfterDefaultInit)
+{
+    iox_pub_options_t sut;
+    iox_pub_options_init(&sut);
+    EXPECT_TRUE(iox_pub_options_is_initialized(&sut));
+}
+
+TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsFalseWithoutDefaultInit)
+{
+    iox_pub_options_t sut;
+    EXPECT_FALSE(iox_pub_options_is_initialized(&sut));
 }
 
 TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)

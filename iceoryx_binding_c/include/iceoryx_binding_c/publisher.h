@@ -34,6 +34,10 @@ typedef struct
     // name of the node the publisher belongs to
     // nullptr indicates that the default node name is used
     const char* nodeName;
+
+    // this value will be set exclusively by iox_pub_options_init
+    // and is not supposed to modified otherwise
+    uint64_t initCheck;
 } iox_pub_options_t;
 
 /// @brief initialize publisher options to default values
@@ -43,6 +47,11 @@ typedef struct
 ///            prevent uninitialized values. The options may get extended
 ///            in the future.
 void iox_pub_options_init(iox_pub_options_t* options);
+
+/// @brief check whether the publisher options were initialized by iox_bub_options_init
+/// @param[in] options pointer to options to be checked
+/// @return true if options are not null and were initialized, false otherwise
+bool iox_pub_options_is_initialized(const iox_pub_options_t* const options);
 
 /// @brief creates a publisher handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_pub_storage_t)

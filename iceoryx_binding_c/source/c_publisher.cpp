@@ -31,16 +31,30 @@ extern "C" {
 #include "iceoryx_binding_c/publisher.h"
 }
 
+static uint64_t PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT = 123454321;
+
 void iox_pub_options_init(iox_pub_options_t* options)
 {
     if (options == nullptr)
     {
+        std::cerr << "Warning: publisher options initialization skipped - null pointer provided" << std::endl;
         return;
     }
 
     PublisherOptions publisherOptions;
     options->historyCapacity = publisherOptions.historyCapacity;
     options->nodeName = nullptr;
+
+    options->initCheck = PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT;
+}
+
+bool iox_pub_options_is_initialized(const iox_pub_options_t* const options)
+{
+    if (options && options->initCheck == PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT)
+    {
+        return true;
+    }
+    return false;
 }
 
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
@@ -56,6 +70,10 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
     // use default options otherwise
     if (options != nullptr)
     {
+        if (!iox_pub_options_is_initialized(options))
+        {
+            std::cerr << "Warning: publisher options may not have been initialized with iox_pub_init" << std::endl;
+        }
         publisherOptions.historyCapacity = options->historyCapacity;
         if (options->nodeName != nullptr)
         {

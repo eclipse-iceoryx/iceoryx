@@ -36,10 +36,13 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
+static uint64_t SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT = 543212345;
+
 void iox_sub_options_init(iox_sub_options_t* options)
 {
     if (options == nullptr)
     {
+        std::cerr << "subscriber options initialization skipped - null pointer provided" << std::endl;
         return;
     }
 
@@ -47,6 +50,17 @@ void iox_sub_options_init(iox_sub_options_t* options)
     options->queueCapacity = subscriberOptions.queueCapacity;
     options->historyRequest = subscriberOptions.historyRequest;
     options->nodeName = nullptr;
+
+    options->initCheck = SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
+}
+
+bool iox_sub_options_is_initialized(const iox_sub_options_t* const options)
+{
+    if (options && options->initCheck == SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT)
+    {
+        return true;
+    }
+    return false;
 }
 
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
@@ -62,6 +76,10 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
     // use default options otherwise
     if (options != nullptr)
     {
+        if (!iox_sub_options_is_initialized(options))
+        {
+            std::cerr << "Warning: subscriber options may not have been initialized with iox_sub_init" << std::endl;
+        }
         subscriberOptions.queueCapacity = options->queueCapacity;
         subscriberOptions.historyRequest = options->historyRequest;
         if (options->nodeName != nullptr)

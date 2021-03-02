@@ -37,6 +37,10 @@ typedef struct
 
     // name of the node the subscriber belongs to
     const char* nodeName;
+
+    // this value will be set exclusively by iox_sub_options_init
+    // and is not supposed to modified otherwise
+    uint64_t initCheck;
 } iox_sub_options_t;
 
 /// @brief initialize subscriber options to default values
@@ -46,6 +50,11 @@ typedef struct
 ///            prevent uninitialized values. The options may get extended
 ///            in the future.
 void iox_sub_options_init(iox_sub_options_t* const options);
+
+/// @brief check whether the subscriber options were initialized by iox_sub_options_init
+/// @param[in] options pointer to options to be checked
+/// @return true if options are not null and were initialized, false otherwise
+bool iox_sub_options_is_initialized(const iox_sub_options_t* const options);
 
 /// @brief initialize subscriber handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
