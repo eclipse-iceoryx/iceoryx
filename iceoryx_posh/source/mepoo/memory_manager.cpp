@@ -99,9 +99,9 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
     return payloadSize + static_cast<uint32_t>(sizeof(ChunkHeader));
 }
 
-uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxSize_t f_size)
+uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size)
 {
-    return f_size + static_cast<uint32_t>(sizeof(ChunkHeader));
+    return size + static_cast<uint32_t>(sizeof(ChunkHeader));
 }
 
 uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig)
@@ -154,7 +154,7 @@ void MemoryManager::configureMemoryManager(const MePooConfig& f_mePooConfig,
     generateChunkManagementPool(f_managementAllocator);
 }
 
-SharedChunk MemoryManager::getChunk(const MaxSize_t f_size,
+SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
                                     const uint32_t payloadAlignment,
                                     const uint32_t customHeaderSize,
                                     const uint32_t customHeaderAlignment)
@@ -162,7 +162,7 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size,
     void* chunk{nullptr};
     MemPool* memPoolPointer{nullptr};
     uint32_t adjustedSize =
-        MemoryManager::requiredChunkSize(f_size, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        MemoryManager::requiredChunkSize(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
     uint32_t totalSizeOfAquiredChunk = 0;
 
     for (auto& memPool : m_memPoolVector)
@@ -195,7 +195,7 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size,
     }
     else if (chunk == nullptr)
     {
-        std::cerr << "MemoryManager: unable to acquire a chunk with a payload size of " << f_size << std::endl;
+        std::cerr << "MemoryManager: unable to acquire a chunk with a payload size of " << payloadSize << std::endl;
         std::cerr << "The following mempools are available:" << std::endl;
         printMemPoolVector();
         errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, nullptr, ErrorLevel::MODERATE);
@@ -205,7 +205,7 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size,
     {
         auto chunkHeader = new (chunk) ChunkHeader();
         chunkHeader->chunkSize = totalSizeOfAquiredChunk;
-        chunkHeader->payloadSize = f_size;
+        chunkHeader->payloadSize = payloadSize;
         auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
             ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
         return SharedChunk(chunkManagement);

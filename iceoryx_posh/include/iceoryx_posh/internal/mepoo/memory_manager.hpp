@@ -38,7 +38,7 @@ struct MePooConfig;
 
 class MemoryManager
 {
-    using MaxSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
+    using MaxChunkPayloadSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
 
   public:
     MemoryManager() = default;
@@ -52,7 +52,7 @@ class MemoryManager
                                 posix::Allocator* f_managementAllocator,
                                 posix::Allocator* f_payloadAllocator);
 
-    SharedChunk getChunk(const MaxSize_t f_size,
+    SharedChunk getChunk(const uint32_t payloadSize,
                          const uint32_t payloadAlignment,
                          const uint32_t customHeaderSize,
                          const uint32_t customHeaderAlignment);
@@ -71,7 +71,7 @@ class MemoryManager
     static uint64_t requiredFullMemorySize(const MePooConfig& f_mePooConfig);
 
   private:
-    static uint32_t sizeWithChunkHeaderStruct(const MaxSize_t f_size);
+    static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size);
 
     void printMemPoolVector() const;
     void addMemPool(posix::Allocator* f_managementAllocator,
