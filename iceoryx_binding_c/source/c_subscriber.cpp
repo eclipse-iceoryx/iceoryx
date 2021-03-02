@@ -58,11 +58,16 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
     SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = options->queueCapacity;
-    subscriberOptions.historyRequest = options->historyRequest;
-    if (options->nodeName != nullptr)
+
+    // use default options otherwise
+    if (options != nullptr)
     {
-        subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
+        subscriberOptions.queueCapacity = options->queueCapacity;
+        subscriberOptions.historyRequest = options->historyRequest;
+        if (options->nodeName != nullptr)
+        {
+            subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
+        }
     }
 
     me->m_portData =

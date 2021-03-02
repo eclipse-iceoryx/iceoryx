@@ -52,10 +52,15 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
     PublisherOptions publisherOptions;
-    publisherOptions.historyCapacity = options->historyCapacity;
-    if (options->nodeName != nullptr)
+
+    // use default options otherwise
+    if (options != nullptr)
     {
-        publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
+        publisherOptions.historyCapacity = options->historyCapacity;
+        if (options->nodeName != nullptr)
+        {
+            publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
+        }
     }
 
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
