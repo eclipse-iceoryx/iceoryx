@@ -1,26 +1,25 @@
 # This workflow only runs manually to build an iceoryx release and publish it into an existing Github Release
 
-name: iceoryx release
+name: iceoryx build & create release
 
 on:
   workflow_dispatch:
     inputs:
-      patch:
-      ReleaseBranch:
-        description: 'ReleaseBranch or Tag release_[major].[minor]'
+      ReleaseTag:
+        description: 'Git Tag to create v[major].[minor].[patch]'
         required: true
 
 jobs:
-  build-ubuntu18-04-release:
-    runs-on: ubuntu-18.04
+  build-ubuntu-release:
+    if: github.actor == 'budrus' || github.actor == 'MatthiasKillat' || github.actor == 'mossmaurice' ||
+        github.actor == 'elfenpfiff' || github.actor == 'elboberido' || github.actor == 'marthtz' ||
+        github.actor == 'ariexi' || github.actor == 'ithier' || github.actor == 'dkroenke'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04]
     steps:
-      - name: check if committer starts workflow, otherwise cancel the job
-        uses: andymckay/cancel-action@0.2
-        if: |
-          ${{ github.actor != 'budrus' || github.actor != 'dkroenke' || github.actor != 'mossmaurice'
-          || github.actor != 'elfenpfiff' || github.actor != 'elboberido' || github.actor != 'marthtz'
-          || github.actor != 'ariexi' || github.actor != 'ithier' || github.actor != 'MatthiasKillat' }}
-
       - name: Install iceoryx dependencies
         run: |
           sudo apt-get update
@@ -29,24 +28,19 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ReleaseTag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            ref: ${{ github.event.inputs.ReleaseBranch }}
 
       - name: Build sources
         run: |
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all out-of-tree
 
-      - name: Run timeless tests
+      - name: Run all tests
         run: |
           cd $GITHUB_WORKSPACE/build
-          make all_tests
-
-      - name: Run timing tests
-        run: |
-          cd $GITHUB_WORKSPACE/build
-          make timing_tests
+          tools/run_tests.sh all
 
       - name: Build debian package
         run: |
@@ -55,18 +49,19 @@ jobs:
       - name: Upload release artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Ubuntu_18_04_debian
+          name: release_artifacts
           path: ./build_package/iceoryx*.deb
 
 # This job must be put at the end to collect all release assets from the previous jobs
   release:
     name: Create Release
+    needs: build-ubuntu-release
     runs-on: ubuntu-latest
     steps:
       - name: Download release artifacts
         uses: actions/download-artifact@v2
         with:
-          name: Ubuntu_18_04_debian
+          name: release_artifacts
 
       - name: Create Release
         id: create_release
@@ -74,8 +69,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.inputs.tag }}
-          name: Release ${{ github.event.inputs.tag }}
+          tag_name: ${{ github.event.inputs.ReleaseTag }}
+          name: Release ${{ github.event.inputs.ReleaseTag }}
           draft: true
           prerelease: true
           files: |
