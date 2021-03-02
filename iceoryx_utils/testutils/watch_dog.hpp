@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_TESTUTILS_SEPPUKU_HPP
-#define IOX_UTILS_TESTUTILS_SEPPUKU_HPP
+#ifndef IOX_UTILS_TESTUTILS_WATCH_DOG_HPP
+#define IOX_UTILS_TESTUTILS_WATCH_DOG_HPP
 
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
@@ -37,14 +37,14 @@ class Watchdog
 
     ~Watchdog() noexcept
     {
-        m_seppukuSemaphore.post();
-        m_seppuku.join();
+        m_watchdogSemaphore.post();
+        m_watchdog.join();
     }
 
     void watchAndActOnFailure(std::function<void()> f) noexcept
     {
-        m_seppuku = std::thread([=] {
-            m_seppukuSemaphore.timedWait(m_timeToWait, false)
+        m_watchdog = std::thread([=] {
+            m_watchdogSemaphore.timedWait(m_timeToWait, false)
                 .and_then([&](auto& result) {
                     if (result == iox::posix::SemaphoreWaitState::TIMEOUT)
                     {
@@ -58,9 +58,9 @@ class Watchdog
 
   private:
     iox::units::Duration m_timeToWait{0_s};
-    iox::posix::Semaphore m_seppukuSemaphore{
+    iox::posix::Semaphore m_watchdogSemaphore{
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
-    std::thread m_seppuku;
+    std::thread m_watchdog;
 };
 
-#endif // IOX_UTILS_TESTUTILS_SEPPUKU_HPP
+#endif // IOX_UTILS_TESTUTILS_WATCH_DOG_HPP

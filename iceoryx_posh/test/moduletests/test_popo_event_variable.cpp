@@ -118,8 +118,8 @@ TEST_F(EventVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
 
     NotificationVector_t activeNotifications;
 
-    Watchdog seppuku(m_timeToWait);
-    seppuku.watchAndActOnFailure([] { std::terminate(); });
+    Watchdog watchdog(m_timeToWait);
+    watchdog.watchAndActOnFailure([] { std::terminate(); });
 
     std::thread waiter([&] {
         activeNotifications = sut.wait();
@@ -136,8 +136,8 @@ TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
     EventNotifier notifier(m_eventVarData, EVENT_INDEX);
     EventListener listener(m_eventVarData);
 
-    Watchdog seppuku(m_timeToWait);
-    seppuku.watchAndActOnFailure([&] { listener.destroy(); });
+    Watchdog watchdog(m_timeToWait);
+    watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     notifier.notify();
     const auto& activeNotifications = listener.wait();
@@ -154,8 +154,8 @@ TEST_F(EventVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAndWai
     EventNotifier notifier2(m_eventVarData, SECOND_EVENT_INDEX);
     EventListener listener(m_eventVarData);
 
-    Watchdog seppuku(m_timeToWait);
-    seppuku.watchAndActOnFailure([&] { listener.destroy(); });
+    Watchdog watchdog(m_timeToWait);
+    watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     notifier1.notify();
     notifier2.notify();
@@ -173,8 +173,8 @@ TEST_F(EventVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
     EventListener listener(m_eventVarData);
     NotificationVector_t activeNotifications;
 
-    Watchdog seppuku(m_timeToWait);
-    seppuku.watchAndActOnFailure([&] { listener.destroy(); });
+    Watchdog watchdog(m_timeToWait);
+    watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
         activeNotifications = listener.wait();
@@ -195,8 +195,8 @@ TIMING_TEST_F(EventVariable_test, WaitBlocks, Repeat(5), [&] {
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
 
-    Watchdog seppuku(m_timeToWait);
-    seppuku.watchAndActOnFailure([&] { listener.destroy(); });
+    Watchdog watchdog(m_timeToWait);
+    watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
         threadSetupSemaphore.post();
@@ -225,8 +225,8 @@ TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
 
-    Watchdog seppukuFirstWait(m_timeToWait);
-    seppukuFirstWait.watchAndActOnFailure([&] { listener.destroy(); });
+    Watchdog watchdogFirstWait(m_timeToWait);
+    watchdogFirstWait.watchAndActOnFailure([&] { listener.destroy(); });
 
     notifier1.notify();
     notifier2.notify();
@@ -236,8 +236,8 @@ TIMING_TEST_F(EventVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5
     EXPECT_THAT(activeNotifications[0], Eq(SECOND_EVENT_INDEX));
     EXPECT_THAT(activeNotifications[1], Eq(FIRST_EVENT_INDEX));
 
-    Watchdog seppukuSecondWait(m_timeToWait);
-    seppukuSecondWait.watchAndActOnFailure([&] { listener.destroy(); });
+    Watchdog watchdogSecondWait(m_timeToWait);
+    watchdogSecondWait.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
         threadSetupSemaphore.post();
