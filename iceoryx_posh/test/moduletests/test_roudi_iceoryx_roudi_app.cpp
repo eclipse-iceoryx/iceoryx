@@ -55,7 +55,7 @@ class IceoryxRoudiApp_Child : public IceOryxRouDiApp
     }
 
     RouDiConfig_t getConfig()
-    { 
+    {
         return m_config;
     }
 
