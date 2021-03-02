@@ -42,7 +42,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
 {
     if (options == nullptr)
     {
-        std::cerr << "subscriber options initialization skipped - null pointer provided" << std::endl;
+        LogWarn() << "subscriber options initialization skipped - null pointer provided";
         return;
     }
 
@@ -78,7 +78,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
     {
         if (!iox_sub_options_is_initialized(options))
         {
-            std::cerr << "Warning: subscriber options may not have been initialized with iox_sub_init" << std::endl;
+            LogWarn() << "subscriber options may not have been initialized with iox_sub_init";
         }
         subscriberOptions.queueCapacity = options->queueCapacity;
         subscriberOptions.historyRequest = options->historyRequest;

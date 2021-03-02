@@ -37,7 +37,7 @@ void iox_pub_options_init(iox_pub_options_t* options)
 {
     if (options == nullptr)
     {
-        std::cerr << "Warning: publisher options initialization skipped - null pointer provided" << std::endl;
+        LogWarn() << "publisher options initialization skipped - null pointer provided";
         return;
     }
 
@@ -72,7 +72,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
     {
         if (!iox_pub_options_is_initialized(options))
         {
-            std::cerr << "Warning: publisher options may not have been initialized with iox_pub_init" << std::endl;
+            LogWarn() << "publisher options may not have been initialized with iox_pub_init";
         }
         publisherOptions.historyCapacity = options->historyCapacity;
         if (options->nodeName != nullptr)

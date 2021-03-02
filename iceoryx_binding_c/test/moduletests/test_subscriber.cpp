@@ -349,7 +349,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     iox_sub_options_t sut;
     sut.queueCapacity = 37;
     sut.historyRequest = 73;
-    sut.nodeName = "DrGonzo";
+    sut.nodeName = "Dr.Gonzo";
 
     SubscriberOptions options;
 

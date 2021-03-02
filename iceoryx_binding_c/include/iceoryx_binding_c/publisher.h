@@ -48,7 +48,7 @@ typedef struct
 ///            in the future.
 void iox_pub_options_init(iox_pub_options_t* options);
 
-/// @brief check whether the publisher options were initialized by iox_bub_options_init
+/// @brief check whether the publisher options were initialized by iox_pub_options_init
 /// @param[in] options pointer to options to be checked
 /// @return true if options are not null and were initialized, false otherwise
 bool iox_pub_options_is_initialized(const iox_pub_options_t* const options);
