@@ -90,19 +90,13 @@ MemPoolInfo MemoryManager::getMemPoolInfo(uint32_t index) const
     return m_memPoolVector[index].getInfo();
 }
 
-uint32_t MemoryManager::getMempoolChunkSizeForPayloadSize(const uint32_t f_size) const
+uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
+                                          const uint32_t payloadAlignment [[gnu::unused]],
+                                          const uint32_t customHeaderSize [[gnu::unused]],
+                                          const uint32_t customHeaderAlignment [[gnu::unused]])
 {
-    uint32_t adjustedSize = MemoryManager::sizeWithChunkHeaderStruct(f_size);
-    for (auto& memPool : m_memPoolVector)
-    {
-        const auto chunkSize = memPool.getChunkSize();
-        if (chunkSize >= adjustedSize)
-        {
-            return chunkSize;
-        }
-    }
-
-    return 0;
+    // TODO iox-#14 calculate correct size
+    return payloadSize + static_cast<uint32_t>(sizeof(ChunkHeader));
 }
 
 uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxSize_t f_size)
@@ -113,10 +107,14 @@ uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxSize_t f_size)
 uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig)
 {
     uint64_t memorySize{0};
-    for (const auto& mempool : f_mePooConfig.m_mempoolConfig)
+    for (const auto& mempoolConfig : f_mePooConfig.m_mempoolConfig)
     {
-        memorySize +=
-            static_cast<uint64_t>(mempool.m_chunkCount) * MemoryManager::sizeWithChunkHeaderStruct(mempool.m_size);
+        // for the required chunk memory size only the size of the ChunkHeader
+        // and the the payload size is taken into account;
+        // the user has the option to further partition the chunk payload with
+        // a custom header and therefore reduce the user payload size
+        memorySize += static_cast<uint64_t>(mempoolConfig.m_chunkCount)
+                      * MemoryManager::sizeWithChunkHeaderStruct(mempoolConfig.m_size);
     }
     return memorySize;
 }
@@ -157,14 +155,14 @@ void MemoryManager::configureMemoryManager(const MePooConfig& f_mePooConfig,
 }
 
 SharedChunk MemoryManager::getChunk(const MaxSize_t f_size,
-                                    const uint32_t payloadAlignment [[gnu::unused]],
-                                    const uint32_t customHeaderSize [[gnu::unused]],
-                                    const uint32_t customHeaderAlignment [[gnu::unused]])
+                                    const uint32_t payloadAlignment,
+                                    const uint32_t customHeaderSize,
+                                    const uint32_t customHeaderAlignment)
 {
     void* chunk{nullptr};
     MemPool* memPoolPointer{nullptr};
-    // TODO iox-#14 calculate correct size
-    uint32_t adjustedSize = MemoryManager::sizeWithChunkHeaderStruct(f_size);
+    uint32_t adjustedSize =
+        MemoryManager::requiredChunkSize(f_size, payloadAlignment, customHeaderSize, customHeaderAlignment);
     uint32_t totalSizeOfAquiredChunk = 0;
 
     for (auto& memPool : m_memPoolVector)

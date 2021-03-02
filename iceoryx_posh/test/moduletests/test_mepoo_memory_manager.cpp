@@ -67,24 +67,6 @@ TEST_F(MemoryManager_test, addMemPoolWrongOrderAtLastElement)
     EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
 }
 
-TEST_F(MemoryManager_test, getMempoolChunkSizeForPayloadSize)
-{
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({64, 10});
-    mempoolconf.addMemPool({128, 10});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(50), Eq(adjustedChunkSize(64u)));
-}
-
-TEST_F(MemoryManager_test, getChunkSizeForWrongSampleSize)
-{
-    mempoolconf.addMemPool({32, 10});
-    mempoolconf.addMemPool({64, 10});
-    mempoolconf.addMemPool({128, 10});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(129), Eq(0u));
-}
-
 TEST_F(MemoryManager_test, wrongcallConfigureMemoryManager)
 {
     mempoolconf.addMemPool({32, 10});

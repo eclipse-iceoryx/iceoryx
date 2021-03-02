@@ -49,7 +49,8 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize,
                                               const uint32_t customHeaderAlignment) noexcept
 {
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
-    const uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
+    const uint32_t neededChunkSize = getMembers()->m_memoryMgr->requiredChunkSize(
+        payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
 
     if (getMembers()->m_lastChunk && getMembers()->m_lastChunk.hasNoOtherOwners()
         && (getMembers()->m_lastChunk.getChunkHeader()->chunkSize >= neededChunkSize))

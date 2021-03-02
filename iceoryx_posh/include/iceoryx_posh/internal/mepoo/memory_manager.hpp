@@ -57,19 +57,22 @@ class MemoryManager
                          const uint32_t customHeaderSize,
                          const uint32_t customHeaderAlignment);
 
-    uint32_t getMempoolChunkSizeForPayloadSize(const uint32_t f_size) const;
-
     uint32_t getNumberOfMemPools() const;
 
     MemPoolInfo getMemPoolInfo(uint32_t f_index) const;
 
-    static uint32_t sizeWithChunkHeaderStruct(const MaxSize_t f_size);
+    static uint32_t requiredChunkSize(const uint32_t payloadSize,
+                                      const uint32_t payloadAlignment,
+                                      const uint32_t customHeaderSize,
+                                      const uint32_t customHeaderAlignment);
 
     static uint64_t requiredChunkMemorySize(const MePooConfig& f_mePooConfig);
     static uint64_t requiredManagementMemorySize(const MePooConfig& f_mePooConfig);
     static uint64_t requiredFullMemorySize(const MePooConfig& f_mePooConfig);
 
   private:
+    static uint32_t sizeWithChunkHeaderStruct(const MaxSize_t f_size);
+
     void printMemPoolVector() const;
     void addMemPool(posix::Allocator* f_managementAllocator,
                     posix::Allocator* f_payloadAllocator,
