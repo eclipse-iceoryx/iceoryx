@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
@@ -41,7 +43,7 @@ PublisherPortUser::tryAllocateChunk(const uint32_t payloadSize) noexcept
     return m_chunkSender.tryAllocate(payloadSize, getUniqueID());
 }
 
-void PublisherPortUser::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
+void PublisherPortUser::releaseChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     m_chunkSender.release(chunkHeader);
 }

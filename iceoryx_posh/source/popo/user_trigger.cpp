@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -51,6 +53,16 @@ void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
     {
         m_trigger.invalidate();
     }
+}
+
+WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent() const noexcept
+{
+    return {*this, &UserTrigger::hasTriggered};
+}
+
+void UserTrigger::enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept
+{
+    m_trigger = std::move(triggerHandle);
 }
 
 } // namespace popo

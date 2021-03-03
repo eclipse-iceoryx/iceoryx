@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -256,7 +258,7 @@ TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
 
 TEST_F(iox_sub_test, attachingToWaitSetWorks)
 {
-    EXPECT_EQ(iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES, 0U, NULL),
+    EXPECT_EQ(iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, NULL),
               WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 1U);
 }
@@ -264,9 +266,9 @@ TEST_F(iox_sub_test, attachingToWaitSetWorks)
 TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 {
     WaitSetMock m_waitSet2{&m_condVar};
-    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES, 0U, NULL);
+    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, NULL);
 
-    EXPECT_EQ(iox_ws_attach_subscriber_event(&m_waitSet2, m_sut, SubscriberEvent_HAS_SAMPLES, 0U, NULL),
+    EXPECT_EQ(iox_ws_attach_subscriber_event(&m_waitSet2, m_sut, SubscriberEvent_HAS_DATA, 0U, NULL),
               WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 0U);
     EXPECT_EQ(m_waitSet2.size(), 1U);
@@ -274,14 +276,14 @@ TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 
 TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 {
-    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES, 0U, NULL);
-    iox_ws_detach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES);
+    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, NULL);
+    iox_ws_detach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA);
     EXPECT_EQ(m_waitSet->size(), 0U);
 }
 
-TEST_F(iox_sub_test, hasSamplesTriggersWaitSetWithCorrectEventId)
+TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectEventId)
 {
-    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES, 587U, NULL);
+    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
@@ -291,10 +293,10 @@ TEST_F(iox_sub_test, hasSamplesTriggersWaitSetWithCorrectEventId)
     EXPECT_EQ(triggerVector[0]->getEventId(), 587U);
 }
 
-TEST_F(iox_sub_test, hasSamplesTriggersWaitSetWithCorrectCallback)
+TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 {
     iox_ws_attach_subscriber_event(
-        m_waitSet.get(), m_sut, SubscriberEvent_HAS_SAMPLES, 0U, iox_sub_test::triggerCallback);
+        m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, iox_sub_test::triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100U));
 
@@ -312,7 +314,7 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     subscriber->m_portData = &m_portPtr;
 
     iox_ws_attach_subscriber_event(
-        m_waitSet.get(), subscriber, SubscriberEvent_HAS_SAMPLES, 0U, iox_sub_test::triggerCallback);
+        m_waitSet.get(), subscriber, SubscriberEvent_HAS_DATA, 0U, iox_sub_test::triggerCallback);
 
     iox_sub_deinit(subscriber);
 

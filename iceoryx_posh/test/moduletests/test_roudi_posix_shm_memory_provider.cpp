@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
@@ -33,8 +36,11 @@ class PosixShmMemoryProvider_Test : public Test
     void SetUp() override
     {
         /// @note just is case a test left something behind, cleanup the shm by creating a new one with "mine" ownership
-        iox::posix::SharedMemoryObject::create(
-            TEST_SHM_NAME.c_str(), 1024, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
+        iox::posix::SharedMemoryObject::create(TEST_SHM_NAME,
+                                               1024,
+                                               iox::posix::AccessMode::READ_WRITE,
+                                               iox::posix::OwnerShip::MINE,
+                                               iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
     }
 
     void TearDown() override
@@ -43,12 +49,12 @@ class PosixShmMemoryProvider_Test : public Test
 
     bool shmExists()
     {
-        return iox::posix::SharedMemoryObject::create(TEST_SHM_NAME.c_str(),
-                                                      8,
-                                                      iox::posix::AccessMode::readOnly,
-                                                      iox::posix::OwnerShip::openExisting,
-                                                      nullptr)
-            .has_value();
+        return !iox::posix::SharedMemoryObject::create(TEST_SHM_NAME,
+                                                       8,
+                                                       iox::posix::AccessMode::READ_ONLY,
+                                                       iox::posix::OwnerShip::OPEN_EXISTING,
+                                                       iox::posix::SharedMemoryObject::NO_ADDRESS_HINT)
+                    .has_error();
     }
 
     MemoryBlockMock memoryBlock1;
@@ -57,7 +63,7 @@ class PosixShmMemoryProvider_Test : public Test
 
 TEST_F(PosixShmMemoryProvider_Test, CreateMemory)
 {
-    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
+    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OwnerShip::MINE);
     sut.addMemoryBlock(&memoryBlock1);
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{8};
@@ -73,7 +79,7 @@ TEST_F(PosixShmMemoryProvider_Test, CreateMemory)
 
 TEST_F(PosixShmMemoryProvider_Test, DestroyMemory)
 {
-    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
+    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OwnerShip::MINE);
     sut.addMemoryBlock(&memoryBlock1);
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{8};
@@ -91,7 +97,7 @@ TEST_F(PosixShmMemoryProvider_Test, DestroyMemory)
 
 TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize)
 {
-    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
+    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OwnerShip::MINE);
     sut.addMemoryBlock(&memoryBlock1);
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{iox::posix::pageSize().value_or(iox::posix::MaxPageSize) + 8};

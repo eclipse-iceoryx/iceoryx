@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_MEPOO_SHARED_POINTER_INL
 #define IOX_POSH_MEPOO_SHARED_POINTER_INL
 
@@ -47,6 +49,9 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(const SharedPointer& rhs) n
     if (this != &rhs)
     {
         deleteManagedObjectIfNecessary();
+
+        CreationPattern_t::operator=(rhs);
+
         m_chunk = rhs.m_chunk;
     }
     return *this;
@@ -58,6 +63,9 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(SharedPointer&& rhs) noexce
     if (this != &rhs)
     {
         deleteManagedObjectIfNecessary();
+
+        CreationPattern_t::operator=(std::move(rhs));
+
         m_chunk = std::move(rhs.m_chunk);
     }
     return *this;
