@@ -45,7 +45,7 @@ typedef struct
 
 /// @brief initialize subscriber options to default values
 /// @param[in] options pointer to options to be initialized,
-///                    if it is a null pointer default options are used
+///                    emit warning if it is a null pointer
 /// @attention This must always be called on a newly created options struct to
 ///            prevent uninitialized values. The options may get extended
 ///            in the future.
@@ -61,7 +61,8 @@ bool iox_sub_options_is_initialized(const iox_sub_options_t* const options);
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] options subscriber options set by the user
+/// @param[in] options subscriber options set by the user,
+///                    if it is a null pointer default options are used
 /// @return handle of the subscriber
 iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,

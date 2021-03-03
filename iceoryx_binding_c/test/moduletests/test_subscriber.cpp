@@ -193,11 +193,6 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
 TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
 {
     this->Subscribe(&m_portPtr);
-    struct data_t
-    {
-        int value;
-    };
-
     auto sharedChunk = m_memoryManager.getChunk(100U);
     m_chunkPusher.push(sharedChunk);
 

@@ -42,7 +42,7 @@ typedef struct
 
 /// @brief initialize publisher options to default values
 /// @param[in] options pointer to options to be initialized,
-///                    if it is a null pointer default options are used
+///                    emit warning if it is a null pointer
 /// @attention This must always be called on a newly created options struct to
 ///            prevent uninitialized values. The options may get extended
 ///            in the future.
@@ -58,7 +58,8 @@ bool iox_pub_options_is_initialized(const iox_pub_options_t* const options);
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
-/// @param[in] options publisher options set by the user
+/// @param[in] options publisher options set by the user,
+///                    if it is a null pointer default options are used
 /// @return handle of the publisher
 iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const service,
@@ -78,7 +79,7 @@ void iox_pub_deinit(iox_pub_t const self);
 ///         describes the error
 ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize);
 
-/// @brief frees a previously allocated chunk without sending it
+/// @brief releases ownership of a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher
 /// @param[in] chunk chunk which should be free'd
 void iox_pub_release_chunk(iox_pub_t const self, void* const chunk);
