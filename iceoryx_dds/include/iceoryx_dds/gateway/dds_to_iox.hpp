@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,9 +28,7 @@ namespace iox
 {
 namespace dds
 {
-///
 /// @brief DDS Gateway implementation for the DDS to iceoryx direction.
-///
 template <typename channel_t = gw::Channel<popo::UntypedPublisher, dds::data_reader_t>,
           typename gateway_t = gw::GatewayGeneric<channel_t>>
 class DDS2IceoryxGateway : public gateway_t
@@ -38,13 +37,30 @@ class DDS2IceoryxGateway : public gateway_t
 
   public:
     DDS2IceoryxGateway() noexcept;
+
+    /// @brief Set DDS to iceoryx gateway object
+    /// @param[in] channelFactory the channel factory to propagate data across
     DDS2IceoryxGateway(ChannelFactory channelFactory) noexcept;
+
+    /// @brief Load the provided gateway configuration; a channel is setup if required (no error check on channel setup)
+    /// @param[in] config the gateway configuration to load
     void loadConfiguration(const config::GatewayConfig& config) noexcept;
+
+    /// @brief Discover messages coming from DDS.
+    /// @param[in] msg the discovery message.
     void discover(const capro::CaproMessage& msg) noexcept;
+
+    /// @brief forward data between the two terminals of the channel used by the implementation.
+    /// @param[in] channel the channel to propagate data across.
     void forward(const channel_t& channel) noexcept;
 
   private:
     void* m_reservedChunk = nullptr;
+
+    /// @brief Setup the channel for the given service
+    /// @param[in] service service description of the service to create a channel for
+    /// @param[in] publisherOptions the publisher options with historyCapacity and queueCapacity
+    /// @return an expected containing a copy of the added channel, otherwise an error
     cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service,
                                                             const popo::PublisherOptions& publisherOptions) noexcept;
 };

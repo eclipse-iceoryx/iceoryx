@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,22 +27,33 @@ namespace iox
 {
 namespace dds
 {
-///
 /// @brief DDS Gateway implementation for the iceoryx to DDS direction.
-///
 template <typename channel_t = gw::Channel<popo::UntypedSubscriber, dds::data_writer_t>,
           typename gateway_t = gw::GatewayGeneric<channel_t>>
 class Iceoryx2DDSGateway : public gateway_t
 {
   public:
     Iceoryx2DDSGateway() noexcept;
+
+    /// @brief Load the provided gateway configuration; a channel is setup if required (no error check on channel setup)
+    /// @param[in] config The gateway configuration to load
     void loadConfiguration(const config::GatewayConfig& config) noexcept;
+
+    /// @brief Discover messages coming from iceoryx.
+    /// @param[in] msg The discovery message.
     void discover(const capro::CaproMessage& msg) noexcept;
+
+    /// @brief Forward data between the two terminals of the channel used by the implementation.
+    /// @param[in] channel The channel to propagate data across.
     void forward(const channel_t& channel) noexcept;
 
   private:
+    /// @brief Setup the channel for the given service
+    /// @param[in] service service description of the service to create a channel for
+    /// @param[in] subscriberOptions the Subscriber Options options with historyCapacity and queueCapacity
+    /// @return an expected containing a copy of the added channel, otherwise an error
     cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service,
-                                                            const popo::SubscriberOptions&) noexcept;
+                                                            const popo::SubscriberOptions& subscriberOptions) noexcept;
 };
 
 } // namespace dds

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,27 +26,49 @@ namespace iox
 {
 namespace dds
 {
-///
 /// @brief Implementation of the DataWriter abstraction using the cyclonedds implementation.
-///
 class CycloneDataWriter : public iox::dds::DataWriter
 {
   public:
     CycloneDataWriter() = delete;
+
+    /// @brief Constructor to set cyclone data writer object from given IDs
+    /// @param[in] serviceId ID of the service
+    /// @param[in] instanceId ID of the instance of the service
+    /// @param[in] eventId ID of the event
     CycloneDataWriter(const capro::IdString_t serviceId,
                       const capro::IdString_t instanceId,
                       const capro::IdString_t eventId) noexcept;
+
     virtual ~CycloneDataWriter();
+
     CycloneDataWriter(const CycloneDataWriter&) = delete;
     CycloneDataWriter& operator=(const CycloneDataWriter&) = delete;
-    // Required for vector
-    CycloneDataWriter(CycloneDataWriter&&) = default;
-    CycloneDataWriter& operator=(CycloneDataWriter&&) = default;
 
+    /// @brief Default move constructor to set the cyclone data writer
+    /// @param[in] rhs cyclone data writer source to move-construct elements from
+    /// @note Required for vector
+    CycloneDataWriter(CycloneDataWriter&& rhs) = default;
+
+    /// @brief Default move assignment operator
+    /// @param[in] rhs cyclone data writer source to move-construct elements from
+    CycloneDataWriter& operator=(CycloneDataWriter&& rhs) = default;
+
+    /// @brief connect cyclone data writer to the underlying DDS network
     void connect() noexcept override;
+
+    /// @brief write the provided bytes on the DDS network on the topic: serviceId/instanceId/eventId
+    /// @param[in] bytes pointer to start of data to write
+    /// @param[in] size size of data to write
     void write(const uint8_t* const bytes, const uint64_t size) noexcept override;
+
+    /// @brief get ID of the service
     capro::IdString_t getServiceId() const noexcept override;
+
+    /// @brief get ID of the instance
     capro::IdString_t getInstanceId() const noexcept override;
+
+    /// @brief get ID of the event
     capro::IdString_t getEventId() const noexcept override;
 
   private:
