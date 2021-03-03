@@ -1,4 +1,5 @@
-# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -81,9 +82,9 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
         POSITION_INDEPENDENT_CODE ON
     )
 
-    if(test_with_additional_user)
+    if(TEST_WITH_ADDITIONAL_USER)
         target_compile_definitions(iceoryx_utils_testing PUBLIC -DTEST_WITH_ADDITIONAL_USER)
-    endif(test_with_additional_user)
+    endif(TEST_WITH_ADDITIONAL_USER)
 
     target_include_directories(iceoryx_utils_testing
         PUBLIC

@@ -30,6 +30,7 @@ namespace popo
 {
 enum class ChunkReceiveResult
 {
+    INVALID_STATE,
     TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
     NO_CHUNK_AVAILABLE
 };

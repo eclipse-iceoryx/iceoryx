@@ -24,6 +24,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 namespace iox
@@ -46,6 +47,10 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
+    if (cxx::isCompiledOn32BitSystem())
+    {
+        LogWarn() << "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
+    }
     m_processIntrospection.registerPublisherPort(PublisherPortUserType(
         m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, IPC_CHANNEL_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);
