@@ -36,7 +36,7 @@ target_compile_options(iox-ex-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SA
 
 add_executable(iox-ex-publisher-with-history ./iox_publisher_with_history.cpp)
 target_link_libraries(iox-ex-publisher-with-history
-    iceoryx_posh::iceoryx_posh
+    iceoryx_posh::iceoryx_posh #Should link against iceoryx_runtime (which depends on iceoryx_posh)
 )
 target_compile_options(iox-ex-publisher-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
