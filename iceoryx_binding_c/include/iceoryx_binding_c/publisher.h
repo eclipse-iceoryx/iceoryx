@@ -81,7 +81,7 @@ ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const 
 /// @brief frees a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher
 /// @param[in] chunk chunk which should be free'd
-void iox_pub_free_chunk(iox_pub_t const self, void* const chunk);
+void iox_pub_release_chunk(iox_pub_t const self, void* const chunk);
 
 /// @brief sends a previously allocated chunk
 /// @param[in] self handle of the publisher

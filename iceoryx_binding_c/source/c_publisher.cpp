@@ -109,7 +109,7 @@ iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk
     return AllocationResult_SUCCESS;
 }
 
-void iox_pub_free_chunk(iox_pub_t const self, void* const chunk)
+void iox_pub_release_chunk(iox_pub_t const self, void* const chunk)
 {
     PublisherPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
 }

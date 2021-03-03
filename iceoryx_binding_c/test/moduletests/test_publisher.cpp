@@ -217,7 +217,7 @@ TEST_F(iox_pub_test, freeingAnAllocatedChunkReleasesTheMemory)
 {
     void* chunk = nullptr;
     iox_pub_loan_chunk(&m_sut, &chunk, 100);
-    iox_pub_free_chunk(&m_sut, chunk);
+    iox_pub_release_chunk(&m_sut, chunk);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
