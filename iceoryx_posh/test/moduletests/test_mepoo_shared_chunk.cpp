@@ -37,10 +37,15 @@ class SharedChunk_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader();
+        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(PAYLOAD_SIZE,
+                                                                 iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                                                 iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                                 iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
         new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return v;
     }
+
+    static constexpr uint32_t PAYLOAD_SIZE{64};
 
     char memory[4096];
     iox::posix::Allocator allocator{memory, 4096};

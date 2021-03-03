@@ -16,6 +16,7 @@
 #ifndef IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 #define IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
@@ -26,17 +27,27 @@
 #include <malloc.h>
 #endif
 
-template <typename Topic>
+template <typename Topic, typename CustomHeader = iox::mepoo::NoCustomHeader>
 class ChunkMock
 {
   public:
     ChunkMock()
     {
-        m_rawMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(Alignment, Size));
-        assert(m_rawMemory != nullptr && "Could not get aligned memory");
-        memset(m_rawMemory, 0xFF, Size);
+        const uint32_t payloadSize = sizeof(Topic);
+        const uint32_t payloadAlignment = alignof(Topic);
+        const uint32_t customHeaderSize =
+            std::is_same<CustomHeader, iox::mepoo::NoCustomHeader>::value ? 0U : sizeof(CustomHeader);
+        const uint32_t customHeaderAlignment = alignof(CustomHeader);
 
-        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader();
+        auto requiredSize = iox::mepoo::MemoryManager::requiredChunkSize(
+            payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+
+        m_rawMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignof(iox::mepoo::ChunkHeader), requiredSize));
+        assert(m_rawMemory != nullptr && "Could not get aligned memory");
+        memset(m_rawMemory, 0xFF, requiredSize);
+
+        m_chunkHeader = new (m_rawMemory)
+            iox::mepoo::ChunkHeader(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
         m_topic = static_cast<Topic*>(m_chunkHeader->payload());
     }
     ~ChunkMock()

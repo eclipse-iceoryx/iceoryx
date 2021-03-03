@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
@@ -91,12 +92,46 @@ MemPoolInfo MemoryManager::getMemPoolInfo(uint32_t index) const
 }
 
 uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
-                                          const uint32_t payloadAlignment [[gnu::unused]],
-                                          const uint32_t customHeaderSize [[gnu::unused]],
-                                          const uint32_t customHeaderAlignment [[gnu::unused]])
+                                          const uint32_t payloadAlignment,
+                                          const uint32_t customHeaderSize,
+                                          const uint32_t customHeaderAlignment)
 {
-    // TODO iox-#14 calculate correct size
-    return payloadSize + static_cast<uint32_t>(sizeof(ChunkHeader));
+    // TODO return cxx::expected instead of doing the assert
+    assert(customHeaderAlignment <= alignof(ChunkHeader));
+
+    // have a look at »Required Chunk Size Calculation« in chunk_header.md for more details regarding the calculation
+    if (customHeaderSize == 0)
+    {
+        // the most simple case with no custom header and the payload adjacent to the ChunkHeader
+        if (payloadAlignment <= alignof(mepoo::ChunkHeader))
+        {
+            uint64_t chunkSize = static_cast<uint64_t>(sizeof(ChunkHeader)) + payloadSize;
+
+            assert(chunkSize <= std::numeric_limits<uint32_t>::max());
+
+            return static_cast<uint32_t>(chunkSize);
+        }
+
+        // the second most simple case with no custom header but the payload alignment
+        // exceeds the ChunkHeader alignment and is therefore not necessarily adjacent
+        uint64_t prePayloadAlignmentOverhang = static_cast<uint64_t>(sizeof(ChunkHeader) - alignof(ChunkHeader));
+        uint64_t chunkSize = prePayloadAlignmentOverhang + payloadAlignment + payloadSize;
+
+        assert(chunkSize <= std::numeric_limits<uint32_t>::max());
+
+        return static_cast<uint32_t>(chunkSize);
+    }
+
+    // the most complex case with a custom header
+    constexpr uint64_t ALIGNMENT_OF_PAYLOAD_OFFSET_T{alignof(ChunkHeader::PayloadOffset_t)};
+    uint64_t headerSize = static_cast<uint64_t>(sizeof(ChunkHeader) + customHeaderSize);
+    uint64_t prePayloadAlignmentOverhang = cxx::align(headerSize, ALIGNMENT_OF_PAYLOAD_OFFSET_T);
+    uint64_t maxAlignment = algorithm::max(ALIGNMENT_OF_PAYLOAD_OFFSET_T, static_cast<uint64_t>(payloadAlignment));
+    uint64_t chunkSize = prePayloadAlignmentOverhang + maxAlignment + payloadSize;
+
+    assert(chunkSize <= std::numeric_limits<uint32_t>::max());
+
+    return static_cast<uint32_t>(chunkSize);
 }
 
 uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size)
@@ -161,18 +196,18 @@ SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
 {
     void* chunk{nullptr};
     MemPool* memPoolPointer{nullptr};
-    uint32_t adjustedSize =
+    uint32_t requiredChunkSize =
         MemoryManager::requiredChunkSize(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
-    uint32_t totalSizeOfAquiredChunk = 0;
+    uint32_t aquiredChunkSize = 0;
 
     for (auto& memPool : m_memPoolVector)
     {
         uint32_t chunkSizeOfMemPool = memPool.getChunkSize();
-        if (chunkSizeOfMemPool >= adjustedSize)
+        if (chunkSizeOfMemPool >= requiredChunkSize)
         {
             chunk = memPool.getChunk();
             memPoolPointer = &memPool;
-            totalSizeOfAquiredChunk = chunkSizeOfMemPool;
+            aquiredChunkSize = chunkSizeOfMemPool;
             break;
         }
     }
@@ -188,7 +223,7 @@ SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
     {
         std::cerr << "The following mempools are available:" << std::endl;
         printMemPoolVector();
-        std::cerr << "\nCould not find a fitting mempool for a chunk of size " << adjustedSize << std::endl;
+        std::cerr << "\nCould not find a fitting mempool for a chunk of size " << requiredChunkSize << std::endl;
 
         errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE, nullptr, ErrorLevel::SEVERE);
         return SharedChunk(nullptr);
@@ -203,8 +238,9 @@ SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
     }
     else
     {
-        auto chunkHeader = new (chunk) ChunkHeader();
-        chunkHeader->chunkSize = totalSizeOfAquiredChunk;
+        auto chunkHeader =
+            new (chunk) ChunkHeader(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        chunkHeader->chunkSize = aquiredChunkSize;
         chunkHeader->payloadSize = payloadSize;
         auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
             ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());

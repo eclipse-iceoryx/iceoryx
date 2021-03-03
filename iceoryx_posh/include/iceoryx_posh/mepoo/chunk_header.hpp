@@ -25,17 +25,30 @@ namespace iox
 {
 namespace mepoo
 {
+/// @brief Helper struct to use as default template parameter when no custom header is used
+struct NoCustomHeader
+{
+};
+
 /// @brief IMPORTANT the alignment MUST be 32 or less since all mempools are
 ///         32 byte aligned otherwise we get alignment problems!
 struct alignas(32) ChunkHeader
 {
-    ChunkHeader() noexcept;
+    using PayloadOffset_t = uint32_t;
 
-    /// @brief From the 1.0 release onward, this must be incremented for each incompatible change, e.g.
-    ///            - data width of members changes
-    ///            - members are rearranged
-    ///            - semantic meaning of a member changes
-    static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
+    [[gnu::deprecated]] ChunkHeader() noexcept;
+    ChunkHeader(const uint32_t payloadSize,
+                const uint32_t payloadAlignment,
+                const uint32_t customHeaderSize,
+                const uint32_t customHeaderAlignment) noexcept;
+
+        /// @brief From the 1.0 release onward, this must be incremented for each incompatible change, e.g.
+        ///            - data width of members changes
+        ///            - members are rearranged
+        ///            - semantic meaning of a member changes
+        static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
+
+    // BEGIN members
 
     /// @brief The size of the whole chunk, including the header
     uint32_t chunkSize{0U};
@@ -58,7 +71,11 @@ struct alignas(32) ChunkHeader
     uint32_t payloadSize{0U};
 
     /// @brief The offset of the payload relative to the begin of the chunk
-    uint32_t payloadOffset{sizeof(ChunkHeader)};
+    PayloadOffset_t payloadOffset{sizeof(ChunkHeader)};
+
+    // END members
+
+    // BEGIN methods
 
     /// @brief Get a pointer to the payload carried by the chunk
     /// @return the pointer to the payload
@@ -77,6 +94,8 @@ struct alignas(32) ChunkHeader
     /// @brief Calculates the used size of the chunk with the ChunkHeader, custom heander and payload
     /// @return the used size of the chunk
     uint32_t usedSizeOfChunk();
+
+    // END methods
 };
 
 } // namespace mepoo

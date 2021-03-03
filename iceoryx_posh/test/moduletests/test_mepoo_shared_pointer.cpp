@@ -112,7 +112,10 @@ class SharedPointer_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader();
+        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(PAYLOAD_SIZE,
+                                                                 iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                                                 iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                                 iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
         new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return v;
     }
@@ -125,10 +128,12 @@ class SharedPointer_Test : public Test
 
     int resetCounter = ResetCounter();
 
+    static constexpr uint32_t PAYLOAD_SIZE{64};
+
     char memory[4096];
     iox::posix::Allocator allocator{memory, 4096};
-    MemPool mempool{64, 10, &allocator, &allocator};
-    MemPool chunkMgmtPool{64, 10, &allocator, &allocator};
+    MemPool mempool{PAYLOAD_SIZE, 10, &allocator, &allocator};
+    MemPool chunkMgmtPool{PAYLOAD_SIZE, 10, &allocator, &allocator};
 
     void* memoryChunk{mempool.getChunk()};
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);

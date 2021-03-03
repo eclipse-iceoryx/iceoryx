@@ -24,6 +24,13 @@ namespace mepoo
 ChunkHeader::ChunkHeader() noexcept
 {
 }
+ChunkHeader::ChunkHeader(const uint32_t payloadSize,
+                         const uint32_t payloadAlignment,
+                         const uint32_t customHeaderSize,
+                         const uint32_t customHeaderAlignment) noexcept
+{
+    // have a look at »Payload Offset Calculation« in chunk_header.md for more details regarding the calculation
+}
 
 void* ChunkHeader::payload() const noexcept
 {
