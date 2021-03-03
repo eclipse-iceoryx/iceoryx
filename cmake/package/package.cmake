@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ project(iceoryx VERSION ${iceoryx_VERSION})
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "iceoryx-${iceoryx_VERSION}")
-#set(CPACK_PACKAGE_VERSION "${iceoryx_VERSION}")
 set(CPACK_PACKAGE_FILE_NAME "iceoryx_${iceoryx_VERSION}_${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libacl1-dev,libncurses5-dev")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "iceoryx inter-process-communication (IPC) middleware")
