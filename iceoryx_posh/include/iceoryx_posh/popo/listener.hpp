@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_ACTIVE_CALL_SET_HPP
-#define IOX_POSH_POPO_ACTIVE_CALL_SET_HPP
+#ifndef IOX_POSH_POPO_LISTENER_HPP
+#define IOX_POSH_POPO_LISTENER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/event_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
@@ -34,17 +34,17 @@ namespace iox
 {
 namespace popo
 {
-enum class ActiveCallSetError
+enum class ListenerError
 {
     INVALID_STATE,
-    ACTIVE_CALL_SET_FULL,
+    LISTENER_FULL,
     EVENT_ALREADY_ATTACHED,
 };
 
-/// @brief The ActiveCallSet is a class which reacts to registered events by
+/// @brief The Listener is a class which reacts to registered events by
 ///        executing a corresponding callback concurrently. This is achieved via
 ///        an encapsulated thread inside this class.
-/// @note  The ActiveCallSet is threadsafe and can be used without any restrictions concurrently.
+/// @note  The Listener is threadsafe and can be used without any restrictions concurrently.
 /// @attention Calling detachEvent for the same event from multiple threads is supported but
 ///            can cause a race conditions if you attach the same event again concurrently from
 ///            another thread.
@@ -62,7 +62,7 @@ enum class ActiveCallSetError
 ///
 ///            Best practice: Detach a specific event only from one specific thread and not
 ///                           from multiple contexts.
-class ActiveCallSet
+class Listener
 {
   public:
     template <typename T>
@@ -73,13 +73,13 @@ class ActiveCallSet
     using CallbackPtr_t = void (*)(T* const);
     using TranslationCallbackPtr_t = void (*)(void* const, void (*const)(void* const));
 
-    ActiveCallSet() noexcept;
-    ActiveCallSet(const ActiveCallSet&) = delete;
-    ActiveCallSet(ActiveCallSet&&) = delete;
-    ~ActiveCallSet();
+    Listener() noexcept;
+    Listener(const Listener&) = delete;
+    Listener(Listener&&) = delete;
+    ~Listener();
 
-    ActiveCallSet& operator=(const ActiveCallSet&) = delete;
-    ActiveCallSet& operator=(ActiveCallSet&&) = delete;
+    Listener& operator=(const Listener&) = delete;
+    Listener& operator=(Listener&&) = delete;
 
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
     ///        the corresponding callback which will be called when the event occurs.
@@ -89,7 +89,7 @@ class ActiveCallSet
     /// @param[in] eventCallback callback which will be executed concurrently when the event occurs
     /// @return If an error occurs the enum packed inside an expected which describes the error.
     template <typename T>
-    cxx::expected<ActiveCallSetError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
+    cxx::expected<ListenerError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
 
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin, an enum which further
     ///        defines the event inside the class and the corresponding callback which will be called when the event
@@ -101,7 +101,7 @@ class ActiveCallSet
     /// @param[in] eventCallback callback which will be executed concurrently when the event occurs
     /// @return If an error occurs the enum packed inside an expected which describes the error.
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
-    cxx::expected<ActiveCallSetError>
+    cxx::expected<ListenerError>
     attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept;
 
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
@@ -119,22 +119,22 @@ class ActiveCallSet
     template <typename T>
     void detachEvent(T& eventOrigin) noexcept;
 
-    /// @brief Returns the capacity of the ActiveCallSet
-    /// @return capacity of the ActiveCallSet
+    /// @brief Returns the capacity of the Listener
+    /// @return capacity of the Listener
     static constexpr uint64_t capacity() noexcept;
 
-    /// @brief Returns the size of the ActiveCallSet
-    /// @return size of the ActiveCallSet
+    /// @brief Returns the size of the Listener
+    /// @return size of the Listener
     uint64_t size() const noexcept;
 
   protected:
-    ActiveCallSet(EventVariableData* eventVariable) noexcept;
+    Listener(EventVariableData* eventVariable) noexcept;
 
   private:
     class Event_t;
 
     void threadLoop() noexcept;
-    cxx::expected<uint32_t, ActiveCallSetError>
+    cxx::expected<uint32_t, ListenerError>
     addEvent(void* const origin,
              const uint64_t eventType,
              const uint64_t eventTypeHash,
@@ -189,7 +189,7 @@ class ActiveCallSet
         void push(const uint32_t index) noexcept;
         uint64_t indicesInUse() const noexcept;
 
-        uint32_t m_loffliStorage[concurrent::LoFFLi::requiredMemorySize(MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+        uint32_t m_loffliStorage[concurrent::LoFFLi::requiredMemorySize(MAX_NUMBER_OF_EVENTS_PER_LISTENER)
                                  / sizeof(uint32_t)];
         concurrent::LoFFLi m_loffli;
         std::atomic<uint64_t> m_indicesInUse{0U};
@@ -197,7 +197,7 @@ class ActiveCallSet
 
 
     std::thread m_thread;
-    concurrent::smart_lock<Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
+    concurrent::smart_lock<Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS_PER_LISTENER];
     std::mutex m_addEventMutex;
 
     std::atomic_bool m_wasDtorCalled{false};
@@ -207,6 +207,6 @@ class ActiveCallSet
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/active_call_set.inl"
+#include "iceoryx_posh/internal/popo/listener.inl"
 
 #endif

@@ -107,7 +107,7 @@ add_library(iceoryx_posh
     source/popo/building_blocks/event_notifier.cpp    
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
-    source/popo/active_call_set.cpp
+    source/popo/listener.cpp
     source/popo/event_info.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp

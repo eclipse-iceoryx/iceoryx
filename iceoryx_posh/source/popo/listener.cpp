@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/active_call_set.hpp"
+#include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -24,19 +24,19 @@ namespace iox
 {
 namespace popo
 {
-ActiveCallSet::ActiveCallSet() noexcept
-    : ActiveCallSet(runtime::PoshRuntime::getInstance().getMiddlewareEventVariable())
+Listener::Listener() noexcept
+    : Listener(runtime::PoshRuntime::getInstance().getMiddlewareEventVariable())
 {
 }
 
-ActiveCallSet::ActiveCallSet(EventVariableData* eventVariable) noexcept
+Listener::Listener(EventVariableData* eventVariable) noexcept
     : m_eventVariable(eventVariable)
     , m_eventListener(*eventVariable)
 {
-    m_thread = std::thread(&ActiveCallSet::threadLoop, this);
+    m_thread = std::thread(&Listener::threadLoop, this);
 }
 
-ActiveCallSet::~ActiveCallSet()
+Listener::~Listener()
 {
     m_wasDtorCalled.store(true, std::memory_order_relaxed);
     m_eventListener.destroy();
@@ -45,40 +45,40 @@ ActiveCallSet::~ActiveCallSet()
     m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
-cxx::expected<uint32_t, ActiveCallSetError>
-ActiveCallSet::addEvent(void* const origin,
-                        const uint64_t eventType,
-                        const uint64_t eventTypeHash,
-                        CallbackRef_t<void> callback,
-                        TranslationCallbackRef_t translationCallback,
-                        const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
+cxx::expected<uint32_t, ListenerError>
+Listener::addEvent(void* const origin,
+                   const uint64_t eventType,
+                   const uint64_t eventTypeHash,
+                   CallbackRef_t<void> callback,
+                   TranslationCallbackRef_t translationCallback,
+                   const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
     std::lock_guard<std::mutex> lock(m_addEventMutex);
 
-    for (uint32_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET; ++i)
+    for (uint32_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
     {
         if (m_events[i]->isEqualTo(origin, eventType, eventTypeHash))
         {
-            return cxx::error<ActiveCallSetError>(ActiveCallSetError::EVENT_ALREADY_ATTACHED);
+            return cxx::error<ListenerError>(ListenerError::EVENT_ALREADY_ATTACHED);
         }
     }
 
     uint32_t index = 0U;
     if (!m_indexManager.pop(index))
     {
-        return cxx::error<ActiveCallSetError>(ActiveCallSetError::ACTIVE_CALL_SET_FULL);
+        return cxx::error<ListenerError>(ListenerError::LISTENER_FULL);
     }
 
     m_events[index]->init(index, origin, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
     return cxx::success<uint32_t>(index);
 }
 
-uint64_t ActiveCallSet::size() const noexcept
+uint64_t Listener::size() const noexcept
 {
     return m_indexManager.indicesInUse();
 }
 
-void ActiveCallSet::threadLoop() noexcept
+void Listener::threadLoop() noexcept
 {
     while (m_wasDtorCalled.load(std::memory_order_relaxed) == false)
     {
@@ -88,9 +88,9 @@ void ActiveCallSet::threadLoop() noexcept
     }
 }
 
-void ActiveCallSet::removeTrigger(const uint64_t index) noexcept
+void Listener::removeTrigger(const uint64_t index) noexcept
 {
-    if (index >= MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+    if (index >= MAX_NUMBER_OF_EVENTS_PER_LISTENER)
     {
         return;
     }
@@ -104,12 +104,12 @@ void ActiveCallSet::removeTrigger(const uint64_t index) noexcept
 ////////////////
 // Event_t
 ////////////////
-ActiveCallSet::Event_t::~Event_t()
+Listener::Event_t::~Event_t()
 {
     reset();
 }
 
-void ActiveCallSet::Event_t::executeCallback() noexcept
+void Listener::Event_t::executeCallback() noexcept
 {
     if (!isInitialized())
     {
@@ -119,13 +119,13 @@ void ActiveCallSet::Event_t::executeCallback() noexcept
     m_translationCallback(m_origin, m_callback);
 }
 
-void ActiveCallSet::Event_t::init(const uint64_t eventId,
-                                  void* const origin,
-                                  const uint64_t eventType,
-                                  const uint64_t eventTypeHash,
-                                  CallbackRef_t<void> callback,
-                                  TranslationCallbackRef_t translationCallback,
-                                  const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
+void Listener::Event_t::init(const uint64_t eventId,
+                             void* const origin,
+                             const uint64_t eventType,
+                             const uint64_t eventTypeHash,
+                             CallbackRef_t<void> callback,
+                             TranslationCallbackRef_t translationCallback,
+                             const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
     m_eventId = eventId;
     m_origin = origin;
@@ -136,14 +136,14 @@ void ActiveCallSet::Event_t::init(const uint64_t eventId,
     m_invalidationCallback = invalidationCallback;
 }
 
-bool ActiveCallSet::Event_t::isEqualTo(const void* const origin,
-                                       const uint64_t eventType,
-                                       const uint64_t eventTypeHash) const noexcept
+bool Listener::Event_t::isEqualTo(const void* const origin,
+                                  const uint64_t eventType,
+                                  const uint64_t eventTypeHash) const noexcept
 {
     return (m_origin == origin && m_eventType == eventType && m_eventTypeHash == eventTypeHash);
 }
 
-bool ActiveCallSet::Event_t::reset() noexcept
+bool Listener::Event_t::reset() noexcept
 {
     if (isInitialized())
     {
@@ -162,7 +162,7 @@ bool ActiveCallSet::Event_t::reset() noexcept
     return false;
 }
 
-bool ActiveCallSet::Event_t::isInitialized() const noexcept
+bool Listener::Event_t::isInitialized() const noexcept
 {
     return m_origin != nullptr && m_eventId != INVALID_ID && m_eventType != INVALID_ID && m_eventTypeHash != INVALID_ID
            && m_callback != nullptr && m_translationCallback != nullptr
@@ -173,12 +173,12 @@ bool ActiveCallSet::Event_t::isInitialized() const noexcept
 // IndexManager_t
 //////////////////
 
-ActiveCallSet::IndexManager_t::IndexManager_t() noexcept
+Listener::IndexManager_t::IndexManager_t() noexcept
 {
-    m_loffli.init(m_loffliStorage, MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET);
+    m_loffli.init(m_loffliStorage, MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 }
 
-bool ActiveCallSet::IndexManager_t::pop(uint32_t& value) noexcept
+bool Listener::IndexManager_t::pop(uint32_t& value) noexcept
 {
     if (m_loffli.pop(value))
     {
@@ -188,13 +188,13 @@ bool ActiveCallSet::IndexManager_t::pop(uint32_t& value) noexcept
     return false;
 }
 
-void ActiveCallSet::IndexManager_t::push(const uint32_t index) noexcept
+void Listener::IndexManager_t::push(const uint32_t index) noexcept
 {
     cxx::Expects(m_loffli.push(index));
     --m_indicesInUse;
 }
 
-uint64_t ActiveCallSet::IndexManager_t::indicesInUse() const noexcept
+uint64_t Listener::IndexManager_t::indicesInUse() const noexcept
 {
     return m_indicesInUse.load(std::memory_order_relaxed);
 }

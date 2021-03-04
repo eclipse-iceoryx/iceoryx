@@ -35,7 +35,7 @@ struct EventVariableData : public ConditionVariableData
     /// @param process name of process
     EventVariableData(const ProcessName_t& process) noexcept;
 
-    std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET];
+    std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_EVENTS_PER_LISTENER];
 };
 } // namespace popo
 } // namespace iox
