@@ -139,7 +139,7 @@ TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
     ASSERT_FALSE(maybeChunk.has_error());
     EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->payload());
     // ===== Cleanup ===== //
-    sut.releaseChunk(maybeChunk.value());
+    sut.release(maybeChunk.value());
 }
 
 TEST_F(UntypedSubscriberTest, ReleasesQueuedDataViaBaseSubscriber)
