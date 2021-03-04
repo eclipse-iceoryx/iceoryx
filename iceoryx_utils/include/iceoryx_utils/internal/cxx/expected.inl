@@ -29,7 +29,7 @@ struct HasInvalidStateMember : std::false_type
 {
 };
 template <typename T>
-struct HasInvalidStateMember<T, std::void_t<decltype(T::INVALID_STATE)>> : std::true_type
+struct HasInvalidStateMember<T, iox::cxx::void_t<decltype(T::INVALID_STATE)>> : std::true_type
 {
 };
 template <typename... T>
