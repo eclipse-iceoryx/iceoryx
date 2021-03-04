@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
@@ -157,32 +160,34 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         while (!finished)
         {
             m_chunkReceiver.tryGet()
-                .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
-                    if (maybeChunkHeader.has_value())
-                    {
-                        auto chunkHeader = maybeChunkHeader.value();
-                        auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
-                        // Check if monotonically increasing
-                        EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
-                        m_receiveCounter++;
-                        m_chunkReceiver.release(chunkHeader);
-                        newChunkReceivedInLastIteration = true;
-                    }
-                    else if (!m_forwarderRun.load(std::memory_order_relaxed))
-                    {
-                        if (newChunkReceivedInLastIteration)
-                        {
-                            newChunkReceivedInLastIteration = false;
-                        }
-                        else
-                        {
-                            finished = true;
-                        }
-                    }
+                .and_then([&](auto& chunkHeader) {
+                    auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
+                    // Check if monotonically increasing
+                    EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
+                    m_receiveCounter++;
+                    m_chunkReceiver.release(chunkHeader);
+                    newChunkReceivedInLastIteration = true;
                 })
-                .or_else([](ChunkReceiveResult) {
-                    // Errors shall never occur
-                    FAIL();
+                .or_else([&](auto& result) {
+                    if (result == ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                    {
+                        if (!m_forwarderRun.load(std::memory_order_relaxed))
+                        {
+                            if (newChunkReceivedInLastIteration)
+                            {
+                                newChunkReceivedInLastIteration = false;
+                            }
+                            else
+                            {
+                                finished = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Errors shall never occur
+                        FAIL();
+                    }
                 });
         }
     }

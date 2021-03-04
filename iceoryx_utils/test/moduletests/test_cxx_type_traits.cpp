@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/type_traits.hpp"
 #include "test.hpp"
@@ -56,4 +58,42 @@ TEST(TypeTraitsTest, NotSameIsFalse)
 {
     auto sut = not_same<int, int>::value;
     EXPECT_FALSE(sut);
+}
+
+namespace iox
+{
+namespace cxx
+{
+namespace test
+{
+template <typename, typename = void>
+struct has_mytype_as_member : std::false_type
+{
+};
+
+template <typename T>
+struct has_mytype_as_member<T, void_t<typename T::myType>> : std::true_type
+{
+};
+} // namespace test
+} // namespace cxx
+} // namespace iox
+
+TEST(TypeTraitsTest, NoTypeAsMemberIsFalse)
+{
+    struct Sut
+    {
+    };
+
+    EXPECT_FALSE(iox::cxx::test::has_mytype_as_member<Sut>::value);
+}
+
+TEST(TypeTraitsTest, MyTypeAsMemberIsTrue)
+{
+    struct Sut
+    {
+        using myType = int;
+    };
+
+    EXPECT_TRUE(iox::cxx::test::has_mytype_as_member<Sut>::value);
 }

@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -62,9 +65,8 @@ void ConditionVariableWaiter::wait() noexcept
 
 bool ConditionVariableWaiter::timedWait(units::Duration timeToWait) noexcept
 {
-    auto timeout = timeToWait.timespec(units::TimeSpecReference::Epoch);
     auto continueOnInterrupt{false};
-    auto result = getMembers()->m_semaphore.timedWait(&timeout, continueOnInterrupt);
+    auto result = getMembers()->m_semaphore.timedWait(timeToWait, continueOnInterrupt);
 
     if (result.has_error())
     {

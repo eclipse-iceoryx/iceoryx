@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_BINDING_C_ENUMS_H
 #define IOX_BINDING_C_ENUMS_H
@@ -18,7 +21,7 @@
 /// @brief describes events which can be triggered by a subscriber
 enum iox_SubscriberEvent
 {
-    SubscriberEvent_HAS_SAMPLES,
+    SubscriberEvent_HAS_DATA,
 };
 
 /// @brief describes the current state of a subscriber
@@ -36,7 +39,7 @@ enum iox_SubscribeState
 enum iox_ChunkReceiveResult
 {
     ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
-    ChunkReceiveResult_NO_CHUNK_RECEIVED,
+    ChunkReceiveResult_NO_CHUNK_AVAILABLE,
     ChunkReceiveResult_UNDEFINED_ERROR,
     ChunkReceiveResult_SUCCESS,
 };

@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
 
@@ -55,6 +58,22 @@ class alignas(32) TypedMemPool_test : public Test
 
     TypedMemPool<TestClass> sut;
 };
+
+namespace iox
+{
+namespace cxx
+{
+template <>
+struct ErrorTypeAdapter<cxx::variant<mepoo::TypedMemPoolError, posix::SemaphoreError>>
+{
+    static variant<mepoo::TypedMemPoolError, posix::SemaphoreError> getInvalidState()
+    {
+        return variant<mepoo::TypedMemPoolError, posix::SemaphoreError>(iox::cxx::in_place_index<0>(),
+                                                                        mepoo::TypedMemPoolError::INVALID_STATE);
+    };
+};
+} // namespace cxx
+} // namespace iox
 
 TEST_F(TypedMemPool_test, GetOneObject)
 {

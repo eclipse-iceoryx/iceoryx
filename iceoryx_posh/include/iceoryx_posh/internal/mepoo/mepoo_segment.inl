@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 
@@ -30,7 +33,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
                                                                              const posix::PosixGroup& f_readerGroup,
                                                                              const posix::PosixGroup& f_writerGroup,
                                                                              const iox::mepoo::MemoryInfo& memoryInfo)
-    : m_sharedMemoryObject(createSharedMemoryObject(f_mempoolConfig, f_writerGroup))
+    : m_sharedMemoryObject(std::move(createSharedMemoryObject(f_mempoolConfig, f_writerGroup)))
     , m_readerGroup(f_readerGroup)
     , m_writerGroup(f_writerGroup)
     , m_memoryInfo(memoryInfo)
@@ -65,25 +68,25 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
     constexpr void* BASE_ADDRESS_HINT{nullptr};
 
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    auto shmName = "/" + f_writerGroup.getName();
-    auto retVal = SharedMemoryObjectType::create(shmName.c_str(),
-                                                 MemoryManager::requiredChunkMemorySize(f_mempoolConfig),
-                                                 posix::AccessMode::readWrite,
-                                                 posix::OwnerShip::mine,
-                                                 BASE_ADDRESS_HINT,
-                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-    if (!retVal.has_value())
-    {
-        errorHandler(Error::kMEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT);
-    }
+    posix::SharedMemory::Name_t shmName = "/" + f_writerGroup.getName();
 
-    setSegmentId(iox::RelativePointer::registerPtr(retVal->getBaseAddress(), retVal->getSizeInBytes()));
+    return std::move(
+        SharedMemoryObjectType::create(shmName,
+                                       MemoryManager::requiredChunkMemorySize(f_mempoolConfig),
+                                       posix::AccessMode::READ_WRITE,
+                                       posix::OwnerShip::MINE,
+                                       BASE_ADDRESS_HINT,
+                                       static_cast<mode_t>(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
+            .and_then([this](auto& sharedMemoryObject) {
+                setSegmentId(iox::RelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
+                                                               sharedMemoryObject.getSizeInBytes()));
 
-    LogDebug() << "Roudi registered payload segment "
-               << iox::log::HexFormat(reinterpret_cast<uint64_t>(retVal->getBaseAddress())) << " with size "
-               << retVal->getSizeInBytes() << " to id " << m_segmentId;
-
-    return std::move(retVal.value());
+                LogDebug() << "Roudi registered payload segment "
+                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
+                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << m_segmentId;
+            })
+            .or_else([](auto&) { errorHandler(Error::kMEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
+            .value());
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>

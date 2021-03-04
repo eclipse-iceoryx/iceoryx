@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP
 #define IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP
@@ -22,7 +25,7 @@ namespace iox
 {
 namespace popo
 {
-template <typename base_publisher_t = BasePublisher<void>>
+template <typename base_publisher_t = BasePublisher<>>
 class UntypedPublisherImpl : public base_publisher_t
 {
   public:
@@ -34,24 +37,40 @@ class UntypedPublisherImpl : public base_publisher_t
     UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) = default;
     virtual ~UntypedPublisherImpl() = default;
 
-    using base_publisher_t::getServiceDescription;
-    using base_publisher_t::getUid;
-    using base_publisher_t::hasSubscribers;
-    using base_publisher_t::isOffered; // iox-#408 better hasOffered ?
-    using base_publisher_t::loan;      // iox-#408 replace
-    using base_publisher_t::loan_1_0;
-    using base_publisher_t::loanPreviousChunk;
-    using base_publisher_t::loanPreviousSample; // iox-#408 replace
-    using base_publisher_t::offer;
-    using base_publisher_t::publish;
-    using base_publisher_t::stopOffer;
+    ///
+    /// @brief loan Get a chunk from loaned shared memory.
+    /// @param size The expected size of the chunk.
+    /// @return A pointer to a chunk of memory with the requested size or
+    ///         an AllocationError if no chunk could be loaned.
+    /// @note An AllocationError occurs if no chunk is available in the shared memory.
+    ///
+    cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
+
+    ///
+    /// @brief loanPreviousChunk Get the previously loaned chunk if possible.
+    /// @return A pointer to the previous chunk if available, nullopt otherwise.
+    ///
+    cxx::optional<void*> loanPreviousChunk() noexcept;
 
     ///
     /// @brief publish Publish the provided memory chunk.
-    /// @param allocatedMemory Pointer to the allocated shared memory chunk.
+    /// @param chunk Pointer to the allocated shared memory chunk.
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
-    void publish(void* allocatedMemory) noexcept;
+    void publish(const void* chunk) noexcept;
+
+    ///
+    /// @brief Releases the ownership of the chunk provided by the payload pointer.
+    /// @param chunk pointer to the payload of the chunk to be released
+    /// @details The chunk must have been previously provided by loan or loanPreviousChunk
+    ///          and not have been already released.
+    ///          The chunk must not be accessed afterwards as its memory may have
+    ///          been reclaimed.
+    ///
+    void release(const void* chunk) noexcept;
+
+  protected:
+    using base_publisher_t::port;
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;

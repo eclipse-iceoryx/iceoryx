@@ -43,7 +43,10 @@ jobs:
         run: |
           source /opt/ros/foxy/setup.bash
           cd $GITHUB_WORKSPACE
-          ament_copyright --exclude LICENSE CONTRIBUTING.md
+          sudo rm -rf /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/template/apache2_header.txt
+          sudo cp -rf $GITHUB_WORKSPACE/tools/apache2_header.txt /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/template/.
+          sudo sed -i '41 c\"'c'", "'cc'", "'cpp'", "'cxx'", "'h'", "'hh'", "'hpp'", "'hxx'", "'inl'", "'sh'"' /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/main.py
+          ament_copyright --exclude LICENSE CONTRIBUTING.md tools/apache2_header.txt
 
       - name: Build & Test
         run: |

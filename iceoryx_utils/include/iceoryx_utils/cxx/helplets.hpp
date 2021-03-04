@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_HELPLETS_HPP
 #define IOX_UTILS_CXX_HELPLETS_HPP
 
@@ -18,6 +21,7 @@
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <assert.h>
+#include <cstdint>
 #include <iostream>
 #include <type_traits>
 
@@ -200,6 +204,13 @@ static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
 #define DISCARD_RESULT_VARIABLE(name, suffix) DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix)
 #define DISCARD_RESULT(expr) auto DISCARD_RESULT_VARIABLE(unusedOnLine, __LINE__) [[gnu::unused]] = expr
 // clang-format on
+
+/// @brief Returns info whether called on a 32-bit system
+/// @return True if called on 32-bit, false if not 32-bit system
+constexpr bool isCompiledOn32BitSystem()
+{
+    return INTPTR_MAX == INT32_MAX;
+}
 
 } // namespace cxx
 } // namespace iox

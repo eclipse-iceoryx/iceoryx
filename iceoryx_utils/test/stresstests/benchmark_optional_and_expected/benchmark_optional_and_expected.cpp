@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,13 +12,32 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
 #include "benchmark.hpp"
 
+#include <limits>
+
 uint64_t globalCounter{0U};
+
+namespace iox
+{
+namespace cxx
+{
+template <>
+struct ErrorTypeAdapter<uint64_t>
+{
+    static uint64_t getInvalidState()
+    {
+        return 0;
+    };
+};
+} // namespace cxx
+} // namespace iox
 
 template <uint64_t Size>
 struct LargeObject

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -23,7 +25,7 @@ namespace roudi
 DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcept
     : m_introspectionMemPoolBlock(introspectionMemPoolConfig())
     , m_segmentManagerBlock(roudiConfig)
-    , m_managementShm(SHM_NAME, posix::AccessMode::readWrite, posix::OwnerShip::mine)
+    , m_managementShm(SHM_NAME, posix::AccessMode::READ_WRITE, posix::OwnerShip::MINE)
 
 {
     m_managementShm.addMemoryBlock(&m_introspectionMemPoolBlock);

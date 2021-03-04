@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -181,12 +183,12 @@ TEST_F(PublisherPort_test, allocatingAChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 }
 
-TEST_F(PublisherPort_test, freeingAnAllocatedChunkReleasesTheMemory)
+TEST_F(PublisherPort_test, releasingAnAllocatedChunkReleasesTheMemory)
 {
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
     auto chunkHeader = maybeChunkHeader.value();
 
-    m_sutUserSide.freeChunk(chunkHeader);
+    m_sutUserSide.releaseChunk(chunkHeader);
 
     // this one is not stored in the last chunk, so all chunks must be free again
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
@@ -198,7 +200,7 @@ TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
     auto chunkHeader = maybeChunkHeader.value();
 
     EXPECT_THAT(chunkHeader->originId, Eq(m_sutUserSide.getUniqueID()));
-    m_sutUserSide.freeChunk(chunkHeader);
+    m_sutUserSide.releaseChunk(chunkHeader);
 }
 
 TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
