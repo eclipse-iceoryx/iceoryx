@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,15 +62,22 @@ if (BUILD_TEST)
 
     ### create test target with Timing tests
     foreach(cmp IN ITEMS ${COMPONENTS})
-        list(APPEND TIMINGTEST_CMD COMMAND ./${cmp}/test/${cmp}_moduletests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_ModuleTestResults.xml)
+        list(APPEND TIMING_MODULETEST_CMD COMMAND ./${cmp}/test/${cmp}_moduletests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_TimingModuleTestResults.xml)
         if(NOT (cmp STREQUAL "dds_gateway" OR cmp STREQUAL "binding_c"))
-            list(APPEND TIMINGTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_IntegrationTestResults.xml)
+            list(APPEND TIMING_INTEGRATIONTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_TimingIntegrationTestResults.xml)
         endif()    
     endforeach()
 
-    add_custom_target( timing_tests
-        ${TIMINGTEST_CMD}
+    add_custom_target( timing_module_tests
+        ${TIMING_MODULETEST_CMD}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )
+
+    add_custom_target( timing_integration_tests
+        ${TIMING_INTEGRATIONTEST_CMD}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        VERBATIM
+    )
+
 endif()

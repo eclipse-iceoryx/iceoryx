@@ -31,16 +31,6 @@ set_sanitizer_options() {
 
     echo "Project root is PROJECT_ROOT"
 
-    # new_delete_type_mismatch is disabled because of the below error
-    # ==112203==ERROR: AddressSanitizer: new-delete-type-mismatch on 0x622000021100 in thread T0:
-    #   object passed to delete has wrong type:
-    #   size of the allocated type:   5120 bytes;
-    #   size of the deallocated type: 496 bytes.
-    #     #0 0x7fd36deac9d8 in operator delete(void*, unsigned long) (/usr/lib/x86_64-linux-gnu/libasan.so.4+0xe19d8)
-    #     #1 0x55c8284bcc43 in ReceiverPort_test::~ReceiverPort_test() /home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/iceoryx_posh/test/moduletests/test_posh_receiverport.cpp:49
-    #     #2 0x55c8284c15d1 in ReceiverPort_test_newdata_Test::~ReceiverPort_test_newdata_Test() /home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/iceoryx_posh/test/moduletests/test_posh_receiverport.cpp:137
-    #     #3 0x55c8284c15ed in ReceiverPort_test_newdata_Test::~ReceiverPort_test_newdata_Test() /home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/iceoryx_posh/test/moduletests/test_posh_receiverport.cpp:137
-    #     #4 0x55c82857b2fb in testing::Test::DeleteSelf_() (/home/pbt2kor/data/aos/repos/iceoryx_oss/iceoryx/build/posh/test/posh_moduletests+0x3432fb)
     echo "OSTYPE is $OSTYPE"
     if [[ "$OSTYPE" == "linux-gnu"* ]] && [[ $ASAN_ONLY == false ]]; then
         echo " [i] Leaksanitizer enabled"
@@ -75,7 +65,7 @@ for arg in "$@"; do
         ;;
     "asan-only")
         ASAN_ONLY=true
-        TEST_SCOPE="all"
+        TEST_SCOPE="no_timing_test"
         ;;
     "continue-on-error")
         CONTINUE_ON_ERROR=true
@@ -133,15 +123,23 @@ execute_test() {
     case $test_scope in
     "all")
         make all_tests
+        make timing_module_tests
+        make timing_integration_tests
+        ;;
+    "no_timing_test")
+        make all_tests
         ;;
     "unit")
         make module_tests
+        make timing_module_tests
         ;;
     "integration")
         make integration_tests
+        make timing_integration_tests
         ;;
     "timingtest")
-        make timing_tests
+        make timing_module_tests
+        make timing_integration_tests
         ;;
     *)
         echo "Wrong scope $test_scope!"

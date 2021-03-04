@@ -28,12 +28,12 @@ using namespace ::testing;
 using ::testing::_;
 
 // ======================================== Helpers ======================================== //
-using TestChannel = iox::gw::Channel<MockPublisher<void>, MockDataReader>;
+using TestChannel = iox::gw::Channel<MockPublisher, MockDataReader>;
 using TestGateway =
     iox::dds::DDS2IceoryxGateway<TestChannel, MockGenericGateway<TestChannel, iox::popo::PublisherOptions>>;
 
 // ======================================== Fixture ======================================== //
-class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher<void>, MockDataReader>
+class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher, MockDataReader>
 {
 };
 

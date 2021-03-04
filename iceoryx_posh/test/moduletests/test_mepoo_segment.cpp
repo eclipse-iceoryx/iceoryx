@@ -73,6 +73,7 @@ class MePooSegment_test : public Test
                 createVerificator(name, memorySizeInBytes, accessMode, ownerShip, baseAddressHint, permissions);
             }
             filehandle = creat("/tmp/roudi_segment_test", S_IRWXU);
+            m_isInitialized = true;
         }
 
         ~SharedMemoryObject_MOCK()
@@ -134,7 +135,7 @@ class MePooSegment_test : public Test
 
     MePooConfig mepooConfig = setupMepooConfig();
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut{
-        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}};
+        mepooConfig, &m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
 };
 MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedMemoryObject_MOCK::createVerificator;
 
@@ -151,12 +152,12 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
                                                                        const iox::posix::OwnerShip f_ownerShip,
                                                                        const void*,
                                                                        const mode_t) {
-        EXPECT_THAT(std::string(f_name), Eq(std::string("/roudi_test2")));
+        EXPECT_THAT(std::string(f_name), Eq(std::string("/iox_roudi_test2")));
         EXPECT_THAT(f_accessMode, Eq(iox::posix::AccessMode::READ_WRITE));
         EXPECT_THAT(f_ownerShip, Eq(iox::posix::OwnerShip::MINE));
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}};
+        mepooConfig, &m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 }
@@ -173,7 +174,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
         memorySizeInBytes = f_memorySizeInBytes;
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}};
+        mepooConfig, &m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 
@@ -182,12 +183,12 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetReaderGroup))
 {
-    EXPECT_THAT(sut.getReaderGroup(), Eq(iox::posix::PosixGroup("roudi_test1")));
+    EXPECT_THAT(sut.getReaderGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test1")));
 }
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetWriterGroup))
 {
-    EXPECT_THAT(sut.getWriterGroup(), Eq(iox::posix::PosixGroup("roudi_test2")));
+    EXPECT_THAT(sut.getWriterGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test2")));
 }
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))

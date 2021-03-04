@@ -21,6 +21,7 @@
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <assert.h>
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <type_traits>
@@ -259,6 +260,13 @@ using BestFittingType_t = typename bestFittingType<Value>::Type_t;
 #define DISCARD_RESULT_VARIABLE(name, suffix) DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix)
 #define DISCARD_RESULT(expr) auto DISCARD_RESULT_VARIABLE(unusedOnLine, __LINE__) [[gnu::unused]] = expr
 // clang-format on
+
+/// @brief Returns info whether called on a 32-bit system
+/// @return True if called on 32-bit, false if not 32-bit system
+constexpr bool isCompiledOn32BitSystem()
+{
+    return INTPTR_MAX == INT32_MAX;
+}
 
 } // namespace cxx
 } // namespace iox

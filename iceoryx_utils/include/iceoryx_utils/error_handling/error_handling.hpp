@@ -145,7 +145,6 @@ namespace iox
 
 enum class Error : uint32_t
 {
-    INVALID_STATE,
     ICEORYX_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
