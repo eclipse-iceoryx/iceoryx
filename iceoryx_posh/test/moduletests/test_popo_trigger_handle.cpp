@@ -40,13 +40,13 @@ class TriggerHandle_test : public Test
 };
 
 
-TEST_F(TriggerHandle_test, isValidWhenConditionVariableIsNotNull)
+TEST_F(TriggerHandle_test, IsValidWhenConditionVariableIsNotNull)
 {
     EXPECT_TRUE(m_sut.isValid());
     EXPECT_TRUE(m_sut);
 }
 
-TEST_F(TriggerHandle_test, defaultCTorConstructsInvalidHandle)
+TEST_F(TriggerHandle_test, DefaultCTorConstructsInvalidHandle)
 {
     TriggerHandle sut2;
 

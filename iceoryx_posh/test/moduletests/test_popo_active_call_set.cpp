@@ -117,19 +117,12 @@ class SimpleEventClass
     }
     void triggerStoepsel() noexcept
     {
-        m_hasTriggered.store(true);
         m_handleStoepsel.trigger();
-    }
-
-    void resetTrigger() noexcept
-    {
-        m_hasTriggered.store(false);
     }
 
     iox::popo::TriggerHandle m_handleHypnotoad;
     iox::popo::TriggerHandle m_handleStoepsel;
     iox::popo::TriggerHandle m_handleNoEventEnum;
-    mutable std::atomic_bool m_hasTriggered{false};
 };
 
 class TestActiveCallSet : public ActiveCallSet

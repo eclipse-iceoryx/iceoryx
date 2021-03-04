@@ -94,6 +94,9 @@ TEST_F(EventVariable_test, NotifyActivatesNoIndexIfIndexIsTooLarge)
 TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
 {
     EventListener sut(m_eventVarData);
+    Watchdog watchdog(m_timeToWait);
+    watchdog.watchAndActOnFailure([&] { std::terminate(); });
+
     sut.destroy();
     const auto& activeNotifications = sut.wait();
 
@@ -103,6 +106,8 @@ TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
 TEST_F(EventVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsEmptyVector)
 {
     EventListener sut(m_eventVarData);
+    Watchdog watchdog(m_timeToWait);
+    watchdog.watchAndActOnFailure([&] { std::terminate(); });
     sut.destroy();
 
     EventNotifier notifier(m_eventVarData, 0U);

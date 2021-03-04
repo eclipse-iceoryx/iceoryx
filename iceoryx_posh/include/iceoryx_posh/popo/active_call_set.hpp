@@ -46,7 +46,7 @@ enum class ActiveCallSetError
 ///        an encapsulated thread inside this class.
 /// @note  The ActiveCallSet is threadsafe and can be used without any restrictions concurrently.
 /// @attention Calling detachEvent for the same event from multiple threads is supported but
-///            can cause a race conditions if you attach the same event again concurrently from
+///            can cause a race condition if you attach the same event again concurrently from
 ///            another thread.
 ///            Example:
 ///             1. One calls detachEvent [1] from thread A, B and C
