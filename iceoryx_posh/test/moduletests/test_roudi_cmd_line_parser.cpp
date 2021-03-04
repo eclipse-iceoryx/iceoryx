@@ -433,7 +433,7 @@ TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
     EXPECT_FALSE(result.value().run);
 }
 
-TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandleOnlyTheFirstOption)
+TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption)
 {
     constexpr uint8_t NUMBER_OF_ARGS{5U};
     char* args[NUMBER_OF_ARGS];
