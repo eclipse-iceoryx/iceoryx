@@ -88,10 +88,10 @@ TEST_F(SubscriberPortSingleProducer_test, InitialStateNotSubscribed)
 
 TEST_F(SubscriberPortSingleProducer_test, InitialStateNoChunksAvailable)
 {
-    auto maybeChunk = m_sutUserSideSingleProducer.tryGetChunk();
+    auto maybeChunkHeader = m_sutUserSideSingleProducer.tryGetChunk();
 
-    EXPECT_FALSE(maybeChunk.has_error());
-    EXPECT_FALSE(maybeChunk.value().has_value());
+    ASSERT_TRUE(maybeChunkHeader.has_error());
+    EXPECT_EQ(maybeChunkHeader.get_error(), iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE);
     EXPECT_FALSE(m_sutUserSideSingleProducer.hasNewChunks());
 }
 

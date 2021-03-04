@@ -39,7 +39,6 @@ struct DummyData
 {
     uint64_t val = 42;
 };
-}
 
 template <typename port_t>
 class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<port_t>
@@ -122,7 +121,7 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunk)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(
+        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
             const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
     auto result = sut.takeChunk();
@@ -143,20 +142,6 @@ TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
     // ===== Verify ===== //
     ASSERT_EQ(true, result.has_error());
     EXPECT_EQ(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, result.get_error());
-    // ===== Cleanup ===== //
-}
-
-TEST_F(BaseSubscriberTest, ReceiveReturnsNoChunkAvailableIfUnderlyingPortReturnsEmptyOptional)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut.port(), tryGetChunk)
-        .WillOnce(
-            Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(iox::cxx::nullopt))));
-    // ===== Test ===== //
-    auto result = sut.takeChunk();
-    // ===== Verify ===== //
-    ASSERT_EQ(true, result.has_error());
-    EXPECT_EQ(iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE, result.get_error());
     // ===== Cleanup ===== //
 }
 
@@ -255,3 +240,5 @@ TEST_F(BaseSubscriberTest, DestroysUnderlyingPortOnDestruction)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
+
+} // namespace
