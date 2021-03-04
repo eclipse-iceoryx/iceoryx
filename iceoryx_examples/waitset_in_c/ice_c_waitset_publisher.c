@@ -44,8 +44,6 @@ void sending()
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", &options);
 
-    iox_pub_offer(publisher);
-
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
         void* chunk = NULL;
@@ -66,7 +64,6 @@ void sending()
         }
     }
 
-    iox_pub_stop_offer(publisher);
     iox_pub_deinit(publisher);
 }
 

@@ -35,6 +35,9 @@ typedef struct
     // nullptr indicates that the default node name is used
     const char* nodeName;
 
+    // The option whether the publisher should already be offered when creating it
+    bool offerOnCreate;
+
     // this value will be set exclusively by iox_pub_options_init
     // and is not supposed to be modified otherwise
     uint64_t initCheck;

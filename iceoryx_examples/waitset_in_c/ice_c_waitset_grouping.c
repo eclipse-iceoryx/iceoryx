@@ -70,8 +70,6 @@ int main()
     {
         subscriber[i] = iox_sub_init(
             &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
-
-        iox_sub_subscribe(subscriber[i]);
     }
 
     const uint64_t FIRST_GROUP_ID = 123U;
@@ -139,7 +137,6 @@ int main()
     // cleanup all resources
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
     }
 

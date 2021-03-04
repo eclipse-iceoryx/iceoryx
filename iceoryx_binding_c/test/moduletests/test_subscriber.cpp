@@ -346,13 +346,17 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     sut.queueCapacity = 37;
     sut.historyRequest = 73;
     sut.nodeName = "Dr.Gonzo";
+    sut.subscribeOnCreate = false;
 
     SubscriberOptions options;
+    // set subscribeOnCreate to the opposite of the expected default to check if it gets overwritten to default
+    sut.subscribeOnCreate = (options.subscribeOnCreate == false) ? true : false;
 
     iox_sub_options_init(&sut);
     EXPECT_EQ(sut.queueCapacity, options.queueCapacity);
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
+    EXPECT_EQ(sut.subscribeOnCreate, options.subscribeOnCreate);
     EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
 }
 
