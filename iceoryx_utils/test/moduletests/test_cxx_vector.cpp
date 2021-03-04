@@ -895,7 +895,7 @@ TEST_F(vector_test, EraseOfLastElementCallsDTorOnly)
     EXPECT_THAT(classValue, Eq(0));
 }
 
-TEST_F(vector_test, EraseOfMiddleElementCallsCorrectDTor)
+TEST_F(vector_test, EraseOfMiddleElementCallsCorrectDTors)
 {
     vector<CTorTest, 5> sut1;
     sut1.emplace_back(7);
@@ -904,8 +904,8 @@ TEST_F(vector_test, EraseOfMiddleElementCallsCorrectDTor)
 
     sut1.erase(sut1.begin() + 1);
 
-    EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(dTorClassValue, Eq(8));
+    EXPECT_THAT(dTor, Eq(2));
+    EXPECT_THAT(dTorClassValue, Eq(9));
 }
 
 TEST_F(vector_test, EraseByIndexOfLastElementCallsDTorOnly)
@@ -932,7 +932,7 @@ TEST_F(vector_test, EraseOfMiddleElementCallsDTorAndMove)
 
     sut1.erase(sut1.begin() + 2);
 
-    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(dTor, Eq(3));
     EXPECT_THAT(moveCTor, Eq(2));
 }
 
@@ -947,7 +947,7 @@ TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
 
     sut1.erase(sut1.begin());
 
-    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(dTor, Eq(5));
     EXPECT_THAT(moveCTor, Eq(4));
 }
 
