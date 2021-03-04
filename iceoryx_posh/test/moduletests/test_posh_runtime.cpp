@@ -406,6 +406,17 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueGreaterMaxCapacityClamp
     EXPECT_EQ(MAX_QUEUE_CAPACITY, subscriberPort->m_chunkReceiverData.m_queue.capacity());
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueCapacityZeroClampsQueueCapacityTo1)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 0U;
+
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(34U, 4U, 4U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_EQ(1U, subscriberPort->m_chunkReceiverData.m_queue.capacity());
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)
 {
     auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U));
