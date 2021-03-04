@@ -265,7 +265,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
     else if (0U == options.queueCapacity)
     {
         LogWarn() << "Requested queue capacity of 0 doesn't make sense as no data would be received,"
-                  << " the capacyity is set to 1";
+                  << " the capacity is set to 1";
         options.queueCapacity = 1U;
     }
 
