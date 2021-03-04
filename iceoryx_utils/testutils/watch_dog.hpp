@@ -37,8 +37,11 @@ class Watchdog
 
     ~Watchdog() noexcept
     {
-        m_watchdogSemaphore.post();
-        m_watchdog.join();
+        if (m_watchdog.joinable())
+        {
+            m_watchdogSemaphore.post();
+            m_watchdog.join();
+        }
     }
 
     void watchAndActOnFailure(std::function<void()> f) noexcept
