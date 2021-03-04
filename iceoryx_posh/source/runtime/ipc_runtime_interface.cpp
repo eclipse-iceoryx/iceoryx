@@ -255,6 +255,11 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                     LogWarn() << "Received a REG_ACK with an outdated timestamp!";
                 }
             }
+            else if (stringToIpcMessageType(cmd.c_str()) == IpcMessageType::REG_FAIL_APP_ALREADY_REGISTERED)
+            {
+                // terminate
+                // RouDi might not yet have cleaned up the resources, try again later
+            }
             else
             {
                 LogError() << "Wrong response received " << receiveBuffer.getMessage();

@@ -119,14 +119,19 @@ TYPED_TEST(IpcChannel_test, CreateWithLeadingSlashWorks)
     EXPECT_FALSE(serverResult.has_error());
 }
 
-TYPED_TEST(IpcChannel_test, CreateAgainWorks)
+TYPED_TEST(IpcChannel_test, CreateAgainLeadsToError)
 {
     // if there is a leftover from a crashed channel, we can create a new one. This is simulated by creating twice
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
     auto second =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
-    EXPECT_FALSE(second.has_error());
+    EXPECT_TRUE(second.has_error());
+    // auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+    // [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+    //     detectedError.emplace(error);
+    //     EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+    // });
 }
 
 
@@ -229,14 +234,14 @@ TYPED_TEST(IpcChannel_test, UnlinkExistingOneWorks)
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(anotherGoodName);
-    EXPECT_FALSE(ret.has_error());
+    ASSERT_FALSE(ret.has_error());
     EXPECT_TRUE(ret.value());
 }
 
 TYPED_TEST(IpcChannel_test, UnlinkNonExistingOneWorks)
 {
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(theUnknown);
-    EXPECT_FALSE(ret.has_error());
+    ASSERT_FALSE(ret.has_error());
     EXPECT_FALSE(ret.value());
 }
 
