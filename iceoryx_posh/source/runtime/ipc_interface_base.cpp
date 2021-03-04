@@ -69,11 +69,11 @@ IpcInterfaceBase::IpcInterfaceBase(const ProcessName_t& InterfaceName,
 {
     m_maxMessages = maxMessages;
     m_maxMessageSize = messageSize;
-    if (m_maxMessageSize > posix::MessageQueue::MAX_MESSAGE_SIZE)
+    if (m_maxMessageSize > IpcChannelType::MAX_MESSAGE_SIZE)
     {
         LogWarn() << "Message size too large, reducing from " << messageSize << " to "
-                  << posix::MessageQueue::MAX_MESSAGE_SIZE;
-        m_maxMessageSize = posix::MessageQueue::MAX_MESSAGE_SIZE;
+                  << IpcChannelType::MAX_MESSAGE_SIZE;
+        m_maxMessageSize = IpcChannelType::MAX_MESSAGE_SIZE;
     }
 }
 
@@ -120,7 +120,7 @@ bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
         if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const size_t messageSize =
-                static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
+                static_cast<size_t>(msg.getMessage().size()) + IpcChannelType::NULL_TERMINATOR_SIZE;
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
@@ -140,7 +140,7 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
         if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const size_t messageSize =
-                static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
+                static_cast<size_t>(msg.getMessage().size()) + IpcChannelType::NULL_TERMINATOR_SIZE;
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
