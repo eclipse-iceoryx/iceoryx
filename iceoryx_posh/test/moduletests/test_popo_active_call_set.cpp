@@ -224,19 +224,13 @@ class ActiveCallSet_test : public Test
         }
     }
 
-    bool fillUpWithSimpleEvents()
+    void fillUpWithSimpleEvents()
     {
         for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
         {
-            bool hasError = m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>).has_error();
-            EXPECT_FALSE(hasError);
-            if (hasError)
-            {
-                return false;
-            }
-            EXPECT_THAT(m_sut->size(), Eq(i + 1));
+            EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[i], ActiveCallSet_test::triggerCallback<0U>).has_error());
+            EXPECT_THAT(m_sut->size(), Eq(i + 1U));
         }
-        return true;
     }
     bool fillUpWithSimpleEventsWithEnum(const SimpleEvent eventType)
     {
@@ -250,7 +244,7 @@ class ActiveCallSet_test : public Test
                 return false;
             }
 
-            EXPECT_THAT(m_sut->size(), Eq(i + 1));
+            EXPECT_THAT(m_sut->size(), Eq(i + 1U));
         }
         return true;
     }
@@ -341,7 +335,7 @@ TEST_F(ActiveCallSet_test, AttachingWithEnumIfEnoughSpaceAvailableWorks)
 {
     EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::Hypnotoad, ActiveCallSet_test::triggerCallback<0U>)
                      .has_error());
-    EXPECT_THAT(m_sut->size(), Eq(1));
+    EXPECT_THAT(m_sut->size(), Eq(1U));
 }
 
 TEST_F(ActiveCallSet_test, AttachWithEnumTillCapacityIsFullWorks)
@@ -448,9 +442,22 @@ TEST_F(ActiveCallSet_test, AttachingWithoutEnumTillCapacityFilledSetsUpNoEventEn
     }
 }
 
-TEST_F(ActiveCallSet_test, DTorDetachesAllAttachedEvents)
+TEST_F(ActiveCallSet_test, DTorDetachesAllAttachedEventsWithoutEnum)
 {
     fillUpWithSimpleEvents();
+
+    auto capacity = m_sut->capacity();
+    m_sut.reset();
+
+    for (uint64_t i = 0U; i < capacity; ++i)
+    {
+        EXPECT_FALSE(m_simpleEvents[i].m_handleNoEventEnum.isValid());
+    }
+}
+
+TEST_F(ActiveCallSet_test, DTorDetachesAllAttachedEventsWithEnum)
+{
+    fillUpWithSimpleEventsWithEnum(SimpleEvent::Hypnotoad);
 
     auto capacity = m_sut->capacity();
     m_sut.reset();
@@ -485,7 +492,7 @@ TEST_F(ActiveCallSet_test, DetachingSimpleEventResetsTriggerHandle)
     m_sut->attachEvent(fuu, ActiveCallSet_test::triggerCallback<0U>);
     m_sut->detachEvent(fuu);
 
-    EXPECT_FALSE(static_cast<bool>(fuu.m_handleHypnotoad));
+    EXPECT_FALSE(static_cast<bool>(fuu.m_handleNoEventEnum));
 }
 
 TEST_F(ActiveCallSet_test, AttachingEventWithEnumSetsTriggerHandle)
