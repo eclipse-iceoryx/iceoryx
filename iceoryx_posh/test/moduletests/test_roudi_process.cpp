@@ -1,4 +1,5 @@
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
@@ -27,14 +30,14 @@ using namespace iox::popo;
 using namespace iox::runtime;
 using ::testing::Return;
 
-class MqInterfaceUser_Mock : public iox::roudi::RouDiProcess
+class IpcInterfaceUser_Mock : public iox::roudi::RouDiProcess
 {
   public:
-    MqInterfaceUser_Mock()
+    IpcInterfaceUser_Mock()
         : iox::roudi::RouDiProcess("TestRoudiProcess", 200, nullptr, true, 0x654321, 255)
     {
     }
-    MOCK_METHOD1(sendToMQ, void(MqMessage));
+    MOCK_METHOD1(sendViaIpcChannel, void(IpcMessage));
 };
 
 class RouDiProcess_test : public Test
@@ -46,7 +49,7 @@ class RouDiProcess_test : public Test
     bool isMonitored = true;
     const uint64_t payloadSegmentId{0x654321U};
     const uint64_t sessionId{255U};
-    MqInterfaceUser_Mock mqIntrfceusermock;
+    IpcInterfaceUser_Mock ipcInterfaceUserMock;
 };
 
 TEST_F(RouDiProcess_test, getPid)
@@ -85,28 +88,29 @@ TEST_F(RouDiProcess_test, getPayloadMemoryManager)
     EXPECT_THAT(roudiproc.getPayloadMemoryManager(), Eq(payloadMemoryManager));
 }
 
-TEST_F(RouDiProcess_test, sendToMQPass)
+TEST_F(RouDiProcess_test, sendViaIpcChannelPass)
 {
-    iox::runtime::MqMessage data{"MESSAGE_NOT_SUPPORTED"};
-    EXPECT_CALL(mqIntrfceusermock, sendToMQ(_)).Times(1);
-    mqIntrfceusermock.sendToMQ(data);
+    iox::runtime::IpcMessage data{"MESSAGE_NOT_SUPPORTED"};
+    EXPECT_CALL(ipcInterfaceUserMock, sendViaIpcChannel(_)).Times(1);
+    ipcInterfaceUserMock.sendViaIpcChannel(data);
 }
-TEST_F(RouDiProcess_test, sendToMQFail)
+TEST_F(RouDiProcess_test, sendViaIpcChannelFail)
 {
-    iox::runtime::MqMessage data{""};
-    iox::cxx::optional<iox::Error> sendtoMQStatusFail;
+    iox::runtime::IpcMessage data{""};
+    iox::cxx::optional<iox::Error> sendViaIpcChannelStatusFail;
 
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&sendtoMQStatusFail](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-            sendtoMQStatusFail.emplace(error);
+        [&sendViaIpcChannelStatusFail](
+            const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            sendViaIpcChannelStatusFail.emplace(error);
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
     RouDiProcess roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    roudiproc.sendToMQ(data);
+    roudiproc.sendViaIpcChannel(data);
 
-    ASSERT_THAT(sendtoMQStatusFail.has_value(), Eq(true));
-    EXPECT_THAT(sendtoMQStatusFail.value(), Eq(iox::Error::kPOSH__ROUDI_PROCESS_SENDMQ_FAILED));
+    ASSERT_THAT(sendViaIpcChannelStatusFail.has_value(), Eq(true));
+    EXPECT_THAT(sendViaIpcChannelStatusFail.value(), Eq(iox::Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED));
 }
 
 TEST_F(RouDiProcess_test, TimeStamp)

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
@@ -23,8 +25,8 @@ namespace iox
 {
 namespace roudi
 {
-IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig) noexcept
-    : RouDiApp(cmdLineParser, roudiConfig)
+IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig) noexcept
+    : RouDiApp(cmdLineArgs, roudiConfig)
 {
 }
 
@@ -41,7 +43,7 @@ uint8_t IceOryxRouDiApp::run() noexcept
                                                      m_rouDiComponents.value().m_portManager,
                                                      RouDi::RoudiStartupParameters{m_monitoringMode,
                                                                                    true,
-                                                                                   RouDi::MQThreadStart::IMMEDIATE,
+                                                                                   RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
                                                                                    m_compatibilityCheckLevel,
                                                                                    m_processKillDelay});
         waitForSignal();

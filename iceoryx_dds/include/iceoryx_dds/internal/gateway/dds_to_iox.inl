@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_DDS_TO_IOX_INL
 #define IOX_DDS_DDS_TO_IOX_INL
@@ -62,10 +64,11 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     while (reader->hasSamples())
     {
         reader->peekNextSize().and_then([&](auto size) {
-            publisher->loan(size).and_then([&](auto& sample) {
-                reader->takeNext(static_cast<uint8_t*>(sample.get()), size)
-                    .and_then([&]() { sample.publish(); })
+            publisher->loan(size).and_then([&](auto chunk) {
+                reader->takeNext(static_cast<uint8_t*>(chunk), size)
+                    .and_then([&]() { publisher->publish(chunk); })
                     .or_else([&](DataReaderError err) {
+                        publisher->release(chunk);
                         LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
                                   << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
                     });

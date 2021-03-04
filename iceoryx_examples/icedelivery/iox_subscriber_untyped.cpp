@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,27 +12,30 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "topic_data.hpp"
 
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
-#include <csignal>
 #include <iostream>
 
 bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    // caught SIGINT, now exit gracefully
+    // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
 }
 
 int main()
 {
-    // register sigHandler for SIGINT
-    signal(SIGINT, sigHandler);
+    // register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
@@ -47,14 +51,14 @@ int main()
     {
         if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            subscriber.take_1_0()
+            subscriber.take()
                 .and_then([&](const void* data) {
                     auto object = static_cast<const RadarObject*>(data);
                     std::cout << "Got value: " << object->x << std::endl;
 
                     // note that we explicitly have to release the data
                     // and afterwards the pointer access is undefined behavior
-                    subscriber.releaseChunk(object);
+                    subscriber.release(data);
                 })
                 .or_else([](auto& result) {
                     if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)

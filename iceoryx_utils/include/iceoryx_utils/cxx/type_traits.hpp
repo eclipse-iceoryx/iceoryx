@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_UTILS_CXX_TYPE_TRAITS_HPP
 #define IOX_UTILS_CXX_TYPE_TRAITS_HPP
@@ -70,6 +72,9 @@ template <typename T1, typename T2>
 using not_same = typename std::
     integral_constant<bool, !bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
 
+/// @brief Maps a sequence of any types to the type void
+template <typename...>
+using void_t = void;
 } // namespace cxx
 } // namespace iox
 

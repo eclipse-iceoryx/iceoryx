@@ -1,23 +1,26 @@
 # codecov yaml
 comment: yes # do not comment PR with the result
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: yes  # only post the comment if coverage changes
+  require_base: no
+  require_head: yes
 
 coverage:
-  range: 50..90 
+  range: 70..100 
 
   status:
-    project: # settings affecting project coverage
+    project:
       default:
         enabled: yes
-        target: auto # auto % coverage target
-        threshold: 100%  # we allow here 100% change to unblock PRs (will be set later)
-
-    # do not run coverage on patch nor changes
+        target: 70%
+        threshold: 2% # allow coverage to drop maximum by a defined value
     patch:
       default:
         enabled: yes
-        target: auto # auto % coverage target
-        threshold: 100%  # we allow here 100% change to unblock PRs (will be set later)
-    changes: no
+        target: 70%
+        threshold: 2% 
+    changes: yes
 
 parsers:
   gcov:
@@ -26,3 +29,6 @@ parsers:
       loop: yes
       method: yes
       macro: yes
+
+fixes:
+  - "/home/runner/work/iceoryx/iceoryx/::"

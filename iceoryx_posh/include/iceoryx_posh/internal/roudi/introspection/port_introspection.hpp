@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 
@@ -182,10 +185,21 @@ class PortIntrospection
 
         void prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic) noexcept;
 
-        /// @brief compute the next connection state based on the current connection state and a capro message type
+        /// @brief compute the next connection state based on the current connection state and a capro message type when
+        /// the communication policy is OneToMany
         /// @param[in] currentState current connection state (e.g. CONNECTED)
         /// @param[in] messageType capro message type
         /// @return returns the new connection state
+        template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+        PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
+                                                        capro::CaproMessageType messageType) noexcept;
+
+        /// @brief compute the next connection state based on the current connection state and a capro message type when
+        /// the communication policy is ManyToMany
+        /// @param[in] currentState current connection state (e.g. CONNECTED)
+        /// @param[in] messageType capro message type
+        /// @return returns the new connection state
+        template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
         PortIntrospection::ConnectionState getNextState(ConnectionState currentState,
                                                         capro::CaproMessageType messageType) noexcept;
 
@@ -306,7 +320,7 @@ class PortIntrospection
   private:
     PortData m_portData;
 
-    units::Duration m_sendInterval{units::Duration::seconds(1U)};
+    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
         concurrent::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
 };

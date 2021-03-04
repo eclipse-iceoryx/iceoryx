@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019,2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,9 +12,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
+
+#include <vector>
 
 
 using namespace ::testing;
@@ -33,6 +38,8 @@ class vector_test : public Test
     static int dTor;
     static int classValue;
     static int dTorClassValue;
+
+    static std::vector<int> dtorOrder;
 
     class CTorTest
     {
@@ -84,6 +91,7 @@ class vector_test : public Test
         {
             dTor++;
             dTorClassValue = value;
+            dtorOrder.emplace_back(value);
         }
 
         int value = 0;
@@ -100,6 +108,7 @@ class vector_test : public Test
         dTor = 0;
         classValue = 0;
         dTorClassValue = 0;
+        dtorOrder.clear();
     }
 
     vector<int, 5> sut5;
@@ -115,6 +124,7 @@ int vector_test::copyAssignment;
 int vector_test::dTor;
 int vector_test::classValue;
 int vector_test::dTorClassValue;
+std::vector<int> vector_test::dtorOrder;
 
 
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
@@ -1207,4 +1217,76 @@ TEST_F(vector_test, MemoryEfficientImplementation)
 {
     vector<uint8_t, 0> sut0;
     EXPECT_THAT(sizeof(sut0), Eq(1U));
+}
+
+TEST_F(vector_test, FullVectorDestroysElementsInReverseOrder)
+{
+    static constexpr uint64_t VECTOR_CAPACITY = 35U;
+    static constexpr uint64_t INDEX_END = VECTOR_CAPACITY - 1U;
+    static constexpr uint64_t SOME_OFFSET = 9128U;
+
+    {
+        vector<CTorTest, VECTOR_CAPACITY> sut;
+
+        for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+        {
+            sut.emplace_back(i + SOME_OFFSET);
+        }
+    }
+
+    ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_CAPACITY));
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+    {
+        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i + SOME_OFFSET));
+    }
+}
+
+TEST_F(vector_test, PartiallyFullVectorDestroysElementsInReverseOrder)
+{
+    static constexpr uint64_t VECTOR_CAPACITY = 40U;
+    static constexpr uint64_t VECTOR_SIZE = 20U;
+    static constexpr uint64_t INDEX_END = VECTOR_SIZE - 1U;
+    static constexpr uint64_t SOME_OFFSET = 1337U;
+
+    {
+        vector<CTorTest, VECTOR_CAPACITY> sut;
+
+        for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+        {
+            sut.emplace_back(i + SOME_OFFSET);
+        }
+    }
+
+    ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_SIZE));
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i + SOME_OFFSET));
+    }
+}
+
+TEST_F(vector_test, PopBackReturnsFalseOnEmptyVector)
+{
+    EXPECT_FALSE(sut5.pop_back());
+}
+
+TEST_F(vector_test, PopBackReturnsTrueOnNonEmptyVector)
+{
+    sut5.emplace_back(123);
+    EXPECT_TRUE(sut5.pop_back());
+}
+
+TEST_F(vector_test, PopBackReturnsTrueTillItsEmpty)
+{
+    static constexpr uint64_t VECTOR_SIZE = 5U;
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        sut5.emplace_back(i);
+    }
+
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_TRUE(sut5.pop_back());
+    }
+
+    EXPECT_FALSE(sut5.pop_back());
 }

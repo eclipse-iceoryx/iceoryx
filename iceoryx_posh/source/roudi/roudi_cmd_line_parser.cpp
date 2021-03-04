@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -24,20 +26,20 @@ namespace iox
 {
 namespace config
 {
-void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
+cxx::expected<CmdLineArgs_t, CmdLineParserResult>
+CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
     constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
                                       {"version", no_argument, nullptr, 'v'},
                                       {"monitoring-mode", required_argument, nullptr, 'm'},
                                       {"log-level", required_argument, nullptr, 'l'},
-                                      {"ignore-version", required_argument, nullptr, 'i'},
                                       {"unique-roudi-id", required_argument, nullptr, 'u'},
-                                      {"compatibility", required_argument, nullptr, 'c'},
+                                      {"compatibility", required_argument, nullptr, 'x'},
                                       {"kill-delay", required_argument, nullptr, 'k'},
                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "hvm:l:u:c:k:";
+    constexpr const char* shortOptions = "hvm:l:u:x:k:";
     int32_t index;
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
@@ -58,7 +60,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "-l, --log-level <LEVEL>           Set log level." << std::endl;
             std::cout << "                                  <LEVEL> {off, fatal, error, warning, info, debug, verbose}"
                       << std::endl;
-            std::cout << "-c, --compatibility               Set compatibility check level between runtime and RouDi."
+            std::cout << "-x, --compatibility               Set compatibility check level between runtime and RouDi."
                       << std::endl;
             std::cout << "                                  off: no check" << std::endl;
             std::cout << "                                  major: same major version " << std::endl;
@@ -159,7 +161,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             else
             {
                 m_processKillDelay =
-                    units::Duration::seconds(static_cast<unsigned long long int>(processKillDelayInSeconds));
+                    units::Duration::fromSeconds(processKillDelayInSeconds);
             }
             break;
         }
@@ -201,6 +203,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
         {
             // CmdLineParser did not understand the parameters, don't run
             m_run = false;
+            return cxx::error<CmdLineParserResult>(CmdLineParserResult::UNKNOWN_OPTION_USED);
         }
         };
 
@@ -209,46 +212,8 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             break;
         }
     }
+    return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{
+        m_monitoringMode, m_logLevel, m_compatibilityCheckLevel, m_processKillDelay, m_uniqueRouDiId, m_run, ""});
 } // namespace roudi
-bool CmdLineParser::getRun() const noexcept
-{
-    return m_run;
-}
-iox::log::LogLevel CmdLineParser::getLogLevel() const noexcept
-{
-    return m_logLevel;
-}
-roudi::MonitoringMode CmdLineParser::getMonitoringMode() const noexcept
-{
-    return m_monitoringMode;
-}
-
-version::CompatibilityCheckLevel CmdLineParser::getCompatibilityCheckLevel() const noexcept
-{
-    return m_compatibilityCheckLevel;
-}
-
-cxx::optional<uint16_t> CmdLineParser::getUniqueRouDiId() const noexcept
-{
-    return m_uniqueRouDiId;
-}
-
-units::Duration CmdLineParser::getProcessKillDelay() const noexcept
-{
-    return m_processKillDelay;
-}
-
-void CmdLineParser::printParameters() const noexcept
-{
-    LogVerbose() << "Command line parameters are..";
-    LogVerbose() << "Log level: " << m_logLevel;
-    LogVerbose() << "Monitoring mode: " << m_monitoringMode;
-    LogVerbose() << "Compatibility check level: " << m_compatibilityCheckLevel;
-    m_uniqueRouDiId.and_then([](auto& id) { LogVerbose() << "Unique RouDi ID: " << id; }).or_else([] {
-        LogVerbose() << "Unique RouDi ID: < unset >";
-    });
-    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds() << " s";
-}
-
 } // namespace config
 } // namespace iox

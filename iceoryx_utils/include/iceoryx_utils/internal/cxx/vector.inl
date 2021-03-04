@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_VECTOR_INL
 #define IOX_UTILS_CXX_VECTOR_INL
 
@@ -160,11 +163,9 @@ inline uint64_t vector<T, Capacity>::capacity() const
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clear() noexcept
 {
-    for (uint64_t i = 0u; i < this->size(); ++i)
+    while (pop_back())
     {
-        at(i).~T();
     }
-    m_container.set_size(0u);
 }
 
 template <typename T, uint64_t Capacity>
@@ -194,13 +195,15 @@ bool vector<T, Capacity>::push_back(T&& value)
 }
 
 template <typename T, uint64_t Capacity>
-void vector<T, Capacity>::pop_back()
+bool vector<T, Capacity>::pop_back()
 {
     if (this->size() > 0)
     {
         back().~T();
         m_container.set_size(this->size() - 1U);
+        return true;
     }
+    return false;
 }
 
 template <typename T, uint64_t Capacity>

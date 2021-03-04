@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
 
@@ -182,7 +185,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateCo
     for (auto& pair : innerConnectionMap)
     {
         auto& connection = m_connectionContainer[pair.second];
-        connection.state = getNextState(connection.state, messageType);
+        connection.state = getNextState<iox::build::CommunicationPolicy>(connection.state, messageType);
     }
 
     setNew(true);
@@ -213,7 +216,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateSu
     }
 
     auto& connection = m_connectionContainer[iterInnerMap->second];
-    connection.state = getNextState(connection.state, messageType);
+    connection.state = getNextState<iox::build::CommunicationPolicy>(connection.state, messageType);
 
     setNew(true);
     return true;
@@ -410,6 +413,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSu
 }
 
 template <typename PublisherPort, typename SubscriberPort>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
 PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
                                                                          capro::CaproMessageType messageType) noexcept
@@ -451,6 +455,42 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(Connect
             nextState = ConnectionState::DEFAULT;
         }
         else if (messageType == capro::CaproMessageType::UNSUB)
+        {
+            nextState = ConnectionState::DEFAULT;
+        }
+        break;
+    }
+
+    default:
+    { // stay in current state
+    }
+    };
+
+    return nextState;
+}
+
+template <typename PublisherPort, typename SubscriberPort>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
+inline typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
+                                                                         capro::CaproMessageType messageType) noexcept
+{
+    ConnectionState nextState = currentState; // stay in currentState as default transition
+
+    switch (currentState)
+    {
+    case ConnectionState::DEFAULT:
+    {
+        if (messageType == capro::CaproMessageType::SUB)
+        {
+            nextState = ConnectionState::CONNECTED;
+        }
+        break;
+    }
+
+    case ConnectionState::CONNECTED:
+    {
+        if (messageType == capro::CaproMessageType::UNSUB)
         {
             nextState = ConnectionState::DEFAULT;
         }
@@ -510,7 +550,6 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
             {
                 auto& connection = m_connectionContainer[connectionIndex];
                 SubscriberPortData subscriberData;
-                bool connected = connection.isConnected();
                 auto& subscriberInfo = connection.subscriberInfo;
 
                 subscriberData.m_name = subscriberInfo.process;
@@ -519,10 +558,6 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
                 subscriberData.m_caproInstanceID = subscriberInfo.service.getInstanceIDString();
                 subscriberData.m_caproServiceID = subscriberInfo.service.getServiceIDString();
                 subscriberData.m_caproEventMethodID = subscriberInfo.service.getEventIDString();
-                if (connected)
-                { // publisherInfo is not nullptr, otherwise we would not be connected
-                    subscriberData.m_publisherIndex = connection.publisherInfo->index;
-                } // remark: index is -1 for not connected
                 m_subscriberList.emplace_back(subscriberData);
             }
         }

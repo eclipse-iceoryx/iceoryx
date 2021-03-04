@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/typed_publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
@@ -23,14 +26,15 @@ bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    // caught SIGINT, now exit gracefully
+    // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
 }
 
 int main()
 {
-    // Register sigHandler for SIGINT
-    signal(SIGINT, sigHandler);
+    // Register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-with-history");
 
@@ -38,7 +42,7 @@ int main()
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
 
-    iox::popo::TypedPublisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
     publisher.offer();
 
     double ct = 0.0;
@@ -47,7 +51,7 @@ int main()
         ++ct;
 
         // Retrieve a sample, construct it with the given arguments and publish it via a lambda.
-        publisher.loan_1_0(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
+        publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
 
         std::cout << "Sent value: " << ct << std::endl;
 

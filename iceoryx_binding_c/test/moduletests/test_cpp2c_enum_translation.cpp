@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
@@ -36,6 +39,9 @@ TEST(cpp2c_enum_translation_test, SubscribeState)
 
 TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
 {
+    EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE),
+              ChunkReceiveResult_NO_CHUNK_AVAILABLE);
+
     EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL),
               ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 
@@ -73,4 +79,3 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
     EXPECT_EQ(cpp2c::WaitSetResult(static_cast<iox::popo::WaitSetError>(-1)), WaitSetResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
-

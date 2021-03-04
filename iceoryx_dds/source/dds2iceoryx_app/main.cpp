@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dds/dds/data_reader.hpp"
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
@@ -19,6 +22,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -55,8 +59,9 @@ std::atomic_bool ShutdownManager::s_shutdownRequested{false};
 int main()
 {
     // Set OS signal handlers
-    signal(SIGINT, ShutdownManager::scheduleShutdown);
-    signal(SIGTERM, ShutdownManager::scheduleShutdown);
+    auto signalGuardInt = iox::posix::registerSignalHandler(iox::posix::Signal::INT, ShutdownManager::scheduleShutdown);
+    auto signalGuardTerm =
+        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, ShutdownManager::scheduleShutdown);
 
     // Start application
     iox::runtime::PoshRuntime::initRuntime("iox-gw-dds2iceoryx");

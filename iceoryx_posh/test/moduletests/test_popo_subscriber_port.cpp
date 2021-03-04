@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -73,10 +76,10 @@ TEST_F(SubscriberPortSingleProducer_test, initialStateNotSubscribed)
 
 TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksAvailable)
 {
-    auto maybeChunk = m_sutUserSideSingleProducer.tryGetChunk();
+    auto maybeChunkHeader = m_sutUserSideSingleProducer.tryGetChunk();
 
-    EXPECT_FALSE(maybeChunk.has_error());
-    EXPECT_FALSE(maybeChunk.value().has_value());
+    ASSERT_TRUE(maybeChunkHeader.has_error());
+    EXPECT_EQ(maybeChunkHeader.get_error(), iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE);
     EXPECT_FALSE(m_sutUserSideSingleProducer.hasNewChunks());
 }
 
