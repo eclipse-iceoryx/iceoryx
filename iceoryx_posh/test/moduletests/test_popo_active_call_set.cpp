@@ -459,9 +459,10 @@ TEST_F(ActiveCallSet_test, DTorDetachesAllAttachedEvents)
 {
     fillUpWithSimpleEvents();
 
+    auto capacity = m_sut->capacity();
     m_sut.reset();
 
-    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
+    for (uint64_t i = 0U; i < capacity; ++i)
     {
         EXPECT_FALSE(m_simpleEvents[i].m_handleHypnotoad.isValid());
     }
