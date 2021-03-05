@@ -70,13 +70,22 @@ target_include_directories(${PROJECT_NAME}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-    pthread
-    PRIVATE
-    iceoryx_posh::iceoryx_posh
-    iceoryx_utils::iceoryx_utils
-)
+
+if(NOT WIN32)
+    target_link_libraries(${PROJECT_NAME}
+      PUBLIC
+        pthread
+      PRIVATE
+        iceoryx_posh::iceoryx_posh
+        iceoryx_utils::iceoryx_utils
+    )
+else()
+    target_link_libraries(${PROJECT_NAME}
+      PRIVATE
+        iceoryx_posh::iceoryx_posh
+        iceoryx_utils::iceoryx_utils
+    )
+endif()
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
