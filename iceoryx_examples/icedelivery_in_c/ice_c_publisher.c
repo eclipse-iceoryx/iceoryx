@@ -44,8 +44,6 @@ void sending()
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", &options);
 
-    iox_pub_offer(publisher);
-
     double ct = 0.0;
 
     while (!killswitch)
@@ -73,7 +71,6 @@ void sending()
         }
     }
 
-    iox_pub_stop_offer(publisher);
     iox_pub_deinit(publisher);
 }
 

@@ -56,12 +56,7 @@ Let's take a look at the `receiving` function which comes with the
     iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", &options);
     ```
 
-  3. We subscribe to the service.
-     ```c
-     iox_sub_subscribe(subscriber);
-     ```
-
-  4. In this loop we receive samples as long the `killswitch` is not
+  3. In this loop we receive samples as long the `killswitch` is not
      set to `true` by an external signal and then print the counter
      value to the console.
      ```c
@@ -85,13 +80,8 @@ Let's take a look at the `receiving` function which comes with the
          sleep_for(1000);
      }
      ```
-  
-  5. After we stop receiving samples we would like to unsubscribe.
-     ```c
-     iox_sub_unsubscribe(subscriber);
-     ```
 
-  6. When using the C API we have to cleanup the subscriber after
+  4. When using the C API we have to cleanup the subscriber after
      its usage.
      ```c
      iox_sub_deinit(subscriber);
@@ -126,12 +116,8 @@ Let's take a look at the `sending` function which comes with the
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", &options);
     ```
- 3. We offer our service to the world.
-    ```c
-    iox_pub_offer(publisher);
-    ```
 
- 4. Till an external signal sets `killswitch` to `true` we will send an
+ 3. Till an external signal sets `killswitch` to `true` we will send an
     incrementing number to all subscribers every send and print the
     value of this number to the console.
     ```c
@@ -163,12 +149,7 @@ Let's take a look at the `sending` function which comes with the
     }
     ```
 
- 5. We stop offering our service.
-    ```c
-    iox_pub_stop_offer(publisher);
-    ```
-
- 6. And we cleanup our publisher port.
+ 5. And we cleanup our publisher port.
     ```c
     iox_pub_destroy(publisher);
     ```

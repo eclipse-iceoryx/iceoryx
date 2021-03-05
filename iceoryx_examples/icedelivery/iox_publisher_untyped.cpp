@@ -40,7 +40,6 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
 
     iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
-    publisher.offer();
 
     double ct = 0.0;
     while (!killswitch)

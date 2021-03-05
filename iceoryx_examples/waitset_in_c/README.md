@@ -67,7 +67,6 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_sub_subscribe(subscriber);
     iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
 }
 ```
@@ -113,7 +112,6 @@ Before we can close the program we cleanup all resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
     iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
 }
 
@@ -152,7 +150,6 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_sub_subscribe(subscriber[i]);
 }
 ```
 
@@ -227,7 +224,6 @@ The last thing we have to do is to cleanup all the acquired resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
     iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
 }
 
@@ -265,9 +261,6 @@ options.nodeName = "iox-c-ex-waitset-individual-node1";
 subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
 options.nodeName = "iox-c-ex-waitset-individual-node2";
 subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
-
-iox_sub_subscribe(subscriber[0]);
-iox_sub_subscribe(subscriber[1]);
 
 iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
 iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
@@ -319,7 +312,6 @@ We conclude the example as always, be cleaning up the resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
     iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
 }
 

@@ -32,6 +32,9 @@ struct PublisherOptions
 
     /// @brief The name of the node where the publisher should belong to
     iox::NodeName_t nodeName{""};
+
+    /// @brief The option whether the publisher should already be offered when creating it
+    bool offerOnCreate{true};
 };
 
 } // namespace popo

@@ -50,6 +50,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
     options->queueCapacity = subscriberOptions.queueCapacity;
     options->historyRequest = subscriberOptions.historyRequest;
     options->nodeName = nullptr;
+    options->subscribeOnCreate = subscriberOptions.subscribeOnCreate;
 
     options->initCheck = SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -85,6 +86,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         {
             subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
+        subscriberOptions.subscribeOnCreate = options->subscribeOnCreate;
     }
 
     me->m_portData =

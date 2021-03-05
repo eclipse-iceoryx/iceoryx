@@ -172,7 +172,8 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_PUBLISHER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
-               << options.nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
+               << options.nodeName << std::to_string(options.offerOnCreate)
+               << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
     if (maybePublisher.has_error())
@@ -261,6 +262,12 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                   << ", limiting from " << subscriberOptions.queueCapacity << " to " << MAX_QUEUE_CAPACITY;
         options.queueCapacity = MAX_QUEUE_CAPACITY;
     }
+    else if (0U == options.queueCapacity)
+    {
+        LogWarn() << "Requested queue capacity of 0 doesn't make sense as no data would be received,"
+                  << " the capacity is set to 1";
+        options.queueCapacity = 1U;
+    }
 
     if (options.nodeName.empty())
     {
@@ -270,7 +277,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << options.nodeName
+               << std::to_string(options.queueCapacity) << options.nodeName << std::to_string(options.subscribeOnCreate)
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);

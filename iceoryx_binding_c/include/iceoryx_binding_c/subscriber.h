@@ -38,6 +38,9 @@ typedef struct
     // name of the node the subscriber belongs to
     const char* nodeName;
 
+    // The option whether the subscriber shall try to subscribe when creating it
+    bool subscribeOnCreate;
+
     // this value will be set exclusively by iox_sub_options_init
     // and is not supposed to be modified otherwise
     uint64_t initCheck;

@@ -74,9 +74,6 @@ int main()
     subscriber[1] = iox_sub_init(
         &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_sub_subscribe(subscriber[0]);
-    iox_sub_subscribe(subscriber[1]);
-
     iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
     iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
 
@@ -128,7 +125,6 @@ int main()
     // cleanup all resources
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
     }
 

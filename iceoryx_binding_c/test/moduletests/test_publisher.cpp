@@ -118,9 +118,11 @@ class iox_pub_test : public Test
     cpp2c_Publisher m_sut;
 };
 
-TEST_F(iox_pub_test, initialStateIsNotOffered)
+TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)
 {
-    EXPECT_FALSE(iox_pub_is_offered(&m_sut));
+    PublisherOptions iGotOptions; 
+    auto expectedIsOffered = iGotOptions.offerOnCreate;
+    EXPECT_EQ(expectedIsOffered, iox_pub_is_offered(&m_sut));
 }
 
 TEST_F(iox_pub_test, is_offeredAfterOffer)
@@ -259,12 +261,16 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     iox_pub_options_t sut;
     sut.historyCapacity = 37;
     sut.nodeName = "Dr.Gonzo";
+    sut.offerOnCreate = false;
 
     PublisherOptions options;
+    // set offerOnCreate to the opposite of the expected default to check if it gets overwritten to default
+    sut.offerOnCreate = (options.offerOnCreate == false) ? true : false;
 
     iox_pub_options_init(&sut);
     EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
     EXPECT_EQ(sut.nodeName, nullptr);
+    EXPECT_EQ(sut.offerOnCreate, options.offerOnCreate);
     EXPECT_TRUE(iox_pub_options_is_initialized(&sut));
 }
 
