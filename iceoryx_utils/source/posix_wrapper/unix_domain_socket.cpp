@@ -158,12 +158,6 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPa
     }
 }
 
-// bool UnixDomainSocket::ipcChannelExists(const UdsName_t& name) noexcept
-// {
-//     cxx::FileReader reader(name, PATH_PREFIX, cxx::FileReader::ErrorMode::Ignore);
-//     return reader.IsOpen();
-// }
-
 cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
     if (m_sockfd != INVALID_FD)

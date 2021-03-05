@@ -173,11 +173,6 @@ class IpcInterfaceBase
     /// @param[in] name of the IPC channel to clean up
     static void cleanupOutdatedIpcChannel(const ProcessName_t& name) noexcept;
 
-    /// @brief
-    /// @param
-    /// @return
-    //static bool ipcChannelExists(const ProcessName_t& name) noexcept;
-
     friend class IpcInterfaceUser;
     friend class IpcInterfaceCreator;
     friend class IpcRuntimeInterface;

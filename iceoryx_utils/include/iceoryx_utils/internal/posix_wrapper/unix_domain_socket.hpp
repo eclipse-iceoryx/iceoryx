@@ -77,11 +77,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
     static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t, const UdsName_t& name) noexcept;
 
-    /// @brief
-    /// @param
-    /// @return
-    //static bool ipcChannelExists(const UdsName_t& name) noexcept;
-
     /// @brief close the unix domain socket.
     cxx::expected<IpcChannelError> destroy() noexcept;
 

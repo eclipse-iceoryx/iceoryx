@@ -198,10 +198,5 @@ void IpcInterfaceBase::cleanupOutdatedIpcChannel(const ProcessName_t& name) noex
     }
 }
 
-// bool IpcInterfaceBase::ipcChannelExists(const ProcessName_t& name) noexcept
-// {
-//     return IpcChannelType::ipcChannelExists(name);
-// }
-
 } // namespace runtime
 } // namespace iox
