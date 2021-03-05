@@ -392,7 +392,7 @@ TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_TRUE(result.value().uniqueRouDiId.has_value());
+    ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
 }
 
@@ -411,7 +411,7 @@ TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_TRUE(result.value().uniqueRouDiId.has_value());
+    ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
 }
 
@@ -452,7 +452,7 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     auto result = sut.parse(NUMBER_OF_ARGS, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_TRUE(result.value().uniqueRouDiId.has_value());
+    ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
     EXPECT_EQ(result.value().processKillDelay, Duration::fromSeconds(45)); // default value for kill delay
 
@@ -461,7 +461,7 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     auto res = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(res.has_error());
-    EXPECT_TRUE(res.value().uniqueRouDiId.has_value());
+    ASSERT_TRUE(res.value().uniqueRouDiId.has_value());
     EXPECT_EQ(res.value().uniqueRouDiId.value(), 4242);
     EXPECT_EQ(res.value().processKillDelay, Duration::fromSeconds(42));
 }
