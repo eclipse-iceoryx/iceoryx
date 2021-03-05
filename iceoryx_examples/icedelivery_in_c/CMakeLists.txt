@@ -28,6 +28,9 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ()
 
+# compiler flag not supported on C
+list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
+
 add_executable(iox-c-publisher ./ice_c_publisher.c)
 set_source_files_properties(./ice_c_publisher.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-c-publisher

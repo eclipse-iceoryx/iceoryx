@@ -68,6 +68,7 @@ int main()
         else
         {
             auto error = result.get_error();
+            (void)error;
             // Do something with error
         }
 
@@ -83,6 +84,7 @@ int main()
         else
         {
             auto error = result.get_error();
+            (void)error;
             // Do something with error
         }
 

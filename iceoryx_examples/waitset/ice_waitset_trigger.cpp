@@ -96,6 +96,7 @@ class MyTriggerClass
 
     static void callOnAction(MyTriggerClass* const triggerClassPtr)
     {
+        (void)triggerClassPtr;
         std::cout << "action performed" << std::endl;
     }
 

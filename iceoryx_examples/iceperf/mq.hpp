@@ -31,8 +31,8 @@
 class MQ : public IcePerfBase
 {
   public:
-    static constexpr size_t MAX_MESSAGE_SIZE = 4 * IcePerfBase::ONE_KILOBYTE;
-    static constexpr size_t MAX_MESSAGES = 8;
+    static constexpr uint32_t MAX_MESSAGE_SIZE = 4 * IcePerfBase::ONE_KILOBYTE;
+    static constexpr uint32_t MAX_MESSAGES = 8;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr mqd_t INVALID_DESCRIPTOR = -1;
 

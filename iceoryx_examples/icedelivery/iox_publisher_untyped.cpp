@@ -65,6 +65,7 @@ int main()
         else
         {
             auto error = result.get_error();
+            (void)error;
             // Do something with the error
         }
 
@@ -78,6 +79,7 @@ int main()
                 publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
+                (void)error;
                 // Do something with the error
             });
 
