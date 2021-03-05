@@ -61,5 +61,9 @@ enum iox_WaitSetResult
     WaitSetResult_SUCCESS
 };
 
+enum iox_ListenerResult
+{
+    ListenerResult_
+};
 
 #endif
