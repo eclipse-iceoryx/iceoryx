@@ -23,7 +23,7 @@
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 
-typedef CLASS Listener iox_listener_t;
+typedef CLASS Listener* iox_listener_t;
 
 iox_listener_t iox_listener_init(iox_listener_storage_t* self);
 

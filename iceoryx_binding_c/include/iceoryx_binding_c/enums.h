@@ -63,7 +63,10 @@ enum iox_WaitSetResult
 
 enum iox_ListenerResult
 {
-    ListenerResult_
+    ListenerResult_LISTENER_FULL,
+    ListenerResult_EVENT_ALREADY_ATTACHED,
+    ListenerResult_UNDEFINED_ERROR,
+    ListenerResult_SUCCESS
 };
 
 #endif

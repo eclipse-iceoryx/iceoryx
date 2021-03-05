@@ -14,7 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -22,3 +25,52 @@ using namespace iox::popo;
 extern "C" {
 #include "iceoryx_binding_c/listener.h"
 }
+
+iox_listener_t iox_listener_init(iox_listener_storage_t* self)
+{
+    new (self) Listener();
+    return reinterpret_cast<iox_listener_t>(self);
+}
+
+void iox_listener_deinit(iox_listener_t const self)
+{
+    self->~Listener();
+}
+
+ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t const self,
+                                                             iox_sub_t const subscriber,
+                                                             const ENUM iox_SubscriberEvent subscriberEvent,
+                                                             void (*callback)(iox_sub_t))
+{
+    auto result = self->attachEvent(*subscriber, subscriberEvent, *callback);
+    if (result.has_error())
+    {
+        return cpp2c::ListenerResult(result.get_error());
+    }
+    return ListenerResult_SUCCESS;
+}
+
+ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t const self,
+                                                               iox_user_trigger_t const userTrigger,
+                                                               void (*callback)(iox_user_trigger_t))
+{
+    auto result = self->attachEvent(*userTrigger, *callback);
+    if (result.has_error())
+    {
+        return cpp2c::ListenerResult(result.get_error());
+    }
+    return ListenerResult_SUCCESS;
+}
+
+void iox_listener_detach_subscriber_event(iox_listener_t const self,
+                                          iox_sub_t const subscriber,
+                                          const ENUM iox_SubscriberEvent subscriberEvent)
+{
+    self->detachEvent(*subscriber, subscriberEvent);
+}
+
+void iox_listener_detach_user_trigger_event(iox_listener_t const self, iox_user_trigger_t const userTrigger)
+{
+    self->detachEvent(*userTrigger);
+}
+
