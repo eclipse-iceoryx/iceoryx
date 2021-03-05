@@ -59,6 +59,5 @@ jobs:
           source /opt/ros/foxy/setup.bash
           source $GITHUB_WORKSPACE/install/setup.bash
           cd $GITHUB_WORKSPACE
-
-          colcon test
+          colcon test --packages-select iceoryx_integrationtest
           colcon test-result --all --verbose

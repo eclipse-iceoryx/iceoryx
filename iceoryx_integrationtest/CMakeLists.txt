@@ -66,6 +66,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
   find_package(ros_testing)
 
+  add_ros_test(iceoryx_integrationtest/test_callback_example.py)
   add_ros_test(iceoryx_integrationtest/test_roudi_startup_shutdown.py)
   add_ros_test(iceoryx_integrationtest/test_data_exchange.py)
   add_ros_test(iceoryx_integrationtest/test_multi_publisher_example.py)
@@ -74,6 +75,7 @@ if(BUILD_TESTING)
   add_ros_test(iceoryx_integrationtest/test_singleprocess_example.py)
   add_ros_test(iceoryx_integrationtest/test_waitset_example.py)
   add_ros_test(iceoryx_integrationtest/test_waitset_in_c_example.py)
+
 endif()
 
 ament_package()

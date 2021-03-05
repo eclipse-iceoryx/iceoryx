@@ -52,6 +52,7 @@ int main()
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
+        (void)subscriber;
     }
 
     constexpr uint64_t FIRST_GROUP_ID = 123U;

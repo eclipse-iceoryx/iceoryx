@@ -44,7 +44,10 @@ void shutdownTriggerCallback(iox::popo::UserTrigger*)
 
 void onSampleReceived(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
-    subscriber->take().and_then([](auto& sample) { printf("received: %d\n", sample->counter); });
+    subscriber->take().and_then([](auto& sample) {
+        printf("received: %d\n", sample->counter);
+        fflush(stdout);
+    });
 }
 
 int main()
