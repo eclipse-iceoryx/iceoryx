@@ -31,7 +31,6 @@ endif ()
 add_executable(iox-c-publisher ./ice_c_publisher.c)
 set_source_files_properties(./ice_c_publisher.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-c-publisher
-    iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
 set_target_properties(iox-c-publisher PROPERTIES
@@ -42,7 +41,6 @@ target_compile_options(iox-c-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SAN
 add_executable(iox-c-subscriber ./ice_c_subscriber.c)
 set_source_files_properties(./ice_c_subscriber.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-c-subscriber
-    iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
 set_target_properties(iox-c-subscriber PROPERTIES

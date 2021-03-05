@@ -113,7 +113,15 @@ inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& trigg
 
 {
     m_trigger = std::move(triggerHandle);
-    m_port.setConditionVariable(m_trigger.getConditionVariableData());
+    if (m_trigger.doesContainEventVariable())
+    {
+        m_port.setEventVariable(*reinterpret_cast<EventVariableData*>(m_trigger.getConditionVariableData()),
+                                m_trigger.getUniqueId());
+    }
+    else
+    {
+        m_port.setConditionVariable(m_trigger.getConditionVariableData());
+    }
 }
 
 

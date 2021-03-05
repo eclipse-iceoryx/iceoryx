@@ -751,6 +751,44 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
     }
 }
 
+void ProcessManager::addEventVariableForProcess(const ProcessName_t& processName) noexcept
+{
+    std::lock_guard<std::mutex> g(m_mutex);
+
+    RouDiProcess* process = getProcessFromList(processName);
+    if (nullptr != process)
+    {
+        // Try to create an event variable
+        m_portManager.acquireEventVariableData(processName)
+            .and_then([&](auto condVar) {
+                auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
+
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_EVENT_VARIABLE_ACK)
+                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                process->sendViaIpcChannel(sendBuffer);
+
+                LogDebug() << "Created new EventVariable for application " << processName;
+            })
+            .or_else([&](PortPoolError error) {
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                if (error == PortPoolError::EVENT_VARIABLE_LIST_FULL)
+                {
+                    sendBuffer << runtime::IpcMessageErrorTypeToString(
+                        runtime::IpcMessageErrorType::EVENT_VARIABLE_LIST_FULL);
+                }
+                process->sendViaIpcChannel(sendBuffer);
+
+                LogDebug() << "Could not create new EventVariable for application " << processName;
+            });
+    }
+    else
+    {
+        LogWarn() << "Unknown application " << processName << " requested a EventVariable.";
+    }
+}
+
 void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept
 {
     m_processIntrospection = processIntrospection;

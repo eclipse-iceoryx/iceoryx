@@ -237,12 +237,23 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_CONDITION_VARIABLE\" from \""
                        << processName << "\"received!";
-            errorHandler(
-                Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::MODERATE);
         }
         else
         {
             m_prcMgr.addConditionVariableForProcess(processName);
+        }
+        break;
+    }
+    case runtime::IpcMessageType::CREATE_EVENT_VARIABLE:
+    {
+        if (message.getNumberOfElements() != 2)
+        {
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_EVENT_VARIABLE\" from \""
+                       << processName << "\"received!";
+        }
+        else
+        {
+            m_prcMgr.addEventVariableForProcess(processName);
         }
         break;
     }
