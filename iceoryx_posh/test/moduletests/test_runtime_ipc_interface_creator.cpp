@@ -15,8 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32)
-#include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 
 #include "test.hpp"
 
@@ -25,12 +24,7 @@
 using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
-
-#if defined(__APPLE__)
-using IpcChannelTypes = Types<UnixDomainSocket>;
-#else
-using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket>;
-#endif
+using namespace iox::runtime;
 
 constexpr char goodName[] = "channel_test";
 constexpr char anotherGoodName[] = "horst";
@@ -38,78 +32,48 @@ constexpr char theUnknown[] = "WhoeverYouAre";
 constexpr char slashName[] = "/miau";
 
 /// @req
-/// @brief This test suite verifies that the abstract interface IpcChannelType is fulfilled by both the UnixDomainSocket
-/// class and the MessageQueue class
-/// @pre server and client object are allocated and move to the member object of the fixture
+/// @brief This test suite verifies the additional functionality of IpcInterfaceCreator
+/// @pre Make sure no left-over IpcChannels with our names exist
 /// @post StdErr is capture and outputed to StdCout
-/// @note Specific functionality of the underlying implementations of an IpcChannelType are tested in
-/// "UnixDomainSocket_test"
-template <typename T>
+/// @note Specific functionality of the base class are intentionally not considered in this test
 class IpcInterfaceCreator_test : public Test
 {
   public:
-    using IpcChannelType = T;
-    
     void SetUp()
     {
-        // auto serverResult = IpcChannelType::create(
-        //     goodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
-        // ASSERT_THAT(serverResult.has_error(), Eq(false));
-        // server = std::move(serverResult.value());
-        // internal::CaptureStderr();
-
-        // auto clientResult = IpcChannelType::create(
-        //     goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
-        // ASSERT_THAT(clientResult.has_error(), Eq(false));
-        // client = std::move(clientResult.value());
+        IpcChannelType::unlinkIfExists(goodName);
+        IpcChannelType::unlinkIfExists(anotherGoodName);
     }
 
     void TearDown()
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     ~IpcInterfaceCreator_test()
     {
     }
-
-    static const size_t MaxMsgSize;
-    static constexpr uint64_t MaxMsgNumber = 10U;
-    IpcChannelType server;
-    IpcChannelType client;
 };
 
-template <typename T>
-const size_t IpcInterfaceCreator_test<T>::MaxMsgSize = IpcChannelType::MAX_MESSAGE_SIZE;
-template <typename T>
-constexpr uint64_t IpcInterfaceCreator_test<T>::MaxMsgNumber;
-
-/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(IpcInterfaceCreator_test, IpcChannelTypes);
-#pragma GCC diagnostic pop
-
-TYPED_TEST(IpcInterfaceCreator_test, CreateAgainLeadsToError)
+TEST_F(IpcInterfaceCreator_test, CreateWithDifferentNameWorks)
 {
-    // auto serverResult = TestFixture::IpcChannelType::create(goodName,
-    //                                                         IpcChannelMode::BLOCKING,
-    //                                                         IpcChannelSide::SERVER,
-    //                                                         TestFixture::MaxMsgSize + 1,
-    //                                                         TestFixture::MaxMsgNumber);
-    // EXPECT_TRUE(serverResult.has_error());
-    // ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED));
+    IpcInterfaceCreator m_sut{goodName};
+    IpcInterfaceCreator m_sut2{anotherGoodName};
+    EXPECT_TRUE(m_sut2.isInitialized());
+}
 
+TEST_F(IpcInterfaceCreator_test, CreateWithSameNameLeadsToError)
+{
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
+        });
+    IpcInterfaceCreator m_sut{goodName};
+    IpcInterfaceCreator m_sut2{goodName};
 
-    // auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-    // [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-    //     detectedError.emplace(error);
-    //     EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-    // });
+    ASSERT_TRUE(detectedError.has_value());
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_APP_WITH_SAME_NAME_STILL_RUNNING));
 }
 
 #endif

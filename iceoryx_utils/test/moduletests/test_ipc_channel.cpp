@@ -119,7 +119,7 @@ TYPED_TEST(IpcChannel_test, CreateWithLeadingSlashWorks)
     EXPECT_FALSE(serverResult.has_error());
 }
 
-TYPED_TEST(IpcChannel_test, CreateAgainLeadsToError)
+TYPED_TEST(IpcChannel_test, CreateAgainWorks)
 {
     // if there is a leftover from a crashed channel, we can create a new one. This is simulated by creating twice
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
