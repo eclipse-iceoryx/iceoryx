@@ -145,7 +145,7 @@ TEST_F(CmdLineParserConfigFileOption_test, UniqueIdOptionLeadsCallingCmdLinePars
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
 }
 
-TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnlyTheFirstOption)
+TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnlyTheFirstOptionReturningNoError)
 {
     constexpr uint8_t NUMBER_OF_ARGS{5U};
     char* args[NUMBER_OF_ARGS];
