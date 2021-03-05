@@ -51,7 +51,6 @@ void publisher()
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
     iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
-    publisher.offer();
 
     uint64_t counter{0};
     std::string greenRightArrow("\033[32m->\033[m ");
@@ -73,8 +72,6 @@ void subscriber()
     options.queueCapacity = 10U;
     options.historyRequest = 5U;
     iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
-
-    subscriber.subscribe();
 
     std::string orangeLeftArrow("\033[33m<-\033[m ");
     while (keepRunning.load())

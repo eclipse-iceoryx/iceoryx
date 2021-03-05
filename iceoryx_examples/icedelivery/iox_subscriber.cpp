@@ -44,7 +44,6 @@ int main()
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
-    subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
@@ -70,8 +69,6 @@ int main()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
-    subscriber.unsubscribe();
 
     return (EXIT_SUCCESS);
 }

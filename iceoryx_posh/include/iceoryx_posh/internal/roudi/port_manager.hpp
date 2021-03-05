@@ -95,17 +95,21 @@ class PortManager
 
     void deletePortsOfProcess(const ProcessName_t& processName) noexcept;
 
-    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
-
-    void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
-
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
     runtime::IpcMessage findService(const capro::ServiceDescription& service) noexcept;
 
   protected:
+    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
+
+    void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
+
     void handlePublisherPorts() noexcept;
 
+    void doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherPort) noexcept;
+
     void handleSubscriberPorts() noexcept;
+
+    void doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept;
 
     void handleInterfaces() noexcept;
 

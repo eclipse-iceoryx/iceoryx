@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -205,14 +206,12 @@ class PortUser_IntegrationTest : public Test
         {
             // Try to receive chunk
             subscriberPortUser.tryGetChunk()
-                .and_then([&](optional<const ChunkHeader*>& maybeChunkHeader) {
-                    if (maybeChunkHeader.has_value())
-                    {
-                        auto chunkHeader = maybeChunkHeader.value();
-                        m_receiveCounter++;
-                        subscriberPortUser.releaseChunk(chunkHeader);
-                    }
-                    else
+                .and_then([&](auto& chunkHeader) {
+                    m_receiveCounter++;
+                    subscriberPortUser.releaseChunk(chunkHeader);
+                })
+                .or_else([&](auto& result) {
+                    if (result == ChunkReceiveResult::NO_CHUNK_AVAILABLE)
                     {
                         // Nothing received -> check if publisher(s) still running
                         if (m_publisherRunFinished.load(std::memory_order_relaxed) == numberOfPublishers)
@@ -220,10 +219,11 @@ class PortUser_IntegrationTest : public Test
                             finished = true;
                         }
                     }
-                })
-                .or_else([](auto error) {
-                    // Errors shall never occur
-                    FAIL() << "Error in tryGetChunk(): " << static_cast<uint32_t>(error);
+                    else
+                    {
+                        // Errors shall never occur
+                        FAIL() << "Error in tryGetChunk(): " << static_cast<uint32_t>(result);
+                    }
                 });
         }
     }

@@ -61,19 +61,18 @@ int main()
     iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
     // create two subscribers, subscribe to the service and attach them to the waitset
-    const uint64_t historyRequest = 1U;
-    const uint64_t queueCapacity = 256U;
-
-    const char* const nodeName1 = "iox-c-ex-waitset-individual-node1";
-    const char* const nodeName2 = "iox-c-ex-waitset-individual-node2";
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+    options.historyRequest = 1U;
+    options.queueCapacity = 256U;
+    options.nodeName = "iox-c-ex-waitset-individual-node1";
 
     subscriber[0] = iox_sub_init(
-        &(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName1);
-    subscriber[1] = iox_sub_init(
-        &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName2);
+        &(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_sub_subscribe(subscriber[0]);
-    iox_sub_subscribe(subscriber[1]);
+    options.nodeName = "iox-c-ex-waitset-individual-node2";
+    subscriber[1] = iox_sub_init(
+        &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
     iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
     iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
@@ -104,7 +103,7 @@ int main()
             else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0U]))
             {
                 const void* chunk;
-                if (iox_sub_get_chunk(subscriber[0U], &chunk))
+                if (iox_sub_take_chunk(subscriber[0U], &chunk))
                 {
                     printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
 
@@ -126,7 +125,6 @@ int main()
     // cleanup all resources
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
     }
 

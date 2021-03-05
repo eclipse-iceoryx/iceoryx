@@ -50,9 +50,7 @@ class MockSubscriberPortUser
     MOCK_METHOD0(subscribe, void());
     MOCK_METHOD0(unsubscribe, void());
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
-    MOCK_METHOD0(
-        tryGetChunk,
-        iox::cxx::expected<iox::cxx::optional<const iox::mepoo::ChunkHeader*>, iox::popo::ChunkReceiveResult>());
+    MOCK_METHOD0(tryGetChunk, iox::cxx::expected<const iox::mepoo::ChunkHeader*, iox::popo::ChunkReceiveResult>());
     MOCK_METHOD1(releaseChunk, void(iox::mepoo::ChunkHeader*));
     MOCK_METHOD0(releaseQueuedChunks, void());
     MOCK_CONST_METHOD0(hasNewChunks, bool());

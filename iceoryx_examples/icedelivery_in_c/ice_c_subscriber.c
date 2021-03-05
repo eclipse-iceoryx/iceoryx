@@ -41,14 +41,15 @@ void receiving()
     // When starting the subscriber late it will miss the first samples which the
     // publisher has send. The history ensures that we at least get the last 10
     // samples send by the publisher when we subscribe.
-    const uint64_t historyRequest = 10U;
-    const uint64_t queueCapacity = 5U;
-    const char* const nodeName = "iox-c-subscriber-node";
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+    options.historyRequest = 10U;
+    options.queueCapacity = 5U;
+    options.nodeName = "iox-c-subscriber-node";
     iox_sub_storage_t subscriberStorage;
 
     iox_sub_t subscriber =
-        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest, nodeName);
-    iox_sub_subscribe(subscriber);
+        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", &options);
 
     while (!killswitch)
     {
@@ -57,7 +58,7 @@ void receiving()
             const void* chunk = NULL;
             // we will receive here more then one sample since the publisher is sending a
             // new sample every 400ms and we check for new samples only every second
-            while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
+            while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &chunk))
             {
                 const struct RadarObject* sample = (const struct RadarObject*)(chunk);
                 printf("Got value: %.0f\n", sample->x);
@@ -73,7 +74,6 @@ void receiving()
         sleep_for(1000);
     }
 
-    iox_sub_unsubscribe(subscriber);
     iox_sub_deinit(subscriber);
 }
 

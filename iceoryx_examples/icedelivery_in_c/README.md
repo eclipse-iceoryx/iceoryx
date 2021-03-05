@@ -46,19 +46,17 @@ Let's take a look at the `receiving` function which comes with the
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
     ```c
-    const uint64_t historyRequest = 10U;
-    const uint64_t queueCapacity = 5U;
-    const char* const nodeName = "iox-c-subscriber-node";
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+    options.historyRequest = 10U;
+    options.queueCapacity = 5U;
+    options.nodeName = "iox-c-subscriber-node";
+
     iox_sub_storage_t subscriberStorage;
-    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", queueCapacity, historyRequest, nodeName);
+    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", &options);
     ```
 
-  3. We subscribe to the service.
-     ```c
-     iox_sub_subscribe(subscriber);
-     ```
-
-  4. In this loop we receive samples as long the `killswitch` is not
+  3. In this loop we receive samples as long the `killswitch` is not
      set to `true` by an external signal and then print the counter
      value to the console.
      ```c
@@ -67,7 +65,7 @@ Let's take a look at the `receiving` function which comes with the
          if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
          {
              const void* chunk = NULL;
-             while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
+             while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &chunk))
              {
                  const struct RadarObject* sample = (const struct RadarObject*)(chunk);
                  printf("Got value: %.0f\n", sample->x);
@@ -82,13 +80,8 @@ Let's take a look at the `receiving` function which comes with the
          sleep_for(1000);
      }
      ```
-  
-  5. After we stop receiving samples we would like to unsubscribe.
-     ```c
-     iox_sub_unsubscribe(subscriber);
-     ```
 
-  6. When using the C API we have to cleanup the subscriber after
+  4. When using the C API we have to cleanup the subscriber after
      its usage.
      ```c
      iox_sub_deinit(subscriber);
@@ -116,17 +109,15 @@ Let's take a look at the `sending` function which comes with the
  2. We create a publisher with the service
     {"Radar", "FrontLeft", "Counter"}
     ```c
-    const uint64_t historyRequest = 10U;
-    const char* const nodeName = "iox-c-publisher-node";
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+    options.historyCapacity = 10U;
+    options.nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyRequest, nodeName);
-    ```
- 3. We offer our service to the world.
-    ```c
-    iox_pub_offer(publisher);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", &options);
     ```
 
- 4. Till an external signal sets `killswitch` to `true` we will send an
+ 3. Till an external signal sets `killswitch` to `true` we will send an
     incrementing number to all subscribers every send and print the
     value of this number to the console.
     ```c
@@ -135,7 +126,7 @@ Let's take a look at the `sending` function which comes with the
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct RadarObject)))
+        if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &chunk, sizeof(struct RadarObject)))
         {
             struct RadarObject* sample = (struct RadarObject*)chunk;
 
@@ -145,7 +136,7 @@ Let's take a look at the `sending` function which comes with the
 
             printf("Sent value: %.0f\n", ct);
 
-            iox_pub_send_chunk(publisher, chunk);
+            iox_pub_publish_chunk(publisher, chunk);
 
             ++ct;
 
@@ -158,12 +149,7 @@ Let's take a look at the `sending` function which comes with the
     }
     ```
 
- 5. We stop offering our service.
-    ```c
-    iox_pub_stop_offer(publisher);
-    ```
-
- 6. And we cleanup our publisher port.
+ 5. And we cleanup our publisher port.
     ```c
     iox_pub_destroy(publisher);
     ```

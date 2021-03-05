@@ -30,7 +30,7 @@ prints out the subscriber pointer and the content of the received sample.
 void subscriberCallback(iox_sub_t const subscriber)
 {
     const void* chunk;
-    if (iox_sub_get_chunk(subscriber, &chunk))
+    if (iox_sub_take_chunk(subscriber, &chunk))
     {
         printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
 
@@ -58,14 +58,15 @@ the `subscriberCallback` and an event id `1U`.
 ```c
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
-const uint64_t historyRequest = 1U;
-const uint64_t queueCapacity = 256U;
-const char* const nodeName = "iox-c-ex-waitSet-gateway-node";
+iox_sub_options_t options;
+iox_sub_options_init(&options);
+options.historyRequest = 1U;
+options.queueCapacity = 256U;
+options.nodeName = "iox-c-ex-waitSet-gateway-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
+    iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_sub_subscribe(subscriber);
     iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
 }
 ```
@@ -111,7 +112,6 @@ Before we can close the program we cleanup all resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
     iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
 }
 
@@ -141,14 +141,15 @@ After that we can create a list of subscribers and subscribe them to our topic.
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 iox_sub_t subscriber[NUMBER_OF_SUBSCRIBERS];
 
-const uint64_t historyRequest = 1U;
-const uint64_t queueCapacity = 256U;
-const char* const nodeName = "iox-c-ex-waitset-grouping-node";
+iox_sub_options_t options;
+iox_sub_options_init(&options);
+options.historyRequest = 1U;
+options.queueCapacity = 256U;
+options.nodeName = "iox-c-ex-waitset-grouping-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName);
+    subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_sub_subscribe(subscriber[i]);
 }
 ```
 
@@ -203,7 +204,7 @@ for (uint64_t i = 0U; i < numberOfEvents; ++i)
     {
         iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
         const void* chunk;
-        if (iox_sub_get_chunk(subscriber, &chunk))
+        if (iox_sub_take_chunk(subscriber, &chunk))
         {
             printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
 
@@ -223,7 +224,6 @@ The last thing we have to do is to cleanup all the acquired resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
     iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
 }
 
@@ -252,17 +252,15 @@ iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 Now we create two subscriber, subscribe them to our topic and attach them to
 the waitset without a callback and with the same trigger id.
 ```c
-const uint64_t historyRequest = 1U;
-const uint64_t queueCapacity = 256U;
-
-const char* const nodeName1 = "iox-c-ex-waitset-individual-node1";
-const char* const nodeName2 = "iox-c-ex-waitset-individual-node2";
-
-subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName1);
-subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", queueCapacity, historyRequest, nodeName2);
-
-iox_sub_subscribe(subscriber[0]);
-iox_sub_subscribe(subscriber[1]);
+iox_sub_options_t options;
+iox_sub_options_init(&options);
+options.historyRequest = 1U;
+options.queueCapacity = 256U;
+options.nodeName = "iox-c-ex-waitset-individual-node1";
+    
+subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
+options.nodeName = "iox-c-ex-waitset-individual-node2";
+subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
 iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
 iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
@@ -295,7 +293,7 @@ originated from the second subscriber we discard the data.
         else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0]))
         {
             const void* chunk;
-            if (iox_sub_get_chunk(subscriber[0], &chunk))
+            if (iox_sub_take_chunk(subscriber[0], &chunk))
             {
                 printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
 
@@ -314,7 +312,6 @@ We conclude the example as always, be cleaning up the resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
     iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
 }
 
