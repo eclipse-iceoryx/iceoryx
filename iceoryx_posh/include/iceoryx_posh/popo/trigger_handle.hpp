@@ -41,7 +41,7 @@ class TriggerHandle
     TriggerHandle() = default;
     /// @brief Creates a TriggerHandle
     /// @param[in] eventVariableDataRef reference to a event variable data struct
-    /// @param[in] resetCallback callback which will be called it goes out of scope or reset is called
+    /// @param[in] resetCallback callback which will be called when it goes out of scope or reset is called
     /// @param[in] uniqueTriggerId the unique trigger id of the Trigger which corresponds to the TriggerHandle. Usually
     /// stored in a Notifyable. It is required for the resetCallback
     TriggerHandle(EventVariableData& eventVariableDataRef,

@@ -117,19 +117,12 @@ class SimpleEventClass
     }
     void triggerStoepsel() noexcept
     {
-        m_hasTriggered.store(true);
         m_handleStoepsel.trigger();
-    }
-
-    void resetTrigger() noexcept
-    {
-        m_hasTriggered.store(false);
     }
 
     iox::popo::TriggerHandle m_handleHypnotoad;
     iox::popo::TriggerHandle m_handleStoepsel;
     iox::popo::TriggerHandle m_handleNoEventEnum;
-    mutable std::atomic_bool m_hasTriggered{false};
 };
 
 class TestListener : public Listener
@@ -231,19 +224,13 @@ class Listener_test : public Test
         }
     }
 
-    bool fillUpWithSimpleEvents()
+    void fillUpWithSimpleEvents()
     {
         for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
         {
-            bool hasError = m_sut->attachEvent(m_simpleEvents[i], Listener_test::triggerCallback<0U>).has_error();
-            EXPECT_FALSE(hasError);
-            if (hasError)
-            {
-                return false;
-            }
-            EXPECT_THAT(m_sut->size(), Eq(i + 1));
+            EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[i], Listener_test::triggerCallback<0U>).has_error());
+            EXPECT_THAT(m_sut->size(), Eq(i + 1U));
         }
-        return true;
     }
     bool fillUpWithSimpleEventsWithEnum(const SimpleEvent eventType)
     {
@@ -257,7 +244,7 @@ class Listener_test : public Test
                 return false;
             }
 
-            EXPECT_THAT(m_sut->size(), Eq(i + 1));
+            EXPECT_THAT(m_sut->size(), Eq(i + 1U));
         }
         return true;
     }
@@ -348,7 +335,7 @@ TEST_F(Listener_test, AttachingWithEnumIfEnoughSpaceAvailableWorks)
 {
     EXPECT_FALSE(
         m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::Hypnotoad, Listener_test::triggerCallback<0U>).has_error());
-    EXPECT_THAT(m_sut->size(), Eq(1));
+    EXPECT_THAT(m_sut->size(), Eq(1U));
 }
 
 TEST_F(Listener_test, AttachWithEnumTillCapacityIsFullWorks)
@@ -451,13 +438,27 @@ TEST_F(Listener_test, AttachingWithoutEnumTillCapacityFilledSetsUpNoEventEnumTri
     }
 }
 
-TEST_F(Listener_test, DTorDetachesAllAttachedEvents)
+TEST_F(Listener_test, DTorDetachesAllAttachedEventsWithoutEnum)
 {
     fillUpWithSimpleEvents();
 
+    auto capacity = m_sut->capacity();
     m_sut.reset();
 
-    for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
+    for (uint64_t i = 0U; i < capacity; ++i)
+    {
+        EXPECT_FALSE(m_simpleEvents[i].m_handleNoEventEnum.isValid());
+    }
+}
+
+TEST_F(Listener_test, DTorDetachesAllAttachedEventsWithEnum)
+{
+    fillUpWithSimpleEventsWithEnum(SimpleEvent::Hypnotoad);
+
+    auto capacity = m_sut->capacity();
+    m_sut.reset();
+
+    for (uint64_t i = 0U; i < capacity; ++i)
     {
         EXPECT_FALSE(m_simpleEvents[i].m_handleHypnotoad.isValid());
     }
@@ -487,7 +488,7 @@ TEST_F(Listener_test, DetachingSimpleEventResetsTriggerHandle)
     m_sut->attachEvent(fuu, Listener_test::triggerCallback<0U>);
     m_sut->detachEvent(fuu);
 
-    EXPECT_FALSE(static_cast<bool>(fuu.m_handleHypnotoad));
+    EXPECT_FALSE(static_cast<bool>(fuu.m_handleNoEventEnum));
 }
 
 TEST_F(Listener_test, AttachingEventWithEnumSetsTriggerHandle)
@@ -640,7 +641,7 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
     }
     bar.triggerStoepsel();
     m_watchdog.watchAndActOnFailure([] { std::terminate(); });
-    unblockTriggerCallback(NUMBER_OF_RETRIGGERS + 1);
+    unblockTriggerCallback(NUMBER_OF_RETRIGGERS + 1U);
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
     TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
@@ -754,7 +755,7 @@ TIMING_TEST_F(Listener_test, AttachingMultipleWhileCallbackIsRunningWorks, Repea
                        triggerCallback<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U>);
 
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
-    events[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1].triggerStoepsel();
+    events[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
     AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 2U>::doIt(*m_sut, events, SimpleEvent::StoepselBachelorParty);
@@ -952,7 +953,7 @@ TIMING_TEST_F(Listener_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefo
     TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count == 1U);
 });
 
-TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(1), [&] {
+TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(5), [&] {
     m_sut.emplace(&m_eventVarData);
     g_toBeAttached->clear();
 

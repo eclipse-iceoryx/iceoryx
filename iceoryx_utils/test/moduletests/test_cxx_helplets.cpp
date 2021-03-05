@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -131,5 +132,5 @@ TEST_F(Helplets_test, bestFittingTypeUsesUint64WhenValueEqualTo4294967296)
 
 TEST_F(Helplets_test, bestFittingTypeUsesUint32WhenValueGreater2p32)
 {
-    EXPECT_TRUE((std::is_same<BestFittingType_t<42949672961>, uint64_t>::value));
+    EXPECT_TRUE((std::is_same<BestFittingType_t<42949672961U>, uint64_t>::value));
 }
