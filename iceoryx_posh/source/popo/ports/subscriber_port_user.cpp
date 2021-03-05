@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +64,7 @@ SubscribeState SubscriberPortUser::getSubscriptionState() const noexcept
     return getMembers()->m_subscriptionState;
 }
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveResult> SubscriberPortUser::tryGetChunk() noexcept
+cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> SubscriberPortUser::tryGetChunk() noexcept
 {
     return m_chunkReceiver.tryGet();
 }
@@ -91,6 +92,11 @@ bool SubscriberPortUser::hasLostChunksSinceLastCall() noexcept
 void SubscriberPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
     m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
+}
+
+void SubscriberPortUser::setEventVariable(EventVariableData& eventVariableData, const uint64_t eventId) noexcept
+{
+    m_chunkReceiver.setEventVariable(eventVariableData, eventId);
 }
 
 void SubscriberPortUser::unsetConditionVariable() noexcept

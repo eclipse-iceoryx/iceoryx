@@ -66,7 +66,6 @@ int main()
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
 
-        subscriber.subscribe();
         waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 0, &subscriberCallback);
     }
 

@@ -20,6 +20,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
@@ -51,6 +52,13 @@ namespace runtime
 class Node;
 class NodeData;
 
+enum class FindServiceError
+{
+    INVALID_STATE,
+    UNABLE_TO_WRITE_TO_ROUDI_CHANNEL,
+    INSTANCE_CONTAINER_OVERFLOW
+};
+
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
 class PoshRuntime
 {
@@ -73,12 +81,11 @@ class PoshRuntime
 
     /// @brief find all services that match the provided service description
     /// @param[in] serviceDescription service to search for
-    /// @return cxx::expected<InstanceContainer,Error>
+    /// @return cxx::expected<InstanceContainer, FindServiceError>
     /// InstanceContainer: on success, container that is filled with all matching instances
-    /// Error: if any, encountered during the operation
-    /// Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW : Number of instances can't fit in instanceContainer
-    /// Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL : Find Service Request could not be sent to RouDi
-    cxx::expected<InstanceContainer, Error> findService(const capro::ServiceDescription& serviceDescription) noexcept;
+    /// FindServiceError: if any, encountered during the operation
+    cxx::expected<InstanceContainer, FindServiceError>
+    findService(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
     /// @param[in] serviceDescription service to offer
@@ -122,9 +129,13 @@ class PoshRuntime
     /// @return pointer to a created application port data
     popo::ApplicationPortData* getMiddlewareApplication() noexcept;
 
-    /// @brief request the RouDi daemon to create an condition variable
+    /// @brief request the RouDi daemon to create a condition variable
     /// @return pointer to a created condition variable data
     popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept;
+
+    /// @brief request the RouDi daemon to create an event variable
+    /// @return pointer to a created event variable data
+    popo::EventVariableData* getMiddlewareEventVariable() noexcept;
 
     /// @brief request the RouDi daemon to create a node
     /// @param[in] nodeProperty class which contains all properties which the node should have
@@ -188,6 +199,9 @@ class PoshRuntime
 
     cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
     requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
+
+    cxx::expected<popo::EventVariableData*, IpcMessageErrorType>
+    requestEventVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
     /// @brief checks the given application name for certain constraints like length or if is empty
     const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;

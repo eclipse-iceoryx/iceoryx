@@ -34,7 +34,7 @@ def generate_test_description():
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
     executable_list = ['iox-ex-publisher', 'iox-ex-subscriber',
                        'iox-ex-publisher-untyped', 'iox-ex-subscriber-untyped',
-                       'iox-ex-publisher-with-history', 'iox-ex-subscriber-with-history']
+                       'iox-ex-publisher-with-options', 'iox-ex-subscriber-with-options']
     process_list = []
 
     for exec in executable_list:
@@ -68,7 +68,7 @@ def generate_test_description():
         launch_testing.actions.ReadyToTest()
     ]), {'iox-ex-publisher': process_list[0], 'iox-ex-subscriber': process_list[1],
          'iox-ex-publisher-untyped': process_list[2], 'iox-ex-subscriber-untyped': process_list[3],
-         'iox-ex-publisher-with-history': process_list[4], 'iox-ex-subscriber-with-history': process_list[5], 'roudi_process': roudi_process}
+         'iox-ex-publisher-with-options': process_list[4], 'iox-ex-subscriber-with-options': process_list[5], 'roudi_process': roudi_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
@@ -91,11 +91,11 @@ class TestIcedeliveryExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'Iox-Untyped-Subscriber got value: 15', timeout=45, stream='stdout')
 
-    def test_publisher_subscriber_with_history_data_exchange(self, proc_output):
+    def test_publisher_subscriber_with_options_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Iox-Publisher-with-history sent value: 15', timeout=45, stream='stdout')
+            'Iox-Publisher-with-options sent value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Iox-Subscriber-with-history got value: 15', timeout=45, stream='stdout')
+            'Iox-Subscriber-with-options got value: 15', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 

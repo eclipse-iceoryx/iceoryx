@@ -72,6 +72,9 @@ template <typename T1, typename T2>
 using not_same = typename std::
     integral_constant<bool, !bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
 
+/// @brief Maps a sequence of any types to the type void
+template <typename...>
+using void_t = void;
 } // namespace cxx
 } // namespace iox
 
