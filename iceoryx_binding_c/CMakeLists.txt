@@ -76,6 +76,7 @@ target_include_directories(${PROJECT_NAME}
 if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME}
       PUBLIC
+        stdc++
         pthread
       PRIVATE
         iceoryx_posh::iceoryx_posh
@@ -83,6 +84,8 @@ if(NOT WIN32)
     )
 else()
     target_link_libraries(${PROJECT_NAME}
+      PUBLIC
+        stdc++
       PRIVATE
         iceoryx_posh::iceoryx_posh
         iceoryx_utils::iceoryx_utils
