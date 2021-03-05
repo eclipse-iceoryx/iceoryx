@@ -42,4 +42,8 @@ void iox_listener_detach_subscriber_event(iox_listener_t const self,
                                           const ENUM iox_SubscriberEvent subscriberEvent);
 void iox_listener_detach_user_trigger_event(iox_listener_t const self, iox_user_trigger_t const userTrigger);
 
+uint64_t iox_listener_size(iox_listener_t const self);
+
+uint64_t iox_listener_capacity(iox_listener_t const self);
+
 #endif

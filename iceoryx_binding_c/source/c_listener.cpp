@@ -74,3 +74,13 @@ void iox_listener_detach_user_trigger_event(iox_listener_t const self, iox_user_
     self->detachEvent(*userTrigger);
 }
 
+uint64_t iox_listener_size(iox_listener_t const self)
+{
+    return self->size();
+}
+
+uint64_t iox_listener_capacity(iox_listener_t const self)
+{
+    return self->capacity();
+}
+
