@@ -18,7 +18,6 @@
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
-//#include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 #include "iceoryx_utils/platform/socket.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
 

@@ -21,7 +21,6 @@
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 
 #include <thread>

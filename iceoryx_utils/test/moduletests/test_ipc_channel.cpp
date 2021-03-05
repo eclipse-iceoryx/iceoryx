@@ -126,12 +126,7 @@ TYPED_TEST(IpcChannel_test, CreateAgainLeadsToError)
     EXPECT_FALSE(first.has_error());
     auto second =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
-    EXPECT_TRUE(second.has_error());
-    // auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-    // [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-    //     detectedError.emplace(error);
-    //     EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-    // });
+    EXPECT_FALSE(second.has_error());
 }
 
 
