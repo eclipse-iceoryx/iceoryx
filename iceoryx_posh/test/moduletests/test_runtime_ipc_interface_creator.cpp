@@ -28,13 +28,11 @@ using namespace iox::runtime;
 
 constexpr char goodName[] = "channel_test";
 constexpr char anotherGoodName[] = "horst";
-constexpr char theUnknown[] = "WhoeverYouAre";
-constexpr char slashName[] = "/miau";
 
 /// @req
 /// @brief This test suite verifies the additional functionality of IpcInterfaceCreator
-/// @pre Make sure no left-over IpcChannels with our names exist
-/// @post StdErr is capture and outputed to StdCout
+/// @pre Make sure no left-over IpcChannels with the names used in this test exist
+/// @post None
 /// @note Specific functionality of the base class are intentionally not considered in this test
 class IpcInterfaceCreator_test : public Test
 {
@@ -58,6 +56,7 @@ TEST_F(IpcInterfaceCreator_test, CreateWithDifferentNameWorks)
 {
     IpcInterfaceCreator m_sut{goodName};
     IpcInterfaceCreator m_sut2{anotherGoodName};
+    EXPECT_TRUE(m_sut.isInitialized());
     EXPECT_TRUE(m_sut2.isInitialized());
 }
 
