@@ -71,6 +71,8 @@ target_include_directories(${PROJECT_NAME}
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    pthread
     PRIVATE
     iceoryx_posh::iceoryx_posh
     iceoryx_utils::iceoryx_utils
