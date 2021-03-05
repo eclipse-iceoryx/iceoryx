@@ -79,7 +79,7 @@ void EventListener::resetSemaphore() noexcept
     // Count the semaphore down to zero
     bool hasFatalError = false;
     while (!hasFatalError
-           || m_pointerToEventVariableData->m_semaphore.tryWait()
+           && m_pointerToEventVariableData->m_semaphore.tryWait()
                   .or_else([&](posix::SemaphoreError) {
                       errorHandler(
                           Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_RESET, nullptr, ErrorLevel::FATAL);
