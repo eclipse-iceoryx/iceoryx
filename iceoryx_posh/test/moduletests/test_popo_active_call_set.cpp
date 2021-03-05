@@ -645,7 +645,7 @@ TIMING_TEST_F(ActiveCallSet_test, TriggerMultipleTimesWhileInCallbackLeadsToAnot
     }
     bar.triggerStoepsel();
     m_watchdog.watchAndActOnFailure([] { std::terminate(); });
-    unblockTriggerCallback(NUMBER_OF_RETRIGGERS + 1);
+    unblockTriggerCallback(NUMBER_OF_RETRIGGERS + 1U);
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
     TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
@@ -761,7 +761,7 @@ TIMING_TEST_F(ActiveCallSet_test, AttachingMultipleWhileCallbackIsRunningWorks, 
                        triggerCallback<iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U>);
 
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
-    events[iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1].triggerStoepsel();
+    events[iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 1U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
     AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET - 2U>::doIt(
@@ -963,7 +963,7 @@ TIMING_TEST_F(ActiveCallSet_test, DetachedCallbacksAreNotBeingCalledWhenTriggere
     TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count == 1U);
 });
 
-TIMING_TEST_F(ActiveCallSet_test, AttachingInCallbackWorks, Repeat(1), [&] {
+TIMING_TEST_F(ActiveCallSet_test, AttachingInCallbackWorks, Repeat(5), [&] {
     m_sut.emplace(&m_eventVarData);
     g_toBeAttached->clear();
 

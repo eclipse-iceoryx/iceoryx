@@ -132,5 +132,5 @@ TEST_F(Helplets_test, bestFittingTypeUsesUint64WhenValueEqualTo4294967296)
 
 TEST_F(Helplets_test, bestFittingTypeUsesUint32WhenValueGreater2p32)
 {
-    EXPECT_TRUE((std::is_same<BestFittingType_t<42949672961>, uint64_t>::value));
+    EXPECT_TRUE((std::is_same<BestFittingType_t<42949672961U>, uint64_t>::value));
 }

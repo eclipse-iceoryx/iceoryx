@@ -36,7 +36,7 @@ class TriggerHandle_test : public Test
     ConditionVariableData m_condVar{"Horscht"};
     TriggerHandle_test* m_self = this;
 
-    TriggerHandle m_sut{m_condVar, {*this, &TriggerHandle_test::resetCallback}, 12};
+    TriggerHandle m_sut{m_condVar, {*this, &TriggerHandle_test::resetCallback}, 12U};
 };
 
 
@@ -76,7 +76,7 @@ TEST_F(TriggerHandle_test, ResetCreatesInvalidTriggerHandle)
 TEST_F(TriggerHandle_test, ResetCallsResetCallbackWhenHandleIsValid)
 {
     m_sut.reset();
-    EXPECT_EQ(m_resetCallbackId, 12);
+    EXPECT_EQ(m_resetCallbackId, 12U);
     EXPECT_THAT(m_sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
 }
 
@@ -84,7 +84,7 @@ TEST_F(TriggerHandle_test, ResetDoesNotCallResetCallbackWhenHandleIsInvalid)
 {
     m_sut.invalidate();
     m_sut.reset();
-    EXPECT_EQ(m_resetCallbackId, 0);
+    EXPECT_EQ(m_resetCallbackId, 0U);
     EXPECT_THAT(m_sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
 }
 
@@ -95,8 +95,8 @@ TEST_F(TriggerHandle_test, getConditionVariableDataReturnsCorrectVar)
 
 TEST_F(TriggerHandle_test, getUniqueIdReturnsCorrectId)
 {
-    TriggerHandle sut2{m_condVar, {*m_self, &TriggerHandle_test::resetCallback}, 8912};
-    EXPECT_EQ(sut2.getUniqueId(), 8912);
+    TriggerHandle sut2{m_condVar, {*m_self, &TriggerHandle_test::resetCallback}, 8912U};
+    EXPECT_EQ(sut2.getUniqueId(), 8912U);
 }
 
 TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)

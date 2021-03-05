@@ -59,6 +59,7 @@ EventListener::NotificationVector_t EventListener::wait() noexcept
         if (m_pointerToEventVariableData->m_semaphore.wait().has_error())
         {
             errorHandler(Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+            break;
         }
     }
 
@@ -76,12 +77,15 @@ void EventListener::reset(const uint64_t index) noexcept
 void EventListener::resetSemaphore() noexcept
 {
     // Count the semaphore down to zero
-    while (m_pointerToEventVariableData->m_semaphore.tryWait()
-               .or_else([](posix::SemaphoreError) {
-                   errorHandler(
-                       Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_RESET, nullptr, ErrorLevel::FATAL);
-               })
-               .value())
+    bool hasFatalError = false;
+    while (!hasFatalError
+           || m_pointerToEventVariableData->m_semaphore.tryWait()
+                  .or_else([&](posix::SemaphoreError) {
+                      errorHandler(
+                          Error::kPOPO__EVENT_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_RESET, nullptr, ErrorLevel::FATAL);
+                      hasFatalError = true;
+                  })
+                  .value())
     {
     }
 }
