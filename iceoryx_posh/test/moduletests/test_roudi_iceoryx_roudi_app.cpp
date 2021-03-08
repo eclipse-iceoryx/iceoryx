@@ -55,11 +55,6 @@ class IceoryxRoudiApp_Child : public IceOryxRouDiApp
         return m_monitoringMode;
     }
 
-    RouDiConfig_t getConfig()
-    {
-        return m_config;
-    }
-
     void setVariableRun(bool condition)
     {
         m_run = condition;
