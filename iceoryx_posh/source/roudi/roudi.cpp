@@ -304,8 +304,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::KEEPALIVE:
     {
-        //int32_t pid{0};
-        //cxx::convert::fromString(message.getElementAtIndex(3).c_str(), pid);
         m_prcMgr.updateLivelinessOfProcess(processName);
         break;
     }

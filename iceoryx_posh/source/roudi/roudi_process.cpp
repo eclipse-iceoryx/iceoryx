@@ -366,7 +366,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
         // process exists and is monitored - we rely on monitoring for removal
         LogWarn() << "Received REG from " << name << ", but another application with this name is already registered";
 
-        // Notify new application that she shall shutdown
+        // Notify new application that it shall shutdown
         runtime::IpcMessage sendBuffer;
         sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_FAIL_APP_ALREADY_REGISTERED);
         process->sendViaIpcChannel(sendBuffer);
@@ -483,12 +483,11 @@ bool ProcessManager::removeProcess(const std::lock_guard<std::mutex>& lockGuard 
     return false;
 }
 
-void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name /*, const int32_t pid*/) noexcept
+void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
     RouDiProcess* process = getProcessFromList(name);
-    //&& process->getPid() == pid
     if (nullptr != process)
     {
         // reset timestamp
