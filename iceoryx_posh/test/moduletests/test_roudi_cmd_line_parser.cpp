@@ -461,7 +461,7 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     ASSERT_FALSE(result.has_error());
     ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
-    EXPECT_EQ(result.value().processKillDelay, Duration::fromSeconds(45)); // default value for kill delay
+    EXPECT_EQ(result.value().processKillDelay, iox::roudi::PROCESS_DEFAULT_KILL_DELAY); // default value for kill delay
     EXPECT_TRUE(result.value().run);
 
     optind = 0;
