@@ -22,36 +22,44 @@
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/platform/types.hpp"
+#include "mocks/roudi_memory_interface_mock.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
 using namespace iox::roudi;
 using namespace iox::popo;
 using namespace iox::runtime;
+using namespace iox::posix;
+using namespace iox::version;
 using ::testing::Return;
-
-class IpcInterfaceUser_Mock : public iox::roudi::Process
-{
-  public:
-    IpcInterfaceUser_Mock()
-        : iox::roudi::Process("TestProcess", 200, nullptr, true, 0x654321, 255)
-    {
-    }
-    MOCK_METHOD1(sendViaIpcChannel, void(IpcMessage));
-};
 
 class ProcessManager_test : public Test
 {
   public:
-    const iox::ProcessName_t processname = {"TestProcess"};
-    pid_t pid{200U};
-    iox::mepoo::MemoryManager* payloadMemoryManager{nullptr};
-    bool isMonitored = true;
-    const uint64_t payloadSegmentId{0x654321U};
-    const uint64_t sessionId{255U};
-    IpcInterfaceUser_Mock ipcInterfaceUserMock;
+    const iox::ProcessName_t m_processname = {"TestProcess"};
+    pid_t m_pid{42U};
+    PosixUser m_user{73};
+    iox::mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
+    bool m_isMonitored{true};
+    const uint64_t m_payloadSegmentId{0x654321U};
+    const uint64_t m_sessionId{255U};
+    RouDiMemoryInterfaceMock m_memoryInterfaceMock;
+    PortManager m_portManager{&m_memoryInterfaceMock};
+    VersionInfo m_versionInfo{42, 42, 42, 42, "Foo", "Bar"};
+    CompatibilityCheckLevel m_compLevel;
+    ProcessManager m_sut{m_memoryInterfaceMock, m_portManager, m_compLevel};
 };
 
-TEST_F(ProcessManager_test, foo)
+TEST_F(ProcessManager_test, RegisterProcessWithMonitoringWorks)
 {
+    auto result = m_sut.registerProcess(m_processname, m_pid, m_user, true, 1U, 1U, m_versionInfo);
+
+    EXPECT_TRUE(result);
+}
+
+TEST_F(ProcessManager_test, RegisterProcessWithoutMonitoringWorks)
+{
+    auto result = m_sut.registerProcess(m_processname, m_pid, m_user, false, 1U, 1U, m_versionInfo);
+
+    EXPECT_TRUE(result);
 }

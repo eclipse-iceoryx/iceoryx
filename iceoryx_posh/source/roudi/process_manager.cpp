@@ -253,6 +253,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
 
     Process* process{nullptr};
     {
+        /// @todo wrap m_processList in SmartLock
         std::lock_guard<std::mutex> g(m_mutex);
         process = getProcessFromList(name); // process existence check
         if (process)
