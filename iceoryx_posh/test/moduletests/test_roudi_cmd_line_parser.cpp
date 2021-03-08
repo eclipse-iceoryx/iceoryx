@@ -64,6 +64,7 @@ class CmdLineParser_test : public Test
 
         ASSERT_FALSE(result.has_error());
         EXPECT_EQ(result.value().logLevel, level);
+        EXPECT_TRUE(result.value().run);
 
         // Reset optind to be able to parse again
         optind = 0;
@@ -76,6 +77,7 @@ class CmdLineParser_test : public Test
 
         ASSERT_FALSE(result.has_error());
         EXPECT_EQ(result.value().monitoringMode, mode);
+        EXPECT_TRUE(result.value().run);
 
         // Reset optind to be able to parse again
         optind = 0;
@@ -88,6 +90,7 @@ class CmdLineParser_test : public Test
 
         ASSERT_FALSE(result.has_error());
         EXPECT_EQ(result.value().compatibilityCheckLevel, level);
+        EXPECT_TRUE(result.value().run);
 
         // Reset optind to be able to parse again
         optind = 0;
@@ -293,6 +296,7 @@ TEST_F(CmdLineParser_test, KillDelayLongOptionLeadsToCorrectDelay)
 
     ASSERT_FALSE(result.has_error());
     EXPECT_EQ(result.value().processKillDelay, Duration::fromSeconds(73));
+    EXPECT_TRUE(result.value().run);
 }
 
 TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
@@ -311,6 +315,7 @@ TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
 
     ASSERT_FALSE(result.has_error());
     EXPECT_EQ(result.value().processKillDelay, Duration::fromSeconds(42));
+    EXPECT_TRUE(result.value().run);
 }
 
 TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
@@ -394,6 +399,7 @@ TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
     ASSERT_FALSE(result.has_error());
     ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
+    EXPECT_TRUE(result.value().run);
 }
 
 TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
@@ -413,6 +419,7 @@ TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
     ASSERT_FALSE(result.has_error());
     ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
+    EXPECT_TRUE(result.value().run);
 }
 
 TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
@@ -455,6 +462,7 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
     EXPECT_EQ(result.value().processKillDelay, Duration::fromSeconds(45)); // default value for kill delay
+    EXPECT_TRUE(result.value().run);
 
     optind = 0;
 
@@ -464,6 +472,7 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     ASSERT_TRUE(res.value().uniqueRouDiId.has_value());
     EXPECT_EQ(res.value().uniqueRouDiId.value(), 4242);
     EXPECT_EQ(res.value().processKillDelay, Duration::fromSeconds(42));
+    EXPECT_TRUE(result.value().run);
 }
 
 } // namespace test
