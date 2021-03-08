@@ -38,7 +38,7 @@ namespace iox
 {
 namespace roudi
 {
-RouDiProcess::RouDiProcess(const ProcessName_t& name,
+Process::Process(const ProcessName_t& name,
                            int32_t pid,
                            mepoo::MemoryManager* payloadMemoryManager,
                            bool isMonitored,
@@ -54,52 +54,52 @@ RouDiProcess::RouDiProcess(const ProcessName_t& name,
 {
 }
 
-int32_t RouDiProcess::getPid() const noexcept
+int32_t Process::getPid() const noexcept
 {
     return m_pid;
 }
 
-const ProcessName_t RouDiProcess::getName() const noexcept
+const ProcessName_t Process::getName() const noexcept
 {
     return ProcessName_t(cxx::TruncateToCapacity, m_ipcChannel.getInterfaceName());
 }
 
-void RouDiProcess::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
+void Process::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
 {
     bool sendSuccess = m_ipcChannel.send(data);
     if (!sendSuccess)
     {
-        LogWarn() << "RouDiProcess cannot send message over communication channel";
+        LogWarn() << "Process cannot send message over communication channel";
         errorHandler(Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, nullptr, ErrorLevel::SEVERE);
     }
 }
 
-uint64_t RouDiProcess::getSessionId() noexcept
+uint64_t Process::getSessionId() noexcept
 {
     return m_sessionId.load(std::memory_order_relaxed);
 }
 
-void RouDiProcess::setTimestamp(const mepoo::TimePointNs_t timestamp) noexcept
+void Process::setTimestamp(const mepoo::TimePointNs_t timestamp) noexcept
 {
     m_timestamp = timestamp;
 }
 
-mepoo::TimePointNs_t RouDiProcess::getTimestamp() noexcept
+mepoo::TimePointNs_t Process::getTimestamp() noexcept
 {
     return m_timestamp;
 }
 
-mepoo::MemoryManager* RouDiProcess::getPayloadMemoryManager() const noexcept
+mepoo::MemoryManager* Process::getPayloadMemoryManager() const noexcept
 {
     return m_payloadMemoryManager;
 }
 
-uint64_t RouDiProcess::getPayloadSegmentId() const noexcept
+uint64_t Process::getPayloadSegmentId() const noexcept
 {
     return m_payloadSegmentId;
 }
 
-bool RouDiProcess::isMonitored() const noexcept
+bool Process::isMonitored() const noexcept
 {
     return m_isMonitored;
 }
@@ -242,7 +242,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     }
 }
 
-bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process, ShutdownPolicy shutdownPolicy) noexcept
+bool ProcessManager::requestShutdownOfProcess(const Process& process, ShutdownPolicy shutdownPolicy) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
     auto killC = iox::cxx::makeSmartC(kill,
@@ -260,7 +260,7 @@ bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process, Shutd
     return true;
 }
 
-bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
+bool ProcessManager::isProcessAlive(const Process& process) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
     auto checkCommand = iox::cxx::makeSmartC(kill,
@@ -283,7 +283,7 @@ bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
     return true;
 }
 
-void ProcessManager::evaluateKillError(const RouDiProcess& process,
+void ProcessManager::evaluateKillError(const Process& process,
                                        const int32_t& errnum,
                                        const char* errorString,
                                        ShutdownPolicy shutdownPolicy) noexcept
@@ -319,7 +319,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
     bool processExists = false;
     bool duplicate = false;
 
-    RouDiProcess* process{nullptr};
+    Process* process{nullptr};
     {
         std::lock_guard<std::mutex> g(m_mutex);
         process = getProcessFromList(name); // process existence check
@@ -438,7 +438,7 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
 
     m_processList.back().sendViaIpcChannel(sendBuffer);
 
-    // set current timestamp again (already done in RouDiProcess's constructor
+    // set current timestamp again (already done in Process's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock_t::now());
 
     m_processIntrospection->addProcess(pid, ProcessName_t(cxx::TruncateToCapacity, name.c_str()));
@@ -487,7 +487,7 @@ void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name) noexce
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(name);
+    Process* process = getProcessFromList(name);
     if (nullptr != process)
     {
         // reset timestamp
@@ -503,7 +503,7 @@ void ProcessManager::findServiceForProcess(const ProcessName_t& name, const capr
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(name);
+    Process* process = getProcessFromList(name);
     if (nullptr != process)
     {
         runtime::IpcMessage instanceString({m_portManager.findService(service)});
@@ -522,7 +522,7 @@ void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(name);
+    Process* process = getProcessFromList(name);
     if (nullptr != process)
     {
         // create a ReceiverPort
@@ -547,7 +547,7 @@ void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
 void ProcessManager::sendServiceRegistryChangeCounterToProcess(const ProcessName_t& processName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
-    RouDiProcess* process = getProcessFromList(processName);
+    Process* process = getProcessFromList(processName);
     if (nullptr != process)
     {
         // send counter to app as a serialized relative pointer
@@ -567,7 +567,7 @@ void ProcessManager::addApplicationForProcess(const ProcessName_t& name) noexcep
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(name);
+    Process* process = getProcessFromList(name);
     if (nullptr != process)
     {
         popo::ApplicationPortData* port = m_portManager.acquireApplicationPortData(name);
@@ -591,7 +591,7 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(processName);
+    Process* process = getProcessFromList(processName);
     if (nullptr != process)
     {
         m_portManager.acquireNodeData(processName, nodeName)
@@ -630,7 +630,7 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(name);
+    Process* process = getProcessFromList(name);
     if (nullptr != process)
     {
         runtime::IpcMessage sendBuffer;
@@ -648,7 +648,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(name);
+    Process* process = getProcessFromList(name);
     if (nullptr != process)
     {
         // create a SubscriberPort
@@ -689,7 +689,7 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(name);
+    Process* process = getProcessFromList(name);
     if (nullptr != process)
     {
         // create a PublisherPort
@@ -730,7 +730,7 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* process = getProcessFromList(processName);
+    Process* process = getProcessFromList(processName);
     if (nullptr != process)
     {
         // Try to create a condition variable
@@ -796,9 +796,9 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
     return maybePublisher.value();
 }
 
-RouDiProcess* ProcessManager::getProcessFromList(const ProcessName_t& name) noexcept
+Process* ProcessManager::getProcessFromList(const ProcessName_t& name) noexcept
 {
-    RouDiProcess* processPtr = nullptr;
+    Process* processPtr = nullptr;
 
     typename ProcessList_t::iterator it = m_processList.begin();
     const typename ProcessList_t::iterator itEnd = m_processList.end();
