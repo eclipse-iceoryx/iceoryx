@@ -247,34 +247,40 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                                      const uint64_t sessionId,
                                      const version::VersionInfo& versionInfo) noexcept
 {
-    bool wasPreviouslyMonitored = false; // must be in outer scope but is only initialized before use
     bool processExists = false;
-    bool duplicate = false;
+
+    auto segmentInfo = m_segmentManager->getSegmentInformationForUser(user);
 
     Process* process{nullptr};
     {
-        /// @todo wrap m_processList in SmartLock
         std::lock_guard<std::mutex> g(m_mutex);
         process = getProcessFromList(name); // process existence check
         if (process)
         {
+            // process is already in list (i.e. registered)
+            // depending on the mode we clean up the process resources and register it again
+            // if it is monitored, we reject the registration and wait for automatic cleanup
+            // otherwise we remove the process ourselves and register it again
             processExists = true;
-            wasPreviouslyMonitored = process->isMonitored(); // needs to be read here under lock
-                                                             // Is it the same process or a duplicate?
-            if (process->getPid() != pid)
+
+            if (process->isMonitored()) // needs to be read here under lock, is it the same process or a duplicate?
             {
-                duplicate = true;
+                // process exists and is monitored - we rely on monitoring for removal
+                LogWarn() << "Received REG from " << name
+                          << ", but another application with this name is already registered";
+
+                // Notify new application that it shall shutdown and try later
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_FAIL_APP_ALREADY_REGISTERED);
+                process->sendViaIpcChannel(sendBuffer);
+                return false;
             }
-        }
-        else
-        {
-            wasPreviouslyMonitored = false; // does not really matter (only for static analysis - avoid unitialized var)
+            else
+            {
+            }
         }
     }
     // lock is not required anymore
-
-
-    auto segmentInfo = m_segmentManager->getSegmentInformationForUser(user);
 
     if (!processExists)
     {
@@ -288,48 +294,28 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                           sessionId,
                           versionInfo);
     }
+    // process exists and is not monitored - remove it and add the new process afterwards
+    LogDebug() << "Registering already existing application " << name;
 
-    // process is already in list (i.e. registered)
-    // depending on the mode we clean up the process resources and register it again
-    // if it is monitored, we reject the registration and wait for automatic cleanup
-    // otherwise we remove the process ourselves and register it again
-
-    if (wasPreviouslyMonitored && duplicate)
+    // remove existing process
+    if (!removeProcess(name)) // call will acquire lock
     {
-        // process exists and is monitored - we rely on monitoring for removal
-        LogWarn() << "Received REG from " << name << ", but another application with this name is already registered";
-
-        // Notify new application that it shall shutdown
-        runtime::IpcMessage sendBuffer;
-        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_FAIL_APP_ALREADY_REGISTERED);
-        process->sendViaIpcChannel(sendBuffer);
-    }
-    else
-    {
-        // process exists and is not monitored - remove it and add the new process afterwards
-        LogDebug() << "Registering already existing application " << name;
-
-        // remove existing process
-        if (!removeProcess(name)) // call will acquire lock
-        {
-            LogWarn() << "Received REG from " << name
-                      << ", but another application with this name is already registered and could not be removed";
-            return false;
-        }
-
-        LogDebug() << "Registering already existing application " << name << " - removed existing application";
-
-        // try registration again, should succeed since removal was successful
-        return addProcess(name,
-                          pid,
-                          segmentInfo.m_memoryManager,
-                          isMonitored,
-                          transmissionTimestamp,
-                          segmentInfo.m_segmentID,
-                          sessionId,
-                          versionInfo); // call will acquire lock
+        LogWarn() << "Received REG from " << name
+                  << ", but another application with this name is already registered and could not be removed";
+        return false;
     }
 
+    LogDebug() << "Registering already existing application " << name << " - removed existing application";
+
+    // try registration again, should succeed since removal was successful
+    return addProcess(name,
+                      pid,
+                      segmentInfo.m_memoryManager,
+                      isMonitored,
+                      transmissionTimestamp,
+                      segmentInfo.m_segmentID,
+                      sessionId,
+                      versionInfo); // call will acquire lock
     return false;
 }
 

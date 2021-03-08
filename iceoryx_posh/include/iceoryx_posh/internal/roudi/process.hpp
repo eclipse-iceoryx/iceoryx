@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_ROUDI_ROUDI_PROCESS_HPP
-#define IOX_POSH_ROUDI_ROUDI_PROCESS_HPP
+#ifndef IOX_POSH_ROUDI_PROCESS_HPP
+#define IOX_POSH_ROUDI_PROCESS_HPP
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
@@ -92,4 +92,4 @@ class Process
 } // namespace roudi
 } // namespace iox
 
-#endif // IOX_POSH_ROUDI_ROUDI_PROCESS_HPP
+#endif // IOX_POSH_ROUDI_PROCESS_HPP
