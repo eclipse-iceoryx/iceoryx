@@ -20,6 +20,7 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/service_description.h"
 #include "iceoryx_binding_c/types.h"
 
 /// @brief Subscriber handle
@@ -117,4 +118,5 @@ bool iox_sub_has_chunks(iox_sub_t const self);
 /// @return true if there are lost chunks due to overflowing queue, otherwise false
 bool iox_sub_has_lost_chunks(iox_sub_t const self);
 
+iox_service_description_t iox_sub_get_service_description(iox_sub_t const self);
 #endif
