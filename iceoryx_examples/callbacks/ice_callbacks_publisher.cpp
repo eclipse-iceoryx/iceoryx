@@ -34,18 +34,23 @@ void sending()
 {
     iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-publisher");
 
-    iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
-    myPublisher.offer();
+    iox::popo::Publisher<CounterTopic> myPublisherLeft({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Publisher<CounterTopic> myPublisherRight({"Radar", "FrontRight", "Counter"});
 
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
-        myPublisher.publishCopyOf(CounterTopic{counter});
-        std::cout << "Sending: " << counter << std::endl;
+        std::cout << "Radar.FrontLeft.Counter sending  : " << counter << std::endl;
+        myPublisherLeft.publishCopyOf(CounterTopic{counter});
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "Radar.FrontLeft.Counter sending  : " << counter + 10 << std::endl;
+        myPublisherLeft.publishCopyOf(CounterTopic{counter + 10});
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        std::cout << "Radar.FrontRight.Counter sending : " << counter * 2 << std::endl;
+        myPublisherRight.publishCopyOf(CounterTopic{counter * 2});
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-
-    myPublisher.stopOffer();
 }
 
 int main()
