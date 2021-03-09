@@ -279,19 +279,21 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                     LogWarn()
                         << "Received REG from " << name
                         << ", but another application with this name is already registered and could not be removed";
+                    return;
                 }
-
-                LogDebug() << "Registering already existing application " << name << " - removed existing application";
-
-                // try registration again, should succeed since removal was successful
-                addProcess(name,
-                           pid,
-                           segmentInfo.m_memoryManager,
-                           isMonitored,
-                           transmissionTimestamp,
-                           segmentInfo.m_segmentID,
-                           sessionId,
-                           versionInfo);
+                else
+                {
+                    LogDebug() << "Removed existing application " << name;
+                    // try registration again, should succeed since removal was successful
+                    addProcess(name,
+                               pid,
+                               segmentInfo.m_memoryManager,
+                               isMonitored,
+                               transmissionTimestamp,
+                               segmentInfo.m_segmentID,
+                               sessionId,
+                               versionInfo);
+                }
             }
         },
         [&]() {
@@ -353,6 +355,17 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
     return true;
 }
 
+bool ProcessManager::unregisterProcess(const ProcessName_t& name) noexcept
+{
+    std::lock_guard<std::mutex> g(m_mutex);
+    if (!removeProcess(name))
+    {
+        LogError() << "Application " << name << " could not be unregistered!";
+        return false;
+    }
+    return true;
+}
+
 bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
 {
     // we need to search for the process (currently linear search)
@@ -364,7 +377,7 @@ bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
         {
             if (removeProcess(it))
             {
-                LogDebug() << "New Registration - removed existing application " << name;
+                LogDebug() << "Removed existing application " << name;
             }
             return true; // we can assume there are no other processes with this name
         }

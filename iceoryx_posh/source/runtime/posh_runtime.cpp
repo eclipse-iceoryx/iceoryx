@@ -92,6 +92,11 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
 
 PoshRuntime::~PoshRuntime() noexcept
 {
+    // Inform RouDi that we're shuting down
+    IpcMessage shutdown;
+    shutdown << IpcMessageTypeToString(IpcMessageType::TERMINATION) << m_appName;
+    m_ipcChannelInterface.sendMessageToRouDi(shutdown);
+
     if (m_applicationPort)
     {
         m_applicationPort.destroy();

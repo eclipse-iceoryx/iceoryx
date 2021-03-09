@@ -66,6 +66,7 @@ enum class IpcMessageType : int32_t
     CREATE_NODE_ACK,
     FIND_SERVICE,
     KEEPALIVE,
+    TERMINATION,
     ERROR,
     APP_WAIT,
     WAKEUP_TRIGGER,

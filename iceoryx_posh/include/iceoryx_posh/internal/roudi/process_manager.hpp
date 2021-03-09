@@ -76,6 +76,11 @@ class ProcessManager : public ProcessManagerInterface
                          const uint64_t sessionId,
                          const version::VersionInfo& versionInfo) noexcept;
 
+    /// @brief Unregisters a process at the ProcessManager
+    /// @param [in] name of the process which wants to unregister
+    /// @return true if known process was unregistered, false if process is unknown
+    bool unregisterProcess(const ProcessName_t& name) noexcept;
+
     /// @brief Kills all registered processes. First try with a SIGTERM and if they have not terminated after
     /// processKillDelay they are killed with SIGKILL. If RouDi doesn't have sufficient rights to kill the process, the
     /// process is considered killed.

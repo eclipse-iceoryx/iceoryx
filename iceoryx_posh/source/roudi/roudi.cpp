@@ -306,6 +306,19 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         m_prcMgr.updateLivelinessOfProcess(processName);
         break;
     }
+    case runtime::IpcMessageType::TERMINATION:
+    {
+        if (message.getNumberOfElements() != 2)
+        {
+            LogError() << "Wrong number of parameters for \"IpcMessageType::TERMINATION\" from \"" << processName
+                       << "\"received!";
+        }
+        else
+        {
+            DISCARD_RESULT(m_prcMgr.unregisterProcess(processName));
+        }
+        break;
+    }
     default:
     {
         LogError() << "Unknown IPC message command [" << runtime::IpcMessageTypeToString(cmd) << "]";
