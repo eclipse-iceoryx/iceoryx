@@ -60,8 +60,7 @@ inline constexpr Duration Duration::zero() noexcept
 }
 
 template <typename T, typename String>
-inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value,
-                                                                             const String fromMethod) noexcept
+inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value, const String) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer types are supported");
 
