@@ -1116,3 +1116,100 @@ TEST_F(vector_test, PopBackReturnsTrueTillItsEmpty)
 
     EXPECT_FALSE(sut.pop_back());
 }
+
+TEST_F(vector_test, ResizeFailsWhenCountIsGreaterThanCapacity)
+{
+    EXPECT_FALSE(sut.resize(sut.capacity() + 1));
+}
+
+TEST_F(vector_test, ResizeWithTemplateValueFailsWhenCountIsGreaterThanCapacity)
+{
+    EXPECT_FALSE(sut.resize(sut.capacity() + 1, 12));
+}
+
+TEST_F(vector_test, SizeIncreaseWithResizeAndDefaultCTorWorks)
+{
+    class DefaultCTor
+    {
+      public:
+        DefaultCTor()
+            : m_a{1231}
+        {
+        }
+        int m_a;
+    };
+    iox::cxx::vector<DefaultCTor, 10> sut;
+
+    EXPECT_TRUE(sut.resize(5));
+    for (auto& e : sut)
+    {
+        EXPECT_THAT(e.m_a, Eq(1231));
+    }
+    EXPECT_THAT(sut.size(), Eq(5));
+}
+
+TEST_F(vector_test, SizeIncreaseWithResizeAndTemplateValueWorks)
+{
+    EXPECT_TRUE(sut.resize(4, 421337));
+    for (auto& e : sut)
+    {
+        EXPECT_THAT(e, Eq(421337));
+    }
+    EXPECT_THAT(sut.size(), Eq(4));
+}
+
+TEST_F(vector_test, SizeDecreaseWithResizeAndDefaultCTorWorks)
+{
+    iox::cxx::vector<CTorTest, 10> sut;
+    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    {
+        sut.emplace_back(i);
+    }
+
+    EXPECT_TRUE(sut.resize(7));
+    EXPECT_THAT(dTor, Eq(3));
+    ASSERT_THAT(dtorOrder.size(), Eq(3));
+    EXPECT_THAT(dtorOrder[0], Eq(9));
+    EXPECT_THAT(dtorOrder[1], Eq(8));
+    EXPECT_THAT(dtorOrder[2], Eq(7));
+}
+
+TEST_F(vector_test, SizeDecreaseWithResizeAndTemplateValueWorks)
+{
+    iox::cxx::vector<CTorTest, 10> sut;
+    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    {
+        sut.emplace_back(i + 10);
+    }
+
+    EXPECT_TRUE(sut.resize(7, 66807));
+    EXPECT_THAT(dTor, Eq(4));
+    ASSERT_THAT(dtorOrder.size(), Eq(4));
+    EXPECT_THAT(dtorOrder[0], Eq(19));
+    EXPECT_THAT(dtorOrder[1], Eq(18));
+    EXPECT_THAT(dtorOrder[2], Eq(17));
+    EXPECT_THAT(dtorOrder[3], Eq(66807)); // copy constructed template value
+}
+
+TEST_F(vector_test, ResizeWithDefaultCTorChangesNothingIfSizeAlreadyFits)
+{
+    sut.emplace_back(5);
+    sut.emplace_back(6);
+    EXPECT_TRUE(sut.resize(2));
+
+    ASSERT_THAT(sut.size(), Eq(2));
+    EXPECT_THAT(sut[0], Eq(5));
+    EXPECT_THAT(sut[1], Eq(6));
+}
+
+TEST_F(vector_test, ResizeWithTemplateValueChangesNothingIfSizeAlreadyFits)
+{
+    sut.emplace_back(7);
+    sut.emplace_back(9);
+    EXPECT_TRUE(sut.resize(2, 421337));
+
+    ASSERT_THAT(sut.size(), Eq(2));
+    EXPECT_THAT(sut[0], Eq(7));
+    EXPECT_THAT(sut[1], Eq(9));
+}
+
