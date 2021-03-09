@@ -23,11 +23,17 @@
 #include "sleep_for.h"
 #include "topic_data.h"
 
+#if !defined(_WIN32)
+#include <pthread.h>
+#endif
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 bool keepRunning = true;
+
+iox_user_trigger_t heartbeat;
 
 static void sigHandler(int signalValue)
 {
@@ -51,13 +57,44 @@ void heartbeatCallback(iox_user_trigger_t userTrigger)
     printf("heartbeat received\n");
 }
 
+void* cyclicHeartbeatTrigger(void* dontCare)
+{
+    (void)dontCare;
+    while (keepRunning)
+    {
+        iox_user_trigger_trigger(heartbeat);
+        sleep_for(4000);
+    }
+    return NULL;
+}
+
 void onSampleReceivedCallback(iox_sub_t subscriber)
 {
-    (void)subscriber;
     const struct CounterTopic* chunk;
     if (iox_sub_take_chunk(subscriber, (const void**)&chunk) == ChunkReceiveResult_SUCCESS)
     {
-        printf("received: %d", chunk->counter);
+        iox_service_description_t serviceDescription = iox_sub_get_service_description(subscriber);
+        if (strcmp(serviceDescription.instanceString, "FrontLeft") == 0)
+        {
+            leftCache.value = *chunk;
+            leftCache.isSet = true;
+        }
+        else if (strcmp(serviceDescription.instanceString, "FrontRight") == 0)
+        {
+            rightCache.value = *chunk;
+            rightCache.isSet = true;
+        }
+        printf("received: %d\n", chunk->counter);
+    }
+
+    if (leftCache.isSet && rightCache.isSet)
+    {
+        printf("Received samples from FrontLeft and FrontRight. Sum of %d + %d = %d\n",
+               leftCache.value.counter,
+               rightCache.value.counter,
+               leftCache.value.counter + rightCache.value.counter);
+        leftCache.isSet = false;
+        rightCache.isSet = false;
     }
 }
 
@@ -74,7 +111,7 @@ int main()
     iox_listener_t listener = iox_listener_init(&listenerStorage);
 
     iox_user_trigger_storage_t heartbeatStorage;
-    iox_user_trigger_t heartbeat = iox_user_trigger_init(&heartbeatStorage);
+    heartbeat = iox_user_trigger_init(&heartbeatStorage);
 
     iox_sub_options_t options;
     iox_sub_options_init(&options);
@@ -87,6 +124,14 @@ int main()
     iox_sub_t subscriberRight = iox_sub_init(&subscriberRightStorage, "Radar", "FrontRight", "Counter", &options);
 
     // send a heartbeat every 4 seconds
+#if !defined(_WIN32)
+    pthread_t heartbeatTriggerThread;
+    if (pthread_create(&heartbeatTriggerThread, NULL, cyclicHeartbeatTrigger, NULL))
+    {
+        printf("failed to create thread\n");
+        return -1;
+    }
+#endif
 
     // attach everything to the listener, from here one the callbacks are called when an event occurs
     iox_listener_attach_user_trigger_event(listener, heartbeat, &heartbeatCallback);
@@ -106,6 +151,10 @@ int main()
     iox_listener_detach_user_trigger_event(listener, heartbeat);
     iox_listener_detach_subscriber_event(listener, subscriberLeft, SubscriberEvent_HAS_DATA);
     iox_listener_detach_subscriber_event(listener, subscriberRight, SubscriberEvent_HAS_DATA);
+
+#if !defined(_WIN32)
+    pthread_join(heartbeatTriggerThread, NULL);
+#endif
 
     iox_user_trigger_deinit(heartbeat);
     iox_sub_deinit(subscriberLeft);
