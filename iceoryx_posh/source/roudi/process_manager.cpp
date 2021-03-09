@@ -654,7 +654,7 @@ void ProcessManager::run() noexcept
 popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service,
                                                                        const ProcessName_t& process_name) noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex); // can safely be removed?
+    std::lock_guard<std::mutex> g(m_mutex); /// @todo can safely be removed?
 
     popo::PublisherOptions options;
     options.historyCapacity = 1;
@@ -733,7 +733,7 @@ void ProcessManager::monitorProcesses() noexcept
 
 void ProcessManager::discoveryUpdate() noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex); // can safely be removed?
+    std::lock_guard<std::mutex> g(m_mutex); /// @todo can safely be removed?
 
     m_portManager.doDiscovery();
 }

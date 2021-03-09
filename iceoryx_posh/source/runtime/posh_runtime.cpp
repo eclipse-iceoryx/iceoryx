@@ -87,6 +87,18 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
     {
         LogWarn() << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
     }
+
+    /// @todo #404 Use posix::FileLock here
+    //
+    // if (m_fileLock.hasError())
+    // {
+    //     // If the lock couldn't be acquired, some application with the same name is still running
+    //     LogError() << "An application with the same name is still running. Starting the same app twice is not
+    //                   supported.";
+    //                   errorHandler(
+    //                       Error::kPOSH__RUNTIME_APP_WITH_SAME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
+    // }
+
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 
