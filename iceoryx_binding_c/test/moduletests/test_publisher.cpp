@@ -120,7 +120,7 @@ class iox_pub_test : public Test
 
 TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)
 {
-    PublisherOptions iGotOptions; 
+    PublisherOptions iGotOptions;
     auto expectedIsOffered = iGotOptions.offerOnCreate;
     EXPECT_EQ(expectedIsOffered, iox_pub_is_offered(&m_sut));
 }
@@ -256,6 +256,18 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
 }
 
+TEST_F(iox_pub_test, correctServiceDescriptionReturned)
+{
+    auto serviceDescription = iox_pub_get_service_description(&m_sut);
+
+    EXPECT_THAT(serviceDescription.serviceId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(serviceDescription.instanceId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(serviceDescription.eventId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(std::string(serviceDescription.serviceString), Eq("a"));
+    EXPECT_THAT(std::string(serviceDescription.instanceString), Eq("b"));
+    EXPECT_THAT(std::string(serviceDescription.eventString), Eq("c"));
+}
+
 TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
 {
     iox_pub_options_t sut;
@@ -305,3 +317,4 @@ TEST(iox_pub_options_test, publisherInitializationTerminatesIfOptionsAreNotIniti
 
     EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
 }
+
