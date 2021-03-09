@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_ACTIVE_CALL_SET_INL
-#define IOX_POSH_POPO_ACTIVE_CALL_SET_INL
+#ifndef IOX_POSH_POPO_LISTENER_INL
+#define IOX_POSH_POPO_LISTENER_INL
 namespace iox
 {
 namespace popo
@@ -30,8 +30,7 @@ inline void translateAndCallTypelessCallback(void* const origin, void (*underlyi
 } // namespace internal
 
 template <typename T>
-inline cxx::expected<ActiveCallSetError> ActiveCallSet::attachEvent(T& eventOrigin,
-                                                                    CallbackRef_t<T> eventCallback) noexcept
+inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept
 {
     return addEvent(&eventOrigin,
                     static_cast<uint64_t>(NoEnumUsed::PLACEHOLDER),
@@ -40,14 +39,14 @@ inline cxx::expected<ActiveCallSetError> ActiveCallSet::attachEvent(T& eventOrig
                     internal::translateAndCallTypelessCallback<T>,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
-            EventAttorney::enableEvent(
-                eventOrigin, TriggerHandle(*m_eventVariable, {*this, &ActiveCallSet::removeTrigger}, eventId));
+            EventAttorney::enableEvent(eventOrigin,
+                                       TriggerHandle(*m_eventVariable, {*this, &Listener::removeTrigger}, eventId));
         });
 }
 
 template <typename T, typename EventType, typename>
-inline cxx::expected<ActiveCallSetError>
-ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept
+inline cxx::expected<ListenerError>
+Listener::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept
 {
     return addEvent(&eventOrigin,
                     static_cast<uint64_t>(eventType),
@@ -56,27 +55,26 @@ ActiveCallSet::attachEvent(T& eventOrigin, const EventType eventType, CallbackRe
                     internal::translateAndCallTypelessCallback<T>,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
-            EventAttorney::enableEvent(eventOrigin,
-                                       TriggerHandle(*m_eventVariable, {*this, &ActiveCallSet::removeTrigger}, eventId),
-                                       eventType);
+            EventAttorney::enableEvent(
+                eventOrigin, TriggerHandle(*m_eventVariable, {*this, &Listener::removeTrigger}, eventId), eventType);
         });
 }
 
 template <typename T, typename EventType, typename>
-inline void ActiveCallSet::detachEvent(T& eventOrigin, const EventType eventType) noexcept
+inline void Listener::detachEvent(T& eventOrigin, const EventType eventType) noexcept
 {
     EventAttorney::disableEvent(eventOrigin, eventType);
 }
 
 template <typename T>
-inline void ActiveCallSet::detachEvent(T& eventOrigin) noexcept
+inline void Listener::detachEvent(T& eventOrigin) noexcept
 {
     EventAttorney::disableEvent(eventOrigin);
 }
 
-inline constexpr uint64_t ActiveCallSet::capacity() noexcept
+inline constexpr uint64_t Listener::capacity() noexcept
 {
-    return MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET;
+    return MAX_NUMBER_OF_EVENTS_PER_LISTENER;
 }
 
 

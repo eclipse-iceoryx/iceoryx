@@ -26,17 +26,17 @@ EventNotifier::EventNotifier(EventVariableData& dataRef, const uint64_t index) n
     : m_pointerToEventVariableData(&dataRef)
     , m_notificationIndex(index)
 {
-    if (index >= MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+    if (index >= MAX_NUMBER_OF_EVENTS_PER_LISTENER)
     {
         LogError() << "The provided index " << index << " is too large. The index has to be in the range of [0, "
-                   << MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET << "[.";
+                   << MAX_NUMBER_OF_EVENTS_PER_LISTENER << "[.";
         errorHandler(Error::kPOPO__EVENT_NOTIFIER_INDEX_TOO_LARGE, nullptr, ErrorLevel::MODERATE);
     }
 }
 
 void EventNotifier::notify() noexcept
 {
-    if (m_notificationIndex < MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET)
+    if (m_notificationIndex < MAX_NUMBER_OF_EVENTS_PER_LISTENER)
     {
         m_pointerToEventVariableData->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
     }
