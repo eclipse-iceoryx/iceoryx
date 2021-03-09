@@ -32,7 +32,7 @@ typedef CLASS Listener* iox_listener_t;
 iox_listener_t iox_listener_init(iox_listener_storage_t* self);
 
 /// @brief after using an iox_listener_t it must be cleaned up with this function
-/// @param self the listener which should be deinitialized
+/// @param[in] self the listener which should be deinitialized
 void iox_listener_deinit(iox_listener_t const self);
 
 /// @brief Attaches a subscriber event to the listener
