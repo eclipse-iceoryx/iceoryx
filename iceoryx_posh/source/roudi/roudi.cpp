@@ -153,7 +153,6 @@ RouDi::parseRegisterMessage(const runtime::IpcMessage& message, int& pid, uid_t&
     return serializationVersionInfo;
 }
 
-
 void RouDi::processMessage(const runtime::IpcMessage& message,
                            const iox::runtime::IpcMessageType& cmd,
                            const ProcessName_t& processName)
@@ -317,7 +316,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
 }
 
-bool RouDi::registerProcess(const ProcessName_t& name,
+void RouDi::registerProcess(const ProcessName_t& name,
                             int pid,
                             posix::PosixUser user,
                             int64_t transmissionTimestamp,
@@ -325,7 +324,8 @@ bool RouDi::registerProcess(const ProcessName_t& name,
                             const version::VersionInfo& versionInfo)
 {
     bool monitorProcess = (m_monitoringMode == roudi::MonitoringMode::ON);
-    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo);
+    DISCARD_RESULT(
+        m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo));
 }
 
 uint64_t RouDi::getUniqueSessionIdForProcess()

@@ -70,7 +70,7 @@ class ProcessManager_test : public Test
 };
 
 
-TEST_F(ProcessManager_test, RegisterProcessWithMonitoringWorks)
+TEST_F(ProcessManager_test, RegisterProcessWorks)
 {
     auto result = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
@@ -91,5 +91,15 @@ TEST_F(ProcessManager_test, RegisterSameProcessTwiceLeadsToError)
     auto result2 = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
     EXPECT_TRUE(result1);
-    EXPECT_TRUE(result2);
+    EXPECT_FALSE(result2);
+}
+
+TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithoutMonitoringLeadsToError)
+{
+    bool isNotMonitored{false};
+    auto result1 = m_sut->registerProcess(m_processname, m_pid, m_user, isNotMonitored, 1U, 1U, m_versionInfo);
+    auto result2 = m_sut->registerProcess(m_processname, m_pid, m_user, isNotMonitored, 1U, 1U, m_versionInfo);
+
+    EXPECT_TRUE(result1);
+    EXPECT_FALSE(result2);
 }
