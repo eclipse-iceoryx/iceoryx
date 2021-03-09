@@ -20,7 +20,8 @@ coverage:
         enabled: yes
         target: 70%
         threshold: 2%
-    changes: yes
+        base: auto
+    changes: no
 
 parsers:
   gcov:
