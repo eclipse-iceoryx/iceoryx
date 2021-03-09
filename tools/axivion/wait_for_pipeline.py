@@ -29,7 +29,7 @@ def print_logs(pipeline_id):
 
     # Assumes pipeline only has one job
     job_id = r.json()[0]['id']
-   
+
     r = requests.get(f'https://gitlab.com/api/v4/projects/24081973/jobs/{job_id}/trace', headers=TOKEN)
 
     if r.status_code != 200:
