@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "testutils/timing_test.hpp"
 
 using namespace iox;
