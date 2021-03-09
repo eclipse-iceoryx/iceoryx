@@ -126,13 +126,13 @@ inline constexpr Duration::Duration(const struct itimerspec& value) noexcept
 }
 
 inline constexpr Duration::Duration(const std::chrono::milliseconds& value) noexcept
+    : Duration(Duration::fromMilliseconds(value.count()))
 {
-    *this = Duration::fromMilliseconds(value.count());
 }
 
 inline constexpr Duration::Duration(const std::chrono::nanoseconds& value) noexcept
+    : Duration(Duration::fromNanoseconds(value.count()))
 {
-    *this = Duration::fromNanoseconds(value.count());
 }
 
 inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexcept
