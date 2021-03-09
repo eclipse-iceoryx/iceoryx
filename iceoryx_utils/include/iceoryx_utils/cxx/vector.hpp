@@ -142,19 +142,16 @@ class vector
     void clear() noexcept;
 
     /// @brief resizes the vector. If the vector size increases new elements
-    /// will be copy constructed from the given value. If count is greater than the capacity
+    /// will be constructed with the given arguments. If count is greater than the capacity
     /// the vector will stay unchanged.
     /// @param[in] count new size of the vector
-    /// @param[in] value template value from which new elements are going to be copy constructed
+    /// @param[in] args arguments which are used by the constructor of newly created elements
     /// @return true if the resize was successful, false if count is greater than the capacity.
-    bool resize(const uint64_t count, const T& value) noexcept;
-
-    /// @brief resizes the vector. If the vector size increases new elements
-    /// will be constructed with default constructor. If count is greater than the capacity
-    /// the vector will stay unchanged.
-    /// @param[in] count new size of the vector
-    /// @return true if the resize was successful, false if count is greater than the capacity.
-    bool resize(const uint64_t count) noexcept;
+    /// @note perfect forwarded arguments are explicitly not wanted here. think of what happens if resize
+    ///       creates two new elements via move construction. The first one has a valid source but the second
+    ///       gets an already moved parameter.
+    template <typename... Targs>
+    bool resize(const uint64_t count, const Targs&... args) noexcept;
 
     /// @brief forwards all arguments to the constructor of the contained element
     ///         and performs a placement new

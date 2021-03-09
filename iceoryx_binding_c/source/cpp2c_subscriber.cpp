@@ -33,7 +33,16 @@ void cpp2c_Subscriber::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
     static_cast<void>(subscriberEvent);
 
     m_trigger = std::move(triggerHandle);
-    iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
+    if (triggerHandle.doesContainEventVariable())
+    {
+        iox::popo::SubscriberPortUser(m_portData)
+            .setEventVariable(*static_cast<iox::popo::EventVariableData*>(m_trigger.getConditionVariableData()),
+                              m_trigger.getUniqueId());
+    }
+    else
+    {
+        iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
+    }
 }
 
 iox::popo::WaitSetHasTriggeredCallback

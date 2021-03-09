@@ -1183,12 +1183,11 @@ TEST_F(vector_test, SizeDecreaseWithResizeAndTemplateValueWorks)
     }
 
     EXPECT_TRUE(sut.resize(7, 66807));
-    EXPECT_THAT(dTor, Eq(4));
-    ASSERT_THAT(dtorOrder.size(), Eq(4));
+    EXPECT_THAT(dTor, Eq(3));
+    ASSERT_THAT(dtorOrder.size(), Eq(3));
     EXPECT_THAT(dtorOrder[0], Eq(19));
     EXPECT_THAT(dtorOrder[1], Eq(18));
     EXPECT_THAT(dtorOrder[2], Eq(17));
-    EXPECT_THAT(dtorOrder[3], Eq(66807)); // copy constructed template value
 }
 
 TEST_F(vector_test, ResizeWithDefaultCTorChangesNothingIfSizeAlreadyFits)

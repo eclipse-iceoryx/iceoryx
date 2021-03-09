@@ -197,7 +197,8 @@ inline bool vector<T, Capacity>::pop_back() noexcept
 }
 
 template <typename T, uint64_t Capacity>
-inline bool vector<T, Capacity>::resize(const uint64_t count, const T& value) noexcept
+template <typename... Targs>
+inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... args) noexcept
 {
     if (count > Capacity)
     {
@@ -215,32 +216,7 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const T& value) no
     {
         while (count != m_size)
         {
-            push_back(value);
-        }
-    }
-    return true;
-}
-
-template <typename T, uint64_t Capacity>
-inline bool vector<T, Capacity>::resize(const uint64_t count) noexcept
-{
-    if (count > Capacity)
-    {
-        return false;
-    }
-
-    if (count < m_size)
-    {
-        while (count != m_size)
-        {
-            pop_back();
-        }
-    }
-    else if (count > m_size)
-    {
-        while (count != m_size)
-        {
-            emplace_back();
+            emplace_back(args...);
         }
     }
     return true;
