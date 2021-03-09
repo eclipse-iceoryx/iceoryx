@@ -85,8 +85,6 @@ if(NOT WIN32)
     )
 else()
     target_link_libraries(${PROJECT_NAME}
-      PUBLIC
-        stdc++
       PRIVATE
         iceoryx_posh::iceoryx_posh
         iceoryx_utils::iceoryx_utils
