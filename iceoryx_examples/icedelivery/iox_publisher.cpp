@@ -45,7 +45,6 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher");
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
-    publisher.offer();
 
     double ct = 0.0;
     while (!killswitch)
@@ -68,6 +67,7 @@ int main()
         else
         {
             auto error = result.get_error();
+            (void)error;
             // Do something with error
         }
 
@@ -83,6 +83,7 @@ int main()
         else
         {
             auto error = result.get_error();
+            (void)error;
             // Do something with error
         }
 

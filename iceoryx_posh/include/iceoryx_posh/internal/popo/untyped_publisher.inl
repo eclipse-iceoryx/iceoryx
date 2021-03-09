@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,6 +59,13 @@ cxx::optional<void*> UntypedPublisherImpl<base_publisher_t>::loanPreviousChunk()
         return result.value()->payload();
     }
     return cxx::nullopt;
+}
+
+template <typename base_publisher_t>
+inline void UntypedPublisherImpl<base_publisher_t>::release(const void* chunk) noexcept
+{
+    auto header = mepoo::ChunkHeader::fromPayload(chunk);
+    port().releaseChunk(header);
 }
 
 } // namespace popo

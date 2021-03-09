@@ -34,11 +34,11 @@ target_link_libraries(iox-ex-publisher
 )
 target_compile_options(iox-ex-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-publisher-with-history ./iox_publisher_with_history.cpp)
-target_link_libraries(iox-ex-publisher-with-history
+add_executable(iox-ex-publisher-with-options ./iox_publisher_with_options.cpp)
+target_link_libraries(iox-ex-publisher-with-options
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-publisher-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-publisher-untyped ./iox_publisher_untyped.cpp)
 target_link_libraries(iox-ex-publisher-untyped
@@ -52,11 +52,11 @@ target_link_libraries(iox-ex-subscriber
 )
 target_compile_options(iox-ex-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-with-history ./iox_subscriber_with_history.cpp)
-target_link_libraries(iox-ex-subscriber-with-history
+add_executable(iox-ex-subscriber-with-options ./iox_subscriber_with_options.cpp)
+target_link_libraries(iox-ex-subscriber-with-options
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-subscriber-with-history PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-subscriber-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-ex-subscriber-untyped ./iox_subscriber_untyped.cpp)
 target_link_libraries(iox-ex-subscriber-untyped
@@ -65,7 +65,7 @@ target_link_libraries(iox-ex-subscriber-untyped
 target_compile_options(iox-ex-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 set_target_properties(iox-ex-subscriber iox-ex-subscriber-untyped
-                      iox-ex-publisher-with-history iox-ex-subscriber-with-history
+                      iox-ex-publisher-with-options iox-ex-subscriber-with-options
                       iox-ex-publisher iox-ex-publisher-untyped
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
@@ -76,6 +76,6 @@ set_target_properties(iox-ex-subscriber iox-ex-subscriber-untyped
 # ========================================================== //
 
 install(TARGETS iox-ex-publisher-untyped iox-ex-publisher
-                iox-ex-publisher-with-history iox-ex-subscriber-with-history
+                iox-ex-publisher-with-options iox-ex-subscriber-with-options
                 iox-ex-subscriber-untyped iox-ex-subscriber
         RUNTIME DESTINATION bin)

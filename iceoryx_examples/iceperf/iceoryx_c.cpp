@@ -20,9 +20,19 @@
 #include <thread>
 
 IceoryxC::IceoryxC(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
-    : m_publisher(iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", 0U, "Slapstick"))
-    , m_subscriber(iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", 10U, 0U, "Slapstick"))
 {
+    iox_pub_options_t publisherOptions;
+    iox_pub_options_init(&publisherOptions);
+    publisherOptions.historyCapacity = 0U;
+    publisherOptions.nodeName = "SlapStick";
+    m_publisher = iox_pub_init(&m_publisherStorage, "Comedians", publisherName.c_str(), "Duo", &publisherOptions);
+
+    iox_sub_options_t subscriberOptions;
+    iox_sub_options_init(&subscriberOptions);
+    subscriberOptions.queueCapacity = 10U;
+    subscriberOptions.historyRequest = 0U;
+    subscriberOptions.nodeName = "Slapstick";
+    m_subscriber = iox_sub_init(&m_subscriberStorage, "Comedians", subscriberName.c_str(), "Duo", &subscriberOptions);
 }
 
 IceoryxC::~IceoryxC()
@@ -78,13 +88,13 @@ void IceoryxC::shutdown() noexcept
 void IceoryxC::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
     void* chunk = nullptr;
-    if (iox_pub_allocate_chunk(m_publisher, &chunk, payloadSizeInBytes) == AllocationResult_SUCCESS)
+    if (iox_pub_loan_chunk(m_publisher, &chunk, payloadSizeInBytes) == AllocationResult_SUCCESS)
     {
         auto sendSample = static_cast<PerfTopic*>(chunk);
         sendSample->payloadSize = payloadSizeInBytes;
         sendSample->run = runFlag;
         sendSample->subPackets = 1;
-        iox_pub_send_chunk(m_publisher, chunk);
+        iox_pub_publish_chunk(m_publisher, chunk);
     }
 }
 
@@ -96,7 +106,7 @@ PerfTopic IceoryxC::receivePerfTopic() noexcept
     do
     {
         const void* sample = nullptr;
-        if (iox_sub_get_chunk(m_subscriber, &sample) == ChunkReceiveResult_SUCCESS)
+        if (iox_sub_take_chunk(m_subscriber, &sample) == ChunkReceiveResult_SUCCESS)
         {
             receivedSample = *(static_cast<const PerfTopic*>(sample));
             hasReceivedSample = true;

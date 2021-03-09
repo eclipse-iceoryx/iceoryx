@@ -40,7 +40,6 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
 
     iox::popo::UntypedPublisher publisher({"Radar", "FrontRight", "Object"});
-    publisher.offer();
 
     double ct = 0.0;
     while (!killswitch)
@@ -65,6 +64,7 @@ int main()
         else
         {
             auto error = result.get_error();
+            (void)error;
             // Do something with the error
         }
 
@@ -78,6 +78,7 @@ int main()
                 publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
+                (void)error;
                 // Do something with the error
             });
 

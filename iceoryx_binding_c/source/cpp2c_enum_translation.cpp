@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,6 +46,8 @@ iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult va
 {
     switch (value)
     {
+    case ChunkReceiveResult::NO_CHUNK_AVAILABLE:
+        return ChunkReceiveResult_NO_CHUNK_AVAILABLE;
     case ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
         return ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL;
     default:

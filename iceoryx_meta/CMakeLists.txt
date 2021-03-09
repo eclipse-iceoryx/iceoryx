@@ -1,4 +1,5 @@
-# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,6 +65,7 @@ if(EXAMPLES)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
     endif()
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/waitset ${CMAKE_BINARY_DIR}/iceoryx_examples/waitset)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/callbacks ${CMAKE_BINARY_DIR}/iceoryx_examples/callbacks)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
 endif()

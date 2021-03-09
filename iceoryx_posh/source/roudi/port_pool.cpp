@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,6 +47,11 @@ cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
 PortPool::getConditionVariableDataList() noexcept
 {
     return m_portPoolData->m_conditionVariableMembers.content();
+}
+
+cxx::vector<popo::EventVariableData*, MAX_NUMBER_OF_EVENT_VARIABLES> PortPool::getEventVariableDataList() noexcept
+{
+    return m_portPoolData->m_eventVariableMembers.content();
 }
 
 cxx::expected<popo::InterfacePortData*, PortPoolError>
@@ -109,6 +115,21 @@ PortPool::addConditionVariableData(const ProcessName_t& process) noexcept
     }
 }
 
+cxx::expected<popo::EventVariableData*, PortPoolError>
+PortPool::addEventVariableData(const ProcessName_t& process) noexcept
+{
+    if (m_portPoolData->m_eventVariableMembers.hasFreeSpace())
+    {
+        auto eventVariableData = m_portPoolData->m_eventVariableMembers.insert(process);
+        return cxx::success<popo::EventVariableData*>(eventVariableData);
+    }
+    else
+    {
+        errorHandler(Error::kPORT_POOL__EVENT_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::EVENT_VARIABLE_LIST_FULL);
+    }
+}
+
 void PortPool::removeInterfacePort(popo::InterfacePortData* const portData) noexcept
 {
     m_portPoolData->m_interfacePortMembers.erase(portData);
@@ -127,6 +148,11 @@ void PortPool::removeNodeData(runtime::NodeData* const nodeData) noexcept
 void PortPool::removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept
 {
     m_portPoolData->m_conditionVariableMembers.erase(conditionVariableData);
+}
+
+void PortPool::removeEventVariableData(popo::EventVariableData* const eventVariableData) noexcept
+{
+    m_portPoolData->m_eventVariableMembers.erase(eventVariableData);
 }
 
 std::atomic<uint64_t>* PortPool::serviceRegistryChangeCounter() noexcept

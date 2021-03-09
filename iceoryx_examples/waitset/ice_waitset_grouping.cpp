@@ -52,8 +52,7 @@ int main()
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
-
-        subscriber.subscribe();
+        (void)subscriber;
     }
 
     constexpr uint64_t FIRST_GROUP_ID = 123U;
@@ -90,7 +89,7 @@ int main()
                 subscriber->take().and_then([&](auto& payload) {
                     const CounterTopic* data = static_cast<const CounterTopic*>(payload);
                     std::cout << "received: " << std::dec << data->counter << std::endl;
-                    subscriber->releaseChunk(payload);
+                    subscriber->release(payload);
                 });
             }
             // dismiss the received data for the second group

@@ -1,5 +1,5 @@
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -91,6 +91,23 @@ TEST_F(UntypedPublisherTest, LoanPreviousChunkFails)
     auto result = sut.loanPreviousChunk();
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_value());
+    // ===== Cleanup ===== //
+}
+
+TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
+{
+    constexpr uint32_t ALLOCATION_SIZE = 7U;
+    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE))
+        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
+
+    auto result = sut.loan(ALLOCATION_SIZE);
+    ASSERT_FALSE(result.has_error());
+    auto chunk = result.value();
+
+    // ===== Test ===== //
+    EXPECT_CALL(portMock, releaseChunk(chunkMock.chunkHeader())).Times(1);
+    sut.release(chunk);
+    // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
 

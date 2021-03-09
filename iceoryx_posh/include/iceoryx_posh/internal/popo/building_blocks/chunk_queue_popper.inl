@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -127,10 +128,19 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(
 }
 
 template <typename ChunkQueueDataType>
+inline void ChunkQueuePopper<ChunkQueueDataType>::setEventVariable(EventVariableData& eventVariableDataPtr,
+                                                                   const uint64_t eventId) noexcept
+{
+    getMembers()->m_conditionVariableDataPtr = &eventVariableDataPtr;
+    getMembers()->m_eventVariableIndex.emplace(eventId);
+}
+
+template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
     getMembers()->m_conditionVariableDataPtr = nullptr;
+    getMembers()->m_eventVariableIndex.reset();
 }
 
 template <typename ChunkQueueDataType>

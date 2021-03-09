@@ -49,7 +49,7 @@ EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
-EXAMPLES="ice_multi_publisher icedelivery singleprocess waitset" 
+EXAMPLES="callbacks ice_multi_publisher icedelivery singleprocess waitset" 
 COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds" 
 
 while (( "$#" )); do

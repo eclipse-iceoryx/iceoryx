@@ -48,9 +48,6 @@ int main()
     iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
     iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
 
-    subscriber1.subscribe();
-    subscriber2.subscribe();
-
     waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_DATA);
     waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_DATA);
 
