@@ -265,7 +265,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
 
                 // Notify new application that it shall shutdown and try later
                 runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_FAIL_APP_ALREADY_REGISTERED);
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
                 process.sendViaIpcChannel(sendBuffer);
             }
             else

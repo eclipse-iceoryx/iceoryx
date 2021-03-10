@@ -96,7 +96,7 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
     //     LogError() << "An application with the same name is still running. Starting the same app twice is not
     //                   supported.";
     //                   errorHandler(
-    //                       Error::kPOSH__RUNTIME_APP_WITH_SAME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
+    //                       Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
     // }
 
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager

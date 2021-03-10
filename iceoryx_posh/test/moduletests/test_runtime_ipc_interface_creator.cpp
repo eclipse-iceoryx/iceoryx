@@ -72,7 +72,7 @@ TEST_F(IpcInterfaceCreator_test, CreateWithSameNameLeadsToError)
     IpcInterfaceCreator m_sut2{goodName};
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_APP_WITH_SAME_NAME_STILL_RUNNING));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING));
 }
 
 #endif
