@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/active_call_set.hpp"
+#include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -57,24 +57,24 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-subscriber");
 
-    iox::popo::ActiveCallSet callSet;
+    iox::popo::Listener listener;
 
     // attach shutdownTrigger to handle CTRL+C
-    callSet.attachEvent(shutdownTrigger, shutdownTriggerCallback);
+    listener.attachEvent(shutdownTrigger, shutdownTriggerCallback);
 
     iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
 
     subscriber.subscribe();
 
-    callSet.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceived);
+    listener.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceived);
 
     while (keepRunning)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    callSet.detachEvent(shutdownTrigger);
-    callSet.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA);
+    listener.detachEvent(shutdownTrigger);
+    listener.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA);
 
     return (EXIT_SUCCESS);
 }

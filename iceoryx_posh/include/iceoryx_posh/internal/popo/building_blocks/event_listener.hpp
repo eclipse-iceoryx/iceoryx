@@ -33,8 +33,8 @@ namespace popo
 class EventListener
 {
   public:
-    using NotificationVector_t = cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>,
-                                             MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET>;
+    using NotificationVector_t =
+        cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_EVENTS_PER_LISTENER>, MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
 
     /// @brief creates new EventListener
     ///
