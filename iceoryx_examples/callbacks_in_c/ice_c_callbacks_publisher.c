@@ -44,30 +44,28 @@ void sending()
     iox_pub_t publisherLeft = iox_pub_init(&publisherLeftStorage, "Radar", "FrontLeft", "Counter", &options);
     iox_pub_t publisherRight = iox_pub_init(&publisherRightStorage, "Radar", "FrontRight", "Counter", &options);
 
+    struct CounterTopic* chunk;
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
-        struct CounterTopic* chunk;
-        if (iox_pub_loan_chunk(publisherLeft, (void**)&chunk, sizeof(struct CounterTopic)) == AllocationResult_SUCCESS)
+        if (counter % 3 == 0)
         {
-            printf("Radar.FrontLeft.Counter sending  : %d\n", counter);
-            chunk->counter = counter;
-            iox_pub_publish_chunk(publisherLeft, chunk);
+            if (iox_pub_loan_chunk(publisherLeft, (void**)&chunk, sizeof(struct CounterTopic))
+                == AllocationResult_SUCCESS)
+            {
+                printf("Radar.FrontLeft.Counter sending  : %d\n", counter);
+                chunk->counter = counter;
+                iox_pub_publish_chunk(publisherLeft, chunk);
+            }
         }
-        sleep_for(1000);
-
-        if (iox_pub_loan_chunk(publisherLeft, (void**)&chunk, sizeof(struct CounterTopic)) == AllocationResult_SUCCESS)
+        else
         {
-            printf("Radar.FrontLeft.Counter sending  : %d\n", counter + 10);
-            chunk->counter = counter + 10;
-            iox_pub_publish_chunk(publisherLeft, chunk);
-        }
-        sleep_for(1000);
-
-        if (iox_pub_loan_chunk(publisherRight, (void**)&chunk, sizeof(struct CounterTopic)) == AllocationResult_SUCCESS)
-        {
-            printf("Radar.FrontLeft.Counter sending  : %d\n", counter * 2);
-            chunk->counter = counter * 2;
-            iox_pub_publish_chunk(publisherRight, chunk);
+            if (iox_pub_loan_chunk(publisherRight, (void**)&chunk, sizeof(struct CounterTopic))
+                == AllocationResult_SUCCESS)
+            {
+                printf("Radar.FrontLeft.Counter sending  : %d\n", counter * 2);
+                chunk->counter = counter * 2;
+                iox_pub_publish_chunk(publisherRight, chunk);
+            }
         }
         sleep_for(1000);
     }

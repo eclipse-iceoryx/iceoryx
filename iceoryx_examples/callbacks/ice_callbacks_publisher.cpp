@@ -39,16 +39,16 @@ void sending()
 
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
-        std::cout << "Radar.FrontLeft.Counter sending  : " << counter << std::endl;
-        myPublisherLeft.publishCopyOf(CounterTopic{counter});
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-
-        std::cout << "Radar.FrontLeft.Counter sending  : " << counter + 10 << std::endl;
-        myPublisherLeft.publishCopyOf(CounterTopic{counter + 10});
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-
-        std::cout << "Radar.FrontRight.Counter sending : " << counter * 2 << std::endl;
-        myPublisherRight.publishCopyOf(CounterTopic{counter * 2});
+        if (counter % 3 == 0)
+        {
+            std::cout << "Radar.FrontLeft.Counter sending  : " << counter << std::endl;
+            myPublisherLeft.publishCopyOf(CounterTopic{counter});
+        }
+        else
+        {
+            std::cout << "Radar.FrontRight.Counter sending : " << counter * 2 << std::endl;
+            myPublisherRight.publishCopyOf(CounterTopic{counter * 2});
+        }
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
@@ -58,8 +58,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    std::thread tx(sending);
-    tx.join();
+    sending();
 
     return (EXIT_SUCCESS);
 }
