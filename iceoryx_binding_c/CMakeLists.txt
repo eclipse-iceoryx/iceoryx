@@ -47,12 +47,13 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 ########## build building-block library ##########
 #
 add_library(${PROJECT_NAME}
-    source/c_user_trigger.cpp
-    source/c_publisher.cpp
+    source/c_event_info.cpp
+    source/c_listener.cpp
     source/c_node.cpp
+    source/c_publisher.cpp
     source/c_runtime.cpp
     source/c_subscriber.cpp
-    source/c_event_info.cpp
+    source/c_user_trigger.cpp
     source/c_wait_set.cpp
     source/c_chunk.cpp
     source/cpp2c_enum_translation.cpp
@@ -76,6 +77,7 @@ target_include_directories(${PROJECT_NAME}
 if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME}
       PUBLIC
+        stdc++
         pthread
       PRIVATE
         iceoryx_posh::iceoryx_posh
