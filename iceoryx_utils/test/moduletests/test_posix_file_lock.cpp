@@ -43,7 +43,26 @@ class FileLock_test : public Test
 
 constexpr char TEST_SHM_NAME[] = "TestProcess";
 
+TEST_F(FileLock_test, LockWorks)
+{
+    auto sut1 = iox::posix::FileLock::create(TEST_SHM_NAME);
+    ASSERT_FALSE(sut1.has_error());
+}
+
 TEST_F(FileLock_test, LockAndReleaseWorks)
 {
-    iox::posix::FileLock::create(TEST_SHM_NAME);
+    {
+        auto sut1 = iox::posix::FileLock::create(TEST_SHM_NAME);
+    }
+    auto sut2 = iox::posix::FileLock::create(TEST_SHM_NAME);
+    ASSERT_FALSE(sut2.has_error());
+}
+
+TEST_F(FileLock_test, LockAndNoReleaseLeadsToError)
+{
+    auto sut1 = iox::posix::FileLock::create(TEST_SHM_NAME);
+    auto sut2 = iox::posix::FileLock::create(TEST_SHM_NAME);
+    ASSERT_FALSE(sut1.has_error());
+    ASSERT_TRUE(sut2.has_error());
+    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }
