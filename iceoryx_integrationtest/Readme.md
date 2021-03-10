@@ -27,6 +27,7 @@ For a basic setup you need to install the following packages:
 ```bash
 sudo apt install ros-foxy-ros-base ros-foxy-ros-testing ros-foxy-launch-testing ros-foxy-ament-cmake python3-colcon-common-extensions
 ```
+For the future versions you can use the corresponding ROS2 release.
 
 After installing you need to source ROS 2 to make the environment available in your terminal:
 ```bash

@@ -43,7 +43,7 @@ int main()
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
-    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontRight", "Object"}, subscriberOptions);
+    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 
     // run until interrupted by Ctrl-C
     while (!killswitch)

@@ -33,13 +33,15 @@ def generate_test_description():
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
 
-    roudi_executable = ExecutableInPackage(
-        package='iceoryx_integrationtest', executable='iox-roudi')
+    roudi_executable = os.path.join(
+        colcon_prefix_path,
+        'iceoryx_posh/bin/',
+        'iox-roudi'
+    )
     roudi_process = launch.actions.ExecuteProcess(
         cmd=[roudi_executable, '-l', 'debug'],
         env=proc_env, output='screen',
-        sigterm_timeout='20'
-    )
+        sigterm_timeout='20')
 
     multi_publisher_executable = os.path.join(
         colcon_prefix_path,

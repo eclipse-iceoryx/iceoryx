@@ -57,7 +57,7 @@ int main()
     // grouping of publishers and subscribers within a process
     subscriberOptions.nodeName = "Sub_Node_With_Options";
 
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "RearLeft", "Object"}, subscriberOptions);
+    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 
     // We have to explicitly call subscribe() otherwise the subscriber will not try to connect to publishers
     subscriber.subscribe();

@@ -31,22 +31,23 @@ import pytest
 @pytest.mark.launch_test
 def generate_test_description():
 
+    colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
     proc_env = os.environ.copy()
 
-    roudi_executable = ExecutableInPackage(
-        package='iceoryx_integrationtest', executable='iox-roudi')
-
-    dut_process = launch.actions.ExecuteProcess(
-        cmd=[roudi_executable, '-l', 'debug'],
-        env=proc_env,
-        output='screen',
-        sigterm_timeout='20'
+    roudi_executable = os.path.join(
+        colcon_prefix_path,
+        'iceoryx_posh/bin/',
+        'iox-roudi'
     )
+    roudi_process = launch.actions.ExecuteProcess(
+        cmd=[roudi_executable, '-l', 'debug'],
+        env=proc_env, output='screen',
+        sigterm_timeout='20')
 
     return launch.LaunchDescription([
-        dut_process,
+        roudi_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'dut_process': dut_process}
+    ]), {'roudi_process': roudi_process}
 
 
 class TestRouDiProcess(unittest.TestCase):
@@ -60,8 +61,8 @@ class TestRouDiProcessOutput(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)
 
-    def test_full_output(self, proc_output, dut_process):
-        with assertSequentialStdout(proc_output, dut_process) as cm:
+    def test_full_output(self, proc_output, roudi_process):
+        with assertSequentialStdout(proc_output, roudi_process) as cm:
             cm.assertInStdout('Log level set to:')
             cm.assertInStdout('[ Reserving shared memory successful ]')
             cm.assertInStdout('Registered memory segment')
@@ -75,8 +76,8 @@ class TestRouDiProcessOutput(unittest.TestCase):
                 cm.assertInStdout("Joining 'IPC-msg-process' thread...")
                 cm.assertInStdout("...'IPC-msg-process' thread joined.")
 
-    def test_out_of_order(self, proc_output, dut_process):
-        with assertSequentialStdout(proc_output, dut_process) as cm:
+    def test_out_of_order(self, proc_output, roudi_process):
+        with assertSequentialStdout(proc_output, roudi_process) as cm:
             cm.assertInStdout('Log level set to:')
             cm.assertInStdout('[ Reserving shared memory successful ]')
             cm.assertInStdout('Registered memory segment')

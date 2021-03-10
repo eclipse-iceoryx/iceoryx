@@ -50,7 +50,7 @@ int main()
     // grouping of publishers and subscribers within a process
     publisherOptions.nodeName = "Pub_Node_With_Options";
 
-    iox::popo::Publisher<RadarObject> publisher({"Radar", "RearLeft", "Object"}, publisherOptions);
+    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
 
     // we have to explicitely offer the publisher for making it visible to subscribers
     publisher.offer();

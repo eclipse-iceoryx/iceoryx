@@ -49,13 +49,15 @@ def generate_test_description():
 
     print("Process list:", process_list)
 
-    roudi_executable = ExecutableInPackage(
-        package='iceoryx_integrationtest', executable='iox-roudi')
+    roudi_executable = os.path.join(
+        colcon_prefix_path,
+        'iceoryx_posh/bin/',
+        'iox-roudi'
+    )
     roudi_process = launch.actions.ExecuteProcess(
         cmd=[roudi_executable, '-l', 'debug'],
         env=proc_env, output='screen',
-        sigterm_timeout='20'
-    )
+        sigterm_timeout='20')
 
     return launch.LaunchDescription([
         process_list[0],
