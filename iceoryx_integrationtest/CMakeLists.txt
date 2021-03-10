@@ -17,49 +17,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(iceoryx_integrationtest)
 
-include(GNUInstallDirs)
-
-find_package(iceoryx_posh REQUIRED)
-find_package(iceoryx_utils REQUIRED)
-find_package(cpptoml REQUIRED)
 find_package(ament_cmake REQUIRED)
-
-add_executable(iox-publisher-integrationtest src/iox_publisher_integrationtest.cpp)
-target_include_directories(
-  iox-publisher-integrationtest
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_link_libraries(iox-publisher-integrationtest iceoryx_posh::iceoryx_posh)
-
-add_executable(iox-subscriber-integrationtest src/iox_subscriber_integrationtest.cpp)
-target_include_directories(
-  iox-subscriber-integrationtest
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_link_libraries(iox-subscriber-integrationtest iceoryx_posh::iceoryx_posh)
-
-add_executable(iox-roudi src/roudi/roudi_main.cpp)
-set_target_properties(
-  iox-roudi
-  PROPERTIES CXX_STANDARD_REQUIRED ON
-  POSITION_INDEPENDENT_CODE ON
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-
-target_link_libraries(
-  iox-roudi
-  PRIVATE iceoryx_utils::iceoryx_utils iceoryx_posh::iceoryx_posh_roudi
-          iceoryx_posh::iceoryx_posh_config)
-
-target_include_directories(
-  iox-roudi
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-          $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
-          $<INSTALL_INTERFACE:include/${PREFIX}>)
-
-install(TARGETS iox-roudi iox-publisher-integrationtest iox-subscriber-integrationtest
-        RUNTIME DESTINATION lib/${PROJECT_NAME})
-
-install(DIRECTORY iceoryx_integrationtest DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -68,7 +26,6 @@ if(BUILD_TESTING)
 
   add_ros_test(iceoryx_integrationtest/test_callback_example.py)
   add_ros_test(iceoryx_integrationtest/test_roudi_startup_shutdown.py)
-  add_ros_test(iceoryx_integrationtest/test_data_exchange.py)
   add_ros_test(iceoryx_integrationtest/test_multi_publisher_example.py)
   add_ros_test(iceoryx_integrationtest/test_icedelivery_example.py)
   add_ros_test(iceoryx_integrationtest/test_icedelivery_in_c_example.py)
