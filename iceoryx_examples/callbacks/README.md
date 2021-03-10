@@ -1,4 +1,4 @@
-# Listener 
+# Listener (or howto realize callbacks in iceoryx)
 
 For an introduction into the terminology please read the Glossary in the
 [WaitSet C++ example](../waitset).
@@ -14,16 +14,19 @@ concurrently, even from inside a callback which was triggered by an event!
 
 ## Example 
 
-### int main()
 Let's say we have an application which offers us two distinct services:
 `Radar.FrontLeft.Counter` and `Rader.FrontRight.Counter`. Everytime we have 
 received a sample from left and right we would like to calculate the sum with 
 the newest values and print it out. If we have received only one of the samples 
 we store it until we received the other side.
 
+### ice_callbacks_publisher.cpp
+
 The publisher of this example does not contain any new features but if you have 
 some questions take a look at the [icedelivery example](../icedelivery).
 
+### ice_callbacks_subscriber.cpp
+#### int main()
 The subscriber main function starts as usual and after registering the runtime 
 we create the listener which starts a background thread.
 ```cpp
@@ -90,7 +93,7 @@ Hint: You do not have to detach an _EventOrigin_ like a subscriber or user trigg
 before it goes out of scope. This also goes for the _Listener_, the implemented
 RAII based design takes care of the resource cleanup.
 
-### The Callbacks
+#### The Callbacks
 The callbacks must have a signature like `void(PointerToEventOrigin*)`.
 Our `heartbeatCallback` for instance just prints the message `heartbeat received`.
 ```cpp
