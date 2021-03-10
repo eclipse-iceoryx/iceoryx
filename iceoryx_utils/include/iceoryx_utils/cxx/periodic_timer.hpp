@@ -26,6 +26,16 @@ namespace iox
 {
 namespace cxx
 {
+/// @breif This enum class offers the timer state events.
+/// If the timer is active the TimerEvent has TICK as the state
+/// If tht timer is inactive the TimerEvent has STOP as the state
+enum class TimerEvent
+{
+    TICK,
+    STOP
+};
+
+
 /// @brief This class offers periodic timer functionality. This timer is started immediately upon construction.
 /// The periodic timer waits for the breif duration specified as interval before it comes to execuion again
 /// @code
@@ -66,7 +76,7 @@ class PeriodicTimer
     /// @brief breifly waits for the timer interval. This is acheived by trying to do a timed wait for the interval
     /// duration on the already aquired binary semaphore
     /// @return TICK if the timer is active and STOP if the timer is stopped already
-    cxx::expected<int, posix::SemaphoreError> wait() noexcept;
+    cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> wait() noexcept;
 
   private:
     iox::units::Duration m_interval;

@@ -50,7 +50,7 @@ const iox::units::Duration PeriodicTimer::now() const noexcept
     return m_interval;
 }
 
-cxx::expected<int, posix::SemaphoreError> PeriodicTimer::wait() noexcept
+cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> PeriodicTimer::wait() noexcept
 {
     if (*(m_stop.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
     {
@@ -62,12 +62,12 @@ cxx::expected<int, posix::SemaphoreError> PeriodicTimer::wait() noexcept
         }
         else
         {
-            return cxx::success<int>(0);
+            return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK);
         }
     }
     else
     {
-        return cxx::success<int>(1);
+        return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::STOP);
     }
 }
 
