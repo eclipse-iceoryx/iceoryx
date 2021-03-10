@@ -14,6 +14,7 @@ concurrently, even from inside a callback which was triggered by an event!
 
 ## Example 
 
+### int main()
 Let's say we have an application which offers us two distinct services:
 `Radar.FrontLeft.Counter` and `Rader.FrontRight.Counter`. Everytime we have 
 received a sample from left and right we would like to calculate the sum with 
@@ -63,4 +64,72 @@ listener.attachEvent(subscriberLeft,
 listener.attachEvent(subscriberRight, 
       iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
 ```
-Since a user trigger has only one event we do not have to specify an event when we attach it to the listener.
+Since a user trigger has only one event we do not have to specify an event when we attach 
+it to the listener.
+
+The setup is complete but it would terminate right away since we have no blocker which
+waits until SIGINT or SIGTERM was send. In the other examples we hadn't have that problem
+since we pulled all the events in a while true loop but working only with callbacks 
+requires something like our `mainLoopBlocker`, a semaphore on which we wait until 
+the signal callback increments it.
+```cpp
+mainLoopBlocker.wait();
+```
+
+When the `mainLoopBlocker` unblocks we clean up all resources and terminate the process 
+gracefully.
+```cpp
+listener.detachEvent(heartbeat);
+listener.detachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA);
+listener.detachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA);
+
+heartbeatThread.join();
+```
+
+Hint: You do not have to detach an _EventOrigin_ like a subscriber or user trigger 
+before it goes out of scope. This also goes for the _Listener_, the implemented
+RAII based design takes care of the resource cleanup.
+
+### The Callbacks
+The callbacks must have a signature like `void(PointerToEventOrigin*)`.
+Our `heartbeatCallback` for instance just prints the message `heartbeat received`.
+```cpp
+void heartbeatCallback(iox::popo::UserTrigger*)
+{
+    std::cout << "heartbeat received " << std::endl;
+}
+```
+
+The `onSampleReceivedCallback` is more complex. We first acquire the received 
+sample and check which subscriber signaled the event by acquiring the subscribers
+service description. If the instance is equal to `FrontLeft` we store the sample
+in the `leftCache` otherwise in the `rightCache`.
+```cpp
+void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
+{
+    subscriber->take().and_then([subscriber](auto& sample) {
+        auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
+
+        // store the sample in the corresponding cache
+        if (instanceString == iox::capro::IdString_t("FrontLeft"))
+        {
+            leftCache.emplace(*sample);
+        }
+        else if (instanceString == iox::capro::IdString_t("FrontRight"))
+        {
+            rightCache.emplace(*sample);
+        }
+```
+
+In a next step we check if both caches are filled. If this is the case we print 
+an extra message which states the result of the sum of both received values.
+Afterwards we reset both caches to start fresh again.
+```cpp
+    if (leftCache && rightCache)
+    {
+        std::cout << "Received samples from FrontLeft and FrontRight. Sum of " << leftCache->counter << " + "
+                  << rightCache->counter << " = " << leftCache->counter + rightCache->counter << std::endl;
+        leftCache.reset();
+        rightCache.reset();
+    }
+```
