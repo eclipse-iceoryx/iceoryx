@@ -85,7 +85,7 @@ TEST_F(Process_test, getSessionId)
 TEST_F(Process_test, getPayloadMemoryManager)
 {
     Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.getPayloadMemoryManager(), Eq(payloadMemoryManager));
+    EXPECT_THAT(&roudiproc.getPayloadMemoryManager(), Eq(payloadMemoryManager));
 }
 
 TEST_F(Process_test, sendViaIpcChannelPass)

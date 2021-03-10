@@ -26,9 +26,9 @@ namespace iox
 namespace roudi
 {
 Process::Process(const ProcessName_t& name,
-                 int32_t pid,
-                 mepoo::MemoryManager* payloadMemoryManager,
-                 bool isMonitored,
+                 const uint32_t pid,
+                 mepoo::MemoryManager* const payloadMemoryManager,
+                 const bool isMonitored,
                  const uint64_t payloadSegmentId,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
@@ -41,7 +41,7 @@ Process::Process(const ProcessName_t& name,
 {
 }
 
-int32_t Process::getPid() const noexcept
+uint32_t Process::getPid() const noexcept
 {
     return m_pid;
 }
@@ -76,9 +76,9 @@ mepoo::TimePointNs_t Process::getTimestamp() noexcept
     return m_timestamp;
 }
 
-mepoo::MemoryManager* Process::getPayloadMemoryManager() const noexcept
+mepoo::MemoryManager& Process::getPayloadMemoryManager() const noexcept
 {
-    return m_payloadMemoryManager;
+    return *m_payloadMemoryManager;
 }
 
 uint64_t Process::getPayloadSegmentId() const noexcept

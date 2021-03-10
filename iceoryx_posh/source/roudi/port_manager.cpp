@@ -609,7 +609,7 @@ cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
                                       const ProcessName_t& processName,
-                                      mepoo::MemoryManager* payloadMemoryManager,
+                                      mepoo::MemoryManager* const payloadMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(

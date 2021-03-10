@@ -577,7 +577,7 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
         name,
         [&](Process& process) { // create a PublisherPort
             auto maybePublisher = m_portManager.acquirePublisherPortData(
-                service, publisherOptions, name, process.getPayloadMemoryManager(), portConfigInfo);
+                service, publisherOptions, name, &process.getPayloadMemoryManager(), portConfigInfo);
 
             if (!maybePublisher.has_error())
             {
@@ -722,11 +722,17 @@ bool ProcessManager::searchForProcessAndThen(const ProcessName_t& name,
     {
         if (name == it->getName())
         {
-            AndThenCallable(*it);
-            return true;
+            if (AndThenCallable)
+            {
+                AndThenCallable(*it);
+                return true;
+            }
         }
     }
-    OrElseCallable();
+    if (OrElseCallable)
+    {
+        OrElseCallable();
+    }
     return false;
 }
 
