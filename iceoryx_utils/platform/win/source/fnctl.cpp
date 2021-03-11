@@ -16,7 +16,7 @@
 
 #include "iceoryx_utils/platform/fcntl.hpp"
 
-int openPlatformFileHandle(const char* pathname, int flags, mode_t mode)
+int openFile(const char* pathname, int flags, mode_t mode)
 {
     return 0;
 }

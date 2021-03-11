@@ -18,6 +18,6 @@
 
 #include <fcntl.h>
 
-int openPlatformFileHandle(const char* pathname, int flags, mode_t mode);
+int openFile(const char* pathname, int flags, mode_t mode);
 
 #endif // IOX_UTILS_MAC_PLATFORM_FCNTL_HPP

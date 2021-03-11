@@ -26,6 +26,12 @@ namespace iox
 {
 namespace posix
 {
+FileLock::FileLock() noexcept
+{
+    this->m_isInitialized = false;
+    this->m_errorValue = FileLockError::NOT_INITIALIZED;
+}
+
 FileLock::FileLock(FileName_t name) noexcept
     : m_name(name)
 {
@@ -37,17 +43,12 @@ FileLock::FileLock(FileName_t name) noexcept
 
 cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
 {
-    cxx::string<200> fullPath = PATH_PREFIX + m_name + ".lock";
+    PathName_t fullPath(PATH_PREFIX + m_name + ".lock");
     constexpr int oFlags = O_CREAT | O_RDWR;
-    mode_t mode = S_IRWXU;
+    mode_t mode = S_IRUSR | S_IWUSR;
 
-    auto openCall = cxx::makeSmartC(openPlatformFileHandle,
-                                    cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                    {ERROR_CODE},
-                                    {},
-                                    fullPath.c_str(),
-                                    oFlags,
-                                    mode);
+    auto openCall = cxx::makeSmartC(
+        openFile, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, fullPath.c_str(), oFlags, mode);
 
     if (openCall.hasErrors())
     {

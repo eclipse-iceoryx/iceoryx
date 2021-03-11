@@ -21,6 +21,14 @@ using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
 
+constexpr char TEST_NAME[] = "TestProcess";
+constexpr char ANOTHER_TEST_NAME[] = "AnotherTestProcess";
+
+/// @req
+/// @brief This test suite verifies the behaviour of the class FileLock
+/// @pre the file lock for TEST_NAME is acquired
+/// @post None
+/// @note This should become a FЯIDA integration test once available, in order to test with two processes
 class FileLock_test : public Test
 {
   public:
@@ -30,6 +38,9 @@ class FileLock_test : public Test
 
     void SetUp()
     {
+        auto createResult = iox::posix::FileLock::create(TEST_NAME);
+        ASSERT_FALSE(createResult.has_error());
+        m_sut = std::move(createResult.value());
     }
 
     void TearDown()
@@ -39,30 +50,27 @@ class FileLock_test : public Test
     ~FileLock_test()
     {
     }
+    iox::posix::FileLock m_sut;
 };
 
-constexpr char TEST_SHM_NAME[] = "TestProcess";
-
-TEST_F(FileLock_test, LockWorks)
+TEST_F(FileLock_test, SecondLockWithDifferentNameWorks)
 {
-    auto sut1 = iox::posix::FileLock::create(TEST_SHM_NAME);
-    ASSERT_FALSE(sut1.has_error());
+    auto sut2 = iox::posix::FileLock::create(ANOTHER_TEST_NAME);
+    ASSERT_FALSE(sut2.has_error());
 }
 
 TEST_F(FileLock_test, LockAndReleaseWorks)
 {
     {
-        auto sut1 = iox::posix::FileLock::create(TEST_SHM_NAME);
+        auto sut1 = iox::posix::FileLock::create(ANOTHER_TEST_NAME);
     }
-    auto sut2 = iox::posix::FileLock::create(TEST_SHM_NAME);
+    auto sut2 = iox::posix::FileLock::create(ANOTHER_TEST_NAME);
     ASSERT_FALSE(sut2.has_error());
 }
 
 TEST_F(FileLock_test, LockAndNoReleaseLeadsToError)
 {
-    auto sut1 = iox::posix::FileLock::create(TEST_SHM_NAME);
-    auto sut2 = iox::posix::FileLock::create(TEST_SHM_NAME);
-    ASSERT_FALSE(sut1.has_error());
+    auto sut2 = iox::posix::FileLock::create(TEST_NAME);
     ASSERT_TRUE(sut2.has_error());
     EXPECT_THAT(sut2.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }

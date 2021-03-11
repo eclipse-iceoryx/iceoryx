@@ -31,6 +31,7 @@ namespace posix
 enum class FileLockError
 {
     INVALID_STATE,
+    NOT_INITIALIZED,
     LOCKED_BY_OTHER_PROCESS,
     ACCESS_DENIED,
     INVALID_FILE_NAME,
@@ -52,19 +53,31 @@ enum class FileLockError
 
 constexpr char PATH_PREFIX[] = "/var/lock/";
 
-/// @brief Posix file lock C++ Wrapping class
+/// @brief Posix file lock C++ wrapping class
+///        Following RAII, the lock is acquired on creation and released on destruction. Release the locks works even if
+///        the process crashes with a segfault or using SIGKILL.
+///        'lslocks' can be used to display all system-wide locks (see man page)
 /// @code
-///     auto lock = posix::FileLock::Create();
+///    iox::posix::FileLock::create(nameOfmyLock)
+///        .and_then([] { std::cout << "We aquired the lock!" << std::endl; })
+///        .or_else([](auto& error) {
+///            if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
+///            {
+///                std::cout << "Some other process is running and holds the lock!" << std::endl;
+///            }
+///        });
 /// @endcode
 class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
 {
   public:
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
-    using FileName_t = cxx::string<100>;
+    using FileName_t = cxx::string<30>;
+    using PathName_t = cxx::string<100>;
 
-    /// @brief
-    FileLock(FileName_t name) noexcept;
+    /// @brief Default constructor which creates an invalid FileLock. Can be used to assign a value with the move
+    /// constructor
+    FileLock() noexcept;
 
     FileLock(const FileLock&) = delete;
     FileLock& operator=(const FileLock&) = delete;
@@ -77,15 +90,16 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
     int32_t m_fd{INVALID_FD};
     FileName_t m_name{""};
 
-    friend class DesignPattern::Creation<FileLock, FileLockError>;
+    /// @brief c'tor
+    /// @param[in] name of the created file lock in PATH_PREFIX
+    FileLock(FileName_t name) noexcept;
 
-    FileLock() noexcept;
     cxx::expected<FileLockError> initializeFileLock() noexcept;
     cxx::error<FileLockError> createErrorFromErrnum(const int32_t errnum) const noexcept;
     cxx::expected<FileLockError> closeFileDescriptor() noexcept;
     cxx::expected<FileLockError> destroy() noexcept;
 
-    FileLockError errnoToEnum(const int errnoValue) const noexcept;
+    friend class DesignPattern::Creation<FileLock, FileLockError>;
 };
 } // namespace posix
 } // namespace iox
