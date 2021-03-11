@@ -18,6 +18,7 @@
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 
 #include <sys/file.h>
 
@@ -26,40 +27,272 @@ namespace iox
 namespace posix
 {
 FileLock::FileLock(FileName_t name) noexcept
+    : m_name(name)
 {
-    cxx::string<200> fullPath = PATH_PREFIX + name;
-    constexpr int OFlags = O_CREAT | O_RDWR;
+    initializeFileLock().and_then([this]() { this->m_isInitialized = true; }).or_else([this](FileLockError& error) {
+        this->m_isInitialized = false;
+        this->m_errorValue = error;
+    });
+}
 
-    auto openCall =
-        cxx::makeSmartC(open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, fullPath.c_str(), OFlags);
+cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
+{
+    cxx::string<200> fullPath = PATH_PREFIX + m_name + ".lock";
+    constexpr int oFlags = O_CREAT | O_RDWR;
+    mode_t mode = S_IRWXU;
+
+    auto openCall = cxx::makeSmartC(openPlatformFileHandle,
+                                    cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                    {ERROR_CODE},
+                                    {},
+                                    fullPath.c_str(),
+                                    oFlags,
+                                    mode);
 
     if (openCall.hasErrors())
     {
-        m_isInitialized = false;
+        return createErrorFromErrnum(openCall.getErrNum());
     }
     else
     {
         m_fd = openCall.getReturnValue();
 
-        auto lockCall =
-            cxx::makeSmartC(flock, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_fd, LOCK_EX | LOCK_NB);
+        auto lockCall = cxx::makeSmartC(
+            flock, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {EWOULDBLOCK}, m_fd, LOCK_EX | LOCK_NB);
 
-        if (!lockCall.hasErrors())
+        if (lockCall.hasErrors())
         {
-            m_isInitialized = true;
+            closeFileDescriptor();
+            // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
+            return createErrorFromErrnum(openCall.getErrNum());
+        }
+        else if (lockCall.getErrNum() == EWOULDBLOCK)
+        {
+            closeFileDescriptor();
+            // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
+            return cxx::error<FileLockError>(FileLockError::LOCKED_BY_OTHER_PROCESS);
         }
         else
         {
-            if (lockCall.getErrNum() == EWOULDBLOCK)
-            {
-                m_errorValue = FileLockError::LOCKED_BY_OTHER_PROCESS;
-            }
+            return cxx::success<>();
         }
     }
 }
 
+FileLock::FileLock(FileLock&& rhs) noexcept
+{
+    *this = std::move(rhs);
+}
+
+FileLock& FileLock::operator=(FileLock&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        if (destroy().has_error())
+        {
+            std::cerr << "Unable to cleanup file lock \"" << m_name
+                      << "\" in the move constructor/move assingment operator" << std::endl;
+        }
+
+        CreationPattern_t::operator=(std::move(rhs));
+
+        m_name = std::move(rhs.m_name);
+        m_fd = std::move(rhs.m_fd);
+
+        rhs.m_fd = INVALID_FD;
+    }
+
+    return *this;
+}
+
+cxx::expected<FileLockError> FileLock::destroy() noexcept
+{
+    if (m_isInitialized)
+    {
+        return closeFileDescriptor();
+    }
+
+    return cxx::success<void>();
+}
+
 FileLock::~FileLock() noexcept
-{}
+{
+    closeFileDescriptor();
+}
+
+cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
+{
+    if (m_fd != INVALID_FD)
+    {
+        auto closeCall =
+            cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_fd);
+
+        if (!closeCall.hasErrors())
+        {
+            m_fd = INVALID_FD;
+            m_isInitialized = false;
+
+            return cxx::success<void>();
+        }
+        else
+        {
+            return createErrorFromErrnum(closeCall.getErrNum());
+        }
+    }
+    return cxx::success<>();
+}
+
+cxx::error<FileLockError> FileLock::createErrorFromErrnum(const int32_t errnum) const noexcept
+{
+    switch (errnum)
+    {
+    case EACCES:
+    {
+        std::cerr << "permission to access file denied \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::ACCESS_DENIED);
+    }
+    case EBUSY:
+    {
+        std::cerr << "provided invalid arguments for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_ARGUMENTS);
+    }
+    case EDQUOT:
+    {
+        std::cerr << "user disk quota exhausted for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::QUOTA_EXHAUSTED);
+    }
+    case EEXIST:
+    {
+        std::cerr << "file \"" << m_name << "\""
+                  << " already exists" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::FILE_EXISTS);
+    }
+    case EFAULT:
+    {
+        std::cerr << "outside address space error for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+    }
+    case EFBIG:
+    {
+        std::cerr << "overflow for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+    }
+    case EINTR:
+    {
+        std::cerr << "Interrupted by signal for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INTERRUPTED_BY_SIGNAL);
+    }
+    case EINVAL:
+    {
+        std::cerr << "provided invalid arguments for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_ARGUMENTS);
+    }
+    case EISDIR:
+    {
+        std::cerr << "Writing access requested for directory \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_ARGUMENTS);
+    }
+    case ELOOP:
+    {
+        std::cerr << "too many symbolic links for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+    }
+    case EMFILE:
+    {
+        std::cerr << "process limit reached for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::PROCESS_LIMIT);
+    }
+    case ENAMETOOLONG:
+    {
+        std::cerr << "name too long for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+    }
+    case ENFILE:
+    {
+        std::cerr << "system limit reached for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::SYSTEM_LIMIT);
+    }
+    case ENODEV:
+    {
+        std::cerr << "permission to access file denied \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::ACCESS_DENIED);
+    }
+    case ENOENT:
+    {
+        std::cerr << "file \"" << m_name << "\""
+                  << "does not exist" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::NO_SUCH_FILE);
+    }
+    case ENOMEM:
+    {
+        std::cerr << "out of memory for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::OUT_OF_MEMORY);
+    }
+    case ENOSPC:
+    {
+        std::cerr << "Device has no space for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::QUOTA_EXHAUSTED);
+    }
+    case ENOTDIR:
+    {
+        std::cerr << "not a directory error for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+    }
+    case ENXIO:
+    {
+        std::cerr << "\"" << m_name << "\""
+                  << " is a special file and no corresponding device exists" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::SPECIAL_FILE);
+    }
+    case EOPNOTSUPP:
+    {
+        std::cerr << "filesystem does not support O_TMPFILE for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::TEMP_FILE_NOT_SUPPORTED);
+    }
+    case EOVERFLOW:
+    {
+        std::cerr << "file \"" << m_name << "\""
+                  << " is too large to be openend" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::FILE_TOO_LARGE);
+    }
+    case EPERM:
+    {
+        std::cerr << "permission to access file denied \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::ACCESS_DENIED);
+    }
+    case EBADF:
+    {
+        std::cerr << "invalid file descriptor for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_DESCRIPTOR);
+    }
+    case EROFS:
+    {
+        std::cerr << "read only error for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+    }
+    case ETXTBSY:
+    {
+        std::cerr << "write access requested for file \"" << m_name << "\""
+                  << " in use" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::FILE_IN_USE);
+    }
+    case EWOULDBLOCK:
+    {
+        // no error message needed since this is a normal use case
+        return cxx::error<FileLockError>(FileLockError::LOCKED_BY_OTHER_PROCESS);
+    }
+    case ENOLCK:
+    {
+        std::cerr << "system limit for locks reached for file \"" << m_name << "\"" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::SYSTEM_LIMIT);
+    }
+    default:
+    {
+        std::cerr << "internal logic error in unix domain socket \"" << m_name << "\" occurred" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::INTERNAL_LOGIC_ERROR);
+    }
+    }
+}
 
 } // namespace posix
 } // namespace iox

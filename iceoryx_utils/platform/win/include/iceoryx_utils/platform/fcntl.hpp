@@ -28,4 +28,6 @@
 #define O_WRONLY _O_WRONLY
 #define O_NONBLOCK 0x0
 
+int openPlatformFileHandle(const char* pathname, int flags, mode_t mode);
+
 #endif // IOX_UTILS_WIN_PLATFORM_FCNTL_HPP

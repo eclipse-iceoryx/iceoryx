@@ -32,9 +32,22 @@ enum class FileLockError
 {
     INVALID_STATE,
     LOCKED_BY_OTHER_PROCESS,
-    NAME_TOO_LONG,
-    UNABLE_TO_OPEN_HANDLE,
-    UNDEFINED
+    ACCESS_DENIED,
+    INVALID_FILE_NAME,
+    FILE_EXISTS,
+    INTERRUPTED_BY_SIGNAL,
+    QUOTA_EXHAUSTED,
+    INVALID_ARGUMENTS,
+    SYSTEM_LIMIT,
+    PROCESS_LIMIT,
+    NO_SUCH_FILE,
+    SPECIAL_FILE,
+    TEMP_FILE_NOT_SUPPORTED,
+    FILE_TOO_LARGE,
+    FILE_IN_USE,
+    INVALID_FILE_DESCRIPTOR,
+    OUT_OF_MEMORY,
+    INTERNAL_LOGIC_ERROR,
 };
 
 constexpr char PATH_PREFIX[] = "/var/lock/";
@@ -47,27 +60,30 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
 {
   public:
     static constexpr int32_t ERROR_CODE = -1;
+    static constexpr int32_t INVALID_FD = -1;
     using FileName_t = cxx::string<100>;
 
     /// @brief
     FileLock(FileName_t name) noexcept;
-    
+
     FileLock(const FileLock&) = delete;
     FileLock& operator=(const FileLock&) = delete;
-    FileLock(FileLock&& rhs) noexcept = default;
-    FileLock& operator=(FileLock&& rhs) noexcept = default;
+    FileLock(FileLock&& rhs) noexcept;
+    FileLock& operator=(FileLock&& rhs) noexcept;
 
     ~FileLock() noexcept;
 
   private:
-    int32_t m_fd;
+    int32_t m_fd{INVALID_FD};
+    FileName_t m_name{""};
 
-  private:
     friend class DesignPattern::Creation<FileLock, FileLockError>;
 
-    /// @brief
-    /// @param[in]
     FileLock() noexcept;
+    cxx::expected<FileLockError> initializeFileLock() noexcept;
+    cxx::error<FileLockError> createErrorFromErrnum(const int32_t errnum) const noexcept;
+    cxx::expected<FileLockError> closeFileDescriptor() noexcept;
+    cxx::expected<FileLockError> destroy() noexcept;
 
     FileLockError errnoToEnum(const int errnoValue) const noexcept;
 };
