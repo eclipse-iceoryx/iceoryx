@@ -28,8 +28,8 @@ namespace iox
 {
 namespace test
 {
-static constexpr uint32_t DEFAULT_DEVICE_ID{0u};
-static constexpr uint32_t DEFAULT_MEMORY_TYPE{0u};
+static constexpr uint32_t DEFAULT_DEVICE_ID{20u};
+static constexpr uint32_t DEFAULT_MEMORY_TYPE{100u};
 class PortPool_test : public Test
 {
   public:
@@ -42,8 +42,10 @@ class PortPool_test : public Test
     ProcessName_t m_nodeName{"nodeName"};
     const uint64_t m_nodeDeviceId = 999U;
     mepoo::MemoryManager m_memoryManager;
-    popo::PublisherOptions m_publisherOptions;
-    popo::SubscriberOptions m_subscriberOptions;
+    popo::PublisherOptions m_publisherOptions{10, "nodeName"};
+    popo::SubscriberOptions m_subscriberOptions{
+        iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 10, "nodeName"};
+    iox::mepoo::MemoryInfo m_memoryInfo{DEFAULT_DEVICE_ID, DEFAULT_MEMORY_TYPE};
 };
 
 TEST_F(PortPool_test, AddNodeDataIsSuccessful)
@@ -97,6 +99,13 @@ TEST_F(PortPool_test, GetNodeDataListIsSuccessful)
     auto nodeDataList = sut.getNodeDataList();
 
     ASSERT_EQ(nodeDataList.size(), 1U);
+
+    for (const auto& nodeData : nodeDataList)
+    {
+        ASSERT_EQ(nodeData->m_process, m_processName);
+        ASSERT_EQ(nodeData->m_node, m_nodeName);
+        ASSERT_EQ(nodeData->m_nodeDeviceIdentifier, m_nodeDeviceId);
+    }
 }
 
 TEST_F(PortPool_test, GetNodeDataListWhenEmptyIsSuccessful)
@@ -136,20 +145,20 @@ TEST_F(PortPool_test, RemoveNodeDataIsSuccessful)
 
 TEST_F(PortPool_test, AddPublisherPortIsSuccessful)
 {
-    auto publisherPort =
-        sut.addPublisherPort(m_serviceDescription, &m_memoryManager, m_applicationName, m_publisherOptions);
+    auto publisherPort = sut.addPublisherPort(
+        m_serviceDescription, &m_memoryManager, m_applicationName, m_publisherOptions, m_memoryInfo);
 
     ASSERT_THAT(publisherPort.value()->m_serviceDescription, Eq(ServiceDescription{"service1", "instance1"}));
     ASSERT_EQ(publisherPort.value()->m_processName, m_applicationName);
-    ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_historyCapacity, 0UL);
-    ASSERT_EQ(publisherPort.value()->m_nodeName, NodeName_t{""});
+    ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_historyCapacity, m_publisherOptions.historyCapacity);
+    ASSERT_EQ(publisherPort.value()->m_nodeName, m_publisherOptions.nodeName);
     ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
     ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
 }
 
 TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
 {
-    for (uint32_t i = 0; i < MAX_PUBLISHERS; ++i)
+    for (uint32_t i = 0U; i < MAX_PUBLISHERS; ++i)
     {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
@@ -159,14 +168,15 @@ TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
             {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
             &m_memoryManager,
             applicationName,
-            m_publisherOptions);
+            m_publisherOptions,
+            m_memoryInfo);
 
         ASSERT_THAT(publisherPort.value()->m_serviceDescription,
                     Eq(ServiceDescription{IdString_t(cxx::TruncateToCapacity, service),
                                           IdString_t(cxx::TruncateToCapacity, instance)}));
         ASSERT_EQ(publisherPort.value()->m_processName, applicationName);
-        ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_historyCapacity, 0UL);
-        ASSERT_EQ(publisherPort.value()->m_nodeName, NodeName_t{""});
+        ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_historyCapacity, m_publisherOptions.historyCapacity);
+        ASSERT_EQ(publisherPort.value()->m_nodeName, m_publisherOptions.nodeName);
         ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
         ASSERT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
     }
@@ -182,7 +192,7 @@ TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReurnsError)
             errorHandlerCalled = true;
         });
 
-    for (uint32_t i = 0; i <= MAX_PUBLISHERS; ++i)
+    for (uint32_t i = 0U; i <= MAX_PUBLISHERS; ++i)
     {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
@@ -220,7 +230,7 @@ TEST_F(PortPool_test, GetPublisherPortDataListWhenEmptyIsSuccessful)
 
 TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
 {
-    for (uint32_t i = 0; i < MAX_PUBLISHERS; ++i)
+    for (uint32_t i = 0U; i < MAX_PUBLISHERS; ++i)
     {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
@@ -250,12 +260,13 @@ TEST_F(PortPool_test, RemovePublisherPortIsSuccessful)
 
 TEST_F(PortPool_test, AddSubscriberPortIsSuccessful)
 {
-    auto subscriberPort = sut.addSubscriberPort(m_serviceDescription, m_applicationName, m_subscriberOptions);
+    auto subscriberPort =
+        sut.addSubscriberPort(m_serviceDescription, m_applicationName, m_subscriberOptions, m_memoryInfo);
 
     ASSERT_EQ(subscriberPort.value()->m_serviceDescription, m_serviceDescription);
     ASSERT_EQ(subscriberPort.value()->m_processName, m_applicationName);
-    ASSERT_EQ(subscriberPort.value()->m_nodeName, NodeName_t{""});
-    ASSERT_EQ(subscriberPort.value()->m_historyRequest, 0U);
+    ASSERT_EQ(subscriberPort.value()->m_nodeName, m_subscriberOptions.nodeName);
+    ASSERT_EQ(subscriberPort.value()->m_historyRequest, m_subscriberOptions.historyRequest);
     ASSERT_EQ(subscriberPort.value()->m_chunkReceiverData.m_queue.capacity(), 256U);
     ASSERT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
     ASSERT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
@@ -263,7 +274,7 @@ TEST_F(PortPool_test, AddSubscriberPortIsSuccessful)
 
 TEST_F(PortPool_test, AddSubscriberPortToMaxCapacityIsSuccessful)
 {
-    for (uint32_t i = 0; i < MAX_SUBSCRIBERS; ++i)
+    for (uint32_t i = 0U; i < MAX_SUBSCRIBERS; ++i)
     {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
@@ -273,13 +284,14 @@ TEST_F(PortPool_test, AddSubscriberPortToMaxCapacityIsSuccessful)
         auto subscriberPort = sut.addSubscriberPort(
             {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
             applicationName,
-            m_subscriberOptions);
+            m_subscriberOptions,
+            m_memoryInfo);
 
         ASSERT_THAT(subscriberPort.value()->m_serviceDescription,
                     Eq(ServiceDescription{IdString_t(cxx::TruncateToCapacity, service),
                                           IdString_t(cxx::TruncateToCapacity, instance)}));
         ASSERT_EQ(subscriberPort.value()->m_processName, applicationName);
-        ASSERT_EQ(subscriberPort.value()->m_nodeName, NodeName_t{""});
+        ASSERT_EQ(subscriberPort.value()->m_nodeName, m_subscriberOptions.nodeName);
         ASSERT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
         ASSERT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
     }
@@ -296,7 +308,7 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReurnsError)
             errorHandlerCalled = true;
         });
 
-    for (uint32_t i = 0; i <= MAX_SUBSCRIBERS; ++i)
+    for (uint32_t i = 0U; i <= MAX_SUBSCRIBERS; ++i)
     {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
@@ -330,7 +342,7 @@ TEST_F(PortPool_test, GetSubscriberPortDataListWhenEmptyIsSuccessful)
 
 TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
 {
-    for (uint32_t i = 0; i < MAX_SUBSCRIBERS; ++i)
+    for (uint32_t i = 0U; i < MAX_SUBSCRIBERS; ++i)
     {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
@@ -416,7 +428,7 @@ TEST_F(PortPool_test, GetInterfacePortDataListWhenEmptyIsSuccessful)
 
 TEST_F(PortPool_test, GetInterfacePortDataListCompletelyFilledIsSuccessful)
 {
-    for (uint32_t i = 0; i < MAX_INTERFACE_NUMBER; ++i)
+    for (uint32_t i = 0U; i < MAX_INTERFACE_NUMBER; ++i)
     {
         ProcessName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
         sut.addInterfacePort(applicationName, Interfaces::INTERNAL);
@@ -471,7 +483,7 @@ TEST_F(PortPool_test, AddApplicationPortWhenApplicationListOverflowsReturnsError
 
     for (uint32_t i = 0U; i <= MAX_PROCESS_NUMBER; ++i)
     {
-        auto pplicationData = sut.addApplicationPort(m_applicationName);
+        auto applicationData = sut.addApplicationPort(m_applicationName);
     }
 
     ASSERT_TRUE(errorHandlerCalled);
@@ -495,7 +507,7 @@ TEST_F(PortPool_test, GetApplicationPortDataListIsSuccessful)
 
 TEST_F(PortPool_test, GetApplicationPortDataListCompletelyFilledIsSuccessful)
 {
-    for (uint32_t i = 0; i < MAX_PROCESS_NUMBER; ++i)
+    for (uint32_t i = 0U; i < MAX_PROCESS_NUMBER; ++i)
     {
         ProcessName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
         sut.addApplicationPort(applicationName);
@@ -574,7 +586,7 @@ TEST_F(PortPool_test, GetConditionVariableDataListWhenEmptyIsSuccessful)
 
 TEST_F(PortPool_test, GetConditionVariableDataListCompletelyFilledIsSuccessful)
 {
-    for (uint32_t i = 0; i < MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
+    for (uint32_t i = 0U; i < MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
     {
         ProcessName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
         sut.addConditionVariableData(applicationName);
@@ -594,11 +606,20 @@ TEST_F(PortPool_test, RemoveConditionVariableDataIsSuccessful)
     ASSERT_EQ(condtionalVariableData.size(), 0U);
 }
 
-TEST_F(PortPool_test, GetServiceRegistryChangeCounterIsSuccessful)
+TEST_F(PortPool_test, GetServiceRegistryChangeCounterReturnsZeroAsInitialValue)
 {
     auto serviceCounter = sut.serviceRegistryChangeCounter();
 
     ASSERT_EQ(serviceCounter->load(), 0U);
+}
+
+
+TEST_F(PortPool_test, GetServiceRegistryChangeCounterIsSuccessfull)
+{
+    sut.serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
+    auto serviceCounter = sut.serviceRegistryChangeCounter();
+
+    ASSERT_EQ(serviceCounter->load(), 1U);
 }
 } // namespace test
 } // namespace iox

@@ -47,7 +47,7 @@ class PoshRuntimeSingleProcess_test : public Test
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSuccess)
 {
-    iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().optimize();
+    iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
     RouDi roudi(roudiComponents.m_rouDiMemoryManager,
