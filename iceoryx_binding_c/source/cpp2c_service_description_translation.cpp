@@ -23,20 +23,21 @@ iox_service_description_t TranslateServiceDescription(const iox::capro::ServiceD
     retVal.instanceId = serviceDescription.getInstanceID();
     retVal.eventId = serviceDescription.getEventID();
 
+#if defined(__GNUC__) && __GNUC__ >= 8
 #pragma GCC diagnostic push
-// the warning below is available only in gcc compilers
-#ifdef __clang__
-#pragma GCC diagnostic ignored "-Wunknown-warning-option"
-#endif
+// the warning below is available only in gcc >=8.x compilers
 // ignore this warning since we already ensure that the string sizes are correct in the test
 // test_service_description.cpp (iox_service_description_test.StringSizesAreCorrect)
 // therefore a string truncation will never occur.
 #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
     strncpy(retVal.serviceString, serviceDescription.getServiceIDString().c_str(), iox::capro::IdString_t().capacity());
     strncpy(
         retVal.instanceString, serviceDescription.getInstanceIDString().c_str(), iox::capro::IdString_t().capacity());
     strncpy(retVal.eventString, serviceDescription.getEventIDString().c_str(), iox::capro::IdString_t().capacity());
+#if defined(__GNUC__) && __GNUC__ >= 8
 #pragma GCC diagnostic pop
+#endif
 
     return retVal;
 }
