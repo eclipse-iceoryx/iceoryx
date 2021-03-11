@@ -198,7 +198,7 @@ WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noex
     WaitSet::EventInfoVector triggers;
 
     /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
-    m_conditionVariableWaiter.reset();
+    m_conditionVariableWaiter.resetSemaphore();
     triggers = createVectorWithTriggeredTriggers();
 
     // It is possible that after the reset call and before the createVectorWithTriggeredTriggers call

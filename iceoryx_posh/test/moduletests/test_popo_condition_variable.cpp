@@ -43,7 +43,7 @@ class ConditionVariable_test : public Test
     void TearDown() override
     {
         // Reset condition variable
-        m_waiter.reset();
+        m_waiter.resetSemaphore();
     };
 };
 
@@ -118,7 +118,7 @@ TEST_F(ConditionVariable_test, ResetResultsInBlockingWaitMultiThreaded)
 {
     std::atomic<int> counter{0};
     m_signaler.notifyOne();
-    m_waiter.reset();
+    m_waiter.resetSemaphore();
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();
@@ -134,7 +134,7 @@ TEST_F(ConditionVariable_test, ResetResultsInBlockingWaitMultiThreaded)
 TEST_F(ConditionVariable_test, ResetWithoutNotifiyResultsInBlockingWaitMultiThreaded)
 {
     std::atomic<int> counter{0};
-    m_waiter.reset();
+    m_waiter.resetSemaphore();
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();

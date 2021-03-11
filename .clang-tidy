@@ -1,4 +1,4 @@
-Checks: '-*,readability-*,-readability-avoid-const-params-in-decls,performance-*,hicpp-*,cppcoreguidelines-*,concurrency-*,clang-analyzer-*,cert-*,bugprone-*'
+Checks: '-*,readability-*,-readability-named-parameter,-readability-avoid-const-params-in-decls,performance-*,hicpp-*,-hicpp-named-parameter,-hicpp-avoid-c-arrays,cppcoreguidelines-*,-cppcoreguidelines-avoid-c-arrays,-cppcoreguidelines-pro-bounds-constant-array-index,concurrency-*,clang-analyzer-*,cert-*,bugprone-*'
 CheckOptions:
   - { key: readability-identifier-naming.ClassCase,               value: CamelCase }
   - { key: readability-identifier-naming.EnumCase,                value: CamelCase }

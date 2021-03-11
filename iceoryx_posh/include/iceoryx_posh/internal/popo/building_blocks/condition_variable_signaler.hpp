@@ -30,11 +30,12 @@ class ConditionVariableSignaler
     static constexpr uint64_t INVALID_NOTIFICATION_INDEX = std::numeric_limits<uint64_t>::max();
 
     explicit ConditionVariableSignaler(ConditionVariableData& condVarDataRef, const uint64_t index) noexcept;
-    virtual ~ConditionVariableSignaler() noexcept = default;
+
     ConditionVariableSignaler(const ConditionVariableSignaler& rhs) = delete;
     ConditionVariableSignaler(ConditionVariableSignaler&& rhs) noexcept = delete;
     ConditionVariableSignaler& operator=(const ConditionVariableSignaler& rhs) = delete;
     ConditionVariableSignaler& operator=(ConditionVariableSignaler&& rhs) noexcept = delete;
+    ~ConditionVariableSignaler() noexcept = default;
 
     /// @brief If threads are waiting on the condition variable, this call unblocks one of the waiting threads
     void notifyOne() noexcept;

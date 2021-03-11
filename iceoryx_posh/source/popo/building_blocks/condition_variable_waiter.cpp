@@ -27,19 +27,31 @@ ConditionVariableWaiter::ConditionVariableWaiter(cxx::not_null<ConditionVariable
 {
 }
 
-void ConditionVariableWaiter::reset() noexcept
+void ConditionVariableWaiter::resetSemaphore() noexcept
 {
     // Count the semaphore down to zero
-    while (getMembers()
-               ->m_semaphore.tryWait()
-               .or_else([](posix::SemaphoreError) {
-                   errorHandler(Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_RESET,
-                                nullptr,
-                                ErrorLevel::FATAL);
-               })
-               .value())
+    bool hasFatalError = false;
+    while (!hasFatalError
+           && getMembers()
+                  ->m_semaphore.tryWait()
+                  .or_else([&](posix::SemaphoreError) {
+                      errorHandler(Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_RESET,
+                                   nullptr,
+                                   ErrorLevel::FATAL);
+                      hasFatalError = true;
+                  })
+                  .value())
     {
     }
+}
+
+void ConditionVariableWaiter::destroy() noexcept
+{
+    m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    getMembers()->m_semaphore.post().or_else([](auto) {
+        errorHandler(
+            Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_DESTROY, nullptr, ErrorLevel::FATAL);
+    });
 }
 
 bool ConditionVariableWaiter::wasNotified() const noexcept
@@ -57,14 +69,23 @@ bool ConditionVariableWaiter::wasNotified() const noexcept
 
 void ConditionVariableWaiter::wait() noexcept
 {
-    if (getMembers()->m_semaphore.wait().has_error())
+    if (m_toBeDestroyed.load(std::memory_order_relaxed))
     {
-        errorHandler(Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+        return;
     }
+
+    getMembers()->m_semaphore.wait().or_else([](auto) {
+        errorHandler(Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+    });
 }
 
 bool ConditionVariableWaiter::timedWait(units::Duration timeToWait) noexcept
 {
+    if (m_toBeDestroyed.load(std::memory_order_relaxed))
+    {
+        return false;
+    }
+
     auto continueOnInterrupt{false};
     auto result = getMembers()->m_semaphore.timedWait(timeToWait, continueOnInterrupt);
 
@@ -76,6 +97,46 @@ bool ConditionVariableWaiter::timedWait(units::Duration timeToWait) noexcept
     }
 
     return *result != posix::SemaphoreWaitState::TIMEOUT;
+}
+
+ConditionVariableWaiter::NotificationVector_t ConditionVariableWaiter::waitForNotifications() noexcept
+{
+    using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
+    NotificationVector_t activeNotifications;
+
+    resetSemaphore();
+    while (!m_toBeDestroyed.load(std::memory_order_relaxed))
+    {
+        for (Type_t i = 0U; i < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; i++)
+        {
+            if (getMembers()->m_activeNotifications[i].load(std::memory_order_relaxed))
+            {
+                reset(i);
+                activeNotifications.emplace_back(i);
+            }
+        }
+        if (!activeNotifications.empty())
+        {
+            return activeNotifications;
+        }
+
+        if (getMembers()->m_semaphore.wait().has_error())
+        {
+            errorHandler(
+                Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+            break;
+        }
+    }
+
+    return activeNotifications;
+}
+
+void ConditionVariableWaiter::reset(const uint64_t index) noexcept
+{
+    if (index < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE)
+    {
+        getMembers()->m_activeNotifications[index].store(false, std::memory_order_relaxed);
+    }
 }
 
 const ConditionVariableData* ConditionVariableWaiter::getMembers() const noexcept

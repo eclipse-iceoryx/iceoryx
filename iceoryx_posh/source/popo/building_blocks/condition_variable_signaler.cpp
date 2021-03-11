@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 namespace iox
 {
@@ -25,10 +26,20 @@ ConditionVariableSignaler::ConditionVariableSignaler(ConditionVariableData& cond
     : m_condVarDataPtr(&condVarDataRef)
     , m_notificationIndex(index)
 {
+    if (index >= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE)
+    {
+        LogFatal() << "The provided index " << index << " is too large. The index has to be in the range of [0, "
+                   << MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE << "[.";
+        errorHandler(Error::kPOPO__CONDITION_NOTIFIER_INDEX_TOO_LARGE, nullptr, ErrorLevel::FATAL);
+    }
 }
 
 void ConditionVariableSignaler::notifyOne() noexcept
 {
+    if (m_notificationIndex < MAX_NUMBER_OF_EVENTS_PER_LISTENER)
+    {
+        getMembers()->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
+    }
     getMembers()->m_semaphore.post();
 }
 

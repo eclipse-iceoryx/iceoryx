@@ -20,9 +20,18 @@ namespace iox
 {
 namespace popo
 {
+ConditionVariableData::ConditionVariableData() noexcept
+    : ConditionVariableData("")
+{
+}
+
 ConditionVariableData::ConditionVariableData(const ProcessName_t& process) noexcept
     : m_process(process)
 {
+    for (auto& id : m_activeNotifications)
+    {
+        id.store(false, std::memory_order_relaxed);
+    }
 }
 } // namespace popo
 } // namespace iox

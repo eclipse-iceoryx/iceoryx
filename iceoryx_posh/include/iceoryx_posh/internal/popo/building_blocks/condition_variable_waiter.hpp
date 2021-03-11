@@ -28,6 +28,9 @@ namespace popo
 class ConditionVariableWaiter
 {
   public:
+    using NotificationVector_t = cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE>,
+                                             MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE>;
+
     explicit ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
     virtual ~ConditionVariableWaiter() noexcept = default;
     ConditionVariableWaiter(const ConditionVariableWaiter& rhs) = delete;
@@ -35,12 +38,14 @@ class ConditionVariableWaiter
     ConditionVariableWaiter& operator=(const ConditionVariableWaiter& rhs) = delete;
     ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) noexcept = delete;
 
-    /// @brief Reinitialises the condition variable
-    void reset() noexcept;
+
+    void resetSemaphore() noexcept;
+
     /// @brief Waits until notify is called on the ConditionVariableSignaler or time has run out
     /// @param[in] timeToWait, time to wait until the function returns
     /// @return False if timeout occured, true if no timeout occured
     bool timedWait(const units::Duration timeToWait) noexcept;
+
     /// @brief Waits until notify is called on the ConditionVariableSignaler
     void wait() noexcept;
 
@@ -48,12 +53,30 @@ class ConditionVariableWaiter
     /// @return true if it was notified otherwise false
     bool wasNotified() const noexcept;
 
+    /// @brief Used in classes to signal a thread which waits in wait() to return
+    ///         and stop working. Destroy will send an empty notification to wait() and
+    ///         after this call wait() turns into a non blocking call which always
+    ///         returns an empty vector.
+    void destroy() noexcept;
+
+    /// @brief returns vector of indices of active notifications; blocking if EventVariableData was
+    /// not notified unless destroy() was called before. The indices of active notifications is
+    /// never empty unless destroy() was called, then it's always empty.
+    ///
+    /// @return vector of active notifications
+    NotificationVector_t waitForNotifications() noexcept;
+
+
   protected:
     const ConditionVariableData* getMembers() const noexcept;
     ConditionVariableData* getMembers() noexcept;
 
   private:
+    void reset(const uint64_t index) noexcept;
+
+  private:
     ConditionVariableData* m_condVarDataPtr{nullptr};
+    std::atomic_bool m_toBeDestroyed{false};
 };
 
 } // namespace popo
