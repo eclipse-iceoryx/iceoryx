@@ -32,3 +32,11 @@ cd someExample
 |[singleprocess](./singleprocess/)                       | Iceoryx can also be used for inter thread communication when you would like to run everything in a single process. | Intermediate |
 |[iceperf](./iceperf/)                                   | A benchmark application which measures the latency of an IPC transmission between two applications. | Advanced |
 |[icecrystal](./icecrystal/)                             | Demonstrates the usage of the iceoryx introspection client. | Advanced |
+
+## How to add a new example
+
+ 1. Add the example in the "List of all examples" in this markdown file
+ 2. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
+ 3. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
+ 4. Add the example in the file with the corresponding level in `doc/website/getting-started/examples/LEVEL-examples.md`
+

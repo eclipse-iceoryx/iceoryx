@@ -22,10 +22,17 @@ iox_service_description_t TranslateServiceDescription(const iox::capro::ServiceD
     retVal.serviceId = serviceDescription.getServiceID();
     retVal.instanceId = serviceDescription.getInstanceID();
     retVal.eventId = serviceDescription.getEventID();
+
+// ignore this warning since we already ensure that the string sizes are correct in the test
+// test_service_description.cpp (iox_service_description_test.StringSizesAreCorrect)
+// therefore a string truncation will never occur.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
     strncpy(retVal.serviceString, serviceDescription.getServiceIDString().c_str(), iox::capro::IdString_t().capacity());
     strncpy(
         retVal.instanceString, serviceDescription.getInstanceIDString().c_str(), iox::capro::IdString_t().capacity());
     strncpy(retVal.eventString, serviceDescription.getEventIDString().c_str(), iox::capro::IdString_t().capacity());
+#pragma GCC diagnostic pop
 
     return retVal;
 }
