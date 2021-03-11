@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
 #define IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
 
@@ -22,7 +23,7 @@
 
 namespace iox
 {
-///@todo restructure and split into multiple files along with an implementation cpp for non-template code
+/// @todo restructure and split into multiple files along with an implementation cpp for non-template code
 class RelocatablePointer
 {
     template <typename T>
@@ -31,29 +32,28 @@ class RelocatablePointer
   public:
     using offset_t = std::ptrdiff_t;
 
-    RelocatablePointer()
+    RelocatablePointer() noexcept
     {
     }
 
-    explicit RelocatablePointer(const void* ptr)
+    explicit RelocatablePointer(const void* ptr) noexcept
         : m_offset(computeOffset(ptr))
     {
     }
 
-    RelocatablePointer(const RelocatablePointer& other)
+    RelocatablePointer(const RelocatablePointer& other) noexcept
         : m_offset(computeOffset(other.computeRawPtr()))
     {
     }
 
-    RelocatablePointer(RelocatablePointer&& other)
+    RelocatablePointer(RelocatablePointer&& other) noexcept
         : m_offset(computeOffset(other.computeRawPtr()))
     {
-        // could set other to null but there is no advantage
-        // in moving RelocatablePointers since they are lightweight and in principle other is allowed to
-        // still be functional (you just cannot rely on it)
+        /// @note could set other to null but there is no advantage in moving RelocatablePointers since they are
+        /// lightweight and in principle other is allowed to still be functional (you just cannot rely on it)
     }
 
-    RelocatablePointer& operator=(const RelocatablePointer& other)
+    RelocatablePointer& operator=(const RelocatablePointer& other) noexcept
     {
         if (this != &other)
         {
@@ -62,39 +62,39 @@ class RelocatablePointer
         return *this;
     }
 
-    RelocatablePointer& operator=(const void* rawPtr)
+    RelocatablePointer& operator=(const void* rawPtr) noexcept
     {
         m_offset = computeOffset(rawPtr);
         return *this;
     }
 
-    RelocatablePointer& operator=(RelocatablePointer&& other)
+    RelocatablePointer& operator=(RelocatablePointer&& other) noexcept
     {
         m_offset = computeOffset(other.computeRawPtr());
         return *this;
     }
 
-    const void* operator*() const
+    const void* operator*() const noexcept
     {
         return computeRawPtr();
     }
 
-    operator bool() const
+    operator bool() const noexcept
     {
         return m_offset != NULL_POINTER_OFFSET;
     }
 
-    bool operator!() const
+    bool operator!() const noexcept
     {
         return m_offset == NULL_POINTER_OFFSET;
     }
 
-    void* get()
+    void* get() const noexcept
     {
         return computeRawPtr();
     }
 
-    offset_t getOffset()
+    offset_t getOffset() const noexcept
     {
         return m_offset;
     }
@@ -105,91 +105,90 @@ class RelocatablePointer
   protected:
     offset_t m_offset{NULL_POINTER_OFFSET};
 
-    inline offset_t computeOffset(const void* ptr) const
+    inline offset_t computeOffset(const void* ptr) const noexcept
     {
-        //@ todo: find most efficient way to do this and check the valid range (signed/unsigned issues)
-        // this implies that the absolute difference cannot be larger than 2^63 which is probably true in any shared
-        // memory we use
-        // otherwise we would need to use unsigned for differences and use one extra bit from somewhere else to indicate
-        // the sign
+        /// @todo find most efficient way to do this and check the valid range (signed/unsigned issues)
+        /// this implies that the absolute difference cannot be larger than 2^63 which is probably true in any shared
+        /// memory we use
+        /// otherwise we would need to use unsigned for differences and use one extra bit from somewhere else to
+        /// indicate the sign
 
-        // this suffices if both addresses are not too far apart, e.g. when they point to data in a sufficiently "small"
-        // shared memory
-        //(if the shared memory is small, the difference does never underflow)
+        /// this suffices if both addresses are not too far apart, e.g. when they point to data in a sufficiently
+        /// "small" shared memory (if the shared memory is small, the difference does never underflow)
 
-        // todo: better first cast to unsigned, then cast to signed later (extends range where it)
+        /// @todo better first cast to unsigned, then cast to signed later (extends range where it)
         return reinterpret_cast<offset_t>(&m_offset) - reinterpret_cast<offset_t>(ptr);
     }
 
-    inline void* computeRawPtr() const
+    inline void* computeRawPtr() const noexcept
     {
         if (m_offset == NULL_POINTER_OFFSET)
             return nullptr;
 
-        //@ todo: find most efficient way to do this (see above)
+        /// @todo find most efficient way to do this (see above)
         return reinterpret_cast<void*>(reinterpret_cast<offset_t>(&m_offset) - m_offset);
     }
 };
 
-// typed version so we can use operator->
+/// @brief typed version so we can use operator->
 template <typename T>
 class relocatable_ptr : public RelocatablePointer
 {
   public:
-    relocatable_ptr()
+    relocatable_ptr() noexcept
         : RelocatablePointer()
     {
     }
 
-    relocatable_ptr(const T* ptr)
+    relocatable_ptr(const T* ptr) noexcept
         : RelocatablePointer(ptr)
     {
     }
 
-    relocatable_ptr(const RelocatablePointer& other)
+    relocatable_ptr(const RelocatablePointer& other) noexcept
     {
         m_offset = computeOffset(other.computeRawPtr());
     }
 
-    relocatable_ptr(T* rawPtr)
+    relocatable_ptr(T* rawPtr) noexcept
     {
         m_offset = computeOffset(rawPtr);
     }
 
-    relocatable_ptr& operator=(const RelocatablePointer& other)
+    relocatable_ptr& operator=(const RelocatablePointer& other) noexcept
     {
         m_offset = computeOffset(other.computeRawPtr());
 
         return *this;
     }
 
-    T& operator*()
+    T& operator*() noexcept
     {
         return *(static_cast<T*>(computeRawPtr()));
     }
 
-    T* operator->()
+    T* operator->() noexcept
     {
         return static_cast<T*>(computeRawPtr());
     }
 
-    const T& operator*() const
+    const T& operator*() const noexcept
     {
         return *(static_cast<T*>(computeRawPtr()));
     }
 
-    const T* operator->() const
+    const T* operator->() const noexcept
     {
         return static_cast<T*>(computeRawPtr());
     }
 
-    T& operator[](uint64_t index)
+    T& operator[](const uint64_t index) noexcept
     {
         auto ptr = static_cast<T*>(computeRawPtr());
         return *(ptr + index);
     }
 
-    operator T*() const
+    operator T*() const noexcept
     {
         return reinterpret_cast<T*>(computeRawPtr());
     }

@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL
 #define IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL
 
@@ -21,7 +22,7 @@
 namespace iox
 {
 template <typename T>
-inline atomic_relocatable_ptr<T>::atomic_relocatable_ptr(const T* ptr)
+inline atomic_relocatable_ptr<T>::atomic_relocatable_ptr(const T* ptr) noexcept
     : m_offset(computeOffset(ptr))
 {
 }
@@ -53,7 +54,7 @@ inline atomic_relocatable_ptr<T>::operator T*() const noexcept
 }
 
 template <typename T>
-inline T* atomic_relocatable_ptr<T>::computeRawPtr() const
+inline T* atomic_relocatable_ptr<T>::computeRawPtr() const noexcept
 {
     auto offset = m_offset.load(std::memory_order_relaxed);
     if (offset == NULL_POINTER_OFFSET)
@@ -65,7 +66,8 @@ inline T* atomic_relocatable_ptr<T>::computeRawPtr() const
 }
 
 template <typename T>
-inline typename atomic_relocatable_ptr<T>::offset_t atomic_relocatable_ptr<T>::computeOffset(const void* ptr) const
+inline typename atomic_relocatable_ptr<T>::offset_t
+atomic_relocatable_ptr<T>::computeOffset(const void* ptr) const noexcept
 {
     if (ptr == nullptr)
     {
