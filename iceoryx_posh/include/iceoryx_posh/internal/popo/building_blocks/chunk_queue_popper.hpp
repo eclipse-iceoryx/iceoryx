@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -83,11 +84,8 @@ class ChunkQueuePopper
 
     /// @brief Attaches a condition variable
     /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
-    void setConditionVariable(cxx::not_null<ConditionVariableData*> conditionVariableDataPtr) noexcept;
-
-    /// @todo iox-#350 remove once ConditionVariable and EventVariable are combined
-    // unset is done with unsetConditionVariable
-    void setEventVariable(EventVariableData& eventVariableDataPtr, const uint64_t eventId) noexcept;
+    void setConditionVariable(ConditionVariableData& conditionVariableDataRef,
+                              const uint64_t notificationIndex) noexcept;
 
     /// @brief Detaches a condition variable
     void unsetConditionVariable() noexcept;

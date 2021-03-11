@@ -89,9 +89,10 @@ bool ClientPortUser::hasLostResponsesSinceLastCall() noexcept
     return m_chunkReceiver.hasOverflown();
 }
 
-void ClientPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
+void ClientPortUser::setConditionVariable(ConditionVariableData& conditionVariableData,
+                                          const uint64_t notificationIndex) noexcept
 {
-    m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
+    m_chunkReceiver.setConditionVariable(conditionVariableData, notificationIndex);
 }
 
 void ClientPortUser::unsetConditionVariable() noexcept

@@ -100,7 +100,7 @@ class ClientPortUser : public BasePort
     bool hasLostResponsesSinceLastCall() noexcept;
 
     /// @brief set a condition variable (via its pointer) to the client
-    void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    void setConditionVariable(ConditionVariableData& conditionVariableData, const uint64_t notificationIndex) noexcept;
 
     /// @brief unset a condition variable from the client
     void unsetConditionVariable() noexcept;

@@ -20,9 +20,10 @@ namespace iox
 {
 namespace popo
 {
-ConditionVariableSignaler::ConditionVariableSignaler(
-    cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
-    : m_condVarDataPtr(condVarDataPtr)
+ConditionVariableSignaler::ConditionVariableSignaler(ConditionVariableData& condVarDataRef,
+                                                     const uint64_t index) noexcept
+    : m_condVarDataPtr(&condVarDataRef)
+    , m_notificationIndex(index)
 {
 }
 

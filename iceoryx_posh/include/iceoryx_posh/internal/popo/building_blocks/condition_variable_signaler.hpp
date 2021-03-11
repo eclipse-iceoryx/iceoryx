@@ -27,7 +27,9 @@ namespace popo
 class ConditionVariableSignaler
 {
   public:
-    explicit ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    static constexpr uint64_t INVALID_NOTIFICATION_INDEX = std::numeric_limits<uint64_t>::max();
+
+    explicit ConditionVariableSignaler(ConditionVariableData& condVarDataRef, const uint64_t index) noexcept;
     virtual ~ConditionVariableSignaler() noexcept = default;
     ConditionVariableSignaler(const ConditionVariableSignaler& rhs) = delete;
     ConditionVariableSignaler(ConditionVariableSignaler&& rhs) noexcept = delete;
@@ -43,6 +45,7 @@ class ConditionVariableSignaler
 
   private:
     ConditionVariableData* m_condVarDataPtr{nullptr};
+    uint64_t m_notificationIndex = INVALID_NOTIFICATION_INDEX;
 };
 
 } // namespace popo

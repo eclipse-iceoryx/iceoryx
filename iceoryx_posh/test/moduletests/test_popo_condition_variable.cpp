@@ -34,13 +34,13 @@ class ConditionVariable_test : public Test
   public:
     ConditionVariableData m_condVarData{"Horscht"};
     ConditionVariableWaiter m_waiter{&m_condVarData};
-    ConditionVariableSignaler m_signaler{&m_condVarData};
+    ConditionVariableSignaler m_signaler{m_condVarData, 0U};
 
     iox::posix::Semaphore m_syncSemaphore =
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).value();
 
-    void SetUp(){};
-    void TearDown()
+    void SetUp() override{};
+    void TearDown() override
     {
         // Reset condition variable
         m_waiter.reset();
