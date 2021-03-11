@@ -73,7 +73,7 @@ target_include_directories(${PROJECT_NAME}
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
-if(NOT WIN32)
+if(NOT (WIN32 OR QNX))
     target_link_libraries(${PROJECT_NAME}
       PUBLIC
         pthread

@@ -50,12 +50,18 @@ BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
 EXAMPLES="callbacks ice_multi_publisher icedelivery singleprocess waitset" 
-COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds" 
+COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
+TOOLCHAIN_FILE=""
 
 while (( "$#" )); do
   case "$1" in
     -b|--build-dir)
         BUILD_DIR=$(realpath $2)
+        shift 2
+        ;;
+    -t|--toolchain-file)
+        TOOLCHAIN_FILE="-DCMAKE_TOOLCHAIN_FILE=$2"
+        echo $TOOLCHAIN_FILE
         shift 2
         ;;
     -c|--coverage)
@@ -184,6 +190,7 @@ while (( "$#" )); do
         echo "    -b --build-dir        Specify a non-default build directory"
         echo "    -c --coverage         Build with gcov and generate a html/xml report."
         echo "                          Possible arguments: 'all', 'unit', 'integration', 'only-timing-tests'"
+        echo "    -t --toolchain-file   Specify an absolute path to a toolchain file for cross-compiling e.g. (-t $(pwd)/tools/qnx/qnx710.nto.toolchain.aarch64.cmake)"
         echo "Args:"
         echo "    clean                 Delete the build/ directory before build-step"
         echo "    release               Build with -O3"
@@ -258,7 +265,7 @@ if [ "$PACKAGE" == "OFF" ]; then
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
     -DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG -DBUILD_DOC=$BUILD_DOC \
     -DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DBUILD_SHARED_LIBS=$BUILD_SHARED \
-    -DSANITIZE=$SANITIZE_FLAG -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $WORKSPACE/iceoryx_meta
+    -DSANITIZE=$SANITIZE_FLAG -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE $WORKSPACE/iceoryx_meta
 
     cmake --build . --target install -- -j$NUM_JOBS
     echo ">>>>>> Finished building iceoryx package <<<<<<"
