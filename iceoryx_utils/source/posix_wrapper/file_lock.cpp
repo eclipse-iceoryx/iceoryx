@@ -154,8 +154,9 @@ cxx::error<FileLockError> FileLock::createErrorFromErrnum(const int32_t errnum) 
     }
     case EBUSY:
     {
-        std::cerr << "provided invalid arguments for file \"" << m_name << "\"" << std::endl;
-        return cxx::error<FileLockError>(FileLockError::INVALID_ARGUMENTS);
+        std::cerr << "O_EXCL provided but file \"" << m_name << "\""
+                  << " is currently used" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::FILE_IN_USE);
     }
     case EDQUOT:
     {
@@ -171,7 +172,7 @@ cxx::error<FileLockError> FileLock::createErrorFromErrnum(const int32_t errnum) 
     case EFAULT:
     {
         std::cerr << "outside address space error for file \"" << m_name << "\"" << std::endl;
-        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+        return cxx::error<FileLockError>(FileLockError::ACCESS_DENIED);
     }
     case EFBIG:
     {
@@ -190,7 +191,7 @@ cxx::error<FileLockError> FileLock::createErrorFromErrnum(const int32_t errnum) 
     }
     case EISDIR:
     {
-        std::cerr << "Writing access requested for directory \"" << m_name << "\"" << std::endl;
+        std::cerr << "write access requested for directory \"" << m_name << "\"" << std::endl;
         return cxx::error<FileLockError>(FileLockError::INVALID_ARGUMENTS);
     }
     case ELOOP:

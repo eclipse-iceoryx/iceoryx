@@ -17,12 +17,8 @@
 #define IOX_UTILS_POSIX_WRAPPER_FILE_LOCK_HPP
 
 #include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
-
-#include <cstring>
 
 namespace iox
 {
@@ -54,9 +50,9 @@ enum class FileLockError
 constexpr char PATH_PREFIX[] = "/var/lock/";
 
 /// @brief Posix file lock C++ wrapping class
-///        Following RAII, the lock is acquired on creation and released on destruction. Release the locks works even if
-///        the process crashes with a segfault or using SIGKILL.
-///        'lslocks' can be used to display all system-wide locks (see man page)
+///        Following RAII, the lock is acquired on creation and released on destruction. Releasing the locks works even
+///        if the process crashes with a segfault or using SIGKILL. 'lslocks' can be used to display all system-wide
+///        locks (see man page)
 /// @code
 ///    iox::posix::FileLock::create(nameOfmyLock)
 ///        .and_then([] { std::cout << "We aquired the lock!" << std::endl; })
