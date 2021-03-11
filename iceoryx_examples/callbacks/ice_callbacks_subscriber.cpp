@@ -27,7 +27,7 @@
 #include <csignal>
 #include <iostream>
 
-iox::posix::Semaphore mainLoopBlocker =
+iox::posix::Semaphore shutdownSemaphore =
     iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0).value();
 
 std::atomic_bool keepRunning{true};
@@ -37,7 +37,7 @@ iox::cxx::optional<CounterTopic> rightCache;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    mainLoopBlocker.post();
+    shutdownSemaphore.post();
     keepRunning = false;
 }
 
@@ -98,13 +98,13 @@ int main()
         }
     });
 
-    // attach everything to the listener, from here one the callbacks are called when an event occurs
+    // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
     listener.attachEvent(heartbeat, heartbeatCallback);
     listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
     listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
 
     // wait until someone presses CTRL+c
-    mainLoopBlocker.wait();
+    shutdownSemaphore.wait();
 
     // optional detachEvent, but not required.
     //   when the listener goes out of scope it will detach all events and when a

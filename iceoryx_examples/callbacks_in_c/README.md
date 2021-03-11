@@ -1,4 +1,4 @@
-# Listener in C (or howto realize callbacks in iceoryx)
+# Listener in C (or how to use callbacks with iceoryx)
 
 For a general introduction into the Listener concept please take a look at
 the first part of the [Listener C++ example](../callbacks) and at the 
@@ -7,18 +7,18 @@ Glossary of the [WaitSet C++ example](../waitset).
 ## Example
 
 The C version of the callbacks example performs the identical tasks as the 
-C++ version. We have again an application which offers us two services called 
-`Radar.FrontLeft.Counter` and `Radar.FrontRight.Counter`. Everytime we have 
-received from each service a sample we calculate the sum of it.
+C++ version. We have again an application which offers two services called 
+`Radar.FrontLeft.Counter` and `Radar.FrontRight.Counter`. Every time we have 
+received a sample from each service we calculate the sum of it.
 
 ### ice_c_callbacks_publisher.c 
 
-The publisher contains only already known iceoryx features. If you some of them 
-are not known to you, take a look at the [icedelivery in c example](../icedelivery_in_c).
+The publisher contains only already known iceoryx features. If some of them 
+are not known to you please take a look at the [icedelivery in c example](../icedelivery_in_c).
 
 ### ice_c_callbacks_subscriber.c
 #### int main()
-The subscriber starts like usual by registering the process at the runtime.
+The subscriber starts as usual by registering the process at the runtime.
 In the next step we setup some `listenerStorage` on the stack where the listener 
 will be constructed in and initialize the listener which will start a background 
 thread for the upcoming event triggered callbacks.
@@ -27,7 +27,7 @@ iox_listener_storage_t listenerStorage;
 iox_listener_t listener = iox_listener_init(&listenerStorage);
 ```
 
-Besides the subscribers we also would like to have an event which we will be triggered 
+Besides the subscribers we also would like to have an event which will be triggered 
 by ourselfs - the `heartbeat`.
 ```c
 iox_user_trigger_storage_t heartbeatStorage;

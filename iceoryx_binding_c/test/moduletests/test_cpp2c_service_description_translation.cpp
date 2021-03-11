@@ -22,8 +22,6 @@ using namespace iox::capro;
 
 #include "test.hpp"
 
-#include <type_traits>
-
 using namespace ::testing;
 
 TEST(iox_service_description_translation_test, TranslatesIntegersCorrectly)

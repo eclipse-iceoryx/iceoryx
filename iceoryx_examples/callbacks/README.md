@@ -1,4 +1,4 @@
-# Listener (or howto realize callbacks in iceoryx)
+# Listener (or how to use callbacks with iceoryx)
 
 For an introduction into the terminology please read the Glossary in the
 [WaitSet C++ example](../waitset).
@@ -6,16 +6,16 @@ For an introduction into the terminology please read the Glossary in the
 The Listener is a completely threadsafe construct which reacts to events by 
 executing registered callbacks in a background thread. Events can be emitted by 
 _EventOrigins_ like a subscriber or a user trigger. Some of the _EventOrigins_ 
-like the subscriber can hereby emit more then one event type.
+like the subscriber can hereby emit more than one event type.
 
-The interface of a listener consists of two methods `attachEvent` to attach a 
+The interface of a listener consists of two methods: `attachEvent` to attach a 
 new event with a callback and `detachEvent`. These two methods can be called 
 concurrently, even from inside a callback which was triggered by an event!
 
 ## Example 
 
 Let's say we have an application which offers us two distinct services:
-`Radar.FrontLeft.Counter` and `Rader.FrontRight.Counter`. Everytime we have 
+`Radar.FrontLeft.Counter` and `Rader.FrontRight.Counter`. Every time we have 
 received a sample from left and right we would like to calculate the sum with 
 the newest values and print it out. If we have received only one of the samples 
 we store it until we received the other side.
@@ -73,13 +73,13 @@ it to the listener.
 The setup is complete but it would terminate right away since we have no blocker which
 waits until SIGINT or SIGTERM was send. In the other examples we hadn't have that problem
 since we pulled all the events in a while true loop but working only with callbacks 
-requires something like our `mainLoopBlocker`, a semaphore on which we wait until 
+requires something like our `shutdownSemaphore`, a semaphore on which we wait until 
 the signal callback increments it.
 ```cpp
-mainLoopBlocker.wait();
+shutdownSemaphore.wait();
 ```
 
-When the `mainLoopBlocker` unblocks we clean up all resources and terminate the process 
+When the `shutdownSemaphore` unblocks we clean up all resources and terminate the process 
 gracefully.
 ```cpp
 listener.detachEvent(heartbeat);
@@ -104,7 +104,7 @@ void heartbeatCallback(iox::popo::UserTrigger*)
 ```
 
 The `onSampleReceivedCallback` is more complex. We first acquire the received 
-sample and check which subscriber signaled the event by acquiring the subscribers
+sample and check which subscriber signaled the event by acquiring the subscriber's
 service description. If the instance is equal to `FrontLeft` we store the sample
 in the `leftCache` otherwise in the `rightCache`.
 ```cpp
