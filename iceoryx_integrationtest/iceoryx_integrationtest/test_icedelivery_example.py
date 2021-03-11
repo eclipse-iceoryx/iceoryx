@@ -26,7 +26,9 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
-
+# @brief Test goal: "Integrationtest for the icedelivery example of iceoryx"
+# @pre setup ROS2 launch executables for RouDi (debug mode) and the example processes
+# @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
 def generate_test_description():
 
@@ -83,21 +85,21 @@ class TestIcedeliveryExample(unittest.TestCase):
 
     def test_publisher_subscriber_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Iox-Publisher sent six times value: 15', timeout=45, stream='stdout')
+            'iox-ex-publisher sent six times value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Iox-Subscriber got value: 15', timeout=45, stream='stdout')
+            'iox-ex-subscriber got value: 15', timeout=45, stream='stdout')
 
     def test_publisher_subscriber_untyped_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Iox-Untyped-Publisher sent two times value: 15', timeout=45, stream='stdout')
+            'iox-ex-publisher-untyped sent two times value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Iox-Untyped-Subscriber got value: 15', timeout=45, stream='stdout')
+            'iox-ex-subscriber-untyped got value: 15', timeout=45, stream='stdout')
 
     def test_publisher_subscriber_with_options_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Iox-Publisher-with-options sent value: 15', timeout=45, stream='stdout')
+            'iox-ex-publisher-with-options sent value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Iox-Subscriber-with-options got value: 15', timeout=45, stream='stdout')
+            'iox-ex-subscriber-with-options got value: 15', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 

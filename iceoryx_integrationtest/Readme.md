@@ -72,7 +72,7 @@ colcon test --packages-select iceoryx_integrationtest
 ```
 For the case that a test fails the output look like this
 ```bash
---- stderr: iceoryx_integrationtest                     
+--- stderr: iceoryx_integrationtest
 Errors while running CTest
 ---
 Finished <<< iceoryx_integrationtest [7.49s] [ with test failures ]
@@ -90,7 +90,7 @@ colcon test-result --all --verbose
 With colcon all tests in the iceoryx_integrationtest package are executed. In particular cases you want to execute only
 one test file. This can be done the following way:
 ```bash
-launch_test src/iceoryx/iceoryx_integrationtest/iceoryx_integrationtest/test_roudi_startup_shutdown.py 
+launch_test src/iceoryx/iceoryx_integrationtest/iceoryx_integrationtest/test_roudi_startup_shutdown.py
 ```
 
 An output for a failing test could look like this:

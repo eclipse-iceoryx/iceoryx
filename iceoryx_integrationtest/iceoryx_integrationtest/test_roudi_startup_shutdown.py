@@ -28,6 +28,9 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
+# @brief Test goal: "Integrationtest for testing correct RouDi startup and shutdown"
+# @pre setup ROS2 launch executable for RouDi (debug mode)
+# @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
 def generate_test_description():
 

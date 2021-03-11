@@ -36,6 +36,7 @@ iox_user_trigger_t shutdownTrigger;
 
 static void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
 
     iox_user_trigger_trigger(shutdownTrigger);

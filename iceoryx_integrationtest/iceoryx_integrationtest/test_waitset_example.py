@@ -26,7 +26,9 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
-
+# @brief Test goal: "Integrationtest for the waitset example of iceoryx"
+# @pre setup ROS2 launch executable for RouDi (debug mode) the example processes
+# @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
 def generate_test_description():
 

@@ -52,6 +52,7 @@ int main()
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
+        // Ignore unused variable warning
         (void)subscriber;
     }
 

@@ -42,6 +42,7 @@ bool keepRunning = true;
 
 static void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
 
     iox_user_trigger_trigger(shutdownTrigger);
@@ -59,6 +60,7 @@ void cyclicRun(iox_user_trigger_t trigger)
 
 void* cyclicTriggerCallback(void* dontCare)
 {
+    // Ignore unused variable warning
     (void)dontCare;
     while (keepRunning)
     {
