@@ -50,6 +50,7 @@ class FuzzHelper
 	public:
 		std::vector<std::string> getStdInMessages();
 		std::shared_ptr<RouDiFuzz>  startRouDiThread();
+		std::vector<std::string> combineString(std::vector<std::string> allMessages);
 		bool checkIsRouDiRunning();
 
 
@@ -62,7 +63,7 @@ class Fuzzing
       Fuzzing();
       void fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage);
       int fuzzingRouDiUDS(std::string aMessage);	   
-      void fuzzing_TOML_parser(std::string toml_file);
+      void fuzzing_TOML_parser(std::string toml_file, std::string temp_file);
 };
 
 
@@ -78,7 +79,9 @@ class CmdLineParserFuzzing
 		bool errorFlag;
 		bool cmdLineFlag;
 		bool helpFlag;
+		bool tomlFileFlag;
 		std::vector<std::string> allMessages;
+		std::string tomlFile;
  };
 
 
