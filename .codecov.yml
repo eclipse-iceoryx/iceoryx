@@ -1,13 +1,13 @@
 # codecov yaml
-comment: yes # do not comment PR with the result
+comment:
   layout: "reach, diff, flags, files"
   behavior: default
-  require_changes: yes  # only post the comment if coverage changes
+  require_changes: yes
   require_base: no
   require_head: yes
 
 coverage:
-  range: 70..100 
+  range: 70..100
 
   status:
     project:
@@ -19,8 +19,9 @@ coverage:
       default:
         enabled: yes
         target: 70%
-        threshold: 2% 
-    changes: yes
+        threshold: 2%
+        base: auto
+    changes: no
 
 parsers:
   gcov:

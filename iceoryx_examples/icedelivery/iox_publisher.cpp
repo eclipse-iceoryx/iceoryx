@@ -24,6 +24,7 @@
 #include <iostream>
 
 bool killswitch = false;
+constexpr char APP_NAME[] = "iox-ex-publisher";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -42,7 +43,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 
@@ -67,6 +68,8 @@ int main()
         else
         {
             auto error = result.get_error();
+            // Ignore unused variable warning
+            (void)error;
             // Do something with error
         }
 
@@ -82,6 +85,8 @@ int main()
         else
         {
             auto error = result.get_error();
+            // Ignore unused variable warning
+            (void)error;
             // Do something with error
         }
 
@@ -115,7 +120,7 @@ int main()
         publisher.publishResultOf(getRadarObject, ct);
         publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); });
 
-        std::cout << "Sent six times value: " << ct << std::endl;
+        std::cout << APP_NAME << " sent six times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

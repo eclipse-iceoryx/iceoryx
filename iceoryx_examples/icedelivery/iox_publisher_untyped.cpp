@@ -24,6 +24,7 @@
 #include <iostream>
 
 bool killswitch = false;
+constexpr char APP_NAME[] = "iox-ex-publisher-untyped";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -37,7 +38,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
 
@@ -64,6 +65,8 @@ int main()
         else
         {
             auto error = result.get_error();
+            // Ignore unused variable warning
+            (void)error;
             // Do something with the error
         }
 
@@ -77,10 +80,12 @@ int main()
                 publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
+                // Ignore unused variable warning
+                (void)error;
                 // Do something with the error
             });
 
-        std::cout << "Sent two times value: " << ct << std::endl;
+        std::cout << APP_NAME << " sent two times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
