@@ -18,8 +18,8 @@
 #define IOX_POSH_POPO_WAIT_SET_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
@@ -148,7 +148,7 @@ class WaitSet
     /// needs to be a list since we return pointer to the underlying EventInfo class with wait
     TriggerList m_triggerList;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
-    ConditionVariableWaiter m_conditionVariableWaiter;
+    ConditionListener m_conditionListener;
 };
 
 } // namespace popo

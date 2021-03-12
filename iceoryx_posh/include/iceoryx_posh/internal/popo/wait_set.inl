@@ -30,7 +30,7 @@ inline WaitSet<Capacity>::WaitSet() noexcept
 template <uint64_t Capacity>
 inline WaitSet<Capacity>::WaitSet(ConditionVariableData& condVarData) noexcept
     : m_conditionVariableDataPtr(&condVarData)
-    , m_conditionVariableWaiter(condVarData)
+    , m_conditionListener(condVarData)
 {
 }
 
@@ -159,14 +159,14 @@ inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
+    return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionListener.timedWait(timeout); });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
 {
     return waitAndReturnTriggeredTriggers([this] {
-        m_conditionVariableWaiter.wait();
+        m_conditionListener.wait();
         return false;
     });
 }
@@ -198,7 +198,7 @@ WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noex
     WaitSet::EventInfoVector triggers;
 
     /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
-    m_conditionVariableWaiter.resetSemaphore();
+    m_conditionListener.resetSemaphore();
     triggers = createVectorWithTriggeredTriggers();
 
     // It is possible that after the reset call and before the createVectorWithTriggeredTriggers call

@@ -68,8 +68,8 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
         typename MemberType_t::LockGuard_t lock(*getMembers());
         if (getMembers()->m_conditionVariableDataPtr)
         {
-            ConditionVariableSignaler(*getMembers()->m_conditionVariableDataPtr.get(),
-                                      getMembers()->m_conditionVariableNotificationIndex)
+            ConditionNotifier(*getMembers()->m_conditionVariableDataPtr.get(),
+                              getMembers()->m_conditionVariableNotificationIndex)
                 .notify();
         }
     }

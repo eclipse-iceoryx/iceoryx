@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_SIGNALER_HPP
-#define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_SIGNALER_HPP
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_NOTIFIER_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_NOTIFIER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -23,19 +23,19 @@ namespace iox
 {
 namespace popo
 {
-/// @brief ConditionVariableSignaler can notifiy waiting threads and processes using a shared memory condition variable
-class ConditionVariableSignaler
+/// @brief ConditionNotifier can notifiy waiting threads and processes using a shared memory condition variable
+class ConditionNotifier
 {
   public:
     static constexpr uint64_t INVALID_NOTIFICATION_INDEX = std::numeric_limits<uint64_t>::max();
 
-    explicit ConditionVariableSignaler(ConditionVariableData& condVarDataRef, const uint64_t index) noexcept;
+    explicit ConditionNotifier(ConditionVariableData& condVarDataRef, const uint64_t index) noexcept;
 
-    ConditionVariableSignaler(const ConditionVariableSignaler& rhs) = delete;
-    ConditionVariableSignaler(ConditionVariableSignaler&& rhs) noexcept = delete;
-    ConditionVariableSignaler& operator=(const ConditionVariableSignaler& rhs) = delete;
-    ConditionVariableSignaler& operator=(ConditionVariableSignaler&& rhs) noexcept = delete;
-    ~ConditionVariableSignaler() noexcept = default;
+    ConditionNotifier(const ConditionNotifier& rhs) = delete;
+    ConditionNotifier(ConditionNotifier&& rhs) noexcept = delete;
+    ConditionNotifier& operator=(const ConditionNotifier& rhs) = delete;
+    ConditionNotifier& operator=(ConditionNotifier&& rhs) noexcept = delete;
+    ~ConditionNotifier() noexcept = default;
 
     /// @brief If threads are waiting on the condition variable, this call unblocks one of the waiting threads
     void notify() noexcept;

@@ -20,7 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -171,7 +171,7 @@ TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
 {
     ConditionVariableData condVar("Horscht");
-    ConditionVariableWaiter condVarWaiter{condVar};
+    ConditionListener condVarWaiter{condVar};
 
     this->m_popper.setConditionVariable(condVar, 0U);
 
@@ -186,8 +186,8 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 {
     ConditionVariableData condVar1("Horscht");
     ConditionVariableData condVar2("Schnuppi");
-    ConditionVariableWaiter condVarWaiter1{condVar1};
-    ConditionVariableWaiter condVarWaiter2{condVar2};
+    ConditionListener condVarWaiter1{condVar1};
+    ConditionListener condVarWaiter2{condVar2};
 
     this->m_popper.setConditionVariable(condVar1, 0U);
     this->m_popper.setConditionVariable(condVar2, 1U);

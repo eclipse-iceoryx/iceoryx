@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_LISTENER_HPP
 #define IOX_POSH_POPO_LISTENER_HPP
 
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -200,7 +200,7 @@ class Listener
 
     std::atomic_bool m_wasDtorCalled{false};
     ConditionVariableData* m_conditionVariableData = nullptr;
-    ConditionVariableWaiter m_conditionListener;
+    ConditionListener m_conditionListener;
 };
 } // namespace popo
 } // namespace iox

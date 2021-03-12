@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/trigger_handle.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 
 namespace iox
 {
@@ -78,7 +78,7 @@ void TriggerHandle::trigger() noexcept
 
     if (isValid())
     {
-        ConditionVariableSignaler(*m_conditionVariableDataPtr, m_uniqueTriggerId).notify();
+        ConditionNotifier(*m_conditionVariableDataPtr, m_uniqueTriggerId).notify();
     }
 }
 

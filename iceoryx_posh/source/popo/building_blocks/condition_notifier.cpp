@@ -14,15 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 namespace iox
 {
 namespace popo
 {
-ConditionVariableSignaler::ConditionVariableSignaler(ConditionVariableData& condVarDataRef,
-                                                     const uint64_t index) noexcept
+ConditionNotifier::ConditionNotifier(ConditionVariableData& condVarDataRef, const uint64_t index) noexcept
     : m_condVarDataPtr(&condVarDataRef)
     , m_notificationIndex(index)
 {
@@ -34,7 +33,7 @@ ConditionVariableSignaler::ConditionVariableSignaler(ConditionVariableData& cond
     }
 }
 
-void ConditionVariableSignaler::notify() noexcept
+void ConditionNotifier::notify() noexcept
 {
     if (m_notificationIndex < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE)
     {
@@ -43,12 +42,12 @@ void ConditionVariableSignaler::notify() noexcept
     getMembers()->m_semaphore.post();
 }
 
-const ConditionVariableData* ConditionVariableSignaler::getMembers() const noexcept
+const ConditionVariableData* ConditionNotifier::getMembers() const noexcept
 {
     return m_condVarDataPtr;
 }
 
-ConditionVariableData* ConditionVariableSignaler::getMembers() noexcept
+ConditionVariableData* ConditionNotifier::getMembers() noexcept
 {
     return m_condVarDataPtr;
 }

@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_WAITER_HPP
-#define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_WAITER_HPP
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_LISTENER_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_LISTENER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
@@ -24,19 +24,19 @@ namespace iox
 {
 namespace popo
 {
-/// @brief ConditionVariableWaiter allows one to wait using a shared memory condition variable
-class ConditionVariableWaiter
+/// @brief ConditionListener allows one to wait using a shared memory condition variable
+class ConditionListener
 {
   public:
     using NotificationVector_t = cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE>,
                                              MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE>;
 
-    explicit ConditionVariableWaiter(ConditionVariableData& condVarData) noexcept;
-    ~ConditionVariableWaiter() noexcept = default;
-    ConditionVariableWaiter(const ConditionVariableWaiter& rhs) = delete;
-    ConditionVariableWaiter(ConditionVariableWaiter&& rhs) noexcept = delete;
-    ConditionVariableWaiter& operator=(const ConditionVariableWaiter& rhs) = delete;
-    ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) noexcept = delete;
+    explicit ConditionListener(ConditionVariableData& condVarData) noexcept;
+    ~ConditionListener() noexcept = default;
+    ConditionListener(const ConditionListener& rhs) = delete;
+    ConditionListener(ConditionListener&& rhs) noexcept = delete;
+    ConditionListener& operator=(const ConditionListener& rhs) = delete;
+    ConditionListener& operator=(ConditionListener&& rhs) noexcept = delete;
 
 
     void resetSemaphore() noexcept;
@@ -49,7 +49,7 @@ class ConditionVariableWaiter
     /// @brief Waits until notify is called on the ConditionVariableSignaler
     void wait() noexcept;
 
-    /// @brief Was the ConditionVariableWaiter notified by a ConditionVariableSignaler?
+    /// @brief Was the ConditionListener notified by a ConditionVariableSignaler?
     /// @return true if it was notified otherwise false
     bool wasNotified() const noexcept;
 

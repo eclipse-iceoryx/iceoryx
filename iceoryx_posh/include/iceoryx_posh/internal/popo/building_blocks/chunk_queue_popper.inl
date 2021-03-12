@@ -134,7 +134,7 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexc
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
     getMembers()->m_conditionVariableDataPtr = nullptr;
-    getMembers()->m_conditionVariableNotificationIndex = ConditionVariableSignaler::INVALID_NOTIFICATION_INDEX;
+    getMembers()->m_conditionVariableNotificationIndex = ConditionNotifier::INVALID_NOTIFICATION_INDEX;
 }
 
 template <typename ChunkQueueDataType>

@@ -15,19 +15,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
 namespace popo
 {
-ConditionVariableWaiter::ConditionVariableWaiter(ConditionVariableData& condVarData) noexcept
+ConditionListener::ConditionListener(ConditionVariableData& condVarData) noexcept
     : m_condVarDataPtr(&condVarData)
 {
 }
 
-void ConditionVariableWaiter::resetSemaphore() noexcept
+void ConditionListener::resetSemaphore() noexcept
 {
     // Count the semaphore down to zero
     bool hasFatalError = false;
@@ -45,7 +45,7 @@ void ConditionVariableWaiter::resetSemaphore() noexcept
     }
 }
 
-void ConditionVariableWaiter::destroy() noexcept
+void ConditionListener::destroy() noexcept
 {
     m_toBeDestroyed.store(true, std::memory_order_relaxed);
     getMembers()->m_semaphore.post().or_else([](auto) {
@@ -54,7 +54,7 @@ void ConditionVariableWaiter::destroy() noexcept
     });
 }
 
-bool ConditionVariableWaiter::wasNotified() const noexcept
+bool ConditionListener::wasNotified() const noexcept
 {
     auto result = getMembers()->m_semaphore.getValue();
     if (result.has_error())
@@ -67,7 +67,7 @@ bool ConditionVariableWaiter::wasNotified() const noexcept
     return *result != 0;
 }
 
-void ConditionVariableWaiter::wait() noexcept
+void ConditionListener::wait() noexcept
 {
     if (m_toBeDestroyed.load(std::memory_order_relaxed))
     {
@@ -79,7 +79,7 @@ void ConditionVariableWaiter::wait() noexcept
     });
 }
 
-bool ConditionVariableWaiter::timedWait(units::Duration timeToWait) noexcept
+bool ConditionListener::timedWait(units::Duration timeToWait) noexcept
 {
     if (m_toBeDestroyed.load(std::memory_order_relaxed))
     {
@@ -99,7 +99,7 @@ bool ConditionVariableWaiter::timedWait(units::Duration timeToWait) noexcept
     return *result != posix::SemaphoreWaitState::TIMEOUT;
 }
 
-ConditionVariableWaiter::NotificationVector_t ConditionVariableWaiter::waitForNotifications() noexcept
+ConditionListener::NotificationVector_t ConditionListener::waitForNotifications() noexcept
 {
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
     NotificationVector_t activeNotifications;
@@ -131,7 +131,7 @@ ConditionVariableWaiter::NotificationVector_t ConditionVariableWaiter::waitForNo
     return activeNotifications;
 }
 
-void ConditionVariableWaiter::reset(const uint64_t index) noexcept
+void ConditionListener::reset(const uint64_t index) noexcept
 {
     if (index < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE)
     {
@@ -139,12 +139,12 @@ void ConditionVariableWaiter::reset(const uint64_t index) noexcept
     }
 }
 
-const ConditionVariableData* ConditionVariableWaiter::getMembers() const noexcept
+const ConditionVariableData* ConditionListener::getMembers() const noexcept
 {
     return m_condVarDataPtr;
 }
 
-ConditionVariableData* ConditionVariableWaiter::getMembers() noexcept
+ConditionVariableData* ConditionListener::getMembers() noexcept
 {
     return m_condVarDataPtr;
 }

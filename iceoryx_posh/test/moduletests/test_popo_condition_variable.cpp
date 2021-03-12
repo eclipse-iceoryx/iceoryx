@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 #include "testutils/watch_dog.hpp"
@@ -34,14 +34,14 @@ using namespace iox::units::duration_literals;
 class ConditionVariable_test : public Test
 {
   public:
-    using NotificationVector_t = ConditionVariableWaiter::NotificationVector_t;
+    using NotificationVector_t = ConditionListener::NotificationVector_t;
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
     const iox::ProcessName_t m_process{"Ferdinand"};
     const iox::units::Duration m_timeToWait = 2_s;
 
     ConditionVariableData m_condVarData{m_process};
-    ConditionVariableWaiter m_waiter{m_condVarData};
-    ConditionVariableSignaler m_signaler{m_condVarData, 0U};
+    ConditionListener m_waiter{m_condVarData};
+    ConditionNotifier m_signaler{m_condVarData, 0U};
 
     iox::posix::Semaphore m_syncSemaphore =
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).value();
@@ -194,7 +194,7 @@ TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithProc
 TEST_F(ConditionVariable_test, NotifyActivatesCorrectIndex)
 {
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U;
-    ConditionVariableSignaler sut(m_condVarData, EVENT_INDEX);
+    ConditionNotifier sut(m_condVarData, EVENT_INDEX);
     sut.notify();
     for (Type_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER; i++)
     {
@@ -211,7 +211,7 @@ TEST_F(ConditionVariable_test, NotifyActivatesCorrectIndex)
 
 TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
 {
-    ConditionVariableWaiter sut(m_condVarData);
+    ConditionListener sut(m_condVarData);
     Watchdog watchdog(m_timeToWait);
     watchdog.watchAndActOnFailure([&] { std::terminate(); });
 
@@ -223,12 +223,12 @@ TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVecto
 
 TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsEmptyVector)
 {
-    ConditionVariableWaiter sut(m_condVarData);
+    ConditionListener sut(m_condVarData);
     Watchdog watchdog(m_timeToWait);
     watchdog.watchAndActOnFailure([&] { std::terminate(); });
     sut.destroy();
 
-    ConditionVariableSignaler notifier(m_condVarData, 0U);
+    ConditionNotifier notifier(m_condVarData, 0U);
     notifier.notify();
 
     const auto& activeNotifications = sut.waitForNotifications();
@@ -237,7 +237,7 @@ TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsE
 
 TEST_F(ConditionVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
 {
-    ConditionVariableWaiter sut(m_condVarData);
+    ConditionListener sut(m_condVarData);
 
     NotificationVector_t activeNotifications;
 
@@ -256,8 +256,8 @@ TEST_F(ConditionVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
 TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
 {
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U;
-    ConditionVariableSignaler notifier(m_condVarData, EVENT_INDEX);
-    ConditionVariableWaiter listener(m_condVarData);
+    ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
+    ConditionListener listener(m_condVarData);
 
     Watchdog watchdog(m_timeToWait);
     watchdog.watchAndActOnFailure([&] { listener.destroy(); });
@@ -273,9 +273,9 @@ TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAn
 {
     constexpr Type_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U;
     constexpr Type_t SECOND_EVENT_INDEX = 0U;
-    ConditionVariableSignaler notifier1(m_condVarData, FIRST_EVENT_INDEX);
-    ConditionVariableSignaler notifier2(m_condVarData, SECOND_EVENT_INDEX);
-    ConditionVariableWaiter listener(m_condVarData);
+    ConditionNotifier notifier1(m_condVarData, FIRST_EVENT_INDEX);
+    ConditionNotifier notifier2(m_condVarData, SECOND_EVENT_INDEX);
+    ConditionListener listener(m_condVarData);
 
     Watchdog watchdog(m_timeToWait);
     watchdog.watchAndActOnFailure([&] { listener.destroy(); });
@@ -292,8 +292,8 @@ TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAn
 TEST_F(ConditionVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 {
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 5U;
-    ConditionVariableSignaler notifier(m_condVarData, EVENT_INDEX);
-    ConditionVariableWaiter listener(m_condVarData);
+    ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
+    ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
 
     Watchdog watchdog(m_timeToWait);
@@ -311,8 +311,8 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 
 TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 5U;
-    ConditionVariableSignaler notifier(m_condVarData, EVENT_INDEX);
-    ConditionVariableWaiter listener(m_condVarData);
+    ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
+    ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
     iox::posix::Semaphore threadSetupSemaphore =
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
@@ -341,9 +341,9 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
 TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5), [&] {
     constexpr Type_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 2U;
     constexpr Type_t SECOND_EVENT_INDEX = 0U;
-    ConditionVariableSignaler notifier1(m_condVarData, FIRST_EVENT_INDEX);
-    ConditionVariableSignaler notifier2(m_condVarData, SECOND_EVENT_INDEX);
-    ConditionVariableWaiter listener(m_condVarData);
+    ConditionNotifier notifier1(m_condVarData, FIRST_EVENT_INDEX);
+    ConditionNotifier notifier2(m_condVarData, SECOND_EVENT_INDEX);
+    ConditionListener listener(m_condVarData);
     iox::posix::Semaphore threadSetupSemaphore =
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
