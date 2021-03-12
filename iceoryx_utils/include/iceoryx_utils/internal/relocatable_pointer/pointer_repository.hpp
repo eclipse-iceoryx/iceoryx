@@ -48,122 +48,23 @@ class PointerRepository
   public:
     static constexpr id_t INVALID_ID = std::numeric_limits<id_t>::max();
 
-    PointerRepository() noexcept
-        : m_info(CAPACITY)
-    {
-    }
+    PointerRepository() noexcept;
 
-    bool registerPtr(const id_t id, const ptr_t ptr, const uint64_t size) noexcept
-    {
-        if (id > MAX_ID)
-        {
-            return false;
-        }
-        if (m_info[id].basePtr == nullptr)
-        {
-            m_info[id].basePtr = ptr;
-            m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
-            if (id > m_maxRegistered)
-            {
-                m_maxRegistered = id;
-            }
-            return true;
-        }
-        return false;
-    }
+    bool registerPtr(id_t id, ptr_t ptr, uint64_t size) noexcept;
 
-    id_t registerPtr(const ptr_t ptr, const uint64_t size = 0U) noexcept
-    {
-        for (id_t id = 1U; id <= MAX_ID; ++id)
-        {
-            if (m_info[id].basePtr == nullptr)
-            {
-                m_info[id].basePtr = ptr;
-                m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
-                if (id > m_maxRegistered)
-                {
-                    m_maxRegistered = id;
-                }
-                return id;
-            }
-        }
+    id_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
-        return INVALID_ID;
-    }
+    bool unregisterPtr(id_t id) noexcept;
 
-    bool unregisterPtr(const id_t id) noexcept
-    {
-        if (id <= MAX_ID && id >= MIN_ID)
-        {
-            if (m_info[id].basePtr != nullptr)
-            {
-                m_info[id].basePtr = nullptr;
+    void unregisterAll() noexcept;
 
-                /// @note do not search for next lower registered index but we could do it here
-                return true;
-            }
-        }
+    ptr_t getBasePtr(id_t id) const noexcept;
 
-        return false;
-    }
+    id_t searchId(ptr_t ptr) const noexcept;
 
-    void unregisterAll() noexcept
-    {
-        for (auto& info : m_info)
-        {
-            info.basePtr = nullptr;
-        }
-        m_maxRegistered = 0U;
-    }
+    bool isValid(id_t id) const noexcept;
 
-    ptr_t getBasePtr(const id_t id) const noexcept
-    {
-        if (id <= MAX_ID && id >= MIN_ID)
-        {
-            return m_info[id].basePtr;
-        }
-
-        /// @note for id 0 nullptr is returned, meaning we will later interpret a relative pointer
-        /// by casting the offset into a pointer (i.e. we measure relative to 0)
-
-        /// @note we cannot distinguish between not registered and nullptr registered, but we do not need to
-        return nullptr;
-    }
-
-    id_t searchId(const ptr_t ptr) const noexcept
-    {
-        for (id_t id = 1U; id <= m_maxRegistered; ++id)
-        {
-            // return first id where the ptr is in the corresponding interval
-            if (ptr >= m_info[id].basePtr && ptr <= m_info[id].endPtr)
-            {
-                return id;
-            }
-        }
-        /// @note implicitly interpret the pointer as a regular pointer if not found
-        /// by setting id to 0
-        /// rationale: test cases work without registered shared memory and require
-        /// this at the moment to avoid fundamental changes
-        return 0U;
-        // return INVALID_ID;
-    }
-
-    bool isValid(const id_t id) const noexcept
-    {
-        return id != INVALID_ID;
-    }
-
-    void print() const noexcept
-    {
-        for (id_t id = 0U; id < m_info.size(); ++id)
-        {
-            auto ptr = m_info[id].basePtr;
-            if (ptr != nullptr)
-            {
-                std::cout << id << " ---> " << ptr << std::endl;
-            }
-        }
-    }
+    void print() const noexcept;
 
   private:
     /// @todo: if required protect vector against concurrent modification
@@ -177,5 +78,7 @@ class PointerRepository
 };
 
 } // namespace iox
+
+#include "iceoryx_utils/internal/relocatable_pointer/pointer_repository.inl"
 
 #endif // IOX_UTILS_RELOCATABLE_POINTER_POINTER_REPOSITORY_HPP

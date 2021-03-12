@@ -33,180 +33,70 @@ class RelativePointer
     using const_ptr_t = const void* const;
     using offset_t = std::uintptr_t;
 
-    RelativePointer(const_ptr_t ptr, const id_t id) noexcept
-        : m_id(id)
-        , m_offset(computeOffset(ptr))
-    {
-    }
+    RelativePointer(ptr_t ptr, id_t id) noexcept;
 
-    RelativePointer(const offset_t offset, const id_t id) noexcept
-        : m_id(id)
-        , m_offset(offset)
-    {
-    }
+    RelativePointer(offset_t offset, id_t id) noexcept;
 
-    RelativePointer(const ptr_t ptr = nullptr) noexcept
-        : m_id(searchId(ptr))
-        , m_offset(computeOffset(ptr))
-    {
-    }
+    RelativePointer(ptr_t ptr = nullptr) noexcept;
 
-    RelativePointer(const RelativePointer& other) noexcept
-        : m_id(other.m_id)
-        , m_offset(other.m_offset)
-    {
-    }
+    RelativePointer(const RelativePointer& other) noexcept;
 
-    RelativePointer(RelativePointer&& other) noexcept
-        : m_id(other.m_id)
-        , m_offset(other.m_offset)
-    {
-        /// @note invalidating other would be an option but not required
-    }
+    RelativePointer(RelativePointer&& other) noexcept;
 
-    RelativePointer& operator=(const RelativePointer& other) noexcept
-    {
-        if (this != &other)
-        {
-            m_id = other.m_id;
-            m_offset = other.m_offset;
-        }
-        return *this;
-    }
+    RelativePointer& operator=(const RelativePointer& other) noexcept;
 
-    RelativePointer& operator=(void* ptr) noexcept
-    {
-        m_id = searchId(ptr);
-        m_offset = computeOffset(ptr);
+    RelativePointer& operator=(void* ptr) noexcept;
 
-        return *this;
-    }
+    RelativePointer& operator=(RelativePointer&& other) noexcept;
 
-    RelativePointer& operator=(RelativePointer&& other) noexcept
-    {
-        if (this != &other)
-        {
-            m_id = other.m_id;
-            m_offset = other.m_offset;
-        }
-        /// @note invalidating other would be an option but not required
-        return *this;
-    }
+    ptr_t get() const noexcept;
 
-    ptr_t get() const noexcept
-    {
-        /// @note we need to compute it each time since the application
-        /// from where it's called might have changed (i.e. the lookup result is different)
-        return computeRawPtr();
-    }
+    id_t getId() const noexcept;
 
-    id_t getId() const noexcept
-    {
-        return m_id;
-    }
+    offset_t getOffset() const noexcept;
 
-    offset_t getOffset() const noexcept
-    {
-        return m_offset;
-    }
-
-    ptr_t getBasePtr() const noexcept
-    {
-        return getBasePtr(m_id);
-    }
+    ptr_t getBasePtr() const noexcept;
 
     //*********************************id operations********************************************
 
     /// @brief registers a memory segment at ptr with size of a new id
     /// @return id id it was registered to
-    static id_t registerPtr(const ptr_t ptr, const uint64_t size = 0U) noexcept
-    {
-        return getRepository().registerPtr(ptr, size);
-    }
+    static id_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
     /// @brief registers a memory segment at ptr with size of given id
     /// @return true if successful (id not occupied), false otherwise
-    static bool registerPtr(const id_t id, const ptr_t ptr, uint64_t size = 0U) noexcept
-    {
-        return getRepository().registerPtr(id, ptr, size);
-    }
+    static bool registerPtr(const id_t id, const ptr_t ptr, uint64_t size = 0U) noexcept;
 
     /// @brief unregister ptr with given id
     /// @return true if successful (ptr was registered with this id before), false otherwise
-    static bool unregisterPtr(const id_t id) noexcept
-    {
-        return getRepository().unregisterPtr(id);
-    }
+    static bool unregisterPtr(const id_t id) noexcept;
 
     /// @brief get the base ptr associated with the given id
     /// @return ptr registered at the given id, nullptr if none was registered
-    static ptr_t getBasePtr(const id_t id) noexcept
-    {
-        return getRepository().getBasePtr(id);
-    }
+    static ptr_t getBasePtr(const id_t id) noexcept;
 
     /// @brief unregister all ptr id pairs (leads to initial state)
-    static void unregisterAll() noexcept
-    {
-        getRepository().unregisterAll();
-    }
+    static void unregisterAll() noexcept;
 
     /// @brief get the offset from id and ptr
     /// @return offset
-    static offset_t getOffset(const id_t id, const_ptr_t ptr) noexcept
-    {
-        if (id == NULL_POINTER_ID)
-        {
-            return NULL_POINTER_OFFSET;
-        }
-        auto basePtr = getBasePtr(id);
-        return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
-    }
-
+    static offset_t getOffset(const id_t id, const_ptr_t ptr) noexcept;
 
     /// @brief get the pointer from id and offset ("inverse" to getOffset)
     /// @return ptr
-    static ptr_t getPtr(const id_t id, const offset_t offset) noexcept
-    {
-        if (offset == NULL_POINTER_OFFSET)
-        {
-            return nullptr;
-        }
-        auto basePtr = getBasePtr(id);
-        return reinterpret_cast<ptr_t>(offset + reinterpret_cast<offset_t>(basePtr));
-    }
+    static ptr_t getPtr(const id_t id, const offset_t offset) noexcept;
 
-    static id_t searchId(const ptr_t ptr) noexcept
-    {
-        if (ptr == nullptr)
-        {
-            return NULL_POINTER_ID;
-        }
-        return getRepository().searchId(ptr);
-    }
+    static id_t searchId(ptr_t ptr) noexcept;
 
-    static bool isValid(const id_t id) noexcept
-    {
-        return getRepository().isValid(id);
-    }
+    static bool isValid(id_t id) noexcept;
 
-    static PointerRepository<id_t, ptr_t>& getRepository() noexcept
-    {
-        static PointerRepository<id_t, ptr_t> repository;
-        return repository;
-    }
+    static PointerRepository<id_t, ptr_t>& getRepository() noexcept;
 
     //*****************************************************************************************
 
-    offset_t computeOffset(const_ptr_t ptr) const noexcept
-    {
-        return getOffset(m_id, ptr);
-    }
+    offset_t computeOffset(ptr_t ptr) const noexcept;
 
-    ptr_t computeRawPtr() const noexcept
-    {
-        return getPtr(m_id, m_offset);
-    }
+    ptr_t computeRawPtr() const noexcept;
 
     static constexpr id_t NULL_POINTER_ID = std::numeric_limits<id_t>::max();
     static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
@@ -220,85 +110,39 @@ template <typename T>
 class relative_ptr : public RelativePointer
 {
   public:
-    relative_ptr(const_ptr_t ptr, const id_t id) noexcept
-        : RelativePointer(ptr, id)
-    {
-    }
+    relative_ptr(ptr_t ptr, id_t id) noexcept;
 
-    relative_ptr(const offset_t offset, const id_t id) noexcept
-        : RelativePointer(offset, id)
-    {
-    }
+    relative_ptr(offset_t offset, id_t id) noexcept;
 
-    relative_ptr(const ptr_t ptr = nullptr) noexcept
-        : RelativePointer(ptr)
-    {
-    }
+    relative_ptr(ptr_t ptr = nullptr) noexcept;
 
+    relative_ptr(const RelativePointer& other) noexcept;
 
-    relative_ptr(const RelativePointer& other) noexcept
-        : RelativePointer(other)
-    {
-    }
+    relative_ptr& operator=(const RelativePointer& other) noexcept;
 
-    relative_ptr& operator=(const RelativePointer& other) noexcept
-    {
-        RelativePointer::operator=(other);
-
-        return *this;
-    }
-
-    relative_ptr& operator=(const ptr_t ptr) noexcept
-    {
-        m_id = searchId(ptr);
-        m_offset = computeOffset(ptr);
-
-        return *this;
-    }
+    relative_ptr& operator=(ptr_t ptr) noexcept;
 
     template <typename U = T>
-    typename std::enable_if<!std::is_void<U>::value, U&>::type operator*() noexcept
-    {
-        return *get();
-    }
+    typename std::enable_if<!std::is_void<U>::value, U&>::type operator*() noexcept;
 
-    T* operator->() noexcept
-    {
-        return get();
-    }
+    T* operator->() noexcept;
 
     template <typename U = T>
-    typename std::enable_if<!std::is_void<U>::value, const U&>::type operator*() const noexcept
-    {
-        return *get();
-    }
+    typename std::enable_if<!std::is_void<U>::value, const U&>::type operator*() const noexcept;
 
-    T* operator->() const noexcept
-    {
-        return get();
-    }
+    T* operator->() const noexcept;
 
-    T* get() const noexcept
-    {
-        return static_cast<T*>(computeRawPtr());
-    }
+    T* get() const noexcept;
 
-    operator T*() const noexcept
-    {
-        return get();
-    }
+    operator T*() const noexcept;
 
-    bool operator==(T* const ptr) const noexcept
-    {
-        return ptr == get();
-    }
+    bool operator==(T* const ptr) const noexcept;
 
-    bool operator!=(T* const ptr) const noexcept
-    {
-        return ptr != get();
-    }
+    bool operator!=(T* const ptr) const noexcept;
 };
 
 } // namespace iox
+
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.inl"
 
 #endif // IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_HPP
