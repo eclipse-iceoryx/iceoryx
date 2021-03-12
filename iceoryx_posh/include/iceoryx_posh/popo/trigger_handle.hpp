@@ -18,7 +18,6 @@
 #define IOX_POSH_POPO_TRIGGER_HANDLE_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 

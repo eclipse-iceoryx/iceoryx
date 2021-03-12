@@ -21,7 +21,6 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 

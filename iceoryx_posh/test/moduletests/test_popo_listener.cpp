@@ -128,7 +128,7 @@ class SimpleEventClass
 class TestListener : public Listener
 {
   public:
-    TestListener(EventVariableData* data) noexcept
+    TestListener(ConditionVariableData& data) noexcept
         : Listener(data)
     {
     }
@@ -202,7 +202,7 @@ class Listener_test : public Test
             e.m_source = nullptr;
             e.m_count = 0U;
         }
-        m_sut.emplace(&m_eventVarData);
+        m_sut.emplace(m_condVarData);
         g_invalidateTriggerId = 0U;
         g_triggerCallbackRuntimeInMs = 0U;
         g_toBeAttached->clear();
@@ -256,7 +256,7 @@ class Listener_test : public Test
     static constexpr uint64_t OVERFLOW_TEST_APPENDIX = 1U;
     using eventArray_t = SimpleEventClass[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER + OVERFLOW_TEST_APPENDIX];
     eventArray_t m_simpleEvents;
-    EventVariableData m_eventVarData{"Maulbeerblättle"};
+    ConditionVariableData m_condVarData{"Maulbeerblättle"};
     iox::cxx::optional<TestListener> m_sut;
 
     const iox::units::Duration m_fatalTimeout = 2_s;
@@ -525,7 +525,7 @@ TEST_F(Listener_test, DetachingNonAttachedEventResetsNothing)
 // BEGIN calling callbacks
 ///////////////////////////////////
 TIMING_TEST_F(Listener_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>);
 
@@ -537,7 +537,7 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(Listener_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     SimpleEventClass fuu1;
     SimpleEventClass fuu2;
     m_sut->attachEvent(fuu1, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>);
@@ -555,7 +555,7 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [
 });
 
 TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallback, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>);
 
@@ -575,7 +575,7 @@ TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallback, Repea
 });
 
 TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallbackOnce, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     SimpleEventClass bar;
     m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>);
@@ -600,7 +600,7 @@ TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallbackOnce, R
 });
 
 TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCallback, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>);
 
@@ -623,7 +623,7 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
 });
 
 TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCallbackOnce, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     SimpleEventClass bar;
     m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>);
@@ -651,7 +651,7 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
 });
 
 TIMING_TEST_F(Listener_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>);
 
@@ -662,7 +662,7 @@ TIMING_TEST_F(Listener_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
     AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U>::doIt(*m_sut, events, SimpleEvent::StoepselBachelorParty);
@@ -691,7 +691,7 @@ TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5), [&
 });
 
 TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacksOnce, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
     AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1>::doIt(*m_sut, events, SimpleEvent::StoepselBachelorParty);
@@ -729,7 +729,7 @@ TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacksOnce, Repeat(5)
 // BEGIN concurrent attach / detach
 //////////////////////////////////
 TIMING_TEST_F(Listener_test, AttachingWhileCallbackIsRunningWorks, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
     m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, triggerCallback<0U>);
@@ -747,7 +747,7 @@ TIMING_TEST_F(Listener_test, AttachingWhileCallbackIsRunningWorks, Repeat(5), [&
 });
 
 TIMING_TEST_F(Listener_test, AttachingMultipleWhileCallbackIsRunningWorks, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
     m_sut->attachEvent(events[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U],
@@ -775,7 +775,7 @@ TIMING_TEST_F(Listener_test, AttachingMultipleWhileCallbackIsRunningWorks, Repea
 });
 
 TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningWorks, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
     m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, triggerCallback<0U>);
@@ -794,7 +794,7 @@ TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningWorks, Repeat(5), [&
 });
 
 TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningBlocksDetach, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, triggerCallback<0U>);
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
@@ -810,7 +810,7 @@ TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningBlocksDetach, Repeat
 });
 
 TIMING_TEST_F(Listener_test, EventDestructorBlocksWhenCallbackIsRunning, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     SimpleEventClass* event = new SimpleEventClass();
     m_sut->attachEvent(*event, SimpleEvent::StoepselBachelorParty, triggerCallback<0U>);
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
@@ -827,7 +827,7 @@ TIMING_TEST_F(Listener_test, EventDestructorBlocksWhenCallbackIsRunning, Repeat(
 
 
 TIMING_TEST_F(Listener_test, DetachingMultipleWhileCallbackIsRunningWorks, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U>::doIt(*m_sut, events, SimpleEvent::StoepselBachelorParty);
 
@@ -859,7 +859,7 @@ TIMING_TEST_F(Listener_test, DetachingMultipleWhileCallbackIsRunningWorks, Repea
 });
 
 TIMING_TEST_F(Listener_test, AttachingDetachingRunsIndependentOfCallback, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     m_sut->attachEvent(events[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U],
                        SimpleEvent::StoepselBachelorParty,
@@ -887,7 +887,7 @@ TIMING_TEST_F(Listener_test, AttachingDetachingRunsIndependentOfCallback, Repeat
 // BEGIN attach / detach in callbacks
 //////////////////////////////////
 TIMING_TEST_F(Listener_test, DetachingSelfInCallbackWorks, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
@@ -902,7 +902,7 @@ TIMING_TEST_F(Listener_test, DetachingSelfInCallbackWorks, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(Listener_test, DetachingNonSelfEventInCallbackWorks, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
@@ -928,7 +928,7 @@ TIMING_TEST_F(Listener_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefo
     // running while we retrigger events[0] and events[1].
     // Now events[0] remove events[1] before its trigger callback is executed and therefore the
     // callback is not allowed to be called even so that the trigger came before the detach occurred
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
@@ -954,7 +954,7 @@ TIMING_TEST_F(Listener_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefo
 });
 
 TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(5), [&] {
-    m_sut.emplace(&m_eventVarData);
+    m_sut.emplace(m_condVarData);
     g_toBeAttached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);

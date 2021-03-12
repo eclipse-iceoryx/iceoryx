@@ -21,7 +21,6 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
@@ -90,9 +89,6 @@ class PortManager
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     acquireConditionVariableData(const ProcessName_t& process) noexcept;
 
-    cxx::expected<popo::EventVariableData*, PortPoolError>
-    acquireEventVariableData(const ProcessName_t& process) noexcept;
-
     void deletePortsOfProcess(const ProcessName_t& processName) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
@@ -118,8 +114,6 @@ class PortManager
     void handleNodes() noexcept;
 
     void handleConditionVariables() noexcept;
-
-    void handleEventVariables() noexcept;
 
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
                                          SubscriberPortType& subscriberSource) noexcept;

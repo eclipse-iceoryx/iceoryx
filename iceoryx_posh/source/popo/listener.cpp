@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/listener.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
@@ -24,13 +24,13 @@ namespace iox
 namespace popo
 {
 Listener::Listener() noexcept
-    : Listener(runtime::PoshRuntime::getInstance().getMiddlewareEventVariable())
+    : Listener(*runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
 {
 }
 
-Listener::Listener(EventVariableData* eventVariable) noexcept
-    : m_eventVariable(eventVariable)
-    , m_eventListener(*eventVariable)
+Listener::Listener(ConditionVariableData& conditionVariable) noexcept
+    : m_conditionVariableData(&conditionVariable)
+    , m_conditionListener(conditionVariable)
 {
     m_thread = std::thread(&Listener::threadLoop, this);
 }
@@ -38,10 +38,10 @@ Listener::Listener(EventVariableData* eventVariable) noexcept
 Listener::~Listener()
 {
     m_wasDtorCalled.store(true, std::memory_order_relaxed);
-    m_eventListener.destroy();
+    m_conditionListener.destroy();
 
     m_thread.join();
-    m_eventVariable->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    m_conditionVariableData->m_toBeDestroyed.store(true, std::memory_order_relaxed);
 }
 
 cxx::expected<uint32_t, ListenerError>
@@ -81,7 +81,7 @@ void Listener::threadLoop() noexcept
 {
     while (m_wasDtorCalled.load(std::memory_order_relaxed) == false)
     {
-        auto activateNotificationIds = m_eventListener.wait();
+        auto activateNotificationIds = m_conditionListener.waitForNotifications();
 
         cxx::forEach(activateNotificationIds, [this](auto id) { m_events[id]->executeCallback(); });
     }
