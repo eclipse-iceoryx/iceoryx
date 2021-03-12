@@ -14,8 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#if !defined(_WIN32) && !defined(__APPLE__)
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/posix_wrapper/file_lock.hpp"
 #include "test.hpp"
+
 
 using namespace ::testing;
 using namespace iox::posix;
@@ -25,9 +28,9 @@ constexpr char TEST_NAME[] = "TestProcess";
 constexpr char ANOTHER_TEST_NAME[] = "AnotherTestProcess";
 
 /// @req
-/// @brief This test suite verifies the behaviour of the class FileLock
-/// @pre the file lock for TEST_NAME is acquired
-/// @post None
+/// @brief This test suite verifies the RAII behaviour of FileLock
+/// @pre The file lock for TEST_NAME is acquired
+/// @post The file lock for TEST_NAME is released
 /// @note This should become a FЯIDA integration test once available, in order to test with two processes
 class FileLock_test : public Test
 {
@@ -38,20 +41,29 @@ class FileLock_test : public Test
 
     void SetUp()
     {
-        auto createResult = iox::posix::FileLock::create(TEST_NAME);
-        ASSERT_FALSE(createResult.has_error());
-        m_sut = std::move(createResult.value());
+        auto maybeFileLock = iox::posix::FileLock::create(TEST_NAME);
+        ASSERT_FALSE(maybeFileLock.has_error());
+        m_sut.emplace(std::move(maybeFileLock.value()));
+        ASSERT_TRUE(m_sut.has_value());
     }
 
     void TearDown()
     {
+        m_sut.reset();
     }
 
     ~FileLock_test()
     {
     }
-    iox::posix::FileLock m_sut;
+    optional<FileLock> m_sut;
 };
+
+TEST_F(FileLock_test, EmptyNameLeadsToError)
+{
+    auto sut2 = iox::posix::FileLock::create("");
+    ASSERT_TRUE(sut2.has_error());
+    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::NO_FILE_NAME_PROVIDED));
+}
 
 TEST_F(FileLock_test, SecondLockWithDifferentNameWorks)
 {
@@ -74,3 +86,34 @@ TEST_F(FileLock_test, LockAndNoReleaseLeadsToError)
     ASSERT_TRUE(sut2.has_error());
     EXPECT_THAT(sut2.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }
+
+TEST_F(FileLock_test, MoveCtorInvalidatesRhs)
+{
+    auto movedSut{std::move(m_sut.value())};
+    ASSERT_FALSE(m_sut.value().isInitialized());
+    ASSERT_TRUE(movedSut.isInitialized());
+}
+
+TEST_F(FileLock_test, MoveCtorTransfersLock)
+{
+    auto movedSut{std::move(m_sut.value())};
+    auto anotherLock = iox::posix::FileLock::create(TEST_NAME);
+    ASSERT_TRUE(anotherLock.has_error());
+    EXPECT_THAT(anotherLock.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
+}
+
+TEST_F(FileLock_test, MoveAssignInvalidatesRhs)
+{
+    auto movedSut = std::move(m_sut.value());
+    ASSERT_FALSE(m_sut.value().isInitialized());
+    ASSERT_TRUE(movedSut.isInitialized());
+}
+
+TEST_F(FileLock_test, MoveAssignTransfersLock)
+{
+    auto movedSut = std::move(m_sut.value());
+    auto anotherLock = iox::posix::FileLock::create(TEST_NAME);
+    ASSERT_TRUE(anotherLock.has_error());
+    EXPECT_THAT(anotherLock.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
+}
+#endif

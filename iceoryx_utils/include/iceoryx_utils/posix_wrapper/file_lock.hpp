@@ -27,12 +27,11 @@ namespace posix
 enum class FileLockError
 {
     INVALID_STATE,
-    NOT_INITIALIZED,
+    NO_FILE_NAME_PROVIDED,
     LOCKED_BY_OTHER_PROCESS,
     ACCESS_DENIED,
     INVALID_FILE_NAME,
     FILE_EXISTS,
-    INTERRUPTED_BY_SIGNAL,
     QUOTA_EXHAUSTED,
     INVALID_ARGUMENTS,
     SYSTEM_LIMIT,
@@ -68,12 +67,8 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
   public:
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
-    using FileName_t = cxx::string<30>;
-    using PathName_t = cxx::string<100>;
-
-    /// @brief Default constructor which creates an invalid FileLock. Can be used to assign a value with the move
-    /// constructor
-    FileLock() noexcept;
+    using FileName_t = cxx::string<255>;
+    using PathName_t = cxx::string<1024>;
 
     FileLock(const FileLock&) = delete;
     FileLock& operator=(const FileLock&) = delete;
@@ -88,7 +83,7 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
 
     /// @brief c'tor
     /// @param[in] name of the created file lock in PATH_PREFIX
-    FileLock(FileName_t name) noexcept;
+    FileLock(const FileName_t& name) noexcept;
 
     cxx::expected<FileLockError> initializeFileLock() noexcept;
     cxx::error<FileLockError> createErrorFromErrnum(const int32_t errnum) const noexcept;

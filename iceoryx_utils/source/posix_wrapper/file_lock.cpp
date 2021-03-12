@@ -26,13 +26,7 @@ namespace iox
 {
 namespace posix
 {
-FileLock::FileLock() noexcept
-{
-    this->m_isInitialized = false;
-    this->m_errorValue = FileLockError::NOT_INITIALIZED;
-}
-
-FileLock::FileLock(FileName_t name) noexcept
+FileLock::FileLock(const FileName_t& name) noexcept
     : m_name(name)
 {
     initializeFileLock().and_then([this]() { this->m_isInitialized = true; }).or_else([this](FileLockError& error) {
@@ -43,12 +37,21 @@ FileLock::FileLock(FileName_t name) noexcept
 
 cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
 {
+    if (m_name.empty())
+    {
+        return cxx::error<FileLockError>(FileLockError::NO_FILE_NAME_PROVIDED);
+    }
     PathName_t fullPath(PATH_PREFIX + m_name + ".lock");
-    constexpr int oFlags = O_CREAT | O_RDWR;
-    mode_t mode = S_IRUSR | S_IWUSR;
+    constexpr int createFileForReadWrite = O_CREAT | O_RDWR;
+    mode_t userReadWriteAccess = S_IRUSR | S_IWUSR;
 
-    auto openCall = cxx::makeSmartC(
-        openFile, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, fullPath.c_str(), oFlags, mode);
+    auto openCall = cxx::makeSmartC(openFile,
+                                    cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                    {ERROR_CODE},
+                                    {},
+                                    fullPath.c_str(),
+                                    createFileForReadWrite,
+                                    userReadWriteAccess);
 
     if (openCall.hasErrors())
     {
@@ -73,11 +76,8 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return cxx::error<FileLockError>(FileLockError::LOCKED_BY_OTHER_PROCESS);
         }
-        else
-        {
-            return cxx::success<>();
-        }
     }
+    return cxx::success<>();
 }
 
 FileLock::FileLock(FileLock&& rhs) noexcept
@@ -100,6 +100,7 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
         m_name = std::move(rhs.m_name);
         m_fd = std::move(rhs.m_fd);
 
+        rhs.m_name.assign("");
         rhs.m_fd = INVALID_FD;
     }
 
@@ -178,11 +179,6 @@ cxx::error<FileLockError> FileLock::createErrorFromErrnum(const int32_t errnum) 
     {
         std::cerr << "overflow for file \"" << m_name << "\"" << std::endl;
         return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
-    }
-    case EINTR:
-    {
-        std::cerr << "Interrupted by signal for file \"" << m_name << "\"" << std::endl;
-        return cxx::error<FileLockError>(FileLockError::INTERRUPTED_BY_SIGNAL);
     }
     case EINVAL:
     {
@@ -290,7 +286,7 @@ cxx::error<FileLockError> FileLock::createErrorFromErrnum(const int32_t errnum) 
     }
     default:
     {
-        std::cerr << "internal logic error in unix domain socket \"" << m_name << "\" occurred" << std::endl;
+        std::cerr << "internal logic error in file \"" << m_name << "\" occurred" << std::endl;
         return cxx::error<FileLockError>(FileLockError::INTERNAL_LOGIC_ERROR);
     }
     }
