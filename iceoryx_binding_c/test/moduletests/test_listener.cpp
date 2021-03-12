@@ -49,6 +49,16 @@ namespace
 iox_user_trigger_t g_userTriggerCallbackArgument = nullptr;
 iox_sub_t g_subscriberCallbackArgument = nullptr;
 
+void userTriggerCallback(iox_user_trigger_t userTrigger)
+{
+    g_userTriggerCallbackArgument = userTrigger;
+}
+
+void subscriberCallback(iox_sub_t subscriber)
+{
+    g_subscriberCallbackArgument = subscriber;
+}
+
 class iox_listener_test : public Test
 {
   public:
@@ -100,11 +110,33 @@ class iox_listener_test : public Test
         }
     }
 
+    void AttachAllUserTrigger()
+    {
+        for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
+        {
+            EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[i], &userTriggerCallback),
+                        Eq(iox_ListenerResult::ListenerResult_SUCCESS));
+            EXPECT_THAT(iox_listener_size(&m_sut), Eq(i + 1U));
+        }
+    }
+
+    void AttachAllSubscriber()
+    {
+        for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
+        {
+            EXPECT_THAT(
+                iox_listener_attach_subscriber_event(
+                    &m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_HAS_DATA, &subscriberCallback),
+                Eq(iox_ListenerResult::ListenerResult_SUCCESS));
+            EXPECT_THAT(iox_listener_size(&m_sut), Eq(i + 1U));
+        }
+    }
+
     EventVariableData m_eventVar{"hypnotoadKnueppeltRetour"};
     TestListener m_sut{m_eventVar};
 
-    iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1];
-    cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_userTrigger;
+    iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U];
+    cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U> m_userTrigger;
 
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2U;
     static constexpr uint32_t CHUNK_SIZE = 128U;
@@ -126,15 +158,7 @@ class iox_listener_test : public Test
 };
 constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
 
-void userTriggerCallback(iox_user_trigger_t userTrigger)
-{
-    g_userTriggerCallbackArgument = userTrigger;
-}
 
-void subscriberCallback(iox_sub_t subscriber)
-{
-    g_subscriberCallbackArgument = subscriber;
-}
 } // namespace
 
 TEST_F(iox_listener_test, CapacityIsCorrect)
@@ -144,35 +168,26 @@ TEST_F(iox_listener_test, CapacityIsCorrect)
 
 TEST_F(iox_listener_test, SizeIsZeroWhenCreated)
 {
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
 }
 
 TEST_F(iox_listener_test, SizeIsOneWhenOneClassIsAttached)
 {
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], &userTriggerCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
-    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1));
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
 }
 
 TEST_F(iox_listener_test, SizeEqualsCapacityWhenMaximumIsAttached)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
-    {
-        EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[i], &userTriggerCallback),
-                    Eq(iox_ListenerResult::ListenerResult_SUCCESS));
-        EXPECT_THAT(iox_listener_size(&m_sut), Eq(i + 1U));
-    }
+    AttachAllUserTrigger();
     EXPECT_THAT(iox_listener_size(&m_sut), Eq(iox_listener_capacity(&m_sut)));
 }
 
 TEST_F(iox_listener_test, SizeDecreasesWhenUserTriggersAreDetached)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
-    {
-        EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[i], &userTriggerCallback),
-                    Eq(iox_ListenerResult::ListenerResult_SUCCESS));
-        EXPECT_THAT(iox_listener_size(&m_sut), Eq(i + 1U));
-    }
+    AttachAllUserTrigger();
+
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
     {
         iox_listener_detach_user_trigger_event(&m_sut, m_userTrigger[i]);
@@ -182,12 +197,8 @@ TEST_F(iox_listener_test, SizeDecreasesWhenUserTriggersAreDetached)
 
 TEST_F(iox_listener_test, FullListenerReturnsLISTENER_FULLWhenAnotherUserTriggerIsAttached)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
-    {
-        EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[i], &userTriggerCallback),
-                    Eq(iox_ListenerResult::ListenerResult_SUCCESS));
-        EXPECT_THAT(iox_listener_size(&m_sut), Eq(i + 1U));
-    }
+    AttachAllUserTrigger();
+
     EXPECT_THAT(iox_listener_attach_user_trigger_event(
                     &m_sut, m_userTrigger[MAX_NUMBER_OF_EVENTS_PER_LISTENER], &userTriggerCallback),
                 Eq(iox_ListenerResult::ListenerResult_LISTENER_FULL));
@@ -210,30 +221,29 @@ TEST_F(iox_listener_test, AttachingSubscriberEventWorks)
 
 TEST_F(iox_listener_test, AttachingSubscriberTillListenerFullWorks)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
-    {
-        EXPECT_THAT(iox_listener_attach_subscriber_event(
-                        &m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_HAS_DATA, &subscriberCallback),
-                    Eq(iox_ListenerResult::ListenerResult_SUCCESS));
-        EXPECT_THAT(iox_listener_size(&m_sut), Eq(i + 1U));
-    }
+    AttachAllSubscriber();
 }
 
 TEST_F(iox_listener_test, FullListenerReturnsLISTENER_FULLWhenAnotherSubscriberIsAttached)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
-    {
-        EXPECT_THAT(iox_listener_attach_subscriber_event(
-                        &m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_HAS_DATA, &subscriberCallback),
-                    Eq(iox_ListenerResult::ListenerResult_SUCCESS));
-        EXPECT_THAT(iox_listener_size(&m_sut), Eq(i + 1U));
-    }
+    AttachAllSubscriber();
     EXPECT_THAT(iox_listener_attach_subscriber_event(&m_sut,
                                                      &m_subscriber[MAX_NUMBER_OF_EVENTS_PER_LISTENER],
                                                      iox_SubscriberEvent::SubscriberEvent_HAS_DATA,
                                                      &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_LISTENER_FULL));
 }
+
+TEST_F(iox_listener_test, DetachingSubscriberTillListenerEmptyWorks)
+{
+    AttachAllSubscriber();
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
+    {
+        iox_listener_detach_subscriber_event(&m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_HAS_DATA);
+        EXPECT_THAT(iox_listener_size(&m_sut), Eq(MAX_NUMBER_OF_EVENTS_PER_LISTENER - i - 1U));
+    }
+}
+
 
 TEST_F(iox_listener_test, AttachingSubscriberEventTwiceFailsWithEVENT_ALREADY_ATTACHED)
 {
@@ -248,9 +258,9 @@ TEST_F(iox_listener_test, AttachingSubscriberEventTwiceFailsWithEVENT_ALREADY_AT
 TIMING_TEST_F(iox_listener_test, UserTriggerCallbackIsCalledWhenTriggered, Repeat(5), [&] {
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], &userTriggerCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
-    iox_user_trigger_trigger(m_userTrigger[0]);
+    iox_user_trigger_trigger(m_userTrigger[0U]);
     std::this_thread::sleep_for(TIMEOUT);
-    EXPECT_THAT(g_userTriggerCallbackArgument, Eq(m_userTrigger[0]));
+    EXPECT_THAT(g_userTriggerCallbackArgument, Eq(m_userTrigger[0U]));
 });
 
 TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Repeat(5), [&] {

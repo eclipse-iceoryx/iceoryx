@@ -31,6 +31,7 @@ iox::posix::Semaphore shutdownSemaphore =
     iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0).value();
 
 std::atomic_bool keepRunning{true};
+constexpr char APP_NAME[] = "iox-ex-callbacks-subscriber";
 
 iox::cxx::optional<CounterTopic> leftCache;
 iox::cxx::optional<CounterTopic> rightCache;
@@ -79,7 +80,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-subscriber");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // the listener starts a background thread and the callbacks of the attached events
     // will be called in this background thread when they are triggered
@@ -101,6 +102,8 @@ int main()
     // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
     listener.attachEvent(heartbeat, heartbeatCallback);
     listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
+    // it is possible to attach any callback here with the required signature. to simplify the
+    // example we attach the same callback onSampleReceivedCallback again
     listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
 
     // wait until someone presses CTRL+c

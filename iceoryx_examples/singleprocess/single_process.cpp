@@ -23,6 +23,7 @@
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -32,6 +33,12 @@
 #include <thread>
 
 std::atomic_bool keepRunning{true};
+
+static void sigHandler(int f_sig [[gnu::unused]])
+{
+    // caught SIGINT or SIGTERM, now exit gracefully
+    keepRunning = false;
+}
 
 struct TransmissionData_t
 {
@@ -102,6 +109,10 @@ void subscriber()
 
 int main()
 {
+    // Register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+
     // set the log level to error to see the essence of the example
     iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
 
