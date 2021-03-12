@@ -1,5 +1,7 @@
 # WaitSet
 
+## Introduction
+
 The WaitSet is a set where you can attach objects so that they can signal a wide variety
 of events to one single notifyable. The typical approach is that one creates a
 WaitSet attaches multiple subscribers, user trigger or other _Triggerables_ to it and then wait till
@@ -10,6 +12,11 @@ WaitSet events can be state based, this means that the WaitSet will notify you
 till you reset the state. The `HAS_DATA` event of the subscriber for instance
 will notify you as long as there are samples. But it is also possible that one
 attaches one shot events. These are events which will trigger the WaitSet only once.
+
+## Expected output
+
+<!-- @todo Add expected output with asciinema recording before v1.0-->
+<!-- @todo multiple examples described in here, expected output should be in front of every example -->
 
 ## Threadsafety
 The WaitSet is **not** threadsafe!

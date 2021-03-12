@@ -26,6 +26,7 @@ if(BUILD_TESTING)
 
   add_ros_test(iceoryx_integrationtest/test_roudi_startup_shutdown.py)
   add_ros_test(iceoryx_integrationtest/test_callback_example.py)
+  add_ros_test(iceoryx_integrationtest/test_callback_in_c_example.py)
   add_ros_test(iceoryx_integrationtest/test_multi_publisher_example.py)
   add_ros_test(iceoryx_integrationtest/test_icedelivery_example.py)
   add_ros_test(iceoryx_integrationtest/test_icedelivery_in_c_example.py)
