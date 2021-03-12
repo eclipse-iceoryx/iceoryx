@@ -82,9 +82,9 @@ class TestCallBackExample(unittest.TestCase):
 
     def test_callback_example_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Sending: 10', timeout=45, stream='stdout')
+            'Radar.FrontRight.Counter sending: 20', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'received: 10', timeout=45, stream='stdout')
+            'received: 20', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
