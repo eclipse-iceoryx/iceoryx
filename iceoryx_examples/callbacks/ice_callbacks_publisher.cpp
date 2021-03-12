@@ -42,7 +42,7 @@ void sending()
     {
         if (counter % 3 == 0)
         {
-            std::cout << "Radar.FrontLeft.Counter sending  : " << counter << std::endl;
+            std::cout << "Radar.FrontLeft.Counter sending : " << counter << std::endl;
             myPublisherLeft.publishCopyOf(CounterTopic{counter});
         }
         else

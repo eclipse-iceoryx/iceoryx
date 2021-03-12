@@ -27,7 +27,7 @@ from launch_testing.asserts import assertSequentialStdout
 import pytest
 
 
-# @brief Test goal: "Integrationtest for the callback example of iceoryx"
+# @brief Test goal: "Integrationtest for the callback in C example of iceoryx"
 # @pre setup ROS2 launch executables for RouDi (debug mode) and the example processes
 # @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
@@ -48,8 +48,8 @@ def generate_test_description():
 
     callback_publisher_executable = os.path.join(
         colcon_prefix_path,
-        'example_callbacks/bin/',
-        'iox-ex-callbacks-publisher'
+        'example_callbacks_in_c/bin/',
+        'iox-ex-c-callbacks-publisher'
     )
     callback_publisher_process = launch.actions.ExecuteProcess(
         cmd=[callback_publisher_executable],
@@ -57,8 +57,8 @@ def generate_test_description():
 
     callback_subscriber_executable = os.path.join(
         colcon_prefix_path,
-        'example_callbacks/bin/',
-        'iox-ex-callbacks-subscriber'
+        'example_callbacks_in_c/bin/',
+        'iox-ex-c-callbacks-subscriber'
     )
     callback_subscriber_process = launch.actions.ExecuteProcess(
         cmd=[callback_subscriber_executable],
@@ -75,7 +75,7 @@ def generate_test_description():
 # the launch system will shut down RouDi
 
 
-class TestCallBackExample(unittest.TestCase):
+class TestCallBackInCExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
@@ -92,12 +92,12 @@ class TestCallBackExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'received: 10', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Received samples from FrontLeft and FrontRight. Sum of 9 + 16 = 25', timeout=45, stream='stdout')
+            'Received samples from FrontLeft and FrontRight. Sum of 9 + 22 = 31', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
 
 @launch_testing.post_shutdown_test()
-class TestMultiCallbackExampleExitCodes(unittest.TestCase):
+class TestMultiCallbackInCExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

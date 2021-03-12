@@ -55,6 +55,7 @@ void heartbeatCallback(iox_user_trigger_t userTrigger)
 {
     (void)userTrigger;
     printf("heartbeat received\n");
+    fflush(stdout);
 }
 
 void* cyclicHeartbeatTrigger(void* dontCare)
@@ -85,6 +86,7 @@ void onSampleReceivedCallback(iox_sub_t subscriber)
             rightCache.isSet = true;
         }
         printf("received: %d\n", chunk->counter);
+        fflush(stdout);
     }
 
     if (leftCache.isSet && rightCache.isSet)
@@ -93,6 +95,7 @@ void onSampleReceivedCallback(iox_sub_t subscriber)
                leftCache.value.counter,
                rightCache.value.counter,
                leftCache.value.counter + rightCache.value.counter);
+        fflush(stdout);
         leftCache.isSet = false;
         rightCache.isSet = false;
     }

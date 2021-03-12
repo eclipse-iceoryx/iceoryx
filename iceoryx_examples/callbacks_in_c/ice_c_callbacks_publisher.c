@@ -27,6 +27,8 @@ bool killswitch = false;
 
 static void sigHandler(int f_sig)
 {
+    // ignore unused parameter
+    (void)f_sig;
     killswitch = true;
 }
 
@@ -52,7 +54,8 @@ void sending()
             if (iox_pub_loan_chunk(publisherLeft, (void**)&chunk, sizeof(struct CounterTopic))
                 == AllocationResult_SUCCESS)
             {
-                printf("Radar.FrontLeft.Counter sending  : %d\n", counter);
+                printf("Radar.FrontLeft.Counter sending : %d\n", counter);
+                fflush(stdout);
                 chunk->counter = counter;
                 iox_pub_publish_chunk(publisherLeft, chunk);
             }
@@ -62,7 +65,8 @@ void sending()
             if (iox_pub_loan_chunk(publisherRight, (void**)&chunk, sizeof(struct CounterTopic))
                 == AllocationResult_SUCCESS)
             {
-                printf("Radar.FrontRight.Counter sending  : %d\n", counter * 2);
+                printf("Radar.FrontRight.Counter sending : %d\n", counter * 2);
+                fflush(stdout);
                 chunk->counter = counter * 2;
                 iox_pub_publish_chunk(publisherRight, chunk);
             }
