@@ -78,7 +78,7 @@ class iox_event_info_test : public Test
 
     static UserTrigger* m_lastEventCallbackArgument;
     ConditionVariableData m_condVar{"myApp"};
-    WaitSetMock m_waitSet{&m_condVar};
+    WaitSetMock m_waitSet{m_condVar};
     UserTrigger m_userTrigger;
 
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2;

@@ -79,7 +79,7 @@ void TriggerHandle::trigger() noexcept
 
     if (isValid())
     {
-        ConditionVariableSignaler(*m_conditionVariableDataPtr, m_uniqueTriggerId).notifyOne();
+        ConditionVariableSignaler(*m_conditionVariableDataPtr, m_uniqueTriggerId).notify();
     }
 }
 

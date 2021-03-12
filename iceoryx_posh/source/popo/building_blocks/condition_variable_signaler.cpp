@@ -34,9 +34,9 @@ ConditionVariableSignaler::ConditionVariableSignaler(ConditionVariableData& cond
     }
 }
 
-void ConditionVariableSignaler::notifyOne() noexcept
+void ConditionVariableSignaler::notify() noexcept
 {
-    if (m_notificationIndex < MAX_NUMBER_OF_EVENTS_PER_LISTENER)
+    if (m_notificationIndex < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE)
     {
         getMembers()->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
     }

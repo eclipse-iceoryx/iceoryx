@@ -22,8 +22,8 @@ namespace iox
 {
 namespace popo
 {
-ConditionVariableWaiter::ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
-    : m_condVarDataPtr(condVarDataPtr)
+ConditionVariableWaiter::ConditionVariableWaiter(ConditionVariableData& condVarData) noexcept
+    : m_condVarDataPtr(&condVarData)
 {
 }
 

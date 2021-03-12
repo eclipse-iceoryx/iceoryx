@@ -31,8 +31,8 @@ class ConditionVariableWaiter
     using NotificationVector_t = cxx::vector<cxx::BestFittingType_t<MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE>,
                                              MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE>;
 
-    explicit ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
-    virtual ~ConditionVariableWaiter() noexcept = default;
+    explicit ConditionVariableWaiter(ConditionVariableData& condVarData) noexcept;
+    ~ConditionVariableWaiter() noexcept = default;
     ConditionVariableWaiter(const ConditionVariableWaiter& rhs) = delete;
     ConditionVariableWaiter(ConditionVariableWaiter&& rhs) noexcept = delete;
     ConditionVariableWaiter& operator=(const ConditionVariableWaiter& rhs) = delete;

@@ -70,7 +70,7 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
         {
             ConditionVariableSignaler(*getMembers()->m_conditionVariableDataPtr.get(),
                                       getMembers()->m_conditionVariableNotificationIndex)
-                .notifyOne();
+                .notify();
         }
     }
 }

@@ -23,14 +23,14 @@ namespace popo
 {
 template <uint64_t Capacity>
 inline WaitSet<Capacity>::WaitSet() noexcept
-    : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
+    : WaitSet(*runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
 {
 }
 
 template <uint64_t Capacity>
-inline WaitSet<Capacity>::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
-    : m_conditionVariableDataPtr(condVarDataPtr)
-    , m_conditionVariableWaiter(m_conditionVariableDataPtr)
+inline WaitSet<Capacity>::WaitSet(ConditionVariableData& condVarData) noexcept
+    : m_conditionVariableDataPtr(&condVarData)
+    , m_conditionVariableWaiter(condVarData)
 {
 }
 

@@ -38,7 +38,7 @@ class ConditionVariableSignaler
     ~ConditionVariableSignaler() noexcept = default;
 
     /// @brief If threads are waiting on the condition variable, this call unblocks one of the waiting threads
-    void notifyOne() noexcept;
+    void notify() noexcept;
 
   protected:
     const ConditionVariableData* getMembers() const noexcept;

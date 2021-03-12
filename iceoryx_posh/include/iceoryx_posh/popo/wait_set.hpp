@@ -124,7 +124,7 @@ class WaitSet
     uint64_t capacity() const noexcept;
 
   protected:
-    explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
+    explicit WaitSet(ConditionVariableData& condVarData) noexcept;
 
   private:
     template <typename T>

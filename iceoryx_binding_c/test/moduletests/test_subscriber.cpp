@@ -101,7 +101,7 @@ class iox_sub_test : public Test
     iox_sub_t m_sut = m_subscriber.get();
 
     ConditionVariableData m_condVar{"myApp"};
-    std::unique_ptr<WaitSetMock> m_waitSet{new WaitSetMock(&m_condVar)};
+    std::unique_ptr<WaitSetMock> m_waitSet{new WaitSetMock(m_condVar)};
 };
 
 iox_sub_t iox_sub_test::m_triggerCallbackLatestArgument = nullptr;
@@ -283,7 +283,7 @@ TEST_F(iox_sub_test, attachingToWaitSetWorks)
 
 TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 {
-    WaitSetMock m_waitSet2{&m_condVar};
+    WaitSetMock m_waitSet2{m_condVar};
     iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, NULL);
 
     EXPECT_EQ(iox_ws_attach_subscriber_event(&m_waitSet2, m_sut, SubscriberEvent_HAS_DATA, 0U, NULL),

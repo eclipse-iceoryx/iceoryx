@@ -171,7 +171,7 @@ TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
 {
     ConditionVariableData condVar("Horscht");
-    ConditionVariableWaiter condVarWaiter{&condVar};
+    ConditionVariableWaiter condVarWaiter{condVar};
 
     this->m_popper.setConditionVariable(condVar, 0U);
 
@@ -186,8 +186,8 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 {
     ConditionVariableData condVar1("Horscht");
     ConditionVariableData condVar2("Schnuppi");
-    ConditionVariableWaiter condVarWaiter1{&condVar1};
-    ConditionVariableWaiter condVarWaiter2{&condVar2};
+    ConditionVariableWaiter condVarWaiter1{condVar1};
+    ConditionVariableWaiter condVarWaiter2{condVar2};
 
     this->m_popper.setConditionVariable(condVar1, 0U);
     this->m_popper.setConditionVariable(condVar2, 1U);
