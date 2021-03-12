@@ -181,7 +181,7 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
 			 {
 				 std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
 				 std::cout << "Options:" << std::endl;
-				 std::cout << "-h, --help                          		Display help." << std::endl;
+				 std::cout << "-h, --help								Display help." << std::endl;
 				 std::cout << "-f, --fuzzing-api <API>               	Specify API which will be fuzzed." << std::endl;
 				 std::cout << "                                      	<API> {uds, com, toml}" << std::endl;
 				 std::cout << "                                      	uds: Starts RouDi and sends messages via Unix Domain Sockets. Multiple messages can be sent. (e.g.: register message first and then offer service)." << std::endl;
@@ -192,8 +192,8 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
 				 std::cout << "                                      	cl: Send input via commandline. Needs parameter i to send the input." << std::endl;
 				 std::cout << "-c, --command-line-file <PATH_TO_FILE> 	<PATH_TO_FILE> : Read the specified file and send the input to the interface." << std::endl;
 				 std::cout << "-i, --command-line-input <INPUT>      	<INPUT> : Send the input via this command line, requires to use input-mode cl. It's possible to send several commands with several -i commands." << std::endl;
-				 std::cout << "-t, --toml-file <PATH_TO_FILE>      		<PATH_TO_FILE> : Needs to be used when TOML is parsed. The file is used to write messages which will be parsed by the TOML configuration parser." << std::endl;
-				 std::cout << "-l, --log-level							<LogLevel>  {off, fatal, debug} : Set the log level. Off is standard;" << std::endl;
+				 std::cout << "-t, --toml-file <PATH_TO_FILE>          <PATH_TO_FILE> : Needs to be used when TOML is parsed. The file is used to write messages which will be parsed by the TOML configuration parser." << std::endl;
+				 std::cout << "-l, --log-level                         <LogLevel>  {off, fatal, debug} : Set the log level. Off is standard;" << std::endl;
 				 helpFlag = true;
 			 } break;
 
