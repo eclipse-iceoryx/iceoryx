@@ -14,32 +14,32 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/internal/relocatable_pointer/relocatable_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relocatable_ptr.hpp"
 
 namespace iox
 {
-RelocatablePointer::RelocatablePointer() noexcept
+BaseRelocatablePointer::BaseRelocatablePointer() noexcept
 {
 }
 
-RelocatablePointer::RelocatablePointer(const void* ptr) noexcept
+BaseRelocatablePointer::BaseRelocatablePointer(const void* ptr) noexcept
     : m_offset(computeOffset(ptr))
 {
 }
 
-RelocatablePointer::RelocatablePointer(const RelocatablePointer& other) noexcept
+BaseRelocatablePointer::BaseRelocatablePointer(const BaseRelocatablePointer& other) noexcept
     : m_offset(computeOffset(other.computeRawPtr()))
 {
 }
 
-RelocatablePointer::RelocatablePointer(RelocatablePointer&& other) noexcept
+BaseRelocatablePointer::BaseRelocatablePointer(BaseRelocatablePointer&& other) noexcept
     : m_offset(computeOffset(other.computeRawPtr()))
 {
     /// @note could set other to null but there is no advantage in moving RelocatablePointers since they are
     /// lightweight and in principle other is allowed to still be functional (you just cannot rely on it)
 }
 
-RelocatablePointer& RelocatablePointer::operator=(const RelocatablePointer& other) noexcept
+BaseRelocatablePointer& BaseRelocatablePointer::operator=(const BaseRelocatablePointer& other) noexcept
 {
     if (this != &other)
     {
@@ -48,44 +48,44 @@ RelocatablePointer& RelocatablePointer::operator=(const RelocatablePointer& othe
     return *this;
 }
 
-RelocatablePointer& RelocatablePointer::operator=(const void* rawPtr) noexcept
+BaseRelocatablePointer& BaseRelocatablePointer::operator=(const void* rawPtr) noexcept
 {
     m_offset = computeOffset(rawPtr);
     return *this;
 }
 
-RelocatablePointer& RelocatablePointer::operator=(RelocatablePointer&& other) noexcept
+BaseRelocatablePointer& BaseRelocatablePointer::operator=(BaseRelocatablePointer&& other) noexcept
 {
     m_offset = computeOffset(other.computeRawPtr());
     return *this;
 }
 
-const void* RelocatablePointer::operator*() const noexcept
+const void* BaseRelocatablePointer::operator*() const noexcept
 {
     return computeRawPtr();
 }
 
-RelocatablePointer::operator bool() const noexcept
+BaseRelocatablePointer::operator bool() const noexcept
 {
     return m_offset != NULL_POINTER_OFFSET;
 }
 
-bool RelocatablePointer::operator!() const noexcept
+bool BaseRelocatablePointer::operator!() const noexcept
 {
     return m_offset == NULL_POINTER_OFFSET;
 }
 
-void* RelocatablePointer::get() const noexcept
+void* BaseRelocatablePointer::get() const noexcept
 {
     return computeRawPtr();
 }
 
-RelocatablePointer::offset_t RelocatablePointer::getOffset() const noexcept
+BaseRelocatablePointer::offset_t BaseRelocatablePointer::getOffset() const noexcept
 {
     return m_offset;
 }
 
-RelocatablePointer::offset_t RelocatablePointer::computeOffset(const void* ptr) const noexcept
+BaseRelocatablePointer::offset_t BaseRelocatablePointer::computeOffset(const void* ptr) const noexcept
 {
     /// @todo find most efficient way to do this and check the valid range (signed/unsigned issues)
     /// this implies that the absolute difference cannot be larger than 2^63 which is probably true in any shared
@@ -100,7 +100,7 @@ RelocatablePointer::offset_t RelocatablePointer::computeOffset(const void* ptr) 
     return reinterpret_cast<offset_t>(&m_offset) - reinterpret_cast<offset_t>(ptr);
 }
 
-void* RelocatablePointer::computeRawPtr() const noexcept
+void* BaseRelocatablePointer::computeRawPtr() const noexcept
 {
     if (m_offset == NULL_POINTER_OFFSET)
         return nullptr;

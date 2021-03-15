@@ -78,8 +78,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                                        BASE_ADDRESS_HINT,
                                        static_cast<mode_t>(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP))
             .and_then([this](auto& sharedMemoryObject) {
-                setSegmentId(iox::RelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
-                                                               sharedMemoryObject.getSizeInBytes()));
+                setSegmentId(iox::BaseRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
+                                                                   sharedMemoryObject.getSizeInBytes()));
 
                 LogDebug() << "Roudi registered payload segment "
                            << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))

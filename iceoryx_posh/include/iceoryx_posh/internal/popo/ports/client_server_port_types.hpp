@@ -89,7 +89,7 @@ class RPCBaseHeader
     }
 
   protected:
-    relative_ptr<ClientChunkQueueData_t> m_clientQueueDataPtr;
+    RelativePointer<ClientChunkQueueData_t> m_clientQueueDataPtr;
     int64_t m_sequenceNumber{0};
 };
 

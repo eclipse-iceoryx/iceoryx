@@ -21,7 +21,7 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_ptr.hpp"
 
 
 namespace iox
@@ -41,11 +41,11 @@ class SharedMemoryUser
     SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                      const size_t topicSize,
                      const uint64_t segmentId,
-                     const RelativePointer::offset_t segmentManagerAddressOffset);
+                     const BaseRelativePointer::offset_t segmentManagerAddressOffset);
 
   private:
     void openDataSegments(const uint64_t segmentId,
-                          const RelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                          const BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;

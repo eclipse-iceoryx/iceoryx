@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_ptr.hpp"
 
 #include "mocks/roudi_memory_block_mock.hpp"
 #include "mocks/roudi_memory_provider_mock.hpp"
@@ -51,13 +51,13 @@ class MemoryProvider_Test : public Test
     {
         // since the MemoryProvider registers for relative pointer, it is necessary to call unregisterAll, to have a
         // clean environment especially for the first test
-        iox::RelativePointer::unregisterAll();
+        iox::BaseRelativePointer::unregisterAll();
     }
 
     void TearDown() override
     {
         // unregisterAll is also called to leave a clean environment after the last test
-        iox::RelativePointer::unregisterAll();
+        iox::BaseRelativePointer::unregisterAll();
     }
 
     static constexpr uint64_t COMMON_SETUP_MEMORY_SIZE{16};
@@ -78,8 +78,8 @@ class MemoryProvider_Test : public Test
 
     static const int32_t nTestCase = 13;
 
-    iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[nTestCase] =
-    {   iox::roudi::MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED,
+    iox::roudi::MemoryProviderError m_testCombinationMemoryProviderError[nTestCase] = {
+        iox::roudi::MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED,
         iox::roudi::MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT,
         iox::roudi::MemoryProviderError::MEMORY_ALREADY_CREATED,
         iox::roudi::MemoryProviderError::MEMORY_CREATION_FAILED,
@@ -91,25 +91,21 @@ class MemoryProvider_Test : public Test
         iox::roudi::MemoryProviderError::MEMORY_DESTRUCTION_FAILED,
         iox::roudi::MemoryProviderError::MEMORY_DEALLOCATION_FAILED,
         iox::roudi::MemoryProviderError::MEMORY_UNMAPPING_FAILED,
-        iox::roudi::MemoryProviderError::SIGACTION_CALL_FAILED
-    };
+        iox::roudi::MemoryProviderError::SIGACTION_CALL_FAILED};
 
-    const char* m_testResultGetErrorString[nTestCase] =
-    {
-        "MEMORY_BLOCKS_EXHAUSTED",
-        "NO_MEMORY_BLOCKS_PRESENT",
-        "MEMORY_ALREADY_CREATED",
-        "MEMORY_CREATION_FAILED",
-        "PAGE_SIZE_CHECK_ERROR",
-        "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE",
-        "MEMORY_ALLOCATION_FAILED",
-        "MEMORY_MAPPING_FAILED",
-        "MEMORY_NOT_AVAILABLE",
-        "MEMORY_DESTRUCTION_FAILED",
-        "MEMORY_DEALLOCATION_FAILED",
-        "MEMORY_UNMAPPING_FAILED",
-        "SIGACTION_CALL_FAILED"
-    };
+    const char* m_testResultGetErrorString[nTestCase] = {"MEMORY_BLOCKS_EXHAUSTED",
+                                                         "NO_MEMORY_BLOCKS_PRESENT",
+                                                         "MEMORY_ALREADY_CREATED",
+                                                         "MEMORY_CREATION_FAILED",
+                                                         "PAGE_SIZE_CHECK_ERROR",
+                                                         "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE",
+                                                         "MEMORY_ALLOCATION_FAILED",
+                                                         "MEMORY_MAPPING_FAILED",
+                                                         "MEMORY_NOT_AVAILABLE",
+                                                         "MEMORY_DESTRUCTION_FAILED",
+                                                         "MEMORY_DEALLOCATION_FAILED",
+                                                         "MEMORY_UNMAPPING_FAILED",
+                                                         "SIGACTION_CALL_FAILED"};
 
     MemoryBlockMock memoryBlock1;
     MemoryBlockMock memoryBlock2;
@@ -322,7 +318,7 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
 {
     constexpr uint64_t DummyMemorySize{1024};
     uint8_t dummy[DummyMemorySize];
-    auto segmentIdOffset = iox::RelativePointer::registerPtr(dummy, DummyMemorySize);
+    auto segmentIdOffset = iox::BaseRelativePointer::registerPtr(dummy, DummyMemorySize);
 
     commonSetup();
 
@@ -344,9 +340,9 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)
 
 TEST_F(MemoryProvider_Test, GetErrorString)
 {
-    for(int16_t i = 0; i < nTestCase; i++)
+    for (int16_t i = 0; i < nTestCase; i++)
     {
-        const char * result = MemoryProviderFailingCreation::getErrorString(m_testCombinationMemoryProviderError[i]);
+        const char* result = MemoryProviderFailingCreation::getErrorString(m_testCombinationMemoryProviderError[i]);
         EXPECT_THAT(*result, Eq(*m_testResultGetErrorString[i]));
     }
 }

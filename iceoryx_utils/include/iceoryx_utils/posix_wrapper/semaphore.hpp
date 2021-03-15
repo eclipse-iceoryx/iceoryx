@@ -189,7 +189,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     bool m_isShared = false;
 
     mutable iox_sem_t m_handle;
-    mutable iox::relative_ptr<iox_sem_t> m_handlePtr = &m_handle;
+    mutable iox::RelativePointer<iox_sem_t> m_handlePtr = &m_handle;
 
   private:
     friend class DesignPattern::Creation<Semaphore, SemaphoreError>;

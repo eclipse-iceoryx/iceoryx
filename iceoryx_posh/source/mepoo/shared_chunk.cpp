@@ -25,7 +25,7 @@ SharedChunk::SharedChunk(ChunkManagement* const f_resource)
 {
 }
 
-SharedChunk::SharedChunk(const relative_ptr<ChunkManagement>& f_resource)
+SharedChunk::SharedChunk(const RelativePointer<ChunkManagement>& f_resource)
     : m_chunkManagement(f_resource)
 {
 }
@@ -156,7 +156,7 @@ ChunkManagement* SharedChunk::release()
     return returnValue;
 }
 
-iox::relative_ptr<ChunkManagement> SharedChunk::releaseWithRelativePtr()
+iox::RelativePointer<ChunkManagement> SharedChunk::releaseWithRelativePtr()
 {
     auto returnValue = m_chunkManagement;
     m_chunkManagement = nullptr;

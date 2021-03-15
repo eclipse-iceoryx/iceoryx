@@ -22,40 +22,40 @@
 namespace iox
 {
 template <typename T>
-inline relative_ptr<T>::relative_ptr(ptr_t ptr, id_t id) noexcept
-    : RelativePointer(ptr, id)
+inline RelativePointer<T>::RelativePointer(ptr_t ptr, id_t id) noexcept
+    : BaseRelativePointer(ptr, id)
 {
 }
 
 template <typename T>
-inline relative_ptr<T>::relative_ptr(offset_t offset, id_t id) noexcept
-    : RelativePointer(offset, id)
+inline RelativePointer<T>::RelativePointer(offset_t offset, id_t id) noexcept
+    : BaseRelativePointer(offset, id)
 {
 }
 
 template <typename T>
-inline relative_ptr<T>::relative_ptr(ptr_t ptr) noexcept
-    : RelativePointer(ptr)
+inline RelativePointer<T>::RelativePointer(ptr_t ptr) noexcept
+    : BaseRelativePointer(ptr)
 {
 }
 
 
 template <typename T>
-inline relative_ptr<T>::relative_ptr(const RelativePointer& other) noexcept
-    : RelativePointer(other)
+inline RelativePointer<T>::RelativePointer(const BaseRelativePointer& other) noexcept
+    : BaseRelativePointer(other)
 {
 }
 
 template <typename T>
-inline relative_ptr<T>& relative_ptr<T>::operator=(const RelativePointer& other) noexcept
+inline RelativePointer<T>& RelativePointer<T>::operator=(const BaseRelativePointer& other) noexcept
 {
-    RelativePointer::operator=(other);
+    BaseRelativePointer::operator=(other);
 
     return *this;
 }
 
 template <typename T>
-inline relative_ptr<T>& relative_ptr<T>::operator=(ptr_t ptr) noexcept
+inline RelativePointer<T>& RelativePointer<T>::operator=(ptr_t ptr) noexcept
 {
     m_id = searchId(ptr);
     m_offset = computeOffset(ptr);
@@ -65,50 +65,50 @@ inline relative_ptr<T>& relative_ptr<T>::operator=(ptr_t ptr) noexcept
 
 template <typename T>
 template <typename U>
-inline typename std::enable_if<!std::is_void<U>::value, U&>::type relative_ptr<T>::operator*() noexcept
+inline typename std::enable_if<!std::is_void<U>::value, U&>::type RelativePointer<T>::operator*() noexcept
 {
     return *get();
 }
 
 template <typename T>
-inline T* relative_ptr<T>::operator->() noexcept
+inline T* RelativePointer<T>::operator->() noexcept
 {
     return get();
 }
 
 template <typename T>
 template <typename U>
-inline typename std::enable_if<!std::is_void<U>::value, const U&>::type relative_ptr<T>::operator*() const noexcept
+inline typename std::enable_if<!std::is_void<U>::value, const U&>::type RelativePointer<T>::operator*() const noexcept
 {
     return *get();
 }
 
 template <typename T>
-inline T* relative_ptr<T>::operator->() const noexcept
+inline T* RelativePointer<T>::operator->() const noexcept
 {
     return get();
 }
 
 template <typename T>
-inline T* relative_ptr<T>::get() const noexcept
+inline T* RelativePointer<T>::get() const noexcept
 {
     return static_cast<T*>(computeRawPtr());
 }
 
 template <typename T>
-inline relative_ptr<T>::operator T*() const noexcept
+inline RelativePointer<T>::operator T*() const noexcept
 {
     return get();
 }
 
 template <typename T>
-inline bool relative_ptr<T>::operator==(T* const ptr) const noexcept
+inline bool RelativePointer<T>::operator==(T* const ptr) const noexcept
 {
     return ptr == get();
 }
 
 template <typename T>
-inline bool relative_ptr<T>::operator!=(T* const ptr) const noexcept
+inline bool RelativePointer<T>::operator!=(T* const ptr) const noexcept
 {
     return ptr != get();
 }

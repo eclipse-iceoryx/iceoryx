@@ -38,7 +38,7 @@ struct ChunkSenderData : public ChunkDistributorDataType
 
     using ChunkDistributorData_t = ChunkDistributorDataType;
 
-    const relative_ptr<mepoo::MemoryManager> m_memoryMgr;
+    const RelativePointer<mepoo::MemoryManager> m_memoryMgr;
     mepoo::MemoryInfo m_memoryInfo;
     UsedChunkList<MaxChunksAllocatedSimultaneously> m_chunksInUse;
     mepoo::SequenceNumber_t m_sequenceNumber{0U};

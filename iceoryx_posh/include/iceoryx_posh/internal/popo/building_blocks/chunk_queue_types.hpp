@@ -26,10 +26,10 @@ namespace popo
 struct ChunkTuple
 {
     ChunkTuple() = default;
-    explicit ChunkTuple(relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept;
+    explicit ChunkTuple(RelativePointer<mepoo::ChunkManagement> f_chunk) noexcept;
 
-    RelativePointer::id_t m_segmentId{RelativePointer::NULL_POINTER_ID};
-    RelativePointer::offset_t m_chunkOffset{RelativePointer::NULL_POINTER_OFFSET};
+    BaseRelativePointer::id_t m_segmentId{BaseRelativePointer::NULL_POINTER_ID};
+    BaseRelativePointer::offset_t m_chunkOffset{BaseRelativePointer::NULL_POINTER_OFFSET};
 };
 
 } // namespace popo

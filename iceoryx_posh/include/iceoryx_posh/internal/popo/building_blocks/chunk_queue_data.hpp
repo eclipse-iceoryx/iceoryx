@@ -42,7 +42,7 @@ struct ChunkQueueData : public LockingPolicy
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
 
-    relative_ptr<ConditionVariableData> m_conditionVariableDataPtr{nullptr};
+    RelativePointer<ConditionVariableData> m_conditionVariableDataPtr{nullptr};
     cxx::optional<uint64_t> m_eventVariableIndex;
 };
 

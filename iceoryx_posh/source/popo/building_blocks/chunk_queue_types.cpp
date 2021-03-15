@@ -20,7 +20,7 @@ namespace iox
 {
 namespace popo
 {
-ChunkTuple::ChunkTuple(iox::relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept
+ChunkTuple::ChunkTuple(iox::RelativePointer<mepoo::ChunkManagement> f_chunk) noexcept
     : m_segmentId(f_chunk.getId())
     , m_chunkOffset(f_chunk.getOffset())
 {

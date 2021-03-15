@@ -89,7 +89,7 @@ TEST_F(RelocatablePointer_test, relocation)
     EXPECT_EQ(*adr2, 21);
 
     // placement new at base adress (we have enough memory to do so)
-    iox::relocatable_ptr<int>* rp = new (base1) iox::relocatable_ptr<int>(adr1);
+    iox::RelocatablePointer<int>* rp = new (base1) iox::RelocatablePointer<int>(adr1);
     auto& rp1 = *rp;
     EXPECT_EQ(*rp1, 12);
 
@@ -100,7 +100,7 @@ TEST_F(RelocatablePointer_test, relocation)
     EXPECT_EQ(*adr2, 21);
 
     // read the relocatable pointer in block 2 at the base address
-    auto& rp2 = *(reinterpret_cast<iox::relocatable_ptr<int>*>(base2));
+    auto& rp2 = *(reinterpret_cast<iox::RelocatablePointer<int>*>(base2));
 
     // it now points to the value in block2 (since its measured relative to this, which is now at base2 for rp2)
     EXPECT_EQ(*rp2, 21);
@@ -117,6 +117,6 @@ TEST_F(RelocatablePointer_test, relocation)
 
     // was created via placement new, need to manually call the dtor (does not really matter here since the object
     // only has primitive members and the test ends here)
-    rp->~relocatable_ptr<int>();
+    rp->~RelocatablePointer<int>();
 }
 } // namespace

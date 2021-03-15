@@ -27,7 +27,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_ptr.hpp"
 #include "iceoryx_utils/platform/file.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
@@ -127,7 +127,7 @@ class RouDi
 
     void monitorAndDiscoveryUpdate();
 
-    cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
+    cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { BaseRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 

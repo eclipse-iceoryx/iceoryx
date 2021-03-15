@@ -24,7 +24,7 @@
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <cstdint>
@@ -132,11 +132,11 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (2U == receiveBuffer.getNumberOfElements()))
     {
-        RelativePointer::offset_t offset{0U};
+        BaseRelativePointer::offset_t offset{0U};
         cxx::convert::fromString(receiveBuffer.getElementAtIndex(0U).c_str(), offset);
-        RelativePointer::id_t segmentId{0U};
+        BaseRelativePointer::id_t segmentId{0U};
         cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), segmentId);
-        auto ptr = RelativePointer::getPtr(segmentId, offset);
+        auto ptr = BaseRelativePointer::getPtr(segmentId, offset);
 
         return reinterpret_cast<std::atomic<uint64_t>*>(ptr);
     }
@@ -220,11 +220,11 @@ PoshRuntime::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_PUBLISHER_ACK)
 
         {
-            RelativePointer::id_t segmentId{0U};
+            BaseRelativePointer::id_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            RelativePointer::offset_t offset{0U};
+            BaseRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            auto ptr = BaseRelativePointer::getPtr(segmentId, offset);
             return cxx::success<PublisherPortUserType::MemberType_t*>(
                 reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
         }
@@ -320,11 +320,11 @@ PoshRuntime::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_SUBSCRIBER_ACK)
         {
-            RelativePointer::id_t segmentId{0U};
+            BaseRelativePointer::id_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            RelativePointer::offset_t offset{0U};
+            BaseRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            auto ptr = BaseRelativePointer::getPtr(segmentId, offset);
             return cxx::success<SubscriberPortUserType::MemberType_t*>(
                 reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
         }
@@ -363,11 +363,11 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_INTERFACE_ACK)
         {
-            RelativePointer::id_t segmentId{0U};
+            BaseRelativePointer::id_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            RelativePointer::offset_t offset{0U};
+            BaseRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            auto ptr = BaseRelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<popo::InterfacePortData*>(ptr);
         }
     }
@@ -392,11 +392,11 @@ NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_NODE_ACK)
         {
-            RelativePointer::id_t segmentId{0U};
+            BaseRelativePointer::id_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            RelativePointer::offset_t offset{0U};
+            BaseRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            auto ptr = BaseRelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<NodeData*>(ptr);
         }
     }
@@ -479,11 +479,11 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_APPLICATION_ACK)
         {
-            RelativePointer::id_t segmentId{0U};
+            BaseRelativePointer::id_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            RelativePointer::offset_t offset{0U};
+            BaseRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            auto ptr = BaseRelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<popo::ApplicationPortData*>(ptr);
         }
     }
@@ -504,11 +504,11 @@ PoshRuntime::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noe
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
         {
-            RelativePointer::id_t segmentId{0U};
+            BaseRelativePointer::id_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            RelativePointer::offset_t offset{0U};
+            BaseRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            auto ptr = BaseRelativePointer::getPtr(segmentId, offset);
             return cxx::success<popo::ConditionVariableData*>(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }
     }
@@ -541,11 +541,11 @@ PoshRuntime::requestEventVariableFromRoudi(const IpcMessage& sendBuffer) noexcep
 
         if (stringToIpcMessageType(mqMessage.c_str()) == IpcMessageType::CREATE_EVENT_VARIABLE_ACK)
         {
-            RelativePointer::id_t segmentId{0U};
+            BaseRelativePointer::id_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            RelativePointer::offset_t offset{0U};
+            BaseRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            auto ptr = BaseRelativePointer::getPtr(segmentId, offset);
             return cxx::success<popo::EventVariableData*>(reinterpret_cast<popo::EventVariableData*>(ptr));
         }
     }

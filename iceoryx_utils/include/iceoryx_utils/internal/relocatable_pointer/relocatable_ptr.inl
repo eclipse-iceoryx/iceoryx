@@ -22,31 +22,31 @@
 namespace iox
 {
 template <typename T>
-inline relocatable_ptr<T>::relocatable_ptr() noexcept
-    : RelocatablePointer()
+inline RelocatablePointer<T>::RelocatablePointer() noexcept
+    : BaseRelocatablePointer()
 {
 }
 
 template <typename T>
-inline relocatable_ptr<T>::relocatable_ptr(const T* ptr) noexcept
-    : RelocatablePointer(ptr)
+inline RelocatablePointer<T>::RelocatablePointer(const T* ptr) noexcept
+    : BaseRelocatablePointer(ptr)
 {
 }
 
 template <typename T>
-inline relocatable_ptr<T>::relocatable_ptr(const RelocatablePointer& other) noexcept
+inline RelocatablePointer<T>::RelocatablePointer(const BaseRelocatablePointer& other) noexcept
 {
     m_offset = computeOffset(other.computeRawPtr());
 }
 
 template <typename T>
-inline relocatable_ptr<T>::relocatable_ptr(T* rawPtr) noexcept
+inline RelocatablePointer<T>::RelocatablePointer(T* rawPtr) noexcept
 {
     m_offset = computeOffset(rawPtr);
 }
 
 template <typename T>
-inline relocatable_ptr<T>& relocatable_ptr<T>::operator=(const RelocatablePointer& other) noexcept
+inline RelocatablePointer<T>& RelocatablePointer<T>::operator=(const BaseRelocatablePointer& other) noexcept
 {
     m_offset = computeOffset(other.computeRawPtr());
 
@@ -54,38 +54,38 @@ inline relocatable_ptr<T>& relocatable_ptr<T>::operator=(const RelocatablePointe
 }
 
 template <typename T>
-inline T& relocatable_ptr<T>::operator*() noexcept
+inline T& RelocatablePointer<T>::operator*() noexcept
 {
     return *(static_cast<T*>(computeRawPtr()));
 }
 
 template <typename T>
-inline T* relocatable_ptr<T>::operator->() noexcept
+inline T* RelocatablePointer<T>::operator->() noexcept
 {
     return static_cast<T*>(computeRawPtr());
 }
 
 template <typename T>
-inline const T& relocatable_ptr<T>::operator*() const noexcept
+inline const T& RelocatablePointer<T>::operator*() const noexcept
 {
     return *(static_cast<T*>(computeRawPtr()));
 }
 
 template <typename T>
-inline const T* relocatable_ptr<T>::operator->() const noexcept
+inline const T* RelocatablePointer<T>::operator->() const noexcept
 {
     return static_cast<T*>(computeRawPtr());
 }
 
 template <typename T>
-inline T& relocatable_ptr<T>::operator[](uint64_t index) noexcept
+inline T& RelocatablePointer<T>::operator[](uint64_t index) noexcept
 {
     auto ptr = static_cast<T*>(computeRawPtr());
     return *(ptr + index);
 }
 
 template <typename T>
-inline relocatable_ptr<T>::operator T*() const noexcept
+inline RelocatablePointer<T>::operator T*() const noexcept
 {
     return reinterpret_cast<T*>(computeRawPtr());
 }

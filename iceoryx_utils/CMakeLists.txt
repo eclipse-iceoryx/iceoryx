@@ -164,8 +164,8 @@ add_library(iceoryx_utils
     source/posix_wrapper/posix_access_rights.cpp
     source/posix_wrapper/thread.cpp
     source/units/duration.cpp
-    source/relocatable_pointer/relative_ptr.cpp
-    source/relocatable_pointer/relocatable_ptr.cpp
+    source/relocatable_pointer/base_relative_ptr.cpp
+    source/relocatable_pointer/base_relocatable_ptr.cpp
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)

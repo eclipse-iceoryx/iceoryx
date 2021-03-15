@@ -17,69 +17,24 @@
 #ifndef IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
 #define IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
 
-#include <cstdint>
-#include <iostream>
-#include <limits>
+#include "base_relocatable_ptr.hpp"
 
 namespace iox
 {
-/// @todo restructure and split into multiple files along with an implementation cpp for non-template code
-class RelocatablePointer
-{
-    template <typename T>
-    friend class relocatable_ptr;
-
-  public:
-    using offset_t = std::ptrdiff_t;
-
-    RelocatablePointer() noexcept;
-
-    explicit RelocatablePointer(const void* ptr) noexcept;
-
-    RelocatablePointer(const RelocatablePointer& other) noexcept;
-
-    RelocatablePointer(RelocatablePointer&& other) noexcept;
-
-    RelocatablePointer& operator=(const RelocatablePointer& other) noexcept;
-
-    RelocatablePointer& operator=(const void* rawPtr) noexcept;
-
-    RelocatablePointer& operator=(RelocatablePointer&& other) noexcept;
-
-    const void* operator*() const noexcept;
-
-    operator bool() const noexcept;
-
-    bool operator!() const noexcept;
-
-    void* get() const noexcept;
-
-    offset_t getOffset() const noexcept;
-
-    static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
-
-  protected:
-    offset_t m_offset{NULL_POINTER_OFFSET};
-
-    offset_t computeOffset(const void* ptr) const noexcept;
-
-    void* computeRawPtr() const noexcept;
-};
-
 /// @brief typed version so we can use operator->
 template <typename T>
-class relocatable_ptr : public RelocatablePointer
+class RelocatablePointer : public BaseRelocatablePointer
 {
   public:
-    relocatable_ptr() noexcept;
+    RelocatablePointer() noexcept;
 
-    relocatable_ptr(const T* ptr) noexcept;
+    RelocatablePointer(const T* ptr) noexcept;
 
-    relocatable_ptr(const RelocatablePointer& other) noexcept;
+    RelocatablePointer(const BaseRelocatablePointer& other) noexcept;
 
-    relocatable_ptr(T* rawPtr) noexcept;
+    RelocatablePointer(T* rawPtr) noexcept;
 
-    relocatable_ptr& operator=(const RelocatablePointer& other) noexcept;
+    RelocatablePointer& operator=(const BaseRelocatablePointer& other) noexcept;
 
     T& operator*() noexcept;
 
