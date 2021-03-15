@@ -23,17 +23,28 @@ namespace iox
 {
 namespace cxx
 {
+/// @brief stack implementation with a simple push pop interface
+/// @tparam T type which the stack contains
+/// @tparam Capacity the capacity of the stack
 template <typename T, uint64_t Capacity>
 class stack
 {
   public:
+    /// @brief returns the last pushed element when the stack contains elements
+    ///         otherwise a cxx::nullopt
     cxx::optional<T> pop() noexcept;
 
+    /// @brief pushed an element into the stack by forwarding all arguments
+    ///        to the constructor of T
+    /// @param[in] args arguments which will be perfectly forwarded to the constructor of T
+    /// @return true if the push was successful, otherwise false
     template <typename... Targs>
     bool push(Targs&&... args) noexcept;
 
+    /// @brief returns the stack size
     uint64_t size() noexcept;
 
+    /// @brief returns the stack capacity
     static constexpr uint64_t capacity() noexcept;
 
   private:
