@@ -172,7 +172,7 @@ class UsedChunkList
     uint32_t m_usedListHead{InvalidIndex};
     uint32_t m_freeListHead{0u};
     std::array<uint32_t, Size> m_list;
-    std::array<RelativePointer<mepoo::ChunkManagement>, Size> m_data;
+    std::array<rp::RelativePointer<mepoo::ChunkManagement>, Size> m_data;
 };
 
 } // namespace popo

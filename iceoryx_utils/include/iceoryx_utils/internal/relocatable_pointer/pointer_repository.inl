@@ -21,6 +21,8 @@
 
 namespace iox
 {
+namespace rp
+{
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline PointerRepository<id_t, ptr_t, CAPACITY>::PointerRepository() noexcept
     : m_info(CAPACITY)
@@ -147,6 +149,7 @@ inline void PointerRepository<id_t, ptr_t, CAPACITY>::print() const noexcept
     }
 }
 
+} // namespace rp
 } // namespace iox
 
 #endif // IOX_UTILS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL

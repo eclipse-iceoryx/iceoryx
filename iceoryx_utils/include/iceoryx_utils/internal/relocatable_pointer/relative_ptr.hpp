@@ -25,6 +25,8 @@
 
 namespace iox
 {
+namespace rp
+{
 template <typename T>
 class RelativePointer : public BaseRelativePointer
 {
@@ -60,6 +62,7 @@ class RelativePointer : public BaseRelativePointer
     bool operator!=(T* const ptr) const noexcept;
 };
 
+} // namespace rp
 } // namespace iox
 
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.inl"

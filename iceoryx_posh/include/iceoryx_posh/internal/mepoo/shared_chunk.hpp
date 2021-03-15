@@ -35,7 +35,7 @@ class SharedChunk
   public:
     SharedChunk() = default;
     SharedChunk(ChunkManagement* const f_resource);
-    SharedChunk(const RelativePointer<ChunkManagement>& f_resource);
+    SharedChunk(const rp::RelativePointer<ChunkManagement>& f_resource);
     ~SharedChunk();
 
     SharedChunk(const SharedChunk& rhs);
@@ -48,7 +48,7 @@ class SharedChunk
     void* getPayload() const;
 
     ChunkManagement* release();
-    iox::RelativePointer<ChunkManagement> releaseWithRelativePtr();
+    iox::rp::RelativePointer<ChunkManagement> releaseWithRelativePtr();
 
     bool operator==(const SharedChunk& rhs) const;
     /// @todo use the newtype pattern to avoid the void pointer
@@ -70,7 +70,7 @@ class SharedChunk
     void freeChunk();
 
   private:
-    iox::RelativePointer<ChunkManagement> m_chunkManagement;
+    iox::rp::RelativePointer<ChunkManagement> m_chunkManagement;
 };
 } // namespace mepoo
 } // namespace iox

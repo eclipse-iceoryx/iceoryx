@@ -22,6 +22,8 @@
 
 namespace iox
 {
+namespace rp
+{
 class BaseRelocatablePointer
 {
     template <typename T>
@@ -64,6 +66,7 @@ class BaseRelocatablePointer
     void* computeRawPtr() const noexcept;
 };
 
+} // namespace rp
 } // namespace iox
 
 #endif // IOX_UTILS_RELOCATABLE_POINTER_BASE_RELOCATABLE_PTR_HPP

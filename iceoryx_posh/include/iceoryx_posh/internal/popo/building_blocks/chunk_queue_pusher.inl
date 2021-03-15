@@ -56,7 +56,7 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
     {
         auto chunkTupleOut = pushRet.value();
         auto chunkManagement =
-            RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         // this will release the chunk
         auto returnedChunk = mepoo::SharedChunk(chunkManagement);
         /// we have to set this to true to inform the higher levels that there

@@ -86,7 +86,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     m_memory = memoryResult.value();
     m_size = totalSize;
-    m_segmentId = BaseRelativePointer::registerPtr(m_memory, m_size);
+    m_segmentId = rp::BaseRelativePointer::registerPtr(m_memory, m_size);
 
     LogDebug() << "Registered memory segment " << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_memory))
                << " with size " << m_size << " to id " << m_segmentId;
@@ -117,7 +117,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        BaseRelativePointer::unregisterPtr(m_segmentId);
+        rp::BaseRelativePointer::unregisterPtr(m_segmentId);
         m_memory = nullptr;
         m_size = 0u;
     }

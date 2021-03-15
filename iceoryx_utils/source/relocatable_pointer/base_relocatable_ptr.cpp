@@ -18,6 +18,8 @@
 
 namespace iox
 {
+namespace rp
+{
 BaseRelocatablePointer::BaseRelocatablePointer() noexcept
 {
 }
@@ -108,5 +110,6 @@ void* BaseRelocatablePointer::computeRawPtr() const noexcept
     /// @todo find most efficient way to do this (see above)
     return reinterpret_cast<void*>(reinterpret_cast<offset_t>(&m_offset) - m_offset);
 }
+} // namespace rp
 } // namespace iox
 

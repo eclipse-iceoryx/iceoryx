@@ -21,6 +21,8 @@
 
 namespace iox
 {
+namespace rp
+{
 /// @brief typed version so we can use operator->
 template <typename T>
 class RelocatablePointer : public BaseRelocatablePointer
@@ -48,6 +50,7 @@ class RelocatablePointer : public BaseRelocatablePointer
 
     operator T*() const noexcept;
 };
+} // namespace rp
 } // namespace iox
 
 #include "iceoryx_utils/internal/relocatable_pointer/relocatable_ptr.inl"

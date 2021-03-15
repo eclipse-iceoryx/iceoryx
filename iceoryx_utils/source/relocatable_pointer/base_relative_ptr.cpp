@@ -18,6 +18,8 @@
 
 namespace iox
 {
+namespace rp
+{
 BaseRelativePointer::BaseRelativePointer(ptr_t ptr, id_t id) noexcept
     : m_id(id)
     , m_offset(computeOffset(ptr))
@@ -192,4 +194,6 @@ BaseRelativePointer::ptr_t BaseRelativePointer::computeRawPtr() const noexcept
 {
     return getPtr(m_id, m_offset);
 }
+} // namespace rp
 } // namespace iox
+

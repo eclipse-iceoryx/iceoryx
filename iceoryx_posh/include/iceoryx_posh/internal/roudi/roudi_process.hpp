@@ -241,7 +241,7 @@ class ProcessManager : public ProcessManagerInterface
     PortManager& m_portManager;
     mepoo::SegmentManager<>* m_segmentManager{nullptr};
     mepoo::MemoryManager* m_introspectionMemoryManager{nullptr};
-    BaseRelativePointer::id_t m_mgmtSegmentId{BaseRelativePointer::NULL_POINTER_ID};
+    rp::BaseRelativePointer::id_t m_mgmtSegmentId{rp::BaseRelativePointer::NULL_POINTER_ID};
     mutable std::mutex m_mutex;
 
     ProcessList_t m_processList;

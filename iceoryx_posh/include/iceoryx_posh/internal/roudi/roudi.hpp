@@ -127,7 +127,7 @@ class RouDi
 
     void monitorAndDiscoveryUpdate();
 
-    cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { BaseRelativePointer::unregisterAll(); }};
+    cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { rp::BaseRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 

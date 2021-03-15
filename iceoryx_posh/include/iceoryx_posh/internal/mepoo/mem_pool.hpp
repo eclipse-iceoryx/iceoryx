@@ -73,7 +73,7 @@ class MemPool
     void adjustMinFree();
     bool isMultipleOfAlignment(const uint32_t value) const;
 
-    RelativePointer<uint8_t> m_rawMemory;
+    rp::RelativePointer<uint8_t> m_rawMemory;
 
     uint32_t m_chunkSize{0u};
     /// needs to be 32 bit since loffli supports only 32 bit numbers

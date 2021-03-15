@@ -92,7 +92,7 @@ class PortManager_test : public Test
     {
         delete m_portManager;
         delete m_roudiMemoryManager;
-        iox::BaseRelativePointer::unregisterAll();
+        iox::rp::BaseRelativePointer::unregisterAll();
 
         if (Test::HasFailure())
         {

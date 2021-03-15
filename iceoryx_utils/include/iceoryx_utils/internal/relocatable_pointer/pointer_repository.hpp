@@ -24,6 +24,8 @@
 
 namespace iox
 {
+namespace rp
+{
 /// @brief Allows registration of memory segments with their start pointers and size.
 /// This class is used to resolve relative pointers in the corresponding address space of the application.
 /// Up to CAPACITY segments can be registered with MIN_ID = 1 to MAX_ID = CAPACITY - 1
@@ -77,6 +79,7 @@ class PointerRepository
     uint64_t m_maxRegistered{0U};
 };
 
+} // namespace rp
 } // namespace iox
 
 #include "iceoryx_utils/internal/relocatable_pointer/pointer_repository.inl"

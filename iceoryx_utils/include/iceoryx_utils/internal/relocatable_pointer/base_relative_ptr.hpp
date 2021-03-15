@@ -23,6 +23,8 @@
 
 namespace iox
 {
+namespace rp
+{
 class BaseRelativePointer
 {
   public:
@@ -103,6 +105,7 @@ class BaseRelativePointer
     id_t m_id{NULL_POINTER_ID};
     offset_t m_offset{NULL_POINTER_OFFSET};
 };
+} // namespace rp
 } // namespace iox
 
 #endif // IOX_UTILS_RELOCATABLE_POINTER_BASE_RELATIVE_PTR_HPP

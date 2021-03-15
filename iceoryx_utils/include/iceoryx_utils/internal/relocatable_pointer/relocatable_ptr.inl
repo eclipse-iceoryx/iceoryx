@@ -21,6 +21,8 @@
 
 namespace iox
 {
+namespace rp
+{
 template <typename T>
 inline RelocatablePointer<T>::RelocatablePointer() noexcept
     : BaseRelocatablePointer()
@@ -90,6 +92,7 @@ inline RelocatablePointer<T>::operator T*() const noexcept
     return reinterpret_cast<T*>(computeRawPtr());
 }
 
+} // namespace rp
 } // namespace iox
 
 #endif // IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_PTR_INL

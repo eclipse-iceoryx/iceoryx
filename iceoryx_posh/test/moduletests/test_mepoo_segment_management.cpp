@@ -55,7 +55,7 @@ class SegmentManager_test : public Test
     void SetUp(){};
     void TearDown()
     {
-        iox::BaseRelativePointer::unregisterAll();
+        iox::rp::BaseRelativePointer::unregisterAll();
     };
 
     MePooConfig getMempoolConfig()

@@ -59,7 +59,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
         if (getMembers()->m_queues.size() < getMembers()->m_queues.capacity())
         {
             // PRQA S 3804 1 # we checked the capacity, so pushing will be fine
-            getMembers()->m_queues.push_back(RelativePointer<ChunkQueueData_t>(queueToAdd));
+            getMembers()->m_queues.push_back(rp::RelativePointer<ChunkQueueData_t>(queueToAdd));
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
 

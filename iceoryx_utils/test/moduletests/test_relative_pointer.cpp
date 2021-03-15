@@ -25,7 +25,9 @@
 
 #include <cstdint>
 #include <cstring>
+
 using namespace ::testing;
+using namespace iox::rp;
 
 namespace
 {
@@ -100,7 +102,7 @@ class base_relative_ptr_test : public Test
             exit(EXIT_FAILURE);
         }
 
-        iox::BaseRelativePointer::unregisterAll();
+        BaseRelativePointer::unregisterAll();
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
         {
@@ -150,13 +152,13 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     MemMap memMap(this->m_fileDescriptor);
     MemMap memMap1(this->m_fileDescriptor);
 
-    EXPECT_EQ(iox::BaseRelativePointer::registerPtr(1, memMap.getMappedAddress(), ShmSize), true);
-    EXPECT_EQ(iox::BaseRelativePointer::registerPtr(2, memMap1.getMappedAddress(), ShmSize), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, memMap.getMappedAddress(), ShmSize), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(2, memMap1.getMappedAddress(), ShmSize), true);
 
     {
         auto offset = ShmSize / 2;
         void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -164,7 +166,7 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     }
 
     {
-        iox::RelativePointer<TypeParam> rp(memMap.getMappedAddress());
+        RelativePointer<TypeParam> rp(memMap.getMappedAddress());
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 1);
         EXPECT_NE(rp, nullptr);
@@ -173,7 +175,7 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     {
         auto offset = ShmSize / 2;
         void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp(adr);
+        RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
         EXPECT_NE(rp, nullptr);
@@ -182,14 +184,14 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     {
         auto offset = ShmSize - 1;
         void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp(adr);
+        RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        iox::RelativePointer<TypeParam> rp(memMap1.getMappedAddress());
+        RelativePointer<TypeParam> rp(memMap1.getMappedAddress());
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 2);
         EXPECT_NE(rp, nullptr);
@@ -198,7 +200,7 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     {
         auto offset = ShmSize / 2;
         void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp(adr);
+        RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
         EXPECT_NE(rp, nullptr);
@@ -207,21 +209,21 @@ TYPED_TEST(relativeptrtests, ConstrTests)
     {
         auto offset = ShmSize - 1;
         void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp(adr);
+        RelativePointer<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        iox::RelativePointer<TypeParam> rp(nullptr);
+        RelativePointer<TypeParam> rp(nullptr);
         EXPECT_EQ(rp, nullptr);
     }
 
     {
         auto offset = ShmSize + 1;
         void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp(adr);
+        RelativePointer<TypeParam> rp(adr);
         EXPECT_NE(rp, nullptr);
     }
 }
@@ -231,11 +233,11 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     MemMap memMap(this->m_fileDescriptor);
     MemMap memMap1(this->m_fileDescriptor);
 
-    EXPECT_EQ(iox::BaseRelativePointer::registerPtr(1, memMap.getMappedAddress(), ShmSize), true);
-    EXPECT_EQ(iox::BaseRelativePointer::registerPtr(2, memMap1.getMappedAddress(), ShmSize), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, memMap.getMappedAddress(), ShmSize), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(2, memMap1.getMappedAddress(), ShmSize), true);
 
     {
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = memMap.getMappedAddress();
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 1);
@@ -243,10 +245,10 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = memMap.getMappedAddress();
-        iox::BaseRelativePointer basePointer(rp);
-        iox::RelativePointer<TypeParam> recovered(basePointer);
+        BaseRelativePointer basePointer(rp);
+        RelativePointer<TypeParam> recovered(basePointer);
 
         EXPECT_EQ(rp, recovered);
         EXPECT_EQ(rp.getOffset(), recovered.getOffset());
@@ -261,7 +263,7 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     {
         auto offset = ShmSize / 2;
         void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -271,7 +273,7 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     {
         auto offset = ShmSize - 1;
         void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -279,7 +281,7 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = memMap1.getMappedAddress();
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 2);
@@ -289,7 +291,7 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     {
         auto offset = ShmSize / 2;
         void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
@@ -299,7 +301,7 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     {
         auto offset = ShmSize - 1;
         void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
@@ -307,7 +309,7 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = nullptr;
         EXPECT_EQ(rp, nullptr);
     }
@@ -315,7 +317,7 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     {
         auto offset = ShmSize + 1;
         void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
-        iox::RelativePointer<TypeParam> rp;
+        RelativePointer<TypeParam> rp;
         rp = adr;
         EXPECT_NE(rp, nullptr);
     }
@@ -326,14 +328,14 @@ TYPED_TEST(relativeptrtests, IdAndOffset)
     MemMap memMap(this->m_fileDescriptor);
     void* basePtr1 = memMap.getMappedAddress();
 
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
     EXPECT_EQ(rp1.getOffset(), reinterpret_cast<std::ptrdiff_t>(basePtr1));
     EXPECT_EQ(rp1.getId(), 1);
 
     int offset = ShmSize / 2;
     auto offsetAddr1 = reinterpret_cast<TypeParam*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
-    iox::RelativePointer<TypeParam> rp2(offsetAddr1, 1);
+    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
     EXPECT_EQ(rp2.getOffset(), offset);
     EXPECT_EQ(rp2.getId(), 1);
     EXPECT_EQ(rp2.get(), offsetAddr1);
@@ -343,34 +345,34 @@ TYPED_TEST(relativeptrtests, getOffset)
 {
     MemMap memMap(this->m_fileDescriptor);
 
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
-    EXPECT_EQ(iox::BaseRelativePointer::getOffset(1, memMap.getMappedAddress()), 0);
+    EXPECT_EQ(BaseRelativePointer::getOffset(1, memMap.getMappedAddress()), 0);
 
     int offset = ShmSize / 2;
     auto offsetAddr1 = reinterpret_cast<TypeParam*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
-    iox::RelativePointer<TypeParam> rp2(offsetAddr1, 1);
-    EXPECT_EQ(iox::BaseRelativePointer::getOffset(1, offsetAddr1), offset);
+    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
+    EXPECT_EQ(BaseRelativePointer::getOffset(1, offsetAddr1), offset);
 }
 
 TYPED_TEST(relativeptrtests, getPtr)
 {
     MemMap memMap(this->m_fileDescriptor);
 
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
-    EXPECT_EQ(iox::BaseRelativePointer::getPtr(1, 0), memMap.getMappedAddress());
+    EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), memMap.getMappedAddress());
 
     int offset = ShmSize / 2;
     auto offsetAddr1 = reinterpret_cast<TypeParam*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
-    iox::RelativePointer<TypeParam> rp2(offsetAddr1, 1);
-    EXPECT_EQ(iox::BaseRelativePointer::getPtr(1, offset), offsetAddr1);
+    RelativePointer<TypeParam> rp2(offsetAddr1, 1);
+    EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), offsetAddr1);
 }
 
 TYPED_TEST(relativeptrtests, registerPtr)
 {
     MemMap memMap(this->m_fileDescriptor);
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
 
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), false);
@@ -381,7 +383,7 @@ TYPED_TEST(relativeptrtests, registerPtr)
 TYPED_TEST(relativeptrtests, unRegisterPointerTest_Valid)
 {
     MemMap memMap(this->m_fileDescriptor);
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
 
     rp1.registerPtr(1, memMap.getMappedAddress());
     EXPECT_EQ(rp1.unregisterPtr(1), true);
@@ -393,12 +395,12 @@ TYPED_TEST(relativeptrtests, unregisterPointerAll)
     MemMap memMap(this->m_fileDescriptor);
     MemMap memMap1(this->m_fileDescriptor);
 
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    iox::RelativePointer<TypeParam> rp2(memMap1.getMappedAddress(), 9999);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp2(memMap1.getMappedAddress(), 9999);
 
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
     EXPECT_EQ(rp2.registerPtr(9999, memMap1.getMappedAddress()), true);
-    iox::BaseRelativePointer::unregisterAll();
+    BaseRelativePointer::unregisterAll();
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
     EXPECT_EQ(rp2.registerPtr(9999, memMap1.getMappedAddress()), true);
 }
@@ -408,8 +410,8 @@ TYPED_TEST(relativeptrtests, registerPtrWithId)
     MemMap memMap(this->m_fileDescriptor);
     MemMap memMap1(this->m_fileDescriptor);
 
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    iox::RelativePointer<TypeParam> rp2(memMap1.getMappedAddress(), 10000);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp2(memMap1.getMappedAddress(), 10000);
 
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
     EXPECT_EQ(rp2.registerPtr(10000, memMap1.getMappedAddress()), false);
@@ -420,7 +422,7 @@ TYPED_TEST(relativeptrtests, basePointerValid)
     MemMap memMap(this->m_fileDescriptor);
     void* basePtr1 = memMap.getMappedAddress();
 
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
     EXPECT_EQ(rp1.getBasePtr(1), nullptr);
     rp1.registerPtr(1, memMap.getMappedAddress());
     EXPECT_EQ(basePtr1, rp1.getBasePtr(1));
@@ -430,8 +432,8 @@ TYPED_TEST(relativeptrtests, assignmentOperator)
 {
     MemMap memMap(this->m_fileDescriptor);
 
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    iox::RelativePointer<TypeParam> rp2 = rp1;
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp2 = rp1;
 
     EXPECT_EQ(rp1.getBasePtr(), rp2.getBasePtr());
     EXPECT_EQ(rp1.getId(), rp2.getId());
@@ -444,7 +446,7 @@ TYPED_TEST(relativeptrtests, pointerOperator)
 
     auto baseAddr = reinterpret_cast<TypeParam*>(memMap.getMappedAddress());
     *baseAddr = static_cast<TypeParam>(88);
-    iox::RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
+    RelativePointer<TypeParam> rp1(memMap.getMappedAddress(), 1);
 
     EXPECT_EQ(*rp1, *baseAddr);
     *baseAddr = static_cast<TypeParam>(99);
@@ -482,13 +484,13 @@ TEST_F(base_relative_ptr_test, memoryRemapping)
     EXPECT_EQ(*adr1, 12);
     EXPECT_EQ(*adr2, 21);
 
-    EXPECT_EQ(iox::BaseRelativePointer::registerPtr(1, base1), true);
-    EXPECT_EQ(iox::BaseRelativePointer::registerPtr(2, base2), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, base1), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(2, base2), true);
 
     {
         // the relative pointers point to base 1 and base 2l
-        iox::RelativePointer<uint8_t> rp1(base1, 1);
-        iox::RelativePointer<uint8_t> rp2(base2, 2);
+        RelativePointer<uint8_t> rp1(base1, 1);
+        RelativePointer<uint8_t> rp2(base2, 2);
 
         EXPECT_EQ(rp1.getId(), 1);
         EXPECT_EQ(rp2.getId(), 2);
@@ -502,8 +504,8 @@ TEST_F(base_relative_ptr_test, memoryRemapping)
 
     {
         // now test with a type that is larger than 1 byte
-        iox::RelativePointer<int> rp1(adr1, 1);
-        iox::RelativePointer<int> rp2(adr2, 2);
+        RelativePointer<int> rp1(adr1, 1);
+        RelativePointer<int> rp2(adr2, 2);
 
         EXPECT_EQ(rp1.getId(), 1);
         EXPECT_EQ(rp2.getId(), 2);
@@ -517,11 +519,11 @@ TEST_F(base_relative_ptr_test, memoryRemapping)
         EXPECT_EQ(*rp2, 21);
 
         // simulate a remapping, index 1 now refers to base 2 and vice versa ...
-        EXPECT_EQ(iox::BaseRelativePointer::unregisterPtr(1), true);
-        EXPECT_EQ(iox::BaseRelativePointer::unregisterPtr(2), true);
+        EXPECT_EQ(BaseRelativePointer::unregisterPtr(1), true);
+        EXPECT_EQ(BaseRelativePointer::unregisterPtr(2), true);
 
-        EXPECT_EQ(iox::BaseRelativePointer::registerPtr(1, base2), true);
-        EXPECT_EQ(iox::BaseRelativePointer::registerPtr(2, base1), true);
+        EXPECT_EQ(BaseRelativePointer::registerPtr(1, base2), true);
+        EXPECT_EQ(BaseRelativePointer::registerPtr(2, base1), true);
 
         // which, despite the relative pointer objects not having changed themselves,
         // leads to them referencing the respective other value now (compared to *** above)
@@ -549,34 +551,34 @@ TEST_F(base_relative_ptr_test, MemoryReMapping_SharedMemory)
 
     EXPECT_EQ(*offsetAddr2, *offsetAddr1);
 
-    EXPECT_EQ(iox::BaseRelativePointer::registerPtr(1, reinterpret_cast<void*>(memMapWriter.getMappedAddress())), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, reinterpret_cast<void*>(memMapWriter.getMappedAddress())), true);
     {
-        iox::RelativePointer<int> rp1(offsetAddr1, 1);
+        RelativePointer<int> rp1(offsetAddr1, 1);
 
         EXPECT_EQ(rp1.getId(), 1);
         EXPECT_EQ(rp1.getOffset(), offset);
         EXPECT_EQ(*rp1, 37);
         EXPECT_EQ(rp1.get(), offsetAddr1);
     }
-    EXPECT_EQ(iox::BaseRelativePointer::unregisterPtr(1), true);
+    EXPECT_EQ(BaseRelativePointer::unregisterPtr(1), true);
 
-    EXPECT_EQ(iox::BaseRelativePointer::registerPtr(1, reinterpret_cast<void*>(memMapReader.getMappedAddress())), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(1, reinterpret_cast<void*>(memMapReader.getMappedAddress())), true);
     {
-        iox::RelativePointer<int> rp1(offsetAddr2, 1);
+        RelativePointer<int> rp1(offsetAddr2, 1);
 
         EXPECT_EQ(rp1.getId(), 1);
         EXPECT_EQ(rp1.getOffset(), offset);
         EXPECT_EQ(*rp1, 37);
         EXPECT_EQ(rp1.get(), offsetAddr2);
     }
-    EXPECT_EQ(iox::BaseRelativePointer::unregisterPtr(1), true);
+    EXPECT_EQ(BaseRelativePointer::unregisterPtr(1), true);
 }
 
 TEST_F(base_relative_ptr_test, compileTest)
 {
     // No functional test. Tests if code compiles
-    iox::RelativePointer<void> p1;
-    iox::RelativePointer<const void> p2;
+    RelativePointer<void> p1;
+    RelativePointer<const void> p2;
 }
 
 } // namespace

@@ -21,6 +21,8 @@
 
 namespace iox
 {
+namespace rp
+{
 template <typename T>
 inline atomic_relocatable_ptr<T>::atomic_relocatable_ptr(const T* ptr) noexcept
     : m_offset(computeOffset(ptr))
@@ -75,6 +77,7 @@ atomic_relocatable_ptr<T>::computeOffset(const void* ptr) const noexcept
     }
     return reinterpret_cast<offset_t>(&m_offset) - reinterpret_cast<offset_t>(ptr);
 }
+} // namespace rp
 } // namespace iox
 
 #endif // IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL

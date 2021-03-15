@@ -21,6 +21,8 @@
 
 namespace iox
 {
+namespace rp
+{
 template <typename T>
 inline RelativePointer<T>::RelativePointer(ptr_t ptr, id_t id) noexcept
     : BaseRelativePointer(ptr, id)
@@ -112,6 +114,7 @@ inline bool RelativePointer<T>::operator!=(T* const ptr) const noexcept
 {
     return ptr != get();
 }
+} // namespace rp
 } // namespace iox
 
 #endif // IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_INL

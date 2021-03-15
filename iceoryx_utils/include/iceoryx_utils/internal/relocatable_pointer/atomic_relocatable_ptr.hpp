@@ -22,6 +22,8 @@
 
 namespace iox
 {
+namespace rp
+{
 /// @brief minimalistic relocatable pointer that can be written and read atomically
 /// and can be stored safely in shared memory.
 /// As the basic relocatable_ptr, it must point to something in the same shared memory segment as itself
@@ -60,6 +62,7 @@ class atomic_relocatable_ptr
     inline offset_t computeOffset(const void* ptr) const noexcept;
 };
 
+} // namespace rp
 } // namespace iox
 
 #include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_ptr.inl"

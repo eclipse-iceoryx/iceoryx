@@ -62,7 +62,7 @@ class LoFFLi
     uint32_t m_size{0u};
     uint32_t m_invalidIndex{0u};
     std::atomic<Node> m_head{{0u, 1u}};
-    iox::RelativePointer<uint32_t> m_nextFreeIndex;
+    iox::rp::RelativePointer<uint32_t> m_nextFreeIndex;
 
   public:
     LoFFLi() = default;

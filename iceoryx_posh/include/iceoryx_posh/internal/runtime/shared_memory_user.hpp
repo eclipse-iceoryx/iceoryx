@@ -41,11 +41,11 @@ class SharedMemoryUser
     SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                      const size_t topicSize,
                      const uint64_t segmentId,
-                     const BaseRelativePointer::offset_t segmentManagerAddressOffset);
+                     const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset);
 
   private:
     void openDataSegments(const uint64_t segmentId,
-                          const BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                          const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;

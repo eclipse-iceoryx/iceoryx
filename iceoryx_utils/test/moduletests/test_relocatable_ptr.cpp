@@ -21,6 +21,7 @@
 #include <cstring>
 
 using namespace ::testing;
+using namespace iox::rp;
 
 namespace
 {
@@ -89,7 +90,7 @@ TEST_F(RelocatablePointer_test, relocation)
     EXPECT_EQ(*adr2, 21);
 
     // placement new at base adress (we have enough memory to do so)
-    iox::RelocatablePointer<int>* rp = new (base1) iox::RelocatablePointer<int>(adr1);
+    RelocatablePointer<int>* rp = new (base1) RelocatablePointer<int>(adr1);
     auto& rp1 = *rp;
     EXPECT_EQ(*rp1, 12);
 
@@ -100,7 +101,7 @@ TEST_F(RelocatablePointer_test, relocation)
     EXPECT_EQ(*adr2, 21);
 
     // read the relocatable pointer in block 2 at the base address
-    auto& rp2 = *(reinterpret_cast<iox::RelocatablePointer<int>*>(base2));
+    auto& rp2 = *(reinterpret_cast<RelocatablePointer<int>*>(base2));
 
     // it now points to the value in block2 (since its measured relative to this, which is now at base2 for rp2)
     EXPECT_EQ(*rp2, 21);
