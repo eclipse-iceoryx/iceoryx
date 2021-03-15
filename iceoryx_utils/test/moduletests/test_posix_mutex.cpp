@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by ApexAI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 #include "test.hpp"
 
+#include <atomic>
 #include <thread>
 
 using namespace ::testing;
@@ -26,15 +28,6 @@ using namespace iox::units::duration_literals;
 class Mutex_test : public Test
 {
   public:
-    class MutexMock : public iox::posix::mutex
-    {
-      public:
-        MutexMock(const bool isRecursive)
-            : iox::posix::mutex(isRecursive)
-        {
-        }
-    };
-
     void SetUp() override
     {
         internal::CaptureStderr();
@@ -49,28 +42,41 @@ class Mutex_test : public Test
         }
     }
 
-    iox::posix::mutex sut{false};
+    iox::posix::mutex sutNonRecursive{false};
+    iox::posix::mutex sutRecursive{true};
 };
 
 TEST_F(Mutex_test, TryLockWithNoLock)
 {
-    EXPECT_THAT(sut.try_lock(), Eq(true));
-    EXPECT_THAT(sut.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.try_lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
-TEST_F(Mutex_test, TryLockWithLock)
+
+#ifndef _WIN32
+TEST_F(Mutex_test, TryLockWithNonRecursiveLock)
 {
-    EXPECT_THAT(sut.lock(), Eq(true));
-    EXPECT_THAT(sut.try_lock(), Eq(false));
-    EXPECT_THAT(sut.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.try_lock(), Eq(false));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
+#endif
 
 TEST_F(Mutex_test, LockAndUnlock)
 {
-    EXPECT_THAT(sut.lock(), Eq(true));
-    EXPECT_THAT(sut.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
+TEST_F(Mutex_test, LockAndUnlockRepeatedly)
+{
+    EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
+    EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
+}
+
+#if !defined(_WIN32) || !defined(QNX) || !defined(QNX__) || !defined(__QNX__)
 // in qnx you can destroy a locked mutex, without error if the thread holding the lock is destructing it.
 TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
 {
@@ -85,4 +91,40 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
         ".*");
 
     internal::CaptureStderr();
+}
+#endif
+
+TEST_F(Mutex_test, LockedMutexBlocks)
+{
+    std::atomic_bool isLockFinished{false};
+    sutNonRecursive.lock();
+
+    std::thread lockThread([&] {
+        sutNonRecursive.lock();
+        isLockFinished.store(true);
+        sutNonRecursive.unlock();
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    EXPECT_THAT(isLockFinished.load(), Eq(false));
+
+    sutNonRecursive.unlock();
+    lockThread.join();
+
+    EXPECT_THAT(isLockFinished.load(), Eq(true));
+}
+
+TEST_F(Mutex_test, TryLockWithRecursiveMutexWhenMutexLocked)
+{
+    std::atomic_bool isTryLockSuccessful{true};
+    sutRecursive.lock();
+
+    std::thread lockThread([&] { isTryLockSuccessful = sutRecursive.try_lock(); });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    EXPECT_THAT(isTryLockSuccessful.load(), Eq(false));
+
+    sutRecursive.unlock();
+    lockThread.join();
 }
