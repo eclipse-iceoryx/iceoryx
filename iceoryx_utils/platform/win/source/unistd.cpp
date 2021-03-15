@@ -58,7 +58,7 @@ long sysconf(int name)
     return 0;
 }
 
-int closePlatformFileHandle(int fd)
+int iox_close(int fd)
 {
     auto success = Win32Call(CloseHandle(HandleTranslator::getInstance().get(fd)));
     HandleTranslator::getInstance().remove(fd);

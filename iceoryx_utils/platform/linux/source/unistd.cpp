@@ -16,7 +16,7 @@
 
 #include "iceoryx_utils/platform/unistd.hpp"
 
-int closePlatformFileHandle(int fd)
+int iox_close(int fd)
 {
     return close(fd);
 }

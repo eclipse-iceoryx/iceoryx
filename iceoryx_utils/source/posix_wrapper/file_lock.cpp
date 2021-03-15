@@ -176,9 +176,11 @@ cxx::error<FileLockError> FileLock::createErrorFromErrnum(const int32_t errnum) 
         return cxx::error<FileLockError>(FileLockError::ACCESS_DENIED);
     }
     case EFBIG:
+    case EOVERFLOW:
     {
-        std::cerr << "overflow for file \"" << m_name << "\"" << std::endl;
-        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+        std::cerr << "file \"" << m_name << "\""
+                  << " is too large to be openend" << std::endl;
+        return cxx::error<FileLockError>(FileLockError::FILE_TOO_LARGE);
     }
     case EINVAL:
     {
@@ -246,12 +248,6 @@ cxx::error<FileLockError> FileLock::createErrorFromErrnum(const int32_t errnum) 
     {
         std::cerr << "filesystem does not support O_TMPFILE for file \"" << m_name << "\"" << std::endl;
         return cxx::error<FileLockError>(FileLockError::TEMP_FILE_NOT_SUPPORTED);
-    }
-    case EOVERFLOW:
-    {
-        std::cerr << "file \"" << m_name << "\""
-                  << " is too large to be openend" << std::endl;
-        return cxx::error<FileLockError>(FileLockError::FILE_TOO_LARGE);
     }
     case EPERM:
     {

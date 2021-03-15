@@ -44,6 +44,6 @@ class HandleTranslator
 
 int ftruncate(int fildes, off_t length);
 long sysconf(int name);
-int closePlatformFileHandle(int fd);
+int iox_close(int fd);
 
 #endif // IOX_UTILS_WIN_PLATFORM_UNISTD_HPP

@@ -18,6 +18,6 @@
 
 #include <unistd.h>
 
-int closePlatformFileHandle(int fd);
+int iox_close(int fd);
 
 #endif // IOX_UTILS_LINUX_PLATFORM_UNISTD_HPP
