@@ -17,10 +17,9 @@
 #include "iceoryx_utils/posix_wrapper/file_lock.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
+#include "iceoryx_utils/platform/file.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
-
-#include <sys/file.h>
 
 namespace iox
 {
@@ -62,7 +61,7 @@ cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
         m_fd = openCall.getReturnValue();
 
         auto lockCall = cxx::makeSmartC(
-            flock, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {EWOULDBLOCK}, m_fd, LOCK_EX | LOCK_NB);
+            iox_flock, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {EWOULDBLOCK}, m_fd, LOCK_EX | LOCK_NB);
 
         if (lockCall.hasErrors())
         {

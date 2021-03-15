@@ -16,5 +16,6 @@
 #ifndef IOX_UTILS_WIN_PLATFORM_FILE_HPP
 #define IOX_UTILS_WIN_PLATFORM_FILE_HPP
 
+int iox_flock(int fd, int op);
 
 #endif // IOX_UTILS_WIN_PLATFORM_FILE_HPP

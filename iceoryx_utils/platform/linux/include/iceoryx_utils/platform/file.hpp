@@ -18,4 +18,6 @@
 
 #include <sys/file.h>
 
+int iox_flock(int fd, int op);
+
 #endif // IOX_UTILS_LINUX_PLATFORM_FILE_HPP
