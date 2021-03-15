@@ -38,6 +38,12 @@ inline optional<T>::optional(T&& value) noexcept
 }
 
 template <typename T>
+inline optional<T>::optional(const T& value) noexcept
+{
+    construct_value(value);
+}
+
+template <typename T>
 inline optional<T>::optional(const optional& rhs) noexcept
 {
     if (rhs.m_hasValue)
@@ -222,10 +228,10 @@ inline void optional<T>::reset() noexcept
 }
 
 template <typename T>
-    inline T& optional<T>::value() & noexcept
+inline T& optional<T>::value() & noexcept
 {
-    auto data = (has_value()) ? static_cast<T*>(static_cast<void*>(m_data)) : nullptr;
-    return *data;
+    Expects(has_value());
+    return *static_cast<T*>(static_cast<void*>(m_data));
 }
 
 template <typename T>
@@ -236,10 +242,10 @@ inline const T& optional<T>::value() const& noexcept
 }
 
 template <typename T>
-    inline T&& optional<T>::value() && noexcept
+inline T&& optional<T>::value() && noexcept
 {
-    auto data = (has_value()) ? static_cast<T*>(static_cast<void*>(m_data)) : nullptr;
-    return std::move(*data);
+    Expects(has_value());
+    return std::move(*static_cast<T*>(static_cast<void*>(m_data)));
 }
 
 template <typename T>
