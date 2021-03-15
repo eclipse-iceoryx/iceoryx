@@ -15,5 +15,5 @@ CheckOptions:
   - { key: readability-identifier-naming.TemplateParameterCase,   value: CamelCase }
   - { key: readability-function-size.LineThreshold,               value: 200 }
   - { key: readability-function-size.StatementThreshold,          value: 200 }
-  - { key: readability-function-size.BranchThreshold,             value: 10 }
+  - { key: readability-function-size.BranchThreshold,             value: 5 }
   - { key: readability-function-size.ParameterThreshold,          value: 3 }

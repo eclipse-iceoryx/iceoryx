@@ -32,6 +32,10 @@ inline WaitSet<Capacity>::WaitSet(ConditionVariableData& condVarData) noexcept
     : m_conditionVariableDataPtr(&condVarData)
     , m_conditionListener(condVarData)
 {
+    for (uint64_t i = 0U; i < Capacity; ++i)
+    {
+        m_indexRepository.push(i);
+    }
 }
 
 template <uint64_t Capacity>
@@ -55,7 +59,7 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
     }
 
     Trigger possibleLogicallyEqualTrigger(
-        &eventOrigin, hasTriggeredCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>());
+        &eventOrigin, hasTriggeredCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>(), 0U);
 
     for (auto& currentTrigger : m_triggerList)
     {
@@ -66,14 +70,17 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
     }
 
     cxx::MethodCallback<void, uint64_t> invalidationCallback = EventAttorney::getInvalidateTriggerMethod(eventOrigin);
-
-    if (!m_triggerList.push_back(
-            Trigger{&eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback}))
+    auto index = m_indexRepository.pop();
+    if (!index)
     {
         return cxx::error<WaitSetError>(WaitSetError::WAIT_SET_FULL);
     }
 
-    return cxx::success<uint64_t>(m_triggerList.back().getUniqueId());
+
+    cxx::Ensures(m_triggerList.push_back(
+        Trigger{&eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback, *index}));
+
+    return cxx::success<uint64_t>(*index);
 }
 
 template <uint64_t Capacity>
@@ -140,6 +147,7 @@ inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noe
         {
             currentTrigger->invalidate();
             m_triggerList.erase(currentTrigger);
+            cxx::Ensures(m_indexRepository.push(uniqueTriggerId));
             return;
         }
     }

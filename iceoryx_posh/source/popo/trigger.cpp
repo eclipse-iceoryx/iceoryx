@@ -20,7 +20,6 @@ namespace iox
 {
 namespace popo
 {
-std::atomic<uint64_t> Trigger::uniqueIdCounter{0U};
 constexpr uint64_t Trigger::INVALID_TRIGGER_ID;
 
 Trigger::~Trigger()

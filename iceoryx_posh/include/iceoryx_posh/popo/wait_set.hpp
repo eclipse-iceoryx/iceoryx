@@ -25,8 +25,10 @@
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/cxx/stack.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 namespace iox
@@ -149,6 +151,7 @@ class WaitSet
     TriggerList m_triggerList;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionListener m_conditionListener;
+    cxx::stack<uint64_t, Capacity> m_indexRepository;
 };
 
 } // namespace popo
