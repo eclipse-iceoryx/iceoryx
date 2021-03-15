@@ -46,7 +46,7 @@ SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                            << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
                            << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
 
-                openDataSegments(segmentId, segmentManagerAddressOffset);
+                this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
                 m_shmObject.emplace(std::move(sharedMemoryObject));
             })
