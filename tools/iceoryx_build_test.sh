@@ -274,12 +274,12 @@ else
     cd $WORKSPACE
     rm -rf build_package
     mkdir -p build_package
-    cd build_package 
+    cd build_package
 
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=build_package/install/prefix/ $WORKSPACE/iceoryx_meta
     cmake --build . --target install -- -j$NUM_JOBS
     cpack
-    echo ">>>>>> Finished building iceoryx package <<<<<<"    
+    echo ">>>>>> Finished building iceoryx package <<<<<<"
 fi
 
 
