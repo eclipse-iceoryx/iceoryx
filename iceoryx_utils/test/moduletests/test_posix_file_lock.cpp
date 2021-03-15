@@ -65,6 +65,16 @@ TEST_F(FileLock_test, EmptyNameLeadsToError)
     EXPECT_THAT(sut2.get_error(), Eq(FileLockError::NO_FILE_NAME_PROVIDED));
 }
 
+TEST_F(FileLock_test, MaxStringWorks)
+{
+    FileLock::FileName_t maxString{
+        "OeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPalo"
+        "emaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlanc"
+        "aOeLaPaloemaBlancaOeLaPaloemaB"};
+    auto sut2 = iox::posix::FileLock::create(maxString);
+    ASSERT_FALSE(sut2.has_error());
+}
+
 TEST_F(FileLock_test, SecondLockWithDifferentNameWorks)
 {
     auto sut2 = iox::posix::FileLock::create(ANOTHER_TEST_NAME);

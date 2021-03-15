@@ -68,7 +68,7 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
   public:
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
-    using FileName_t = cxx::string<255>;
+    using FileName_t = cxx::string<250>;
     using PathName_t = cxx::string<1024>;
 
     FileLock(const FileLock&) = delete;
