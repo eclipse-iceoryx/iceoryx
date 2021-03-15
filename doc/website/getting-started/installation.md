@@ -55,7 +55,7 @@ Additionally, there is an optional dependency to the MIT licensed [cpptoml](http
 
 ### QNX
 
-QNX SDP 7.0 is supported (shipping with gcc 5.4).
+QNX SDP 7.0 and 7.1 are supported (shipping with gcc 5.4 and gcc 8.3 respectively).
 
 Easiest way to build iceoryx on QNX is using the build script and providing a toolchain file.<br>
 Example:
