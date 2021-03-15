@@ -90,9 +90,9 @@ class TestCallBackExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'Radar.FrontRight.Counter sending : 16', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'received: 10', timeout=45, stream='stdout')
+            'received: 20', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Received samples from FrontLeft and FrontRight. Sum of 9 + 16 = 25', timeout=45, stream='stdout')
+            'Received samples from FrontLeft and FrontRight. Sum of', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
