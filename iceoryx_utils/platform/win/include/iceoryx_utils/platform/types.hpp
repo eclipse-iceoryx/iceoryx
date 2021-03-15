@@ -20,6 +20,7 @@
 
 using gid_t = int;
 using uid_t = int;
+using mode_t = int;
 using ssize_t = size_t;
 using pid_t = int;
 using nlink_t = int;

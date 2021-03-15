@@ -17,6 +17,8 @@
 #ifndef IOX_UTILS_WIN_PLATFORM_FCNTL_HPP
 #define IOX_UTILS_WIN_PLATFORM_FCNTL_HPP
 
+#include "iceoryx_utils/platform/types.hpp"
+
 #include <fcntl.h>
 
 #define O_CREAT _O_CREAT
