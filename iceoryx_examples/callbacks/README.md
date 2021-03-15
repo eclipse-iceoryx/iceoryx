@@ -1,5 +1,7 @@
 # Listener (or how to use callbacks with iceoryx)
 
+## Introduction
+
 For an introduction into the terminology please read the Glossary in the
 [WaitSet C++ example](../waitset).
 
@@ -12,7 +14,11 @@ The interface of a listener consists of two methods: `attachEvent` to attach a
 new event with a callback and `detachEvent`. These two methods can be called 
 concurrently, even from inside a callback which was triggered by an event!
 
-## Example 
+## Expected output
+
+<!-- @todo Add expected output with asciinema recording before v1.0-->
+
+## Code walkthrough
 
 Let's say we have an application which offers us two distinct services:
 `Radar.FrontLeft.Counter` and `Rader.FrontRight.Counter`. Every time we have 
@@ -69,6 +75,8 @@ listener.attachEvent(subscriberRight,
 ```
 Since a user trigger has only one event we do not have to specify an event when we attach 
 it to the listener.
+In this example we choose to attach the same callback twice to make things easier 
+but you are free to attach any callback with the signature `void(iox::popo::Subscriber<CounterTopic> *)`.
 
 The setup is complete but it would terminate right away since we have no blocker which
 waits until SIGINT or SIGTERM was send. In the other examples we hadn't have that problem

@@ -24,6 +24,7 @@
 #include <iostream>
 
 bool killswitch = false;
+constexpr char APP_NAME[] = "iox-ex-subscriber";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -38,7 +39,7 @@ int main()
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
@@ -51,7 +52,7 @@ int main()
         if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
             subscriber.take()
-                .and_then([](auto& sample) { std::cout << "Got value: " << sample->x << std::endl; })
+                .and_then([](auto& sample) { std::cout << APP_NAME << " got value: " << sample->x << std::endl; })
                 .or_else([](auto& result) {
                     // only has to be called if the alternative is of interest,
                     // i.e. if nothing has to happen when no data is received and

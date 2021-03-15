@@ -73,7 +73,7 @@ class PublisherPort_test : public Test
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
-    iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{0U, "", false};
+    iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{0U, iox::NodeName_t{""}, false};
     ;
 
     // publisher port w/o offer on create
@@ -83,7 +83,7 @@ class PublisherPort_test : public Test
     iox::popo::PublisherPortUser m_sutNoOfferOnCreateUserSide{&m_publisherPortData};
 
     // publisher port w/ history
-    iox::popo::PublisherOptions m_withHistoryPublisherOptions{iox::MAX_PUBLISHER_HISTORY, "", true};
+    iox::popo::PublisherOptions m_withHistoryPublisherOptions{iox::MAX_PUBLISHER_HISTORY, iox::NodeName_t{""}, true};
     iox::popo::PublisherPortData m_publisherPortDataHistory{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withHistoryPublisherOptions};
     iox::popo::PublisherPortUser m_sutWithHistoryUserSide{&m_publisherPortDataHistory};

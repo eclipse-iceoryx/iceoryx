@@ -1,10 +1,16 @@
 # Listener in C (or how to use callbacks with iceoryx)
 
+## Introduction
+
 For a general introduction into the Listener concept please take a look at
 the first part of the [Listener C++ example](../callbacks) and at the 
 Glossary of the [WaitSet C++ example](../waitset).
 
-## Example
+## Expected output
+
+<!-- @todo Add expected output with asciinema recording before v1.0-->
+
+## Code walkthrough
 
 The C version of the callbacks example performs the identical tasks as the 
 C++ version. We have again an application which offers two services called 

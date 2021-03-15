@@ -23,6 +23,7 @@
 #include <iostream>
 
 bool killswitch = false;
+constexpr char APP_NAME[] = "iox-ex-publisher-with-options";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -36,7 +37,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-with-options");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // create publisher with some options set
     iox::popo::PublisherOptions publisherOptions;
@@ -63,7 +64,7 @@ int main()
         // Retrieve a sample, construct it with the given arguments and publish it via a lambda.
         publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
 
-        std::cout << "Sent value: " << ct << std::endl;
+        std::cout << APP_NAME << " sent value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
     }

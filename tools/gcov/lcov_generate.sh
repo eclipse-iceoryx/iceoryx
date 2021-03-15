@@ -25,6 +25,7 @@ mkdir -p $OUTPUT_FOLDER
 
 case "$2" in
     "initial")
+        lcov -z
         lcov -c -i -d $BUILD_FOLDER -o $OUTPUT_FOLDER/iceoryx_init.info --no-external --rc lcov_branch_coverage=1
         ;;
     "scan")

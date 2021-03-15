@@ -23,25 +23,26 @@
 #include <csignal>
 #include <iostream>
 
-bool killswitch = false;
+bool keepRunning = true;
+constexpr char APP_NAME[] = "iox-ex-callbacks-publisher";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    killswitch = true;
+    keepRunning = false;
 }
 
 void sending()
 {
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-publisher");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     iox::popo::Publisher<CounterTopic> myPublisherLeft({"Radar", "FrontLeft", "Counter"});
     iox::popo::Publisher<CounterTopic> myPublisherRight({"Radar", "FrontRight", "Counter"});
 
-    for (uint32_t counter = 0U; !killswitch; ++counter)
+    for (uint32_t counter = 0U; keepRunning; ++counter)
     {
         if (counter % 3 == 0)
         {
-            std::cout << "Radar.FrontLeft.Counter sending  : " << counter << std::endl;
+            std::cout << "Radar.FrontLeft.Counter sending : " << counter << std::endl;
             myPublisherLeft.publishCopyOf(CounterTopic{counter});
         }
         else

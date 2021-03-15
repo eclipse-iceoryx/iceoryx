@@ -60,7 +60,7 @@ class SubscriberPortSingleProducer_test : public Test
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
     iox::popo::SubscriberOptions m_noSubscribeOnCreateOptions{
-        iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 0U, "", false};
+        iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 0U, iox::NodeName_t(""), false};
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
         TEST_SERVICE_DESCRIPTION,
         "myApp",
