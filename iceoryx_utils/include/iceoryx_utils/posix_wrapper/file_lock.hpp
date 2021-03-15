@@ -86,7 +86,7 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
     FileLock(const FileName_t& name) noexcept;
 
     cxx::expected<FileLockError> initializeFileLock() noexcept;
-    cxx::error<FileLockError> createErrorFromErrnum(const int32_t errnum) const noexcept;
+    FileLockError convertErrnoToFileLockError(const int32_t errnum) const noexcept;
     cxx::expected<FileLockError> closeFileDescriptor() noexcept;
     cxx::expected<FileLockError> destroy() noexcept;
 
