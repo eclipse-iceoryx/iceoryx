@@ -43,6 +43,7 @@ enum class FileLockError
     FILE_IN_USE,
     INVALID_FILE_DESCRIPTOR,
     OUT_OF_MEMORY,
+    I_O_ERROR,
     INTERNAL_LOGIC_ERROR,
 };
 
@@ -88,7 +89,6 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
     cxx::expected<FileLockError> initializeFileLock() noexcept;
     FileLockError convertErrnoToFileLockError(const int32_t errnum) const noexcept;
     cxx::expected<FileLockError> closeFileDescriptor() noexcept;
-    cxx::expected<FileLockError> destroy() noexcept;
 
     friend class DesignPattern::Creation<FileLock, FileLockError>;
 };

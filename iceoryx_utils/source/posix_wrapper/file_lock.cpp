@@ -89,7 +89,7 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        if (destroy().has_error())
+        if (closeFileDescriptor().has_error())
         {
             std::cerr << "Unable to cleanup file lock \"" << m_name
                       << "\" in the move constructor/move assingment operator" << std::endl;
@@ -107,24 +107,17 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
     return *this;
 }
 
-cxx::expected<FileLockError> FileLock::destroy() noexcept
-{
-    if (m_isInitialized)
-    {
-        return closeFileDescriptor();
-    }
-
-    return cxx::success<void>();
-}
-
 FileLock::~FileLock() noexcept
 {
-    closeFileDescriptor();
+    if (closeFileDescriptor().has_error())
+    {
+        std::cerr << "unable to cleanup file lock \"" << m_name << "\" in the destructor" << std::endl;
+    }
 }
 
 cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
 {
-    if (m_fd != INVALID_FD)
+    if (isInitialized() && (m_fd != INVALID_FD))
     {
         auto closeCall = cxx::makeSmartC(iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_fd);
 
@@ -151,12 +144,6 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     {
         std::cerr << "permission to access file denied \"" << m_name << "\"" << std::endl;
         return FileLockError::ACCESS_DENIED;
-    }
-    case EBUSY:
-    {
-        std::cerr << "O_EXCL provided but file \"" << m_name << "\""
-                  << " is currently used" << std::endl;
-        return FileLockError::FILE_IN_USE;
     }
     case EDQUOT:
     {
@@ -201,11 +188,6 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
         std::cerr << "process limit reached for file \"" << m_name << "\"" << std::endl;
         return FileLockError::PROCESS_LIMIT;
     }
-    case ENAMETOOLONG:
-    {
-        std::cerr << "name too long for file \"" << m_name << "\"" << std::endl;
-        return FileLockError::INVALID_FILE_NAME;
-    }
     case ENFILE:
     {
         std::cerr << "system limit reached for file \"" << m_name << "\"" << std::endl;
@@ -243,20 +225,10 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
                   << " is a special file and no corresponding device exists" << std::endl;
         return FileLockError::SPECIAL_FILE;
     }
-    case EOPNOTSUPP:
-    {
-        std::cerr << "filesystem does not support O_TMPFILE for file \"" << m_name << "\"" << std::endl;
-        return FileLockError::TEMP_FILE_NOT_SUPPORTED;
-    }
     case EPERM:
     {
         std::cerr << "permission to access file denied \"" << m_name << "\"" << std::endl;
         return FileLockError::ACCESS_DENIED;
-    }
-    case EBADF:
-    {
-        std::cerr << "invalid file descriptor for file \"" << m_name << "\"" << std::endl;
-        return FileLockError::INVALID_FILE_DESCRIPTOR;
     }
     case EROFS:
     {
@@ -278,6 +250,11 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     {
         std::cerr << "system limit for locks reached for file \"" << m_name << "\"" << std::endl;
         return FileLockError::SYSTEM_LIMIT;
+    }
+    case EIO:
+    {
+        std::cerr << "I/O for file \"" << m_name << "\"" << std::endl;
+        return FileLockError::I_O_ERROR;
     }
     default:
     {
