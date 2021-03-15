@@ -18,7 +18,6 @@
 #define IOX_UTILS_WIN_PLATFORM_FCNTL_HPP
 
 #include <fcntl.h>
-#include <cstdint>
 
 #define O_CREAT _O_CREAT
 #define O_EXCL _O_EXCL
@@ -29,8 +28,6 @@
 #define O_RDWR _O_RDWR
 #define O_WRONLY _O_WRONLY
 #define O_NONBLOCK 0x0
-
-using mode_t = uint32_t;
 
 int iox_open(const char* pathname, int flags, mode_t mode);
 
