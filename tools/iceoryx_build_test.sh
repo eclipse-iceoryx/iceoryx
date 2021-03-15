@@ -49,9 +49,8 @@ EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
-EXAMPLES="callbacks ice_multi_publisher icedelivery singleprocess waitset" 
+EXAMPLES="callbacks callbacks_in_c ice_multi_publisher icedelivery singleprocess waitset"
 COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
-TOOLCHAIN_FILE=""
 
 while (( "$#" )); do
   case "$1" in
@@ -274,12 +273,12 @@ else
     cd $WORKSPACE
     rm -rf build_package
     mkdir -p build_package
-    cd build_package 
+    cd build_package
 
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=build_package/install/prefix/ $WORKSPACE/iceoryx_meta
     cmake --build . --target install -- -j$NUM_JOBS
     cpack
-    echo ">>>>>> Finished building iceoryx package <<<<<<"    
+    echo ">>>>>> Finished building iceoryx package <<<<<<"
 fi
 
 

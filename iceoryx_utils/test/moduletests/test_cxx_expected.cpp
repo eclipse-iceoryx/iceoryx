@@ -541,3 +541,48 @@ TEST_F(expected_test, AndThenNotCalledWhenEmptyOptionalValue)
 
     sut.and_then([&mocks](int&) { mocks.onSuccess(); });
 }
+
+TEST_F(expected_test, AndThenInValueExpectedWithEmptyCallableDoesNotDie)
+{
+    auto sut1 = expected<int, TestError>::create_value(123);
+    const auto sut2 = expected<int, TestError>::create_value(123);
+    auto sut3 = expected<iox::cxx::optional<int>, TestError>::create_value(123);
+    const auto sut4 = expected<iox::cxx::optional<int>, TestError>::create_value(123);
+
+    // we test here that std::terminate is not called from the function_ref
+    sut1.and_then(iox::cxx::function_ref<void(int&)>());
+    sut2.and_then(iox::cxx::function_ref<void(int&)>());
+    sut3.and_then(iox::cxx::function_ref<void(int&)>());
+    sut4.and_then(iox::cxx::function_ref<void(int&)>());
+}
+
+TEST_F(expected_test, OrElseInValueExpectedWithEmptyCallableDoesNotDie)
+{
+    auto sut1 = expected<int, TestError>::create_error(TestError::ERROR1);
+    const auto sut2 = expected<int, TestError>::create_error(TestError::ERROR1);
+
+    // we test here that std::terminate is not called from the function_ref
+    sut1.or_else(iox::cxx::function_ref<void(TestError&)>());
+    sut2.or_else(iox::cxx::function_ref<void(TestError&)>());
+}
+
+TEST_F(expected_test, AndThenInErrorExpectedWithEmptyCallableDoesNotDie)
+{
+    auto sut1 = expected<TestError>::create_value();
+    const auto sut2 = expected<TestError>::create_value();
+
+    // we test here that std::terminate is not called from the function_ref
+    sut1.and_then(iox::cxx::function_ref<void()>());
+    sut2.and_then(iox::cxx::function_ref<void()>());
+}
+
+TEST_F(expected_test, OrElseInErrorExpectedWithEmptyCallableDoesNotDie)
+{
+    auto sut1 = expected<TestError>::create_error(TestError::ERROR1);
+    const auto sut2 = expected<TestError>::create_error(TestError::ERROR1);
+
+    // we test here that std::terminate is not called from the function_ref
+    sut1.or_else(iox::cxx::function_ref<void(TestError&)>());
+    sut2.or_else(iox::cxx::function_ref<void(TestError&)>());
+}
+

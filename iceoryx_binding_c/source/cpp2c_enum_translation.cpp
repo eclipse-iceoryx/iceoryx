@@ -81,4 +81,18 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
     }
 }
 
+iox_ListenerResult ListenerResult(const iox::popo::ListenerError value)
+{
+    switch (value)
+    {
+    case ListenerError::EVENT_ALREADY_ATTACHED:
+        return ListenerResult_EVENT_ALREADY_ATTACHED;
+    case ListenerError::LISTENER_FULL:
+        return ListenerResult_LISTENER_FULL;
+    default:
+        return ListenerResult_UNDEFINED_ERROR;
+    }
+}
+
+
 } // namespace cpp2c

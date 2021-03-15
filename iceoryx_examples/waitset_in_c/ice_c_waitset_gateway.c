@@ -50,7 +50,8 @@ void subscriberCallback(iox_sub_t const subscriber)
     const void* chunk;
     if (iox_sub_take_chunk(subscriber, &chunk))
     {
-        printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
+        printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
+        fflush(stdout);
 
         iox_sub_release_chunk(subscriber, chunk);
     }
