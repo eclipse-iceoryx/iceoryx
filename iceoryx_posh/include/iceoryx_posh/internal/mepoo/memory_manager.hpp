@@ -41,44 +41,44 @@ class MemoryManager
     using MaxChunkPayloadSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
 
   public:
-    MemoryManager() = default;
+    MemoryManager() noexcept = default;
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager(MemoryManager&&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;
     MemoryManager& operator=(MemoryManager&&) = delete;
-    ~MemoryManager() = default;
+    ~MemoryManager() noexcept = default;
 
     void configureMemoryManager(const MePooConfig& f_mePooConfig,
                                 posix::Allocator* f_managementAllocator,
-                                posix::Allocator* f_payloadAllocator);
+                                posix::Allocator* f_payloadAllocator) noexcept;
 
     SharedChunk getChunk(const uint32_t payloadSize,
                          const uint32_t payloadAlignment,
                          const uint32_t customHeaderSize,
-                         const uint32_t customHeaderAlignment);
+                         const uint32_t customHeaderAlignment) noexcept;
 
-    uint32_t getNumberOfMemPools() const;
+    uint32_t getNumberOfMemPools() const noexcept;
 
-    MemPoolInfo getMemPoolInfo(uint32_t f_index) const;
+    MemPoolInfo getMemPoolInfo(uint32_t f_index) const noexcept;
 
     static uint32_t requiredChunkSize(const uint32_t payloadSize,
                                       const uint32_t payloadAlignment,
                                       const uint32_t customHeaderSize,
-                                      const uint32_t customHeaderAlignment);
+                                      const uint32_t customHeaderAlignment) noexcept;
 
-    static uint64_t requiredChunkMemorySize(const MePooConfig& f_mePooConfig);
-    static uint64_t requiredManagementMemorySize(const MePooConfig& f_mePooConfig);
-    static uint64_t requiredFullMemorySize(const MePooConfig& f_mePooConfig);
+    static uint64_t requiredChunkMemorySize(const MePooConfig& f_mePooConfig) noexcept;
+    static uint64_t requiredManagementMemorySize(const MePooConfig& f_mePooConfig) noexcept;
+    static uint64_t requiredFullMemorySize(const MePooConfig& f_mePooConfig) noexcept;
 
   private:
-    static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size);
+    static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
-    void printMemPoolVector() const;
+    void printMemPoolVector() const noexcept;
     void addMemPool(posix::Allocator* f_managementAllocator,
                     posix::Allocator* f_payloadAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
-                    const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks);
-    void generateChunkManagementPool(posix::Allocator* f_managementAllocator);
+                    const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks) noexcept;
+    void generateChunkManagementPool(posix::Allocator* f_managementAllocator) noexcept;
 
   private:
     bool m_denyAddMemPool{false};

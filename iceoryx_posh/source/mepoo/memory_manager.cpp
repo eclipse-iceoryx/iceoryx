@@ -31,7 +31,7 @@ namespace iox
 {
 namespace mepoo
 {
-void MemoryManager::printMemPoolVector() const
+void MemoryManager::printMemPoolVector() const noexcept
 {
     for (auto& l_mempool : m_memPoolVector)
     {
@@ -44,7 +44,7 @@ void MemoryManager::printMemPoolVector() const
 void MemoryManager::addMemPool(posix::Allocator* f_managementAllocator,
                                posix::Allocator* f_payloadAllocator,
                                const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
-                               const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks)
+                               const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks) noexcept
 {
     uint32_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint32_t>(f_payloadSize));
     if (m_denyAddMemPool)
@@ -70,19 +70,19 @@ void MemoryManager::addMemPool(posix::Allocator* f_managementAllocator,
     m_totalNumberOfChunks += f_numberOfChunks;
 }
 
-void MemoryManager::generateChunkManagementPool(posix::Allocator* f_managementAllocator)
+void MemoryManager::generateChunkManagementPool(posix::Allocator* f_managementAllocator) noexcept
 {
     m_denyAddMemPool = true;
     uint32_t chunkSize = sizeof(ChunkManagement);
     m_chunkManagementPool.emplace_back(chunkSize, m_totalNumberOfChunks, f_managementAllocator, f_managementAllocator);
 }
 
-uint32_t MemoryManager::getNumberOfMemPools() const
+uint32_t MemoryManager::getNumberOfMemPools() const noexcept
 {
     return static_cast<uint32_t>(m_memPoolVector.size());
 }
 
-MemPoolInfo MemoryManager::getMemPoolInfo(uint32_t index) const
+MemPoolInfo MemoryManager::getMemPoolInfo(uint32_t index) const noexcept
 {
     if (index >= m_memPoolVector.size())
     {
@@ -94,7 +94,7 @@ MemPoolInfo MemoryManager::getMemPoolInfo(uint32_t index) const
 uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
                                           const uint32_t payloadAlignment,
                                           const uint32_t customHeaderSize,
-                                          const uint32_t customHeaderAlignment)
+                                          const uint32_t customHeaderAlignment) noexcept
 {
     /// @todo iox-#14: return cxx::expected instead of using cxx::Expects/Ensures
     cxx::Expects(customHeaderAlignment <= alignof(ChunkHeader)
@@ -136,12 +136,12 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
     return static_cast<uint32_t>(chunkSize);
 }
 
-uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size)
+uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept
 {
     return size + static_cast<uint32_t>(sizeof(ChunkHeader));
 }
 
-uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig)
+uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig) noexcept
 {
     uint64_t memorySize{0};
     for (const auto& mempoolConfig : f_mePooConfig.m_mempoolConfig)
@@ -156,7 +156,7 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig
     return memorySize;
 }
 
-uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& f_mePooConfig)
+uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& f_mePooConfig) noexcept
 {
     uint64_t memorySize{0u};
     uint32_t sumOfAllChunks{0u};
@@ -174,14 +174,14 @@ uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& f_mePooC
     return memorySize;
 }
 
-uint64_t MemoryManager::requiredFullMemorySize(const MePooConfig& f_mePooConfig)
+uint64_t MemoryManager::requiredFullMemorySize(const MePooConfig& f_mePooConfig) noexcept
 {
     return requiredManagementMemorySize(f_mePooConfig) + requiredChunkMemorySize(f_mePooConfig);
 }
 
 void MemoryManager::configureMemoryManager(const MePooConfig& f_mePooConfig,
                                            posix::Allocator* f_managementAllocator,
-                                           posix::Allocator* f_payloadAllocator)
+                                           posix::Allocator* f_payloadAllocator) noexcept
 {
     for (auto entry : f_mePooConfig.m_mempoolConfig)
     {
@@ -194,7 +194,7 @@ void MemoryManager::configureMemoryManager(const MePooConfig& f_mePooConfig,
 SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
                                     const uint32_t payloadAlignment,
                                     const uint32_t customHeaderSize,
-                                    const uint32_t customHeaderAlignment)
+                                    const uint32_t customHeaderAlignment) noexcept
 {
     void* chunk{nullptr};
     MemPool* memPoolPointer{nullptr};
