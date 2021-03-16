@@ -22,7 +22,8 @@ namespace iox
 {
 namespace mepoo
 {
-ChunkHeader::ChunkHeader(const uint32_t payloadSize,
+ChunkHeader::ChunkHeader(const uint32_t chunkSize,
+                         const uint32_t payloadSize,
                          const uint32_t payloadAlignment,
                          const uint32_t customHeaderSize,
                          const uint32_t customHeaderAlignment) noexcept
@@ -32,6 +33,7 @@ ChunkHeader::ChunkHeader(const uint32_t payloadSize,
     cxx::Expects(customHeaderAlignment <= alignof(ChunkHeader)
                  && "The alignment of the custom header must not exceed the alignment of the ChunkHeader!");
 
+    this->chunkSize = chunkSize;
     this->payloadSize = payloadSize;
 
     // have a look at »Payload Offset Calculation« in chunk_header.md for more details regarding the calculation

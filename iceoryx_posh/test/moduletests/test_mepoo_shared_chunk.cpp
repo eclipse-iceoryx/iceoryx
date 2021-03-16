@@ -38,7 +38,8 @@ class SharedChunk_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(PAYLOAD_SIZE,
+        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(chunkMgmtPool.getChunkSize(),
+                                                                 PAYLOAD_SIZE,
                                                                  iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
                                                                  iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
                                                                  iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
@@ -196,8 +197,11 @@ TEST_F(SharedChunk_Test, getPayloadWhenValid)
 {
     constexpr uint32_t PAYLOAD{1337U};
     ChunkHeader* newChunk = static_cast<ChunkHeader*>(mempool.getChunk());
-    new (newChunk) ChunkHeader(
-        sizeof(PAYLOAD), alignof(uint32_t), iox::CHUNK_NO_CUSTOM_HEADER_SIZE, iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+    new (newChunk) ChunkHeader(mempool.getChunkSize(),
+                               sizeof(PAYLOAD),
+                               alignof(uint32_t),
+                               iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                               iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
     new (static_cast<uint32_t*>(newChunk->payload())) uint32_t{PAYLOAD};
 
     iox::mepoo::SharedChunk sut2(GetChunkManagement(newChunk));

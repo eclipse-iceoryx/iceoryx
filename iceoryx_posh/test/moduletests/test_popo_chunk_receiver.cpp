@@ -192,8 +192,10 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
             errorHandlerCalled = true;
         });
 
+    constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    iox::mepoo::ChunkHeader myCrazyChunk{PAYLOAD_SIZE,
+    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE,
+                                         PAYLOAD_SIZE,
                                          iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
                                          iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
                                          iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};

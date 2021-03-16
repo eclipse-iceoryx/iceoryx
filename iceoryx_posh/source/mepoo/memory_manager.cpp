@@ -96,8 +96,9 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
                                           const uint32_t customHeaderSize,
                                           const uint32_t customHeaderAlignment)
 {
-    /// @todo iox-#14: return cxx::expected instead of doing the assert
-    assert(customHeaderAlignment <= alignof(ChunkHeader));
+    /// @todo iox-#14: return cxx::expected instead of using cxx::Expects/Ensures
+    cxx::Expects(customHeaderAlignment <= alignof(ChunkHeader)
+                 && "The alignment of the custom header must not exceed the alignment of the ChunkHeader!");
 
     // have a look at »Required Chunk Size Calculation« in chunk_header.md for more details regarding the calculation
     if (customHeaderSize == 0)
@@ -107,7 +108,7 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
         {
             uint64_t chunkSize = static_cast<uint64_t>(sizeof(ChunkHeader)) + payloadSize;
 
-            assert(chunkSize <= std::numeric_limits<uint32_t>::max());
+            cxx::Ensures(chunkSize <= std::numeric_limits<uint32_t>::max() && "Size of chunk exceeds limits!");
 
             return static_cast<uint32_t>(chunkSize);
         }
@@ -117,7 +118,7 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
         uint64_t prePayloadAlignmentOverhang = static_cast<uint64_t>(sizeof(ChunkHeader) - alignof(ChunkHeader));
         uint64_t chunkSize = prePayloadAlignmentOverhang + payloadAlignment + payloadSize;
 
-        assert(chunkSize <= std::numeric_limits<uint32_t>::max());
+        cxx::Ensures(chunkSize <= std::numeric_limits<uint32_t>::max() && "Size of chunk exceeds limits!");
 
         return static_cast<uint32_t>(chunkSize);
     }
@@ -129,7 +130,7 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
     uint64_t maxAlignment = algorithm::max(ALIGNMENT_OF_PAYLOAD_OFFSET_T, static_cast<uint64_t>(payloadAlignment));
     uint64_t chunkSize = prePayloadAlignmentOverhang + maxAlignment + payloadSize;
 
-    assert(chunkSize <= std::numeric_limits<uint32_t>::max());
+    cxx::Ensures(chunkSize <= std::numeric_limits<uint32_t>::max() && "Size of chunk exceeds limits!");
 
     return static_cast<uint32_t>(chunkSize);
 }
@@ -238,9 +239,8 @@ SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
     }
     else
     {
-        auto chunkHeader =
-            new (chunk) ChunkHeader(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
-        chunkHeader->chunkSize = aquiredChunkSize;
+        auto chunkHeader = new (chunk)
+            ChunkHeader(aquiredChunkSize, payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
         auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
             ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
         return SharedChunk(chunkManagement);

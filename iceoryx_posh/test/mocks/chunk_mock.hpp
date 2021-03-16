@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,8 +47,8 @@ class ChunkMock
         assert(m_rawMemory != nullptr && "Could not get aligned memory");
         memset(m_rawMemory, 0xFF, requiredSize);
 
-        m_chunkHeader = new (m_rawMemory)
-            iox::mepoo::ChunkHeader(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader(
+            requiredSize, payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
         m_topic = static_cast<Topic*>(m_chunkHeader->payload());
     }
     ~ChunkMock()

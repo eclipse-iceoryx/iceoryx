@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,7 +49,8 @@ class ChunkDistributor_test : public Test
     {
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
-        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(PAYLOAD_SIZE,
+        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(chunkMgmtPool.getChunkSize(),
+                                                           PAYLOAD_SIZE,
                                                            iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
                                                            iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
                                                            iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);

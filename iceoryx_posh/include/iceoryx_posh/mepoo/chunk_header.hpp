@@ -37,7 +37,14 @@ struct alignas(32) ChunkHeader
 {
     using PayloadOffset_t = uint32_t;
 
-    ChunkHeader(const uint32_t payloadSize,
+    /// @brief constructs and initializes a ChunkHeader
+    /// @param[in] chunkSize is the size of the chunk the ChunkHeader is constructed
+    /// @param[in] payloadSize is the size of the payload
+    /// @param[in] payloadAlignment is the alignment of the payload
+    /// @param[in] customHeaderSize is the size of the custom header; if no custom header is used, use 0
+    /// @param[in] customHeaderAlignment is the alignment for the custom header; if no custom header is used, use 1
+    ChunkHeader(const uint32_t chunkSize,
+                const uint32_t payloadSize,
                 const uint32_t payloadAlignment,
                 const uint32_t customHeaderSize,
                 const uint32_t customHeaderAlignment) noexcept;
