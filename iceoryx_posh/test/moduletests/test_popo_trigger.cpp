@@ -69,7 +69,7 @@ class Trigger_test : public Test
 
     Trigger createValidTrigger(const uint64_t eventId = 0U)
     {
-        static uint64_t uniqueId = 0;
+        static uint64_t uniqueId = 0U;
         return Trigger(&m_triggerClass,
                        {m_triggerClass, &TriggerClass::hasTriggered},
                        {m_triggerClass, &TriggerClass::resetCall},
@@ -115,6 +115,16 @@ TEST_F(Trigger_test, MovedConstructedOriginIsInvalidTriggerAfterMove)
 {
     Trigger trigger = createValidTrigger();
     Trigger sut{std::move(trigger)};
+
+    EXPECT_FALSE(trigger.isValid());
+    EXPECT_THAT(trigger.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
+}
+
+TEST_F(Trigger_test, MovedAssignedOriginIsInvalidTriggerAfterMove)
+{
+    Trigger sut = createValidTrigger();
+    Trigger trigger = createValidTrigger();
+    sut = std::move(trigger);
 
     EXPECT_FALSE(trigger.isValid());
     EXPECT_THAT(trigger.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
