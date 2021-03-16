@@ -17,6 +17,7 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -44,6 +45,7 @@ void iox_pub_options_init(iox_pub_options_t* options)
     PublisherOptions publisherOptions;
     options->historyCapacity = publisherOptions.historyCapacity;
     options->nodeName = nullptr;
+    options->offerOnCreate = publisherOptions.offerOnCreate;
 
     options->initCheck = PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -78,6 +80,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
         {
             publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
+        publisherOptions.offerOnCreate = options->offerOnCreate;
     }
 
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
@@ -147,3 +150,9 @@ bool iox_pub_has_subscribers(iox_pub_t const self)
 {
     return PublisherPortUser(self->m_portData).hasSubscribers();
 }
+
+iox_service_description_t iox_pub_get_service_description(iox_pub_t const self)
+{
+    return TranslateServiceDescription(PublisherPortUser(self->m_portData).getCaProServiceDescription());
+}
+

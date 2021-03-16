@@ -92,7 +92,6 @@ class Trigger
     /// @brief returns true if the Triggers are logical equal otherwise false. Two Triggers are logical equal when
     ///       - origin == rhs.origin
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
-    ///       - eventId == rhs.eventId
     bool isLogicalEqualTo(const Trigger& rhs) const noexcept;
 
     /// @brief sets a new origin of the trigger
@@ -108,7 +107,7 @@ class Trigger
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
-    uint64_t m_uniqueId = 0U;
+    uint64_t m_uniqueId = INVALID_TRIGGER_ID;
 
     static std::atomic<uint64_t> uniqueIdCounter; // = 0U;
 };

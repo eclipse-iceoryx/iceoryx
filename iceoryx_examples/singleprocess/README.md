@@ -104,13 +104,11 @@ you here with a short overview.
 
 #### Publisher
 We create a typed publisher with the following service description
-(Service = `Single`, Instance = `Process`, Event = `Demo`) and offer our service
-to the world.
+(Service = `Single`, Instance = `Process`, Event = `Demo`) 
 ```cpp
 iox::popo::PublisherOptions publisherOptions;
 publisherOptions.historyCapacity = 10U;
 iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
-publisher.offer();
 ```
 After that we are sending numbers in ascending order with an 100ms interval in a `while` loop till the
 variable `keepRunning` is false.
@@ -131,14 +129,12 @@ while (keepRunning.load())
 
 #### Subscriber
 Like with the publisher we are creating a corresponding subscriber port with the
-same service description and subscribe to our service.
+same service description.
 ```cpp
     iox::popo::SubscriberOptions options;
     options.queueCapacity = 10U;
     options.historyRequest = 5U;
     iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
-
-    subscriber.subscribe();
 ```
 Now we can receive the data in a while loop till `keepRunning` is false. But we
 only try to acquire data if our `SubscribeState` is `SUBSCRIBED`.

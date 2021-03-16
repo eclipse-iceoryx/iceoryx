@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,6 +102,9 @@ constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
+// Listener
+constexpr uint8_t MAX_NUMBER_OF_EVENT_VARIABLES = 128U;
+constexpr uint8_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = 128U;
 //--------- Communication Resources End---------------------
 
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;

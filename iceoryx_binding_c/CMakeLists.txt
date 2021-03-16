@@ -47,17 +47,19 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 ########## build building-block library ##########
 #
 add_library(${PROJECT_NAME}
-    source/c_user_trigger.cpp
-    source/c_publisher.cpp
+    source/c_event_info.cpp
+    source/c_listener.cpp
     source/c_node.cpp
+    source/c_publisher.cpp
     source/c_runtime.cpp
     source/c_subscriber.cpp
-    source/c_event_info.cpp
+    source/c_user_trigger.cpp
     source/c_wait_set.cpp
     source/c_chunk.cpp
     source/cpp2c_enum_translation.cpp
     source/cpp2c_publisher.cpp
     source/cpp2c_subscriber.cpp
+    source/cpp2c_service_description_translation.cpp
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -72,11 +74,23 @@ target_include_directories(${PROJECT_NAME}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    iceoryx_posh::iceoryx_posh
-    iceoryx_utils::iceoryx_utils
-)
+
+if(NOT (WIN32 OR QNX))
+    target_link_libraries(${PROJECT_NAME}
+      PUBLIC
+        stdc++
+        pthread
+      PRIVATE
+        iceoryx_posh::iceoryx_posh
+        iceoryx_utils::iceoryx_utils
+    )
+else()
+    target_link_libraries(${PROJECT_NAME}
+      PRIVATE
+        iceoryx_posh::iceoryx_posh
+        iceoryx_utils::iceoryx_utils
+    )
+endif()
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 

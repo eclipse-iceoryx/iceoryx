@@ -119,6 +119,25 @@ TEST_F(Trigger_test, MovedAssignedValidTriggerIsValid)
     EXPECT_TRUE(static_cast<bool>(sut));
 }
 
+TEST_F(Trigger_test, MovedConstructedOriginIsInvalidTriggerAfterMove)
+{
+    Trigger trigger = createValidTrigger();
+    Trigger sut{std::move(trigger)};
+
+    EXPECT_FALSE(trigger.isValid());
+    EXPECT_THAT(trigger.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
+}
+
+TEST_F(Trigger_test, MovedAssignedOriginIsInvalidTriggerAfterMove)
+{
+    Trigger sut;
+    Trigger trigger = createValidTrigger();
+    sut = std::move(trigger);
+
+    EXPECT_FALSE(trigger.isValid());
+    EXPECT_THAT(trigger.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
+}
+
 TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
 {
     uint64_t eventId = 0U;
@@ -179,9 +198,18 @@ TEST_F(Trigger_test, InvalidateInvalidatesTrigger)
 TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
 {
     Trigger sut = createValidTrigger();
+    auto uniqueId = sut.getUniqueId();
     sut.reset();
 
-    EXPECT_EQ(m_triggerClass.m_resetCallTriggerArg, sut.getUniqueId());
+    EXPECT_EQ(m_triggerClass.m_resetCallTriggerArg, uniqueId);
+}
+
+TEST_F(Trigger_test, ResetSetsTriggerIdToInvalid)
+{
+    Trigger sut = createValidTrigger();
+    sut.reset();
+
+    EXPECT_EQ(sut.getUniqueId(), Trigger::INVALID_TRIGGER_ID);
 }
 
 TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
@@ -233,11 +261,12 @@ TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
 
 TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFromOrigin)
 {
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 891U;
     TriggerClass secondTriggerClass, thirdTriggerClass;
     Trigger sut(&m_triggerClass,
                 {thirdTriggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
-                891U,
+                USER_DEFINED_EVENT_ID,
                 TriggerClass::callback);
 
     sut.updateOrigin(&secondTriggerClass);
@@ -254,33 +283,37 @@ TEST_F(Trigger_test, UpdateOriginLeadsToDifferentResetCallback)
     TriggerClass secondTriggerClass;
 
     sut.updateOrigin(&secondTriggerClass);
+    auto uniqueId = sut.getUniqueId();
     sut.reset();
 
-    EXPECT_EQ(secondTriggerClass.m_resetCallTriggerArg, sut.getUniqueId());
+    EXPECT_EQ(secondTriggerClass.m_resetCallTriggerArg, uniqueId);
 }
 
 TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin)
 {
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 892U;
     TriggerClass secondTriggerClass, thirdTriggerClass;
     Trigger sut(&m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {thirdTriggerClass, &TriggerClass::resetCall},
-                891U,
+                USER_DEFINED_EVENT_ID,
                 TriggerClass::callback);
 
     sut.updateOrigin(&secondTriggerClass);
+    auto uniqueId = sut.getUniqueId();
     sut.reset();
 
-    EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, sut.getUniqueId());
+    EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, uniqueId);
 }
 
 TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfEventInfo)
 {
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 893U;
     TriggerClass secondTriggerClass;
     Trigger sut(&m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
-                891U,
+                USER_DEFINED_EVENT_ID,
                 TriggerClass::callback);
 
     sut.updateOrigin(&secondTriggerClass);
@@ -292,10 +325,11 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfEventInfo)
 ///   - hasTriggeredCallback
 TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
 {
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 894U;
     Trigger sut1(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 8911U,
+                 USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
     EXPECT_TRUE(sut1.isLogicalEqualTo(sut1));
@@ -303,16 +337,18 @@ TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
 
 TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfRequirementsAreFullfilled)
 {
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 896U;
+    constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 8961U;
     Trigger sut1(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 891U,
+                 USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
     Trigger sut2(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 891U,
+                 ANOTHER_USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
 
@@ -320,38 +356,42 @@ TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfRequirementsAreFullfilled)
     EXPECT_TRUE(sut2.isLogicalEqualTo(sut1));
 }
 
-TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfTriggerIdDiffers)
+TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfOnlyTriggerIdDiffers)
 {
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 2896U;
+    constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 28961U;
     Trigger sut1(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 2891U,
+                 USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
     Trigger sut2(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 3891U,
+                 ANOTHER_USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
 
-    EXPECT_FALSE(sut1.isLogicalEqualTo(sut2));
-    EXPECT_FALSE(sut2.isLogicalEqualTo(sut1));
+    EXPECT_TRUE(sut1.isLogicalEqualTo(sut2));
+    EXPECT_TRUE(sut2.isLogicalEqualTo(sut1));
 }
 
 TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfHasTriggeredCallbackDiffers)
 {
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 4896U;
+    constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 48961U;
     TriggerClass secondTriggerClass;
     Trigger sut1(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 4891U,
+                 USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
     Trigger sut2(&m_triggerClass,
                  {secondTriggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 4891U,
+                 ANOTHER_USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
 
@@ -361,17 +401,18 @@ TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfHasTriggeredCallbackDiffers)
 
 TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfOriginDiffers)
 {
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 4896U;
     TriggerClass secondTriggerClass;
     Trigger sut1(&m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 4891U,
+                 USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
     Trigger sut2(&secondTriggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
-                 4891U,
+                 USER_DEFINED_EVENT_ID,
                  TriggerClass::callback);
 
 

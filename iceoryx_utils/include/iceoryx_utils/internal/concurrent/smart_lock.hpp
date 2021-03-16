@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,18 +48,18 @@ namespace concurrent
 ///         }
 ///     }
 /// @endcode
-template <typename T, typename MutexType = std::mutex>
+template <typename T, typename MutexType = ::std::mutex>
 class smart_lock
 {
   private:
     class Proxy
     {
       public:
-        Proxy(T* base, MutexType* lock);
-        ~Proxy();
+        Proxy(T* base, MutexType* lock) noexcept;
+        ~Proxy() noexcept;
 
-        T* operator->();
-        T* operator->() const;
+        T* operator->() noexcept;
+        T* operator->() const noexcept;
 
       private:
         T* base;
@@ -66,13 +67,13 @@ class smart_lock
     };
 
   public:
-    smart_lock();
-    smart_lock(const T& t);
-    smart_lock(const smart_lock& rhs);
-    smart_lock(smart_lock&& rhs);
-    smart_lock& operator=(const smart_lock& rhs);
-    smart_lock& operator=(smart_lock&& rhs);
-    ~smart_lock() = default;
+    smart_lock() noexcept;
+    smart_lock(const T& t) noexcept;
+    smart_lock(const smart_lock& rhs) noexcept;
+    smart_lock(smart_lock&& rhs) noexcept;
+    smart_lock& operator=(const smart_lock& rhs) noexcept;
+    smart_lock& operator=(smart_lock&& rhs) noexcept;
+    ~smart_lock() noexcept = default;
 
     /// @brief The arrow operator returns a proxy object which locks the mutex
     ///         of smart_lock and has another arrow operator defined which
@@ -83,7 +84,7 @@ class smart_lock
     ///     iox::concurrent::smart_lock<std::vector<int>> threadSafeVector;
     ///     threadSafeVector->push_back(123); // this call is secured by a mutex
     /// @endcode
-    Proxy operator->();
+    Proxy operator->() noexcept;
 
     /// @brief The arrow operator returns a proxy object which locks the mutex
     ///         of smart_lock and has another arrow operator defined which
@@ -94,7 +95,7 @@ class smart_lock
     ///     iox::concurrent::smart_lock<std::vector<int>> threadSafeVector;
     ///     threadSafeVector->push_back(123); // this call is secured by a mutex
     /// @endcode
-    Proxy operator->() const;
+    Proxy operator->() const noexcept;
 
     /// @brief If you need to lock your object over multiple method calls you
     ///         acquire a scope guard which locks the object as long as this
@@ -117,7 +118,7 @@ class smart_lock
     ///         if ( iter != vectorGuard->end() )
     ///             vectorGuard->erase(iter);
     ///     }
-    Proxy GetScopeGuard();
+    Proxy GetScopeGuard() noexcept;
 
     /// @brief If you need to lock your object over multiple method calls you
     ///         acquire a scope guard which locks the object as long as this
@@ -140,11 +141,14 @@ class smart_lock
     ///         if ( iter != vectorGuard->end() )
     ///             vectorGuard->erase(iter);
     ///     }
-    Proxy GetScopeGuard() const;
+    Proxy GetScopeGuard() const noexcept;
+
+    /// @brief Returns a copy of the underlying object
+    T GetCopy() const noexcept;
 
   private:
     T base;
-    MutexType lock;
+    mutable MutexType lock;
 };
 } // namespace concurrent
 } // namespace iox
