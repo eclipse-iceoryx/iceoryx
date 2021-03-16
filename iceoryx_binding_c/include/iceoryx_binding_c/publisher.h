@@ -20,6 +20,7 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/service_description.h"
 #include "iceoryx_binding_c/types.h"
 
 /// @brief publisher handle
@@ -34,6 +35,9 @@ typedef struct
     // name of the node the publisher belongs to
     // nullptr indicates that the default node name is used
     const char* nodeName;
+
+    // The option whether the publisher should already be offered when creating it
+    bool offerOnCreate;
 
     // this value will be set exclusively by iox_pub_options_init
     // and is not supposed to be modified otherwise
@@ -113,4 +117,8 @@ bool iox_pub_is_offered(iox_pub_t const self);
 /// @return true if there are subscribers otherwise false
 bool iox_pub_has_subscribers(iox_pub_t const self);
 
+/// @brief returns the service description of the publisher
+/// @param[in] self handle to the publisher
+/// @return the service description
+iox_service_description_t iox_pub_get_service_description(iox_pub_t const self);
 #endif

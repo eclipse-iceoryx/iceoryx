@@ -20,6 +20,7 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/service_description.h"
 #include "iceoryx_binding_c/types.h"
 
 /// @brief Subscriber handle
@@ -37,6 +38,9 @@ typedef struct
 
     // name of the node the subscriber belongs to
     const char* nodeName;
+
+    // The option whether the subscriber shall try to subscribe when creating it
+    bool subscribeOnCreate;
 
     // this value will be set exclusively by iox_sub_options_init
     // and is not supposed to be modified otherwise
@@ -114,4 +118,8 @@ bool iox_sub_has_chunks(iox_sub_t const self);
 /// @return true if there are lost chunks due to overflowing queue, otherwise false
 bool iox_sub_has_lost_chunks(iox_sub_t const self);
 
+/// @brief returns the service description of the subscriber
+/// @param[in] self handle to the subscriber
+/// @return the service description
+iox_service_description_t iox_sub_get_service_description(iox_sub_t const self);
 #endif

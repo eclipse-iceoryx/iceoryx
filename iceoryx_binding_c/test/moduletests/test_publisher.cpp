@@ -118,9 +118,11 @@ class iox_pub_test : public Test
     cpp2c_Publisher m_sut;
 };
 
-TEST_F(iox_pub_test, initialStateIsNotOffered)
+TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)
 {
-    EXPECT_FALSE(iox_pub_is_offered(&m_sut));
+    PublisherOptions iGotOptions;
+    auto expectedIsOffered = iGotOptions.offerOnCreate;
+    EXPECT_EQ(expectedIsOffered, iox_pub_is_offered(&m_sut));
 }
 
 TEST_F(iox_pub_test, is_offeredAfterOffer)
@@ -254,17 +256,33 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
 }
 
+TEST_F(iox_pub_test, correctServiceDescriptionReturned)
+{
+    auto serviceDescription = iox_pub_get_service_description(&m_sut);
+
+    EXPECT_THAT(serviceDescription.serviceId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(serviceDescription.instanceId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(serviceDescription.eventId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(std::string(serviceDescription.serviceString), Eq("a"));
+    EXPECT_THAT(std::string(serviceDescription.instanceString), Eq("b"));
+    EXPECT_THAT(std::string(serviceDescription.eventString), Eq("c"));
+}
+
 TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
 {
     iox_pub_options_t sut;
     sut.historyCapacity = 37;
     sut.nodeName = "Dr.Gonzo";
+    sut.offerOnCreate = false;
 
     PublisherOptions options;
+    // set offerOnCreate to the opposite of the expected default to check if it gets overwritten to default
+    sut.offerOnCreate = (options.offerOnCreate == false) ? true : false;
 
     iox_pub_options_init(&sut);
     EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
     EXPECT_EQ(sut.nodeName, nullptr);
+    EXPECT_EQ(sut.offerOnCreate, options.offerOnCreate);
     EXPECT_TRUE(iox_pub_options_is_initialized(&sut));
 }
 
@@ -299,3 +317,4 @@ TEST(iox_pub_options_test, publisherInitializationTerminatesIfOptionsAreNotIniti
 
     EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
 }
+

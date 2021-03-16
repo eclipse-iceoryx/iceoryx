@@ -340,19 +340,35 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     free(subscriber);
 }
 
+TEST_F(iox_sub_test, correctServiceDescriptionReturned)
+{
+    auto serviceDescription = iox_sub_get_service_description(m_sut);
+
+    EXPECT_THAT(serviceDescription.serviceId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(serviceDescription.instanceId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(serviceDescription.eventId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(std::string(serviceDescription.serviceString), Eq("a"));
+    EXPECT_THAT(std::string(serviceDescription.instanceString), Eq("b"));
+    EXPECT_THAT(std::string(serviceDescription.eventString), Eq("c"));
+}
+
 TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
 {
     iox_sub_options_t sut;
     sut.queueCapacity = 37;
     sut.historyRequest = 73;
     sut.nodeName = "Dr.Gonzo";
+    sut.subscribeOnCreate = false;
 
     SubscriberOptions options;
+    // set subscribeOnCreate to the opposite of the expected default to check if it gets overwritten to default
+    sut.subscribeOnCreate = (options.subscribeOnCreate == false) ? true : false;
 
     iox_sub_options_init(&sut);
     EXPECT_EQ(sut.queueCapacity, options.queueCapacity);
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
+    EXPECT_EQ(sut.subscribeOnCreate, options.subscribeOnCreate);
     EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
 }
 

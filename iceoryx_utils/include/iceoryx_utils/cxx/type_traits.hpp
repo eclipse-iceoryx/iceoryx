@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -65,12 +66,6 @@ struct has_signature<Callable,
 {
 };
 
-///
-/// @brief Negation of is_same
-///
-template <typename T1, typename T2>
-using not_same = typename std::
-    integral_constant<bool, !bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
 
 /// @brief Maps a sequence of any types to the type void
 template <typename...>

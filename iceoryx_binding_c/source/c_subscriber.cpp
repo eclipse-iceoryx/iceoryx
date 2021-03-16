@@ -18,6 +18,7 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
@@ -50,6 +51,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
     options->queueCapacity = subscriberOptions.queueCapacity;
     options->historyRequest = subscriberOptions.historyRequest;
     options->nodeName = nullptr;
+    options->subscribeOnCreate = subscriberOptions.subscribeOnCreate;
 
     options->initCheck = SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -85,6 +87,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         {
             subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
+        subscriberOptions.subscribeOnCreate = options->subscribeOnCreate;
     }
 
     me->m_portData =
@@ -146,4 +149,9 @@ bool iox_sub_has_chunks(iox_sub_t const self)
 bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
     return SubscriberPortUser(self->m_portData).hasLostChunksSinceLastCall();
+}
+
+iox_service_description_t iox_sub_get_service_description(iox_sub_t const self)
+{
+    return TranslateServiceDescription(SubscriberPortUser(self->m_portData).getCaProServiceDescription());
 }

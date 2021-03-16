@@ -36,6 +36,7 @@ iox_user_trigger_t shutdownTrigger;
 
 static void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
 
     iox_user_trigger_trigger(shutdownTrigger);
@@ -70,8 +71,6 @@ int main()
     {
         subscriber[i] = iox_sub_init(
             &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
-
-        iox_sub_subscribe(subscriber[i]);
     }
 
     const uint64_t FIRST_GROUP_ID = 123U;
@@ -119,6 +118,7 @@ int main()
                 if (iox_sub_take_chunk(subscriber, &chunk))
                 {
                     printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                    fflush(stdout);
 
                     iox_sub_release_chunk(subscriber, chunk);
                 }
@@ -139,7 +139,6 @@ int main()
     // cleanup all resources
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
     }
 

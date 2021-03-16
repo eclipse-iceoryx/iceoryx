@@ -27,7 +27,7 @@ namespace cxx
 {
 // Generic implementation for Capacity > 0
 template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
+inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcept
 {
     if (count > Capacity)
     {
@@ -43,7 +43,7 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
 }
 
 template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>::vector(const uint64_t count)
+inline vector<T, Capacity>::vector(const uint64_t count) noexcept
 {
     if (count > Capacity)
     {
@@ -60,25 +60,25 @@ inline vector<T, Capacity>::vector(const uint64_t count)
 }
 
 template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>::vector(const vector& rhs)
+inline vector<T, Capacity>::vector(const vector& rhs) noexcept
 {
     *this = rhs;
 }
 
 template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>::vector(vector&& rhs)
+inline vector<T, Capacity>::vector(vector&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
 template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>::~vector()
+inline vector<T, Capacity>::~vector() noexcept
 {
     clear();
 }
 
 template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs)
+inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -106,7 +106,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs)
 }
 
 template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs)
+inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -147,15 +147,14 @@ inline bool vector<T, Capacity>::full() const noexcept
     return m_container.full();
 }
 
-
 template <typename T, uint64_t Capacity>
-inline uint64_t vector<T, Capacity>::size() const
+inline uint64_t vector<T, Capacity>::size() const noexcept
 {
     return m_container.size();
 }
 
 template <typename T, uint64_t Capacity>
-inline uint64_t vector<T, Capacity>::capacity() const
+inline uint64_t vector<T, Capacity>::capacity() const noexcept
 {
     return Capacity;
 }
@@ -170,7 +169,7 @@ inline void vector<T, Capacity>::clear() noexcept
 
 template <typename T, uint64_t Capacity>
 template <typename... Targs>
-inline bool vector<T, Capacity>::emplace_back(Targs&&... args)
+inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
 {
     if (this->size() < Capacity)
     {
@@ -183,19 +182,19 @@ inline bool vector<T, Capacity>::emplace_back(Targs&&... args)
 }
 
 template <typename T, uint64_t Capacity>
-bool vector<T, Capacity>::push_back(const T& value)
+inline bool vector<T, Capacity>::push_back(const T& value) noexcept
 {
     return emplace_back(value);
 }
 
 template <typename T, uint64_t Capacity>
-bool vector<T, Capacity>::push_back(T&& value)
+inline bool vector<T, Capacity>::push_back(T&& value) noexcept
 {
     return emplace_back(std::forward<T>(value));
 }
 
 template <typename T, uint64_t Capacity>
-bool vector<T, Capacity>::pop_back()
+inline bool vector<T, Capacity>::pop_back() noexcept
 {
     if (this->size() > 0)
     {
@@ -204,6 +203,32 @@ bool vector<T, Capacity>::pop_back()
         return true;
     }
     return false;
+}
+
+template <typename T, uint64_t Capacity>
+template <typename... Targs>
+inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... args) noexcept
+{
+    if (count > Capacity)
+    {
+        return false;
+    }
+
+    if (count < m_size)
+    {
+        while (count != m_size)
+        {
+            pop_back();
+        }
+    }
+    else if (count > m_size)
+    {
+        while (count != m_size)
+        {
+            emplace_back(args...);
+        }
+    }
+    return true;
 }
 
 template <typename T, uint64_t Capacity>
@@ -320,7 +345,7 @@ inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() c
 }
 
 template <typename T, uint64_t Capacity>
-inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(const_iterator position)
+inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterator position)
 {
     /// If position < begin(), this shall return end(), which is guaranteed:
     /// WLOG, let vector v have Capacity=(2^64-begin())/sizeof(T)-sizeof(m_size)
@@ -352,7 +377,8 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(uint64_
 } // namespace iox
 
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+inline bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs,
+                       const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
 {
     uint64_t vectorSize = lhs.size();
     if (vectorSize != rhs.size())
@@ -371,7 +397,8 @@ bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::ve
 }
 
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+inline bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs,
+                       const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
 {
     return !(lhs == rhs);
 }

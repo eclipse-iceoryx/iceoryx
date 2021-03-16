@@ -102,12 +102,16 @@ add_library(iceoryx_posh
     source/popo/building_blocks/condition_variable_data.cpp    
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
+    source/popo/building_blocks/event_variable_data.cpp    
+    source/popo/building_blocks/event_listener.cpp    
+    source/popo/building_blocks/event_notifier.cpp    
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
-    source/popo/user_trigger.cpp
+    source/popo/listener.cpp
+    source/popo/event_info.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
-    source/popo/event_info.cpp
+    source/popo/user_trigger.cpp
     source/version/version_info.cpp
     source/runtime/ipc_interface_base.cpp
     source/runtime/ipc_interface_user.cpp

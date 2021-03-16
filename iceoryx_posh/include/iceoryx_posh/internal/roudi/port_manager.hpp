@@ -21,6 +21,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
@@ -89,19 +90,26 @@ class PortManager
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     acquireConditionVariableData(const ProcessName_t& process) noexcept;
 
+    cxx::expected<popo::EventVariableData*, PortPoolError>
+    acquireEventVariableData(const ProcessName_t& process) noexcept;
+
     void deletePortsOfProcess(const ProcessName_t& processName) noexcept;
-
-    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
-
-    void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
     runtime::IpcMessage findService(const capro::ServiceDescription& service) noexcept;
 
   protected:
+    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
+
+    void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
+
     void handlePublisherPorts() noexcept;
 
+    void doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherPort) noexcept;
+
     void handleSubscriberPorts() noexcept;
+
+    void doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept;
 
     void handleInterfaces() noexcept;
 
@@ -110,6 +118,8 @@ class PortManager
     void handleNodes() noexcept;
 
     void handleConditionVariables() noexcept;
+
+    void handleEventVariables() noexcept;
 
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
                                          SubscriberPortType& subscriberSource) noexcept;
@@ -123,8 +133,8 @@ class PortManager
     void removeEntryFromServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
-    cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const
-        noexcept;
+    cxx::optional<ProcessName_t>
+    doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service

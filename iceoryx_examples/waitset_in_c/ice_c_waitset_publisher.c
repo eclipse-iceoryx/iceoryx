@@ -28,6 +28,7 @@ bool killswitch = false;
 
 static void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
@@ -44,8 +45,6 @@ void sending()
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", &options);
 
-    iox_pub_offer(publisher);
-
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
         void* chunk = NULL;
@@ -55,6 +54,7 @@ void sending()
             sample->counter = counter;
 
             printf("Sending: %u\n", counter);
+            fflush(stdout);
 
             iox_pub_publish_chunk(publisher, chunk);
 
@@ -66,7 +66,6 @@ void sending()
         }
     }
 
-    iox_pub_stop_offer(publisher);
     iox_pub_deinit(publisher);
 }
 
