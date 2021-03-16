@@ -857,7 +857,7 @@ TEST_F(vector_test, EraseOfLastElementReturnsIteratorEnd)
     EXPECT_THAT(it, Eq(sut5.end()));
 
     sut5.emplace_back(4);
-    it = sut5.erase((uint64_t)0U);
+    it = sut5.erase(static_cast<uint64_t>(0U));
     EXPECT_THAT(it, Eq(sut5.end()));
 }
 
@@ -888,7 +888,8 @@ TEST_F(vector_test, ErasingElementDecreasesSize)
     sut5.emplace_back(4);
     sut5.emplace_back(5);
     sut5.erase(sut5.begin() + 2);
-    sut5.erase((uint64_t)0U);
+    sut5.erase(static_cast<uint64_t>(0U));
+
     EXPECT_THAT(sut5.size(), Eq(1));
 }
 
@@ -925,7 +926,7 @@ TEST_F(vector_test, EraseByIndexOfLastElementCallsDTorOnly)
     sut1.emplace_back(8);
     sut1.emplace_back(9);
 
-    sut1.erase((uint64_t)2);
+    sut1.erase(2U);
 
     EXPECT_THAT(dTor, Eq(1));
     EXPECT_THAT(dTorClassValue, Eq(9));
@@ -1293,12 +1294,12 @@ TEST_F(vector_test, PopBackReturnsTrueTillItsEmpty)
 
 TEST_F(vector_test, ResizeFailsWhenCountIsGreaterThanCapacity)
 {
-    EXPECT_FALSE(sut.resize(sut.capacity() + 1U));
+    EXPECT_FALSE(sut5.resize(sut5.capacity() + 1U));
 }
 
 TEST_F(vector_test, ResizeWithTemplateValueFailsWhenCountIsGreaterThanCapacity)
 {
-    EXPECT_FALSE(sut.resize(sut.capacity() + 1U, 12));
+    EXPECT_FALSE(sut5.resize(sut5.capacity() + 1U, 12));
 }
 
 TEST_F(vector_test, SizeIncreaseWithResizeAndDefaultCTorWorks)
@@ -1324,9 +1325,9 @@ TEST_F(vector_test, SizeIncreaseWithResizeAndDefaultCTorWorks)
 
 TEST_F(vector_test, SizeIncreaseWithResizeAndTemplateValueWorks)
 {
-    EXPECT_TRUE(sut.resize(4U, 421337));
-    ASSERT_THAT(sut.size(), Eq(4U));
-    for (auto& e : sut)
+    EXPECT_TRUE(sut5.resize(4U, 421337));
+    ASSERT_THAT(sut5.size(), Eq(4U));
+    for (auto& e : sut5)
     {
         EXPECT_THAT(e, Eq(421337));
     }
@@ -1366,23 +1367,22 @@ TEST_F(vector_test, SizeDecreaseWithResizeAndTemplateValueWorks)
 
 TEST_F(vector_test, ResizeWithDefaultCTorChangesNothingIfSizeAlreadyFits)
 {
-    sut.emplace_back(5);
-    sut.emplace_back(6);
-    EXPECT_TRUE(sut.resize(2U));
+    sut5.emplace_back(5);
+    sut5.emplace_back(6);
+    EXPECT_TRUE(sut5.resize(2U));
 
-    ASSERT_THAT(sut.size(), Eq(2U));
-    EXPECT_THAT(sut[0], Eq(5));
-    EXPECT_THAT(sut[1], Eq(6));
+    ASSERT_THAT(sut5.size(), Eq(2U));
+    EXPECT_THAT(sut5[0], Eq(5));
+    EXPECT_THAT(sut5[1], Eq(6));
 }
 
 TEST_F(vector_test, ResizeWithTemplateValueChangesNothingIfSizeAlreadyFits)
 {
-    sut.emplace_back(7);
-    sut.emplace_back(9);
-    EXPECT_TRUE(sut.resize(2U, 421337));
+    sut5.emplace_back(7);
+    sut5.emplace_back(9);
+    EXPECT_TRUE(sut5.resize(2U, 421337));
 
-    ASSERT_THAT(sut.size(), Eq(2U));
-    EXPECT_THAT(sut[0], Eq(7));
-    EXPECT_THAT(sut[1], Eq(9));
+    ASSERT_THAT(sut5.size(), Eq(2U));
+    EXPECT_THAT(sut5[0], Eq(7));
+    EXPECT_THAT(sut5[1], Eq(9));
 }
-

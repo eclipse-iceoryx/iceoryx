@@ -31,6 +31,11 @@ class uninitialized_array
 
     uninitialized_array() = default;
 
+    uninitialized_array(uninitialized_array& rhs) = delete;
+    uninitialized_array(uninitialized_array&& rhs) = delete;
+    uninitialized_array& operator=(uninitialized_array& rhs) = delete;
+    uninitialized_array& operator=(uninitialized_array&& rhs) = delete;
+
     /// @brief return the pointer to the underlying array
     /// @return pointer to underlying array
     ///          If the vector is empty it returns nullptr

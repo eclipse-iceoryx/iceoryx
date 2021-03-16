@@ -30,11 +30,10 @@ namespace cxx
 /// @brief  C++11 compatible bi-directional list implementation.
 /// @details Adjustments in the API were done to not use exceptions and serve the requirement of
 ///         a data structure movable over shared memory.
-///         attempt to add elements to a full list will be ignored.
-///         (Unintended) negative initialization is rejected with compile assertion
-///         limitation: concurrency concerns have to be handled by client side.
+///         Attempt to add elements to a full list will be ignored.
+///         Limitation: concurrency concerns have to be handled by client side.
 ///
-///         overview of cxx::forward_list deviations to std::forward_list(C++11)
+///         Overview of cxx::forward_list deviations to std::forward_list(C++11)
 ///         - list declaration with mandatory max list size argument
 ///         - member functions don't throw exception but will trigger different failure handling
 ///         - push_front/~_back returns a bool (instead of void) informing on successful insertion (true)

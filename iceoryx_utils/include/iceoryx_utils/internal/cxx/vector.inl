@@ -17,6 +17,7 @@
 #ifndef IOX_UTILS_CXX_VECTOR_INL
 #define IOX_UTILS_CXX_VECTOR_INL
 
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 #include <iostream>
@@ -214,16 +215,16 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... ar
         return false;
     }
 
-    if (count < m_size)
+    if (count < m_container.size())
     {
-        while (count != m_size)
+        while (count != m_container.size())
         {
             pop_back();
         }
     }
-    else if (count > m_size)
+    else if (count > m_container.size())
     {
-        while (count != m_size)
+        while (count != m_container.size())
         {
             emplace_back(args...);
         }
@@ -253,12 +254,7 @@ inline typename vector<T, Capacity>::reference vector<T, Capacity>::at(const uin
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_reference vector<T, Capacity>::at(const uint64_t index) const noexcept
 {
-    if (index + 1u > this->size())
-    {
-        std::cerr << "out of bounds access, current size is " << this->size() << " but given index is " << index
-                  << std::endl;
-        std::terminate();
-    }
+    cxx::Expects(index <= this->size());
     return reinterpret_cast<const T*>(this->data())[index];
 }
 
@@ -356,7 +352,7 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
 }
 
 template <typename T, uint64_t Capacity>
-inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(uint64_t index)
+inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(const uint64_t index)
 {
     uint64_t n = index;
     if (n >= this->size())
