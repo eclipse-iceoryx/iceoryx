@@ -211,9 +211,9 @@ target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
 target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
-    target_link_libraries(iceoryx_platform 
-        PUBLIC 
-        rt 
+    target_link_libraries(iceoryx_platform
+        PUBLIC
+        rt
         pthread
     )
 endif(LINUX)
@@ -224,12 +224,20 @@ if(PERFORM_CLANG_TIDY)
     )
 endif(PERFORM_CLANG_TIDY)
 
-
-target_link_libraries(iceoryx_utils 
-    PUBLIC 
-    iceoryx_utils::iceoryx_platform 
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS})
+if(QNX)
+    target_link_libraries(iceoryx_utils
+        PUBLIC
+        iceoryx_utils::iceoryx_platform
+        PRIVATE
+        socket
+        ${ICEORYX_SANITIZER_FLAGS})
+else()
+    target_link_libraries(iceoryx_utils
+        PUBLIC
+        iceoryx_utils::iceoryx_platform
+        PRIVATE
+        ${ICEORYX_SANITIZER_FLAGS})
+endif(QNX)
 
 target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
