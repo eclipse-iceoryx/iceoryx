@@ -115,7 +115,7 @@ Depending on the address of the chunk there is the chance that `ChunkHeader` is 
 payloadOffset = sizeof(ChunkHeader);
 ```
 
-2. No custom header and payload alignment exceeds the `ChunkHeader` alignment, which means the payload is either adjacent to the `ChunkHeader` or there is a padding with at least the size of `ChunkHeader` in front of the payload and therefore enough space to store the `back-offset`
+2. No custom header and payload alignment exceeds the `ChunkHeader` alignment, which means the payload is either adjacent to the `ChunkHeader` or there is a padding with at least the size of `ChunkHeader` alignment in front of the payload and therefore enough space to store the `back-offset`
 
 ```
 headerEndAddress = addressof(chunkHeader) + sizeof(chunkHeader);
@@ -192,8 +192,8 @@ The following formula is used to calculate the required chunk size.
 ```
 headerSize = sizeof(chunkHeader) + sizeof(customHeader)
 prePayloadAlignmentOverhang = align(headerSize, alignof(payloadOffset));
-maxAlignment = max(alignof(payloadOffset), payloadAlignment);
-chunkSize = prePayloadAlignmentOverhang + maxAlignment + payloadSize;
+maxPadding = max(sizeof(payloadOffset), payloadAlignment);
+chunkSize = prePayloadAlignmentOverhang + maxPadding + payloadSize;
 ```
 
 #### Accessing Chunk Header Extension

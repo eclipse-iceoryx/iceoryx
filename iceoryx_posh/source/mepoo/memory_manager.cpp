@@ -124,11 +124,12 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
     }
 
     // the most complex case with a custom header
+    constexpr uint64_t SIZE_OF_PAYLOAD_OFFSET_T{sizeof(ChunkHeader::PayloadOffset_t)};
     constexpr uint64_t ALIGNMENT_OF_PAYLOAD_OFFSET_T{alignof(ChunkHeader::PayloadOffset_t)};
     uint64_t headerSize = static_cast<uint64_t>(sizeof(ChunkHeader) + customHeaderSize);
     uint64_t prePayloadAlignmentOverhang = cxx::align(headerSize, ALIGNMENT_OF_PAYLOAD_OFFSET_T);
-    uint64_t maxAlignment = algorithm::max(ALIGNMENT_OF_PAYLOAD_OFFSET_T, static_cast<uint64_t>(payloadAlignment));
-    uint64_t chunkSize = prePayloadAlignmentOverhang + maxAlignment + payloadSize;
+    uint64_t maxPadding = algorithm::max(SIZE_OF_PAYLOAD_OFFSET_T, static_cast<uint64_t>(payloadAlignment));
+    uint64_t chunkSize = prePayloadAlignmentOverhang + maxPadding + payloadSize;
 
     cxx::Ensures(chunkSize <= std::numeric_limits<uint32_t>::max() && "Size of chunk exceeds limits!");
 
