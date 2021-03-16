@@ -16,10 +16,13 @@
 
 #include "iceoryx_utils/posix_wrapper/file_lock.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/errno.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/file.hpp"
-#include "iceoryx_utils/platform/platform_correction.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -149,12 +152,6 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
         std::cerr << "user disk quota exhausted for file \"" << m_name << "\"" << std::endl;
         return FileLockError::QUOTA_EXHAUSTED;
     }
-    case EEXIST:
-    {
-        std::cerr << "file \"" << m_name << "\""
-                  << " already exists" << std::endl;
-        return FileLockError::FILE_EXISTS;
-    }
     case EFAULT:
     {
         std::cerr << "outside address space error for file \"" << m_name << "\"" << std::endl;
@@ -169,13 +166,13 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     }
     case EINVAL:
     {
-        std::cerr << "provided invalid arguments for file \"" << m_name << "\"" << std::endl;
-        return FileLockError::INVALID_ARGUMENTS;
+        std::cerr << "provided invalid characters in basename for file \"" << m_name << "\"" << std::endl;
+        return FileLockError::INVALID_PARAMETERS;
     }
     case EISDIR:
     {
-        std::cerr << "write access requested for directory \"" << m_name << "\"" << std::endl;
-        return FileLockError::INVALID_ARGUMENTS;
+        std::cerr << "write access requested for directory \"" << PATH_PREFIX << m_name << "\"" << std::endl;
+        return FileLockError::INVALID_PARAMETERS;
     }
     case ELOOP:
     {
@@ -212,6 +209,11 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     {
         std::cerr << "Device has no space for file \"" << m_name << "\"" << std::endl;
         return FileLockError::QUOTA_EXHAUSTED;
+    }
+    case ENOSYS:
+    {
+        std::cerr << "open() not implemented for filesystem to \"" << m_name << "\"" << std::endl;
+        return FileLockError::SYS_CALL_NOT_IMPLEMENTED;
     }
     case ENOTDIR:
     {
