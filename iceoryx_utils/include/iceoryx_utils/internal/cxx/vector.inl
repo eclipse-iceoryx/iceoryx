@@ -85,7 +85,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
     {
         uint64_t i = 0u;
         // copy using copy assignment
-        for (; i < std::min(rhs.size(), this->size()); ++i)
+        for (; i < std::min(rhs.size(), size()); ++i)
         {
             new (&at(i)) T(rhs.at(i));
         }
@@ -97,7 +97,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
         }
 
         // delete remaining elements
-        for (; i < this->size(); ++i)
+        for (; i < size(); ++i)
         {
             at(i).~T();
         }
@@ -113,7 +113,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
     {
         uint64_t i = 0u;
         // move using move assignment
-        for (; i < std::min(rhs.size(), this->size()); ++i)
+        for (; i < std::min(rhs.size(), size()); ++i)
         {
             new (&at(i)) T(std::move(rhs.at(i)));
         }
@@ -125,7 +125,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
         }
 
         // delete remaining elements
-        for (; i < this->size(); ++i)
+        for (; i < size(); ++i)
         {
             at(i).~T();
         }
@@ -172,9 +172,9 @@ template <typename T, uint64_t Capacity>
 template <typename... Targs>
 inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
 {
-    if (this->size() < Capacity)
+    if (size() < Capacity)
     {
-        auto index = this->size();
+        auto index = size();
         m_container.set_size(index + 1u);
         new (&at(index)) T(std::forward<Targs>(args)...);
         return true;
@@ -197,10 +197,10 @@ inline bool vector<T, Capacity>::push_back(T&& value) noexcept
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::pop_back() noexcept
 {
-    if (this->size() > 0)
+    if (size() > 0)
     {
         back().~T();
-        m_container.set_size(this->size() - 1U);
+        m_container.set_size(size() - 1U);
         return true;
     }
     return false;
@@ -254,8 +254,8 @@ inline typename vector<T, Capacity>::reference vector<T, Capacity>::at(const uin
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_reference vector<T, Capacity>::at(const uint64_t index) const noexcept
 {
-    cxx::Expects(index <= this->size());
-    return reinterpret_cast<const T*>(this->data())[index];
+    cxx::Expects(index <= size());
+    return reinterpret_cast<const T*>(data())[index];
 }
 
 template <typename T, uint64_t Capacity>
@@ -302,7 +302,7 @@ inline typename vector<T, Capacity>::reference vector<T, Capacity>::back() noexc
         std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
         std::terminate();
     }
-    return at(this->size() - 1u);
+    return at(size() - 1u);
 }
 
 template <typename T, uint64_t Capacity>
@@ -313,31 +313,31 @@ inline typename vector<T, Capacity>::const_reference vector<T, Capacity>::back()
         std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
         std::terminate();
     }
-    return at(this->size() - 1);
+    return at(size() - 1);
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::begin() noexcept
 {
-    return reinterpret_cast<iterator>(this->data());
+    return reinterpret_cast<iterator>(data());
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::begin() const noexcept
 {
-    return reinterpret_cast<const_iterator>(this->data());
+    return reinterpret_cast<const_iterator>(data());
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::end() noexcept
 {
-    return this->data() + this->size();
+    return data() + size();
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() const noexcept
 {
-    return reinterpret_cast<const_iterator>(this->data() + this->size());
+    return reinterpret_cast<const_iterator>(data() + size());
 }
 
 template <typename T, uint64_t Capacity>
@@ -355,18 +355,18 @@ template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(const uint64_t index)
 {
     uint64_t n = index;
-    if (n >= this->size())
+    if (n >= size())
     {
         return end();
     }
     at(index).~T();
-    for (; n + 1u < this->size(); ++n)
+    for (; n + 1u < size(); ++n)
     {
         new (&at(n)) T(std::move(at(n + 1u)));
         at(n + 1u).~T();
     }
     m_container.set_size(m_container.size() - 1u);
-    return this->begin() + index;
+    return begin() + index;
 }
 
 } // namespace cxx
