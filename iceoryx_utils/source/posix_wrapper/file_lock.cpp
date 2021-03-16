@@ -123,11 +123,11 @@ cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
     {
         auto closeCall = cxx::makeSmartC(iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_fd);
 
+        m_fd = INVALID_FD;
+        m_isInitialized = false;
+
         if (!closeCall.hasErrors())
         {
-            m_fd = INVALID_FD;
-            m_isInitialized = false;
-
             return cxx::success<void>();
         }
         else
@@ -166,13 +166,8 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     }
     case EINVAL:
     {
-        std::cerr << "provided invalid characters in basename for file \"" << m_name << "\"" << std::endl;
-        return FileLockError::INVALID_PARAMETERS;
-    }
-    case EISDIR:
-    {
-        std::cerr << "write access requested for directory \"" << PATH_PREFIX << m_name << "\"" << std::endl;
-        return FileLockError::INVALID_PARAMETERS;
+        std::cerr << "provided invalid characters in file \"" << m_name << "\"" << std::endl;
+        return FileLockError::INVALID_CHARACTERS_IN_FILE_NAME;
     }
     case ELOOP:
     {
@@ -197,7 +192,7 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     case ENOENT:
     {
         std::cerr << "file \"" << m_name << "\""
-                  << "does not exist" << std::endl;
+                  << " does not exist" << std::endl;
         return FileLockError::NO_SUCH_FILE;
     }
     case ENOMEM:
@@ -214,11 +209,6 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     {
         std::cerr << "open() not implemented for filesystem to \"" << m_name << "\"" << std::endl;
         return FileLockError::SYS_CALL_NOT_IMPLEMENTED;
-    }
-    case ENOTDIR:
-    {
-        std::cerr << "not a directory error for file \"" << m_name << "\"" << std::endl;
-        return FileLockError::INVALID_FILE_NAME;
     }
     case ENXIO:
     {
