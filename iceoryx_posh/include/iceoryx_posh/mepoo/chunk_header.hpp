@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,17 +37,24 @@ struct alignas(32) ChunkHeader
 {
     using PayloadOffset_t = uint32_t;
 
-    [[gnu::deprecated]] ChunkHeader() noexcept;
     ChunkHeader(const uint32_t payloadSize,
                 const uint32_t payloadAlignment,
                 const uint32_t customHeaderSize,
                 const uint32_t customHeaderAlignment) noexcept;
 
-        /// @brief From the 1.0 release onward, this must be incremented for each incompatible change, e.g.
-        ///            - data width of members changes
-        ///            - members are rearranged
-        ///            - semantic meaning of a member changes
-        static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
+    // copy/move ctors/assignment operators are deleted since the calculations for the custom header and payload
+    // alignment are dependent on the address of the this pointer
+    ChunkHeader(const ChunkHeader&) = delete;
+    ChunkHeader(ChunkHeader&&) = delete;
+
+    ChunkHeader& operator=(const ChunkHeader&) = delete;
+    ChunkHeader& operator=(ChunkHeader&&) = delete;
+
+    /// @brief From the 1.0 release onward, this must be incremented for each incompatible change, e.g.
+    ///            - data width of members changes
+    ///            - members are rearranged
+    ///            - semantic meaning of a member changes
+    static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
 
     // BEGIN members
 

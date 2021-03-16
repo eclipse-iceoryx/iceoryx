@@ -96,7 +96,7 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
                                           const uint32_t customHeaderSize,
                                           const uint32_t customHeaderAlignment)
 {
-    // TODO return cxx::expected instead of doing the assert
+    /// @todo iox-#14: return cxx::expected instead of doing the assert
     assert(customHeaderAlignment <= alignof(ChunkHeader));
 
     // have a look at »Required Chunk Size Calculation« in chunk_header.md for more details regarding the calculation
@@ -241,7 +241,6 @@ SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
         auto chunkHeader =
             new (chunk) ChunkHeader(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
         chunkHeader->chunkSize = aquiredChunkSize;
-        chunkHeader->payloadSize = payloadSize;
         auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
             ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
         return SharedChunk(chunkManagement);

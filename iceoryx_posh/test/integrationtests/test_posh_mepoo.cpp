@@ -311,7 +311,6 @@ class Mepoo_IntegrationTest : public Test
                                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
                 .and_then([&](auto sample) {
                     new (sample->payload()) Topic;
-                    sample->payloadSize = TOPIC_SIZE;
                     publisherPort->sendChunk(sample);
                     m_roudiEnv->InterOpWait();
                 });

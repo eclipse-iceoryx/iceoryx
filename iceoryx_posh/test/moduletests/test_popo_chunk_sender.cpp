@@ -217,8 +217,12 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
-    m_chunkSender.release(myCrazyChunk.get());
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    iox::mepoo::ChunkHeader myCrazyChunk{PAYLOAD_SIZE,
+                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    m_chunkSender.release(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
@@ -249,11 +253,11 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverAndAlwaysLast)
                                                           alignof(DummySample),
                                                           CUSTOM_HEADER_SIZE,
                                                           CUSTOM_HEADER_ALIGNMENT);
-        EXPECT_FALSE(maybeChunkHeader.has_error());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
         auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
         if (i > 0)
         {
-            EXPECT_TRUE(maybeLastChunk.has_value());
+            ASSERT_TRUE(maybeLastChunk.has_value());
             // We get the last chunk again
             EXPECT_TRUE(*maybeChunkHeader == *maybeLastChunk);
             EXPECT_TRUE((*maybeChunkHeader)->payload() == (*maybeLastChunk)->payload());
@@ -280,11 +284,11 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverWithHistoryNoLastReuse)
                                                                      alignof(DummySample),
                                                                      CUSTOM_HEADER_SIZE,
                                                                      CUSTOM_HEADER_ALIGNMENT);
-        EXPECT_FALSE(maybeChunkHeader.has_error());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
         auto maybeLastChunk = m_chunkSenderWithHistory.tryGetPreviousChunk();
         if (i > 0)
         {
-            EXPECT_TRUE(maybeLastChunk.has_value());
+            ASSERT_TRUE(maybeLastChunk.has_value());
             // We don't get the last chunk again
             EXPECT_FALSE(*maybeChunkHeader == *maybeLastChunk);
             EXPECT_FALSE((*maybeChunkHeader)->payload() == (*maybeLastChunk)->payload());
@@ -446,8 +450,12 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
-    m_chunkSender.send(myCrazyChunk.get());
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    iox::mepoo::ChunkHeader myCrazyChunk{PAYLOAD_SIZE,
+                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    m_chunkSender.send(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
@@ -483,8 +491,12 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
             errorHandlerCalled = true;
         });
 
-    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
-    m_chunkSender.pushToHistory(myCrazyChunk.get());
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    iox::mepoo::ChunkHeader myCrazyChunk{PAYLOAD_SIZE,
+                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    m_chunkSender.pushToHistory(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
@@ -501,11 +513,11 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
                                                           alignof(DummySample),
                                                           CUSTOM_HEADER_SIZE,
                                                           CUSTOM_HEADER_ALIGNMENT);
-        EXPECT_FALSE(maybeChunkHeader.has_error());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
         auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
         if (i > 0)
         {
-            EXPECT_TRUE(maybeLastChunk.has_value());
+            ASSERT_TRUE(maybeLastChunk.has_value());
             // No last chunk for us :-(
             EXPECT_FALSE(*maybeChunkHeader == *maybeLastChunk);
             EXPECT_FALSE((*maybeChunkHeader)->payload() == (*maybeLastChunk)->payload());
@@ -534,11 +546,11 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed
                                                           alignof(DummySample),
                                                           CUSTOM_HEADER_SIZE,
                                                           CUSTOM_HEADER_ALIGNMENT);
-        EXPECT_FALSE(maybeChunkHeader.has_error());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
         auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
         if (i > 0)
         {
-            EXPECT_TRUE(maybeLastChunk.has_value());
+            ASSERT_TRUE(maybeLastChunk.has_value());
             // We get the last chunk again
             EXPECT_TRUE(*maybeChunkHeader == *maybeLastChunk);
             EXPECT_TRUE((*maybeChunkHeader)->payload() == (*maybeLastChunk)->payload());
@@ -565,7 +577,7 @@ TEST_F(ChunkSender_test, ReuseLastIfSmaller)
 {
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         BIG_CHUNK, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-    EXPECT_FALSE(maybeChunkHeader.has_error());
+    ASSERT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1u));
 
     auto chunkHeader = *maybeChunkHeader;
@@ -573,14 +585,14 @@ TEST_F(ChunkSender_test, ReuseLastIfSmaller)
 
     auto chunkSmaller = m_chunkSender.tryAllocate(
         SMALL_CHUNK, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-    EXPECT_FALSE(chunkSmaller.has_error());
+    ASSERT_FALSE(chunkSmaller.has_error());
 
     // no small chunk used as big one is recycled
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1u));
 
     auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
-    EXPECT_TRUE(maybeLastChunk.has_value());
+    ASSERT_TRUE(maybeLastChunk.has_value());
     // We get the last chunk again
     EXPECT_TRUE(*chunkSmaller == *maybeLastChunk);
     EXPECT_TRUE((*chunkSmaller)->payload() == (*maybeLastChunk)->payload());
@@ -590,7 +602,7 @@ TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
 {
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         SMALL_CHUNK, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-    EXPECT_FALSE(maybeChunkHeader.has_error());
+    ASSERT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 
     auto chunkHeader = *maybeChunkHeader;
@@ -598,14 +610,14 @@ TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
 
     auto chunkBigger = m_chunkSender.tryAllocate(
         BIG_CHUNK, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-    EXPECT_FALSE(chunkBigger.has_error());
+    ASSERT_FALSE(chunkBigger.has_error());
 
     // no reuse, we hav a small and a big chunk in use
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1u));
 
     auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
-    EXPECT_TRUE(maybeLastChunk.has_value());
+    ASSERT_TRUE(maybeLastChunk.has_value());
     // not the last chunk
     EXPECT_FALSE(*chunkBigger == *maybeLastChunk);
     EXPECT_FALSE((*chunkBigger)->payload() == (*maybeLastChunk)->payload());
@@ -615,7 +627,7 @@ TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
 {
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         SMALL_CHUNK - 10, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-    EXPECT_FALSE(maybeChunkHeader.has_error());
+    ASSERT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 
     auto chunkHeader = *maybeChunkHeader;
@@ -623,14 +635,14 @@ TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
 
     auto chunkBigger = m_chunkSender.tryAllocate(
         SMALL_CHUNK, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-    EXPECT_FALSE(chunkBigger.has_error());
+    ASSERT_FALSE(chunkBigger.has_error());
 
     // reuse as it still fits in the small chunk
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(0u));
 
     auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
-    EXPECT_TRUE(maybeLastChunk.has_value());
+    ASSERT_TRUE(maybeLastChunk.has_value());
     // not the last chunk
     EXPECT_TRUE(*chunkBigger == *maybeLastChunk);
     EXPECT_TRUE((*chunkBigger)->payload() == (*maybeLastChunk)->payload());

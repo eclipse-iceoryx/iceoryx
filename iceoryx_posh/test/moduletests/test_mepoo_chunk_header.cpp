@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,19 +22,20 @@
 using namespace ::testing;
 using namespace iox::mepoo;
 
-template <uint32_t N>
+template <uint32_t PayloadSize>
 struct alignas(32) ChunkWithPayload
 {
-    ChunkHeader m_chunkHeader;
-    uint8_t m_payload[N];
+    ChunkHeader m_chunkHeader{PayloadSize, 1U, iox::CHUNK_NO_CUSTOM_HEADER_SIZE, iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    uint8_t m_payload[PayloadSize];
 };
 
-template <uint32_t N>
+template <uint32_t PayloadSize>
 struct alignas(32) ChunkWithCustomHeaderAndPayload
 {
-    ChunkHeader m_chunkHeader;
+    ChunkHeader m_chunkHeader{PayloadSize, 1U, sizeof(uint64_t), alignof(uint64_t)};
     uint64_t m_customHeader;
-    uint8_t m_payload[N];
+    ChunkHeader::PayloadOffset_t m_backOffset;
+    uint8_t m_payload[PayloadSize];
 };
 
 class ChunkHeader_test : public Test
@@ -45,7 +46,11 @@ class ChunkHeader_test : public Test
 
 TEST_F(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 {
-    ChunkHeader sut;
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    ChunkHeader sut{PAYLOAD_SIZE,
+                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
 
     EXPECT_THAT(sut.chunkSize, Eq(0U));
 
@@ -79,7 +84,7 @@ TEST_F(ChunkHeader_test, ChunkHeaderPayloadSizeIsLargeEnoughForMempoolChunk)
 
 TEST_F(ChunkHeader_test, CustomHeaderMethodReturnsCorrectCustomHeaderPointer)
 {
-    constexpr int32_t PAYLOAD_SIZE{128};
+    constexpr uint32_t PAYLOAD_SIZE{128U};
     ChunkWithCustomHeaderAndPayload<PAYLOAD_SIZE> chunk;
 
     EXPECT_THAT(chunk.m_chunkHeader.customHeader<uint64_t>(), Eq(&chunk.m_customHeader));
@@ -87,7 +92,7 @@ TEST_F(ChunkHeader_test, CustomHeaderMethodReturnsCorrectCustomHeaderPointer)
 
 TEST_F(ChunkHeader_test, PayloadMethodReturnsCorrectPayloadPointer)
 {
-    constexpr int32_t PAYLOAD_SIZE{128};
+    constexpr uint32_t PAYLOAD_SIZE{128U};
     ChunkWithPayload<PAYLOAD_SIZE> chunk;
 
     EXPECT_THAT(chunk.m_chunkHeader.payload(), Eq(chunk.m_payload));
@@ -95,7 +100,7 @@ TEST_F(ChunkHeader_test, PayloadMethodReturnsCorrectPayloadPointer)
 
 TEST_F(ChunkHeader_test, FromPayloadFunctionReturnsCorrectChunkHeaderPointer)
 {
-    constexpr int32_t PAYLOAD_SIZE{128};
+    constexpr uint32_t PAYLOAD_SIZE{128U};
     ChunkWithPayload<PAYLOAD_SIZE> chunk;
 
     EXPECT_THAT(ChunkHeader::fromPayload(chunk.m_payload), Eq(&chunk.m_chunkHeader));
@@ -108,26 +113,37 @@ TEST_F(ChunkHeader_test, FromPayloadFunctionCalledWithNullptrReturnsNullptr)
 
 TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
 {
-    ChunkHeader sut;
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    ChunkHeader sut{PAYLOAD_SIZE,
+                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
     sut.chunkSize = 2 * sizeof(ChunkHeader);
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader)));
 }
 
 TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne)
 {
-    ChunkHeader sut;
-    sut.chunkSize = 2 * sizeof(ChunkHeader);
     constexpr uint32_t PAYLOAD_SIZE{1U};
-    sut.payloadSize = PAYLOAD_SIZE;
+    ChunkHeader sut{PAYLOAD_SIZE,
+                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    sut.chunkSize = 2 * sizeof(ChunkHeader);
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader) + PAYLOAD_SIZE));
 }
 
 TEST_F(ChunkHeader_test, usedChunkSizeTerminatesWhenPayloadSizeExceedsChunkSize)
 {
-    ChunkHeader sut;
-    sut.chunkSize = 2 * sizeof(ChunkHeader);
     constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
-    sut.payloadSize = PAYLOAD_SIZE;
+    ChunkHeader sut{PAYLOAD_SIZE,
+                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    sut.chunkSize = 2 * sizeof(ChunkHeader);
 
     EXPECT_DEATH(sut.usedSizeOfChunk(), ".*");
 }

@@ -52,8 +52,6 @@ inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acqui
     }
 
     new (chunkHeader) ChunkHeader(sizeof(T), alignof(T), CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
-    chunkHeader->payloadSize = sizeof(T);
-
     new (chunkManagement) ChunkManagement(chunkHeader, &m_memPool, &m_chunkManagementPool);
 
     return cxx::success<ChunkManagement*>(chunkManagement);

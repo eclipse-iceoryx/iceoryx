@@ -328,9 +328,11 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
     EXPECT_THAT(sut->getMemPoolInfo(3).m_usedChunks, Eq(ChunkCount));
 }
 
-TEST_F(MemoryManager_test, getChunkWithSizeZeroShouldFail)
+TEST_F(MemoryManager_test, getChunkWithSizeZeroShouldNotFail)
 {
-    EXPECT_DEATH({ sut->getChunk(0U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT); }, ".*");
+    mempoolconf.addMemPool({32, 10});
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    EXPECT_THAT(sut->getChunk(0U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT), Eq(true));
 }
 
 TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)

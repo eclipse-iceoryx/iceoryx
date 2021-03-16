@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -193,12 +194,14 @@ TEST_F(SharedChunk_Test, getPayloadWhenInvalid)
 
 TEST_F(SharedChunk_Test, getPayloadWhenValid)
 {
+    constexpr uint32_t PAYLOAD{1337U};
     ChunkHeader* newChunk = static_cast<ChunkHeader*>(mempool.getChunk());
-    new (newChunk) ChunkHeader();
-    new (static_cast<int*>(newChunk->payload())) int{1337};
+    new (newChunk) ChunkHeader(
+        sizeof(PAYLOAD), alignof(uint32_t), iox::CHUNK_NO_CUSTOM_HEADER_SIZE, iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+    new (static_cast<uint32_t*>(newChunk->payload())) uint32_t{PAYLOAD};
 
     iox::mepoo::SharedChunk sut2(GetChunkManagement(newChunk));
-    EXPECT_THAT(*static_cast<int*>(sut2.getPayload()), Eq(1337));
+    EXPECT_THAT(*static_cast<uint32_t*>(sut2.getPayload()), Eq(PAYLOAD));
 }
 
 TEST_F(SharedChunk_Test, MultipleSharedChunksCleanup)

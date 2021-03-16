@@ -192,8 +192,12 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
-    m_chunkReceiver.release(myCrazyChunk.get());
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    iox::mepoo::ChunkHeader myCrazyChunk{PAYLOAD_SIZE,
+                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    m_chunkReceiver.release(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
