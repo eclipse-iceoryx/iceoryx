@@ -37,7 +37,7 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize,
     this->payloadSize = payloadSize;
 
     // have a look at »Payload Offset Calculation« in chunk_header.md for more details regarding the calculation
-    if (customHeaderSize == 0)
+    if (customHeaderSize == 0U)
     {
         if (payloadAlignment <= alignof(mepoo::ChunkHeader))
         {

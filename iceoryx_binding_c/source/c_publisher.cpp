@@ -103,7 +103,7 @@ iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk
 {
     auto result = PublisherPortUser(self->m_portData)
                       .tryAllocateChunk(payloadSize, CHUNK_DEFAULT_PAYLOAD_ALIGNMENT)
-                      .and_then([&](ChunkHeader* h) { *chunk = h->payload(); });
+                      .and_then([&chunk](ChunkHeader* h) { *chunk = h->payload(); });
     if (result.has_error())
     {
         return cpp2c::AllocationResult(result.get_error());

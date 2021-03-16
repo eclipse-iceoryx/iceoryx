@@ -52,17 +52,17 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize,
     const uint32_t neededChunkSize = getMembers()->m_memoryMgr->requiredChunkSize(
         payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
 
-    if (getMembers()->m_lastChunk && getMembers()->m_lastChunk.hasNoOtherOwners()
-        && (getMembers()->m_lastChunk.getChunkHeader()->chunkSize >= neededChunkSize))
+    auto& lastChunk = getMembers()->m_lastChunk;
+    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize >= neededChunkSize))
     {
-        if (getMembers()->m_chunksInUse.insert(getMembers()->m_lastChunk))
+        if (getMembers()->m_chunksInUse.insert(lastChunk))
         {
-            auto chunkHeader = getMembers()->m_lastChunk.getChunkHeader();
+            auto chunkHeader = lastChunk.getChunkHeader();
             auto chunkSize = chunkHeader->chunkSize;
             chunkHeader->~ChunkHeader();
             new (chunkHeader)
                 mepoo::ChunkHeader(chunkSize, payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
-            return cxx::success<mepoo::ChunkHeader*>(getMembers()->m_lastChunk.getChunkHeader());
+            return cxx::success<mepoo::ChunkHeader*>(lastChunk.getChunkHeader());
         }
         else
         {
