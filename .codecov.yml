@@ -19,8 +19,6 @@ coverage:
       default:
         enabled: yes
         target: 70%
-        threshold: 2%
-        base: auto
     changes: no
 
 parsers:
