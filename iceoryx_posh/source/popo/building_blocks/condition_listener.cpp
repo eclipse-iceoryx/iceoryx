@@ -35,9 +35,8 @@ void ConditionListener::resetSemaphore() noexcept
            && getMembers()
                   ->m_semaphore.tryWait()
                   .or_else([&](posix::SemaphoreError) {
-                      errorHandler(Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_RESET,
-                                   nullptr,
-                                   ErrorLevel::FATAL);
+                      errorHandler(
+                          Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_RESET, nullptr, ErrorLevel::FATAL);
                       hasFatalError = true;
                   })
                   .value())
@@ -49,8 +48,7 @@ void ConditionListener::destroy() noexcept
 {
     m_toBeDestroyed.store(true, std::memory_order_relaxed);
     getMembers()->m_semaphore.post().or_else([](auto) {
-        errorHandler(
-            Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_DESTROY, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_DESTROY, nullptr, ErrorLevel::FATAL);
     });
 }
 
@@ -59,8 +57,7 @@ bool ConditionListener::wasNotified() const noexcept
     auto result = getMembers()->m_semaphore.getValue();
     if (result.has_error())
     {
-        errorHandler(
-            Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAS_TRIGGERED, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAS_TRIGGERED, nullptr, ErrorLevel::FATAL);
         return false;
     }
 
@@ -75,7 +72,7 @@ void ConditionListener::wait() noexcept
     }
 
     getMembers()->m_semaphore.wait().or_else([](auto) {
-        errorHandler(Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
     });
 }
 
@@ -91,8 +88,7 @@ bool ConditionListener::timedWait(units::Duration timeToWait) noexcept
 
     if (result.has_error())
     {
-        errorHandler(
-            Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, nullptr, ErrorLevel::FATAL);
         return false;
     }
 
@@ -122,8 +118,7 @@ ConditionListener::NotificationVector_t ConditionListener::waitForNotifications(
 
         if (getMembers()->m_semaphore.wait().has_error())
         {
-            errorHandler(
-                Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+            errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
             break;
         }
     }

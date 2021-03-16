@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,18 +39,18 @@ class ConditionListener
     ConditionListener& operator=(const ConditionListener& rhs) = delete;
     ConditionListener& operator=(ConditionListener&& rhs) noexcept = delete;
 
-
+    /// @brief Resets the underlying semaphore to zero.
     void resetSemaphore() noexcept;
 
-    /// @brief Waits until notify is called on the ConditionVariableSignaler or time has run out
+    /// @brief Waits until notify is called on the ConditionNotifier or time has run out
     /// @param[in] timeToWait, time to wait until the function returns
     /// @return False if timeout occured, true if no timeout occured
     bool timedWait(const units::Duration timeToWait) noexcept;
 
-    /// @brief Waits until notify is called on the ConditionVariableSignaler
+    /// @brief Waits until notify is called on the ConditionNotifier
     void wait() noexcept;
 
-    /// @brief Was the ConditionListener notified by a ConditionVariableSignaler?
+    /// @brief Was the ConditionListener notified by a ConditionNotifier?
     /// @return true if it was notified otherwise false
     bool wasNotified() const noexcept;
 
@@ -59,8 +60,8 @@ class ConditionListener
     ///         returns an empty vector.
     void destroy() noexcept;
 
-    /// @brief returns vector of indices of active notifications; blocking if EventVariableData was
-    /// not notified unless destroy() was called before. The indices of active notifications is
+    /// @brief returns vector of indices of active notifications; blocking if ConditionVariableData was
+    /// not notified unless destroy() was called before. The indices of active notifications are
     /// never empty unless destroy() was called, then it's always empty.
     ///
     /// @return vector of active notifications
