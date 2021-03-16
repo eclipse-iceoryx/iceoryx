@@ -30,7 +30,7 @@ class ConditionNotifier
   public:
     static constexpr uint64_t INVALID_NOTIFICATION_INDEX = std::numeric_limits<uint64_t>::max();
 
-    explicit ConditionNotifier(ConditionVariableData& condVarDataRef, const uint64_t index) noexcept;
+    ConditionNotifier(ConditionVariableData& condVarDataRef, const uint64_t index) noexcept;
 
     ConditionNotifier(const ConditionNotifier& rhs) = delete;
     ConditionNotifier(ConditionNotifier&& rhs) noexcept = delete;

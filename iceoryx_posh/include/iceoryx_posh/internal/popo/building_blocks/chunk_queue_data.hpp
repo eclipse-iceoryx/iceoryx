@@ -20,6 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
@@ -43,7 +44,7 @@ struct ChunkQueueData : public LockingPolicy
     std::atomic_bool m_queueHasOverflown{false};
 
     relative_ptr<ConditionVariableData> m_conditionVariableDataPtr;
-    uint64_t m_conditionVariableNotificationIndex = 0U;
+    cxx::optional<uint64_t> m_conditionVariableNotificationIndex;
 };
 
 } // namespace popo

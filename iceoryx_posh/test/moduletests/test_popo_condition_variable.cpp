@@ -25,6 +25,7 @@
 #include <atomic>
 #include <memory>
 #include <thread>
+#include <type_traits>
 
 using namespace ::testing;
 using ::testing::Return;
@@ -54,6 +55,22 @@ class ConditionVariable_test : public Test
         m_waiter.resetSemaphore();
     };
 };
+
+TEST_F(ConditionVariable_test, ConditionListenerIsNeitherCopyNorMovable)
+{
+    EXPECT_FALSE(std::is_copy_constructible<ConditionListener>::value);
+    EXPECT_FALSE(std::is_move_constructible<ConditionListener>::value);
+    EXPECT_FALSE(std::is_copy_assignable<ConditionListener>::value);
+    EXPECT_FALSE(std::is_move_assignable<ConditionListener>::value);
+}
+
+TEST_F(ConditionVariable_test, ConditionNotifierIsNeitherCopyNorMovable)
+{
+    EXPECT_FALSE(std::is_copy_constructible<ConditionNotifier>::value);
+    EXPECT_FALSE(std::is_move_constructible<ConditionNotifier>::value);
+    EXPECT_FALSE(std::is_copy_assignable<ConditionNotifier>::value);
+    EXPECT_FALSE(std::is_move_assignable<ConditionNotifier>::value);
+}
 
 TEST_F(ConditionVariable_test, TimedWaitWithInvalidTimeResultsInFailure)
 {

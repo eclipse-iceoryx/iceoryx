@@ -125,7 +125,7 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(Condition
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
     getMembers()->m_conditionVariableDataPtr = &conditionVariableDataRef;
-    getMembers()->m_conditionVariableNotificationIndex = notificationIndex;
+    getMembers()->m_conditionVariableNotificationIndex.emplace(notificationIndex);
 }
 
 template <typename ChunkQueueDataType>
@@ -134,7 +134,7 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexc
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
     getMembers()->m_conditionVariableDataPtr = nullptr;
-    getMembers()->m_conditionVariableNotificationIndex = ConditionNotifier::INVALID_NOTIFICATION_INDEX;
+    getMembers()->m_conditionVariableNotificationIndex.reset();
 }
 
 template <typename ChunkQueueDataType>

@@ -25,7 +25,7 @@ class TestClass
 {
   public:
     TestClass() noexcept = default;
-    TestClass(int a, int b, int c) noexcept
+    TestClass(const int32_t a, const int32_t b, const int32_t c) noexcept
         : m_a(a)
         , m_b(b)
         , m_c(c)
@@ -36,7 +36,7 @@ class TestClass
     {
         return m_a == rhs.m_a && m_b == rhs.m_b && m_c == rhs.m_c;
     }
-    int m_a = 0, m_b = 0, m_c = 0;
+    int32_t m_a = 0, m_b = 0, m_c = 0;
 };
 
 class stack_test : public Test
@@ -44,6 +44,16 @@ class stack_test : public Test
   public:
     static constexpr uint64_t STACK_SIZE = 10U;
     cxx::stack<TestClass, STACK_SIZE> m_sut;
+
+    void PushElements(const uint64_t numberOfElements)
+    {
+        for (uint64_t i = 0U; i < numberOfElements; ++i)
+        {
+            ASSERT_TRUE(m_sut.push(1 + i, 2 + i, 3 + i));
+            EXPECT_THAT(m_sut.size(), Eq(i + 1U));
+            EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
+        }
+    }
 };
 } // namespace
 
@@ -67,9 +77,7 @@ TEST_F(stack_test, pushingOneElementWithDefaultCtorSucceeds)
 
 TEST_F(stack_test, pushingOneElementWithCustomCtorSucceeds)
 {
-    ASSERT_TRUE(m_sut.push(1, 2, 3));
-    EXPECT_THAT(m_sut.size(), Eq(1U));
-    EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
+    PushElements(1U);
 
     auto element = m_sut.pop();
     ASSERT_TRUE(element.has_value());
@@ -78,16 +86,12 @@ TEST_F(stack_test, pushingOneElementWithCustomCtorSucceeds)
 
 TEST_F(stack_test, pushingElementsTillStackIsFullAndPoppingInLIFOOrderSucceeds)
 {
-    for (uint64_t i = 0U; i < STACK_SIZE; ++i)
-    {
-        ASSERT_TRUE(m_sut.push(1 + i, 2 + i, 3 + i));
-        EXPECT_THAT(m_sut.size(), Eq(i + 1U));
-        EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
-    }
+    PushElements(STACK_SIZE);
 
     for (uint64_t i = 0U; i < STACK_SIZE; ++i)
     {
         auto element = m_sut.pop();
+        EXPECT_THAT(m_sut.size(), Eq(STACK_SIZE - i - 1U));
         ASSERT_TRUE(element.has_value());
         EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
     }
@@ -95,20 +99,14 @@ TEST_F(stack_test, pushingElementsTillStackIsFullAndPoppingInLIFOOrderSucceeds)
 
 TEST_F(stack_test, ifCapacityIsExceededPushFails)
 {
-    for (uint64_t i = 0U; i < STACK_SIZE; ++i)
-    {
-        ASSERT_TRUE(m_sut.push());
-    }
+    PushElements(STACK_SIZE);
 
     EXPECT_FALSE(m_sut.push());
 }
 
 TEST_F(stack_test, popCreatesSpaceForAnotherElement)
 {
-    for (uint64_t i = 0U; i < STACK_SIZE; ++i)
-    {
-        ASSERT_TRUE(m_sut.push());
-    }
+    PushElements(STACK_SIZE);
 
     EXPECT_THAT(m_sut.pop(), Ne(cxx::nullopt));
     EXPECT_TRUE(m_sut.push());
