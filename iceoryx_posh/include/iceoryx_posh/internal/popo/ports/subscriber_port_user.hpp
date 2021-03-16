@@ -84,11 +84,7 @@ class SubscriberPortUser : public BasePort
     bool hasLostChunksSinceLastCall() noexcept;
 
     /// @brief attach a condition variable (via its pointer) to subscriber
-    void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
-
-    /// @todo iox-#350 remove once ConditionVariable and EventVariable are combined
-    // do we need an unsetEventVariable method?
-    void setEventVariable(EventVariableData& eventVariableData, const uint64_t eventId) noexcept;
+    void setConditionVariable(ConditionVariableData& conditionVariableData, const uint64_t notificationIndex) noexcept;
 
     /// @brief detach a condition variable from subscriber
     void unsetConditionVariable() noexcept;

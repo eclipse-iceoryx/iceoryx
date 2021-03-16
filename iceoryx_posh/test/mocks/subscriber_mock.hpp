@@ -55,8 +55,7 @@ class MockSubscriberPortUser
     MOCK_METHOD0(releaseQueuedChunks, void());
     MOCK_CONST_METHOD0(hasNewChunks, bool());
     MOCK_METHOD0(hasLostChunksSinceLastCall, bool());
-    MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
-    MOCK_METHOD2(setEventVariable, bool(iox::popo::EventVariableData&, uint64_t));
+    MOCK_METHOD2(setConditionVariable, bool(iox::popo::ConditionVariableData&, uint64_t));
     MOCK_METHOD0(isConditionVariableSet, bool());
     MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(destroy, bool());

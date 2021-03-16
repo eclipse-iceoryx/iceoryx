@@ -17,8 +17,7 @@
 #ifndef IOX_POSH_POPO_LISTENER_HPP
 #define IOX_POSH_POPO_LISTENER_HPP
 
-#include "iceoryx_posh/internal/popo/building_blocks/event_listener.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -127,7 +126,7 @@ class Listener
     uint64_t size() const noexcept;
 
   protected:
-    Listener(EventVariableData* eventVariable) noexcept;
+    Listener(ConditionVariableData& conditionVariableData) noexcept;
 
   private:
     class Event_t;
@@ -200,8 +199,8 @@ class Listener
     std::mutex m_addEventMutex;
 
     std::atomic_bool m_wasDtorCalled{false};
-    EventVariableData* m_eventVariable = nullptr;
-    EventListener m_eventListener;
+    ConditionVariableData* m_conditionVariableData = nullptr;
+    ConditionListener m_conditionListener;
 };
 } // namespace popo
 } // namespace iox
