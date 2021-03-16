@@ -45,7 +45,7 @@ class stack_test : public Test
     static constexpr uint64_t STACK_SIZE = 10U;
     cxx::stack<TestClass, STACK_SIZE> m_sut;
 
-    void PushElements(const uint64_t numberOfElements)
+    void pushElements(const uint64_t numberOfElements)
     {
         for (uint64_t i = 0U; i < numberOfElements; ++i)
         {
@@ -77,7 +77,7 @@ TEST_F(stack_test, pushingOneElementWithDefaultCtorSucceeds)
 
 TEST_F(stack_test, pushingOneElementWithCustomCtorSucceeds)
 {
-    PushElements(1U);
+    pushElements(1U);
 
     auto element = m_sut.pop();
     ASSERT_TRUE(element.has_value());
@@ -86,7 +86,7 @@ TEST_F(stack_test, pushingOneElementWithCustomCtorSucceeds)
 
 TEST_F(stack_test, pushingElementsTillStackIsFullAndPoppingInLIFOOrderSucceeds)
 {
-    PushElements(STACK_SIZE);
+    pushElements(STACK_SIZE);
 
     for (uint64_t i = 0U; i < STACK_SIZE; ++i)
     {
@@ -99,14 +99,14 @@ TEST_F(stack_test, pushingElementsTillStackIsFullAndPoppingInLIFOOrderSucceeds)
 
 TEST_F(stack_test, ifCapacityIsExceededPushFails)
 {
-    PushElements(STACK_SIZE);
+    pushElements(STACK_SIZE);
 
     EXPECT_FALSE(m_sut.push());
 }
 
 TEST_F(stack_test, popCreatesSpaceForAnotherElement)
 {
-    PushElements(STACK_SIZE);
+    pushElements(STACK_SIZE);
 
     EXPECT_THAT(m_sut.pop(), Ne(cxx::nullopt));
     EXPECT_TRUE(m_sut.push());
