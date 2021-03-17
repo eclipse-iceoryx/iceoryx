@@ -80,7 +80,7 @@ TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexReturnsTrue)
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
-#if !defined(_WIN32) || !defined(QNX) || !defined(QNX__) || !defined(__QNX__) || !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(QNX) && !defined(QNX__) && !defined(__QNX__) && !defined(__APPLE__)
 // in qnx you can destroy a locked mutex, without error if the thread holding the lock is destructing it.
 TEST_F(Mutex_test, CallingDestructorOnLockedMutexLeadsToTermination)
 {
