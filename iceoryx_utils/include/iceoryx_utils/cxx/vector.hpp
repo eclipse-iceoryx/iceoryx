@@ -155,7 +155,13 @@ class vector
     bool resize(const uint64_t count, const Targs&... args) noexcept;
 
     /// @brief forwards all arguments to the constructor of the contained element
-    ///         and performs a placement new
+    ///         and performs a placement new at the provided position
+    /// @param[in] position the position where the element should be created
+    template <typename... Targs>
+    bool emplace(const uint64_t position, Targs&&... args) noexcept;
+
+    /// @brief forwards all arguments to the constructor of the contained element
+    ///         and performs a placement new at the end
     template <typename... Targs>
     bool emplace_back(Targs&&... args) noexcept;
 

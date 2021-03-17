@@ -174,6 +174,30 @@ inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
 }
 
 template <typename T, uint64_t Capacity>
+template <typename... Targs>
+inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... args) noexcept
+{
+    if (m_size >= Capacity || position >= Capacity || position > m_size)
+    {
+        return false;
+    }
+
+    if (position == m_size)
+    {
+        return emplace_back(std::forward<Targs>(args)...);
+    }
+
+    emplace_back(std::move(*reinterpret_cast<T*>(m_data[m_size - 1U])));
+    for (uint64_t i = 1U; i + 1U < m_size - position; ++i)
+    {
+        reinterpret_cast<T*>(m_data)[m_size - 1U - i] = std::move(reinterpret_cast<T*>(m_data)[m_size - 2U - i]);
+    }
+
+    new (&at(position)) T(std::forward<Targs>(args)...);
+    return true;
+}
+
+template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::push_back(const T& value) noexcept
 {
     return emplace_back(value);
