@@ -51,7 +51,7 @@ class ChunkHeader_test : public Test
 
 TEST_F(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 {
-    constexpr uint32_t CHUNK_SIZE{32};
+    constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{8U};
     ChunkHeader sut{CHUNK_SIZE,
                     PAYLOAD_SIZE,
@@ -120,7 +120,7 @@ TEST_F(ChunkHeader_test, FromPayloadFunctionCalledWithNullptrReturnsNullptr)
 
 TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
 {
-    constexpr uint32_t CHUNK_SIZE{32};
+    constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
     ChunkHeader sut{CHUNK_SIZE,
                     PAYLOAD_SIZE,
@@ -134,7 +134,7 @@ TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
 
 TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne)
 {
-    constexpr uint32_t CHUNK_SIZE{32};
+    constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{1U};
     ChunkHeader sut{CHUNK_SIZE,
                     PAYLOAD_SIZE,
@@ -148,7 +148,7 @@ TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne
 
 TEST_F(ChunkHeader_test, usedChunkSizeTerminatesWhenPayloadSizeExceedsChunkSize)
 {
-    constexpr uint32_t CHUNK_SIZE{32};
+    constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
     ChunkHeader sut{CHUNK_SIZE,
                     PAYLOAD_SIZE,

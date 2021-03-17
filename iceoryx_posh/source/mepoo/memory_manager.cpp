@@ -200,7 +200,7 @@ SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
     MemPool* memPoolPointer{nullptr};
     uint32_t requiredChunkSize =
         MemoryManager::requiredChunkSize(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
-    uint32_t aquiredChunkSize = 0;
+    uint32_t aquiredChunkSize = 0U;
 
     for (auto& memPool : m_memPoolVector)
     {
