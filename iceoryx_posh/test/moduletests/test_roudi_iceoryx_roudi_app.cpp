@@ -94,11 +94,6 @@ class IceoryxRoudiApp_Child : public IceOryxRouDiApp
     {
         return run();
     }
-
-    bool callWaitForSignal()
-    {
-        return waitForSignal();
-    }
 };
 
 /// @brief Test goal: This file tests class roudi app
