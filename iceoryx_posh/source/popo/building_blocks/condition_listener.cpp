@@ -64,38 +64,32 @@ bool ConditionListener::wasNotified() const noexcept
     return *result != 0;
 }
 
-void ConditionListener::wait() noexcept
+ConditionListener::NotificationVector_t ConditionListener::waitForNotifications() noexcept
 {
-    if (m_toBeDestroyed.load(std::memory_order_relaxed))
-    {
-        return;
-    }
-
-    getMembers()->m_semaphore.wait().or_else([](auto) {
-        errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+    return waitForNotificationsImpl([this]() -> bool {
+        if (this->getMembers()->m_semaphore.wait().has_error())
+        {
+            errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+            return false;
+        }
+        return true;
     });
 }
 
-bool ConditionListener::timedWait(units::Duration timeToWait) noexcept
+ConditionListener::NotificationVector_t
+ConditionListener::timedWaitForNotifications(const units::Duration& timeToWait) noexcept
 {
-    if (m_toBeDestroyed.load(std::memory_order_relaxed))
-    {
+    return waitForNotificationsImpl([this, timeToWait]() -> bool {
+        if (this->getMembers()->m_semaphore.timedWait(timeToWait, true).has_error())
+        {
+            errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+        }
         return false;
-    }
-
-    auto continueOnInterrupt{false};
-    auto result = getMembers()->m_semaphore.timedWait(timeToWait, continueOnInterrupt);
-
-    if (result.has_error())
-    {
-        errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, nullptr, ErrorLevel::FATAL);
-        return false;
-    }
-
-    return *result != posix::SemaphoreWaitState::TIMEOUT;
+    });
 }
 
-ConditionListener::NotificationVector_t ConditionListener::waitForNotifications() noexcept
+ConditionListener::NotificationVector_t
+ConditionListener::waitForNotificationsImpl(const cxx::function_ref<bool()>& waitCall) noexcept
 {
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
     NotificationVector_t activeNotifications;
@@ -116,9 +110,8 @@ ConditionListener::NotificationVector_t ConditionListener::waitForNotifications(
             return activeNotifications;
         }
 
-        if (getMembers()->m_semaphore.wait().has_error())
+        if (!waitCall())
         {
-            errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
             break;
         }
     }

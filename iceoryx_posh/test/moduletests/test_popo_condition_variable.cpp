@@ -49,10 +49,8 @@ class ConditionVariable_test : public Test
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 
     void SetUp() override{};
-    void TearDown() override
-    {
+    void TearDown() override{
         // Reset condition variable
-        m_waiter.resetSemaphore();
     };
 };
 
@@ -72,22 +70,6 @@ TEST_F(ConditionVariable_test, ConditionNotifierIsNeitherCopyNorMovable)
     EXPECT_FALSE(std::is_move_assignable<ConditionNotifier>::value);
 }
 
-TEST_F(ConditionVariable_test, TimedWaitWithInvalidTimeResultsInFailure)
-{
-    EXPECT_FALSE(m_waiter.timedWait(0_ms));
-}
-
-TEST_F(ConditionVariable_test, NoNotifyResultsInTimeoutSingleThreaded)
-{
-    EXPECT_FALSE(m_waiter.timedWait(10_ms));
-}
-
-TEST_F(ConditionVariable_test, NotifyOnceResultsInNoTimeoutSingleThreaded)
-{
-    m_signaler.notify();
-    EXPECT_TRUE(m_waiter.timedWait(10_ms));
-}
-
 TEST_F(ConditionVariable_test, NotifyOnceResultsInBeingTriggered)
 {
     m_signaler.notify();
@@ -97,94 +79,6 @@ TEST_F(ConditionVariable_test, NotifyOnceResultsInBeingTriggered)
 TEST_F(ConditionVariable_test, NoNotifyResultsInNotBeingTriggered)
 {
     EXPECT_FALSE(m_waiter.wasNotified());
-}
-
-TEST_F(ConditionVariable_test, WasTriggerCallDoesNotChangeTheState)
-{
-    m_signaler.notify();
-    m_waiter.wasNotified();
-    EXPECT_TRUE(m_waiter.timedWait(10_ms));
-}
-
-TEST_F(ConditionVariable_test, NotifyOnceResultsInNoWaitSingleThreaded)
-{
-    m_signaler.notify();
-    m_waiter.wait();
-    // We expect that the next line is reached
-    EXPECT_TRUE(true);
-}
-
-TEST_F(ConditionVariable_test, NotifyTwiceResultsInNoWaitSingleThreaded)
-{
-    m_signaler.notify();
-    m_signaler.notify();
-    m_waiter.wait();
-    m_waiter.wait();
-    // We expect that the next line is reached
-    EXPECT_TRUE(true);
-}
-
-TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThreaded)
-{
-    std::atomic<int> counter{0};
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        m_waiter.wait();
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    counter++;
-    m_signaler.notify();
-    waiter.join();
-}
-
-TEST_F(ConditionVariable_test, ResetResultsInBlockingWaitMultiThreaded)
-{
-    std::atomic<int> counter{0};
-    m_signaler.notify();
-    m_waiter.resetSemaphore();
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        m_waiter.wait();
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    counter++;
-    m_signaler.notify();
-    waiter.join();
-}
-
-TEST_F(ConditionVariable_test, ResetWithoutNotifiyResultsInBlockingWaitMultiThreaded)
-{
-    std::atomic<int> counter{0};
-    m_waiter.resetSemaphore();
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        m_waiter.wait();
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    counter++;
-    m_signaler.notify();
-    waiter.join();
-}
-
-TEST_F(ConditionVariable_test, NotifyWhileWaitingResultsNoTimeoutMultiThreaded)
-{
-    std::atomic<int> counter{0};
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        EXPECT_TRUE(m_waiter.timedWait(10_ms));
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    counter++;
-    m_signaler.notify();
-    waiter.join();
 }
 
 TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstruction)

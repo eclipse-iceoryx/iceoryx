@@ -129,6 +129,7 @@ class WaitSet
     explicit WaitSet(ConditionVariableData& condVarData) noexcept;
 
   private:
+    using WaitFunction = cxx::function_ref<ConditionListener::NotificationVector_t()>;
     template <typename T>
     cxx::expected<uint64_t, WaitSetError> attachEventImpl(T& eventOrigin,
                                                           const WaitSetHasTriggeredCallback& hasTriggeredCallback,
@@ -136,13 +137,12 @@ class WaitSet
                                                           const EventInfo::Callback<T>& eventCallback) noexcept;
 
     EventInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
-    template <typename WaitFunction>
     EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
     EventInfoVector createVectorWithTriggeredTriggers() noexcept;
 
     void removeTrigger(const uint64_t uniqueTriggerId) noexcept;
     void removeAllTriggers() noexcept;
-    void acquireNotifications() noexcept;
+    void acquireNotifications(const WaitFunction& wait) noexcept;
 
   private:
     /// needs to be a list since we return pointer to the underlying EventInfo class with wait

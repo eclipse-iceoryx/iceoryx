@@ -104,7 +104,7 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
     std::atomic_int stage{0};
 
     std::thread t([&] {
-        ConditionListener(m_condVar).wait();
+        ConditionListener(m_condVar).waitForNotifications();
         stage.store(1);
     });
 

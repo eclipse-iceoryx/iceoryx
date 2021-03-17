@@ -39,17 +39,6 @@ class ConditionListener
     ConditionListener& operator=(const ConditionListener& rhs) = delete;
     ConditionListener& operator=(ConditionListener&& rhs) noexcept = delete;
 
-    /// @brief Resets the underlying semaphore to zero.
-    void resetSemaphore() noexcept;
-
-    /// @brief Waits until notify is called on the ConditionNotifier or time has run out
-    /// @param[in] timeToWait, time to wait until the function returns
-    /// @return False if timeout occured, true if no timeout occured
-    bool timedWait(const units::Duration timeToWait) noexcept;
-
-    /// @brief Waits until notify is called on the ConditionNotifier
-    void wait() noexcept;
-
     /// @brief Was the ConditionListener notified by a ConditionNotifier?
     /// @return true if it was notified otherwise false
     bool wasNotified() const noexcept;
@@ -67,6 +56,7 @@ class ConditionListener
     /// @return vector of active notifications
     NotificationVector_t waitForNotifications() noexcept;
 
+    NotificationVector_t timedWaitForNotifications(const units::Duration& timeToWait) noexcept;
 
   protected:
     const ConditionVariableData* getMembers() const noexcept;
@@ -74,6 +64,9 @@ class ConditionListener
 
   private:
     void reset(const uint64_t index) noexcept;
+    void resetSemaphore() noexcept;
+
+    NotificationVector_t waitForNotificationsImpl(const cxx::function_ref<bool()>& waitCall) noexcept;
 
   private:
     ConditionVariableData* m_condVarDataPtr{nullptr};

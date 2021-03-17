@@ -165,13 +165,14 @@ inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnTriggeredTriggers([this, timeout] { return false; });
+    return waitAndReturnTriggeredTriggers(
+        [this, timeout] { return this->m_conditionListener.timedWaitForNotifications(timeout); });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
 {
-    return waitAndReturnTriggeredTriggers([this] { return false; });
+    return waitAndReturnTriggeredTriggers([this] { return this->m_conditionListener.waitForNotifications(); });
 }
 
 template <uint64_t Capacity>
@@ -203,10 +204,10 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
 }
 
 template <uint64_t Capacity>
-inline void WaitSet<Capacity>::acquireNotifications() noexcept
+inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) noexcept
 {
-    // requires ordered vector
-    auto notificationVector = m_conditionListener.waitForNotifications();
+    // TODO test requires ordered vector
+    auto notificationVector = wait();
     if (m_activeNotifications.empty())
     {
         m_activeNotifications = notificationVector;
@@ -214,6 +215,7 @@ inline void WaitSet<Capacity>::acquireNotifications() noexcept
     else
     {
         uint64_t position = 0U;
+        // TODO test by triggering without handling/resetting event
         // merge with activeNotifications
         for (auto notificationId : notificationVector)
         {
@@ -234,31 +236,23 @@ inline void WaitSet<Capacity>::acquireNotifications() noexcept
 }
 
 template <uint64_t Capacity>
-template <typename WaitFunction>
 inline typename WaitSet<Capacity>::EventInfoVector
 WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
-    (void)wait;
-
     if (m_conditionListener.wasNotified())
     {
-        this->acquireNotifications();
+        this->acquireNotifications(wait);
     }
 
-    EventInfoVector triggers;
-    do
+    EventInfoVector triggers = createVectorWithTriggeredTriggers();
+
+    if (!triggers.empty())
     {
-        triggers = createVectorWithTriggeredTriggers();
+        return triggers;
+    }
 
-        if (!triggers.empty())
-        {
-            return triggers;
-        }
-
-        acquireNotifications();
-    } while (true);
-
-    return triggers;
+    acquireNotifications(wait);
+    return createVectorWithTriggeredTriggers();
 }
 
 template <uint64_t Capacity>
