@@ -60,7 +60,7 @@ class iox_ws_test : public Test
     }
 
     ConditionVariableData m_condVar{"Horscht"};
-    WaitSetMock* m_sut = new WaitSetMock{&m_condVar};
+    WaitSetMock* m_sut = new WaitSetMock{m_condVar};
 
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1];
     cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1> m_userTrigger;

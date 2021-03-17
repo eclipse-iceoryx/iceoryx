@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,14 +49,40 @@ TEST(TypeTraitsTest, HasSignatureResolvesToFalse)
     EXPECT_FALSE(sut);
 }
 
-TEST(TypeTraitsTest, NotSameIsTrue)
+namespace iox
 {
-    auto sut = not_same<int, float>::value;
-    EXPECT_TRUE(sut);
+namespace cxx
+{
+namespace test
+{
+template <typename, typename = void>
+struct has_mytype_as_member : std::false_type
+{
+};
+
+template <typename T>
+struct has_mytype_as_member<T, void_t<typename T::myType>> : std::true_type
+{
+};
+} // namespace test
+} // namespace cxx
+} // namespace iox
+
+TEST(TypeTraitsTest, NoTypeAsMemberIsFalse)
+{
+    struct Sut
+    {
+    };
+
+    EXPECT_FALSE(iox::cxx::test::has_mytype_as_member<Sut>::value);
 }
 
-TEST(TypeTraitsTest, NotSameIsFalse)
+TEST(TypeTraitsTest, MyTypeAsMemberIsTrue)
 {
-    auto sut = not_same<int, int>::value;
-    EXPECT_FALSE(sut);
+    struct Sut
+    {
+        using myType = int;
+    };
+
+    EXPECT_TRUE(iox::cxx::test::has_mytype_as_member<Sut>::value);
 }

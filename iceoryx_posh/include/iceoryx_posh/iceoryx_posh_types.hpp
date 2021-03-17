@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -100,7 +101,15 @@ constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESS
 constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
+constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE = 128U;
 constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
+static_assert(MAX_NUMBER_OF_EVENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
+              "The WaitSet capacity is restricted by the maximum amount of notifiers per condition variable.");
+// Listener
+constexpr uint8_t MAX_NUMBER_OF_EVENT_VARIABLES = 128U;
+constexpr uint8_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = 128U;
+static_assert(MAX_NUMBER_OF_EVENTS_PER_LISTENER <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
+              "The Listener capacity is restricted by the maximum amount of notifiers per condition variable.");
 //--------- Communication Resources End---------------------
 
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;

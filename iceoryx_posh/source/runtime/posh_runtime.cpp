@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +23,7 @@
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
@@ -81,6 +83,10 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
                      m_ipcChannelInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
+    if (cxx::isCompiledOn32BitSystem())
+    {
+        LogWarn() << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
+    }
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 
@@ -166,7 +172,8 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_PUBLISHER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
-               << options.nodeName << static_cast<cxx::Serialization>(portConfigInfo).toString();
+               << options.nodeName << std::to_string(options.offerOnCreate)
+               << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
     if (maybePublisher.has_error())
@@ -255,6 +262,12 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                   << ", limiting from " << subscriberOptions.queueCapacity << " to " << MAX_QUEUE_CAPACITY;
         options.queueCapacity = MAX_QUEUE_CAPACITY;
     }
+    else if (0U == options.queueCapacity)
+    {
+        LogWarn() << "Requested queue capacity of 0 doesn't make sense as no data would be received,"
+                  << " the capacity is set to 1";
+        options.queueCapacity = 1U;
+    }
 
     if (options.nodeName.empty())
     {
@@ -264,7 +277,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
-               << std::to_string(options.queueCapacity) << options.nodeName
+               << std::to_string(options.queueCapacity) << options.nodeName << std::to_string(options.subscribeOnCreate)
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
@@ -389,12 +402,11 @@ NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
     }
 
     LogError() << "Got wrong response from RouDi while creating node:'" << receiveBuffer.getMessage() << "'";
-    errorHandler(
-        Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    errorHandler(Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
 }
 
-cxx::expected<InstanceContainer, Error>
+cxx::expected<InstanceContainer, FindServiceError>
 PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
 {
     IpcMessage sendBuffer;
@@ -407,7 +419,7 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
     {
         LogError() << "Could not send FIND_SERVICE request to RouDi\n";
         errorHandler(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<Error>(Error::kIPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
+        return cxx::error<FindServiceError>(FindServiceError::UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
     }
 
     InstanceContainer instanceContainer;
@@ -427,7 +439,7 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
         LogWarn() << numberOfElements << " instances found for service \"" << serviceDescription.getServiceIDString()
                   << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_INSTANCES << "\n";
         errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<Error>(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW);
+        return cxx::error<FindServiceError>(FindServiceError::INSTANCE_CONTAINER_OVERFLOW);
     }
     return {cxx::success<InstanceContainer>(instanceContainer)};
 }

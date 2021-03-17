@@ -23,6 +23,7 @@
 #include <iostream>
 
 bool killswitch = false;
+constexpr char APP_NAME[] = "iox-ex-publisher-with-options";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -36,13 +37,23 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-with-history");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    // create publisher options to set a historyCapacity of 10U
+    // create publisher with some options set
     iox::popo::PublisherOptions publisherOptions;
+
+    // the publishers stores the last 10 samples for possible late joiners
     publisherOptions.historyCapacity = 10U;
 
+    // when the publisher is created, it is not yet visible
+    publisherOptions.offerOnCreate = false;
+
+    // grouping of publishers and subscribers within a process
+    publisherOptions.nodeName = "Pub_Node_With_Options";
+
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+
+    // we have to explicitely offer the publisher for making it visible to subscribers
     publisher.offer();
 
     double ct = 0.0;
@@ -53,7 +64,7 @@ int main()
         // Retrieve a sample, construct it with the given arguments and publish it via a lambda.
         publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); });
 
-        std::cout << "Sent value: " << ct << std::endl;
+        std::cout << APP_NAME << " sent value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
     }

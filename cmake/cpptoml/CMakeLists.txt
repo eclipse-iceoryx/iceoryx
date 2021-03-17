@@ -33,6 +33,12 @@ else()
     set(CREATE_PATH_COMMAND mkdir -p)
 endif()
 
+if(DEFINED CMAKE_TOOLCHAIN_FILE)
+    set(TOOLCHAIN_FILE "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+    set(cpptoml_DIR ${CMAKE_BINARY_DIR}/dependencies/install/lib/cmake/cpptoml)
+    set(cpptoml_DIR ${cpptoml_DIR} CACHE PATH "" FORCE)
+endif()
+
 # set download config, source and build paths
 set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/download)
 set(SOURCE_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/src)
@@ -57,7 +63,7 @@ endif()
 
 file(MAKE_DIRECTORY ${BUILD_DIR})
 
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}"
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${TOOLCHAIN_FILE}" "${SOURCE_DIR}"
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${BUILD_DIR} )
 if(result)

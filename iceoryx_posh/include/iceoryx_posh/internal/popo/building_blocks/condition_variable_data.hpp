@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,11 +29,14 @@ namespace popo
 {
 struct ConditionVariableData
 {
+    ConditionVariableData() noexcept;
     ConditionVariableData(const ProcessName_t& process) noexcept;
+
     ConditionVariableData(const ConditionVariableData& rhs) = delete;
     ConditionVariableData(ConditionVariableData&& rhs) = delete;
     ConditionVariableData& operator=(const ConditionVariableData& rhs) = delete;
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
+    ~ConditionVariableData() = default;
 
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0u)
@@ -45,6 +49,7 @@ struct ConditionVariableData
 
     ProcessName_t m_process;
     std::atomic_bool m_toBeDestroyed{false};
+    std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE];
 };
 
 } // namespace popo

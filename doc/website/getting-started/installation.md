@@ -6,28 +6,28 @@ iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh 
 
 ### Dependencies
 
+ - 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware might work, but is not supported)
  - [cmake](https://cmake.org), 3.5 or later
  - One of the following compilers:
-   - [gcc](https://gcc.gnu.org), 7.4 or later 
+   - [gcc](https://gcc.gnu.org), 7.4 or later (5.4 currently supported too)
    - [clang](https://clang.llvm.org), 9.0 or later
    - [msvc](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
  - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
- - optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspectiont tool.
+ - optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool.
 
 #### Optional, Cyclone DDS Gateway
-If you would like to use our Cyclone DDS Gateway you have to install 
-[Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) first. Furthermore
-you have to install:
+If you would like to use our Cyclone DDS Gateway you have to install [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) first.<br>
+Furthermore you have to install:
 
  - [Apache Maven](http://maven.apache.org/download.cgi), 3.5 or later
- - [OpenJDK](http://jdk.java.net/11/), 11.0 or later. Alternatively Java JDK, version 8 or later
+ - [OpenJDK](http://jdk.java.net/11/), 11.0 or later. Alternatively, Java JDK version 8 or later
 
 **Hint:** If you are behind a corporate firewall you may have to adjust the proxy 
 settings of maven in `/etc/maven/settings.xml`. See: [Maven Proxy Configuration](https://maven.apache.org/settings.html#proxies)
 
 ### Mac OS
 
-Before installing iceoryx you need a XCode installation, git and optional an installed ncurses library for
+Before installing iceoryx you need to install XCode and git. Optionally, ncurses library is required for 
 the introspection client. To install ncurses locally into your build folder follow these steps
 ```
 cd iceoryx
@@ -52,6 +52,16 @@ sudo apt install gcc g++ cmake libacl1-dev libncurses5-dev pkg-config
 ```
 
 Additionally, there is an optional dependency to the MIT licensed [cpptoml](https://github.com/skystrife/cpptoml) library, which is used to parse a RouDi config file for the mempool config.
+
+### QNX
+
+QNX SDP 7.0 and 7.1 are supported (shipping with gcc 5.4 and gcc 8.3 respectively).
+
+Easiest way to build iceoryx on QNX is using the build script and providing a toolchain file.<br>
+Example:
+```
+./tools/iceoryx_build_test.sh -t /home/user/toolchains/qnx/qcc_x86_64_toolchain.cmake
+```
 
 
 ## Build with CMake

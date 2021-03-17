@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +39,9 @@ TEST(cpp2c_enum_translation_test, SubscribeState)
 
 TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
 {
+    EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE),
+              ChunkReceiveResult_NO_CHUNK_AVAILABLE);
+
     EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL),
               ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 
@@ -76,3 +80,15 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
 #pragma GCC diagnostic pop
 }
 
+TEST(cpp2c_enum_translation_test, ListenerResult)
+{
+    EXPECT_EQ(cpp2c::ListenerResult(iox::popo::ListenerError::LISTENER_FULL), ListenerResult_LISTENER_FULL);
+    EXPECT_EQ(cpp2c::ListenerResult(iox::popo::ListenerError::EVENT_ALREADY_ATTACHED),
+              ListenerResult_EVENT_ALREADY_ATTACHED);
+
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::ListenerResult(static_cast<iox::popo::ListenerError>(-1)), ListenerResult_UNDEFINED_ERROR);
+#pragma GCC diagnostic pop
+}

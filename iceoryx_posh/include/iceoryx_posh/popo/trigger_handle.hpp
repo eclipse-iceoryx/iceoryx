@@ -21,6 +21,7 @@
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
+#include <limits>
 #include <mutex>
 
 namespace iox
@@ -37,12 +38,13 @@ class TriggerHandle
 {
   public:
     TriggerHandle() = default;
+
     /// @brief Creates a TriggerHandle
-    /// @param[in] conditionVariableDataPtr pointer to a condition variable data struct
+    /// @param[in] conditionVariableDataRef reference to a condition variable data struct
     /// @param[in] resetCallback callback which will be called it goes out of scope or reset is called
     /// @param[in] uniqueTriggerId the unique trigger id of the Trigger which corresponds to the TriggerHandle. Usually
     /// stored in a Notifyable. It is required for the resetCallback
-    TriggerHandle(ConditionVariableData* const conditionVariableDataPtr,
+    TriggerHandle(ConditionVariableData& conditionVariableData,
                   const cxx::MethodCallback<void, uint64_t> resetCallback,
                   const uint64_t uniqueTriggerId) noexcept;
     TriggerHandle(const TriggerHandle&) = delete;
@@ -79,7 +81,7 @@ class TriggerHandle
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
-    uint64_t m_uniqueTriggerId = 0U;
+    uint64_t m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
     mutable std::recursive_mutex m_mutex;
 };
 } // namespace popo

@@ -15,16 +15,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/trigger_handle.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 
 namespace iox
 {
 namespace popo
 {
-TriggerHandle::TriggerHandle(ConditionVariableData* const conditionVariableDataPtr,
+TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableData,
                              const cxx::MethodCallback<void, uint64_t> resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
-    : m_conditionVariableDataPtr(conditionVariableDataPtr)
+    : m_conditionVariableDataPtr(&conditionVariableData)
     , m_resetCallback(resetCallback)
     , m_uniqueTriggerId(uniqueTriggerId)
 {
@@ -45,7 +45,7 @@ TriggerHandle& TriggerHandle::operator=(TriggerHandle&& rhs) noexcept
 
         reset();
 
-        m_conditionVariableDataPtr = std::move(rhs.m_conditionVariableDataPtr);
+        m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_resetCallback = std::move(rhs.m_resetCallback);
         m_uniqueTriggerId = rhs.m_uniqueTriggerId;
 
@@ -78,7 +78,7 @@ void TriggerHandle::trigger() noexcept
 
     if (isValid())
     {
-        ConditionVariableSignaler(m_conditionVariableDataPtr).notifyOne();
+        ConditionNotifier(*m_conditionVariableDataPtr, m_uniqueTriggerId).notify();
     }
 }
 
@@ -102,7 +102,7 @@ void TriggerHandle::invalidate() noexcept
 
     m_conditionVariableDataPtr = nullptr;
     m_resetCallback = cxx::MethodCallback<void, uint64_t>();
-    m_uniqueTriggerId = 0U;
+    m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
 }
 
 ConditionVariableData* TriggerHandle::getConditionVariableData() noexcept
@@ -118,6 +118,5 @@ uint64_t TriggerHandle::getUniqueId() const noexcept
 
     return m_uniqueTriggerId;
 }
-
 } // namespace popo
 } // namespace iox

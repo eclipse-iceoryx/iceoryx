@@ -73,11 +73,10 @@ unique string identifier for this publisher.
 iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher");
 ```
 
-Now that RouDi knows our publisher application is existing, let's create a publisher instance and offer our charming struct
+Now that RouDi knows our publisher application is existing, let's create a publisher instance for our charming struct
 to everyone:
 ```cpp
 iox::popo::UntypedPublisher untypedPublisher({"Radar", "FrontLeft", "Object"});
-untypedPublisher.offer();
 ```
 
 The strings inside the first parameter of the constructor of `iox::popo::Publisher` are of the type
@@ -182,11 +181,6 @@ offered. Additionally, the previously created subscriber options are passed to t
 are created, a default value will be used which sets the queueCapacity to the maximum value:
 ```cpp
 iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
-```
-
-After the creation, the subscriber object subscribes to the offered data
-```cpp
-untypedSubscriber.subscribe();
 ```
 
 When using the default n:m communication philosophy, the `SubscriptionState` is immediately `SUBSCRIBED`.

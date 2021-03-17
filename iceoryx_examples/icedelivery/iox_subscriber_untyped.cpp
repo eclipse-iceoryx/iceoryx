@@ -24,6 +24,7 @@
 #include <iostream>
 
 bool killswitch = false;
+constexpr char APP_NAME[] = "iox-ex-subscriber-untyped";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -38,13 +39,12 @@ int main()
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialized subscriber
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.queueCapacity = 10U;
     iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
-    subscriber.subscribe();
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
@@ -54,11 +54,11 @@ int main()
             subscriber.take()
                 .and_then([&](const void* data) {
                     auto object = static_cast<const RadarObject*>(data);
-                    std::cout << "Got value: " << object->x << std::endl;
+                    std::cout << APP_NAME << " got value: " << object->x << std::endl;
 
                     // note that we explicitly have to release the data
                     // and afterwards the pointer access is undefined behavior
-                    subscriber.releaseChunk(data);
+                    subscriber.release(data);
                 })
                 .or_else([](auto& result) {
                     if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
@@ -74,8 +74,6 @@ int main()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
-    subscriber.unsubscribe();
 
     return (EXIT_SUCCESS);
 }

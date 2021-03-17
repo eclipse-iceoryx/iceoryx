@@ -91,17 +91,21 @@ class PortManager
 
     void deletePortsOfProcess(const ProcessName_t& processName) noexcept;
 
-    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
-
-    void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
-
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
     runtime::IpcMessage findService(const capro::ServiceDescription& service) noexcept;
 
   protected:
+    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
+
+    void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
+
     void handlePublisherPorts() noexcept;
 
+    void doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherPort) noexcept;
+
     void handleSubscriberPorts() noexcept;
+
+    void doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept;
 
     void handleInterfaces() noexcept;
 
@@ -123,8 +127,8 @@ class PortManager
     void removeEntryFromServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
-    cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const
-        noexcept;
+    cxx::optional<ProcessName_t>
+    doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service
