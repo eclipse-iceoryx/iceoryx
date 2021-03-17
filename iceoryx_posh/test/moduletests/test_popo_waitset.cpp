@@ -121,6 +121,23 @@ class WaitSet_test : public Test
 
     void TearDown(){};
 
+    template <uint64_t EventInfoVectorCapacity, typename EventOrigin>
+    static bool
+    doesEventInfoVectorContain(const iox::cxx::vector<const EventInfo*, EventInfoVectorCapacity>& eventInfoVector,
+                               const uint64_t eventId,
+                               const EventOrigin& origin)
+    {
+        for (auto& e : eventInfoVector)
+        {
+            if (e->getEventId() == eventId && e->doesOriginateFrom(&origin)
+                && e->template getOrigin<EventOrigin>() == &origin)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1>;
     eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1};
 };
@@ -343,9 +360,7 @@ void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
 
     for (uint64_t i = 0U; i < 24U; ++i)
     {
-        EXPECT_THAT(triggerVector[i]->getEventId(), 100U + i);
-        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(&test->m_simpleEvents[i]));
-        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test::SimpleEventClass>(), &test->m_simpleEvents[i]);
+        EXPECT_TRUE(WaitSet_test::doesEventInfoVectorContain(triggerVector, 100U + i, test->m_simpleEvents[i]));
     }
 }
 
@@ -378,9 +393,7 @@ void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
 
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        EXPECT_THAT(triggerVector[i]->getEventId(), i * 3U + 2U);
-        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(&test->m_simpleEvents[i]));
-        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test::SimpleEventClass>(), &test->m_simpleEvents[i]);
+        EXPECT_TRUE(WaitSet_test::doesEventInfoVectorContain(triggerVector, i * 3U + 2U, test->m_simpleEvents[i]));
     }
 }
 
@@ -394,8 +407,35 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
     WaitReturnsAllTriggeredConditionWhenAllAreTriggered(this, [&] { return m_sut.timedWait(10_ms); });
 }
 
-void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
-                                             const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
+                                               const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    auto result1 = test->m_sut.attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
+
+    ASSERT_THAT(result1.has_error(), Eq(false));
+
+    test->m_simpleEvents[0].trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(1U));
+
+    (*triggerVector[0U])();
+
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
+}
+
+TEST_F(WaitSet_test, WaitReturnsTriggersWithOneCorrectCallback)
+{
+    WaitReturnsTriggersWithOneCorrectCallback(this, [&] { return m_sut.wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallback)
+{
+    WaitReturnsTriggersWithOneCorrectCallback(this, [&] { return m_sut.timedWait(10_ms); });
+}
+
+void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
+                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
     auto result1 = test->m_sut.attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
     auto result2 = test->m_sut.attachEvent(test->m_simpleEvents[1], 2U, &WaitSet_test::triggerCallback2);
@@ -406,25 +446,24 @@ void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
     test->m_simpleEvents[0].trigger();
     test->m_simpleEvents[1].trigger();
 
-
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(2U));
 
     (*triggerVector[0U])();
-    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
-
     (*triggerVector[1U])();
+
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
     EXPECT_THAT(test->m_simpleEvents[1].m_triggerCallbackArgument2, Eq(&test->m_simpleEvents[1]));
 }
 
-TEST_F(WaitSet_test, WaitReturnsTriggersWithCorrectCallbacks)
+TEST_F(WaitSet_test, WaitReturnsTriggersWithTwoCorrectCallbacks)
 {
-    WaitReturnsTriggersWithCorrectCallbacks(this, [&] { return m_sut.wait(); });
+    WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut.wait(); });
 }
 
-TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithCorrectCallbacks)
+TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallbacks)
 {
-    WaitReturnsTriggersWithCorrectCallbacks(this, [&] { return m_sut.timedWait(10_ms); });
+    WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut.timedWait(10_ms); });
 }
 
 TEST_F(WaitSet_test, InitialWaitSetHasSizeZero)

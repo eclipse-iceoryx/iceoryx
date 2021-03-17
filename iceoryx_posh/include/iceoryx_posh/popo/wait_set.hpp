@@ -58,7 +58,7 @@ class WaitSet
 {
   public:
     static constexpr uint64_t CAPACITY = Capacity;
-    using TriggerList = cxx::list<Trigger, CAPACITY>;
+    using TriggerArray = cxx::optional<Trigger>[Capacity];
     using EventInfoVector = cxx::vector<const EventInfo*, CAPACITY>;
 
     WaitSet() noexcept;
@@ -123,7 +123,7 @@ class WaitSet
     uint64_t size() const noexcept;
 
     /// @brief returns the maximum amount of triggers which can be acquired from a waitset
-    uint64_t capacity() const noexcept;
+    static constexpr uint64_t capacity() noexcept;
 
   protected:
     explicit WaitSet(ConditionVariableData& condVarData) noexcept;
@@ -140,15 +140,12 @@ class WaitSet
     EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
     EventInfoVector createVectorWithTriggeredTriggers() noexcept;
 
-    template <typename T>
-    void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
-
     void removeTrigger(const uint64_t uniqueTriggerId) noexcept;
     void removeAllTriggers() noexcept;
 
   private:
     /// needs to be a list since we return pointer to the underlying EventInfo class with wait
-    TriggerList m_triggerList;
+    TriggerArray m_triggerArray;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionListener m_conditionListener;
     cxx::stack<uint64_t, Capacity> m_indexRepository;
