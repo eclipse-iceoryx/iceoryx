@@ -1257,11 +1257,13 @@ TEST_F(vector_test, EmplaceWhenFullReturnsFalse)
     }
 
     EXPECT_FALSE(sut.emplace(3U, 5));
+    EXPECT_THAT(sut.size(), Eq(sut.capacity()));
 }
 
 TEST_F(vector_test, EmplaceWhenPositionExceedsCapacityReturnsFalse)
 {
     EXPECT_FALSE(sut.emplace(sut.capacity() + 10U, 5));
+    EXPECT_THAT(sut.size(), Eq(0));
 }
 
 TEST_F(vector_test, EmplaceAtEndWorks)
@@ -1274,4 +1276,13 @@ TEST_F(vector_test, EmplaceAtEndWorks)
     EXPECT_THAT(sut[0], Eq(0));
     EXPECT_THAT(sut[1], Eq(1));
     EXPECT_THAT(sut[2], Eq(3));
+}
+
+TEST_F(vector_test, EmplaceAtPositionAfterEndBeforeCapacityExceedsFails)
+{
+    sut.emplace_back(0);
+    sut.emplace_back(1);
+
+    EXPECT_FALSE(sut.emplace(sut.size() + 1, 3));
+    ASSERT_THAT(sut.size(), Eq(2));
 }
