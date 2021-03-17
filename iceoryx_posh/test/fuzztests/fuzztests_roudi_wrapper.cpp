@@ -121,6 +121,7 @@ int Fuzzing::fuzzingRouDiUDS(std::string aMessage)
 	 if (connectfd != -1)
 	 {
 		 sendto(sockfd, aMessage.c_str(), aMessage.length()+1, static_cast<int>(0), nullptr, static_cast<socklen_t>(0));
+		 usleep(500000); //0.5  second We need to wait otherwise it can happen that RouDi did not process the message
 	 }
 	 else
 	 {
@@ -181,7 +182,7 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
 			 {
 				 std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
 				 std::cout << "Options:" << std::endl;
-				 std::cout << "-h, --help								Display help." << std::endl;
+				 std::cout << "-h, --help                              Display help." << std::endl;
 				 std::cout << "-f, --fuzzing-api <API>               	Specify API which will be fuzzed." << std::endl;
 				 std::cout << "                                      	<API> {uds, com, toml}" << std::endl;
 				 std::cout << "                                      	uds: Starts RouDi and sends messages via Unix Domain Sockets. Multiple messages can be sent. (e.g.: register message first and then offer service)." << std::endl;
