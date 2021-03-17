@@ -108,12 +108,33 @@ class ChunkSender_test : public Test
     iox::popo::ChunkSender<ChunkSenderData_t> m_chunkSenderWithHistory{&m_chunkSenderDataWithHistory};
 };
 
-TEST_F(ChunkSender_test, allocate_OneChunk)
+TEST_F(ChunkSender_test, allocate_OneChunkWithoutCustomHeaderAndSmallPayloadAlignmentResultsInSmallChunk)
 {
+    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
-        sizeof(DummySample), iox::UniquePortId(), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        PAYLOAD_SIZE, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+}
+
+TEST_F(ChunkSender_test, allocate_OneChunkWithoutCustomHeaderAndLargePayloadAlignmentResultsInLargeChunk)
+{
+    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{SMALL_CHUNK};
+    auto maybeChunkHeader = m_chunkSender.tryAllocate(
+        PAYLOAD_SIZE, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    ASSERT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
+}
+
+TEST_F(ChunkSender_test, allocate_OneChunkWithLargeCustomHeaderResultsInLargeChunk)
+{
+    constexpr uint32_t LARGE_HEADER_SIZE{SMALL_CHUNK};
+    auto maybeChunkHeader = m_chunkSender.tryAllocate(
+        sizeof(DummySample), iox::UniquePortId(), alignof(DummySample), LARGE_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    ASSERT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
 }
 
 TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
@@ -137,7 +158,7 @@ TEST_F(ChunkSender_test, allocate_MultipleChunks)
     ASSERT_FALSE(chunk2.has_error());
     // must be different chunks
     EXPECT_THAT(*chunk1, Ne(*chunk2));
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2U));
 }
 
 TEST_F(ChunkSender_test, allocate_Overflow)
@@ -201,7 +222,7 @@ TEST_F(ChunkSender_test, freeChunk)
         m_chunkSender.release(chunks[i]);
     }
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
 
 TEST_F(ChunkSender_test, freeInvalidChunk)
@@ -209,7 +230,7 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         sizeof(DummySample), iox::UniquePortId(), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -227,7 +248,7 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     m_chunkSender.release(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
 TEST_F(ChunkSender_test, sendWithoutReceiver)
@@ -235,14 +256,14 @@ TEST_F(ChunkSender_test, sendWithoutReceiver)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         sizeof(DummySample), iox::UniquePortId(), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     if (!maybeChunkHeader.has_error())
     {
         auto sample = *maybeChunkHeader;
         m_chunkSender.send(sample);
         // chunk is still used because last chunk is stored
-        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
     }
 }
 
@@ -274,7 +295,7 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverAndAlwaysLast)
     }
 
     // Exactly one chunk is used because last chunk is stored
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
 TEST_F(ChunkSender_test, sendMultipleWithoutReceiverWithHistoryNoLastReuse)
@@ -315,7 +336,7 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         sizeof(DummySample), iox::UniquePortId(), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     if (!maybeChunkHeader.has_error())
     {
@@ -444,7 +465,7 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         sizeof(DummySample), iox::UniquePortId(), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -462,7 +483,7 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     m_chunkSender.send(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
 TEST_F(ChunkSender_test, pushToHistory)
@@ -487,7 +508,7 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         sizeof(DummySample), iox::UniquePortId(), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto errorHandlerCalled{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -505,7 +526,7 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
     m_chunkSender.pushToHistory(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
@@ -584,7 +605,7 @@ TEST_F(ChunkSender_test, ReuseLastIfSmaller)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         BIG_CHUNK, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
 
     auto chunkHeader = *maybeChunkHeader;
     m_chunkSender.send(chunkHeader);
@@ -594,8 +615,8 @@ TEST_F(ChunkSender_test, ReuseLastIfSmaller)
     ASSERT_FALSE(chunkSmaller.has_error());
 
     // no small chunk used as big one is recycled
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
 
     auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
     ASSERT_TRUE(maybeLastChunk.has_value());
@@ -609,7 +630,7 @@ TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         SMALL_CHUNK, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto chunkHeader = *maybeChunkHeader;
     m_chunkSender.send(chunkHeader);
@@ -619,8 +640,8 @@ TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
     ASSERT_FALSE(chunkBigger.has_error());
 
     // no reuse, we hav a small and a big chunk in use
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
 
     auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
     ASSERT_TRUE(maybeLastChunk.has_value());
@@ -634,7 +655,7 @@ TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         SMALL_CHUNK - 10, iox::UniquePortId(), PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     ASSERT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto chunkHeader = *maybeChunkHeader;
     m_chunkSender.send(chunkHeader);
@@ -644,8 +665,8 @@ TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
     ASSERT_FALSE(chunkBigger.has_error());
 
     // reuse as it still fits in the small chunk
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(0U));
 
     auto maybeLastChunk = m_chunkSender.tryGetPreviousChunk();
     ASSERT_TRUE(maybeLastChunk.has_value());
@@ -678,5 +699,5 @@ TEST_F(ChunkSender_test, Cleanup)
 
     m_chunkSenderWithHistory.releaseAll();
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
