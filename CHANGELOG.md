@@ -1,5 +1,5 @@
 # Change Log
-## [v0.90.0](https://github.com/eclipse-iceoryx/iceoryx/tree/ICEORYX_0.17.0) (2020-12-22)
+## [v0.90.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.90.0) (2020-12-22)
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.17.0...v0.90.0)\
 Pre-Release for new and stable APIs and n:m pub/sub communication
 

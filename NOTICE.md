@@ -42,12 +42,13 @@ libncurses library
  * Usage: as-is, dynamic-linking
  * Notes: system-header `<ncurses.h>` is used.
 
-### Build Dependencies
+### Optional Build Dependencies
 cpptoml library (v0.1.1)
  * License: MIT
  * Project: https://github.com/skystrife/cpptoml
  * Source: https://github.com/skystrife/cpptoml/tree/v0.1.1
  * Usage: as-is, static-linking
+ * enabled by default build
 
 Eclipse Cyclone DDS (0.7.0)
  * License: Eclipse Public License v. 2.0 or the Eclipse Distribution License v. 1.0
