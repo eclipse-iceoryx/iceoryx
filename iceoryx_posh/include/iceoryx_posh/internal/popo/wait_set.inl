@@ -165,31 +165,37 @@ inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionListener.timedWait(timeout); });
+    return waitAndReturnTriggeredTriggers([this, timeout] { return false; });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
 {
-    return waitAndReturnTriggeredTriggers([this] {
-        m_conditionListener.wait();
-        return false;
-    });
+    return waitAndReturnTriggeredTriggers([this] { return false; });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
 {
     EventInfoVector triggers;
-    for (auto& currentTrigger : m_triggerArray)
+    if (!m_activeNotifications.empty())
     {
-        if (currentTrigger && currentTrigger->hasTriggered())
+        for (uint64_t i = m_activeNotifications.size() - 1U;; --i)
         {
-            // We do not need to verify if push_back was successful since
-            // m_conditionVector and triggers are having the same type, a
-            // vector with the same guaranteed capacity.
-            // Therefore it is guaranteed that push_back works!
-            triggers.push_back(&currentTrigger->getEventInfo());
+            auto index = m_activeNotifications[i];
+            if (m_triggerArray[index]->hasTriggered())
+            {
+                cxx::Expects(triggers.push_back(&m_triggerArray[index]->getEventInfo()));
+            }
+            else
+            {
+                m_activeNotifications.erase(m_activeNotifications.begin() + i);
+            }
+
+            if (i == 0U)
+            {
+                break;
+            }
         }
     }
 
@@ -197,26 +203,62 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
 }
 
 template <uint64_t Capacity>
+inline void WaitSet<Capacity>::acquireNotifications() noexcept
+{
+    // requires ordered vector
+    auto notificationVector = m_conditionListener.waitForNotifications();
+    if (m_activeNotifications.empty())
+    {
+        m_activeNotifications = notificationVector;
+    }
+    else
+    {
+        uint64_t position = 0U;
+        // merge with activeNotifications
+        for (auto notificationId : notificationVector)
+        {
+            while (position < m_activeNotifications.size())
+            {
+                if (m_activeNotifications[position] == notificationId)
+                {
+                    continue;
+                }
+                // id not found
+                else if (m_activeNotifications[position] > notificationId)
+                {
+                    m_activeNotifications.emplace(position, notificationId);
+                }
+            }
+        }
+    }
+}
+
+template <uint64_t Capacity>
 template <typename WaitFunction>
 inline typename WaitSet<Capacity>::EventInfoVector
 WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
-    WaitSet::EventInfoVector triggers;
+    (void)wait;
 
-    /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
-    m_conditionListener.resetSemaphore();
-    triggers = createVectorWithTriggeredTriggers();
-
-    // It is possible that after the reset call and before the createVectorWithTriggeredTriggers call
-    // another trigger came in. Then createVectorWithTriggeredTriggers would have already handled it.
-    // But this would lead to an empty triggers vector in the next run if no other trigger
-    // came in.
-    if (!triggers.empty())
+    if (m_conditionListener.wasNotified())
     {
-        return triggers;
+        this->acquireNotifications();
     }
 
-    return (wait()) ? triggers : createVectorWithTriggeredTriggers();
+    EventInfoVector triggers;
+    do
+    {
+        triggers = createVectorWithTriggeredTriggers();
+
+        if (!triggers.empty())
+        {
+            return triggers;
+        }
+
+        acquireNotifications();
+    } while (true);
+
+    return triggers;
 }
 
 template <uint64_t Capacity>

@@ -142,13 +142,16 @@ class WaitSet
 
     void removeTrigger(const uint64_t uniqueTriggerId) noexcept;
     void removeAllTriggers() noexcept;
+    void acquireNotifications() noexcept;
 
   private:
     /// needs to be a list since we return pointer to the underlying EventInfo class with wait
     TriggerArray m_triggerArray;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionListener m_conditionListener;
+
     cxx::stack<uint64_t, Capacity> m_indexRepository;
+    ConditionListener::NotificationVector_t m_activeNotifications;
 };
 
 } // namespace popo
