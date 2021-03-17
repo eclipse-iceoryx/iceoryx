@@ -50,7 +50,7 @@ class Mutex_test : public Test
     Watchdog m_deadlockWatchdog{m_watchdogTimeout};
 };
 
-TEST_F(Mutex_test, TryLockWithNoLock)
+TEST_F(Mutex_test, TryLockAndUnlockWithNonRecursiveMutexReturnTrue)
 {
     EXPECT_THAT(sutNonRecursive.try_lock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
@@ -58,7 +58,7 @@ TEST_F(Mutex_test, TryLockWithNoLock)
 
 
 #ifndef _WIN32
-TEST_F(Mutex_test, TryLockWithNonRecursiveLock)
+TEST_F(Mutex_test, TryLockWithNonRecursiveMutexReturnsFalseAfterLock)
 {
     EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.try_lock(), Eq(false));
@@ -66,13 +66,13 @@ TEST_F(Mutex_test, TryLockWithNonRecursiveLock)
 }
 #endif
 
-TEST_F(Mutex_test, LockAndUnlock)
+TEST_F(Mutex_test, LockAndUnlockWithNonRecursiveMutexReturnsTrue)
 {
     EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
-TEST_F(Mutex_test, LockAndUnlockRepeatedly)
+TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexReturnsTrue)
 {
     EXPECT_THAT(sutNonRecursive.lock(), Eq(true));
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
@@ -80,9 +80,9 @@ TEST_F(Mutex_test, LockAndUnlockRepeatedly)
     EXPECT_THAT(sutNonRecursive.unlock(), Eq(true));
 }
 
-#if !defined(_WIN32) || !defined(QNX) || !defined(QNX__) || !defined(__QNX__)
+#if !defined(_WIN32) || !defined(QNX) || !defined(QNX__) || !defined(__QNX__) || !defined(__APPLE__)
 // in qnx you can destroy a locked mutex, without error if the thread holding the lock is destructing it.
-TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
+TEST_F(Mutex_test, CallingDestructorOnLockedMutexLeadsToTermination)
 {
     std::string output = internal::GetCapturedStderr();
     std::set_terminate([]() { std::cout << "", std::abort(); });
@@ -98,7 +98,7 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
 }
 #endif
 
-TEST_F(Mutex_test, LockedMutexBlocks)
+TEST_F(Mutex_test, LockedMutexBlocksCallingThreadExecution)
 {
     std::atomic_bool isLockFinished{false};
     sutNonRecursive.lock();
@@ -118,7 +118,7 @@ TEST_F(Mutex_test, LockedMutexBlocks)
     EXPECT_THAT(isLockFinished.load(), Eq(true));
 }
 
-TEST_F(Mutex_test, TryLockWithRecursiveMutexWhenMutexLocked)
+TEST_F(Mutex_test, TryLockWithRecursiveMutexReturnsFalseWhenMutexLockedInOtherThread)
 {
     std::atomic_bool isTryLockSuccessful{true};
     sutRecursive.lock();
