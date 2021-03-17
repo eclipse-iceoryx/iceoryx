@@ -64,9 +64,9 @@ bool ConditionListener::wasNotified() const noexcept
     return *result != 0;
 }
 
-ConditionListener::NotificationVector_t ConditionListener::waitForNotifications() noexcept
+ConditionListener::NotificationVector_t ConditionListener::wait() noexcept
 {
-    return waitForNotificationsImpl([this]() -> bool {
+    return waitImpl([this]() -> bool {
         if (this->getMembers()->m_semaphore.wait().has_error())
         {
             errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
@@ -76,10 +76,9 @@ ConditionListener::NotificationVector_t ConditionListener::waitForNotifications(
     });
 }
 
-ConditionListener::NotificationVector_t
-ConditionListener::timedWaitForNotifications(const units::Duration& timeToWait) noexcept
+ConditionListener::NotificationVector_t ConditionListener::timedWait(const units::Duration& timeToWait) noexcept
 {
-    return waitForNotificationsImpl([this, timeToWait]() -> bool {
+    return waitImpl([this, timeToWait]() -> bool {
         if (this->getMembers()->m_semaphore.timedWait(timeToWait, true).has_error())
         {
             errorHandler(
@@ -89,8 +88,7 @@ ConditionListener::timedWaitForNotifications(const units::Duration& timeToWait) 
     });
 }
 
-ConditionListener::NotificationVector_t
-ConditionListener::waitForNotificationsImpl(const cxx::function_ref<bool()>& waitCall) noexcept
+ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::function_ref<bool()>& waitCall) noexcept
 {
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
     NotificationVector_t activeNotifications;

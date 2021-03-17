@@ -132,7 +132,7 @@ TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVecto
     watchdog.watchAndActOnFailure([&] { std::terminate(); });
 
     sut.destroy();
-    const auto& activeNotifications = sut.waitForNotifications();
+    const auto& activeNotifications = sut.wait();
 
     EXPECT_THAT(activeNotifications.size(), Eq(0U));
 }
@@ -147,7 +147,7 @@ TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsE
     ConditionNotifier notifier(m_condVarData, 0U);
     notifier.notify();
 
-    const auto& activeNotifications = sut.waitForNotifications();
+    const auto& activeNotifications = sut.wait();
     EXPECT_THAT(activeNotifications.size(), Eq(0U));
 }
 
@@ -161,7 +161,7 @@ TEST_F(ConditionVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
     watchdog.watchAndActOnFailure([] { std::terminate(); });
 
     std::thread waiter([&] {
-        activeNotifications = sut.waitForNotifications();
+        activeNotifications = sut.wait();
         EXPECT_THAT(activeNotifications.size(), Eq(0U));
     });
 
@@ -179,7 +179,7 @@ TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
     watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     notifier.notify();
-    const auto& activeNotifications = listener.waitForNotifications();
+    const auto& activeNotifications = listener.wait();
 
     ASSERT_THAT(activeNotifications.size(), Eq(1U));
     EXPECT_THAT(activeNotifications[0], Eq(EVENT_INDEX));
@@ -198,7 +198,7 @@ TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAn
 
     notifier1.notify();
     notifier2.notify();
-    const auto& activeNotifications = listener.waitForNotifications();
+    const auto& activeNotifications = listener.wait();
 
     ASSERT_THAT(activeNotifications.size(), Eq(2U));
     EXPECT_THAT(activeNotifications[0], Eq(SECOND_EVENT_INDEX));
@@ -216,7 +216,7 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
     watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
-        activeNotifications = listener.waitForNotifications();
+        activeNotifications = listener.wait();
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
         EXPECT_THAT(activeNotifications[0], Eq(EVENT_INDEX));
     });
@@ -239,7 +239,7 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
 
     std::thread waiter([&] {
         threadSetupSemaphore.post();
-        activeNotifications = listener.waitForNotifications();
+        activeNotifications = listener.wait();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
         EXPECT_THAT(activeNotifications[0], Eq(EVENT_INDEX));
@@ -269,7 +269,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
 
     notifier1.notify();
     notifier2.notify();
-    NotificationVector_t activeNotifications = listener.waitForNotifications();
+    NotificationVector_t activeNotifications = listener.wait();
 
     ASSERT_THAT(activeNotifications.size(), Eq(2U));
     EXPECT_THAT(activeNotifications[0], Eq(SECOND_EVENT_INDEX));
@@ -280,7 +280,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
 
     std::thread waiter([&] {
         threadSetupSemaphore.post();
-        activeNotifications = listener.waitForNotifications();
+        activeNotifications = listener.wait();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
         EXPECT_THAT(activeNotifications[0], Eq(FIRST_EVENT_INDEX));
@@ -317,13 +317,13 @@ void waitReturnsSortedListWhenTriggeredInOrder(ConditionVariable_test& test,
 
 TEST_F(ConditionVariable_test, WaitReturnsSortedListWhenTriggeredInOrder)
 {
-    waitReturnsSortedListWhenTriggeredInOrder(*this, [this] { return m_waiter.waitForNotifications(); });
+    waitReturnsSortedListWhenTriggeredInOrder(*this, [this] { return m_waiter.wait(); });
 }
 
 TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInOrder)
 {
     waitReturnsSortedListWhenTriggeredInOrder(
-        *this, [this] { return m_waiter.timedWaitForNotifications(iox::units::Duration::fromSeconds(1)); });
+        *this, [this] { return m_waiter.timedWait(iox::units::Duration::fromSeconds(1)); });
 }
 
 void waitReturnsSortedListWhenTriggeredInReverseOrder(
@@ -344,12 +344,12 @@ void waitReturnsSortedListWhenTriggeredInReverseOrder(
 
 TEST_F(ConditionVariable_test, WaitReturnsSortedListWhenTriggeredInReverseOrder)
 {
-    waitReturnsSortedListWhenTriggeredInReverseOrder(*this, [this] { return m_waiter.waitForNotifications(); });
+    waitReturnsSortedListWhenTriggeredInReverseOrder(*this, [this] { return m_waiter.wait(); });
 }
 
 TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInReverseOrder)
 {
     waitReturnsSortedListWhenTriggeredInReverseOrder(
-        *this, [this] { return m_waiter.timedWaitForNotifications(iox::units::Duration::fromSeconds(1)); });
+        *this, [this] { return m_waiter.timedWait(iox::units::Duration::fromSeconds(1)); });
 }
 

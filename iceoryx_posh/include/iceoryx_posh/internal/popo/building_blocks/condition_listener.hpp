@@ -54,7 +54,7 @@ class ConditionListener
     /// never empty unless destroy() was called, then it's always empty.
     ///
     /// @return a sorted vector of active notifications
-    NotificationVector_t waitForNotifications() noexcept;
+    NotificationVector_t wait() noexcept;
 
     /// @brief returns a sorted vector of indices of active notifications; blocking for the specified time if
     /// ConditionVariableData was not notified unless destroy() was called before.
@@ -63,7 +63,7 @@ class ConditionListener
     /// @param[in] timeToWait duration how long at most this method should wait
     ///
     /// @return a sorted vector of active notifications
-    NotificationVector_t timedWaitForNotifications(const units::Duration& timeToWait) noexcept;
+    NotificationVector_t timedWait(const units::Duration& timeToWait) noexcept;
 
   protected:
     const ConditionVariableData* getMembers() const noexcept;
@@ -73,7 +73,7 @@ class ConditionListener
     void reset(const uint64_t index) noexcept;
     void resetSemaphore() noexcept;
 
-    NotificationVector_t waitForNotificationsImpl(const cxx::function_ref<bool()>& waitCall) noexcept;
+    NotificationVector_t waitImpl(const cxx::function_ref<bool()>& waitCall) noexcept;
 
   private:
     ConditionVariableData* m_condVarDataPtr{nullptr};

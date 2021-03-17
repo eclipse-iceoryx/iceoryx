@@ -165,14 +165,13 @@ inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnTriggeredTriggers(
-        [this, timeout] { return this->m_conditionListener.timedWaitForNotifications(timeout); });
+    return waitAndReturnTriggeredTriggers([this, timeout] { return this->m_conditionListener.timedWait(timeout); });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
 {
-    return waitAndReturnTriggeredTriggers([this] { return this->m_conditionListener.waitForNotifications(); });
+    return waitAndReturnTriggeredTriggers([this] { return this->m_conditionListener.wait(); });
 }
 
 template <uint64_t Capacity>
