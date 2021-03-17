@@ -90,7 +90,7 @@ TEST_F(FileLock_test, LockAndReleaseWorks)
     ASSERT_FALSE(sut2.has_error());
 }
 
-TEST_F(FileLock_test, LockAndNoReleaseLeadsToError)
+TEST_F(FileLock_test, CreatingSameFileLockAgainFails)
 {
     auto sut2 = iox::posix::FileLock::create(TEST_NAME);
     ASSERT_TRUE(sut2.has_error());
