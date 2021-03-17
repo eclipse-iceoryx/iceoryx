@@ -49,13 +49,20 @@ class ConditionListener
     ///         returns an empty vector.
     void destroy() noexcept;
 
-    /// @brief returns vector of indices of active notifications; blocking if ConditionVariableData was
+    /// @brief returns a sorted vector of indices of active notifications; blocking if ConditionVariableData was
     /// not notified unless destroy() was called before. The indices of active notifications are
     /// never empty unless destroy() was called, then it's always empty.
     ///
-    /// @return vector of active notifications
+    /// @return a sorted vector of active notifications
     NotificationVector_t waitForNotifications() noexcept;
 
+    /// @brief returns a sorted vector of indices of active notifications; blocking for the specified time if
+    /// ConditionVariableData was not notified unless destroy() was called before.
+    /// The indices of active notifications are never empty unless destroy() was called,
+    /// then it's always empty.
+    /// @param[in] timeToWait duration how long at most this method should wait
+    ///
+    /// @return a sorted vector of active notifications
     NotificationVector_t timedWaitForNotifications(const units::Duration& timeToWait) noexcept;
 
   protected:

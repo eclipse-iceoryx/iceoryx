@@ -82,7 +82,8 @@ ConditionListener::timedWaitForNotifications(const units::Duration& timeToWait) 
     return waitForNotificationsImpl([this, timeToWait]() -> bool {
         if (this->getMembers()->m_semaphore.timedWait(timeToWait, true).has_error())
         {
-            errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+            errorHandler(
+                Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, nullptr, ErrorLevel::FATAL);
         }
         return false;
     });

@@ -44,14 +44,18 @@ class ConditionVariable_test : public Test
     ConditionVariableData m_condVarData{m_process};
     ConditionListener m_waiter{m_condVarData};
     ConditionNotifier m_signaler{m_condVarData, 0U};
+    vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE> m_notifiers;
+
+    void SetUp() override
+    {
+        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; ++i)
+        {
+            m_notifiers.emplace_back(m_condVarData, i);
+        }
+    }
 
     iox::posix::Semaphore m_syncSemaphore =
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
-
-    void SetUp() override{};
-    void TearDown() override{
-        // Reset condition variable
-    };
 };
 
 TEST_F(ConditionVariable_test, ConditionListenerIsNeitherCopyNorMovable)
@@ -294,4 +298,58 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
     EXPECT_THAT(hasWaited, Eq(true));
     waiter.join();
 })
+
+void waitReturnsSortedListWhenTriggeredInOrder(ConditionVariable_test& test,
+                                               const function_ref<ConditionListener::NotificationVector_t()>& wait)
+{
+    for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
+    {
+        test.m_notifiers[i].notify();
+    }
+
+    auto notifications = wait();
+    ASSERT_THAT(notifications.size(), Eq(test.m_notifiers.size()));
+    for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
+    {
+        EXPECT_THAT(notifications[i], Eq(i));
+    }
+}
+
+TEST_F(ConditionVariable_test, WaitReturnsSortedListWhenTriggeredInOrder)
+{
+    waitReturnsSortedListWhenTriggeredInOrder(*this, [this] { return m_waiter.waitForNotifications(); });
+}
+
+TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInOrder)
+{
+    waitReturnsSortedListWhenTriggeredInOrder(
+        *this, [this] { return m_waiter.timedWaitForNotifications(iox::units::Duration::fromSeconds(1)); });
+}
+
+void waitReturnsSortedListWhenTriggeredInReverseOrder(
+    ConditionVariable_test& test, const function_ref<ConditionListener::NotificationVector_t()>& wait)
+{
+    for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
+    {
+        test.m_notifiers[test.m_notifiers.size() - i - 1U].notify();
+    }
+
+    auto notifications = wait();
+    ASSERT_THAT(notifications.size(), Eq(test.m_notifiers.size()));
+    for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
+    {
+        EXPECT_THAT(notifications[i], Eq(i));
+    }
+}
+
+TEST_F(ConditionVariable_test, WaitReturnsSortedListWhenTriggeredInReverseOrder)
+{
+    waitReturnsSortedListWhenTriggeredInReverseOrder(*this, [this] { return m_waiter.waitForNotifications(); });
+}
+
+TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInReverseOrder)
+{
+    waitReturnsSortedListWhenTriggeredInReverseOrder(
+        *this, [this] { return m_waiter.timedWaitForNotifications(iox::units::Duration::fromSeconds(1)); });
+}
 
