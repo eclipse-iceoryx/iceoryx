@@ -45,7 +45,7 @@ PublisherPortUser::tryAllocateChunk(const uint32_t payloadSize,
                                     const uint32_t customHeaderAlignment) noexcept
 {
     return m_chunkSender.tryAllocate(
-        payloadSize, getUniqueID(), payloadAlignment, customHeaderSize, customHeaderAlignment);
+        getUniqueID(), payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
 }
 
 void PublisherPortUser::releaseChunk(mepoo::ChunkHeader* const chunkHeader) noexcept

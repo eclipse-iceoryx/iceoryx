@@ -42,8 +42,8 @@ inline typename ChunkSender<ChunkSenderDataType>::MemberType_t* ChunkSender<Chun
 
 template <typename ChunkSenderDataType>
 inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
-ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize,
-                                              const UniquePortId originId,
+ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
+                                              const uint32_t payloadSize,
                                               const uint32_t payloadAlignment,
                                               const uint32_t customHeaderSize,
                                               const uint32_t customHeaderAlignment) noexcept
