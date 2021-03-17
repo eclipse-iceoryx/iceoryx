@@ -44,7 +44,8 @@ class PublisherPort_test : public Test
   protected:
     PublisherPort_test()
     {
-        m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({BIG_CHUNK, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
     }
 
@@ -63,7 +64,8 @@ class PublisherPort_test : public Test
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
     uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
-    static constexpr uint32_t CHUNK_SIZE = 128;
+    static constexpr uint32_t SMALL_CHUNK = 128;
+    static constexpr uint32_t BIG_CHUNK = 256;
 
     static constexpr uint32_t PAYLOAD_ALIGNMENT = iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT;
     static constexpr uint32_t CUSTOM_HEADER_SIZE = iox::CHUNK_NO_CUSTOM_HEADER_SIZE;
@@ -204,13 +206,36 @@ TEST_F(PublisherPort_test,
     EXPECT_THAT(caproMessage.m_historyCapacity, Eq(iox::MAX_PUBLISHER_HISTORY));
 }
 
-TEST_F(PublisherPort_test, allocatingAChunk)
+TEST_F(PublisherPort_test, allocatingAChunkWithoutCustomHeaderAndSmallPayloadAlignmentResultsInSmallChunk)
 {
+    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
 
     EXPECT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+}
+
+TEST_F(PublisherPort_test, allocatingAChunkWithoutCustomHeaderAndLargePayloadAlignmentResultsInLargeChunk)
+{
+    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t LARGE_PAYLOAD_ALIGNMENT{SMALL_CHUNK};
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        PAYLOAD_SIZE, LARGE_PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
+}
+
+TEST_F(PublisherPort_test, allocatingAChunkWithLargeCustomHeaderResultsInLargeChunk)
+{
+    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t LARGE_HEADER_SIZE{SMALL_CHUNK};
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, LARGE_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
 }
 
 TEST_F(PublisherPort_test, releasingAnAllocatedChunkReleasesTheMemory)
