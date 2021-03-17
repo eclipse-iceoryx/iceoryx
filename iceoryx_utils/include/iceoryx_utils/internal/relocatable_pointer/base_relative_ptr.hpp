@@ -1,3 +1,4 @@
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +26,7 @@ namespace iox
 {
 namespace rp
 {
-/// @brief pointer type to use when pointer and pointee are located in different shared memory segments
+/// @brief pointer class to use when pointer and pointee are located in different shared memory segments
 /// We can have the following scenario:
 /// Pointer p is stored in segment S1 and points to object X of type T in segment S2.
 ///

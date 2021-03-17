@@ -35,7 +35,7 @@ App2          a2  b2                  c2
 ```
 
 Let a1, b1, c1 and so on be the addresses of segment S, pointer p and object X in application 1 and similarly a2, b2 and
-c2 in application2.If application 2 maps the memory differently they will be shifted by some common offset d depending
+c2 in application2. If application 2 maps the memory differently they will be shifted by some common offset d depending
 on the individual memory mapping:
 
 a2 = a1 + d, b2 = a2 + d, c2 = c1 + d
@@ -91,7 +91,7 @@ access members
 
 ### Performance
 
-Since relocatable pointers just measures the distance to the pointee from itself it just requires a number to store this
+Since relocatable pointers just measure the distance to the pointee from itself it just requires a number to store this
 pointer difference. This number has the same size as a pointer itself, i.e. 64 bit on 64 bit architectures. All
 operations use just a few simple arithmetic instructions in addition to pointer dereferencing and hence they do incur
 little overhead compared to raw pointers.
