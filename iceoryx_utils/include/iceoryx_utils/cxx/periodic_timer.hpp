@@ -69,8 +69,8 @@ class PeriodicTimer
     /// @brief stops the timer. This also releases the acquired binary semaphore.
     void stop() noexcept;
 
-    /// @brief calculates the remaining time before the timer goes off
-    /// @return the time duration before the timer expires
+    /// @brief this function returns the current time
+    /// @return the system clock real time is returned
     const iox::units::Duration now() const noexcept;
 
     /// @brief breifly waits for the timer interval. This is acheived by trying to do a timed wait for the interval

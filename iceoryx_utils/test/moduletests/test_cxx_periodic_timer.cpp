@@ -45,11 +45,9 @@ class PeriodicTimer_test : public Test
 
     std::atomic<int> numberOfCalls{0};
     static const Duration INTERVAL;
-    static const int SLEEPTIME;
 };
 
 const Duration PeriodicTimer_test::INTERVAL{5_s};
-const int PeriodicTimer_test::SLEEPTIME = PeriodicTimer_test::INTERVAL.toMilliseconds();
 
 TIMING_TEST_F(PeriodicTimer_test, TimerAutoStartTest, Repeat(5), [&] {
     Timer sut(0_s);
@@ -121,6 +119,19 @@ TIMING_TEST_F(PeriodicTimer_test, ResetWithNewDurationINTERVALTest, Repeat(5), [
     clock_gettime(CLOCK_REALTIME, &timeAfterWait);
     auto duration = timeAfterWait.tv_sec - timeBeforeWait.tv_sec;
     bool result = (((unsigned)duration) == NEW_DURATION.toSeconds()) ? true : false;
+
+    TIMING_TEST_EXPECT_TRUE(result);
+});
+
+TIMING_TEST_F(PeriodicTimer_test, currentTimeTest, Repeat(5), [&] {
+    Timer sut(INTERVAL);
+    struct timespec ts;
+
+    clock_gettime(CLOCK_REALTIME, &ts);
+    auto timeNow = sut.now();
+    auto currentSystemTime = iox::units::Duration(ts);
+
+    bool result = timeNow.toSeconds() == currentSystemTime.toSeconds() ? true : false;
 
     TIMING_TEST_EXPECT_TRUE(result);
 });

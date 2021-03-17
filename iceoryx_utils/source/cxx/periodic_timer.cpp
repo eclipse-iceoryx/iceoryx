@@ -47,7 +47,9 @@ void PeriodicTimer::stop() noexcept
 
 const iox::units::Duration PeriodicTimer::now() const noexcept
 {
-    return m_interval;
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    return iox::units::Duration(ts);
 }
 
 cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> PeriodicTimer::wait() noexcept
