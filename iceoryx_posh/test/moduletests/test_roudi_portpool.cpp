@@ -166,7 +166,7 @@ TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
     }
 }
 
-TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReurnsError)
+TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
 {
     auto errorHandlerCalled{false};
     Error errorHandlerType;
@@ -279,7 +279,7 @@ TEST_F(PortPool_test, AddSubscriberPortToMaxCapacityIsSuccessful)
 }
 
 
-TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReurnsError)
+TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
 {
     auto errorHandlerCalled{false};
     Error errorHandlerType;
@@ -582,8 +582,7 @@ TEST_F(PortPool_test, GetServiceRegistryChangeCounterReturnsZeroAsInitialValue)
     EXPECT_EQ(serviceCounter->load(), 0U);
 }
 
-
-TEST_F(PortPool_test, GetServiceRegistryChangeCounterIsSuccessfull)
+TEST_F(PortPool_test, GetServiceRegistryChangeCounterIsSuccessful)
 {
     sut.serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
     auto serviceCounter = sut.serviceRegistryChangeCounter();
