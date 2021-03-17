@@ -12,7 +12,11 @@ In iceoryx applications use a different means of communication to register with 
   * `Process`, `Node`, `Publisher`, `Subscriber`, `ConditionVariable` can be created independent from each other
   * No hierarchical dependecy between entitites
   * RAII principle not followed, if `Process::~Process()` is called e.g. `Node` is not cleaned up
-* Repeditive code duplications needed if new entities are added
+* Repetitive code duplications needed if new entities are added
+* Inconsistency regarding creation and deletion of entities in shared memory
+  * They are created via IPC channel (e.g. `CREATE_PUBLISHER`)
+  * If an entitiy is destructed in the user application, `m_ToBeDestroyed = true`
+  * RouDi acts as a garbage collector, checks this bool and cleans up resources
 
 ### In scope
 
