@@ -18,6 +18,7 @@
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 #include "test.hpp"
+#include "testutils/watch_dog.hpp"
 
 #include <atomic>
 #include <thread>
@@ -31,6 +32,7 @@ class Mutex_test : public Test
     void SetUp() override
     {
         internal::CaptureStderr();
+        m_deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
     void TearDown() override
@@ -44,6 +46,8 @@ class Mutex_test : public Test
 
     iox::posix::mutex sutNonRecursive{false};
     iox::posix::mutex sutRecursive{true};
+    iox::units::Duration m_watchdogTimeout = 5_s;
+    Watchdog m_deadlockWatchdog{m_watchdogTimeout};
 };
 
 TEST_F(Mutex_test, TryLockWithNoLock)
