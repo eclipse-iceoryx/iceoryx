@@ -90,13 +90,12 @@ BaseRelocatablePointer::offset_t BaseRelocatablePointer::getOffset() const noexc
 BaseRelocatablePointer::offset_t BaseRelocatablePointer::computeOffset(const void* ptr) const noexcept
 {
     /// @todo find most efficient way to do this and check the valid range (signed/unsigned issues)
-    /// this implies that the absolute difference cannot be larger than 2^63 which is probably true in any shared
-    /// memory we use
-    /// otherwise we would need to use unsigned for differences and use one extra bit from somewhere else to
+    /// this implies that the absolute difference cannot be larger than 2^63 which is probably true in any shared memory
+    /// we use otherwise we would need to use unsigned for differences and use one extra bit from somewhere else to
     /// indicate the sign
 
-    /// this suffices if both addresses are not too far apart, e.g. when they point to data in a sufficiently
-    /// "small" shared memory (if the shared memory is small, the difference does never underflow)
+    /// this suffices if both addresses are not too far apart, e.g. when they point to data in a sufficiently "small"
+    /// shared memory (if the shared memory is small, the difference does never underflow)
 
     /// @todo better first cast to unsigned, then cast to signed later (extends range where it)
     return reinterpret_cast<offset_t>(&m_offset) - reinterpret_cast<offset_t>(ptr);

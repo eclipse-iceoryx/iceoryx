@@ -104,8 +104,8 @@ inline ptr_t PointerRepository<id_t, ptr_t, CAPACITY>::getBasePtr(id_t id) const
         return m_info[id].basePtr;
     }
 
-    /// @note for id 0 nullptr is returned, meaning we will later interpret a relative pointer
-    /// by casting the offset into a pointer (i.e. we measure relative to 0)
+    /// @note for id 0 nullptr is returned, meaning we will later interpret a relative pointer by casting the offset
+    /// into a pointer (i.e. we measure relative to 0)
 
     /// @note we cannot distinguish between not registered and nullptr registered, but we do not need to
     return nullptr;

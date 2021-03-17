@@ -50,30 +50,54 @@ class PointerRepository
   public:
     static constexpr id_t INVALID_ID = std::numeric_limits<id_t>::max();
 
+    /// @brief default constructor
     PointerRepository() noexcept;
 
+    /// @brief registers the start pointer of the segment in another application with a specific id
+    /// @param[in] id identifies the segment
+    /// @param[in] ptr is the start pointer of the segment
+    /// @param[in] size is the size of the segment
+    /// @return true if the registration was successful, otherwise false
     bool registerPtr(id_t id, ptr_t ptr, uint64_t size) noexcept;
 
+    /// @brief registers the start pointer of a segment with a specific size
+    /// @param[in] ptr is the start pointer of the segment
+    /// @param[in] size is the size of the segment
+    /// @return the id that identifies the segment
     id_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
+    /// @brief unregisters the id and also invalidates relative pointers using this id
+    /// @param[in] id is the id to be unregistered
+    /// @return true if successful, otherwise false
     bool unregisterPtr(id_t id) noexcept;
 
+    /// @brief unregisters all ids and also invalidates all relative pointers
     void unregisterAll() noexcept;
 
+    /// @brief gets the base pointer associated with id
+    /// @param[in] id is the segment id
+    /// @return the base pointer associated with the id
     ptr_t getBasePtr(id_t id) const noexcept;
 
+    /// @brief returns the id for a given pointer ptr
+    /// @param[in] ptr is the pointer whose corresponding id is searched for
+    /// @return the id the pointer was registered to
     id_t searchId(ptr_t ptr) const noexcept;
 
+    /// @brief checks if given id is valid
+    /// @param[in] id is the id to be checked
+    /// @return true if id is valid, otherwise false
     bool isValid(id_t id) const noexcept;
 
+    /// @brief prints the ids and their associated base pointers
     void print() const noexcept;
 
   private:
     /// @todo: if required protect vector against concurrent modification
-    // whether this is required depends on the use case, we currently do not need it
-    // we control the ids, so if they are consecutive we only need a vector/array to get the address
-    // this variable exists once per application using relative pointers,
-    // and each needs to initialize it via register calls above
+    /// whether this is required depends on the use case, we currently do not need it
+    /// we control the ids, so if they are consecutive we only need a vector/array to get the address
+    /// this variable exists once per application using relative pointers,
+    /// and each needs to initialize it via register calls above
 
     iox::cxx::vector<Info, CAPACITY> m_info;
     uint64_t m_maxRegistered{0U};

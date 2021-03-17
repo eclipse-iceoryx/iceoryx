@@ -102,44 +102,31 @@ BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr() const noexcept
     return getBasePtr(m_id);
 }
 
-//*********************************id operations********************************************
-
-/// @brief registers a memory segment at ptr with size of a new id
-/// @return id id it was registered to
 BaseRelativePointer::id_t BaseRelativePointer::registerPtr(const ptr_t ptr, uint64_t size) noexcept
 {
     return getRepository().registerPtr(ptr, size);
 }
 
-/// @brief registers a memory segment at ptr with size of given id
-/// @return true if successful (id not occupied), false otherwise
 bool BaseRelativePointer::registerPtr(const id_t id, const ptr_t ptr, uint64_t size) noexcept
 {
     return getRepository().registerPtr(id, ptr, size);
 }
 
-/// @brief unregister ptr with given id
-/// @return true if successful (ptr was registered with this id before), false otherwise
 bool BaseRelativePointer::unregisterPtr(const id_t id) noexcept
 {
     return getRepository().unregisterPtr(id);
 }
 
-/// @brief get the base ptr associated with the given id
-/// @return ptr registered at the given id, nullptr if none was registered
 BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr(const id_t id) noexcept
 {
     return getRepository().getBasePtr(id);
 }
 
-/// @brief unregister all ptr id pairs (leads to initial state)
 void BaseRelativePointer::unregisterAll() noexcept
 {
     getRepository().unregisterAll();
 }
 
-/// @brief get the offset from id and ptr
-/// @return offset
 BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t id, const_ptr_t ptr) noexcept
 {
     if (id == NULL_POINTER_ID)
@@ -150,9 +137,6 @@ BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t id, cons
     return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
 }
 
-
-/// @brief get the pointer from id and offset ("inverse" to getOffset)
-/// @return ptr
 BaseRelativePointer::ptr_t BaseRelativePointer::getPtr(const id_t id, const offset_t offset) noexcept
 {
     if (offset == NULL_POINTER_OFFSET)
@@ -182,8 +166,6 @@ PointerRepository<BaseRelativePointer::id_t, BaseRelativePointer::ptr_t>& BaseRe
     static PointerRepository<id_t, ptr_t> repository;
     return repository;
 }
-
-//*****************************************************************************************
 
 BaseRelativePointer::offset_t BaseRelativePointer::computeOffset(ptr_t ptr) const noexcept
 {

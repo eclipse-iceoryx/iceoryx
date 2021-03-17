@@ -28,26 +28,49 @@ template <typename T>
 class RelocatablePointer : public BaseRelocatablePointer
 {
   public:
+    /// @brief default constructs a logical nullptr
     RelocatablePointer() noexcept;
 
+    /// @brief creates a RelocatablePointer pointing to ptr
+    /// @param[in] ptr is the pointee
     RelocatablePointer(const T* ptr) noexcept;
 
+    /// @brief creates a RelocatablePointer from a BaseRelocatablePointer
+    /// @param[in] other is the BaseRelocatablePointer
     RelocatablePointer(const BaseRelocatablePointer& other) noexcept;
 
+    /// @brief creates a RelocatablePointer pointing to rawPtr
+    /// @param[in] rawPtr is the pointee
     RelocatablePointer(T* rawPtr) noexcept;
 
+    /// @brief assign this to point to the BaseRelocatablePointer other
+    /// @param[in] other is the pointee
+    /// @return reference to self
     RelocatablePointer& operator=(const BaseRelocatablePointer& other) noexcept;
 
+    /// @brief dereferencing operator which returns a reference to the pointee
+    /// @return a reference to the pointee
     T& operator*() noexcept;
 
+    /// @brief access to the underlying object in shared memory
+    /// @return a pointer to the underlying object
     T* operator->() noexcept;
 
+    /// @brief dereferencing operator which returns a const reference to the pointee
+    /// @return a const reference to the pointee
     const T& operator*() const noexcept;
 
+    /// @brief read-only access to the underlying object in shared memory
+    /// @return a const pointer to the underlying object
     const T* operator->() const noexcept;
 
+    /// @brief returns a reference to the memory location of the underlying object + an offset
+    /// @param[in] index is the offset
+    /// @return a reference to the memory location of the underlying object + an offset
     T& operator[](uint64_t index) noexcept;
 
+    /// @brief converts the RelocatablePointer to a pointer of the type of the underlying object
+    /// @return a pointer of type T pointing to the underlying object
     operator T*() const noexcept;
 };
 } // namespace rp
