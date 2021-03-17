@@ -244,19 +244,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         break;
     }
-    case runtime::IpcMessageType::CREATE_EVENT_VARIABLE:
-    {
-        if (message.getNumberOfElements() != 2)
-        {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_EVENT_VARIABLE\" from \""
-                       << processName << "\"received!";
-        }
-        else
-        {
-            m_prcMgr.addEventVariableForProcess(processName);
-        }
-        break;
-    }
     case runtime::IpcMessageType::CREATE_INTERFACE:
     {
         if (message.getNumberOfElements() != 4)

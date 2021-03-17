@@ -126,22 +126,6 @@ class PortManager_test : public Test
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
-    void acquireMaxNumberOfEventVariables(
-        const std::string& process,
-        std::function<void(iox::popo::EventVariableData*)> f = std::function<void(iox::popo::EventVariableData*)>())
-    {
-        for (unsigned int i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; i++)
-        {
-            iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
-            auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
-            ASSERT_THAT(eventVariableDataResult.has_error(), Eq(false));
-            if (f)
-            {
-                f(eventVariableDataResult.value());
-            }
-        }
-    }
-
     void acquireMaxNumberOfInterfaces(
         std::string processName,
         std::function<void(iox::popo::InterfacePortData*)> f = std::function<void(iox::popo::InterfacePortData*)>())
@@ -225,8 +209,8 @@ void setDestroyFlagAndClearContainer(vector& container)
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 {
-    PublisherOptions publisherOptions{1U, "node", false};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     PublisherPortUser publisher(
         m_portManager
@@ -250,8 +234,8 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 {
-    PublisherOptions publisherOptions{1U, "node", false};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
@@ -275,8 +259,8 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 
 TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscriberAndPublisher)
 {
-    PublisherOptions publisherOptions{1U, "node", false};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
@@ -300,8 +284,8 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
 
 TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreationOfPublisher)
 {
-    PublisherOptions publisherOptions{1U, "node", false};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     SubscriberPortUser subscriber1(
         m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
@@ -332,8 +316,8 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
 
 TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPublisherAvailable)
 {
-    PublisherOptions publisherOptions{1U, "node", false};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", true};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
@@ -351,8 +335,8 @@ TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPubl
 
 TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscriberAvailable)
 {
-    PublisherOptions publisherOptions{1U, "node", true};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
     subscriber.subscribe();
@@ -370,8 +354,8 @@ TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscrib
 
 TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopSubscriberFirst)
 {
-    PublisherOptions publisherOptions{1U, "node", true};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", true};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
 
@@ -387,8 +371,8 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
 
 TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopPublisherFirst)
 {
-    PublisherOptions publisherOptions{1U, "node", true};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", true};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
@@ -407,7 +391,7 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 {
     iox::ProcessName_t processName = "test1";
-    PublisherOptions publisherOptions{1U, "run1"};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("run1")};
 
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {
@@ -436,7 +420,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 {
     iox::ProcessName_t processName1 = "test1";
-    SubscriberOptions subscriberOptions{1U, 1U, "run1"};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("run1")};
 
     for (unsigned int i = 0; i < iox::MAX_SUBSCRIBERS; i++)
     {
@@ -633,69 +617,10 @@ TEST_F(PortManager_test, AcquireConditionVariablesDataAfterDestroyingPreviouslyA
     acquireMaxNumberOfConditionVariables(processName);
 }
 
-TEST_F(PortManager_test, AcquiringMaximumNumberOfEventVariablesWorks)
-{
-    std::string process = "BuddyHolly";
-
-    acquireMaxNumberOfEventVariables(process);
-}
-
-TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfEventVariableFails)
-{
-    std::string process = "BuddyHollysBrille";
-
-    // first acquire all possible event variables
-    acquireMaxNumberOfEventVariables(process);
-
-    // test if overflow errors get hit
-    auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-        });
-
-    auto eventVariableDataResult = m_portManager->acquireEventVariableData("AnotherBrille");
-    EXPECT_THAT(eventVariableDataResult.has_error(), Eq(true));
-    EXPECT_THAT(errorHandlerCalled, Eq(true));
-    EXPECT_THAT(eventVariableDataResult.get_error(), Eq(PortPoolError::EVENT_VARIABLE_LIST_FULL));
-}
-
-TEST_F(PortManager_test, DeletingEventVariableWorks)
-{
-    std::string process = "BudSpencer";
-
-    // first acquire all possible event variables
-    acquireMaxNumberOfEventVariables(process);
-
-    // delete one and add one eventVariableDataResult should be possible now
-    unsigned int i = 0U;
-    iox::ProcessName_t newProcessName(iox::cxx::TruncateToCapacity, process + std::to_string(i));
-    m_portManager->deletePortsOfProcess(newProcessName);
-
-    auto eventVariableDataResult = m_portManager->acquireEventVariableData(newProcessName);
-    EXPECT_THAT(eventVariableDataResult.has_error(), Eq(false));
-}
-
-TEST_F(PortManager_test, DestroyEventVariableAndAddNewOneSucceeds)
-{
-    iox::ProcessName_t process = "Terence Hill";
-    std::vector<iox::popo::EventVariableData*> eventVariableContainer;
-
-    // first acquire all possible event variables
-    acquireMaxNumberOfEventVariables(
-        process, [&](auto eventVariableData) { eventVariableContainer.push_back(eventVariableData); });
-
-    setDestroyFlagAndClearContainer(eventVariableContainer);
-    m_portManager->doDiscovery();
-
-    // we should be able to get some more now
-    acquireMaxNumberOfEventVariables(process);
-}
-
 TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
 {
     std::string processName = "Process";
-    std::string nodeName = "Node";
+    std::string nodeName = iox::NodeName_t("node");
 
     acquireMaxNumberOfNodes(nodeName, processName, [&](auto node, auto newNodeName, auto newProcessName) {
         EXPECT_THAT(node->m_node, StrEq(newNodeName));
@@ -706,7 +631,7 @@ TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
 {
     std::string processName = "Process";
-    std::string nodeName = "Node";
+    std::string nodeName = iox::NodeName_t("node");
 
     // first acquire all possible NodeData
     acquireMaxNumberOfNodes(nodeName, processName);
@@ -727,7 +652,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
 TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 {
     std::string processName = "Process";
-    std::string nodeName = "Node";
+    std::string nodeName = iox::NodeName_t("node");
 
     // first acquire all possible NodeData
     acquireMaxNumberOfNodes(nodeName, processName);
@@ -772,8 +697,8 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
     iox::ProcessName_t processName2 = "myProcess2";
     iox::capro::ServiceDescription cap1(1, 1, 1);
     iox::capro::ServiceDescription cap2(2, 2, 2);
-    PublisherOptions publisherOptions{1U, "node", false};
-    SubscriberOptions subscriberOptions{1U, 1U, "node", false};
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
     // two processes process1 and process2 each with a publisher and subscriber that match to the other process
     auto publisherData1 =

@@ -96,6 +96,8 @@ class MyTriggerClass
 
     static void callOnAction(MyTriggerClass* const triggerClassPtr)
     {
+        // Ignore unused variable warning
+        (void)triggerClassPtr;
         std::cout << "action performed" << std::endl;
     }
 

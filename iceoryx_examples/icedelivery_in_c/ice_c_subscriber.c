@@ -29,6 +29,7 @@ bool killswitch = false;
 
 static void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
@@ -62,6 +63,7 @@ void receiving()
             {
                 const struct RadarObject* sample = (const struct RadarObject*)(chunk);
                 printf("Got value: %.0f\n", sample->x);
+                fflush(stdout);
                 iox_sub_release_chunk(subscriber, chunk);
             }
             printf("\n");

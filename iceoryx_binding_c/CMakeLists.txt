@@ -59,6 +59,7 @@ add_library(${PROJECT_NAME}
     source/cpp2c_enum_translation.cpp
     source/cpp2c_publisher.cpp
     source/cpp2c_subscriber.cpp
+    source/cpp2c_service_description_translation.cpp
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -74,7 +75,7 @@ target_include_directories(${PROJECT_NAME}
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
-if(NOT WIN32)
+if(NOT (WIN32 OR QNX))
     target_link_libraries(${PROJECT_NAME}
       PUBLIC
         stdc++

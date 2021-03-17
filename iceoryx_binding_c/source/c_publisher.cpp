@@ -17,6 +17,7 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -149,3 +150,9 @@ bool iox_pub_has_subscribers(iox_pub_t const self)
 {
     return PublisherPortUser(self->m_portData).hasSubscribers();
 }
+
+iox_service_description_t iox_pub_get_service_description(iox_pub_t const self)
+{
+    return TranslateServiceDescription(PublisherPortUser(self->m_portData).getCaProServiceDescription());
+}
+

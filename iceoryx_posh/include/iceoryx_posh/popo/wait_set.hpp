@@ -18,15 +18,17 @@
 #define IOX_POSH_POPO_WAIT_SET_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/cxx/stack.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 namespace iox
@@ -124,7 +126,7 @@ class WaitSet
     uint64_t capacity() const noexcept;
 
   protected:
-    explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
+    explicit WaitSet(ConditionVariableData& condVarData) noexcept;
 
   private:
     template <typename T>
@@ -148,7 +150,8 @@ class WaitSet
     /// needs to be a list since we return pointer to the underlying EventInfo class with wait
     TriggerList m_triggerList;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
-    ConditionVariableWaiter m_conditionVariableWaiter;
+    ConditionListener m_conditionListener;
+    cxx::stack<uint64_t, Capacity> m_indexRepository;
 };
 
 } // namespace popo

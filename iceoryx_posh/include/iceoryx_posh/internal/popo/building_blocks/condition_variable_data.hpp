@@ -29,12 +29,14 @@ namespace popo
 {
 struct ConditionVariableData
 {
-    ConditionVariableData() noexcept = default;
+    ConditionVariableData() noexcept;
     ConditionVariableData(const ProcessName_t& process) noexcept;
+
     ConditionVariableData(const ConditionVariableData& rhs) = delete;
     ConditionVariableData(ConditionVariableData&& rhs) = delete;
     ConditionVariableData& operator=(const ConditionVariableData& rhs) = delete;
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
+    ~ConditionVariableData() = default;
 
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0u)
@@ -47,6 +49,7 @@ struct ConditionVariableData
 
     ProcessName_t m_process;
     std::atomic_bool m_toBeDestroyed{false};
+    std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE];
 };
 
 } // namespace popo

@@ -14,29 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_BINDING_C_SLEEP_FOR_H
+#define IOX_BINDING_C_SLEEP_FOR_H
 
-#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
+#ifdef _WIN32
+#include <windows.h>
 
-namespace iox
+void sleep_for(uint64_t milliseconds)
 {
-namespace popo
-{
-EventVariableData::EventVariableData() noexcept
-{
-    for (auto& id : m_activeNotifications)
-    {
-        id.store(false, std::memory_order_relaxed);
-    }
+    Sleep(milliseconds);
 }
 
-EventVariableData::EventVariableData(const ProcessName_t& process) noexcept
-    : ConditionVariableData(process)
-{
-    for (auto& id : m_activeNotifications)
-    {
-        id.store(false, std::memory_order_relaxed);
-    }
-}
-} // namespace popo
-} // namespace iox
+#else
+#include <unistd.h>
 
+void sleep_for(uint32_t milliseconds)
+{
+    usleep(milliseconds * 1000U);
+}
+#endif
+
+#endif
