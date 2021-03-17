@@ -96,7 +96,8 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
     //     LogError() << "An application with the same name is still running. Starting the same app twice is not
     //                   supported.";
     //                   errorHandler(
-    //                       Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
+    //                       Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING, nullptr,
+    //                       iox::ErrorLevel::FATAL);
     // }
 
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
@@ -104,14 +105,24 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
 
 PoshRuntime::~PoshRuntime() noexcept
 {
-    // Inform RouDi that we're shuting down
-    IpcMessage shutdown;
-    shutdown << IpcMessageTypeToString(IpcMessageType::TERMINATION) << m_appName;
-    m_ipcChannelInterface.sendMessageToRouDi(shutdown);
+    // Inform RouDi that we're shutting down
+    IpcMessage sendBuffer;
+    sendBuffer << IpcMessageTypeToString(IpcMessageType::TERMINATION) << m_appName;
+    IpcMessage receiveBuffer;
 
-    if (m_applicationPort)
+    if (m_ipcChannelInterface.sendRequestToRouDi(sendBuffer, receiveBuffer)
+        && (1U == receiveBuffer.getNumberOfElements()))
     {
-        m_applicationPort.destroy();
+        std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
+
+        if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::TERMINATION_ACK)
+        {
+            LogVerbose() << "RouDi cleaned up resources of " << m_appName << ". Shutting down gracefully.";
+        }
+        else
+        {
+            LogError() << "Got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
+        }
     }
 }
 

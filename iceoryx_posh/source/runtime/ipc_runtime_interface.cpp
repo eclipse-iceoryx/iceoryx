@@ -168,16 +168,6 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
     return true;
 }
 
-bool IpcRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
-{
-    if (!m_RoudiIpcInterface.send(msg))
-    {
-        LogError() << "Could not send message via RouDi IPC channel interface.\n";
-        return false;
-    }
-    return true;
-}
-
 size_t IpcRuntimeInterface::getShmTopicSize() noexcept
 {
     return m_shmTopicSize;

@@ -73,108 +73,48 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     auto m_segmentInfo = m_segmentManager->getSegmentInformationForUser(currentUser);
     m_memoryManagerOfCurrentProcess = m_segmentInfo.m_memoryManager;
 }
-
-void ProcessManager::killAllProcesses(const units::Duration processKillDelay) noexcept
+void ProcessManager::requestShutdownOfAllProcesses() noexcept
 {
-    std::lock_guard<std::mutex> lockGuard(m_mutex);
-    cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
-    uint64_t i{0U};
-    bool haveAllProcessesFinished{false};
-    cxx::DeadlineTimer finalKillTimer(processKillDelay);
-
-    auto awaitProcessTermination = [&]() {
-        bool shouldCheckProcessState = true;
-        finalKillTimer.reset();
-
-        // try to shut down all processes until either all processes have terminated or a timer set to processKillDelay
-        // has expired
-        while (!haveAllProcessesFinished && !finalKillTimer.hasExpired())
-        {
-            i = 0;
-
-            // give processes some time to terminate before checking their state
-            std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
-
-            for (auto& process : m_processList)
-            {
-                if (processStillRunning[i] && !isProcessAlive(process))
-                {
-                    processStillRunning[i] = false;
-                    shouldCheckProcessState = true;
-                }
-                ++i;
-            }
-
-            // check if we are done
-            if (shouldCheckProcessState)
-            {
-                shouldCheckProcessState = false;
-                haveAllProcessesFinished = true;
-                for (bool isRunning : processStillRunning)
-                {
-                    haveAllProcessesFinished &= !isRunning;
-                }
-            }
-        }
-    };
-
-    i = 0;
-    // send SIG_TERM to all running applications and wait for process to complete
+    // send SIG_TERM to all running applications and wait for processes to answer with TERMINATION
     for (auto& process : m_processList)
     {
-        // if it was killed we need to check if it really has terminated, if we can't kill it, we consider it
-        // terminated
-        processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
-        ++i;
-    }
-
-    // we sent SIG_TERM, now wait till they have terminated
-    awaitProcessTermination();
-
-    // any processes still alive? Time to send SIG_KILL to kill.
-    if (finalKillTimer.hasExpired())
-    {
-        i = 0;
-        for (auto& process : m_processList)
-        {
-            if (processStillRunning[i])
-            {
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' is still running after SIGTERM was sent " << processKillDelay.toSeconds()
-                          << " seconds ago. RouDi is sending SIGKILL now.";
-                processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL);
-            }
-            ++i;
-        }
-
-        // we sent SIG_KILL to kill, now wait till they have terminated
-        awaitProcessTermination();
-
-        // any processes still alive? Time to ignore them.
-        if (finalKillTimer.hasExpired())
-        {
-            i = 0;
-            for (auto& process : m_processList)
-            {
-                if (processStillRunning[i])
-                {
-                    LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                              << "' is still running after SIGKILL was sent " << processKillDelay.toSeconds()
-                              << " seconds ago. RouDi is ignoring this process.";
-                }
-                ++i;
-            }
-        }
-    }
-
-    auto it = m_processList.begin();
-    while (removeProcess(lockGuard, it))
-    {
-        it = m_processList.begin();
+        requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
     }
 }
 
-bool ProcessManager::requestShutdownOfProcess(const Process& process, ShutdownPolicy shutdownPolicy) noexcept
+bool ProcessManager::isAnyRegisteredProcessStillRunning() noexcept
+{
+    for (auto& process : m_processList)
+    {
+        if (isProcessAlive(process))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ProcessManager::killAllProcessesTheHardWay() noexcept
+{
+    for (auto& process : m_processList)
+    {
+        LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                  << "' is still running after SIGTERM was sent. RouDi is sending SIGKILL now.";
+        requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL);
+    }
+}
+
+void ProcessManager::removeUnresponsiveProcesses() noexcept
+{
+    for (auto& process : m_processList)
+    {
+        LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                  << "' is still running after SIGKILL was sent. RouDi is ignoring this process.";
+    }
+    m_processList.clear();
+}
+
+bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy shutdownPolicy) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
     auto killC = iox::cxx::makeSmartC(kill,
@@ -189,7 +129,7 @@ bool ProcessManager::requestShutdownOfProcess(const Process& process, ShutdownPo
         evaluateKillError(process, killC.getErrNum(), killC.getErrorString(), shutdownPolicy);
         return false;
     }
-    return true;
+    return false;
 }
 
 bool ProcessManager::isProcessAlive(const Process& process) noexcept
@@ -257,7 +197,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
             // if it is monitored, we reject the registration and wait for automatic cleanup
             // otherwise we remove the process ourselves and register it again
 
-            if (process.isMonitored()) // needs to be read here under lock, is it the same process or a duplicate?
+            if (process.isMonitored()) // is it the same process or a duplicate?
             {
                 // process exists and is monitored - we rely on monitoring for removal
                 LogWarn() << "Received REG from " << name
@@ -265,7 +205,8 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
 
                 // Notify new application that it shall shutdown and try later
                 runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
+                sendBuffer << runtime::IpcMessageTypeToString(
+                    runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
                 process.sendViaIpcChannel(sendBuffer);
             }
             else
@@ -274,7 +215,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                 LogDebug() << "Registering already existing application " << name;
 
                 // remove existing process
-                if (!removeProcess(name))
+                if (!searchForProcessAndRemoveIt(name))
                 {
                     LogWarn()
                         << "Received REG from " << name
@@ -357,8 +298,7 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
 
 bool ProcessManager::unregisterProcess(const ProcessName_t& name) noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
-    if (!removeProcess(name))
+    if (!searchForProcessAndRemoveIt(name))
     {
         LogError() << "Application " << name << " could not be unregistered!";
         return false;
@@ -366,7 +306,7 @@ bool ProcessManager::unregisterProcess(const ProcessName_t& name) noexcept
     return true;
 }
 
-bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
+bool ProcessManager::searchForProcessAndRemoveIt(const ProcessName_t& name) noexcept
 {
     // we need to search for the process (currently linear search)
     auto it = m_processList.begin();
@@ -375,7 +315,7 @@ bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
         auto otherName = it->getName();
         if (name == otherName)
         {
-            if (removeProcess(it))
+            if (removeProcessAndDeleteRespectiveSharedMemoryObjects(it))
             {
                 LogDebug() << "Removed existing application " << name;
             }
@@ -386,18 +326,26 @@ bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
     return false;
 }
 
-bool ProcessManager::removeProcess(const std::lock_guard<std::mutex>& lockGuard [[gnu::unused]],
-                                   ProcessList_t::iterator& processIter) noexcept
+bool ProcessManager::removeProcess(ProcessList_t::iterator& processIter) noexcept
 {
-    return removeProcess(processIter);
+    return removeProcessAndDeleteRespectiveSharedMemoryObjects(processIter);
 }
 
-bool ProcessManager::removeProcess(ProcessList_t::iterator& processIter) noexcept
+bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(ProcessList_t::iterator& processIter) noexcept
 {
     if (processIter != m_processList.end())
     {
         m_portManager.deletePortsOfProcess(processIter->getName());
         m_processIntrospection->removeProcess(processIter->getPid());
+
+        // Reply with TERMINATION_ACK and let process shutdown
+        runtime::IpcMessage sendBuffer;
+        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::TERMINATION_ACK);
+        processIter->sendViaIpcChannel(sendBuffer);
+
+        // Give the app some time to shutdown gracefully
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
         processIter = m_processList.erase(processIter); // delete application
         return true;
     }
@@ -686,14 +634,11 @@ void ProcessManager::run() noexcept
 {
     monitorProcesses();
     discoveryUpdate();
-    std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.toMilliseconds()));
 }
 
 popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service,
                                                                        const ProcessName_t& process_name) noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex); /// @todo can safely be removed?
-
     popo::PublisherOptions options;
     options.historyCapacity = 1;
     options.nodeName = INTROSPECTION_NODE_NAME;
@@ -713,8 +658,6 @@ bool ProcessManager::searchForProcessAndThen(const ProcessName_t& name,
                                              cxx::function_ref<void(Process&)> AndThenCallable,
                                              cxx::function_ref<void()> OrElseCallable) noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
-
     typename ProcessList_t::iterator it = m_processList.begin();
     const typename ProcessList_t::iterator itEnd = m_processList.end();
 
@@ -738,8 +681,6 @@ bool ProcessManager::searchForProcessAndThen(const ProcessName_t& name,
 
 void ProcessManager::monitorProcesses() noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
-
     auto currentTimestamp = mepoo::BaseClock_t::now();
 
     auto processIterator = m_processList.begin();
@@ -777,8 +718,6 @@ void ProcessManager::monitorProcesses() noexcept
 
 void ProcessManager::discoveryUpdate() noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex); /// @todo can safely be removed?
-
     m_portManager.doDiscovery();
 }
 

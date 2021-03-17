@@ -27,6 +27,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
+#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/file.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
@@ -128,7 +129,8 @@ class RouDi
 
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
-    std::atomic_bool m_runThreads;
+    std::atomic_bool m_runDiscoveryThread;
+    std::atomic_bool m_runIpcChannelThread;
 
     const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 
@@ -139,7 +141,7 @@ class RouDi
     /// RouDiMemoryManager outlives some MemoryBlocks
     cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {}, [this]() { this->m_roudiMemoryInterface->destroyMemory(); }};
     PortManager* m_portManager;
-    ProcessManager m_prcMgr;
+    concurrent::smart_lock<ProcessManager> m_prcMgr;
 
   private:
     std::thread m_processManagementThread;

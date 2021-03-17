@@ -81,11 +81,19 @@ class ProcessManager : public ProcessManagerInterface
     /// @return true if known process was unregistered, false if process is unknown
     bool unregisterProcess(const ProcessName_t& name) noexcept;
 
-    /// @brief Kills all registered processes. First try with a SIGTERM and if they have not terminated after
-    /// processKillDelay they are killed with SIGKILL. If RouDi doesn't have sufficient rights to kill the process, the
+    /// @brief Kills all registered processes. If RouDi doesn't have sufficient rights to kill the process, the
     /// process is considered killed.
-    /// @param [in] processKillDelay Amount of time RouDi will wait before killing
-    void killAllProcesses(const units::Duration processKillDelay) noexcept;
+    void killAllProcessesTheHardWay() noexcept;
+
+    /// @brief Informs the user about the processes which are still and the list and then clears the list
+    void removeUnresponsiveProcesses() noexcept;
+
+    /// @brief Is one or more process registered?
+    /// @return true if one or more processes are registered, false otherwise
+    bool isAnyRegisteredProcessStillRunning() noexcept;
+
+    /// @brief Tries to gracefully terminate all registered processes
+    void requestShutdownOfAllProcesses() noexcept;
 
     void updateLivelinessOfProcess(const ProcessName_t& name) noexcept;
 
@@ -153,20 +161,17 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Removes the process from the managed client process list, identified by its id.
     /// @param [in] name The process name which should be removed.
     /// @return Returns true if the process was found and removed from the internal list.
-    bool removeProcess(const ProcessName_t& name) noexcept;
+    bool searchForProcessAndRemoveIt(const ProcessName_t& name) noexcept;
 
-    /// @brief Removes the given process from the managed client process list without taking the list's lock!
+    /// @brief Removes the given process from the managed client process list
+    /// @param [in] processIter The process which should be removed.
+    /// @return Returns true if the process was found and removed from the internal list.
+    bool removeProcessAndDeleteRespectiveSharedMemoryObjects(ProcessList_t::iterator& processIter) noexcept;
+
+    /// @brief Removes the given process from the managed client process list
     /// @param [in] processIter The process which should be removed.
     /// @return Returns true if the process was found and removed from the internal list.
     bool removeProcess(ProcessList_t::iterator& processIter) noexcept;
-
-    /// @brief Removes the given process from the managed client process list without taking the list's lock!
-    /// @param [in] lockGuard This method has to be called within a lock guard context. Providing this lock guard
-    ///                       ensures it can't be called without a lock guard in place. The lock guard is the one
-    ///                       associated with the process list.
-    /// @param [in] processIter The process which should be removed.
-    /// @return Returns true if the process was found and removed from the internal list.
-    bool removeProcess(const std::lock_guard<std::mutex>& lockGuard, ProcessList_t::iterator& processIter) noexcept;
 
     enum class ShutdownPolicy
     {
@@ -179,14 +184,14 @@ class ProcessManager : public ProcessManagerInterface
     /// @param [in] shutdownPolicy Signal passed to the system to shut down the process
     /// @param [in] shutdownLog Defines the logging detail.
     /// @return Returns true if the sent signal was successful.
-    bool requestShutdownOfProcess(const Process& process, ShutdownPolicy shutdownPolicy) noexcept;
+    bool requestShutdownOfProcess(Process& process, ShutdownPolicy shutdownPolicy) noexcept;
 
     /// @brief Evaluates with a kill SIGTERM signal to a process if he is still alive.
     /// @param [in] process The process to check.
     /// @return Returns true if the process is still alive, otherwise false.
     bool isProcessAlive(const Process& process) noexcept;
 
-    /// @brief Evaluates eventual upcoming errors from kill() command in requestShutdownOfProcess and isProcessAlive.
+    /// @brief Evaluates eventual upcoming errors from kill() command in requestShutdownOfProcess
     /// Calls the errorhandler.
     /// @param [in] process process where the kill command was run on
     /// @param [in] errnum errorcode of the killcommand
@@ -202,13 +207,9 @@ class ProcessManager : public ProcessManagerInterface
     mepoo::SegmentManager<>* m_segmentManager{nullptr};
     mepoo::MemoryManager* m_introspectionMemoryManager{nullptr};
     RelativePointer::id_t m_mgmtSegmentId{RelativePointer::NULL_POINTER_ID};
-    mutable std::mutex m_mutex;
-
     ProcessList_t m_processList;
-
     ProcessIntrospectionType* m_processIntrospection{nullptr};
-
-    // this is currently used for the internal publisher/subscriber ports
+    /// @brief is currently used for the internal publisher/subscriber ports
     mepoo::MemoryManager* m_memoryManagerOfCurrentProcess{nullptr};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel;
 };
