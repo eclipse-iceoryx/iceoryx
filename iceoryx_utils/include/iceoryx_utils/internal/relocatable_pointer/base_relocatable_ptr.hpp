@@ -43,7 +43,7 @@ namespace rp
 class BaseRelocatablePointer
 {
     template <typename T>
-    friend class relocatable_ptr;
+    friend class RelocatablePointer;
 
   public:
     using offset_t = std::ptrdiff_t;
