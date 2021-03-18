@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef ICEORYX_UTILS_CXX_SIZE_VALUE_HPP
-#define ICEORYX_UTILS_CXX_SIZE_VALUE_HPP
+#ifndef ICEORYX_UTILS_CXX_CONTAINER_STORAGE_HPP
+#define ICEORYX_UTILS_CXX_CONTAINER_STORAGE_HPP
 
 #include "iceoryx_utils/cxx/uninitialized_array.hpp"
 #include <cstdint>
@@ -23,12 +23,7 @@ namespace iox
 {
 namespace cxx
 {
-template <typename T, uint64_t Capacity>
-class container_storage;
-
-template <typename T>
-class container_storage<T, 0U>;
-
+// For Capacity > 0. (Capacity==0 is supported by a memory-optimized specialization)
 template <typename T, uint64_t Capacity>
 class container_storage : public uninitialized_array<T, Capacity>
 {
@@ -58,9 +53,36 @@ class container_storage : public uninitialized_array<T, Capacity>
     uint64_t m_size{0u};
 };
 
+// Memory-optimized specialization for Capacity 0 (same semantic as Capacity>0)
+template <typename T>
+class container_storage<T, 0U> : public uninitialized_array<T, 0U>
+{
+  public:
+    container_storage() = default;
+
+    /// @brief returns the number of elements which are currently stored in the
+    ///         vector
+    uint64_t size() const noexcept;
+
+    /// @brief update the size
+    /// @param [in] newSize new number of elements which are currently stored in the
+    ///         vector.
+    void set_size(uint64_t newSize) noexcept;
+
+    /// @brief returns whether the data structure is empty
+    /// @return true, if it contains no elements, false otherwise
+    bool empty() const noexcept;
+
+    /// @brief returns whether the data structure is completely full
+    /// @return true, if filled with max_size() elements, false otherwise
+    bool full() const noexcept;
+
+    using element_t = typename uninitialized_array<T, 0U>::element_t;
+};
+
 } // namespace cxx
 } // namespace iox
 
 #include <iceoryx_utils/internal/cxx/container_storage.inl>
 
-#endif /* ICEORYX_UTILS_CXX_SIZE_VALUE_HPP */
+#endif /* ICEORYX_UTILS_CXX_CONTAINER_STORAGE_HPP */

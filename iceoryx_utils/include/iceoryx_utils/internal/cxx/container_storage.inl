@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_UTILS_CXX_SIZE_VALUE_INL
-#define IOX_UTILS_CXX_SIZE_VALUE_INL
+#ifndef ICEORYX_UTILS_CXX_CONTAINER_STORAGE_INL
+#define ICEORYX_UTILS_CXX_CONTAINER_STORAGE_INL
 
 #include <iceoryx_utils/cxx/container_storage.hpp>
 #include <iostream>
@@ -53,39 +53,35 @@ inline bool container_storage<T, Capacity>::full() const noexcept
     return (m_size >= Capacity);
 }
 
-// Specialization for Capacity 0, where m_size is not needed
+// Memory-optimized specialization for Capacity 0
 template <typename T>
-class container_storage<T, 0U> : public uninitialized_array<T, 0>
+inline uint64_t container_storage<T, 0U>::size() const noexcept
 {
-  public:
-    inline uint64_t size() const noexcept
+    return 0U;
+}
+
+template <typename T>
+inline void container_storage<T, 0U>::set_size(uint64_t newSize) noexcept
+{
+    if (newSize != 0U)
     {
-        return 0u;
+        std::cerr << "Illegal call of set_size(" << newSize << ") exceeds Capacity=0." << std::endl;
+        std::terminate();
     }
+}
 
-    inline void set_size(uint64_t newSize) noexcept
-    {
-        if (newSize > 0U)
-        {
-            std::cerr << "Illegal call of set_size(" << newSize << ") exceeds Capacity=0." << std::endl;
-            std::terminate();
-        }
-    }
+template <typename T>
+inline bool container_storage<T, 0U>::empty() const noexcept
+{
+    return true;
+}
 
-    inline bool empty() const noexcept
-    {
-        return true;
-    }
-
-    inline bool full() const noexcept
-    {
-        return true;
-    }
-
-    using element_t = typename uninitialized_array<T, 0U>::element_t;
-};
-
+template <typename T>
+inline bool container_storage<T, 0U>::full() const noexcept
+{
+    return true;
+}
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_UTILS_CXX_SIZE_VALUE_INL
+#endif // ICEORYX_UTILS_CXX_CONTAINER_STORAGE_INL
