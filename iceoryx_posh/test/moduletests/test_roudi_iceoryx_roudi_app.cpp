@@ -107,7 +107,7 @@ class IceoryxRoudiApp_test : public Test
         outBuffer.clear();
     }
 
-    void TearDown()
+    void TearDown() override
     {
         // Reset optind to be able to parse again
         optind = 0;
