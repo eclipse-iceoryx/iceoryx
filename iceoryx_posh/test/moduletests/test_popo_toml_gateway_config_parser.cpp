@@ -253,9 +253,9 @@ TEST_F(TomlGatewayConfigParserTest, NoServicesInConfigReturnIncompleteConfigurat
 TEST_F(TomlGatewayConfigParserTest, ParseWithoutParameterTakeDefaultPathReturnNoError)
 {
     auto result = TomlGatewayConfigParser::parse();
-    GatewayConfig config = result.value();
+    ASSERT_FALSE(result.has_error());
 
-    EXPECT_FALSE(result.has_error());
+    GatewayConfig config = result.value();
     EXPECT_TRUE(config.m_configuredServices.empty());
 }
 
@@ -264,9 +264,9 @@ TEST_F(TomlGatewayConfigParserTest, ParseWithEmptyPathReturnEmptyConfig)
     iox::roudi::ConfigFilePathString_t path = "";
 
     auto result = TomlGatewayConfigParser::parse(path);
-    GatewayConfig config = result.value();
+    ASSERT_FALSE(result.has_error());
 
-    EXPECT_FALSE(result.has_error());
+    GatewayConfig config = result.value();
     EXPECT_TRUE(config.m_configuredServices.empty());
 }
 
@@ -286,9 +286,9 @@ TEST_F(TomlGatewayConfigParserTest, ValidServiceDescriptionInTomlConfigFileRetur
     iox::roudi::ConfigFilePathString_t Path =
         iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
-    GatewayConfig config = result.value();
+    ASSERT_FALSE(result.has_error());
 
-    EXPECT_FALSE(result.has_error());
+    GatewayConfig config = result.value();
     EXPECT_FALSE(config.m_configuredServices.empty());
 }
 
@@ -309,9 +309,9 @@ TEST_F(TomlGatewayConfigParserTest,
     iox::roudi::ConfigFilePathString_t Path =
         iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
-    GatewayConfig config = result.value();
+    ASSERT_FALSE(result.has_error());
 
-    EXPECT_FALSE(result.has_error());
+    GatewayConfig config = result.value();
     EXPECT_FALSE(config.m_configuredServices.empty());
 }
 
@@ -332,9 +332,9 @@ TEST_F(TomlGatewayConfigParserTest,
     iox::roudi::ConfigFilePathString_t Path =
         iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
-    GatewayConfig config = result.value();
+    ASSERT_FALSE(result.has_error());
 
-    EXPECT_FALSE(result.has_error());
+    GatewayConfig config = result.value();
     EXPECT_FALSE(config.m_configuredServices.empty());
 }
 
@@ -355,9 +355,9 @@ TEST_F(TomlGatewayConfigParserTest,
     iox::roudi::ConfigFilePathString_t Path =
         iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
-    GatewayConfig config = result.value();
+    ASSERT_FALSE(result.has_error());
 
-    EXPECT_FALSE(result.has_error());
+    GatewayConfig config = result.value();
     EXPECT_FALSE(config.m_configuredServices.empty());
 }
 
@@ -378,9 +378,9 @@ TEST_F(TomlGatewayConfigParserTest,
     iox::roudi::ConfigFilePathString_t Path =
         iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
-    GatewayConfig config = result.value();
+    ASSERT_FALSE(result.has_error());
 
-    EXPECT_FALSE(result.has_error());
+    GatewayConfig config = result.value();
     EXPECT_FALSE(config.m_configuredServices.empty());
 }
 
@@ -401,9 +401,9 @@ TEST_F(TomlGatewayConfigParserTest,
     iox::roudi::ConfigFilePathString_t Path =
         iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
     auto result = TomlGatewayConfigParser::parse(Path);
-    GatewayConfig config = result.value();
+    ASSERT_FALSE(result.has_error());
 
-    EXPECT_FALSE(result.has_error());
+    GatewayConfig config = result.value();
     EXPECT_FALSE(config.m_configuredServices.empty());
 }
 

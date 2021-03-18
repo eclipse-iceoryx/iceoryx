@@ -53,10 +53,17 @@ class GatewayBase_test : public TestWithParam<iox::capro::Interfaces>
             : GatewayBase(f_interface)
         {
         }
+
+        GatewayBaseTestDestructor() noexcept
+            : GatewayBase()
+        {
+        }
+
         iox::popo::InterfacePort* getInterfaceImpl()
         {
             return &m_interfaceImpl;
         }
+
         ~GatewayBaseTestDestructor() noexcept
         {
         }
@@ -75,6 +82,19 @@ TEST_P(GatewayBase_test, InterfacePortWillBeDestroyedWhenGatewayGoesOutOfScope)
     }
 
     EXPECT_TRUE(interfaceImpl->toBeDestroyed());
+}
+
+TEST_P(GatewayBase_test, InterfacePortWillNotBeDestroyedWhenInterfaceImplIsNullptr)
+{
+    iox::popo::InterfacePort* interfaceImpl;
+
+    {
+        GatewayBaseTestDestructor base{};
+
+        interfaceImpl = base.getInterfaceImpl();
+    }
+
+    EXPECT_FALSE(interfaceImpl->toBeDestroyed());
 }
 
 TEST_P(GatewayBase_test, GetCaProMessageMethodWithInvalidMessageReturnFalse)
