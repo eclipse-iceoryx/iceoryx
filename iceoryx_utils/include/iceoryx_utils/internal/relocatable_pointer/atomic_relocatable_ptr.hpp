@@ -37,8 +37,8 @@ class atomic_relocatable_ptr
     using offset_t = std::ptrdiff_t;
     static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
 
-    /// @brief creates atomic_relocatable_ptr pointing to ptr
-    /// @param[in] ptr pointee
+    /// @brief creates an atomic_relocatable_ptr pointing to the same pointee as ptr
+    /// @param[in] ptr the pointer whose pointee shall be the same for this
     atomic_relocatable_ptr(const T* ptr = nullptr) noexcept;
 
     /// @todo: can be implemented when needed, note that the offset must be recomputed during the move/copy
@@ -49,8 +49,8 @@ class atomic_relocatable_ptr
 
     /// @note minimal set of required operators, can be extended later
 
-    /// @brief assign atomic_relocatable_ptr to point to ptr
-    /// @param[in] ptr pointee
+    /// @brief assign atomic_relocatable_ptr to point to the same pointee as ptr
+    /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @return reference to self
     atomic_relocatable_ptr& operator=(const T* ptr) noexcept;
 

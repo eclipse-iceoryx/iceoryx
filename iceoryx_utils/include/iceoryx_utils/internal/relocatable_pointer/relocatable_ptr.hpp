@@ -32,20 +32,20 @@ class RelocatablePointer : public BaseRelocatablePointer
     /// @brief default constructs a logical nullptr
     RelocatablePointer() noexcept;
 
-    /// @brief creates a RelocatablePointer pointing to ptr
-    /// @param[in] ptr is the pointee
+    /// @brief creates a RelocatablePointer pointing to the same pointee as ptr
+    /// @param[in] ptr the pointer whose pointee shall be the same for this
     RelocatablePointer(const T* ptr) noexcept;
 
     /// @brief creates a RelocatablePointer from a BaseRelocatablePointer
     /// @param[in] other is the BaseRelocatablePointer
     RelocatablePointer(const BaseRelocatablePointer& other) noexcept;
 
-    /// @brief creates a RelocatablePointer pointing to rawPtr
-    /// @param[in] rawPtr is the pointee
+    /// @brief creates a RelocatablePointer pointing to the same pointee as rawPtr
+    /// @param[in] rawPtr the pointer whose pointee shall be the same for this
     RelocatablePointer(T* rawPtr) noexcept;
 
-    /// @brief assign this to point to the BaseRelocatablePointer other
-    /// @param[in] other is the pointee
+    /// @brief assign this to point to the same pointee as the BaseRelocatablePointer other
+    /// @param[in] other the pointer whose pointee shall be the same for this
     /// @return reference to self
     RelocatablePointer& operator=(const BaseRelocatablePointer& other) noexcept;
 

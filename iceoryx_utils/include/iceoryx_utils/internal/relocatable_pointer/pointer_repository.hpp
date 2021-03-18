@@ -75,7 +75,7 @@ class PointerRepository
     /// @brief unregisters all ids and also invalidates all relative pointers
     void unregisterAll() noexcept;
 
-    /// @brief gets the base pointer associated with id
+    /// @brief gets the base pointer, i.e. the starting address, associated with id
     /// @param[in] id is the segment id
     /// @return the base pointer associated with the id
     ptr_t getBasePtr(id_t id) const noexcept;

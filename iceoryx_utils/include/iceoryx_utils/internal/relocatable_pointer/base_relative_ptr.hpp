@@ -56,8 +56,8 @@ class BaseRelativePointer
     using const_ptr_t = const void* const;
     using offset_t = std::uintptr_t;
 
-    /// @brief constructs a BaseRelativePointer pointing to ptr in a segment identified by id
-    /// @param[in] ptr is the pointee
+    /// @brief constructs a BaseRelativePointer pointing to the same pointee as ptr in a segment identified by id
+    /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @param[in] id is the unique id of the segment
     BaseRelativePointer(ptr_t ptr, id_t id) noexcept;
 
@@ -66,8 +66,8 @@ class BaseRelativePointer
     /// @param[in] id is the unique id of the segment
     BaseRelativePointer(offset_t offset, id_t id) noexcept;
 
-    /// @brief constructs a BaseRelativePointer pointing to ptr
-    /// @param[in] ptr is the pointee
+    /// @brief constructs a BaseRelativePointer pointing to the same pointer as ptr
+    /// @param[in] ptr the pointer whose pointee shall be the same for this
     BaseRelativePointer(ptr_t ptr = nullptr) noexcept;
 
     /// @brief copy constructor
@@ -83,8 +83,8 @@ class BaseRelativePointer
     /// @return a reference to self
     BaseRelativePointer& operator=(const BaseRelativePointer& other) noexcept;
 
-    /// @brief assigns the BaseRelativePointer to point to ptr
-    /// @param[in] ptr is the pointee
+    /// @brief assigns the BaseRelativePointer to point to the same pointee as ptr
+    /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @return reference to self
     BaseRelativePointer& operator=(void* ptr) noexcept;
 
@@ -94,7 +94,7 @@ class BaseRelativePointer
     BaseRelativePointer& operator=(BaseRelativePointer&& other) noexcept;
 
     /// @brief access to the underlying object
-    /// @return a poiter to the underlying object
+    /// @return a pointer to the underlying object
     ptr_t get() const noexcept;
 
     /// @brief returns the id which identifies the segment
@@ -115,7 +115,7 @@ class BaseRelativePointer
     /// @return id it was registered to
     static id_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
-    /// @brief registers a memory segment at ptr with size of given id
+    /// @brief tries to register a memory segment with a given size starting at ptr to a given id
     /// @param[in] id is the id of the segment
     /// @param[in] ptr starting address of the segment to be registered
     /// @param[in] size is the size of the segment
@@ -136,7 +136,7 @@ class BaseRelativePointer
     static void unregisterAll() noexcept;
 
     /// @brief get the offset from id and ptr
-    /// @param[in] id is the id of the segment and is used to get the bease pointer
+    /// @param[in] id is the id of the segment and is used to get the base pointer
     /// @param[in] ptr is the pointer whose offset should be calculated
     /// @return offset
     static offset_t getOffset(const id_t id, const_ptr_t ptr) noexcept;
