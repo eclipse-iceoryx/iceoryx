@@ -12,7 +12,7 @@ Chunks are the transport capsules in iceoryx. They store data from a publisher a
 | Chunk Header      | contains meta information related to the chunk           |
 | Custom Header     | contains custom meta information, e.g. timestamps        |
 | Payload           | the user data                                            |
-| Back-Offset       | offset stored in front of the payload to calculate back to the chunk header |
+| Back-Offset       | offset stored in front of the payload to calculate back to the chunk header (for the most simple case it will overlap with the payload offset stored in the Chunk Header) |
 
 ## Design
 
@@ -62,13 +62,15 @@ For back calculation from the payload pointer to the `ChunkHeader` pointer, the 
 |------------------>|--------------------->|
 |                   |                      |
 +===================+======================+==================================+
-|  ChunkHeader  ¦   |       Payload        |  Padding                         |
+|  ChunkHeader  ¦ * |       Payload        |  Padding                         |
 +===================+======================+==================================+
 |                   |                                                         |
 |   payloadOffset   |                                                         |
 |------------------>|                                                         |
 |                                 chunkSize                                   |
 |---------------------------------------------------------------------------->|
+
+*) payloadOffset from ChunkHeader and back-offset are overlapping
 ```
 
 2. No custom header and alignment exceeds the `ChunkHeader` alignment
