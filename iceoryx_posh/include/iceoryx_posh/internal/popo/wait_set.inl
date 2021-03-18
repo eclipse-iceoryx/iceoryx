@@ -216,25 +216,25 @@ inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) no
         // merge the acquired notificationVector with m_activeNotifications
         for (auto notificationId : notificationVector)
         {
-            bool entryFound = false;
-            for (; !entryFound && position < m_activeNotifications.size(); ++position)
+            bool wasEntryFound = false;
+            for (; !wasEntryFound && position < m_activeNotifications.size(); ++position)
             {
                 if (m_activeNotifications[position] == notificationId)
                 {
-                    entryFound = true;
+                    wasEntryFound = true;
                 }
                 // the activeNotifications are sorted, if we end up on an id
                 // greater notificationId it is not in m_activeNotifications
                 else if (m_activeNotifications[position] > notificationId)
                 {
-                    m_activeNotifications.emplace(position, notificationId);
-                    entryFound = true;
+                    cxx::Expects(m_activeNotifications.emplace(position, notificationId));
+                    wasEntryFound = true;
                 }
             }
 
-            if (!entryFound)
+            if (!wasEntryFound)
             {
-                m_activeNotifications.emplace_back(notificationId);
+                cxx::Expects(m_activeNotifications.emplace_back(notificationId));
             }
         }
     }

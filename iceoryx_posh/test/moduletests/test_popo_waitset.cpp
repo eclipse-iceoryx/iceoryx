@@ -633,3 +633,23 @@ TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredItIsReturnedAgain)
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 12U, m_simpleEvents[12]));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 13U, m_simpleEvents[13]));
 }
+
+TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorks)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].trigger();
+    m_simpleEvents[7].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    m_simpleEvents[2].trigger();
+    m_simpleEvents[7].trigger();
+
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+}
+
