@@ -97,8 +97,12 @@ uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
                                           const uint32_t customHeaderAlignment) noexcept
 {
     /// @todo iox-#14: return cxx::expected instead of using cxx::Expects/Ensures
+    cxx::Expects(payloadAlignment > 0U && "The payload alignment must be larger than 0!");
+    cxx::Expects(customHeaderAlignment > 0U && "The custom header alignment must be larger than 0!");
     cxx::Expects(customHeaderAlignment <= alignof(ChunkHeader)
                  && "The alignment of the custom header must not exceed the alignment of the ChunkHeader!");
+    cxx::Expects(customHeaderSize % customHeaderAlignment == 0U
+                 && "The size of the custom header must be a multiple of its alignment!");
 
     // have a look at »Required Chunk Size Calculation« in chunk_header.md for more details regarding the calculation
     if (customHeaderSize == 0)

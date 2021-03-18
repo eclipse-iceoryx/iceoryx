@@ -335,12 +335,12 @@ TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)
     EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithAllZeroAsParameterResultsInSizeOfChunkHeader)
+TEST_F(MemoryManager_test, requiredChunkSize_AllParameterMinimal_ResultsIn_SizeOfChunkHeader)
 {
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{0U};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{1U};
     constexpr uint32_t CUSTOM_HEADER_SIZE{0U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{0U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{1U};
 
     constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader)};
 
@@ -350,7 +350,7 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithAllZeroAsParameterResultsInSizeO
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithZeroPayloadAndDefaultValuesResultsInSizeOfChunkHeader)
+TEST_F(MemoryManager_test, requiredChunkSize_ZeroPayloadAndDefaultValues_ResultsIn_SizeOfChunkHeader)
 {
     constexpr uint32_t PAYLOAD_SIZE{0U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
@@ -365,7 +365,7 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithZeroPayloadAndDefaultValuesResul
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithPayloadAlignmentLessThanChunkHeaderAlignmentResultsInAdjacentPayload)
+TEST_F(MemoryManager_test, requiredChunkSize_PayloadAlignment_LessThan_ChunkHeaderAlignment_ResultsIn_AdjacentPayload)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) / 2};
@@ -380,7 +380,7 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithPayloadAlignmentLessThanChunkHea
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithPayloadAlignmentEqualToChunkHeaderAlignmentResultsInAdjacentPayload)
+TEST_F(MemoryManager_test, requiredChunkSize_PayloadAlignment_EqualTo_ChunkHeaderAlignment_ResultsIn_AdjacentPayload)
 {
     constexpr uint32_t PAYLOAD_SIZE{73U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader)};
@@ -395,7 +395,8 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithPayloadAlignmentEqualToChunkHead
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithPayloadAlignmentGreaterThanChunkHeaderAlignmentAddsPaddingBytes)
+TEST_F(MemoryManager_test,
+       requiredChunkSize_PayloadAlignment_GreaterThan_ChunkHeaderAlignment_ResultsIn_AddingPaddingBytes)
 {
     constexpr uint32_t PAYLOAD_SIZE{37U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) * 2};
@@ -412,7 +413,8 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithPayloadAlignmentGreaterThanChunk
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAlignmentLessThanChunkHeaderAlignmentAndAdjacentPayload)
+TEST_F(MemoryManager_test,
+       requiredChunkSize_CustomHeaderAlignment_LessThan_ChunkHeaderAlignment_AdjacentPayload_ResultsIn_NoPaddingBytes)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader::PayloadOffset_t)};
@@ -429,7 +431,9 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAlignmentLessThanChu
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAlignmentLessThanChunkHeaderAlignmentAddsPaddingBytes)
+TEST_F(
+    MemoryManager_test,
+    requiredChunkSize_CustomHeaderAlignment_LessThan_ChunkHeaderAlignment_NonAdjacentPayload_ResultsIn_AddingPaddingBytes)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
@@ -448,7 +452,8 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAlignmentLessThanChu
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAlignmentEqualToChunkHeaderAlignmentAddsPaddingBytes)
+TEST_F(MemoryManager_test,
+       requiredChunkSize_CustomHeaderAlignment_EqualTo_ChunkHeaderAlignment_ResultsIn_NonAdjacentPayload)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
@@ -466,7 +471,7 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAlignmentEqualToChun
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAndPayloadAlignmentAddsPaddingBytes)
+TEST_F(MemoryManager_test, requiredChunkSize_CustomHeaderAndPayloadAlignment_ResultsIn_AddingPaddingBytes)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) * 2};
@@ -484,7 +489,7 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAndPayloadAlignmentA
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithoutCustomPayloadAlignmentAndTooLargePayloadFails)
+TEST_F(MemoryManager_test, requiredChunkSize_WithoutCustomPayloadAlignmentAndTooLargePayload_Fails)
 {
     constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
     constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
@@ -499,7 +504,7 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithoutCustomPayloadAlignmentAndTooL
         ".*");
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithCustomPayloadAlignmentAndTooLargePayloadFails)
+TEST_F(MemoryManager_test, requiredChunkSize_WithCustomPayloadAlignmentAndTooLargePayload_Fails)
 {
     constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
     constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) * 2};
@@ -514,7 +519,7 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithCustomPayloadAlignmentAndTooLarg
         ".*");
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAndTooLargePayloadFails)
+TEST_F(MemoryManager_test, requiredChunkSize_WithCustomHeaderAndTooLargePayload_Fails)
 {
     constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
     constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) * 2};
@@ -529,12 +534,57 @@ TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAndTooLargePayloadFa
         ".*");
 }
 
-TEST_F(MemoryManager_test, requiredChunkSizeWithCustomHeaderAlignmentLargerThanChunkHeaderAlignmentFails)
+TEST_F(MemoryManager_test, requiredChunkSize_WithPayloadAlignmentOfZero_Fails)
+{
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{0U};
+    constexpr uint32_t CUSTOM_HEADER_SIZE{0U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{1U};
+
+    EXPECT_DEATH(
+        {
+            iox::mepoo::MemoryManager::requiredChunkSize(
+                PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        },
+        ".*");
+}
+
+TEST_F(MemoryManager_test, requiredChunkSize_WithCustomHeaderAlignmentOfZero_Fails)
+{
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{1U};
+    constexpr uint32_t CUSTOM_HEADER_SIZE{0U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{0U};
+
+    EXPECT_DEATH(
+        {
+            iox::mepoo::MemoryManager::requiredChunkSize(
+                PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        },
+        ".*");
+}
+
+TEST_F(MemoryManager_test, requiredChunkSize_WithCustomHeaderAlignmentLargerThanChunkHeaderAlignment_Fails)
 {
     constexpr uint32_t PAYLOAD_SIZE{0U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
     constexpr uint32_t CUSTOM_HEADER_SIZE{8U};
     constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{2 * alignof(iox::mepoo::ChunkHeader)};
+
+    EXPECT_DEATH(
+        {
+            iox::mepoo::MemoryManager::requiredChunkSize(
+                PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        },
+        ".*");
+}
+
+TEST_F(MemoryManager_test, requiredChunkSize_WithCustomHeaderSizeNotMultipleOfAlignment_Fails)
+{
+    constexpr uint32_t PAYLOAD_SIZE{0U};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
+    constexpr uint32_t CUSTOM_HEADER_SIZE{12U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{8U};
 
     EXPECT_DEATH(
         {
