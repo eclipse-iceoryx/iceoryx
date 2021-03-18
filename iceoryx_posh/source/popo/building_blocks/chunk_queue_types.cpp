@@ -20,9 +20,9 @@ namespace iox
 {
 namespace popo
 {
-ChunkTuple::ChunkTuple(iox::rp::RelativePointer<mepoo::ChunkManagement> f_chunk) noexcept
-    : m_segmentId(f_chunk.getId())
-    , m_chunkOffset(f_chunk.getOffset())
+ChunkTuple::ChunkTuple(iox::rp::RelativePointer<mepoo::ChunkManagement> chunk) noexcept
+    : m_segmentId(chunk.getId())
+    , m_chunkOffset(chunk.getOffset())
 {
 }
 

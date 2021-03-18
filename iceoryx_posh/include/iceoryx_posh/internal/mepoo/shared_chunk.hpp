@@ -34,8 +34,8 @@ class SharedChunk
 {
   public:
     SharedChunk() = default;
-    SharedChunk(ChunkManagement* const f_resource);
-    SharedChunk(const rp::RelativePointer<ChunkManagement>& f_resource);
+    SharedChunk(ChunkManagement* const resource);
+    SharedChunk(const rp::RelativePointer<ChunkManagement>& resource);
     ~SharedChunk();
 
     SharedChunk(const SharedChunk& rhs);

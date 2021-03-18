@@ -20,13 +20,13 @@ namespace iox
 {
 namespace mepoo
 {
-SharedChunk::SharedChunk(ChunkManagement* const f_resource)
-    : m_chunkManagement(f_resource)
+SharedChunk::SharedChunk(ChunkManagement* const resource)
+    : m_chunkManagement(resource)
 {
 }
 
-SharedChunk::SharedChunk(const rp::RelativePointer<ChunkManagement>& f_resource)
-    : m_chunkManagement(f_resource)
+SharedChunk::SharedChunk(const rp::RelativePointer<ChunkManagement>& resource)
+    : m_chunkManagement(resource)
 {
 }
 

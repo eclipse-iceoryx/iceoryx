@@ -32,10 +32,10 @@ template <typename SharedMemoryObjectType = posix::SharedMemoryObject, typename 
 class MePooSegment
 {
   public:
-    MePooSegment(const MePooConfig& f_mempoolConfig,
-                 posix::Allocator* f_managementAllocator,
-                 const posix::PosixGroup& f_readerGroup,
-                 const posix::PosixGroup& f_writerGroup,
+    MePooSegment(const MePooConfig& mempoolConfig,
+                 posix::Allocator* managementAllocator,
+                 const posix::PosixGroup& readerGroup,
+                 const posix::PosixGroup& writerGroup,
                  const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo());
 
     posix::PosixGroup getWriterGroup() const;
@@ -46,8 +46,8 @@ class MePooSegment
     uint64_t getSegmentId() const;
 
   protected:
-    SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& f_mempoolConfig,
-                                                    const posix::PosixGroup& f_writerGroup);
+    SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& mempoolConfig,
+                                                    const posix::PosixGroup& writerGroup);
 
   protected:
     SharedMemoryObjectType m_sharedMemoryObject;

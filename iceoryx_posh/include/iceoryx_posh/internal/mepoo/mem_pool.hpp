@@ -31,11 +31,11 @@ namespace mepoo
 {
 struct MemPoolInfo
 {
-    MemPoolInfo(uint32_t f_usedChunks, uint32_t f_minFreeChunks, uint32_t f_numChunks, uint32_t f_chunkSize)
-        : m_usedChunks(f_usedChunks)
-        , m_minFreeChunks(f_minFreeChunks)
-        , m_numChunks(f_numChunks)
-        , m_chunkSize(f_chunkSize)
+    MemPoolInfo(uint32_t usedChunks, uint32_t minFreeChunks, uint32_t numChunks, uint32_t chunkSize)
+        : m_usedChunks(usedChunks)
+        , m_minFreeChunks(minFreeChunks)
+        , m_numChunks(numChunks)
+        , m_chunkSize(chunkSize)
     {
     }
     uint32_t m_usedChunks{0};
@@ -50,10 +50,10 @@ class MemPool
     using freeList_t = concurrent::LoFFLi;
     static constexpr uint64_t MEMORY_ALIGNMENT = posix::Allocator::MEMORY_ALIGNMENT;
 
-    MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> f_chunkSize,
-            const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
-            posix::Allocator* f_managementAllocator,
-            posix::Allocator* f_payloadAllocator);
+    MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> chunkSize,
+            const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+            posix::Allocator* managementAllocator,
+            posix::Allocator* payloadAllocator);
 
     MemPool(const MemPool&) = delete;
     MemPool(MemPool&&) = delete;
@@ -75,14 +75,14 @@ class MemPool
 
     rp::RelativePointer<uint8_t> m_rawMemory;
 
-    uint32_t m_chunkSize{0u};
+    uint32_t m_chunkSize{0U};
     /// needs to be 32 bit since loffli supports only 32 bit numbers
     /// (cas is only 64 bit and we need the other 32 bit for the aba counter)
-    uint32_t m_numberOfChunks{0u};
+    uint32_t m_numberOfChunks{0U};
 
     /// @todo: put this into one struct and in a separate class in concurrent.
-    std::atomic<uint32_t> m_usedChunks{0u};
-    std::atomic<uint32_t> m_minFree{0u};
+    std::atomic<uint32_t> m_usedChunks{0U};
+    std::atomic<uint32_t> m_minFree{0U};
     /// @todo: end
 
     freeList_t m_freeIndices;

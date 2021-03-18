@@ -39,7 +39,7 @@ class UsedChunkList
     }
 
     // only from runtime context
-    bool insert(mepoo::SharedChunk f_chunk)
+    bool insert(mepoo::SharedChunk chunk)
     {
         if (freeSpaceInList())
         {
@@ -51,7 +51,7 @@ class UsedChunkList
             m_usedListHead = m_freeListHead;
 
             // store chunk mgmt ptr
-            m_data[m_usedListHead] = f_chunk.release();
+            m_data[m_usedListHead] = chunk.release();
 
             // set freeListHead to the next free entry
             m_freeListHead = nextFree;
@@ -67,7 +67,7 @@ class UsedChunkList
     }
 
     // only from runtime context
-    bool remove(const mepoo::ChunkHeader* f_chunkHeader, mepoo::SharedChunk& f_chunk)
+    bool remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk)
     {
         uint32_t previous = InvalidIndex;
 
@@ -75,10 +75,10 @@ class UsedChunkList
         for (uint32_t current = m_usedListHead; current != InvalidIndex; current = m_list[current])
         {
             // does the entry match the one we want to remove?
-            if (m_data[current] != nullptr && m_data[current]->m_chunkHeader == f_chunkHeader)
+            if (m_data[current] != nullptr && m_data[current]->m_chunkHeader == chunkHeader)
             {
                 // return the chunk mgmt entry as SharedChunk object
-                f_chunk = mepoo::SharedChunk(m_data[current]);
+                chunk = mepoo::SharedChunk(m_data[current]);
                 m_data[current] = nullptr;
 
                 // remove index from used list

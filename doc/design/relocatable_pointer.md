@@ -38,7 +38,7 @@ Let a1, b1, c1 and so on be the addresses of segment S, pointer p and object X i
 c2 in application2. If application 2 maps the memory differently they will be shifted by some common offset d depending
 on the individual memory mapping:
 
-a2 = a1 + d, b2 = a2 + d, c2 = c1 + d
+a2 = a1 + d, b2 = b1 + d, c2 = c1 + d
 
 This is why storing a raw pointer to X will not be sufficient, the value c1 of p will not point to X in application 2.
 However, storing the difference between the location of p and X will work since it is an invariant in both address

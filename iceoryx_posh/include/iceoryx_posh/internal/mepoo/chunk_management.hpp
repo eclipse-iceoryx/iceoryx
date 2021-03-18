@@ -36,12 +36,12 @@ struct alignas(32) ChunkManagement
     using referenceCounterBase_t = uint64_t;
     using referenceCounter_t = std::atomic<referenceCounterBase_t>;
 
-    ChunkManagement(const cxx::not_null<base_t*> f_chunkHeader,
-                    const cxx::not_null<MemPool*> f_mempool,
-                    const cxx::not_null<MemPool*> f_chunkManagementPool)
-        : m_chunkHeader(f_chunkHeader)
-        , m_mempool(f_mempool)
-        , m_chunkManagementPool(f_chunkManagementPool)
+    ChunkManagement(const cxx::not_null<base_t*> chunkHeader,
+                    const cxx::not_null<MemPool*> mempool,
+                    const cxx::not_null<MemPool*> chunkManagementPool)
+        : m_chunkHeader(chunkHeader)
+        , m_mempool(mempool)
+        , m_chunkManagementPool(chunkManagementPool)
     {
     }
 

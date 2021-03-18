@@ -23,13 +23,13 @@ namespace iox
 {
 namespace concurrent
 {
-void LoFFLi::init(cxx::not_null<uint32_t*> f_freeIndicesMemory, const uint32_t f_size)
+void LoFFLi::init(cxx::not_null<uint32_t*> freeIndicesMemory, const uint32_t size)
 {
-    cxx::Expects(f_size > 0);
-    cxx::Expects(f_size <= UINT32_MAX - 2U);
+    cxx::Expects(size > 0);
+    cxx::Expects(size <= UINT32_MAX - 2U);
 
-    m_nextFreeIndex = f_freeIndicesMemory;
-    m_size = f_size;
+    m_nextFreeIndex = freeIndicesMemory;
+    m_size = size;
     m_invalidIndex = m_size + 1;
 
     if (m_nextFreeIndex != nullptr)
