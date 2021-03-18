@@ -142,7 +142,7 @@ class BaseRelativePointer
     static offset_t getOffset(const id_t id, const_ptr_t ptr) noexcept;
 
     /// @brief get the pointer from id and offset ("inverse" to getOffset)
-    /// @param[in] id is the id of the segment and is used to get the bease pointer
+    /// @param[in] id is the id of the segment and is used to get the base pointer
     /// @param[in] offset is the offset for which the pointer should be calculated
     /// @return the pointer from id and offset
     static ptr_t getPtr(const id_t id, const offset_t offset) noexcept;
