@@ -69,7 +69,11 @@ class WaitSet_test : public Test
 
         bool hasTriggered() const
         {
-            return m_hasTriggered.exchange(false);
+            if (autoResetTrigger)
+            {
+                return m_hasTriggered.exchange(false);
+            }
+            return m_hasTriggered.load();
         }
 
         void disableEvent()
@@ -99,6 +103,7 @@ class WaitSet_test : public Test
 
         SimpleEventClass* m_triggerCallbackArgument1 = nullptr;
         SimpleEventClass* m_triggerCallbackArgument2 = nullptr;
+        bool autoResetTrigger = true;
     };
 
     ConditionVariableData m_condVarData{"Horscht"};
@@ -136,6 +141,14 @@ class WaitSet_test : public Test
             }
         }
         return false;
+    }
+
+    void attachAllEvents()
+    {
+        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+        {
+            ASSERT_TRUE(m_sut.attachEvent(m_simpleEvents[i], i));
+        }
     }
 
     using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1>;
@@ -504,4 +517,119 @@ TEST_F(WaitSet_test, TriggerGoesOutOfScopeReducesSize)
     }
 
     EXPECT_EQ(m_sut.size(), 2U);
+}
+
+
+TEST_F(WaitSet_test, NonResettedEventsAreReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+}
+
+TEST_F(WaitSet_test, WhenEventIsNotResettedButEverythingElseItIsReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].trigger();
+
+    for (auto& event : m_simpleEvents)
+        event.trigger();
+
+    auto eventVector = m_sut.wait();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+}
+
+TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredBeforeItIsReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    m_simpleEvents[1].trigger();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 1U, m_simpleEvents[1]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+}
+
+TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredAfterItIsReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    m_simpleEvents[3].trigger();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
+}
+
+TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredItIsReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].trigger();
+
+    m_simpleEvents[12].autoResetTrigger = false;
+    m_simpleEvents[12].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    m_simpleEvents[1].trigger();
+    m_simpleEvents[3].trigger();
+    m_simpleEvents[6].trigger();
+    m_simpleEvents[13].trigger();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(7));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 1U, m_simpleEvents[1]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 6U, m_simpleEvents[6]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 12U, m_simpleEvents[12]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 13U, m_simpleEvents[13]));
 }

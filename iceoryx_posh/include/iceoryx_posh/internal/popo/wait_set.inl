@@ -205,7 +205,6 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
 template <uint64_t Capacity>
 inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) noexcept
 {
-    // TODO test requires ordered vector
     auto notificationVector = wait();
     if (m_activeNotifications.empty())
     {
@@ -214,21 +213,28 @@ inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) no
     else
     {
         uint64_t position = 0U;
-        // TODO test by triggering without handling/resetting event
-        // merge with activeNotifications
+        // merge the acquired notificationVector with m_activeNotifications
         for (auto notificationId : notificationVector)
         {
-            while (position < m_activeNotifications.size())
+            bool entryFound = false;
+            for (; !entryFound && position < m_activeNotifications.size(); ++position)
             {
                 if (m_activeNotifications[position] == notificationId)
                 {
-                    continue;
+                    entryFound = true;
                 }
-                // id not found
+                // the activeNotifications are sorted, if we end up on an id
+                // greater notificationId it is not in m_activeNotifications
                 else if (m_activeNotifications[position] > notificationId)
                 {
                     m_activeNotifications.emplace(position, notificationId);
+                    entryFound = true;
                 }
+            }
+
+            if (!entryFound)
+            {
+                m_activeNotifications.emplace_back(notificationId);
             }
         }
     }
