@@ -67,7 +67,7 @@ TEST_F(FileLock_test, EmptyNameLeadsToError)
 
 TEST_F(FileLock_test, MaxStringWorks)
 {
-    FileLock::FileName_t maxString{
+    const FileLock::FileName_t maxString{
         "OeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPalo"
         "emaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlancaOeLaPaloemaBlanc"
         "aOeLaPaloemaBlancaOeLaPaloemaB"};

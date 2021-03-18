@@ -194,7 +194,7 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
         std::cerr << "directory \"" << PATH_PREFIX << "\""
                   << " does not exist. Please create it as described in the filesystem hierarchy standard."
                   << std::endl;
-        return FileLockError::NO_SUCH_FILE;
+        return FileLockError::NO_SUCH_DIRECTORY;
     }
     case ENOMEM:
     {

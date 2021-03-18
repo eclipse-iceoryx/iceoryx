@@ -7,11 +7,11 @@ _iceoryx_utils_ and _iceoryx_posh_ are deployed as independent CMake packages. _
 ### Dependencies
 
 - 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware might work, but is not supported)
-- [cmake](https://cmake.org), 3.5 or later
+- [CMake](https://cmake.org), 3.5 or later
 - One of the following compilers:
-  - [gcc](https://gcc.gnu.org), 7.4 or later (5.4 currently supported too)
-  - [clang](https://clang.llvm.org), 9.0 or later
-  - [msvc](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
+  - [GCC](https://gcc.gnu.org), 7.4 or later (5.4 currently supported too)
+  - [Clang](https://clang.llvm.org), 9.0 or later
+  - [MSVC](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
 - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
 - optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool.
 
