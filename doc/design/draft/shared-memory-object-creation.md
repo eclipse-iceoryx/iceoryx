@@ -100,6 +100,7 @@ enum class IpcMessageType : int32_t
     REG_ACK,
     KEEPALIVE,
     MESSAGE_NOT_SUPPORTED,
+}
 ```
 
 On registriation a pointer to a `EnitityFactory` would be provided and the `PoshRuntime` would be able use it indepently. This class would need to be thread-safe.
@@ -116,7 +117,22 @@ PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
 
 ### Alternative 2
 
-* `PoshRuntime` does registration and creation of entities via IPC channel and factory is soley accessed by RouDi. Instead of raw pointers, the IPC channel would transfer `unique_ptr`'s. In case of a graceful shutdown of an application the deleter function of the `cxx::unique_ptr` would cleanup the resources e.g. `Process`.
+```
+enum class IpcMessageType : int32_t
+{
+    BEGIN = -1,
+    NOTYPE = 0,
+    REG,
+    REG_ACK,
+    CREATE_PUBLISHER,
+    DELETE_PUBLISHER,
+    // [snip]
+    KEEPALIVE,
+    MESSAGE_NOT_SUPPORTED,
+}
+```
+
+* `PoshRuntime` does registration and creation of entities via IPC channel and factory is soley accessed by RouDi. The IPC channel would transfer raw pointers which would be wrapped in `unique_ptr`'s by the `PoshRuntime`. In case of a graceful shutdown of an application the deleter function of the `cxx::unique_ptr` would cleanup the resources e.g. `Process`.
 
 ### Considerations
 
