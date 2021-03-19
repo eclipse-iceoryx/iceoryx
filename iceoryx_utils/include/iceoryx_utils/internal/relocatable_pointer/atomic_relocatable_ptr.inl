@@ -25,39 +25,39 @@ namespace iox
 namespace rp
 {
 template <typename T>
-inline atomic_relocatable_ptr<T>::atomic_relocatable_ptr(const T* ptr) noexcept
+inline AtomicRelocatablePointer<T>::AtomicRelocatablePointer(const T* ptr) noexcept
     : m_offset(computeOffset(ptr))
 {
 }
 
 template <typename T>
-inline atomic_relocatable_ptr<T>& atomic_relocatable_ptr<T>::operator=(const T* ptr) noexcept
+inline AtomicRelocatablePointer<T>& AtomicRelocatablePointer<T>::operator=(const T* ptr) noexcept
 {
     m_offset.store(computeOffset(ptr), std::memory_order_relaxed);
     return *this;
 }
 
 template <typename T>
-inline T* atomic_relocatable_ptr<T>::operator->() const noexcept
+inline T* AtomicRelocatablePointer<T>::operator->() const noexcept
 {
     return computeRawPtr();
 }
 
 template <typename T>
-inline T& atomic_relocatable_ptr<T>::operator*() const noexcept
+inline T& AtomicRelocatablePointer<T>::operator*() const noexcept
 {
     return *computeRawPtr();
 }
 
 
 template <typename T>
-inline atomic_relocatable_ptr<T>::operator T*() const noexcept
+inline AtomicRelocatablePointer<T>::operator T*() const noexcept
 {
     return computeRawPtr();
 }
 
 template <typename T>
-inline T* atomic_relocatable_ptr<T>::computeRawPtr() const noexcept
+inline T* AtomicRelocatablePointer<T>::computeRawPtr() const noexcept
 {
     auto offset = m_offset.load(std::memory_order_relaxed);
     if (offset == NULL_POINTER_OFFSET)
@@ -69,8 +69,8 @@ inline T* atomic_relocatable_ptr<T>::computeRawPtr() const noexcept
 }
 
 template <typename T>
-inline typename atomic_relocatable_ptr<T>::offset_t
-atomic_relocatable_ptr<T>::computeOffset(const void* ptr) const noexcept
+inline typename AtomicRelocatablePointer<T>::offset_t
+AtomicRelocatablePointer<T>::computeOffset(const void* ptr) const noexcept
 {
     if (ptr == nullptr)
     {

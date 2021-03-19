@@ -73,7 +73,8 @@ class PointerRepository
     /// @attention the relative pointers corresponding to this id become unsafe to use
     bool unregisterPtr(id_t id) noexcept;
 
-    /// @brief unregisters all ids and also invalidates all relative pointers
+    /// @brief unregisters all ids
+    /// @attention the relative pointers corresponding to this id become unsafe to use
     void unregisterAll() noexcept;
 
     /// @brief gets the base pointer, i.e. the starting address, associated with id

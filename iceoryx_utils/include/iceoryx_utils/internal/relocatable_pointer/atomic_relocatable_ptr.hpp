@@ -31,28 +31,28 @@ namespace rp
 /// internally used offset must be an invariant different across adress spaces. Rationale: the default
 /// RelocatablePointer cannot be used in an atomic since the copy ctor is nontrivial.
 template <typename T>
-class atomic_relocatable_ptr
+class AtomicRelocatablePointer
 {
   public:
     using offset_t = std::ptrdiff_t;
     static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
 
-    /// @brief creates an atomic_relocatable_ptr pointing to the same pointee as ptr
+    /// @brief creates an AtomicRelocatablePointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
-    atomic_relocatable_ptr(const T* ptr = nullptr) noexcept;
+    AtomicRelocatablePointer(const T* ptr = nullptr) noexcept;
 
     /// @todo: can be implemented when needed, note that the offset must be recomputed during the move/copy
-    atomic_relocatable_ptr(const atomic_relocatable_ptr&) = delete;
-    atomic_relocatable_ptr& operator=(const atomic_relocatable_ptr& other) = delete;
-    atomic_relocatable_ptr(atomic_relocatable_ptr&& other) = delete;
-    atomic_relocatable_ptr& operator=(atomic_relocatable_ptr&& other) = delete;
+    AtomicRelocatablePointer(const AtomicRelocatablePointer&) = delete;
+    AtomicRelocatablePointer& operator=(const AtomicRelocatablePointer& other) = delete;
+    AtomicRelocatablePointer(AtomicRelocatablePointer&& other) = delete;
+    AtomicRelocatablePointer& operator=(AtomicRelocatablePointer&& other) = delete;
 
     /// @note minimal set of required operators, can be extended later
 
-    /// @brief assign atomic_relocatable_ptr to point to the same pointee as ptr
+    /// @brief assign AtomicRelocatablePointer to point to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @return reference to self
-    atomic_relocatable_ptr& operator=(const T* ptr) noexcept;
+    AtomicRelocatablePointer& operator=(const T* ptr) noexcept;
 
     /// @brief access to the underlying object in shared memory
     /// @return a pointer to the underlying object
@@ -62,7 +62,7 @@ class atomic_relocatable_ptr
     /// @return a reference to the pointee
     T& operator*() const noexcept;
 
-    /// @brief converts the atomic_relocatable_ptr to a pointer of type of the underlying object
+    /// @brief converts the AtomicRelocatablePointer to a pointer of type of the underlying object
     /// @return a pointer of type T pointing to the underlying object
     operator T*() const noexcept;
 

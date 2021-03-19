@@ -69,7 +69,7 @@ class Foo
 };
 
 template <typename T>
-using Ptr = iox::rp::atomic_relocatable_ptr<T>;
+using Ptr = iox::rp::AtomicRelocatablePointer<T>;
 
 class AtomicRelocatablePointer_test : public Test
 {
