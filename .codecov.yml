@@ -1,10 +1,5 @@
 # codecov yaml
 comment: false
-  layout: "reach, diff, flags, files"
-  behavior: default
-  require_changes: yes
-  require_base: no
-  require_head: yes
 
 coverage:
   range: 70..100
@@ -15,10 +10,7 @@ coverage:
         enabled: yes
         target: auto
         threshold: 2% # allow coverage to drop maximum by a defined value
-    patch:
-      default:
-        enabled: yes
-        target: auto
+    patch: off
     changes: no
 
 parsers:
