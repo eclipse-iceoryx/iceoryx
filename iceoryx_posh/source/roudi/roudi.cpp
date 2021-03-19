@@ -90,14 +90,16 @@ void RouDi::shutdown()
     if (m_killProcessesInDestructor)
     {
         cxx::DeadlineTimer finalKillTimer(m_processKillDelay);
+
         m_prcMgr->requestShutdownOfAllProcesses();
-        // Is any processes still alive?
+
         while (m_prcMgr->isAnyRegisteredProcessStillRunning() && !finalKillTimer.hasExpired())
         {
             // give processes some time to terminate
             std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
         }
 
+        // Is any processes still alive?
         if (m_prcMgr->isAnyRegisteredProcessStillRunning() && finalKillTimer.hasExpired())
         {
             // Time to kill them

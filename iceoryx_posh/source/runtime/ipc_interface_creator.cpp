@@ -26,15 +26,22 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
                                          const uint64_t messageSize) noexcept
     : IpcInterfaceBase(name, maxMessages, messageSize)
     , m_fileLock(std::move(posix::FileLock::create(name)
-                               .or_else([](auto&) {
-                                   // If the lock couldn't be acquired, some application with the same name is still
-                                   // running
-                                   LogError()
-                                       << "An application with the same runtime name is still running. Using the "
-                                          "same runtime name twice is not supported.";
-                                   errorHandler(Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING,
-                                                nullptr,
-                                                iox::ErrorLevel::FATAL);
+                               .or_else([](auto& error) {
+                                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
+                                   {
+                                       // If the lock couldn't be acquired, some application with the same name is still
+                                       // running
+                                       LogError()
+                                           << "An application with the same runtime name is still running. Using the "
+                                              "same runtime name twice is not supported.";
+                                       errorHandler(Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING,
+                                                    nullptr,
+                                                    iox::ErrorLevel::FATAL);
+                                   }
+                                   else
+                                   {
+                                       LogError() << "Error :"; /// @todo << error;
+                                   }
                                })
                                .value()))
 {

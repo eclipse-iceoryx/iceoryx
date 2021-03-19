@@ -326,11 +326,6 @@ bool ProcessManager::searchForProcessAndRemoveIt(const ProcessName_t& name) noex
     return false;
 }
 
-bool ProcessManager::removeProcess(ProcessList_t::iterator& processIter) noexcept
-{
-    return removeProcessAndDeleteRespectiveSharedMemoryObjects(processIter);
-}
-
 bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(ProcessList_t::iterator& processIter) noexcept
 {
     if (processIter != m_processList.end())

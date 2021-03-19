@@ -70,7 +70,7 @@ class smart_lock
     ///@brief c'tor creating empty smart_lock
     smart_lock() noexcept;
 
-    ///@brief c'tor taking the underyling object by reference
+    ///@brief c'tor copying the underlying object by reference
     smart_lock(const T& t) noexcept;
 
     ///@brief c'tor forwarding all args to the underlying object

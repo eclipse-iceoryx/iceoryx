@@ -161,15 +161,11 @@ class ProcessManager : public ProcessManagerInterface
     /// @return Returns true if the process was found and removed from the internal list.
     bool searchForProcessAndRemoveIt(const ProcessName_t& name) noexcept;
 
-    /// @brief Removes the given process from the managed client process list
+    /// @brief Removes the given process from the managed client process list and the respective resources in shared
+    /// memory
     /// @param [in] processIter The process which should be removed.
     /// @return Returns true if the process was found and removed from the internal list.
     bool removeProcessAndDeleteRespectiveSharedMemoryObjects(ProcessList_t::iterator& processIter) noexcept;
-
-    /// @brief Removes the given process from the managed client process list
-    /// @param [in] processIter The process which should be removed.
-    /// @return Returns true if the process was found and removed from the internal list.
-    bool removeProcess(ProcessList_t::iterator& processIter) noexcept;
 
     enum class ShutdownPolicy
     {
