@@ -17,10 +17,14 @@ coverage:
       default:
         target: 70%
         threshold: 2% # allow coverage to drop maximum by a defined value
+        flags:
+          - unittest
     patch:
       default:
         target: auto
         threshold: 2% # allow coverage to drop maximum by a defined value
+        flags:
+          - unittest
     changes: no
 
 parsers:
