@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,13 +25,13 @@ using namespace ::testing;
 class MemoryManager_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
         rawMemory = malloc(rawMemorySize);
         allocator = new iox::posix::Allocator(rawMemory, rawMemorySize);
         sut = new iox::mepoo::MemoryManager();
     };
-    void TearDown()
+    void TearDown() override
     {
         delete sut;
         delete allocator;
@@ -59,7 +60,7 @@ TEST_F(MemoryManager_test, addMemPoolWrongOrderAtLastElement)
     mempoolconf.addMemPool({256, 10});
     mempoolconf.addMemPool({64, 10});
 
-    EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
+    EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, *allocator, *allocator); }, ".*");
 }
 
 TEST_F(MemoryManager_test, getMempoolChunkSizeForPayloadSize)
@@ -67,8 +68,8 @@ TEST_F(MemoryManager_test, getMempoolChunkSizeForPayloadSize)
     mempoolconf.addMemPool({32, 10});
     mempoolconf.addMemPool({64, 10});
     mempoolconf.addMemPool({128, 10});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(50), Eq(adjustedChunkSize(64u)));
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
+    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(50), Eq(adjustedChunkSize(64U)));
 }
 
 TEST_F(MemoryManager_test, getChunkSizeForWrongSampleSize)
@@ -76,26 +77,26 @@ TEST_F(MemoryManager_test, getChunkSizeForWrongSampleSize)
     mempoolconf.addMemPool({32, 10});
     mempoolconf.addMemPool({64, 10});
     mempoolconf.addMemPool({128, 10});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(129), Eq(0u));
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
+    EXPECT_THAT(sut->getMempoolChunkSizeForPayloadSize(129), Eq(0U));
 }
 
 TEST_F(MemoryManager_test, wrongcallConfigureMemoryManager)
 {
     mempoolconf.addMemPool({32, 10});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(1u));
-    EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
+    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(1U));
+    EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, *allocator, *allocator); }, ".*");
 }
 
 TEST_F(MemoryManager_test, getNumberOfMemPools)
 {
-    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(0u));
+    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(0U));
     mempoolconf.addMemPool({32, 10});
     mempoolconf.addMemPool({64, 10});
     mempoolconf.addMemPool({128, 10});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(3u));
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
+    EXPECT_THAT(sut->getNumberOfMemPools(), Eq(3U));
 }
 
 TEST_F(MemoryManager_test, getChunkWithNoMemPool)
@@ -119,7 +120,7 @@ TEST_F(MemoryManager_test, getTooLargeChunk)
     mempoolconf.addMemPool({32, 10});
     mempoolconf.addMemPool({64, 10});
     mempoolconf.addMemPool({128, 10});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -138,7 +139,7 @@ TEST_F(MemoryManager_test, getTooLargeChunk)
 TEST_F(MemoryManager_test, getChunkSingleMemPoolSingleChunk)
 {
     mempoolconf.addMemPool({128, 10});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
     auto bla = sut->getChunk(50);
     EXPECT_THAT(bla, Eq(true));
 }
@@ -148,7 +149,7 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)
     constexpr uint32_t ChunkCount{100};
 
     mempoolconf.addMemPool({128, ChunkCount});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
@@ -165,7 +166,7 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolToMuchChunks)
     constexpr uint32_t ChunkCount{100};
 
     mempoolconf.addMemPool({128, ChunkCount});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
@@ -185,7 +186,7 @@ TEST_F(MemoryManager_test, freeChunkSingleMemPoolFullToEmptyToFull)
     {
         std::vector<iox::mepoo::SharedChunk> chunkStore;
         mempoolconf.addMemPool({128, ChunkCount});
-        sut->configureMemoryManager(mempoolconf, allocator, allocator);
+        sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
         for (size_t i = 0; i < ChunkCount; i++)
         {
             chunkStore.push_back(sut->getChunk(128));
@@ -214,7 +215,7 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolSingleChunk)
     mempoolconf.addMemPool({128, 10});
     mempoolconf.addMemPool({256, 10});
 
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     auto bla = sut->getChunk(32);
     EXPECT_THAT(bla, Eq(true));
@@ -237,7 +238,7 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolAllChunks)
     mempoolconf.addMemPool({64, ChunkCount});
     mempoolconf.addMemPool({128, ChunkCount});
     mempoolconf.addMemPool({256, ChunkCount});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
@@ -269,7 +270,7 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolTooMuchChunks)
     mempoolconf.addMemPool({64, ChunkCount});
     mempoolconf.addMemPool({128, ChunkCount});
     mempoolconf.addMemPool({256, ChunkCount});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
@@ -298,7 +299,7 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
         mempoolconf.addMemPool({64, ChunkCount});
         mempoolconf.addMemPool({128, ChunkCount});
         mempoolconf.addMemPool({256, ChunkCount});
-        sut->configureMemoryManager(mempoolconf, allocator, allocator);
+        sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
         for (size_t i = 0; i < ChunkCount; i++)
         {
@@ -314,10 +315,10 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
         EXPECT_THAT(sut->getMemPoolInfo(3).m_usedChunks, Eq(ChunkCount));
     }
 
-    EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(0u));
-    EXPECT_THAT(sut->getMemPoolInfo(1).m_usedChunks, Eq(0u));
-    EXPECT_THAT(sut->getMemPoolInfo(2).m_usedChunks, Eq(0u));
-    EXPECT_THAT(sut->getMemPoolInfo(3).m_usedChunks, Eq(0u));
+    EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(0U));
+    EXPECT_THAT(sut->getMemPoolInfo(1).m_usedChunks, Eq(0U));
+    EXPECT_THAT(sut->getMemPoolInfo(2).m_usedChunks, Eq(0U));
+    EXPECT_THAT(sut->getMemPoolInfo(3).m_usedChunks, Eq(0U));
 
     std::vector<iox::mepoo::SharedChunk> chunkStore;
     for (size_t i = 0; i < ChunkCount; i++)
@@ -349,5 +350,5 @@ TEST_F(MemoryManager_test, getChunkWithSizeZeroShouldFail)
 TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)
 {
     mempoolconf.addMemPool({32, 0});
-    EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, allocator, allocator); }, ".*");
+    EXPECT_DEATH({ sut->configureMemoryManager(mempoolconf, *allocator, *allocator); }, ".*");
 }

@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,8 +40,8 @@ void MemoryManager::printMemPoolVector() const
     }
 }
 
-void MemoryManager::addMemPool(posix::Allocator* f_managementAllocator,
-                               posix::Allocator* f_payloadAllocator,
+void MemoryManager::addMemPool(posix::Allocator& f_managementAllocator,
+                               posix::Allocator& f_payloadAllocator,
                                const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
                                const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks)
 {
@@ -64,15 +65,16 @@ void MemoryManager::addMemPool(posix::Allocator* f_managementAllocator,
         errorHandler(Error::kMEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
     }
 
-    m_memPoolVector.emplace_back(adjustedChunkSize, f_numberOfChunks, f_managementAllocator, f_payloadAllocator);
+    m_memPoolVector.emplace_back(adjustedChunkSize, f_numberOfChunks, &f_managementAllocator, &f_payloadAllocator);
     m_totalNumberOfChunks += f_numberOfChunks;
 }
 
-void MemoryManager::generateChunkManagementPool(posix::Allocator* f_managementAllocator)
+void MemoryManager::generateChunkManagementPool(posix::Allocator& f_managementAllocator)
 {
     m_denyAddMemPool = true;
     uint32_t chunkSize = sizeof(ChunkManagement);
-    m_chunkManagementPool.emplace_back(chunkSize, m_totalNumberOfChunks, f_managementAllocator, f_managementAllocator);
+    m_chunkManagementPool.emplace_back(
+        chunkSize, m_totalNumberOfChunks, &f_managementAllocator, &f_managementAllocator);
 }
 
 uint32_t MemoryManager::getNumberOfMemPools() const
@@ -122,8 +124,8 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig
 
 uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& f_mePooConfig)
 {
-    uint64_t memorySize{0u};
-    uint32_t sumOfAllChunks{0u};
+    uint64_t memorySize{0U};
+    uint32_t sumOfAllChunks{0U};
     for (const auto& mempool : f_mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;
@@ -144,8 +146,8 @@ uint64_t MemoryManager::requiredFullMemorySize(const MePooConfig& f_mePooConfig)
 }
 
 void MemoryManager::configureMemoryManager(const MePooConfig& f_mePooConfig,
-                                           posix::Allocator* f_managementAllocator,
-                                           posix::Allocator* f_payloadAllocator)
+                                           posix::Allocator& f_managementAllocator,
+                                           posix::Allocator& f_payloadAllocator)
 {
     for (auto entry : f_mePooConfig.m_mempoolConfig)
     {

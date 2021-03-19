@@ -41,18 +41,18 @@ class ChunkReceiver_test : public Test
     ChunkReceiver_test()
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~ChunkReceiver_test()
     {
     }
 
-    void SetUp()
+    void SetUp() override
     {
     }
 
-    void TearDown()
+    void TearDown() override
     {
     }
 
@@ -91,7 +91,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
         // have a scope her to release the shared chunk we allocate
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
-        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
@@ -101,7 +101,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
         m_chunkReceiver.release(*maybeChunkHeader);
     }
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
 
 TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
@@ -134,7 +134,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
         m_chunkReceiver.release(chunk);
     }
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
 
 TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
@@ -169,7 +169,7 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
         // have a scope her to release the shared chunk we allocate
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
-        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
@@ -187,7 +187,7 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
     m_chunkReceiver.release(myCrazyChunk.get());
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
 TEST_F(ChunkReceiver_test, Cleanup)
@@ -211,5 +211,5 @@ TEST_F(ChunkReceiver_test, Cleanup)
 
     m_chunkReceiver.releaseAll();
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }

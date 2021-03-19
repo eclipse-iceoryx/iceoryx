@@ -34,7 +34,7 @@ class MePooSegment
 {
   public:
     MePooSegment(const MePooConfig& mempoolConfig,
-                 posix::Allocator* managementAllocator,
+                 posix::Allocator& managementAllocator,
                  const posix::PosixGroup& readerGroup,
                  const posix::PosixGroup& writerGroup,
                  const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo()) noexcept;

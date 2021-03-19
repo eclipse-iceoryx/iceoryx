@@ -75,7 +75,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     ChunkBuildingBlocks_IntegrationTest()
     {
         m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolConfig, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolConfig, m_memoryAllocator, m_memoryAllocator);
     }
     virtual ~ChunkBuildingBlocks_IntegrationTest()
     {

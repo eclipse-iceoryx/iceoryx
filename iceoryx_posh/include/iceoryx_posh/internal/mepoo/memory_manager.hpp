@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,8 +49,8 @@ class MemoryManager
     ~MemoryManager() = default;
 
     void configureMemoryManager(const MePooConfig& f_mePooConfig,
-                                posix::Allocator* f_managementAllocator,
-                                posix::Allocator* f_payloadAllocator);
+                                posix::Allocator& f_managementAllocator,
+                                posix::Allocator& f_payloadAllocator);
 
     SharedChunk getChunk(const MaxSize_t f_size);
 
@@ -67,11 +68,11 @@ class MemoryManager
 
   private:
     void printMemPoolVector() const;
-    void addMemPool(posix::Allocator* f_managementAllocator,
-                    posix::Allocator* f_payloadAllocator,
+    void addMemPool(posix::Allocator& f_managementAllocator,
+                    posix::Allocator& f_payloadAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
                     const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks);
-    void generateChunkManagementPool(posix::Allocator* f_managementAllocator);
+    void generateChunkManagementPool(posix::Allocator& f_managementAllocator);
 
   private:
     bool m_denyAddMemPool{false};
