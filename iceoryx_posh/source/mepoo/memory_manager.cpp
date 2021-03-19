@@ -65,7 +65,7 @@ void MemoryManager::addMemPool(posix::Allocator& f_managementAllocator,
         errorHandler(Error::kMEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
     }
 
-    m_memPoolVector.emplace_back(adjustedChunkSize, f_numberOfChunks, &f_managementAllocator, &f_payloadAllocator);
+    m_memPoolVector.emplace_back(adjustedChunkSize, f_numberOfChunks, f_managementAllocator, f_payloadAllocator);
     m_totalNumberOfChunks += f_numberOfChunks;
 }
 
@@ -73,8 +73,7 @@ void MemoryManager::generateChunkManagementPool(posix::Allocator& f_managementAl
 {
     m_denyAddMemPool = true;
     uint32_t chunkSize = sizeof(ChunkManagement);
-    m_chunkManagementPool.emplace_back(
-        chunkSize, m_totalNumberOfChunks, &f_managementAllocator, &f_managementAllocator);
+    m_chunkManagementPool.emplace_back(chunkSize, m_totalNumberOfChunks, f_managementAllocator, f_managementAllocator);
 }
 
 uint32_t MemoryManager::getNumberOfMemPools() const

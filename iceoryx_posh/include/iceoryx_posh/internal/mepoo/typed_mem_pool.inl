@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,8 +28,8 @@ namespace mepoo
 {
 template <typename T>
 inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
-                                     posix::Allocator* f_managementAllocator,
-                                     posix::Allocator* f_payloadAllocator) noexcept
+                                     posix::Allocator& f_managementAllocator,
+                                     posix::Allocator& f_payloadAllocator) noexcept
     : m_memPool(
         static_cast<uint32_t>(getAdjustedPayloadSize()), f_numberOfChunks, f_managementAllocator, f_payloadAllocator)
     , m_chunkManagementPool(sizeof(ChunkManagement), f_numberOfChunks, f_managementAllocator, f_managementAllocator)

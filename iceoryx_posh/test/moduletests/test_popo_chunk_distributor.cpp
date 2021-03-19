@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,8 +65,8 @@ class ChunkDistributor_test : public Test
     static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
     char memory[MEMORY_SIZE];
     iox::posix::Allocator allocator{memory, MEMORY_SIZE};
-    MemPool mempool{128, 20, &allocator, &allocator};
-    MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
+    MemPool mempool{128, 20, allocator, allocator};
+    MemPool chunkMgmtPool{128, 20, allocator, allocator};
 
     struct ChunkDistributorConfig
     {
