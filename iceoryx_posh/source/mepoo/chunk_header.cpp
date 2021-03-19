@@ -30,6 +30,9 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize,
 {
     static_assert(alignof(ChunkHeader) >= 8U,
                   "All the calculations expect the ChunkHeader alignment to be at least 8!");
+    static_assert(std::is_same<PayloadOffset_t, std::remove_const<decltype(payloadAlignment)>::type>::value,
+                  "PayloadOffset_t and payloadAlignment must have same type in order to prevent an overflow for the "
+                  "payload offset calculation for extremely large alignments");
     cxx::Expects(customHeaderAlignment <= alignof(ChunkHeader)
                  && "The alignment of the custom header must not exceed the alignment of the ChunkHeader!");
 
@@ -52,8 +55,8 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize,
             uint64_t headerEndAddress = addressOfChunkHeader + sizeof(ChunkHeader);
             uint64_t alignedPayloadAddress = iox::cxx::align(headerEndAddress, static_cast<uint64_t>(payloadAlignment));
             uint64_t offsetToPayload = alignedPayloadAddress - addressOfChunkHeader;
-            cxx::Ensures(offsetToPayload <= std::numeric_limits<PayloadOffset_t>::max()
-                         && "Payload offset too large for chunk!");
+            // the cast is safe since payloadOffset and payloadAlignment have the same type and since the alignment must
+            // be a power of 2, the max alignment is about half of the max value the type can hold
             payloadOffset = static_cast<PayloadOffset_t>(offsetToPayload);
 
             // this is safe since the alignment of the payload is larger than the one from the ChunkHeader
@@ -76,8 +79,8 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize,
         uint64_t alignedPayloadAddress =
             iox::cxx::align(potentialPayloadAddress, static_cast<uint64_t>(payloadAlignment));
         uint64_t offsetToPayload = alignedPayloadAddress - addressOfChunkHeader;
-        cxx::Ensures(offsetToPayload <= std::numeric_limits<PayloadOffset_t>::max()
-                     && "Payload offset too large for chunk!");
+        // the cast is safe since payloadOffset and payloadAlignment have the same type and since the alignment must
+        // be a power of 2, the max alignment is about half of the max value the type can hold
         payloadOffset = static_cast<PayloadOffset_t>(offsetToPayload);
 
         // this always works if the alignment of PayloadOffset_t and payloadAlignment are equal,
