@@ -42,7 +42,7 @@ class ChunkQueue_testBase
     {
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
-        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(chunkMgmtPool.getChunkSize(),
+        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(),
                                                            PAYLOAD_SIZE,
                                                            iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
                                                            iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
@@ -56,8 +56,9 @@ class ChunkQueue_testBase
     static constexpr size_t MEMORY_SIZE = 4U * MEGABYTE;
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
-    MemPool mempool{PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
-    MemPool chunkMgmtPool{PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
+    MemPool mempool{
+        sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
+    MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5U};
 };

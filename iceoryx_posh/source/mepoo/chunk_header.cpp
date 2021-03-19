@@ -90,6 +90,9 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize,
         auto backOffset = reinterpret_cast<PayloadOffset_t*>(addressOfBackOffset);
         *backOffset = payloadOffset;
     }
+
+    cxx::Ensures(overflowSafeUsedSizeOfChunk() <= chunkSize
+                 && "Used size of chunk would exceed the actual chunk size!");
 }
 
 void* ChunkHeader::payload() const noexcept
@@ -111,13 +114,14 @@ ChunkHeader* ChunkHeader::fromPayload(const void* const payload) noexcept
     return reinterpret_cast<ChunkHeader*>(payloadAddress - *payloadOffset);
 }
 
-uint32_t ChunkHeader::usedSizeOfChunk()
+uint32_t ChunkHeader::usedSizeOfChunk() const noexcept
 {
-    auto usedSizeOfChunk = static_cast<uint64_t>(payloadOffset) + static_cast<uint64_t>(payloadSize);
+    return static_cast<uint32_t>(overflowSafeUsedSizeOfChunk());
+}
 
-    cxx::Expects(usedSizeOfChunk <= chunkSize);
-
-    return static_cast<uint32_t>(usedSizeOfChunk);
+uint64_t ChunkHeader::overflowSafeUsedSizeOfChunk() const noexcept
+{
+    return static_cast<uint64_t>(payloadOffset) + static_cast<uint64_t>(payloadSize);
 }
 
 } // namespace mepoo

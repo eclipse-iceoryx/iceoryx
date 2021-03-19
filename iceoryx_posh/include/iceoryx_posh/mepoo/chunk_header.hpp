@@ -108,7 +108,10 @@ struct alignas(32) ChunkHeader
 
     /// @brief Calculates the used size of the chunk with the ChunkHeader, custom heander and payload
     /// @return the used size of the chunk
-    uint32_t usedSizeOfChunk();
+    uint32_t usedSizeOfChunk() const noexcept;
+
+  private:
+    uint64_t overflowSafeUsedSizeOfChunk() const noexcept;
 
     // END methods
 };
