@@ -94,6 +94,7 @@ ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::f
     NotificationVector_t activeNotifications;
 
     resetSemaphore();
+    bool doReturnAfterNotificationCollection = false;
     while (!m_toBeDestroyed.load(std::memory_order_relaxed))
     {
         for (Type_t i = 0U; i < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; i++)
@@ -104,15 +105,12 @@ ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::f
                 activeNotifications.emplace_back(i);
             }
         }
-        if (!activeNotifications.empty())
+        if (!activeNotifications.empty() || doReturnAfterNotificationCollection)
         {
             return activeNotifications;
         }
 
-        if (!waitCall())
-        {
-            break;
-        }
+        doReturnAfterNotificationCollection = !waitCall();
     }
 
     return activeNotifications;

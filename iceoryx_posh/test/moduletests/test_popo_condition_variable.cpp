@@ -40,6 +40,7 @@ class ConditionVariable_test : public Test
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
     const iox::ProcessName_t m_process{"Ferdinand"};
     const iox::units::Duration m_timeToWait = 2_s;
+    const iox::units::Duration m_timingTestTime = 100_ms;
 
     ConditionVariableData m_condVarData{m_process};
     ConditionListener m_waiter{m_condVarData};
@@ -124,6 +125,101 @@ TEST_F(ConditionVariable_test, NotifyActivatesCorrectIndex)
         }
     }
 }
+
+TEST_F(ConditionVariable_test, TimedWaitWithZeroTimeoutWorks)
+{
+    ConditionListener sut(m_condVarData);
+    EXPECT_TRUE(sut.timedWait(iox::units::Duration::fromSeconds(0)).empty());
+}
+
+TEST_F(ConditionVariable_test, TimedWaitWithoutNotificationReturnsEmptyVector)
+{
+    ConditionListener sut(m_condVarData);
+    EXPECT_TRUE(sut.timedWait(iox::units::Duration::fromMilliseconds(100)).empty());
+}
+
+TEST_F(ConditionVariable_test, TimedWaitReturnsOneNotifiedIndex)
+{
+    ConditionListener sut(m_condVarData);
+    ConditionNotifier(m_condVarData, 6U).notify();
+
+    auto indices = sut.timedWait(iox::units::Duration::fromMilliseconds(100));
+
+    ASSERT_THAT(indices.size(), Eq(1U));
+    EXPECT_THAT(indices[0U], Eq(6U));
+}
+
+TEST_F(ConditionVariable_test, TimedWaitReturnsMultipleNotifiedIndices)
+{
+    ConditionListener sut(m_condVarData);
+    ConditionNotifier(m_condVarData, 5U).notify();
+    ConditionNotifier(m_condVarData, 15U).notify();
+
+    auto indices = sut.timedWait(iox::units::Duration::fromMilliseconds(100));
+
+    ASSERT_THAT(indices.size(), Eq(2U));
+    EXPECT_THAT(indices[0U], Eq(5U));
+    EXPECT_THAT(indices[1U], Eq(15U));
+}
+
+TEST_F(ConditionVariable_test, TimedWaitReturnsAllNotifiedIndices)
+{
+    ConditionListener sut(m_condVarData);
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; ++i)
+    {
+        ConditionNotifier(m_condVarData, i).notify();
+    }
+
+    auto indices = sut.timedWait(iox::units::Duration::fromMilliseconds(100));
+
+    ASSERT_THAT(indices.size(), Eq(iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE));
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; ++i)
+    {
+        EXPECT_THAT(indices[i], Eq(i));
+    }
+}
+
+TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilTimeout, Repeat(5), [&] {
+    ConditionListener listener(m_condVarData);
+    NotificationVector_t activeNotifications;
+    iox::posix::Semaphore threadSetupSemaphore =
+        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
+    std::atomic_bool hasWaited{false};
+
+    std::thread waiter([&] {
+        activeNotifications = listener.timedWait(m_timingTestTime);
+        hasWaited.store(true, std::memory_order_relaxed);
+        ASSERT_THAT(activeNotifications.size(), Eq(0U));
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * m_timingTestTime.toMilliseconds() / 3));
+    EXPECT_THAT(hasWaited, Eq(false));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * m_timingTestTime.toMilliseconds() / 3));
+    EXPECT_THAT(hasWaited, Eq(true));
+    waiter.join();
+})
+
+TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilNotification, Repeat(5), [&] {
+    ConditionListener listener(m_condVarData);
+    NotificationVector_t activeNotifications;
+    iox::posix::Semaphore threadSetupSemaphore =
+        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
+    std::atomic_bool hasWaited{false};
+
+    std::thread waiter([&] {
+        activeNotifications = listener.timedWait(m_timingTestTime);
+        hasWaited.store(true, std::memory_order_relaxed);
+        ASSERT_THAT(activeNotifications.size(), Eq(1U));
+        EXPECT_THAT(activeNotifications[0], 13U);
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(m_timingTestTime.toMilliseconds() / 4));
+    EXPECT_THAT(hasWaited, Eq(false));
+    ConditionNotifier(m_condVarData, 13U).notify();
+    std::this_thread::sleep_for(std::chrono::milliseconds(m_timingTestTime.toMilliseconds() / 4));
+    EXPECT_THAT(hasWaited, Eq(true));
+    waiter.join();
+})
 
 TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
 {
