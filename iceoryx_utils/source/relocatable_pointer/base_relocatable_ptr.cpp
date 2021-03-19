@@ -78,7 +78,7 @@ bool BaseRelocatablePointer::operator!() const noexcept
     return !(operator bool());
 }
 
-void* BaseRelocatablePointer::get() const noexcept
+const void* BaseRelocatablePointer::get() const noexcept
 {
     return computeRawPtr();
 }
