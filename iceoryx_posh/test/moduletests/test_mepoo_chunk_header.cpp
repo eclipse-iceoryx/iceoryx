@@ -106,7 +106,7 @@ TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader) + PAYLOAD_SIZE));
 }
 
-TEST_F(ChunkHeader_test, ChunkHeaderConstructorTerminatesWhenPayloadSizeExceedsChunkSize)
+TEST_F(ChunkHeader_test, ConstructorTerminatesWhenPayloadSizeExceedsChunkSize)
 {
     constexpr uint32_t CHUNK_SIZE{128U};
     constexpr uint32_t PAYLOAD_SIZE{2U * CHUNK_SIZE};
@@ -118,6 +118,18 @@ TEST_F(ChunkHeader_test, ChunkHeaderConstructorTerminatesWhenPayloadSizeExceedsC
                             iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
                             iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
         },
+        ".*");
+}
+
+TEST_F(ChunkHeader_test, ConstructorTerminatesWhenCustomHeaderAlignmentExceedsChunkHeaderAlignment)
+{
+    constexpr uint32_t CHUNK_SIZE{1024U};
+    constexpr uint32_t PAYLOAD_SIZE{8U};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{1U};
+    constexpr uint32_t CUSTOM_HEADER_SIZE{128U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{alignof(ChunkHeader) * 2U};
+    EXPECT_DEATH(
+        { ChunkHeader sut(CHUNK_SIZE, PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT); },
         ".*");
 }
 
