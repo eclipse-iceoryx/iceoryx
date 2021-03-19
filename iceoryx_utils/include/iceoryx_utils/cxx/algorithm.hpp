@@ -16,6 +16,9 @@
 #ifndef IOX_UTILS_CXX_ALGORITHM_HPP
 #define IOX_UTILS_CXX_ALGORITHM_HPP
 
+#include "iceoryx_utils/cxx/vector.hpp"
+
+#include <cstdint>
 #include <type_traits>
 
 namespace iox
@@ -93,6 +96,10 @@ constexpr bool doesContainType() noexcept;
 /// @return true if the T is contained in the type list, otherwise false
 template <typename T, typename CompareType, typename Next, typename... Remainder>
 constexpr bool doesContainType() noexcept;
+
+template <typename T, uint64_t Capacity>
+cxx::vector<T, Capacity> mergeSortedVectors(const cxx::vector<T, Capacity>& v1,
+                                            const cxx::vector<T, Capacity>& v2) noexcept;
 
 } // namespace algorithm
 } // namespace iox

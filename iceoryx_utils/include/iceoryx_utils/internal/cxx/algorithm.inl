@@ -68,6 +68,33 @@ inline constexpr bool doesContainType() noexcept
     return doesContainType<T, CompareType>() || doesContainType<T, Next, Remainder...>();
 }
 
+template <typename T, uint64_t Capacity>
+inline cxx::vector<T, Capacity> mergeSortedVectors(const cxx::vector<T, Capacity>& v1,
+                                                   const cxx::vector<T, Capacity>& v2) noexcept
+{
+    cxx::vector<T, Capacity> mergedVector;
+    uint64_t indexV1 = 0U, indexV2 = 0U;
+    uint64_t v1Size = v1.size();
+    uint64_t v2Size = v2.size();
+
+    while (indexV1 < v1Size && indexV2 < v2Size)
+    {
+        mergedVector.emplace_back((v1[indexV1] <= v2[indexV2]) ? v1[indexV1++] : v2[indexV2++]);
+    }
+
+    while (indexV2 < v2Size)
+    {
+        mergedVector.emplace_back(v2[indexV2++]);
+    }
+
+    while (indexV1 < v1Size)
+    {
+        mergedVector.emplace_back(v1[indexV1++]);
+    }
+
+    return mergedVector;
+}
+
 
 } // namespace algorithm
 } // namespace iox

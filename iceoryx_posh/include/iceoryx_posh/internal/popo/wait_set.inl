@@ -210,33 +210,9 @@ inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) no
     {
         m_activeNotifications = notificationVector;
     }
-    else
+    else if (!notificationVector.empty())
     {
-        uint64_t position = 0U;
-        // merge the acquired notificationVector with m_activeNotifications
-        for (auto notificationId : notificationVector)
-        {
-            bool wasEntryFound = false;
-            for (; !wasEntryFound && position < m_activeNotifications.size(); ++position)
-            {
-                if (m_activeNotifications[position] == notificationId)
-                {
-                    wasEntryFound = true;
-                }
-                // the activeNotifications are sorted, if we end up on an id
-                // greater notificationId it is not in m_activeNotifications
-                else if (m_activeNotifications[position] > notificationId)
-                {
-                    cxx::Expects(m_activeNotifications.emplace(position, notificationId));
-                    wasEntryFound = true;
-                }
-            }
-
-            if (!wasEntryFound)
-            {
-                cxx::Expects(m_activeNotifications.emplace_back(notificationId));
-            }
-        }
+        m_activeNotifications = algorithm::mergeSortedVectors(notificationVector, m_activeNotifications);
     }
 }
 
