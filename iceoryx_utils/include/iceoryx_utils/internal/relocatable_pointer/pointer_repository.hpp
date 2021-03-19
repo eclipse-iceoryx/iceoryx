@@ -67,9 +67,10 @@ class PointerRepository
     /// @return the id that identifies the segment
     id_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
-    /// @brief unregisters the id and also invalidates relative pointers using this id
+    /// @brief unregisters the id
     /// @param[in] id is the id to be unregistered
     /// @return true if successful, otherwise false
+    /// @attention the relative pointers corresponding to this id become unsafe to use
     bool unregisterPtr(id_t id) noexcept;
 
     /// @brief unregisters all ids and also invalidates all relative pointers

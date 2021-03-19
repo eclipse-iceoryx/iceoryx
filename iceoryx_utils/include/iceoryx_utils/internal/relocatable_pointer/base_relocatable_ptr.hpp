@@ -91,7 +91,7 @@ class BaseRelocatablePointer
     bool operator!() const noexcept;
 
     /// @brief access to the underlying object in shared memory
-    /// @return a poiter to the underlying object
+    /// @return a pointer to the underlying object
     void* get() const noexcept;
 
     /// @brief returns the offset
