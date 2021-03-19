@@ -20,7 +20,12 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
+
+using iox::mepoo::ChunkHeader;
+using PayloadOffset_t = iox::mepoo::ChunkHeader::PayloadOffset_t;
 
 class MemoryManager_test : public Test
 {
@@ -342,7 +347,7 @@ TEST_F(MemoryManager_test, requiredChunkSize_AllParameterMinimal_ResultsIn_SizeO
     constexpr uint32_t CUSTOM_HEADER_SIZE{0U};
     constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{1U};
 
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader)};
+    constexpr uint32_t EXPECTED_SIZE{sizeof(ChunkHeader)};
 
     auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
         PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
@@ -357,7 +362,7 @@ TEST_F(MemoryManager_test, requiredChunkSize_ZeroPayloadAndDefaultValues_Results
     constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
     constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
 
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader)};
+    constexpr uint32_t EXPECTED_SIZE{sizeof(ChunkHeader)};
 
     auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
         PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
@@ -365,129 +370,7 @@ TEST_F(MemoryManager_test, requiredChunkSize_ZeroPayloadAndDefaultValues_Results
     EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
 }
 
-TEST_F(MemoryManager_test, requiredChunkSize_PayloadAlignment_LessThan_ChunkHeaderAlignment_ResultsIn_AdjacentPayload)
-{
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) / 2};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
-
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader) + PAYLOAD_SIZE};
-
-    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-
-    EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
-}
-
-TEST_F(MemoryManager_test, requiredChunkSize_PayloadAlignment_EqualTo_ChunkHeaderAlignment_ResultsIn_AdjacentPayload)
-{
-    constexpr uint32_t PAYLOAD_SIZE{73U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader)};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
-
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader) + PAYLOAD_SIZE};
-
-    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-
-    EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
-}
-
-TEST_F(MemoryManager_test,
-       requiredChunkSize_PayloadAlignment_GreaterThan_ChunkHeaderAlignment_ResultsIn_AddingPaddingBytes)
-{
-    constexpr uint32_t PAYLOAD_SIZE{37U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) * 2};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
-    constexpr uint32_t PADDING_BYTES{PAYLOAD_ALIGNMENT};
-
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader) - alignof(iox::mepoo::ChunkHeader) + PADDING_BYTES
-                                     + PAYLOAD_SIZE};
-
-    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-
-    EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
-}
-
-TEST_F(MemoryManager_test,
-       requiredChunkSize_CustomHeaderAlignment_LessThan_ChunkHeaderAlignment_AdjacentPayload_ResultsIn_NoPaddingBytes)
-{
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader::PayloadOffset_t)};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(iox::mepoo::ChunkHeader::PayloadOffset_t)};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{alignof(iox::mepoo::ChunkHeader::PayloadOffset_t)};
-    constexpr uint32_t BACK_OFFSET{sizeof(iox::mepoo::ChunkHeader::PayloadOffset_t)};
-
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader) + CUSTOM_HEADER_SIZE + BACK_OFFSET + PAYLOAD_SIZE};
-
-    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-
-    EXPECT_THAT(alignof(iox::mepoo::ChunkHeader::PayloadOffset_t), Lt(alignof(iox::mepoo::ChunkHeader)));
-    EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
-}
-
-TEST_F(
-    MemoryManager_test,
-    requiredChunkSize_CustomHeaderAlignment_LessThan_ChunkHeaderAlignment_NonAdjacentPayload_ResultsIn_AddingPaddingBytes)
-{
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(iox::mepoo::ChunkHeader::PayloadOffset_t)};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{alignof(iox::mepoo::ChunkHeader::PayloadOffset_t)};
-    constexpr uint32_t PADDING_BYTES{PAYLOAD_ALIGNMENT};
-
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader) + CUSTOM_HEADER_SIZE + PADDING_BYTES
-                                     + PAYLOAD_SIZE};
-
-    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-
-    EXPECT_THAT(alignof(iox::mepoo::ChunkHeader::PayloadOffset_t), Lt(alignof(iox::mepoo::ChunkHeader)));
-    EXPECT_THAT(PADDING_BYTES, Ge(sizeof(iox::mepoo::ChunkHeader::PayloadOffset_t)));
-    EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
-}
-
-TEST_F(MemoryManager_test,
-       requiredChunkSize_CustomHeaderAlignment_EqualTo_ChunkHeaderAlignment_ResultsIn_NonAdjacentPayload)
-{
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(iox::mepoo::ChunkHeader)};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{alignof(iox::mepoo::ChunkHeader)};
-    constexpr uint32_t PADDING_BYTES{PAYLOAD_ALIGNMENT};
-
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader) + CUSTOM_HEADER_SIZE + PADDING_BYTES
-                                     + PAYLOAD_SIZE};
-
-    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-
-    EXPECT_THAT(PADDING_BYTES, Ge(sizeof(iox::mepoo::ChunkHeader::PayloadOffset_t)));
-    EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
-}
-
-TEST_F(MemoryManager_test, requiredChunkSize_CustomHeaderAndPayloadAlignment_ResultsIn_AddingPaddingBytes)
-{
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) * 2};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(iox::mepoo::ChunkHeader)};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{alignof(iox::mepoo::ChunkHeader)};
-    constexpr uint32_t PADDING_BYTES{PAYLOAD_ALIGNMENT};
-
-    constexpr uint32_t EXPECTED_SIZE{sizeof(iox::mepoo::ChunkHeader) + CUSTOM_HEADER_SIZE + PADDING_BYTES
-                                     + PAYLOAD_SIZE};
-
-    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-
-    EXPECT_THAT(PADDING_BYTES, Ge(sizeof(iox::mepoo::ChunkHeader::PayloadOffset_t)));
-    EXPECT_THAT(chunkSize, Eq(EXPECTED_SIZE));
-}
+// BEGIN EXCEEDING CHUNK SIZE TESTS
 
 TEST_F(MemoryManager_test, requiredChunkSize_WithoutCustomPayloadAlignmentAndTooLargePayload_Fails)
 {
@@ -507,7 +390,7 @@ TEST_F(MemoryManager_test, requiredChunkSize_WithoutCustomPayloadAlignmentAndToo
 TEST_F(MemoryManager_test, requiredChunkSize_WithCustomPayloadAlignmentAndTooLargePayload_Fails)
 {
     constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) * 2};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
     constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
     constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
 
@@ -522,7 +405,7 @@ TEST_F(MemoryManager_test, requiredChunkSize_WithCustomPayloadAlignmentAndTooLar
 TEST_F(MemoryManager_test, requiredChunkSize_WithCustomHeaderAndTooLargePayload_Fails)
 {
     constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(iox::mepoo::ChunkHeader) * 2};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
     constexpr uint32_t CUSTOM_HEADER_SIZE{8U};
     constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{8U};
 
@@ -533,6 +416,10 @@ TEST_F(MemoryManager_test, requiredChunkSize_WithCustomHeaderAndTooLargePayload_
         },
         ".*");
 }
+
+// END EXCEEDING CHUNK SIZE TESTS
+
+// BEGIN INVALID CUSTOM HEADER AND PAYLOAD ALIGNMENT TESTS
 
 TEST_F(MemoryManager_test, requiredChunkSize_WithPayloadAlignmentOfZero_Fails)
 {
@@ -569,7 +456,7 @@ TEST_F(MemoryManager_test, requiredChunkSize_WithCustomHeaderAlignmentLargerThan
     constexpr uint32_t PAYLOAD_SIZE{0U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
     constexpr uint32_t CUSTOM_HEADER_SIZE{8U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{2 * alignof(iox::mepoo::ChunkHeader)};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{2 * alignof(ChunkHeader)};
 
     EXPECT_DEATH(
         {
@@ -593,3 +480,294 @@ TEST_F(MemoryManager_test, requiredChunkSize_WithCustomHeaderSizeNotMultipleOfAl
         },
         ".*");
 }
+
+// END INVALID CUSTOM HEADER AND PAYLOAD ALIGNMENT TESTS
+
+// BEGIN PARAMETERIZED TESTS FOR REQUIRED CHUNK SIZE
+
+struct PayloadParams
+{
+    uint32_t size{0U};
+    uint32_t alignment{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
+};
+
+class MemoryManager_AlteringPayloadWithoutCustomHeader : public ::testing::TestWithParam<PayloadParams>
+{
+};
+
+// without a custom header, the payload is located right after the ChunkHeader, therefore the payload size and alignment
+// parameters are made dependant on the ChunkHeader
+INSTANTIATE_TEST_CASE_P(MemoryManager_test,
+                        MemoryManager_AlteringPayloadWithoutCustomHeader,
+                        ::testing::Values(
+                            // alignment = 1
+                            PayloadParams{.size = 0U, .alignment = 1U},
+                            PayloadParams{.size = 1U, .alignment = 1U},
+                            PayloadParams{.size = sizeof(ChunkHeader), .alignment = 1U},
+                            PayloadParams{.size = sizeof(ChunkHeader) * 42U, .alignment = 1U},
+                            // alignment = alignof(ChunkHeader) / 2
+                            PayloadParams{.size = 0U, .alignment = alignof(ChunkHeader) / 2},
+                            PayloadParams{.size = 1U, .alignment = alignof(ChunkHeader) / 2},
+                            PayloadParams{.size = sizeof(ChunkHeader), .alignment = alignof(ChunkHeader) / 2},
+                            PayloadParams{.size = sizeof(ChunkHeader) * 42U, .alignment = alignof(ChunkHeader) / 2},
+                            // alignment = alignof(ChunkHeader)
+                            PayloadParams{.size = 0U, .alignment = alignof(ChunkHeader)},
+                            PayloadParams{.size = 1U, .alignment = alignof(ChunkHeader)},
+                            PayloadParams{.size = sizeof(ChunkHeader), .alignment = alignof(ChunkHeader)},
+                            PayloadParams{.size = sizeof(ChunkHeader) * 42U, .alignment = alignof(ChunkHeader)},
+                            // alignment = alignof(ChunkHeader) * 2
+                            PayloadParams{.size = 0U, .alignment = alignof(ChunkHeader) * 2},
+                            PayloadParams{.size = 1U, .alignment = alignof(ChunkHeader) * 2},
+                            PayloadParams{.size = sizeof(ChunkHeader), .alignment = alignof(ChunkHeader) * 2},
+                            PayloadParams{.size = sizeof(ChunkHeader) * 42U, .alignment = alignof(ChunkHeader) * 2}));
+
+TEST_P(MemoryManager_AlteringPayloadWithoutCustomHeader, requiredChunkSizeIsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    const uint32_t expectedSize = [&payload] {
+        if (payload.alignment <= alignof(ChunkHeader))
+        {
+            // payload is always adjacent
+            return static_cast<uint32_t>(sizeof(ChunkHeader)) + payload.size;
+        }
+        else
+        {
+            // payload is not necessarily adjacent
+            auto prePayloadAlignmentOverhangOfChunkHeder = sizeof(ChunkHeader) - alignof(ChunkHeader);
+            return static_cast<uint32_t>(prePayloadAlignmentOverhangOfChunkHeder) + payload.alignment + payload.size;
+        }
+    }();
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+class MemoryManager_AlteringPayloadWithCustomHeader : public ::testing::TestWithParam<PayloadParams>
+{
+  protected:
+};
+
+// with a custom header, the payload is located right after the ChunkHeader, therefore the payload size and alignment
+// parameters are made dependant on the ChunkHeader
+INSTANTIATE_TEST_CASE_P(
+    MemoryManager_test,
+    MemoryManager_AlteringPayloadWithCustomHeader,
+    ::testing::Values(
+        // alignment = 1
+        PayloadParams{.size = 0U, .alignment = 1U},
+        PayloadParams{.size = 1U, .alignment = 1U},
+        PayloadParams{.size = sizeof(PayloadOffset_t), .alignment = 1U},
+        PayloadParams{.size = sizeof(PayloadOffset_t) * 42U, .alignment = 1U},
+        // alignment = alignof(PayloadOffset_t) / 2
+        PayloadParams{.size = 0U, .alignment = alignof(PayloadOffset_t) / 2},
+        PayloadParams{.size = 1U, .alignment = alignof(PayloadOffset_t) / 2},
+        PayloadParams{.size = sizeof(PayloadOffset_t), .alignment = alignof(PayloadOffset_t) / 2},
+        PayloadParams{.size = sizeof(PayloadOffset_t) * 42U, .alignment = alignof(PayloadOffset_t) / 2},
+        // alignment = alignof(PayloadOffset_t)
+        PayloadParams{.size = 0U, .alignment = alignof(PayloadOffset_t)},
+        PayloadParams{.size = 1U, .alignment = alignof(PayloadOffset_t)},
+        PayloadParams{.size = sizeof(PayloadOffset_t), .alignment = alignof(PayloadOffset_t)},
+        PayloadParams{.size = sizeof(PayloadOffset_t) * 42U, .alignment = alignof(PayloadOffset_t)},
+        // alignment = alignof(PayloadOffset_t) * 2
+        PayloadParams{.size = 0U, .alignment = alignof(PayloadOffset_t) * 2},
+        PayloadParams{.size = 1U, .alignment = alignof(PayloadOffset_t) * 2},
+        PayloadParams{.size = sizeof(PayloadOffset_t), .alignment = alignof(PayloadOffset_t) * 2},
+        PayloadParams{.size = sizeof(PayloadOffset_t) * 42U, .alignment = alignof(PayloadOffset_t) * 2}));
+
+uint32_t expectedChunkSizeWithCustomHeader(const PayloadParams& payload,
+                                           uint32_t customHeaderSize,
+                                           uint32_t customHeaderAlignment)
+{
+    const uint32_t customHeaderSizeAndPaddingToBackOffset =
+        iox::algorithm::max(customHeaderSize, customHeaderAlignment, static_cast<uint32_t>(alignof(PayloadOffset_t)));
+
+    if (payload.alignment <= alignof(PayloadOffset_t))
+    {
+        // back-offset is always adjacent to the custom header
+        constexpr uint32_t BACK_OFFSET_SIZE{sizeof(PayloadOffset_t)};
+        return static_cast<uint32_t>(sizeof(ChunkHeader)) + customHeaderSizeAndPaddingToBackOffset + BACK_OFFSET_SIZE
+               + payload.size;
+    }
+    else
+    {
+        // back-offset is not necessarily adjacent to the custom header
+        const uint32_t backOffsetSizeAndPaddingBytes = payload.alignment;
+        return static_cast<uint32_t>(sizeof(ChunkHeader)) + customHeaderSizeAndPaddingToBackOffset
+               + backOffsetSizeAndPaddingBytes + payload.size;
+    }
+}
+
+// BEGIN ALTERING CUSTOM HEADER SIZE WITH ALIGNMENT EQUAL TO ONE
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeEqualsToOne_AlignmentEqualsToOne_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{1U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{1U};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeLessThanChunkHeader_AlignmentEqualsToOne_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(ChunkHeader) / 2U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{1U};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeEqualsToChunkHeader_AlignmentEqualsToOne_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(ChunkHeader)};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{1U};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeGreaterThanChunkHeader_AlignmentEqualsToOne_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(ChunkHeader) * 2U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{1U};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+// END ALTERING CUSTOM HEADER SIZE WITH ALIGNMENT EQUAL TO ONE
+
+// BEGIN ALTERING CUSTOM HEADER SIZE WITH ALIGNMENT LESS THAN ChunkHeader ALIGNMENT
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeLessThanChunkHeader_AlignmentLessThanChunkHeaderAlignment_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(ChunkHeader) / 2U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{sizeof(ChunkHeader) / 2U};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeEqualsToChunkHeader_AlignmentLessThanChunkHeaderAlignment_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(ChunkHeader)};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{sizeof(ChunkHeader) / 2U};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeGreaterThanChunkHeader_AlignmentLessThanChunkHeaderAlignment_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(ChunkHeader) * 2U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{sizeof(ChunkHeader) / 2U};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+// END ALTERING CUSTOM HEADER SIZE WITH ALIGNMENT LESS THAN ChunkHeader ALIGNMENT
+
+// BEGIN ALTERING CUSTOM HEADER SIZE WITH ALIGNMENT EQUAL TO ChunkHeader ALIGNMENT
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeEqualsToChunkHeader_AlignmentEqualToChunkHeaderAlignment_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(ChunkHeader)};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{sizeof(ChunkHeader)};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+TEST_P(MemoryManager_AlteringPayloadWithCustomHeader,
+       requiredChunkSize_CustomHeader_SizeGreaterThanChunkHeader_AlignmentEqualToChunkHeaderAlignment_IsCorrect)
+{
+    const auto payload = GetParam();
+
+    constexpr uint32_t CUSTOM_HEADER_SIZE{sizeof(ChunkHeader) * 2U};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{sizeof(ChunkHeader)};
+
+    const uint32_t expectedSize =
+        expectedChunkSizeWithCustomHeader(payload, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    auto chunkSize = iox::mepoo::MemoryManager::requiredChunkSize(
+        payload.size, payload.alignment, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_THAT(chunkSize, Eq(expectedSize));
+}
+
+// END ALTERING CUSTOM HEADER SIZE WITH ALIGNMENT EQUAL TO ChunkHeader ALIGNMENT
+
+// END PARAMETERIZED TESTS FOR REQUIRED CHUNK SIZE
+
+} // namespace
