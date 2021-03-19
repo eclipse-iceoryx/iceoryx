@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/platform/file.hpp"
 
-int iox_close(int fd)
+int iox_flock(int fd, int op)
 {
-    return close(fd);
+    return flock(fd, op);
 }
