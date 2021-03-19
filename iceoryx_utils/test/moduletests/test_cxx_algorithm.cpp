@@ -19,7 +19,10 @@
 
 using namespace ::testing;
 using namespace iox::algorithm;
+using namespace iox::cxx;
 
+namespace
+{
 class algorithm_test : public Test
 {
   public:
@@ -36,6 +39,8 @@ class algorithm_test : public Test
         }
     }
 };
+
+} // namespace
 
 TEST_F(algorithm_test, MaxOfOneElement)
 {
@@ -65,4 +70,135 @@ TEST_F(algorithm_test, MinOfTwoElements)
 TEST_F(algorithm_test, MinOfManyElements)
 {
     EXPECT_THAT(min(0.0123f, -91.12f, 123.92f, -1021.2f, 0.0f), Eq(-1021.2f));
+}
+
+TEST_F(algorithm_test, MergeTwoDisjunctNonEmptySortedContainers)
+{
+    vector<int64_t, 10U> a, b;
+
+    for (int64_t i = 0; i < 5; ++i)
+    {
+        a.emplace_back(i);
+    }
+
+    for (int64_t i = 5; i < 10; ++i)
+    {
+        b.emplace_back(i);
+    }
+
+    auto mergedContainer = uniqueMergeSortedContainers(a, b);
+
+    ASSERT_THAT(mergedContainer.size(), Eq(10U));
+    for (int64_t i = 0; i < 10; ++i)
+        EXPECT_THAT(mergedContainer[i], Eq(i));
+}
+
+TEST_F(algorithm_test, MergeTwoAlternatingDisjunctNonEmptySortedContainers)
+{
+    vector<int64_t, 10U> a, b;
+
+    for (int64_t i = 0; i < 5; ++i)
+    {
+        a.emplace_back(i * 2);
+    }
+
+    for (int64_t i = 0; i < 5; ++i)
+    {
+        b.emplace_back(i * 2 + 1);
+    }
+
+    auto mergedContainer = uniqueMergeSortedContainers(a, b);
+
+    ASSERT_THAT(mergedContainer.size(), Eq(10U));
+    for (int64_t i = 0; i < 10; ++i)
+        EXPECT_THAT(mergedContainer[i], Eq(i));
+}
+
+TEST_F(algorithm_test, MergingIdenticalContainerResultsInUnchangedContainer)
+{
+    vector<int64_t, 10U> a;
+
+    for (int64_t i = 0; i < 5; ++i)
+    {
+        a.emplace_back(i * 2);
+    }
+
+    auto mergedContainer = uniqueMergeSortedContainers(a, a);
+
+    ASSERT_THAT(mergedContainer.size(), Eq(5U));
+    for (int64_t i = 0; i < 5; ++i)
+        EXPECT_THAT(mergedContainer[i], Eq(i * 2));
+}
+
+TEST_F(algorithm_test, MergingWithOneEmptyContainerResultsInUnchangedContainer)
+{
+    vector<int64_t, 10U> a;
+
+    for (int64_t i = 0; i < 5; ++i)
+    {
+        a.emplace_back(i * 3);
+    }
+
+    auto mergedContainer = uniqueMergeSortedContainers(a, vector<int64_t, 10U>());
+
+    ASSERT_THAT(mergedContainer.size(), Eq(5U));
+    for (int64_t i = 0; i < 5; ++i)
+        EXPECT_THAT(mergedContainer[i], Eq(i * 3));
+}
+
+TEST_F(algorithm_test, MergePartiallyOverlappingSortedContainers)
+{
+    vector<int64_t, 10U> a, b;
+
+    for (int64_t i = 3; i < 10; ++i)
+    {
+        a.emplace_back(i);
+    }
+
+    for (int64_t i = 0; i < 8; ++i)
+    {
+        b.emplace_back(i);
+    }
+
+    auto mergedContainer = uniqueMergeSortedContainers(a, b);
+
+    ASSERT_THAT(mergedContainer.size(), Eq(10U));
+    for (int64_t i = 0; i < 10; ++i)
+        EXPECT_THAT(mergedContainer[i], Eq(i));
+}
+
+TEST_F(algorithm_test, MergeWithDisjunctOneElementContainer)
+{
+    vector<int64_t, 10U> a, b;
+
+    for (int64_t i = 0; i < 5; ++i)
+    {
+        a.emplace_back(i);
+    }
+
+    b.emplace_back(5);
+
+    auto mergedContainer = uniqueMergeSortedContainers(a, b);
+
+    ASSERT_THAT(mergedContainer.size(), Eq(6U));
+    for (int64_t i = 0; i < 6; ++i)
+        EXPECT_THAT(mergedContainer[i], Eq(i));
+}
+
+TEST_F(algorithm_test, MergeWithOverlappingOneElementContainer)
+{
+    vector<int64_t, 10U> a, b;
+
+    for (int64_t i = 0; i < 5; ++i)
+    {
+        a.emplace_back(i);
+    }
+
+    b.emplace_back(0);
+
+    auto mergedContainer = uniqueMergeSortedContainers(a, b);
+
+    ASSERT_THAT(mergedContainer.size(), Eq(5U));
+    for (int64_t i = 0; i < 5; ++i)
+        EXPECT_THAT(mergedContainer[i], Eq(i));
 }

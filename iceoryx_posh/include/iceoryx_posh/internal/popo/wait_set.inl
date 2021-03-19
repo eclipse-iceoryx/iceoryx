@@ -212,7 +212,7 @@ inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) no
     }
     else if (!notificationVector.empty())
     {
-        m_activeNotifications = algorithm::mergeSortedVectors(notificationVector, m_activeNotifications);
+        m_activeNotifications = algorithm::uniqueMergeSortedContainers(notificationVector, m_activeNotifications);
     }
 }
 

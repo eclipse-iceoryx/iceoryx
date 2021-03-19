@@ -97,9 +97,14 @@ constexpr bool doesContainType() noexcept;
 template <typename T, typename CompareType, typename Next, typename... Remainder>
 constexpr bool doesContainType() noexcept;
 
-template <typename T, uint64_t Capacity>
-cxx::vector<T, Capacity> mergeSortedVectors(const cxx::vector<T, Capacity>& v1,
-                                            const cxx::vector<T, Capacity>& v2) noexcept;
+/// @brief Merging two sorted containers so that the result is a sorted container
+///        where every element is contained only once
+/// @tparam Container container type which has to support emplace_back() and size()
+/// @param[in] v1 the first sorted input container
+/// @param[in] v2 the second sorted input container
+/// @return sorted container which contains the elements of v1 and v2 and where every element is unique
+template <typename Container>
+Container uniqueMergeSortedContainers(const Container& v1, const Container& v2) noexcept;
 
 } // namespace algorithm
 } // namespace iox
