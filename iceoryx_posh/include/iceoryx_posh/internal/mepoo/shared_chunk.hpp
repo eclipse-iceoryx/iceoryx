@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,40 +35,40 @@ class SharedChunk
 {
   public:
     SharedChunk() = default;
-    SharedChunk(ChunkManagement* const resource);
-    SharedChunk(const rp::RelativePointer<ChunkManagement>& resource);
-    ~SharedChunk();
+    SharedChunk(ChunkManagement* const resource) noexcept;
+    SharedChunk(const rp::RelativePointer<ChunkManagement>& resource) noexcept;
+    ~SharedChunk() noexcept;
 
-    SharedChunk(const SharedChunk& rhs);
-    SharedChunk(SharedChunk&& rhs);
+    SharedChunk(const SharedChunk& rhs) noexcept;
+    SharedChunk(SharedChunk&& rhs) noexcept;
 
-    SharedChunk& operator=(const SharedChunk& rhs);
-    SharedChunk& operator=(SharedChunk&& rhs);
+    SharedChunk& operator=(const SharedChunk& rhs) noexcept;
+    SharedChunk& operator=(SharedChunk&& rhs) noexcept;
 
-    ChunkHeader* getChunkHeader() const;
-    void* getPayload() const;
+    ChunkHeader* getChunkHeader() const noexcept;
+    void* getPayload() const noexcept;
 
-    ChunkManagement* release();
-    iox::rp::RelativePointer<ChunkManagement> releaseWithRelativePtr();
+    ChunkManagement* release() noexcept;
+    iox::rp::RelativePointer<ChunkManagement> releaseWithRelativePtr() noexcept;
 
-    bool operator==(const SharedChunk& rhs) const;
+    bool operator==(const SharedChunk& rhs) const noexcept;
     /// @todo use the newtype pattern to avoid the void pointer
-    bool operator==(const void* const rhs) const;
+    bool operator==(const void* const rhs) const noexcept;
 
-    bool operator!=(const SharedChunk& rhs) const;
-    bool operator!=(const void* const rhs) const;
+    bool operator!=(const SharedChunk& rhs) const noexcept;
+    bool operator!=(const void* const rhs) const noexcept;
 
-    operator bool() const;
+    operator bool() const noexcept;
 
-    bool hasNoOtherOwners() const;
+    bool hasNoOtherOwners() const noexcept;
 
     template <typename>
     friend class SharedPointer;
 
   private:
-    void decrementReferenceCounter();
-    void incrementReferenceCounter();
-    void freeChunk();
+    void decrementReferenceCounter() noexcept;
+    void incrementReferenceCounter() noexcept;
+    void freeChunk() noexcept;
 
   private:
     iox::rp::RelativePointer<ChunkManagement> m_chunkManagement;

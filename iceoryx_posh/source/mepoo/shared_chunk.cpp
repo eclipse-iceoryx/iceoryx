@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,55 +21,55 @@ namespace iox
 {
 namespace mepoo
 {
-SharedChunk::SharedChunk(ChunkManagement* const resource)
+SharedChunk::SharedChunk(ChunkManagement* const resource) noexcept
     : m_chunkManagement(resource)
 {
 }
 
-SharedChunk::SharedChunk(const rp::RelativePointer<ChunkManagement>& resource)
+SharedChunk::SharedChunk(const rp::RelativePointer<ChunkManagement>& resource) noexcept
     : m_chunkManagement(resource)
 {
 }
 
-SharedChunk::SharedChunk(const SharedChunk& rhs)
+SharedChunk::SharedChunk(const SharedChunk& rhs) noexcept
 {
     *this = rhs;
 }
 
-SharedChunk::SharedChunk(SharedChunk&& rhs)
+SharedChunk::SharedChunk(SharedChunk&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-SharedChunk::~SharedChunk()
+SharedChunk::~SharedChunk() noexcept
 {
     decrementReferenceCounter();
 }
 
-void SharedChunk::incrementReferenceCounter()
+void SharedChunk::incrementReferenceCounter() noexcept
 {
     if (m_chunkManagement != nullptr)
     {
-        m_chunkManagement->m_referenceCounter.fetch_add(1u, std::memory_order_relaxed);
+        m_chunkManagement->m_referenceCounter.fetch_add(1U, std::memory_order_relaxed);
     }
 }
 
-void SharedChunk::decrementReferenceCounter()
+void SharedChunk::decrementReferenceCounter() noexcept
 {
     if ((m_chunkManagement != nullptr)
-        && (m_chunkManagement->m_referenceCounter.fetch_sub(1u, std::memory_order_relaxed) == 1u))
+        && (m_chunkManagement->m_referenceCounter.fetch_sub(1U, std::memory_order_relaxed) == 1U))
     {
         freeChunk();
     }
 }
 
-void SharedChunk::freeChunk()
+void SharedChunk::freeChunk() noexcept
 {
     m_chunkManagement->m_mempool->freeChunk(m_chunkManagement->m_chunkHeader);
     m_chunkManagement->m_chunkManagementPool->freeChunk(m_chunkManagement);
 }
 
-SharedChunk& SharedChunk::operator=(const SharedChunk& rhs)
+SharedChunk& SharedChunk::operator=(const SharedChunk& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -79,7 +80,7 @@ SharedChunk& SharedChunk::operator=(const SharedChunk& rhs)
     return *this;
 }
 
-SharedChunk& SharedChunk::operator=(SharedChunk&& rhs)
+SharedChunk& SharedChunk::operator=(SharedChunk&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -90,7 +91,7 @@ SharedChunk& SharedChunk::operator=(SharedChunk&& rhs)
     return *this;
 }
 
-void* SharedChunk::getPayload() const
+void* SharedChunk::getPayload() const noexcept
 {
     if (m_chunkManagement == nullptr)
     {
@@ -102,42 +103,42 @@ void* SharedChunk::getPayload() const
     }
 }
 
-bool SharedChunk::operator==(const SharedChunk& rhs) const
+bool SharedChunk::operator==(const SharedChunk& rhs) const noexcept
 {
     return m_chunkManagement == rhs.m_chunkManagement;
 }
 
-bool SharedChunk::operator==(const void* const rhs) const
+bool SharedChunk::operator==(const void* const rhs) const noexcept
 {
     return getPayload() == rhs;
 }
 
-bool SharedChunk::operator!=(const SharedChunk& rhs) const
+bool SharedChunk::operator!=(const SharedChunk& rhs) const noexcept
 {
     return !(*this == rhs);
 }
 
-bool SharedChunk::operator!=(const void* const rhs) const
+bool SharedChunk::operator!=(const void* const rhs) const noexcept
 {
     return !(*this == rhs);
 }
 
-bool SharedChunk::hasNoOtherOwners() const
+bool SharedChunk::hasNoOtherOwners() const noexcept
 {
     if (m_chunkManagement == nullptr)
     {
         return true;
     }
 
-    return m_chunkManagement->m_referenceCounter.load(std::memory_order_relaxed) == 1u;
+    return m_chunkManagement->m_referenceCounter.load(std::memory_order_relaxed) == 1U;
 }
 
-SharedChunk::operator bool() const
+SharedChunk::operator bool() const noexcept
 {
     return m_chunkManagement != nullptr;
 }
 
-ChunkHeader* SharedChunk::getChunkHeader() const
+ChunkHeader* SharedChunk::getChunkHeader() const noexcept
 {
     if (m_chunkManagement != nullptr)
     {
@@ -149,14 +150,14 @@ ChunkHeader* SharedChunk::getChunkHeader() const
     }
 }
 
-ChunkManagement* SharedChunk::release()
+ChunkManagement* SharedChunk::release() noexcept
 {
     ChunkManagement* returnValue = m_chunkManagement;
     m_chunkManagement = nullptr;
     return returnValue;
 }
 
-iox::rp::RelativePointer<ChunkManagement> SharedChunk::releaseWithRelativePtr()
+iox::rp::RelativePointer<ChunkManagement> SharedChunk::releaseWithRelativePtr() noexcept
 {
     auto returnValue = m_chunkManagement;
     m_chunkManagement = nullptr;

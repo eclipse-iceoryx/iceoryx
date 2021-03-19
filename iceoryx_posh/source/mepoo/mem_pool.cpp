@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,10 +27,21 @@ namespace iox
 {
 namespace mepoo
 {
+MemPoolInfo::MemPoolInfo(const uint32_t usedChunks,
+                         const uint32_t minFreeChunks,
+                         const uint32_t numChunks,
+                         const uint32_t chunkSize) noexcept
+    : m_usedChunks(usedChunks)
+    , m_minFreeChunks(minFreeChunks)
+    , m_numChunks(numChunks)
+    , m_chunkSize(chunkSize)
+{
+}
+
 MemPool::MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> chunkSize,
                  const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
                  posix::Allocator* managementAllocator,
-                 posix::Allocator* payloadAllocator)
+                 posix::Allocator* payloadAllocator) noexcept
     : m_chunkSize(chunkSize)
     , m_numberOfChunks(numberOfChunks)
     , m_minFree(numberOfChunks)
@@ -50,21 +62,21 @@ MemPool::MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> chunkSi
     }
 }
 
-bool MemPool::isMultipleOfAlignment(const uint32_t value) const
+bool MemPool::isMultipleOfAlignment(const uint32_t value) const noexcept
 {
-    return (value % SHARED_MEMORY_ALIGNMENT == 0u);
+    return (value % SHARED_MEMORY_ALIGNMENT == 0U);
 }
 
-void MemPool::adjustMinFree()
+void MemPool::adjustMinFree() noexcept
 {
     // @todo rethink the concurrent change that can happen. do we need a CAS loop?
     m_minFree.store(std::min(m_numberOfChunks - m_usedChunks.load(std::memory_order_relaxed),
                              m_minFree.load(std::memory_order_relaxed)));
 }
 
-void* MemPool::getChunk()
+void* MemPool::getChunk() noexcept
 {
-    uint32_t l_index{0u};
+    uint32_t l_index{0U};
     if (!m_freeIndices.pop(l_index))
     {
         std::cerr << "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
@@ -74,16 +86,16 @@ void* MemPool::getChunk()
 
     /// @todo: verify that m_usedChunk is not changed during adjustMInFree
     ///         without changing m_minFree
-    m_usedChunks.fetch_add(1u, std::memory_order_relaxed);
+    m_usedChunks.fetch_add(1U, std::memory_order_relaxed);
     adjustMinFree();
 
     return m_rawMemory + l_index * m_chunkSize;
 }
 
-void MemPool::freeChunk(const void* chunk)
+void MemPool::freeChunk(const void* chunk) noexcept
 {
     cxx::Expects(m_rawMemory <= chunk
-                 && chunk <= m_rawMemory + (static_cast<uint64_t>(m_chunkSize) * (m_numberOfChunks - 1u)));
+                 && chunk <= m_rawMemory + (static_cast<uint64_t>(m_chunkSize) * (m_numberOfChunks - 1U)));
 
     auto offset = static_cast<const uint8_t*>(chunk) - m_rawMemory;
     cxx::Expects(offset % m_chunkSize == 0);
@@ -95,30 +107,30 @@ void MemPool::freeChunk(const void* chunk)
         errorHandler(Error::kPOSH__MEMPOOL_POSSIBLE_DOUBLE_FREE);
     }
 
-    m_usedChunks.fetch_sub(1u, std::memory_order_relaxed);
+    m_usedChunks.fetch_sub(1U, std::memory_order_relaxed);
 }
 
-uint32_t MemPool::getChunkSize() const
+uint32_t MemPool::getChunkSize() const noexcept
 {
     return m_chunkSize;
 }
 
-uint32_t MemPool::getChunkCount() const
+uint32_t MemPool::getChunkCount() const noexcept
 {
     return m_numberOfChunks;
 }
 
-uint32_t MemPool::getUsedChunks() const
+uint32_t MemPool::getUsedChunks() const noexcept
 {
     return m_usedChunks.load(std::memory_order_relaxed);
 }
 
-uint32_t MemPool::getMinFree() const
+uint32_t MemPool::getMinFree() const noexcept
 {
     return m_minFree.load(std::memory_order_relaxed);
 }
 
-MemPoolInfo MemPool::getInfo() const
+MemPoolInfo MemPool::getInfo() const noexcept
 {
     return {m_usedChunks.load(std::memory_order_relaxed),
             m_minFree.load(std::memory_order_relaxed),

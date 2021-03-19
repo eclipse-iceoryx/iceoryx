@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +39,7 @@ struct alignas(32) ChunkManagement
 
     ChunkManagement(const cxx::not_null<base_t*> chunkHeader,
                     const cxx::not_null<MemPool*> mempool,
-                    const cxx::not_null<MemPool*> chunkManagementPool)
+                    const cxx::not_null<MemPool*> chunkManagementPool) noexcept
         : m_chunkHeader(chunkHeader)
         , m_mempool(mempool)
         , m_chunkManagementPool(chunkManagementPool)
@@ -46,7 +47,7 @@ struct alignas(32) ChunkManagement
     }
 
     iox::rp::RelativePointer<base_t> m_chunkHeader;
-    referenceCounter_t m_referenceCounter{1u};
+    referenceCounter_t m_referenceCounter{1U};
     /// @todo optimization: check if this can be replaced by an offset relative to the this pointer
     iox::rp::RelativePointer<MemPool> m_mempool;
     iox::rp::RelativePointer<MemPool> m_chunkManagementPool;

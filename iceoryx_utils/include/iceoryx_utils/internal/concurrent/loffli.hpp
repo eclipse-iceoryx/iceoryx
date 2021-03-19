@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,22 +73,22 @@ class LoFFLi
     /// Initializes the lock-free free-list
     /// @param [in] freeIndicesMemory pointer to a memory with the size calculated by requiredMemorySize()
     /// @param [in] size is the number of elements of the free-list; must be the same used at requiredMemorySize()
-    void init(cxx::not_null<uint32_t*> freeIndicesMemory, const uint32_t size);
+    void init(cxx::not_null<uint32_t*> freeIndicesMemory, const uint32_t size) noexcept;
 
     /// Pop a value from the free-list
     /// @param [out] index for an element to use
     /// @return true if index is valid, false otherwise
-    bool pop(uint32_t& index);
+    bool pop(uint32_t& index) noexcept;
 
     /// Push previously poped element
     /// @param [in] index to previously poped element
     /// @return true if index is valid or not yet pushed, false otherwise
-    bool push(const uint32_t index);
+    bool push(const uint32_t index) noexcept;
 
     /// Calculates the required memory size for a free-list
     /// @param [in] size is the number of elements of the free-list
     /// @return the required memory size for a free-list with size elements
-    static inline constexpr std::size_t requiredMemorySize(const uint32_t size)
+    static inline constexpr std::size_t requiredMemorySize(const uint32_t size) noexcept
     {
         return (static_cast<size_t>(size) + 1U) * sizeof(uint32_t);
     }

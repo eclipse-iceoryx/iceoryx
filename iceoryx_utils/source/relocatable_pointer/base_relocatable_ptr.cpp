@@ -75,7 +75,7 @@ BaseRelocatablePointer::operator bool() const noexcept
 
 bool BaseRelocatablePointer::operator!() const noexcept
 {
-    return m_offset == NULL_POINTER_OFFSET;
+    return !(operator bool());
 }
 
 void* BaseRelocatablePointer::get() const noexcept

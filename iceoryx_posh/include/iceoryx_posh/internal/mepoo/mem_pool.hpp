@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,13 +32,11 @@ namespace mepoo
 {
 struct MemPoolInfo
 {
-    MemPoolInfo(uint32_t usedChunks, uint32_t minFreeChunks, uint32_t numChunks, uint32_t chunkSize)
-        : m_usedChunks(usedChunks)
-        , m_minFreeChunks(minFreeChunks)
-        , m_numChunks(numChunks)
-        , m_chunkSize(chunkSize)
-    {
-    }
+    MemPoolInfo(const uint32_t usedChunks,
+                const uint32_t minFreeChunks,
+                const uint32_t numChunks,
+                const uint32_t chunkSize) noexcept;
+
     uint32_t m_usedChunks{0};
     uint32_t m_minFreeChunks{0};
     uint32_t m_numChunks{0};
@@ -53,25 +52,25 @@ class MemPool
     MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> chunkSize,
             const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
             posix::Allocator* managementAllocator,
-            posix::Allocator* payloadAllocator);
+            posix::Allocator* payloadAllocator) noexcept;
 
     MemPool(const MemPool&) = delete;
     MemPool(MemPool&&) = delete;
     MemPool& operator=(const MemPool&) = delete;
     MemPool& operator=(MemPool&&) = delete;
 
-    void* getChunk();
-    uint32_t getChunkSize() const;
-    uint32_t getChunkCount() const;
-    uint32_t getUsedChunks() const;
-    uint32_t getMinFree() const;
-    MemPoolInfo getInfo() const;
+    void* getChunk() noexcept;
+    uint32_t getChunkSize() const noexcept;
+    uint32_t getChunkCount() const noexcept;
+    uint32_t getUsedChunks() const noexcept;
+    uint32_t getMinFree() const noexcept;
+    MemPoolInfo getInfo() const noexcept;
 
-    void freeChunk(const void* chunk);
+    void freeChunk(const void* chunk) noexcept;
 
   private:
-    void adjustMinFree();
-    bool isMultipleOfAlignment(const uint32_t value) const;
+    void adjustMinFree() noexcept;
+    bool isMultipleOfAlignment(const uint32_t value) const noexcept;
 
     rp::RelativePointer<uint8_t> m_rawMemory;
 
