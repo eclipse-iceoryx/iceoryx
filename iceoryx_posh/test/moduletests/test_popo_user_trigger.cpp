@@ -31,8 +31,8 @@ class UserTrigger_test : public Test
     UserTrigger m_sut;
     ConditionVariableData m_condVar{"Horscht"};
     ConditionVariableData m_condVar2{"Schnuppi"};
-    WaitSetMock m_waitSet{&m_condVar};
-    WaitSetMock m_waitSet2{&m_condVar2};
+    WaitSetMock m_waitSet{m_condVar};
+    WaitSetMock m_waitSet2{m_condVar2};
 
     void SetUp()
     {

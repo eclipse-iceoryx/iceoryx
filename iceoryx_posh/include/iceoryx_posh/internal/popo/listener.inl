@@ -39,8 +39,8 @@ inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin, Callba
                     internal::translateAndCallTypelessCallback<T>,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
-            EventAttorney::enableEvent(eventOrigin,
-                                       TriggerHandle(*m_eventVariable, {*this, &Listener::removeTrigger}, eventId));
+            EventAttorney::enableEvent(
+                eventOrigin, TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId));
         });
 }
 
@@ -56,7 +56,9 @@ Listener::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(
-                eventOrigin, TriggerHandle(*m_eventVariable, {*this, &Listener::removeTrigger}, eventId), eventType);
+                eventOrigin,
+                TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId),
+                eventType);
         });
 }
 

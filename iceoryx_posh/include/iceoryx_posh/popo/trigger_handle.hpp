@@ -18,7 +18,6 @@
 #define IOX_POSH_POPO_TRIGGER_HANDLE_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
@@ -39,21 +38,13 @@ class TriggerHandle
 {
   public:
     TriggerHandle() = default;
-    /// @brief Creates a TriggerHandle
-    /// @param[in] eventVariableDataRef reference to a event variable data struct
-    /// @param[in] resetCallback callback which will be called when it goes out of scope or reset is called
-    /// @param[in] uniqueTriggerId the unique trigger id of the Trigger which corresponds to the TriggerHandle. Usually
-    /// stored in a Notifyable. It is required for the resetCallback
-    TriggerHandle(EventVariableData& eventVariableDataRef,
-                  const cxx::MethodCallback<void, uint64_t> resetCallback,
-                  const uint64_t uniqueTriggerId) noexcept;
 
     /// @brief Creates a TriggerHandle
     /// @param[in] conditionVariableDataRef reference to a condition variable data struct
     /// @param[in] resetCallback callback which will be called it goes out of scope or reset is called
     /// @param[in] uniqueTriggerId the unique trigger id of the Trigger which corresponds to the TriggerHandle. Usually
     /// stored in a Notifyable. It is required for the resetCallback
-    TriggerHandle(ConditionVariableData& conditionVariableDataRef,
+    TriggerHandle(ConditionVariableData& conditionVariableData,
                   const cxx::MethodCallback<void, uint64_t> resetCallback,
                   const uint64_t uniqueTriggerId) noexcept;
     TriggerHandle(const TriggerHandle&) = delete;
@@ -87,14 +78,10 @@ class TriggerHandle
     /// @brief returns the pointer to the ConditionVariableData
     ConditionVariableData* getConditionVariableData() noexcept;
 
-    /// @brief returns true if it contains an EventVariable, otherwise false
-    bool doesContainEventVariable() const noexcept;
-
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
     uint64_t m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
-    bool m_doesContainEventVariable = false;
     mutable std::recursive_mutex m_mutex;
 };
 } // namespace popo

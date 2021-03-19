@@ -17,7 +17,6 @@
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
@@ -65,8 +64,8 @@ class iox_listener_test : public Test
     class TestListener : public Listener
     {
       public:
-        TestListener(EventVariableData& eventVar)
-            : Listener(&eventVar)
+        TestListener(ConditionVariableData& condVar)
+            : Listener(condVar)
         {
         }
     };
@@ -132,8 +131,8 @@ class iox_listener_test : public Test
         }
     }
 
-    EventVariableData m_eventVar{"hypnotoadKnueppeltRetour"};
-    TestListener m_sut{m_eventVar};
+    ConditionVariableData m_condVar{"hypnotoadKnueppeltRetour"};
+    TestListener m_sut{m_condVar};
 
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U];
     cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U> m_userTrigger;

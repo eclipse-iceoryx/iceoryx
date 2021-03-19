@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 
 #include "test.hpp"
@@ -104,7 +104,7 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
     std::atomic_int stage{0};
 
     std::thread t([&] {
-        ConditionVariableWaiter(&m_condVar).wait();
+        ConditionListener(m_condVar).wait();
         stage.store(1);
     });
 

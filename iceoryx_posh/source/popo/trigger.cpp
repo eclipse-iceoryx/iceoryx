@@ -15,13 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/trigger.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 
 namespace iox
 {
 namespace popo
 {
-std::atomic<uint64_t> Trigger::uniqueIdCounter{0U};
 constexpr uint64_t Trigger::INVALID_TRIGGER_ID;
 
 Trigger::~Trigger()
