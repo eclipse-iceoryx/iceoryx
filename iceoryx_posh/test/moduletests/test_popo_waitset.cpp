@@ -102,7 +102,7 @@ class WaitSet_test : public Test
     };
 
     ConditionVariableData m_condVarData{"Horscht"};
-    WaitSetMock m_sut{&m_condVarData};
+    WaitSetMock m_sut{m_condVarData};
 
     static void triggerCallback1(WaitSet_test::SimpleEventClass* const waitset)
     {
@@ -199,7 +199,7 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
     uint64_t uniqueTriggerId = 0U;
     SimpleEventClass simpleEvent;
     {
-        WaitSetMock sut{&m_condVarData};
+        WaitSetMock sut{m_condVarData};
         constexpr uint64_t USER_DEFINED_EVENT_ID = 421337U;
         sut.attachEvent(simpleEvent, USER_DEFINED_EVENT_ID);
         uniqueTriggerId = simpleEvent.getUniqueId();

@@ -502,45 +502,6 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
     EXPECT_TRUE(conditionVariableListOverflowDetected);
 }
 
-TEST_F(PoshRuntime_test, GetMiddlewareEventVariableIsSuccessful)
-{
-    auto eventVariable = m_runtime->getMiddlewareEventVariable();
-    EXPECT_THAT(eventVariable, Ne(nullptr));
-}
-
-TEST_F(PoshRuntime_test, GetMaxNumberOfMiddlewareEventVariablesIsSuccessful)
-{
-    for (uint32_t i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; ++i)
-    {
-        auto eventVariable = m_runtime->getMiddlewareEventVariable();
-        EXPECT_THAT(eventVariable, Ne(nullptr));
-    }
-}
-
-TEST_F(PoshRuntime_test, GetMiddlewareEventVariableListOverflow)
-{
-    auto eventVariableListOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&eventVariableListOverflowDetected](
-            const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            if (error == iox::Error::kPORT_POOL__EVENT_VARIABLE_LIST_OVERFLOW)
-            {
-                eventVariableListOverflowDetected = true;
-            }
-        });
-
-    for (uint32_t i = 0U; i < iox::MAX_NUMBER_OF_EVENT_VARIABLES; ++i)
-    {
-        auto eventVariable = m_runtime->getMiddlewareEventVariable();
-        ASSERT_THAT(eventVariable, Ne(nullptr));
-    }
-    EXPECT_THAT(eventVariableListOverflowDetected, Eq(false));
-
-    auto eventVariable = m_runtime->getMiddlewareEventVariable();
-    EXPECT_THAT(eventVariable, Eq(nullptr));
-    EXPECT_THAT(eventVariableListOverflowDetected, Eq(true));
-}
-
 TIMING_TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounterOfferStopOfferService, Repeat(5), [&] {
     auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
     auto initialCout = serviceCounter->load();
