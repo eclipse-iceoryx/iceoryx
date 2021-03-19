@@ -25,6 +25,18 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
     : IpcInterfaceBase(name, maxMessages, messageSize)
+    , m_fileLock(std::move(posix::FileLock::create(name)
+                               .or_else([](auto&) {
+                                   // If the lock couldn't be acquired, some application with the same name is still
+                                   // running
+                                   LogError()
+                                       << "An application with the same runtime name is still running. Using the "
+                                          "same runtime name twice is not supported.";
+                                   errorHandler(Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING,
+                                                nullptr,
+                                                iox::ErrorLevel::FATAL);
+                               })
+                               .value()))
 {
     // check if the IPC channel is still there (e.g. because of no proper termination
     // of the process)
