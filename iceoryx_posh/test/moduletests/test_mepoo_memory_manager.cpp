@@ -489,6 +489,8 @@ struct PayloadParams
 {
     uint32_t size{0U};
     uint32_t alignment{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
+
+    static constexpr uint32_t MAX_ALIGNMENT{1ULL << 31};
 };
 
 class MemoryManager_AlteringPayloadWithoutCustomHeader : public ::testing::TestWithParam<PayloadParams>
@@ -501,25 +503,30 @@ INSTANTIATE_TEST_CASE_P(MemoryManager_test,
                         MemoryManager_AlteringPayloadWithoutCustomHeader,
                         ::testing::Values(
                             // alignment = 1
-                            PayloadParams{.size = 0U, .alignment = 1U},
-                            PayloadParams{.size = 1U, .alignment = 1U},
-                            PayloadParams{.size = sizeof(ChunkHeader), .alignment = 1U},
-                            PayloadParams{.size = sizeof(ChunkHeader) * 42U, .alignment = 1U},
+                            PayloadParams{0U, 1U},
+                            PayloadParams{1U, 1U},
+                            PayloadParams{sizeof(ChunkHeader), 1U},
+                            PayloadParams{sizeof(ChunkHeader) * 42U, 1U},
                             // alignment = alignof(ChunkHeader) / 2
-                            PayloadParams{.size = 0U, .alignment = alignof(ChunkHeader) / 2},
-                            PayloadParams{.size = 1U, .alignment = alignof(ChunkHeader) / 2},
-                            PayloadParams{.size = sizeof(ChunkHeader), .alignment = alignof(ChunkHeader) / 2},
-                            PayloadParams{.size = sizeof(ChunkHeader) * 42U, .alignment = alignof(ChunkHeader) / 2},
+                            PayloadParams{0U, alignof(ChunkHeader) / 2},
+                            PayloadParams{1U, alignof(ChunkHeader) / 2},
+                            PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader) / 2},
+                            PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader) / 2},
                             // alignment = alignof(ChunkHeader)
-                            PayloadParams{.size = 0U, .alignment = alignof(ChunkHeader)},
-                            PayloadParams{.size = 1U, .alignment = alignof(ChunkHeader)},
-                            PayloadParams{.size = sizeof(ChunkHeader), .alignment = alignof(ChunkHeader)},
-                            PayloadParams{.size = sizeof(ChunkHeader) * 42U, .alignment = alignof(ChunkHeader)},
+                            PayloadParams{0U, alignof(ChunkHeader)},
+                            PayloadParams{1U, alignof(ChunkHeader)},
+                            PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader)},
+                            PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader)},
                             // alignment = alignof(ChunkHeader) * 2
-                            PayloadParams{.size = 0U, .alignment = alignof(ChunkHeader) * 2},
-                            PayloadParams{.size = 1U, .alignment = alignof(ChunkHeader) * 2},
-                            PayloadParams{.size = sizeof(ChunkHeader), .alignment = alignof(ChunkHeader) * 2},
-                            PayloadParams{.size = sizeof(ChunkHeader) * 42U, .alignment = alignof(ChunkHeader) * 2}));
+                            PayloadParams{0U, alignof(ChunkHeader) * 2},
+                            PayloadParams{1U, alignof(ChunkHeader) * 2},
+                            PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader) * 2},
+                            PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader) * 2},
+                            // alignment = PayloadParams::MAX_ALIGNMENT
+                            PayloadParams{0U, PayloadParams::MAX_ALIGNMENT},
+                            PayloadParams{1U, PayloadParams::MAX_ALIGNMENT},
+                            PayloadParams{sizeof(ChunkHeader), PayloadParams::MAX_ALIGNMENT},
+                            PayloadParams{sizeof(ChunkHeader) * 42U, PayloadParams::MAX_ALIGNMENT}));
 
 TEST_P(MemoryManager_AlteringPayloadWithoutCustomHeader, requiredChunkSizeIsCorrect)
 {
@@ -555,30 +562,34 @@ class MemoryManager_AlteringPayloadWithCustomHeader : public ::testing::TestWith
 
 // with a custom header, the payload is located right after the ChunkHeader, therefore the payload size and alignment
 // parameters are made dependant on the ChunkHeader
-INSTANTIATE_TEST_CASE_P(
-    MemoryManager_test,
-    MemoryManager_AlteringPayloadWithCustomHeader,
-    ::testing::Values(
-        // alignment = 1
-        PayloadParams{.size = 0U, .alignment = 1U},
-        PayloadParams{.size = 1U, .alignment = 1U},
-        PayloadParams{.size = sizeof(PayloadOffset_t), .alignment = 1U},
-        PayloadParams{.size = sizeof(PayloadOffset_t) * 42U, .alignment = 1U},
-        // alignment = alignof(PayloadOffset_t) / 2
-        PayloadParams{.size = 0U, .alignment = alignof(PayloadOffset_t) / 2},
-        PayloadParams{.size = 1U, .alignment = alignof(PayloadOffset_t) / 2},
-        PayloadParams{.size = sizeof(PayloadOffset_t), .alignment = alignof(PayloadOffset_t) / 2},
-        PayloadParams{.size = sizeof(PayloadOffset_t) * 42U, .alignment = alignof(PayloadOffset_t) / 2},
-        // alignment = alignof(PayloadOffset_t)
-        PayloadParams{.size = 0U, .alignment = alignof(PayloadOffset_t)},
-        PayloadParams{.size = 1U, .alignment = alignof(PayloadOffset_t)},
-        PayloadParams{.size = sizeof(PayloadOffset_t), .alignment = alignof(PayloadOffset_t)},
-        PayloadParams{.size = sizeof(PayloadOffset_t) * 42U, .alignment = alignof(PayloadOffset_t)},
-        // alignment = alignof(PayloadOffset_t) * 2
-        PayloadParams{.size = 0U, .alignment = alignof(PayloadOffset_t) * 2},
-        PayloadParams{.size = 1U, .alignment = alignof(PayloadOffset_t) * 2},
-        PayloadParams{.size = sizeof(PayloadOffset_t), .alignment = alignof(PayloadOffset_t) * 2},
-        PayloadParams{.size = sizeof(PayloadOffset_t) * 42U, .alignment = alignof(PayloadOffset_t) * 2}));
+INSTANTIATE_TEST_CASE_P(MemoryManager_test,
+                        MemoryManager_AlteringPayloadWithCustomHeader,
+                        ::testing::Values(
+                            // alignment = 1
+                            PayloadParams{0U, 1U},
+                            PayloadParams{1U, 1U},
+                            PayloadParams{sizeof(PayloadOffset_t), 1U},
+                            PayloadParams{sizeof(PayloadOffset_t) * 42U, 1U},
+                            // alignment = alignof(PayloadOffset_t) / 2
+                            PayloadParams{0U, alignof(PayloadOffset_t) / 2},
+                            PayloadParams{1U, alignof(PayloadOffset_t) / 2},
+                            PayloadParams{sizeof(PayloadOffset_t), alignof(PayloadOffset_t) / 2},
+                            PayloadParams{sizeof(PayloadOffset_t) * 42U, alignof(PayloadOffset_t) / 2},
+                            // alignment = alignof(PayloadOffset_t)
+                            PayloadParams{0U, alignof(PayloadOffset_t)},
+                            PayloadParams{1U, alignof(PayloadOffset_t)},
+                            PayloadParams{sizeof(PayloadOffset_t), alignof(PayloadOffset_t)},
+                            PayloadParams{sizeof(PayloadOffset_t) * 42U, alignof(PayloadOffset_t)},
+                            // alignment = alignof(PayloadOffset_t) * 2
+                            PayloadParams{0U, alignof(PayloadOffset_t) * 2},
+                            PayloadParams{1U, alignof(PayloadOffset_t) * 2},
+                            PayloadParams{sizeof(PayloadOffset_t), alignof(PayloadOffset_t) * 2},
+                            PayloadParams{sizeof(PayloadOffset_t) * 42U, alignof(PayloadOffset_t) * 2},
+                            // alignment = PayloadParams::MAX_ALIGNMENT
+                            PayloadParams{0U, PayloadParams::MAX_ALIGNMENT},
+                            PayloadParams{1U, PayloadParams::MAX_ALIGNMENT},
+                            PayloadParams{sizeof(PayloadOffset_t), PayloadParams::MAX_ALIGNMENT},
+                            PayloadParams{sizeof(PayloadOffset_t) * 42U, PayloadParams::MAX_ALIGNMENT}));
 
 uint32_t expectedChunkSizeWithCustomHeader(const PayloadParams& payload,
                                            uint32_t customHeaderSize,
