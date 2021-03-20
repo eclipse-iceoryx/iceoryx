@@ -61,6 +61,14 @@ class MemoryManager
 
     MemPoolInfo getMemPoolInfo(uint32_t f_index) const noexcept;
 
+    /// @brief calculates the required chunk size regarding the constraints on payload and custom header
+    /// @param[in] payloadSize is the size of the user payload without additional headers
+    /// @param[in] payloadAlignment is the alignment of the user payload
+    /// @param[in] customHeaderSize is the size of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_SIZE to omit
+    /// a custom header
+    /// @param[in] customHeaderAlignment is the alignment of the custom user header; use
+    /// iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT to omit a custom header
+    /// @return the minimum chunk size required to hold the user payload with the custom header
     static uint32_t requiredChunkSize(const uint32_t payloadSize,
                                       const uint32_t payloadAlignment,
                                       const uint32_t customHeaderSize,

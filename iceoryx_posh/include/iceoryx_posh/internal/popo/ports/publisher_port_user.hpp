@@ -48,9 +48,13 @@ class PublisherPortUser : public BasePort
     PublisherPortUser& operator=(PublisherPortUser&& rhs) = default;
     ~PublisherPortUser() = default;
 
-    /// @brief Allocate a chunk, the ownerhip of the SharedChunk remains in the PublisherPortUser for being able to
+    /// @brief Allocate a chunk, the ownership of the SharedChunk remains in the PublisherPortUser for being able to
     /// cleanup if the user process disappears
-    /// @param[in] payloadSize, size of the user paylaod without additional headers
+    /// @param[in] payloadSize, size of the user payload without additional headers
+    /// @param[in] payloadAlignment, alignment of the user payload
+    /// @param[in] customHeaderSize, size of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_SIZE to omit a custom header
+    /// @param[in] customHeaderAlignment, alignment of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT
+    /// to omit a custom header
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
     cxx::expected<mepoo::ChunkHeader*, AllocationError>

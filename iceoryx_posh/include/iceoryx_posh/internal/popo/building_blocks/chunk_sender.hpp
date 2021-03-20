@@ -60,10 +60,15 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     ChunkSender& operator=(ChunkSender&& rhs) = default;
     ~ChunkSender() = default;
 
-    /// @brief allocate a chunk, the ownerhip of the SharedChunk remains in the ChunkSender for being able to cleanup if
-    /// the user process disappears
-    /// @param[in] payloadSize, size of the user paylaod without additional headers
+    /// @brief allocate a chunk, the ownership of the SharedChunk remains in the ChunkSender for being able to cleanup
+    /// if the user process disappears
     /// @param[in] originId, the unique id of the entity which requested this allocate
+    /// @param[in] payloadSize, size of the user payload without additional headers
+    /// @param[in] payloadAlignment, alignment of the user payload
+    /// @param[in] customHeaderSize, size of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_SIZE to omit a
+    /// custom header
+    /// @param[in] customHeaderAlignment, alignment of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT
+    /// to omit a custom header
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
     cxx::expected<mepoo::ChunkHeader*, AllocationError> tryAllocate(const UniquePortId originId,

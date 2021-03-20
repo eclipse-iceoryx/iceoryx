@@ -41,8 +41,10 @@ struct alignas(32) ChunkHeader
     /// @param[in] chunkSize is the size of the chunk the ChunkHeader is constructed
     /// @param[in] payloadSize is the size of the payload
     /// @param[in] payloadAlignment is the alignment of the payload
-    /// @param[in] customHeaderSize is the size of the custom header; if no custom header is used, use 0
-    /// @param[in] customHeaderAlignment is the alignment for the custom header; if no custom header is used, use 1
+    /// @param[in] customHeaderSize is the size of the custom header; use iox::CHUNK_NO_CUSTOM_HEADER_SIZE to omit a
+    /// custom header
+    /// @param[in] customHeaderAlignment is the alignment for the custom header; use
+    /// iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT to omit a custom header
     ChunkHeader(const uint32_t chunkSize,
                 const uint32_t payloadSize,
                 const uint32_t payloadAlignment,
