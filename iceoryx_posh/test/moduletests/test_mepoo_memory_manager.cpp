@@ -584,8 +584,8 @@ class MemoryManager_AlteringPayloadWithCustomHeader : public ::testing::TestWith
   protected:
 };
 
-// with a custom header, the payload is located right after the ChunkHeader, therefore the payload size and alignment
-// parameters are made dependant on the ChunkHeader
+// with a custom header, the payload is located right after the PayloadOffset_t, therefore the payload size and
+// alignment parameters are made dependant on the PayloadOffset_t
 INSTANTIATE_TEST_CASE_P(MemoryManager_test,
                         MemoryManager_AlteringPayloadWithCustomHeader,
                         ::testing::Values(
