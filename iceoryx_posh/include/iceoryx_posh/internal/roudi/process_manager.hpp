@@ -88,8 +88,8 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Informs the user about the processes which are registered and then clears the process list
     void printWarningForRegisteredProcessesAndClearProcessList() noexcept;
 
-    /// @brief Is one or more process registered?
-    /// @return true if one or more processes are registered, false otherwise
+    /// @brief Is one or more of the registered processes running?
+    /// @return true if one or more of the registered processes is running, false otherwise
     bool isAnyRegisteredProcessStillRunning() noexcept;
 
     /// @brief Tries to gracefully terminate all registered processes

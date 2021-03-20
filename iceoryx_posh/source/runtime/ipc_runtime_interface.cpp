@@ -84,7 +84,9 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
             // send IpcMessageType::REG to RouDi
 
             IpcMessage sendBuffer;
-            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_appName << std::to_string(getpid())
+            int pid = getpid();
+            cxx::Expects(pid >= 0);
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_appName << std::to_string(pid)
                        << std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID())
                        << std::to_string(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
@@ -249,7 +251,8 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 // RouDi has not yet cleaned up the resources of the app, tell the user to try again later
                 LogError()
                     << "According to RouDi an app with the same name is still running. Try starting the app again.";
-                errorHandler(Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
+                errorHandler(
+                    Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
                 break;
             }
             else

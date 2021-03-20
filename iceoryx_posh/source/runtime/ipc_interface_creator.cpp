@@ -25,23 +25,25 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
     : IpcInterfaceBase(name, maxMessages, messageSize)
-    , m_fileLock(std::move(posix::FileLock::create(name)
-                               .or_else([](auto& error) {
-                                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
-                                   {
-                                       LogError()
-                                           << "An application with the same runtime name is still running. Using the "
-                                              "same runtime name twice is not supported.";
-                                       errorHandler(Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING,
-                                                    nullptr,
-                                                    iox::ErrorLevel::FATAL);
-                                   }
-                                   else
-                                   {
-                                       LogError() << "Error :"; /// @todo << error;
-                                   }
-                               })
-                               .value()))
+    , m_fileLock(std::move(
+          posix::FileLock::create(name)
+              .or_else([&name](auto& error) {
+                  if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
+                  {
+                      LogError() << "An application with the name " << name
+                                 << " is still running. Using the "
+                                    "same name twice is not supported.";
+                      errorHandler(Error::kIPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING,
+                                   nullptr,
+                                   iox::ErrorLevel::FATAL);
+                  }
+                  else
+                  {
+                      LogError() << "Error occured while acquiring file lock named " << name;
+                      errorHandler(Error::kIPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
+                  }
+              })
+              .value()))
 {
     // check if the IPC channel is still there (e.g. because of no proper termination
     // of the process)

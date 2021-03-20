@@ -167,8 +167,10 @@ void RouDi::processRuntimeMessages()
     }
 }
 
-version::VersionInfo
-RouDi::parseRegisterMessage(const runtime::IpcMessage& message, int& pid, uid_t& userId, int64_t& transmissionTimestamp)
+version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& message,
+                                                 uint32_t& pid,
+                                                 uid_t& userId,
+                                                 int64_t& transmissionTimestamp)
 {
     cxx::convert::fromString(message.getElementAtIndex(2).c_str(), pid);
     cxx::convert::fromString(message.getElementAtIndex(3).c_str(), userId);
@@ -197,7 +199,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            int pid;
+            uint32_t pid;
             uid_t userId;
             int64_t transmissionTimestamp;
             version::VersionInfo versionInfo = parseRegisterMessage(message, pid, userId, transmissionTimestamp);
@@ -355,9 +357,9 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 }
 
 void RouDi::registerProcess(const ProcessName_t& name,
-                            int pid,
-                            posix::PosixUser user,
-                            int64_t transmissionTimestamp,
+                            const uint32_t pid,
+                            const posix::PosixUser user,
+                            const int64_t transmissionTimestamp,
                             const uint64_t sessionId,
                             const version::VersionInfo& versionInfo)
 {
