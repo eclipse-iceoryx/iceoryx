@@ -29,8 +29,6 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
                                .or_else([](auto& error) {
                                    if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                                    {
-                                       // If the lock couldn't be acquired, some application with the same name is still
-                                       // running
                                        LogError()
                                            << "An application with the same runtime name is still running. Using the "
                                               "same runtime name twice is not supported.";

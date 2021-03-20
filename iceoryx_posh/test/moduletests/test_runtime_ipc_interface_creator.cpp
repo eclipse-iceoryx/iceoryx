@@ -62,17 +62,8 @@ TEST_F(IpcInterfaceCreator_test, CreateWithDifferentNameWorks)
 
 TEST_F(IpcInterfaceCreator_test, CreateWithSameNameLeadsToError)
 {
-    iox::cxx::optional<iox::Error> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
-        });
     IpcInterfaceCreator m_sut{goodName};
-    IpcInterfaceCreator m_sut2{goodName};
-
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING));
+    EXPECT_DEATH({ IpcInterfaceCreator m_sut2{goodName}; }, ".*");
 }
 
 #endif
