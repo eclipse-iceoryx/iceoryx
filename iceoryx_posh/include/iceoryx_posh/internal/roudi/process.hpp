@@ -80,13 +80,13 @@ class Process
     bool isMonitored() const noexcept;
 
   private:
-    int m_pid;
+    const uint32_t m_pid{0U};
     runtime::IpcInterfaceUser m_ipcChannel;
     mepoo::TimePointNs_t m_timestamp;
     mepoo::MemoryManager* const m_payloadMemoryManager{nullptr};
     bool m_isMonitored{true};
-    uint64_t m_payloadSegmentId;
-    std::atomic<uint64_t> m_sessionId;
+    uint64_t m_payloadSegmentId{0U};
+    std::atomic<uint64_t> m_sessionId{0U};
 };
 
 } // namespace roudi

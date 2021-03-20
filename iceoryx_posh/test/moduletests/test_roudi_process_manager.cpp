@@ -39,37 +39,37 @@ class ProcessManager_test : public Test
     void SetUp() override
     {
         auto config = iox::RouDiConfig_t().setDefaults();
-        m_roudiMemoryManager = new IceOryxRouDiMemoryManager(config);
+        m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(config);
         m_roudiMemoryManager->createAndAnnounceMemory();
-        m_portManager = new PortManager(m_roudiMemoryManager);
-        m_sut = new ProcessManager(*m_roudiMemoryManager, *m_portManager, m_compLevel);
+        m_portManager = std::make_unique<PortManager>(m_roudiMemoryManager.get());
+        m_sut = std::make_unique<ProcessManager>(*m_roudiMemoryManager, *m_portManager, m_compLevel);
         m_sut->initIntrospection(&m_processIntrospection);
     }
 
     void TearDown() override
     {
-        delete m_roudiMemoryManager;
-        delete m_portManager;
-        delete m_sut;
+        m_roudiMemoryManager.reset();
+        m_portManager.reset();
+        m_sut.reset();
     }
 
     const iox::ProcessName_t m_processname{"TestProcess"};
-    pid_t m_pid{42U};
+    const pid_t m_pid{42U};
     PosixUser m_user{1U};
-    bool m_isMonitored{true};
+    const bool m_isMonitored{true};
     VersionInfo m_versionInfo{42U, 42U, 42U, 42U, "Foo", "Bar"};
     CompatibilityCheckLevel m_compLevel;
 
     IpcInterfaceCreator m_processIpcInterface{m_processname};
     ProcessIntrospectionType m_processIntrospection;
 
-    IceOryxRouDiMemoryManager* m_roudiMemoryManager{nullptr};
-    PortManager* m_portManager{nullptr};
-    ProcessManager* m_sut{nullptr};
+    std::unique_ptr<IceOryxRouDiMemoryManager> m_roudiMemoryManager{nullptr};
+    std::unique_ptr<PortManager> m_portManager{nullptr};
+    std::unique_ptr<ProcessManager> m_sut{nullptr};
 };
 
 
-TEST_F(ProcessManager_test, RegisterProcessWorks)
+TEST_F(ProcessManager_test, RegisterProcessWithMonitorningWorks)
 {
     auto result = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
@@ -78,13 +78,13 @@ TEST_F(ProcessManager_test, RegisterProcessWorks)
 
 TEST_F(ProcessManager_test, RegisterProcessWithoutMonitoringWorks)
 {
-    bool isNotMonitored{false};
+    constexpr bool isNotMonitored{false};
     auto result = m_sut->registerProcess(m_processname, m_pid, m_user, isNotMonitored, 1U, 1U, m_versionInfo);
 
     EXPECT_TRUE(result);
 }
 
-TEST_F(ProcessManager_test, RegisterSameProcessTwiceLeadsToError)
+TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithMonitoringLeadsToError)
 {
     auto result1 = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
     auto result2 = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
@@ -95,7 +95,7 @@ TEST_F(ProcessManager_test, RegisterSameProcessTwiceLeadsToError)
 
 TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithoutMonitoringLeadsToError)
 {
-    bool isNotMonitored{false};
+    constexpr bool isNotMonitored{false};
     auto result1 = m_sut->registerProcess(m_processname, m_pid, m_user, isNotMonitored, 1U, 1U, m_versionInfo);
     auto result2 = m_sut->registerProcess(m_processname, m_pid, m_user, isNotMonitored, 1U, 1U, m_versionInfo);
 
@@ -112,9 +112,8 @@ TEST_F(ProcessManager_test, UnregisterNonExistentProcessLeadsToError)
 
 TEST_F(ProcessManager_test, RegisterAndUnregisterWorks)
 {
-    auto registerResult = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
+    m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
     auto unregisterResult = m_sut->unregisterProcess(m_processname);
 
-    EXPECT_TRUE(registerResult);
     EXPECT_TRUE(unregisterResult);
 }

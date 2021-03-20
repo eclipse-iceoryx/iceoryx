@@ -94,7 +94,7 @@ bool ProcessManager::isAnyRegisteredProcessStillRunning() noexcept
     return false;
 }
 
-void ProcessManager::killAllProcessesTheHardWay() noexcept
+void ProcessManager::killAllProcesses() noexcept
 {
     for (auto& process : m_processList)
     {
@@ -104,7 +104,7 @@ void ProcessManager::killAllProcessesTheHardWay() noexcept
     }
 }
 
-void ProcessManager::removeUnresponsiveProcesses() noexcept
+void ProcessManager::printWarningForRegisteredProcessesAndClearProcessList() noexcept
 {
     for (auto& process : m_processList)
     {

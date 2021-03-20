@@ -140,7 +140,7 @@ class RouDi
     /// the lifetime of the MemoryBlocks must be at least as long as RouDi; this saves us from issues if the
     /// RouDiMemoryManager outlives some MemoryBlocks
     cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {}, [this]() { this->m_roudiMemoryInterface->destroyMemory(); }};
-    PortManager* m_portManager;
+    PortManager* m_portManager{nullptr};
     concurrent::smart_lock<ProcessManager> m_prcMgr;
 
   private:

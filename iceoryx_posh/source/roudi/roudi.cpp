@@ -103,12 +103,12 @@ void RouDi::shutdown()
         if (m_prcMgr->isAnyRegisteredProcessStillRunning() && finalKillTimer.hasExpired())
         {
             // Time to kill them
-            m_prcMgr->killAllProcessesTheHardWay();
+            m_prcMgr->killAllProcesses();
         }
 
         if (m_prcMgr->isAnyRegisteredProcessStillRunning())
         {
-            m_prcMgr->removeUnresponsiveProcesses();
+            m_prcMgr->printWarningForRegisteredProcessesAndClearProcessList();
         }
     }
     // Postpone the IpcChannelThread in order to receive TERMINATION
