@@ -272,6 +272,30 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolTooMuchChunks)
     EXPECT_THAT(sut->getChunk(256U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT), Eq(false));
 }
 
+TEST_F(MemoryManager_test, emptyMemPoolDoesNotResultInAcquiringChunksFromOtherMemPools)
+{
+    constexpr uint32_t ChunkCount{100};
+
+    mempoolconf.addMemPool({32, ChunkCount});
+    mempoolconf.addMemPool({64, ChunkCount});
+    mempoolconf.addMemPool({128, ChunkCount});
+    mempoolconf.addMemPool({256, ChunkCount});
+    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+
+    std::vector<iox::mepoo::SharedChunk> chunkStore;
+    for (size_t i = 0; i < ChunkCount; i++)
+    {
+        chunkStore.push_back(sut->getChunk(64U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
+    }
+
+    EXPECT_THAT(sut->getChunk(64U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT), Eq(false));
+
+    EXPECT_THAT(sut->getMemPoolInfo(0).m_usedChunks, Eq(0U));
+    EXPECT_THAT(sut->getMemPoolInfo(1).m_usedChunks, Eq(ChunkCount));
+    EXPECT_THAT(sut->getMemPoolInfo(2).m_usedChunks, Eq(0U));
+    EXPECT_THAT(sut->getMemPoolInfo(3).m_usedChunks, Eq(0U));
+}
+
 TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
 {
     constexpr uint32_t ChunkCount{100};
