@@ -180,16 +180,18 @@ void ProcessManager::evaluateKillError(const Process& process,
 }
 
 bool ProcessManager::registerProcess(const ProcessName_t& name,
-                                     int32_t pid,
-                                     posix::PosixUser user,
-                                     bool isMonitored,
-                                     int64_t transmissionTimestamp,
+                                     const uint32_t pid,
+                                     const posix::PosixUser user,
+                                     const bool isMonitored,
+                                     const int64_t transmissionTimestamp,
                                      const uint64_t sessionId,
                                      const version::VersionInfo& versionInfo) noexcept
 {
     auto segmentInfo = m_segmentManager->getSegmentInformationForUser(user);
 
-    return !searchForProcessAndThen(
+    bool returnValue{false};
+
+    searchForProcessAndThen(
         name,
         [&](Process& process) {
             // process is already in list (i.e. registered)
@@ -208,6 +210,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                 sendBuffer << runtime::IpcMessageTypeToString(
                     runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
                 process.sendViaIpcChannel(sendBuffer);
+                returnValue = false;
             }
             else
             {
@@ -234,6 +237,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                                segmentInfo.m_segmentID,
                                sessionId,
                                versionInfo);
+                    returnValue = true;
                 }
             }
         },
@@ -247,14 +251,17 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                        segmentInfo.m_segmentID,
                        sessionId,
                        versionInfo);
+            returnValue = true;
         });
+
+    return returnValue;
 }
 
 bool ProcessManager::addProcess(const ProcessName_t& name,
-                                int32_t pid,
-                                mepoo::MemoryManager* payloadMemoryManager,
-                                bool isMonitored,
-                                int64_t transmissionTimestamp,
+                                const uint32_t pid,
+                                mepoo::MemoryManager* const payloadMemoryManager,
+                                const bool isMonitored,
+                                const int64_t transmissionTimestamp,
                                 const uint64_t payloadSegmentId,
                                 const uint64_t sessionId,
                                 const version::VersionInfo& versionInfo) noexcept
@@ -331,7 +338,7 @@ bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(Process
     if (processIter != m_processList.end())
     {
         m_portManager.deletePortsOfProcess(processIter->getName());
-        m_processIntrospection->removeProcess(processIter->getPid());
+        m_processIntrospection->removeProcess(static_cast<int32_t>(processIter->getPid()));
 
         // Reply with TERMINATION_ACK and let process shutdown
         runtime::IpcMessage sendBuffer;
@@ -662,7 +669,7 @@ void ProcessManager::monitorProcesses() noexcept
                 // @todo Check if ShmManager and Process Manager end up in unintended condition
                 m_portManager.deletePortsOfProcess(processIterator->getName());
 
-                m_processIntrospection->removeProcess(processIterator->getPid());
+                m_processIntrospection->removeProcess(static_cast<int32_t>(processIterator->getPid()));
 
                 // delete application
                 processIterator = m_processList.erase(processIterator);

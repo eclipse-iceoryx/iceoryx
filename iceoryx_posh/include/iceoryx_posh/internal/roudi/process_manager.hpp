@@ -69,10 +69,10 @@ class ProcessManager : public ProcessManagerInterface
     /// @param [in] versionInfo Version of iceoryx used
     /// @return false if process was already registered, true otherwise
     bool registerProcess(const ProcessName_t& name,
-                         int32_t pid,
-                         posix::PosixUser user,
-                         bool isMonitored,
-                         int64_t transmissionTimestamp,
+                         const uint32_t pid,
+                         const posix::PosixUser user,
+                         const bool isMonitored,
+                         const int64_t transmissionTimestamp,
                          const uint64_t sessionId,
                          const version::VersionInfo& versionInfo) noexcept;
 
@@ -148,10 +148,10 @@ class ProcessManager : public ProcessManagerInterface
     /// @param [in] versionInfo Version of iceoryx used
     /// @return Returns if the process could be added successfully.
     bool addProcess(const ProcessName_t& name,
-                    int32_t pid,
-                    mepoo::MemoryManager* payloadMemoryManager,
-                    bool isMonitored,
-                    int64_t transmissionTimestamp,
+                    const uint32_t pid,
+                    mepoo::MemoryManager* const payloadMemoryManager,
+                    const bool isMonitored,
+                    const int64_t transmissionTimestamp,
                     const uint64_t payloadSegmentId,
                     const uint64_t sessionId,
                     const version::VersionInfo& versionInfo) noexcept;
