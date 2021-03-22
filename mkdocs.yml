@@ -4,6 +4,11 @@ repo_url: https://github.com/eclipse/iceoryx
 docs_dir: doc/website/
 remote_branch: main
 markdown_extensions:
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - toc:
+      permalink: 🔗
   - markdown_include.include:
       base_path: doc
   - admonition
