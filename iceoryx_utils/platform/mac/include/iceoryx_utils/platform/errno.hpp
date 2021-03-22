@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_UTILS_MAC_PLATFORM_ERRNO_HPP
+#define IOX_UTILS_MAC_PLATFORM_ERRNO_HPP
 
-#include "iceoryx_utils/platform/unistd.hpp"
+#include <errno.h>
 
-int iox_close(int fd)
-{
-    return close(fd);
-}
+#endif // IOX_UTILS_MAC_PLATFORM_ERRNO_HPP
