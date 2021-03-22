@@ -161,8 +161,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
     if (m_sockfd != INVALID_FD)
     {
-        auto closeCall = cxx::makeSmartC(
-            iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
+        auto closeCall =
+            cxx::makeSmartC(iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
 
         if (!closeCall.hasErrors())
         {
@@ -201,8 +201,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
     return timedSend(msg, units::Duration::fromSeconds(0ULL));
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout) const
-    noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
+                                                           const units::Duration& timeout) const noexcept
 {
     if (msg.size() >= m_maxMessageSize) // message sizes with null termination must be smaller than m_maxMessageSize
     {
@@ -276,8 +276,8 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
 }
 
 
-cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout) const
-    noexcept
+cxx::expected<std::string, IpcChannelError>
+UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
@@ -380,7 +380,10 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
         }
         else
         {
-            closeFileDescriptor();
+            closeFileDescriptor().or_else([](auto) {
+                std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
+                          << std::endl;
+            });
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(bindCall.getErrNum()));
         }
@@ -399,13 +402,19 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
 
         if (connectCall.hasErrors())
         {
-            closeFileDescriptor();
+            closeFileDescriptor().or_else([](auto) {
+                std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
+                          << std::endl;
+            });
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.getErrNum()));
         }
         else if (connectCall.getErrNum() == ENOENT)
         {
-            closeFileDescriptor();
+            closeFileDescriptor().or_else([](auto) {
+                std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
+                          << std::endl;
+            });
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.getErrNum()));
         }

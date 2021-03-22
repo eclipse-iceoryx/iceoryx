@@ -17,6 +17,7 @@
 #define IOX_UTILS_CXX_EXPECTED_HPP
 
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/variant.hpp"
 
@@ -124,7 +125,7 @@ struct error
 };
 
 template <typename... T>
-class expected;
+class IOX_NO_DISCARD expected;
 
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
 ///         is inspired by the proposal but it has changes since we are not allowed to
@@ -156,7 +157,7 @@ class expected;
 ///     allHailHypnotoad->push_back(7);
 /// @endcode
 template <typename ErrorType>
-class expected<ErrorType>
+class IOX_NO_DISCARD expected<ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
@@ -309,7 +310,7 @@ class expected<ErrorType>
 /// @param ValueType type of the value which can be stored in the expected
 /// @param ErrorType type of the error which can be stored in the expected
 template <typename ValueType, typename ErrorType>
-class expected<ValueType, ErrorType>
+class IOX_NO_DISCARD expected<ValueType, ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
@@ -606,7 +607,7 @@ class expected<ValueType, ErrorType>
 };
 
 template <typename ErrorType>
-class expected<void, ErrorType> : public expected<ErrorType>
+class IOX_NO_DISCARD expected<void, ErrorType> : public expected<ErrorType>
 {
   public:
     using expected<ErrorType>::expected;

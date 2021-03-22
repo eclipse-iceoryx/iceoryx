@@ -39,10 +39,8 @@ void Trigger::reset() noexcept
         return;
     }
 
-    if (m_resetCallback)
-    {
-        m_resetCallback(m_uniqueId);
-    }
+    // the constructor made sure that m_resetCallback is always set
+    IOX_DISCARD_RESULT(m_resetCallback(m_uniqueId));
 
     invalidate();
 }

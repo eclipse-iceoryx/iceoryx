@@ -159,7 +159,8 @@ bool IpcInterfaceBase::isInitialized() const noexcept
 
 bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) noexcept
 {
-    m_ipcChannel.destroy();
+    m_ipcChannel.destroy().or_else(
+        [this](auto) { LogWarn() << "unable to destroy previous ipc channel " << m_interfaceName; });
 
     m_channelSide = channelSide;
     IpcChannelType::create(

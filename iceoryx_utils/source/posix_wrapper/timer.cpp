@@ -254,7 +254,7 @@ Timer::OsTimer::~OsTimer() noexcept
 {
     if (m_timerId != INVALID_TIMER_ID)
     {
-        stop();
+        stop().or_else([](auto) { std::cerr << "Unable to stop the timer in the destructor." << std::endl; });
 
         // do not delete the timer while the callback is running, it could access the timer which is about to be deleted
         auto& callbackHandle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];

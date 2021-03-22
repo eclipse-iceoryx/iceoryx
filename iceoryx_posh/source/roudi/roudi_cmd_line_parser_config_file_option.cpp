@@ -43,7 +43,10 @@ cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption:
         case 'h':
             // we want to parse the help option again, therefore we need to decrement the option index of getopt
             optind--;
-            CmdLineParser::parse(argc, argv);
+            CmdLineParser::parse(argc, argv).or_else([](auto) {
+                std::cerr << "Failed to parse command line arguments" << std::endl;
+                std::terminate();
+            });
             std::cout << std::endl;
             std::cout << "Config File Option:" << std::endl;
             std::cout << "-c, --config-file                 Path to the RouDi Config File." << std::endl;

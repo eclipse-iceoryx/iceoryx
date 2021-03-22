@@ -34,6 +34,15 @@ inline Trigger::Trigger(T* const eventOrigin,
     , m_resetCallback(resetCallback)
     , m_uniqueId(uniqueId)
 {
+    if (!resetCallback)
+    {
+        errorHandler(Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+    }
+
+    if (!hasTriggeredCallback)
+    {
+        errorHandler(Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
+    }
 }
 
 template <typename T>

@@ -234,7 +234,7 @@ static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
 
 /// @brief get the best fitting unsigned integer type for a given value at compile time
 template <uint64_t Value>
-struct bestFittingType
+struct BestFittingType
 {
 /// ignore the warnings because we need the comparisons to find the best fitting type
 #pragma GCC diagnostic push
@@ -246,20 +246,18 @@ struct bestFittingType
 };
 
 template <uint64_t Value>
-using BestFittingType_t = typename bestFittingType<Value>::Type_t;
+using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 
 /// @brief if a function has a return value which you do not want to use then you can wrap the function with that macro.
 /// Purpose is to suppress the unused compiler warning by adding an attribute to the return value
 /// @param[in] name name of the function where the return value is not used.
 /// @code
 ///     uint32_t foo();
-///     DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
+///     IOX_DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
 /// @endcode
-// clang-format off
-#define DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix) name ## _ ## suffix
-#define DISCARD_RESULT_VARIABLE(name, suffix) DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix)
-#define DISCARD_RESULT(expr) auto DISCARD_RESULT_VARIABLE(unusedOnLine, __LINE__) [[gnu::unused]] = expr
-// clang-format on
+#define IOX_DISCARD_RESULT(expr) static_cast<void>(expr) // NOLINT
+
+#define IOX_NO_DISCARD [[nodiscard]] // NOLINT
 
 /// @brief Returns info whether called on a 32-bit system
 /// @return True if called on 32-bit, false if not 32-bit system

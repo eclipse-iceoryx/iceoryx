@@ -35,7 +35,8 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
 
 void IpcInterfaceCreator::cleanupResource()
 {
-    m_ipcChannel.destroy();
+    m_ipcChannel.destroy().or_else(
+        [this](auto) { LogWarn() << "unable to cleanup ipc channel resource " << m_interfaceName; });
 }
 } // namespace runtime
 } // namespace iox

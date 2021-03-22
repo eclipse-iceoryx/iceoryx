@@ -49,7 +49,7 @@ iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemor
 
 RouDiMemoryManager::~RouDiMemoryManager() noexcept
 {
-    destroyMemory();
+    destroyMemory().or_else([](auto) { LogWarn() << "Failed to cleanup RouDiMemoryManager in destructor."; });
 }
 
 cxx::expected<RouDiMemoryManagerError> RouDiMemoryManager::addMemoryProvider(MemoryProvider* memoryProvider) noexcept
