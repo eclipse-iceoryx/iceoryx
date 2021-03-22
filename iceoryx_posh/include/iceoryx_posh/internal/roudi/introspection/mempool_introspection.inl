@@ -94,6 +94,7 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
         {
             LogWarn() << "Cannot allocate chunk for mempool introspection!";
             errorHandler(Error::kMEPOO__CANNOT_ALLOCATE_CHUNK, nullptr, ErrorLevel::MODERATE);
+            return;
         }
 
         auto sample = static_cast<MemPoolIntrospectionInfoContainer*>(maybeChunkHeader.value()->payload());
