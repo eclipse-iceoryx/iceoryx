@@ -36,31 +36,13 @@ int main(int argc, char* argv[])
 
     iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
 
-    iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> roudiConfig{
-        iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(iox::roudi::RouDiConfigFileParseError::INVALID_STATE)};
-    std::stringstream exceptionText;
-    try
-    {
-        roudiConfig = configFileProvider.parse();
-    }
-    catch (const std::exception& currentException)
-    {
-        exceptionText << " [" << currentException.what() << "]";
-        roudiConfig = iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
-            iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER);
-    }
-    catch (...)
-    {
-        roudiConfig = iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
-            iox::roudi::RouDiConfigFileParseError::UNKNOWN_EXCEPTION_IN_PARSER);
-    }
+    auto roudiConfig = configFileProvider.parse();
 
     if (roudiConfig.has_error())
     {
         iox::LogFatal() << "Couldn't parse config file. Error: "
                         << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                         roudiConfig.get_error())
-                        << exceptionText.str();
+                                                         roudiConfig.get_error());
         return EXIT_FAILURE;
     }
 
