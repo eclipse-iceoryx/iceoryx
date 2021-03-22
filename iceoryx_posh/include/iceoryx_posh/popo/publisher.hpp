@@ -99,7 +99,7 @@ class Publisher : public base_publisher_t, public PublisherInterface<T>
   private:
     Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
 
-    cxx::expected<Sample<T>, AllocationError> loanSample(const uint32_t size) noexcept;
+    cxx::expected<Sample<T>, AllocationError> loanSample() noexcept;
 
     using PublisherSampleDeleter = SampleDeleter<typename base_publisher_t::PortType>;
     PublisherSampleDeleter m_sampleDeleter{port()};

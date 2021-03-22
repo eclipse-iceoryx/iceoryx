@@ -39,7 +39,8 @@ inline void UntypedPublisherImpl<base_publisher_t>::publish(const void* chunk) n
 template <typename base_publisher_t>
 inline cxx::expected<void*, AllocationError> UntypedPublisherImpl<base_publisher_t>::loan(const uint32_t size) noexcept
 {
-    auto result = port().tryAllocateChunk(size);
+    auto result = port().tryAllocateChunk(
+        size, CHUNK_DEFAULT_PAYLOAD_ALIGNMENT, CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
     if (result.has_error())
     {
         return cxx::error<AllocationError>(result.get_error());

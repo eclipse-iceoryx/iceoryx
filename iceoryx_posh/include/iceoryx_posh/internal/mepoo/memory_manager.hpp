@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,41 +38,55 @@ struct MePooConfig;
 
 class MemoryManager
 {
-    using MaxSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
+    using MaxChunkPayloadSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
 
   public:
-    MemoryManager() = default;
+    MemoryManager() noexcept = default;
     MemoryManager(const MemoryManager&) = delete;
     MemoryManager(MemoryManager&&) = delete;
     MemoryManager& operator=(const MemoryManager&) = delete;
     MemoryManager& operator=(MemoryManager&&) = delete;
-    ~MemoryManager() = default;
+    ~MemoryManager() noexcept = default;
 
     void configureMemoryManager(const MePooConfig& f_mePooConfig,
                                 posix::Allocator* f_managementAllocator,
-                                posix::Allocator* f_payloadAllocator);
+                                posix::Allocator* f_payloadAllocator) noexcept;
 
-    SharedChunk getChunk(const MaxSize_t f_size);
+    SharedChunk getChunk(const uint32_t payloadSize,
+                         const uint32_t payloadAlignment,
+                         const uint32_t customHeaderSize,
+                         const uint32_t customHeaderAlignment) noexcept;
 
-    uint32_t getMempoolChunkSizeForPayloadSize(const uint32_t f_size) const;
+    uint32_t getNumberOfMemPools() const noexcept;
 
-    uint32_t getNumberOfMemPools() const;
+    MemPoolInfo getMemPoolInfo(uint32_t f_index) const noexcept;
 
-    MemPoolInfo getMemPoolInfo(uint32_t f_index) const;
+    /// @brief calculates the required chunk size regarding the constraints on payload and custom header
+    /// @param[in] payloadSize is the size of the user payload without additional headers
+    /// @param[in] payloadAlignment is the alignment of the user payload
+    /// @param[in] customHeaderSize is the size of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_SIZE to omit
+    /// a custom header
+    /// @param[in] customHeaderAlignment is the alignment of the custom user header; use
+    /// iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT to omit a custom header
+    /// @return the minimum chunk size required to hold the user payload with the custom header
+    static uint32_t requiredChunkSize(const uint32_t payloadSize,
+                                      const uint32_t payloadAlignment,
+                                      const uint32_t customHeaderSize,
+                                      const uint32_t customHeaderAlignment) noexcept;
 
-    static uint32_t sizeWithChunkHeaderStruct(const MaxSize_t f_size);
-
-    static uint64_t requiredChunkMemorySize(const MePooConfig& f_mePooConfig);
-    static uint64_t requiredManagementMemorySize(const MePooConfig& f_mePooConfig);
-    static uint64_t requiredFullMemorySize(const MePooConfig& f_mePooConfig);
+    static uint64_t requiredChunkMemorySize(const MePooConfig& f_mePooConfig) noexcept;
+    static uint64_t requiredManagementMemorySize(const MePooConfig& f_mePooConfig) noexcept;
+    static uint64_t requiredFullMemorySize(const MePooConfig& f_mePooConfig) noexcept;
 
   private:
-    void printMemPoolVector() const;
+    static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
+
+    void printMemPoolVector() const noexcept;
     void addMemPool(posix::Allocator* f_managementAllocator,
                     posix::Allocator* f_payloadAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
-                    const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks);
-    void generateChunkManagementPool(posix::Allocator* f_managementAllocator);
+                    const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks) noexcept;
+    void generateChunkManagementPool(posix::Allocator* f_managementAllocator) noexcept;
 
   private:
     bool m_denyAddMemPool{false};

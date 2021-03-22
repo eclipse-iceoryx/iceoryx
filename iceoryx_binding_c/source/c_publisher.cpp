@@ -101,9 +101,9 @@ void iox_pub_deinit(iox_pub_t const self)
 
 iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize)
 {
-    auto result = PublisherPortUser(self->m_portData).tryAllocateChunk(payloadSize).and_then([&](ChunkHeader* h) {
-        *chunk = h->payload();
-    });
+    auto result = PublisherPortUser(self->m_portData)
+                      .tryAllocateChunk(payloadSize, CHUNK_DEFAULT_PAYLOAD_ALIGNMENT)
+                      .and_then([&chunk](ChunkHeader* h) { *chunk = h->payload(); });
     if (result.has_error())
     {
         return cpp2c::AllocationResult(result.get_error());
@@ -155,4 +155,3 @@ iox_service_description_t iox_pub_get_service_description(iox_pub_t const self)
 {
     return TranslateServiceDescription(PublisherPortUser(self->m_portData).getCaProServiceDescription());
 }
-
