@@ -34,10 +34,11 @@ class IpcInterfaceUser_Mock : public iox::roudi::Process
 {
   public:
     IpcInterfaceUser_Mock()
-        : iox::roudi::Process("TestProcess", 200, nullptr, true, 0x654321, 255)
+        : iox::roudi::Process("TestProcess", 200, m_payloadMemoryManager, true, 0x654321, 255)
     {
     }
     MOCK_METHOD1(sendViaIpcChannel, void(IpcMessage));
+    iox::mepoo::MemoryManager m_payloadMemoryManager;
 };
 
 class Process_test : public Test
@@ -45,7 +46,7 @@ class Process_test : public Test
   public:
     const iox::ProcessName_t processname = {"TestProcess"};
     pid_t pid{200U};
-    iox::mepoo::MemoryManager* payloadMemoryManager{nullptr};
+    iox::mepoo::MemoryManager payloadMemoryManager;
     bool isMonitored = true;
     const uint64_t payloadSegmentId{0x654321U};
     const uint64_t sessionId{255U};
@@ -85,7 +86,7 @@ TEST_F(Process_test, getSessionId)
 TEST_F(Process_test, getPayloadMemoryManager)
 {
     Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(&roudiproc.getPayloadMemoryManager(), Eq(payloadMemoryManager));
+    EXPECT_THAT(&roudiproc.getPayloadMemoryManager(), Eq(&payloadMemoryManager));
 }
 
 TEST_F(Process_test, sendViaIpcChannelPass)

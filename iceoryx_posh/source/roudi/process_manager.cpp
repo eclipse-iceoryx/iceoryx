@@ -259,7 +259,7 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
 
 bool ProcessManager::addProcess(const ProcessName_t& name,
                                 const uint32_t pid,
-                                mepoo::MemoryManager* const payloadMemoryManager,
+                                cxx::not_null<mepoo::MemoryManager* const> payloadMemoryManager,
                                 const bool isMonitored,
                                 const int64_t transmissionTimestamp,
                                 const uint64_t payloadSegmentId,
@@ -281,8 +281,7 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
         LogError() << "Could not register process '" << name << "' - too many processes";
         return false;
     }
-
-    m_processList.emplace_back(name, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    m_processList.emplace_back(name, pid, *payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;

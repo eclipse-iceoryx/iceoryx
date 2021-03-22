@@ -149,7 +149,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @return Returns if the process could be added successfully.
     bool addProcess(const ProcessName_t& name,
                     const uint32_t pid,
-                    mepoo::MemoryManager* const payloadMemoryManager,
+                    cxx::not_null<mepoo::MemoryManager* const> payloadMemoryManager,
                     const bool isMonitored,
                     const int64_t transmissionTimestamp,
                     const uint64_t payloadSegmentId,

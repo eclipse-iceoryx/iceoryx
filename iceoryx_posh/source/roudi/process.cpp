@@ -27,7 +27,7 @@ namespace roudi
 {
 Process::Process(const ProcessName_t& name,
                  const uint32_t pid,
-                 mepoo::MemoryManager* const payloadMemoryManager,
+                 mepoo::MemoryManager& payloadMemoryManager,
                  const bool isMonitored,
                  const uint64_t payloadSegmentId,
                  const uint64_t sessionId) noexcept
@@ -78,7 +78,7 @@ mepoo::TimePointNs_t Process::getTimestamp() noexcept
 
 mepoo::MemoryManager& Process::getPayloadMemoryManager() const noexcept
 {
-    return *m_payloadMemoryManager;
+    return m_payloadMemoryManager;
 }
 
 uint64_t Process::getPayloadSegmentId() const noexcept
