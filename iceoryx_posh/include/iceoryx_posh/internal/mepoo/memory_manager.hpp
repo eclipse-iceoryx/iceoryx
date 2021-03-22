@@ -32,6 +32,10 @@
 
 namespace iox
 {
+namespace log
+{
+class LogStream;
+}
 namespace mepoo
 {
 struct MePooConfig;
@@ -81,7 +85,7 @@ class MemoryManager
   private:
     static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
-    void printMemPoolVector() const noexcept;
+    void printMemPoolVector(log::LogStream& log) const noexcept;
     void addMemPool(posix::Allocator* f_managementAllocator,
                     posix::Allocator* f_payloadAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,

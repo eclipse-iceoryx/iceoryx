@@ -37,11 +37,12 @@ TEST_F(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 {
     constexpr uint32_t CHUNK_SIZE{753U};
     constexpr uint32_t PAYLOAD_SIZE{8U};
-    ChunkHeader sut{CHUNK_SIZE,
-                    PAYLOAD_SIZE,
-                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    ChunkHeader sut{CHUNK_SIZE, chunkSettings};
 
     EXPECT_THAT(sut.chunkSize, Eq(CHUNK_SIZE));
 
@@ -82,11 +83,12 @@ TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
 {
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    ChunkHeader sut{CHUNK_SIZE,
-                    PAYLOAD_SIZE,
-                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    ChunkHeader sut{CHUNK_SIZE, chunkSettings};
 
     sut.chunkSize = 2 * sizeof(ChunkHeader);
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader)));
@@ -96,11 +98,12 @@ TEST_F(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne
 {
     constexpr uint32_t CHUNK_SIZE{128U};
     constexpr uint32_t PAYLOAD_SIZE{1U};
-    ChunkHeader sut{CHUNK_SIZE,
-                    PAYLOAD_SIZE,
-                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    ChunkHeader sut{CHUNK_SIZE, chunkSettings};
 
     sut.chunkSize = 2 * sizeof(ChunkHeader);
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader) + PAYLOAD_SIZE));
@@ -110,15 +113,12 @@ TEST_F(ChunkHeader_test, ConstructorTerminatesWhenPayloadSizeExceedsChunkSize)
 {
     constexpr uint32_t CHUNK_SIZE{128U};
     constexpr uint32_t PAYLOAD_SIZE{2U * CHUNK_SIZE};
-    EXPECT_DEATH(
-        {
-            ChunkHeader sut(CHUNK_SIZE,
-                            PAYLOAD_SIZE,
-                            iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                            iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                            iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
-        },
-        ".*");
+
+    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    EXPECT_DEATH({ ChunkHeader sut(CHUNK_SIZE, chunkSettings); }, ".*");
 }
 
 TEST_F(ChunkHeader_test, ConstructorTerminatesWhenCustomHeaderAlignmentExceedsChunkHeaderAlignment)
@@ -128,9 +128,13 @@ TEST_F(ChunkHeader_test, ConstructorTerminatesWhenCustomHeaderAlignmentExceedsCh
     constexpr uint32_t PAYLOAD_ALIGNMENT{1U};
     constexpr uint32_t CUSTOM_HEADER_SIZE{128U};
     constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{alignof(ChunkHeader) * 2U};
-    EXPECT_DEATH(
-        { ChunkHeader sut(CHUNK_SIZE, PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT); },
-        ".*");
+
+    auto chunkSettingsResult =
+        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    EXPECT_DEATH({ ChunkHeader sut(CHUNK_SIZE, chunkSettings); }, ".*");
 }
 
 // BEGIN PARAMETERIZED TESTS FOR CHUNK HEADER
@@ -168,10 +172,13 @@ void createChunksOnMultipleAddresses(const PayloadParams& payloadParams,
     {
         SCOPED_TRACE(std::string("Chunk on address ") + std::to_string(alignedChunkAddress));
 
-        auto requiredChunkSize = MemoryManager::requiredChunkSize(
-            payloadParams.size, payloadParams.alignment, customHeaderSize, customHeaderAlignment);
-        auto chunkHeader = new (&storage[alignedChunkAddress]) ChunkHeader(
-            requiredChunkSize, payloadParams.size, payloadParams.alignment, customHeaderSize, customHeaderAlignment);
+        auto chunkSettingsResult =
+            ChunkSettings::create(payloadParams.size, payloadParams.alignment, customHeaderSize, customHeaderAlignment);
+        ASSERT_FALSE(chunkSettingsResult.has_error());
+        auto& chunkSettings = chunkSettingsResult.value();
+        auto chunkSize = chunkSettings.requiredChunkSize();
+
+        auto chunkHeader = new (&storage[alignedChunkAddress]) ChunkHeader(chunkSize, chunkSettings);
 
         testHook(*chunkHeader);
 

@@ -44,7 +44,7 @@ class ChunkSettings
     /// @param[in] payloadAlignment is the alignment of the user payload
     /// @param[in] customHeaderSize is the size of the custom header custom header
     /// @param[in] customHeaderAlignment is the alignment for the custom header
-    cxx::expected<ChunkSettings, ChunkSettings::Error>
+    static cxx::expected<ChunkSettings, ChunkSettings::Error>
     create(const uint32_t payloadSize,
            const uint32_t payloadAlignment = iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
            const uint32_t customHeaderSize = iox::CHUNK_NO_CUSTOM_HEADER_SIZE,

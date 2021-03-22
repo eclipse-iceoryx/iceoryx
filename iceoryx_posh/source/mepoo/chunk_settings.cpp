@@ -22,6 +22,19 @@ namespace iox
 {
 namespace mepoo
 {
+ChunkSettings::ChunkSettings(const uint32_t payloadSize,
+                             const uint32_t payloadAlignment,
+                             const uint32_t customHeaderSize,
+                             const uint32_t customHeaderAlignment,
+                             const uint32_t requiredChunkSize) noexcept
+    : m_payloadSize(payloadSize)
+    , m_payloadAlignment(payloadAlignment)
+    , m_customHeaderSize(customHeaderSize)
+    , m_customHeaderAlignment(customHeaderAlignment)
+    , m_requiredChunkSize(requiredChunkSize)
+{
+}
+
 cxx::expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32_t payloadSize,
                                                                          const uint32_t payloadAlignment,
                                                                          const uint32_t customHeaderSize,

@@ -51,8 +51,11 @@ inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acqui
         return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
-    new (chunkHeader) ChunkHeader(
-        m_memPool.getChunkSize(), sizeof(T), alignof(T), CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+    auto chunkSettingsResult = mepoo::ChunkSettings::create(sizeof(T), alignof(T));
+    // this is safe since we use correct values for size and alignment
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    new (chunkHeader) ChunkHeader(m_memPool.getChunkSize(), chunkSettings);
     new (chunkManagement) ChunkManagement(chunkHeader, &m_memPool, &m_chunkManagementPool);
 
     return cxx::success<ChunkManagement*>(chunkManagement);
