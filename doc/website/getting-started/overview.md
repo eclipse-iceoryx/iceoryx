@@ -33,11 +33,11 @@ Each application which wants to use iceoryx has to instantiate its runtime, whic
 with RouDi. Only one runtime object per user process is allowed.
 
 To do so, the following lines of code are required
-
+```cpp
     #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
     iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
-
+```
 ### Service description
 
 A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is uniquely identified by three string
