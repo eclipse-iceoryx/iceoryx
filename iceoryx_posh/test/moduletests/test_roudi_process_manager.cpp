@@ -58,7 +58,7 @@ class ProcessManager_test : public Test
     PosixUser m_user{iox::posix::PosixUser::getUserOfCurrentProcess().getName()};
     const bool m_isMonitored{true};
     VersionInfo m_versionInfo{42U, 42U, 42U, 42U, "Foo", "Bar"};
-    CompatibilityCheckLevel m_compLevel;
+    CompatibilityCheckLevel m_compLevel{CompatibilityCheckLevel::OFF};
 
     IpcInterfaceCreator m_processIpcInterface{m_processname};
     ProcessIntrospectionType m_processIntrospection;
