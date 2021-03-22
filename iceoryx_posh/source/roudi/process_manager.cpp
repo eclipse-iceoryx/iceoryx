@@ -345,9 +345,6 @@ bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(Process
         sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::TERMINATION_ACK);
         processIter->sendViaIpcChannel(sendBuffer);
 
-        // Give the app some time to shutdown gracefully
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
         processIter = m_processList.erase(processIter); // delete application
         return true;
     }
