@@ -55,7 +55,7 @@ class ProcessManager_test : public Test
 
     const iox::ProcessName_t m_processname{"TestProcess"};
     const pid_t m_pid{42U};
-    PosixUser m_user{1U};
+    PosixUser m_user{iox::posix::PosixUser::getUserOfCurrentProcess().getName()};
     const bool m_isMonitored{true};
     VersionInfo m_versionInfo{42U, 42U, 42U, 42U, "Foo", "Bar"};
     CompatibilityCheckLevel m_compLevel;
