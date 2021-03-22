@@ -297,7 +297,7 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
     // set current timestamp again (already done in Process's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock_t::now());
 
-    m_processIntrospection->addProcess(pid, ProcessName_t(cxx::TruncateToCapacity, name.c_str()));
+    m_processIntrospection->addProcess(static_cast<int>(pid), ProcessName_t(cxx::TruncateToCapacity, name.c_str()));
 
     LogDebug() << "Registered new application " << name;
     return true;
