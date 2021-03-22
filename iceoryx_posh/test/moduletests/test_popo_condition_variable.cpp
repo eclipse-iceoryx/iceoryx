@@ -129,11 +129,11 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThread
     std::atomic<int> counter{0};
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
+        IOX_DISCARD_RESULT(m_syncSemaphore.post());
         m_waiter.wait();
         EXPECT_THAT(counter, Eq(1));
     });
-    m_syncSemaphore.wait();
+    IOX_DISCARD_RESULT(m_syncSemaphore.wait());
     counter++;
     m_signaler.notify();
     waiter.join();
@@ -146,11 +146,11 @@ TEST_F(ConditionVariable_test, ResetResultsInBlockingWaitMultiThreaded)
     m_waiter.resetSemaphore();
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
+        IOX_DISCARD_RESULT(m_syncSemaphore.post());
         m_waiter.wait();
         EXPECT_THAT(counter, Eq(1));
     });
-    m_syncSemaphore.wait();
+    IOX_DISCARD_RESULT(m_syncSemaphore.wait());
     counter++;
     m_signaler.notify();
     waiter.join();
@@ -162,11 +162,11 @@ TEST_F(ConditionVariable_test, ResetWithoutNotifiyResultsInBlockingWaitMultiThre
     m_waiter.resetSemaphore();
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
+        IOX_DISCARD_RESULT(m_syncSemaphore.post());
         m_waiter.wait();
         EXPECT_THAT(counter, Eq(1));
     });
-    m_syncSemaphore.wait();
+    IOX_DISCARD_RESULT(m_syncSemaphore.wait());
     counter++;
     m_signaler.notify();
     waiter.join();
@@ -177,11 +177,11 @@ TEST_F(ConditionVariable_test, NotifyWhileWaitingResultsNoTimeoutMultiThreaded)
     std::atomic<int> counter{0};
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
+        IOX_DISCARD_RESULT(m_syncSemaphore.post());
         EXPECT_TRUE(m_waiter.timedWait(10_ms));
         EXPECT_THAT(counter, Eq(1));
     });
-    m_syncSemaphore.wait();
+    IOX_DISCARD_RESULT(m_syncSemaphore.wait());
     counter++;
     m_signaler.notify();
     waiter.join();
@@ -340,14 +340,14 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
     watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
-        threadSetupSemaphore.post();
+        IOX_DISCARD_RESULT(threadSetupSemaphore.post());
         activeNotifications = listener.waitForNotifications();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
         EXPECT_THAT(activeNotifications[0], Eq(EVENT_INDEX));
     });
 
-    threadSetupSemaphore.wait();
+    IOX_DISCARD_RESULT(threadSetupSemaphore.wait());
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(hasWaited, Eq(false));
     notifier.notify();
@@ -381,7 +381,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
     watchdogSecondWait.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
-        threadSetupSemaphore.post();
+        IOX_DISCARD_RESULT(threadSetupSemaphore.post());
         activeNotifications = listener.waitForNotifications();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
@@ -392,7 +392,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
         }
     });
 
-    threadSetupSemaphore.wait();
+    IOX_DISCARD_RESULT(threadSetupSemaphore.wait());
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(hasWaited, Eq(false));
     notifier1.notify();

@@ -103,7 +103,7 @@ UserTrigger* iox_event_info_test::m_lastEventCallbackArgument = nullptr;
 TEST_F(iox_event_info_test, eventInfoHasCorrectId)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 123U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -115,7 +115,7 @@ TEST_F(iox_event_info_test, eventInfoHasCorrectId)
 TEST_F(iox_event_info_test, eventOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 124U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -150,7 +150,7 @@ TEST_F(iox_event_info_test, eventOriginIsSubscriberPointerWhenItsOriginatingFrom
 TEST_F(iox_event_info_test, eventOriginIsNotSubscriberPointerWhenItsOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 8921U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -162,7 +162,7 @@ TEST_F(iox_event_info_test, eventOriginIsNotSubscriberPointerWhenItsOriginatingF
 TEST_F(iox_event_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 89121U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -198,7 +198,8 @@ TEST_F(iox_event_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFr
 TEST_F(iox_event_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 891121U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback);
+    ASSERT_FALSE(
+        m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback).has_error());
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -209,7 +210,8 @@ TEST_F(iox_event_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingF
 TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 80U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback);
+    ASSERT_FALSE(
+        m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback).has_error());
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -221,7 +223,8 @@ TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
 TEST_F(iox_event_info_test, callbackCanBeCalledMultipleTimes)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 180U;
-    m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback);
+    ASSERT_FALSE(
+        m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback).has_error());
     m_userTrigger.trigger();
     auto eventInfoVector = m_waitSet.wait();
 

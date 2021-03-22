@@ -76,7 +76,7 @@ class PortManager_test : public Test
 
         auto config = iox::RouDiConfig_t().setDefaults();
         m_roudiMemoryManager = new IceOryxRouDiMemoryManager(config);
-        m_roudiMemoryManager->createAndAnnounceMemory();
+        EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
         auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
