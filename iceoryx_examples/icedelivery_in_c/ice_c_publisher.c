@@ -37,19 +37,19 @@ void sending()
 {
     iox_runtime_init("iox-c-publisher");
 
-    const uint64_t historyCapacity = 10U;
-    const char* const nodeName = "iox-c-publisher-node";
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+    options.historyCapacity = 10U;
+    options.nodeName = "iox-c-publisher-node";
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", historyCapacity, nodeName);
-
-    iox_pub_offer(publisher);
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", &options);
 
     double ct = 0.0;
 
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct RadarObject)))
+        if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &chunk, sizeof(struct RadarObject)))
         {
             struct RadarObject* sample = (struct RadarObject*)chunk;
 
@@ -59,7 +59,7 @@ void sending()
 
             printf("Sent value: %.0f\n", ct);
 
-            iox_pub_send_chunk(publisher, chunk);
+            iox_pub_publish_chunk(publisher, chunk);
 
             ++ct;
 
@@ -71,7 +71,6 @@ void sending()
         }
     }
 
-    iox_pub_stop_offer(publisher);
     iox_pub_deinit(publisher);
 }
 

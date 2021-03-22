@@ -39,7 +39,7 @@ struct iox_user_trigger_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(UserTrigger) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[16];
+    uint64_t do_not_touch_me[17];
 #else
     uint64_t do_not_touch_me[14];
 #endif
@@ -51,7 +51,7 @@ struct iox_sub_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(cpp2c_Subscriber) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[16];
+    uint64_t do_not_touch_me[17];
 #else
     uint64_t do_not_touch_me[14];
 #endif

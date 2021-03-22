@@ -19,6 +19,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
@@ -47,6 +48,7 @@ enum class PortPoolError : uint8_t
     APPLICATION_PORT_LIST_FULL,
     NODE_DATA_LIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
+    EVENT_VARIABLE_LIST_FULL,
 };
 
 class PortPool
@@ -66,6 +68,7 @@ class PortPool
     cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
     cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
     getConditionVariableDataList() noexcept;
+    cxx::vector<popo::EventVariableData*, MAX_NUMBER_OF_EVENT_VARIABLES> getEventVariableDataList() noexcept;
 
     cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,
@@ -104,12 +107,15 @@ class PortPool
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     addConditionVariableData(const ProcessName_t& process) noexcept;
 
+    cxx::expected<popo::EventVariableData*, PortPoolError> addEventVariableData(const ProcessName_t& process) noexcept;
+
     void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept;
     void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;
     void removeInterfacePort(popo::InterfacePortData* const portData) noexcept;
     void removeApplicationPort(popo::ApplicationPortData* const portData) noexcept;
     void removeNodeData(runtime::NodeData* const nodeData) noexcept;
     void removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept;
+    void removeEventVariableData(popo::EventVariableData* const eventVariableData) noexcept;
 
     std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
 

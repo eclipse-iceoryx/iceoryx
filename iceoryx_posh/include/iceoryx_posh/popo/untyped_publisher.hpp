@@ -47,7 +47,7 @@ class UntypedPublisherImpl : public base_publisher_t
     cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
 
     ///
-    /// @brief loanPreviousChunk Get the previously loanded chunk if possible.
+    /// @brief loanPreviousChunk Get the previously loaned chunk if possible.
     /// @return A pointer to the previous chunk if available, nullopt otherwise.
     ///
     cxx::optional<void*> loanPreviousChunk() noexcept;
@@ -58,6 +58,16 @@ class UntypedPublisherImpl : public base_publisher_t
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
     void publish(const void* chunk) noexcept;
+
+    ///
+    /// @brief Releases the ownership of the chunk provided by the payload pointer.
+    /// @param chunk pointer to the payload of the chunk to be released
+    /// @details The chunk must have been previously provided by loan or loanPreviousChunk
+    ///          and not have been already released.
+    ///          The chunk must not be accessed afterwards as its memory may have
+    ///          been reclaimed.
+    ///
+    void release(const void* chunk) noexcept;
 
   protected:
     using base_publisher_t::port;

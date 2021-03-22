@@ -113,10 +113,8 @@ iox::capro::IdString instance{iox::cxx::TruncateToCapacity, instanceName};
 iox::popo::Publisher<CounterTopic> publisher({"Group", instance, "Counter"});
 ```
 
-After construction, we immediately offer the topic and start sending data.
+After construction, we immediately start sending data.
 ```cpp
-publisher.offer();
-
 for (uint32_t counter = 0U; !killswitch; ++counter)
 {
     CounterTopic data{counter, id};
@@ -150,11 +148,6 @@ We create a subscriber via
 iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
 ```
 
-and immediately subscribe.
-```cpp
-subscriber.subscribe();
-```
-
 Notice that all identifiers match the ones provided by the two publishers.
 
 We periodically wake up
@@ -184,10 +177,7 @@ and wait for some time before looking for data again.
 std::cout << "Waiting for data ... " << std::endl;
 ```
 
-When Ctrl+C is pressed we exit the loop and unsubscribe
-```cpp
-subscriber.unsubscribe();
-```
+When Ctrl+C is pressed we exit the loop
 
 before joining the receiver thread
 ```cpp

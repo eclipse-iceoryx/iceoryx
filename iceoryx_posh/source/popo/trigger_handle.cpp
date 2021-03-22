@@ -16,15 +16,24 @@
 
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
 
 namespace iox
 {
 namespace popo
 {
-TriggerHandle::TriggerHandle(ConditionVariableData* const conditionVariableDataPtr,
+TriggerHandle::TriggerHandle(EventVariableData& eventVariableDataRef,
                              const cxx::MethodCallback<void, uint64_t> resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
-    : m_conditionVariableDataPtr(conditionVariableDataPtr)
+    : TriggerHandle(static_cast<ConditionVariableData&>(eventVariableDataRef), resetCallback, uniqueTriggerId)
+{
+    m_doesContainEventVariable = true;
+}
+
+TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableDataPtr,
+                             const cxx::MethodCallback<void, uint64_t> resetCallback,
+                             const uint64_t uniqueTriggerId) noexcept
+    : m_conditionVariableDataPtr(&conditionVariableDataPtr)
     , m_resetCallback(resetCallback)
     , m_uniqueTriggerId(uniqueTriggerId)
 {
@@ -48,6 +57,7 @@ TriggerHandle& TriggerHandle::operator=(TriggerHandle&& rhs) noexcept
         m_conditionVariableDataPtr = std::move(rhs.m_conditionVariableDataPtr);
         m_resetCallback = std::move(rhs.m_resetCallback);
         m_uniqueTriggerId = rhs.m_uniqueTriggerId;
+        m_doesContainEventVariable = rhs.m_doesContainEventVariable;
 
         rhs.invalidate();
     }
@@ -78,7 +88,15 @@ void TriggerHandle::trigger() noexcept
 
     if (isValid())
     {
-        ConditionVariableSignaler(m_conditionVariableDataPtr).notifyOne();
+        if (m_doesContainEventVariable)
+        {
+            EventNotifier(*reinterpret_cast<EventVariableData*>(m_conditionVariableDataPtr), m_uniqueTriggerId)
+                .notify();
+        }
+        else
+        {
+            ConditionVariableSignaler(m_conditionVariableDataPtr).notifyOne();
+        }
     }
 }
 
@@ -102,7 +120,7 @@ void TriggerHandle::invalidate() noexcept
 
     m_conditionVariableDataPtr = nullptr;
     m_resetCallback = cxx::MethodCallback<void, uint64_t>();
-    m_uniqueTriggerId = 0U;
+    m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
 }
 
 ConditionVariableData* TriggerHandle::getConditionVariableData() noexcept
@@ -117,6 +135,11 @@ uint64_t TriggerHandle::getUniqueId() const noexcept
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     return m_uniqueTriggerId;
+}
+
+bool TriggerHandle::doesContainEventVariable() const noexcept
+{
+    return m_doesContainEventVariable;
 }
 
 } // namespace popo

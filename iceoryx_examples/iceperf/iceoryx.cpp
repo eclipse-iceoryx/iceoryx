@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,9 +38,6 @@ void Iceoryx::initFollower() noexcept
 
 void Iceoryx::init() noexcept
 {
-    m_publisher.offer();
-    m_subscriber.subscribe();
-
     std::cout << "Waiting for: subscription" << std::flush;
     while (m_subscriber.getSubscriptionState() != iox::SubscribeState::SUBSCRIBED)
     {
@@ -91,7 +89,7 @@ PerfTopic Iceoryx::receivePerfTopic() noexcept
         m_subscriber.take().and_then([&](const void* data) {
             receivedSample = *(static_cast<const PerfTopic*>(data));
             hasReceivedSample = true;
-            m_subscriber.releaseChunk(data);
+            m_subscriber.release(data);
         });
     } while (!hasReceivedSample);
 

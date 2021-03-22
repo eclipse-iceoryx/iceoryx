@@ -88,22 +88,7 @@ inline bool BaseSubscriber<port_t>::hasMissedData() noexcept
 template <typename port_t>
 inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> BaseSubscriber<port_t>::takeChunk() noexcept
 {
-    auto result = m_port.tryGetChunk();
-    if (result.has_error())
-    {
-        return cxx::error<ChunkReceiveResult>(result.get_error());
-    }
-    else
-    {
-        auto maybeHeader = result.value();
-        if (maybeHeader.has_value())
-        {
-            return cxx::success<const mepoo::ChunkHeader*>(maybeHeader.value());
-        }
-    }
-    ///@todo: optimization - we could move this to a tryGetChunk but then we should remove expected<optional<>> there in
-    /// the call chain
-    return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
+    return m_port.tryGetChunk();
 }
 
 template <typename port_t>
@@ -128,7 +113,15 @@ inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& trigg
 
 {
     m_trigger = std::move(triggerHandle);
-    m_port.setConditionVariable(m_trigger.getConditionVariableData());
+    if (m_trigger.doesContainEventVariable())
+    {
+        m_port.setEventVariable(*reinterpret_cast<EventVariableData*>(m_trigger.getConditionVariableData()),
+                                m_trigger.getUniqueId());
+    }
+    else
+    {
+        m_port.setConditionVariable(m_trigger.getConditionVariableData());
+    }
 }
 
 

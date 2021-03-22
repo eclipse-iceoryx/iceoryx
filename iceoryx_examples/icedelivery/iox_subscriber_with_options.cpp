@@ -37,16 +37,29 @@ int main()
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-with-history");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-with-options");
 
-    // initialized subscriber
+    // create subscriber with some options set
     iox::popo::SubscriberOptions subscriberOptions;
+
+    // the queue can hold 10 samples, on overflow the oldest sample will be replaced with the new arriving one
     subscriberOptions.queueCapacity = 10U;
+
     // When starting the subscriber late it will miss the first samples which the
-    // publisher has send. The history ensures that we at least get the last 5
-    // samples sent by the publisher when we subscribe (if at least 5 were already sent).
+    // publisher has send. The history request ensures that we at least get the last 5
+    // samples sent by the publisher when we subscribe (if at least 5 were already sent
+    // and the publisher has history enabled).
     subscriberOptions.historyRequest = 5U;
+
+    // when the subscriber is created, no attempts are made to connect to any publishers that may exist
+    subscriberOptions.subscribeOnCreate = false;
+
+    // grouping of publishers and subscribers within a process
+    subscriberOptions.nodeName = "Sub_Node_With_Options";
+
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+
+    // We have to explicitly call subscribe() otherwise the subscriber will not try to connect to publishers
     subscriber.subscribe();
 
     // run until interrupted by Ctrl-C

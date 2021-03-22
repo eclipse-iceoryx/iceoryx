@@ -55,12 +55,14 @@ class UntypedSubscriberImpl : public base_subscriber_t
     cxx::expected<const void*, ChunkReceiveResult> take() noexcept;
 
     ///
-    /// @brief Releases the chunk provided by the payload pointer.
-    /// @param payload pointer to the payload of the chunk to be released
+    /// @brief Releases the ownership of the chunk provided by the payload pointer.
+    /// @param chunk pointer to the payload of the chunk to be released
     /// @details The chunk must have been previously provided by take and
     ///          not have been already released.
+    ///          The chunk must not be accessed afterwards as its memory may have
+    ///          been reclaimed.
     ///
-    void releaseChunk(const void* payload) noexcept;
+    void release(const void* chunk) noexcept;
 
   protected:
     using BaseSubscriber::port;

@@ -145,7 +145,7 @@ iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER>;
 waitset.attachEvent(shutdownTrigger);
 ```
 
-After that we create a vector to hold our subscribers, we create, subscribe and then
+After that we create a vector to hold our subscribers, we create and then
 attach them to a _WaitSet_ with the `HAS_DATA` event and the `subscriberCallback`.
 Everytime one 
 of the subscribers is receiving a new sample it will trigger the _WaitSet_.
@@ -156,7 +156,6 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
 
-    subscriber.subscribe();
     waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, &subscriberCallback);
 }
 ```
@@ -202,15 +201,13 @@ iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 waitset.attachEvent(shutdownTrigger);
 ```
 
-Now we create a vector of 4 subscribers and subscribe them to our topic.
+Now we create a vector of 4 subscribers.
 ```cpp
 iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
-
-    subscriber.subscribe();
 }
 ```
 
@@ -282,14 +279,11 @@ iox::popo::WaitSet waitset<>;
 waitset.attachEvent(shutdownTrigger);
 ```
 
-Additionally, we create two subscribers, subscribe them to our topic and attach
+Additionally, we create two subscribers and attach
 them to the waitset to let them inform us whenever they receive a new sample.
 ```cpp
 iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
 iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
-
-subscriber1.subscribe();
-subscriber2.subscribe();
 
 waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_DATA);
 waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_DATA);

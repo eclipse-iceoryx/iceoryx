@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <cstdint>
 #include <iostream>
+#include <limits>
 #include <type_traits>
 
 namespace iox
@@ -41,6 +42,31 @@ Require(const bool condition, const char* file, const int line, const char* func
         std::terminate();
     }
 }
+
+/// @brief struct to find the best fitting unsigned integer type
+template <bool GreaterUint8, bool GreaterUint16, bool GreaterUint32>
+struct bestFittingTypeImpl
+{
+    using Type_t = uint64_t;
+};
+
+template <>
+struct bestFittingTypeImpl<false, false, false>
+{
+    using Type_t = uint8_t;
+};
+
+template <>
+struct bestFittingTypeImpl<true, false, false>
+{
+    using Type_t = uint16_t;
+};
+
+template <>
+struct bestFittingTypeImpl<true, true, false>
+{
+    using Type_t = uint32_t;
+};
 } // namespace internal
 
 // implementing C++ Core Guideline, I.6. Prefer Expects
@@ -182,6 +208,20 @@ auto enumTypeAsUnderlyingType(enum_type const value) -> typename std::underlying
     return static_cast<typename std::underlying_type<enum_type>::type>(value);
 }
 
+/// calls a given functor for every element in a given container
+/// @tparam[in] Container type which must be iteratable
+/// @tparam[in] Functor which has one argument, the element type of the container
+/// @param[in] c container which should be iterated
+/// @param[in] f functor which should be applied to every element
+template <typename Container, typename Functor>
+void forEach(Container& c, const Functor& f) noexcept
+{
+    for (auto& element : c)
+    {
+        f(element);
+    }
+}
+
 /// @brief Get the size of a string represented by a char array at compile time.
 /// @tparam The size of the char array filled out by the compiler.
 /// @param[in] The actual content of the char array is not of interest. Its just the size of the array that matters.
@@ -191,6 +231,22 @@ static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
 {
     return SizeValue - 1;
 }
+
+/// @brief get the best fitting unsigned integer type for a given value at compile time
+template <uint64_t Value>
+struct bestFittingType
+{
+/// ignore the warnings because we need the comparisons to find the best fitting type
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+    using Type_t = typename internal::bestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
+                                                          (Value > std::numeric_limits<uint16_t>::max()),
+                                                          (Value > std::numeric_limits<uint32_t>::max())>::Type_t;
+#pragma GCC diagnostic pop
+};
+
+template <uint64_t Value>
+using BestFittingType_t = typename bestFittingType<Value>::Type_t;
 
 /// @brief if a function has a return value which you do not want to use then you can wrap the function with that macro.
 /// Purpose is to suppress the unused compiler warning by adding an attribute to the return value

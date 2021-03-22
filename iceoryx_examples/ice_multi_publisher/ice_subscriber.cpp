@@ -36,8 +36,6 @@ void receive()
 
     iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"}, subscriberOptions);
 
-    subscriber.subscribe();
-
     while (!killswitch)
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -50,7 +48,6 @@ void receive()
         };
         std::cout << "Waiting for data ... " << std::endl;
     }
-    subscriber.unsubscribe();
 }
 
 int main()

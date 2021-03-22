@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,8 +81,8 @@ class ChunkReceiver_test : public Test
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
 {
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
-    EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_FALSE((*maybeChunkHeader).has_value());
+    ASSERT_TRUE(maybeChunkHeader.has_error());
+    EXPECT_EQ(maybeChunkHeader.get_error(), iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE);
 }
 
 TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
@@ -94,11 +95,10 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE((*maybeChunkHeader).has_value());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
 
-        EXPECT_TRUE(sharedChunk.getPayload() == (**maybeChunkHeader)->payload());
-        m_chunkReceiver.release(**maybeChunkHeader);
+        EXPECT_TRUE(sharedChunk.getPayload() == (*maybeChunkHeader)->payload());
+        m_chunkReceiver.release(*maybeChunkHeader);
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
@@ -119,9 +119,8 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE((*maybeChunkHeader).has_value());
-        chunks.push_back(**maybeChunkHeader);
+        ASSERT_FALSE(maybeChunkHeader.has_error());
+        chunks.push_back(*maybeChunkHeader);
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY));
@@ -150,8 +149,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE((*maybeChunkHeader).has_value());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
     }
 
     // but now it breaks
@@ -161,7 +159,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
     m_chunkQueuePusher.push(sharedChunk);
 
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
-    EXPECT_TRUE(maybeChunkHeader.has_error());
+    ASSERT_TRUE(maybeChunkHeader.has_error());
     EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
 }
 
@@ -175,10 +173,8 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
         m_chunkQueuePusher.push(sharedChunk);
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE((*maybeChunkHeader).has_value());
-
-        EXPECT_TRUE(sharedChunk.getPayload() == (**maybeChunkHeader)->payload());
+        ASSERT_FALSE(maybeChunkHeader.has_error());
+        EXPECT_TRUE(sharedChunk.getPayload() == (*maybeChunkHeader)->payload());
     }
 
     auto errorHandlerCalled{false};
@@ -206,8 +202,7 @@ TEST_F(ChunkReceiver_test, Cleanup)
         if (i < iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY)
         {
             auto maybeChunkHeader = m_chunkReceiver.tryGet();
-            EXPECT_FALSE(maybeChunkHeader.has_error());
-            EXPECT_TRUE((*maybeChunkHeader).has_value());
+            ASSERT_FALSE(maybeChunkHeader.has_error());
         }
     }
 
