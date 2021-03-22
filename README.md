@@ -52,6 +52,7 @@ An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Oth
 | [eCAL](https://github.com/continental/ecal) | Open-source framework from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
+| [Apex.OS](https://www.apex.ai/apex-os) | Safe and certified software framework for autonomous mobility systems. |
 
 ## Build and install
 
