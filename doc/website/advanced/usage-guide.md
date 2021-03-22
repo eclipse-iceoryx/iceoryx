@@ -7,10 +7,10 @@ Based on the [conceptual guide](../../conceptual-guide.md) the end-user may want
 
 Iceoryx ships a library for RouDi named in cmake `iceoryx_posh_roudi`. This lib gives you an API for compiling your own RouDi application if needed and is part of `iceoryx_posh`. 
 
-**NOTE**
-The chunk size for the mempool needs to follow these restrictions:
-1. Chunksize needs to be greater than the alignment
-2. Chunksize needs to be a multiple of alignment
+!!! note
+    The chunk size for the mempool needs to follow these restrictions:
+    1. Chunksize needs to be greater than the alignment
+    2. Chunksize needs to be a multiple of alignment
 
 The value for the alignment is set to 32.
 
