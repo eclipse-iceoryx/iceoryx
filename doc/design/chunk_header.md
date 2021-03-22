@@ -121,18 +121,18 @@ payloadOffset = sizeof(ChunkHeader);
 
 ```
 headerEndAddress = addressof(chunkHeader) + sizeof(chunkHeader);
-payloadAddress = align(headerEndAddress, payloadAlignment);
-payloadOffset = payloadAddress - addressof(chunkHeader);
+alignedPayloadAddress = align(headerEndAddress, payloadAlignment);
+payloadOffset = alignedPayloadAddress - addressof(chunkHeader);
 ```
 
 3. Custom header is used
 
 ```
 headerEndAddress = addressof(chunkHeader) + sizeof(chunkHeader) + sizeof(customHeader);
-potentialBackOffsetAddress = align(headerEndAddress, alignof(payloadOffset));
-potentialPayloadAddress = potentialBackOffsetAddress + sizeof(payloadOffset);
-payloadAddress = align(potentialPayloadAddress, payloadAlignment);
-payloadOffset = payloadAddress - addressof(chunkHeader);
+anticipatedBackOffsetAddress = align(headerEndAddress, alignof(payloadOffset));
+unalignedPayloadAddress = anticipatedBackOffsetAddress + sizeof(payloadOffset);
+alignedPayloadAddress = align(unalignedPayloadAddress, payloadAlignment);
+payloadOffset = alignedPayloadAddress - addressof(chunkHeader);
 ```
 
 #### Required Chunk Size Calculation

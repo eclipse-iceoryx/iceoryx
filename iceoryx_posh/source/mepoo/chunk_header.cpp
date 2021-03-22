@@ -73,11 +73,11 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize,
         // the most complex case with a custom header
         auto addressOfChunkHeader = reinterpret_cast<uint64_t>(this);
         uint64_t headerEndAddress = addressOfChunkHeader + sizeof(ChunkHeader) + customHeaderSize;
-        uint64_t potentialBackOffsetAddress =
+        uint64_t anticipatedBackOffsetAddress =
             iox::cxx::align(headerEndAddress, static_cast<uint64_t>(alignof(PayloadOffset_t)));
-        uint64_t potentialPayloadAddress = potentialBackOffsetAddress + sizeof(PayloadOffset_t);
+        uint64_t unalignedPayloadAddress = anticipatedBackOffsetAddress + sizeof(PayloadOffset_t);
         uint64_t alignedPayloadAddress =
-            iox::cxx::align(potentialPayloadAddress, static_cast<uint64_t>(payloadAlignment));
+            iox::cxx::align(unalignedPayloadAddress, static_cast<uint64_t>(payloadAlignment));
         uint64_t offsetToPayload = alignedPayloadAddress - addressOfChunkHeader;
         // the cast is safe since payloadOffset and payloadAlignment have the same type and since the alignment must
         // be a power of 2, the max alignment is about half of the max value the type can hold
@@ -89,8 +89,8 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize,
         //     -> the payload is adjacent to the back-offset and therefore this also works
         //   - or the alignment of the PayloadOffset_t is smaller than payloadAlignment
         //     -> the back-offset can be put adjacent to to the Topic since the smaller alignment always fits
-        auto addressOfBackOffset = alignedPayloadAddress - sizeof(PayloadOffset_t);
-        auto backOffset = reinterpret_cast<PayloadOffset_t*>(addressOfBackOffset);
+        auto backOffsetAddress = alignedPayloadAddress - sizeof(PayloadOffset_t);
+        auto backOffset = reinterpret_cast<PayloadOffset_t*>(backOffsetAddress);
         *backOffset = payloadOffset;
     }
 
