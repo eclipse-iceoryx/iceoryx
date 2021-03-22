@@ -23,29 +23,35 @@
 #include <csignal>
 #include <iostream>
 
-bool killswitch = false;
+bool keepRunning = true;
+constexpr char APP_NAME[] = "iox-ex-callbacks-publisher";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    killswitch = true;
+    keepRunning = false;
 }
 
 void sending()
 {
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-publisher");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
-    myPublisher.offer();
+    iox::popo::Publisher<CounterTopic> myPublisherLeft({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Publisher<CounterTopic> myPublisherRight({"Radar", "FrontRight", "Counter"});
 
-    for (uint32_t counter = 0U; !killswitch; ++counter)
+    for (uint32_t counter = 0U; keepRunning; ++counter)
     {
-        myPublisher.publishCopyOf(CounterTopic{counter});
-        std::cout << "Sending: " << counter << std::endl;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        if (counter % 3 == 0)
+        {
+            std::cout << "Radar.FrontLeft.Counter sending : " << counter << std::endl;
+            myPublisherLeft.publishCopyOf(CounterTopic{counter});
+        }
+        else
+        {
+            std::cout << "Radar.FrontRight.Counter sending : " << counter * 2 << std::endl;
+            myPublisherRight.publishCopyOf(CounterTopic{counter * 2});
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-
-    myPublisher.stopOffer();
 }
 
 int main()
@@ -53,8 +59,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    std::thread tx(sending);
-    tx.join();
+    sending();
 
     return (EXIT_SUCCESS);
 }

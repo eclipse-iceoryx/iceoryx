@@ -14,29 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_utils/platform/fcntl.hpp"
 
-#include "iceoryx_posh/internal/popo/building_blocks/event_variable_data.hpp"
-
-namespace iox
+int iox_open(const char* pathname, int flags, mode_t mode)
 {
-namespace popo
-{
-EventVariableData::EventVariableData() noexcept
-{
-    for (auto& id : m_activeNotifications)
-    {
-        id.store(false, std::memory_order_relaxed);
-    }
+    return open(pathname, flags, mode);
 }
-
-EventVariableData::EventVariableData(const ProcessName_t& process) noexcept
-    : ConditionVariableData(process)
-{
-    for (auto& id : m_activeNotifications)
-    {
-        id.store(false, std::memory_order_relaxed);
-    }
-}
-} // namespace popo
-} // namespace iox
-

@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +21,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -163,7 +164,7 @@ TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 {
     ConditionVariableData condVar("Horscht");
 
-    this->m_popper.setConditionVariable(&condVar);
+    this->m_popper.setConditionVariable(condVar, 0U);
 
     EXPECT_THAT(this->m_popper.isConditionVariableSet(), Eq(true));
 }
@@ -171,9 +172,9 @@ TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
 {
     ConditionVariableData condVar("Horscht");
-    ConditionVariableWaiter condVarWaiter{&condVar};
+    ConditionListener condVarWaiter{condVar};
 
-    this->m_popper.setConditionVariable(&condVar);
+    this->m_popper.setConditionVariable(condVar, 0U);
 
     auto chunk = this->allocateChunk();
     this->m_pusher.push(chunk);
@@ -186,11 +187,11 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 {
     ConditionVariableData condVar1("Horscht");
     ConditionVariableData condVar2("Schnuppi");
-    ConditionVariableWaiter condVarWaiter1{&condVar1};
-    ConditionVariableWaiter condVarWaiter2{&condVar2};
+    ConditionListener condVarWaiter1{condVar1};
+    ConditionListener condVarWaiter2{condVar2};
 
-    this->m_popper.setConditionVariable(&condVar1);
-    this->m_popper.setConditionVariable(&condVar2);
+    this->m_popper.setConditionVariable(condVar1, 0U);
+    this->m_popper.setConditionVariable(condVar2, 1U);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
     EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));

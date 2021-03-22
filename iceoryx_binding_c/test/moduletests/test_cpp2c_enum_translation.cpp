@@ -79,3 +79,16 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
     EXPECT_EQ(cpp2c::WaitSetResult(static_cast<iox::popo::WaitSetError>(-1)), WaitSetResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
+
+TEST(cpp2c_enum_translation_test, ListenerResult)
+{
+    EXPECT_EQ(cpp2c::ListenerResult(iox::popo::ListenerError::LISTENER_FULL), ListenerResult_LISTENER_FULL);
+    EXPECT_EQ(cpp2c::ListenerResult(iox::popo::ListenerError::EVENT_ALREADY_ATTACHED),
+              ListenerResult_EVENT_ALREADY_ATTACHED);
+
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::ListenerResult(static_cast<iox::popo::ListenerError>(-1)), ListenerResult_UNDEFINED_ERROR);
+#pragma GCC diagnostic pop
+}

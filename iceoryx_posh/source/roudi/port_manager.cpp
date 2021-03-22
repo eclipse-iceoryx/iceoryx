@@ -129,8 +129,6 @@ void PortManager::doDiscovery() noexcept
     handleNodes();
 
     handleConditionVariables();
-
-    handleEventVariables();
 }
 
 void PortManager::handlePublisherPorts() noexcept
@@ -364,18 +362,6 @@ void PortManager::handleConditionVariables() noexcept
     }
 }
 
-void PortManager::handleEventVariables() noexcept
-{
-    for (auto eventVariableData : m_portPool->getEventVariableDataList())
-    {
-        if (eventVariableData->m_toBeDestroyed.load(std::memory_order_relaxed))
-        {
-            m_portPool->removeEventVariableData(eventVariableData);
-            LogDebug() << "Destroyed EventVariableData";
-        }
-    }
-}
-
 bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
                                                   SubscriberPortType& subscriberSource) noexcept
 {
@@ -511,15 +497,6 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
         {
             m_portPool->removeConditionVariableData(conditionVariableData);
             LogDebug() << "Deleted condition variable of application" << processName;
-        }
-    }
-
-    for (auto eventVariableData : m_portPool->getEventVariableDataList())
-    {
-        if (processName == eventVariableData->m_process)
-        {
-            m_portPool->removeEventVariableData(eventVariableData);
-            LogDebug() << "Deleted event variable of application" << processName;
         }
     }
 }
@@ -722,12 +699,6 @@ cxx::expected<popo::ConditionVariableData*, PortPoolError>
 PortManager::acquireConditionVariableData(const ProcessName_t& process) noexcept
 {
     return m_portPool->addConditionVariableData(process);
-}
-
-cxx::expected<popo::EventVariableData*, PortPoolError>
-PortManager::acquireEventVariableData(const ProcessName_t& process) noexcept
-{
-    return m_portPool->addEventVariableData(process);
 }
 
 } // namespace roudi

@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +34,9 @@ void cpp2c_Subscriber::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
     static_cast<void>(subscriberEvent);
 
     m_trigger = std::move(triggerHandle);
-    iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
+
+    iox::popo::SubscriberPortUser(m_portData)
+        .setConditionVariable(*m_trigger.getConditionVariableData(), m_trigger.getUniqueId());
 }
 
 iox::popo::WaitSetHasTriggeredCallback

@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,18 +46,6 @@ TEST(TypeTraitsTest, HasSignatureResolvesToFalse)
 {
     auto lambda = [](float foo) -> float { return foo++; };
     auto sut = has_signature<decltype(lambda), void(void)>::value;
-    EXPECT_FALSE(sut);
-}
-
-TEST(TypeTraitsTest, NotSameIsTrue)
-{
-    auto sut = not_same<int, float>::value;
-    EXPECT_TRUE(sut);
-}
-
-TEST(TypeTraitsTest, NotSameIsFalse)
-{
-    auto sut = not_same<int, int>::value;
     EXPECT_FALSE(sut);
 }
 

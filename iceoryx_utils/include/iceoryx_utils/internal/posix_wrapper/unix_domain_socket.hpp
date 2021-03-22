@@ -139,7 +139,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
-    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
+    IpcChannelError convertErrnoToIpcChannelError(const int32_t errnum) const noexcept;
 
     static bool isNameValid(const UdsName_t& name) noexcept;
 
