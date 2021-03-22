@@ -268,9 +268,12 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 
     Subscribe(m_subscriber[0U]);
-    m_chunkPusher[0U].push(m_memoryManager.getChunk(100U));
+    constexpr uint32_t PAYLOAD_SIZE{100U};
+    m_chunkPusher[0U].push(m_memoryManager.getChunk(PAYLOAD_SIZE,
+                                                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT));
 
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
 });
-

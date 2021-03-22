@@ -197,7 +197,11 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
     std::vector<SharedChunk> chunkBucket;
     while (true)
     {
-        auto sharedChunk = m_memoryManager.getChunk(100);
+        constexpr uint32_t PAYLOAD_SIZE{100U};
+        auto sharedChunk = m_memoryManager.getChunk(PAYLOAD_SIZE,
+                                                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
         if (sharedChunk)
             chunkBucket.emplace_back(sharedChunk);
         else
@@ -317,4 +321,3 @@ TEST(iox_pub_options_test, publisherInitializationTerminatesIfOptionsAreNotIniti
 
     EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
 }
-

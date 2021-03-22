@@ -65,9 +65,9 @@ class TypedMemPool
     static uint64_t requiredManagementMemorySize(const uint64_t f_numberOfChunks) noexcept;
     static uint64_t requiredChunkMemorySize(const uint64_t f_numberOfChunks) noexcept;
     static uint64_t requiredFullMemorySize(const uint64_t f_numberOfChunks) noexcept;
-    static uint64_t getAdjustedPayloadSize() noexcept;
 
   private:
+    static uint64_t requiredChunkSize() noexcept;
     cxx::expected<ChunkManagement*, TypedMemPoolError> acquireChunkManagementPointer() noexcept;
 
   private:

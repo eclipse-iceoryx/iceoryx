@@ -44,7 +44,8 @@ class PublisherPort_test : public Test
   protected:
     PublisherPort_test()
     {
-        m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({BIG_CHUNK, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
@@ -63,7 +64,12 @@ class PublisherPort_test : public Test
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
     uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
-    static constexpr uint32_t CHUNK_SIZE = 128;
+    static constexpr uint32_t SMALL_CHUNK = 128;
+    static constexpr uint32_t BIG_CHUNK = 256;
+
+    static constexpr uint32_t PAYLOAD_ALIGNMENT = iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT;
+    static constexpr uint32_t CUSTOM_HEADER_SIZE = iox::CHUNK_NO_CUSTOM_HEADER_SIZE;
+    static constexpr uint32_t CUSTOM_HEADER_ALIGNMENT = iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
 
     using ChunkQueueData_t = iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig, iox::popo::ThreadSafePolicy>;
 
@@ -200,17 +206,42 @@ TEST_F(PublisherPort_test,
     EXPECT_THAT(caproMessage.m_historyCapacity, Eq(iox::MAX_PUBLISHER_HISTORY));
 }
 
-TEST_F(PublisherPort_test, allocatingAChunk)
+TEST_F(PublisherPort_test, allocatingAChunkWithoutCustomHeaderAndSmallPayloadAlignmentResultsInSmallChunk)
 {
-    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(10U);
+    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
 
     EXPECT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
+TEST_F(PublisherPort_test, allocatingAChunkWithoutCustomHeaderAndLargePayloadAlignmentResultsInLargeChunk)
+{
+    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t LARGE_PAYLOAD_ALIGNMENT{SMALL_CHUNK};
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        PAYLOAD_SIZE, LARGE_PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
+}
+
+TEST_F(PublisherPort_test, allocatingAChunkWithLargeCustomHeaderResultsInLargeChunk)
+{
+    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t LARGE_HEADER_SIZE{SMALL_CHUNK};
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, LARGE_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+
+    EXPECT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
+}
+
 TEST_F(PublisherPort_test, releasingAnAllocatedChunkReleasesTheMemory)
 {
-    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(10U);
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
 
     m_sutNoOfferOnCreateUserSide.releaseChunk(chunkHeader);
@@ -221,7 +252,8 @@ TEST_F(PublisherPort_test, releasingAnAllocatedChunkReleasesTheMemory)
 
 TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
 {
-    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(10U);
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
 
     EXPECT_THAT(chunkHeader->originId, Eq(m_sutNoOfferOnCreateUserSide.getUniqueID()));
@@ -230,7 +262,8 @@ TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
 
 TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 {
-    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(10U);
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
 
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
@@ -241,13 +274,16 @@ TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 
 TEST_F(PublisherPort_test, allocateAndSendMultipleChunksWithoutSubscriberHoldsOnlyTheLast)
 {
-    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(10U);
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
-    maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(10U);
+    maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     chunkHeader = maybeChunkHeader.value();
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
-    maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(10U);
+    maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     chunkHeader = maybeChunkHeader.value();
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
 
@@ -386,7 +422,8 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0U;
     m_sutNoOfferOnCreateRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
-    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(sizeof(DummySample));
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
     auto sample = chunkHeader->payload();
     new (sample) DummySample();
@@ -412,7 +449,8 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     iox::popo::PublisherPortRouDi sutWithHistoryRouDiSide{&publisherPortDataHistory};
     // do it the ara field like way
     // 1. publish a chunk to a not yet offered publisher
-    auto maybeChunkHeader = sutWithHistoryUseriSide.tryAllocateChunk(sizeof(DummySample));
+    auto maybeChunkHeader = sutWithHistoryUseriSide.tryAllocateChunk(
+        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
     auto sample = chunkHeader->payload();
     new (sample) DummySample();
@@ -448,7 +486,8 @@ TEST_F(PublisherPort_test, noLastChunkWhenNothingSent)
 
 TEST_F(PublisherPort_test, lastChunkAvailableAfterSend)
 {
-    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(10U);
+    auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
+        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
     auto firstPayloadPtr = chunkHeader->payload();
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
@@ -464,14 +503,18 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
     // push some chunks to history
     for (size_t i = 0; i < iox::MAX_PUBLISHER_HISTORY; i++)
     {
-        auto maybeChunkHeader = m_sutWithHistoryUserSide.tryAllocateChunk(sizeof(DummySample));
+        auto maybeChunkHeader = m_sutWithHistoryUserSide.tryAllocateChunk(
+            sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
         auto chunkHeader = maybeChunkHeader.value();
         m_sutWithHistoryUserSide.sendChunk(chunkHeader);
     }
     // allocate some samples
-    auto maybeChunkHeader1 = m_sutWithHistoryUserSide.tryAllocateChunk(sizeof(DummySample));
-    auto maybeChunkHeader2 = m_sutWithHistoryUserSide.tryAllocateChunk(sizeof(DummySample));
-    auto maybeChunkHeader3 = m_sutWithHistoryUserSide.tryAllocateChunk(sizeof(DummySample));
+    auto maybeChunkHeader1 = m_sutWithHistoryUserSide.tryAllocateChunk(
+        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    auto maybeChunkHeader2 = m_sutWithHistoryUserSide.tryAllocateChunk(
+        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    auto maybeChunkHeader3 = m_sutWithHistoryUserSide.tryAllocateChunk(
+        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
 
     m_sutWithHistoryRouDiSide.releaseAllChunks();
 

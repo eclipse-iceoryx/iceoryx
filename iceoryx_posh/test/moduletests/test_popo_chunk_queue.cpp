@@ -42,19 +42,25 @@ class ChunkQueue_testBase
     {
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
-        ChunkHeader* chunkHeader = new (chunk) ChunkHeader();
+        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(),
+                                                           PAYLOAD_SIZE,
+                                                           iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                                           iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                           iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
         new (chunkMgmt) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return SharedChunk(chunkMgmt);
     }
 
-    static constexpr size_t MEGABYTE = 1 << 20;
-    static constexpr size_t MEMORY_SIZE = 4 * MEGABYTE;
+    static constexpr uint32_t PAYLOAD_SIZE{128U};
+    static constexpr size_t MEGABYTE = 1U << 20U;
+    static constexpr size_t MEMORY_SIZE = 4U * MEGABYTE;
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
-    MemPool mempool{128, 2 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
-    MemPool chunkMgmtPool{128, 2 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
+    MemPool mempool{
+        sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
+    MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
 
-    static constexpr uint32_t RESIZED_CAPACITY{5u};
+    static constexpr uint32_t RESIZED_CAPACITY{5U};
 };
 
 template <typename PolicyType, iox::cxx::VariantQueueTypes VariantQueueType>
@@ -109,7 +115,7 @@ TYPED_TEST(ChunkQueue_test, PushOneChunk)
     /// @note size not implemented on FIFO
     if (this->m_variantQueueType != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
     {
-        EXPECT_THAT(this->m_popper.size(), Eq(1u));
+        EXPECT_THAT(this->m_popper.size(), Eq(1U));
     }
 }
 
@@ -123,7 +129,7 @@ TYPED_TEST(ChunkQueue_test, PopOneChunk)
     /// @note size not implemented on FIFO
     if (this->m_variantQueueType != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
     {
-        EXPECT_THAT(this->m_popper.size(), Eq(0u));
+        EXPECT_THAT(this->m_popper.size(), Eq(0U));
     }
 }
 
@@ -228,7 +234,7 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
 /// @note API currently not supported
 TYPED_TEST(ChunkQueueFiFo_test, DISABLED_InitialSize)
 {
-    EXPECT_THAT(this->m_popper.size(), Eq(0u));
+    EXPECT_THAT(this->m_popper.size(), Eq(0U));
 }
 
 /// @note API currently not supported
@@ -246,7 +252,7 @@ TYPED_TEST(ChunkQueueFiFo_test, DISABLED_SetCapacity)
 
 TYPED_TEST(ChunkQueueFiFo_test, PushFull)
 {
-    for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
+    for (auto i = 0U; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
     {
         auto chunk = this->allocateChunk();
         this->m_pusher.push(chunk);
@@ -264,7 +270,7 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
     }
 
     // all chunks must be released
-    EXPECT_THAT(this->mempool.getUsedChunks(), Eq(0u));
+    EXPECT_THAT(this->mempool.getUsedChunks(), Eq(0U));
 }
 
 /// @note this could be changed to a parameterized ChunkQueueOverflowingFIFO_test when there are more FIFOs available
@@ -291,7 +297,7 @@ class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase
 
 TYPED_TEST(ChunkQueueSoFi_test, InitialSize)
 {
-    EXPECT_THAT(this->m_popper.size(), Eq(0u));
+    EXPECT_THAT(this->m_popper.size(), Eq(0U));
 }
 
 TYPED_TEST(ChunkQueueSoFi_test, Capacity)
@@ -323,5 +329,5 @@ TYPED_TEST(ChunkQueueSoFi_test, PushFull)
     }
 
     // all chunks must be released
-    EXPECT_THAT(this->mempool.getUsedChunks(), Eq(0u));
+    EXPECT_THAT(this->mempool.getUsedChunks(), Eq(0U));
 }

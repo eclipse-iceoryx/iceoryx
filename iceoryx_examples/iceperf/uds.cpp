@@ -111,7 +111,7 @@ void UDS::shutdown() noexcept
     if (m_sockfdPublisher != INVALID_FD)
     {
         auto closeCall = iox::cxx::makeSmartC(
-            closePlatformFileHandle, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfdPublisher);
+            iox_close, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfdPublisher);
 
         if (closeCall.hasErrors())
         {
@@ -122,7 +122,7 @@ void UDS::shutdown() noexcept
 
     if (m_sockfdSubscriber != INVALID_FD)
     {
-        auto closeCall = iox::cxx::makeSmartC(closePlatformFileHandle,
+        auto closeCall = iox::cxx::makeSmartC(iox_close,
                                               iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                               {ERROR_CODE},
                                               {},

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,8 +30,7 @@ template <typename T>
 inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
                                      posix::Allocator& f_managementAllocator,
                                      posix::Allocator& f_payloadAllocator) noexcept
-    : m_memPool(
-        static_cast<uint32_t>(getAdjustedPayloadSize()), f_numberOfChunks, f_managementAllocator, f_payloadAllocator)
+    : m_memPool(static_cast<uint32_t>(requiredChunkSize()), f_numberOfChunks, f_managementAllocator, f_payloadAllocator)
     , m_chunkManagementPool(sizeof(ChunkManagement), f_numberOfChunks, f_managementAllocator, f_managementAllocator)
 {
 }
@@ -52,9 +51,8 @@ inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acqui
         return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
-    new (chunkHeader) ChunkHeader();
-    chunkHeader->payloadSize = sizeof(T);
-
+    new (chunkHeader) ChunkHeader(
+        m_memPool.getChunkSize(), sizeof(T), alignof(T), CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
     new (chunkManagement) ChunkManagement(chunkHeader, &m_memPool, &m_chunkManagementPool);
 
     return cxx::success<ChunkManagement*>(chunkManagement);
@@ -123,11 +121,13 @@ inline uint32_t TypedMemPool<T>::getUsedChunks() const noexcept
 }
 
 template <typename T>
-inline uint64_t TypedMemPool<T>::getAdjustedPayloadSize() noexcept
+inline uint64_t TypedMemPool<T>::requiredChunkSize() noexcept
 {
-    return cxx::align(std::max(static_cast<uint64_t>(MemoryManager::sizeWithChunkHeaderStruct(sizeof(T))),
-                               posix::Allocator::MEMORY_ALIGNMENT),
-                      MemPool::MEMORY_ALIGNMENT);
+    return cxx::align(
+        std::max(static_cast<uint64_t>(MemoryManager::requiredChunkSize(
+                     sizeof(T), alignof(T), CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)),
+                 posix::Allocator::MEMORY_ALIGNMENT),
+        MemPool::MEMORY_ALIGNMENT);
 }
 
 template <typename T>
@@ -142,7 +142,7 @@ inline uint64_t TypedMemPool<T>::requiredManagementMemorySize(const uint64_t f_n
 template <typename T>
 inline uint64_t TypedMemPool<T>::requiredChunkMemorySize(const uint64_t f_numberOfChunks) noexcept
 {
-    return f_numberOfChunks * getAdjustedPayloadSize();
+    return f_numberOfChunks * requiredChunkSize();
 }
 
 template <typename T>
