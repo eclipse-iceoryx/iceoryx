@@ -14,12 +14,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
-file (STRINGS "../VERSION" iceoryx_VERSION)
-project(iceoryx VERSION ${iceoryx_VERSION})
+file (STRINGS "../VERSION" VERSION_STRING)
+find_package(iceoryx_utils REQUIRED)
+
+parse_version(${VERSION_STRING})
+
+adjust_version()
+
+project(iceoryx_package VERSION ${VERSION_MAIN})
 
 set(CPACK_GENERATOR "DEB")
-set(CPACK_PACKAGE_NAME "iceoryx-${iceoryx_VERSION}")
-set(CPACK_PACKAGE_FILE_NAME "iceoryx_${iceoryx_VERSION}_${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
+set(CPACK_PACKAGE_NAME "iceoryx-${iceoryx_package_VERSION}")
+set(CPACK_PACKAGE_FILE_NAME "iceoryx_${iceoryx_package_VERSION}_${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
 set(CPACK_PACKAGE_CONTACT "iceoryx-dev@eclipse.org")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libacl1-dev,libncurses5-dev")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "iceoryx inter-process-communication (IPC) middleware")

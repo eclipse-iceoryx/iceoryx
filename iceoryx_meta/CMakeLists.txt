@@ -15,8 +15,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
-file (STRINGS "../VERSION" iceoryx_VERSION)
-project(iceoryx_meta VERSION ${iceoryx_VERSION})
+project(iceoryx_meta)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
