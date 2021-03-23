@@ -35,11 +35,17 @@ class ShutdownManager
     {
         char reason;
         psignal(num, &reason);
-        s_semaphore.post();
+        s_semaphore.post().or_else([](auto) {
+            std::cerr << "failed to call post on shutdown semaphore" << std::endl;
+            std::terminate();
+        });
     }
     static void waitUntilShutdown()
     {
-        s_semaphore.wait();
+        s_semaphore.wait().or_else([](auto) {
+            std::cerr << "failed to call wait on shutdown semaphore" << std::endl;
+            std::terminate();
+        });
     }
 
   private:
