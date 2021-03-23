@@ -121,22 +121,6 @@ TEST_F(ChunkHeader_test, ConstructorTerminatesWhenPayloadSizeExceedsChunkSize)
     EXPECT_DEATH({ ChunkHeader sut(CHUNK_SIZE, chunkSettings); }, ".*");
 }
 
-TEST_F(ChunkHeader_test, ConstructorTerminatesWhenCustomHeaderAlignmentExceedsChunkHeaderAlignment)
-{
-    constexpr uint32_t CHUNK_SIZE{1024U};
-    constexpr uint32_t PAYLOAD_SIZE{8U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{1U};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{128U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{alignof(ChunkHeader) * 2U};
-
-    auto chunkSettingsResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
-    ASSERT_FALSE(chunkSettingsResult.has_error());
-    auto& chunkSettings = chunkSettingsResult.value();
-
-    EXPECT_DEATH({ ChunkHeader sut(CHUNK_SIZE, chunkSettings); }, ".*");
-}
-
 // BEGIN PARAMETERIZED TESTS FOR CHUNK HEADER
 
 struct PayloadParams

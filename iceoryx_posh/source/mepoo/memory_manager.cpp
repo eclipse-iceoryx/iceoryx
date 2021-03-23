@@ -91,55 +91,6 @@ MemPoolInfo MemoryManager::getMemPoolInfo(uint32_t index) const noexcept
     return m_memPoolVector[index].getInfo();
 }
 
-uint32_t MemoryManager::requiredChunkSize(const uint32_t payloadSize,
-                                          const uint32_t payloadAlignment,
-                                          const uint32_t customHeaderSize,
-                                          const uint32_t customHeaderAlignment) noexcept
-{
-    /// @todo iox-#14 remove this
-    cxx::Expects(payloadAlignment > 0U && "The payload alignment must be larger than 0!");
-    cxx::Expects(customHeaderAlignment > 0U && "The custom header alignment must be larger than 0!");
-    cxx::Expects(customHeaderAlignment <= alignof(ChunkHeader)
-                 && "The alignment of the custom header must not exceed the alignment of the ChunkHeader!");
-    cxx::Expects(customHeaderSize % customHeaderAlignment == 0U
-                 && "The size of the custom header must be a multiple of its alignment!");
-
-    // have a look at »Required Chunk Size Calculation« in chunk_header.md for more details regarding the calculation
-    if (customHeaderSize == 0)
-    {
-        // the most simple case with no custom header and the payload adjacent to the ChunkHeader
-        if (payloadAlignment <= alignof(mepoo::ChunkHeader))
-        {
-            uint64_t chunkSize = static_cast<uint64_t>(sizeof(ChunkHeader)) + payloadSize;
-
-            cxx::Ensures(chunkSize <= std::numeric_limits<uint32_t>::max() && "Size of chunk exceeds limits!");
-
-            return static_cast<uint32_t>(chunkSize);
-        }
-
-        // the second most simple case with no custom header but the payload alignment
-        // exceeds the ChunkHeader alignment and is therefore not necessarily adjacent
-        uint64_t prePayloadAlignmentOverhang = static_cast<uint64_t>(sizeof(ChunkHeader) - alignof(ChunkHeader));
-        uint64_t chunkSize = prePayloadAlignmentOverhang + payloadAlignment + payloadSize;
-
-        cxx::Ensures(chunkSize <= std::numeric_limits<uint32_t>::max() && "Size of chunk exceeds limits!");
-
-        return static_cast<uint32_t>(chunkSize);
-    }
-
-    // the most complex case with a custom header
-    constexpr uint64_t SIZE_OF_PAYLOAD_OFFSET_T{sizeof(ChunkHeader::PayloadOffset_t)};
-    constexpr uint64_t ALIGNMENT_OF_PAYLOAD_OFFSET_T{alignof(ChunkHeader::PayloadOffset_t)};
-    uint64_t headerSize = static_cast<uint64_t>(sizeof(ChunkHeader) + customHeaderSize);
-    uint64_t prePayloadAlignmentOverhang = cxx::align(headerSize, ALIGNMENT_OF_PAYLOAD_OFFSET_T);
-    uint64_t maxPadding = algorithm::max(SIZE_OF_PAYLOAD_OFFSET_T, static_cast<uint64_t>(payloadAlignment));
-    uint64_t chunkSize = prePayloadAlignmentOverhang + maxPadding + payloadSize;
-
-    cxx::Ensures(chunkSize <= std::numeric_limits<uint32_t>::max() && "Size of chunk exceeds limits!");
-
-    return static_cast<uint32_t>(chunkSize);
-}
-
 uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept
 {
     return size + static_cast<uint32_t>(sizeof(ChunkHeader));

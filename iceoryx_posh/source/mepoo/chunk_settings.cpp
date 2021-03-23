@@ -45,14 +45,9 @@ cxx::expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const u
     uint32_t adjustedPayloadAlignment = payloadAlignment == 0U ? 1U : payloadAlignment;
     uint32_t adjustedCustomHeaderAlignment = customHeaderAlignment == 0U ? 1U : customHeaderAlignment;
 
-    if (!cxx::isPowerOfTwo(payloadAlignment) || !cxx::isPowerOfTwo(customHeaderAlignment))
+    if (!cxx::isPowerOfTwo(adjustedPayloadAlignment) || !cxx::isPowerOfTwo(adjustedCustomHeaderAlignment))
     {
         return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO);
-    }
-
-    if (customHeaderSize % adjustedCustomHeaderAlignment != 0U)
-    {
-        return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::CUSTOM_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
     }
 
     if (adjustedCustomHeaderAlignment > alignof(ChunkHeader))
@@ -61,6 +56,11 @@ cxx::expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const u
         // ChunkHeader
         return cxx::error<ChunkSettings::Error>(
             ChunkSettings::Error::CUSTOM_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT);
+    }
+
+    if (customHeaderSize % adjustedCustomHeaderAlignment != 0U)
+    {
+        return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::CUSTOM_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
     }
 
     uint64_t requiredChunkSize = calculateRequiredChunkSize(payloadSize, adjustedPayloadAlignment, customHeaderSize);
