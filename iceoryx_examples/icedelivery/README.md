@@ -255,18 +255,21 @@ iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 A similar while-loop is used to send the data to the subscriber. In contrast to the untyped publisher the typed one
 offers two additional possibilities
 ```cpp
-// #3
 auto object = RadarObject(ct, ct, ct);
-publisher.publishCopyOf(object);
+publisher.publishCopyOf(object).or_else([](iox::popo::AllocationError) {
+    // Do something with error.
+});
 ```
-
-\#3 should only be used for small data types, as otherwise copies can lead to a larger runtime.
+This should only be used for small data types, as otherwise copies can lead to a larger runtime.
 
 ```cpp
-// #4
-publisher.publishResultOf(getRadarObject, ct);
-// OR
-publisher.publishResultOf([&ct](RadarObject* object) { new (object) RadarObject(ct, ct, ct); });
+publisher.publishResultOf(getRadarObject, ct).or_else([](iox::popo::AllocationError) {
+    // Do something with error.
+});
+publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); })
+    .or_else([](iox::popo::AllocationError) {
+        // Do something with error.
+    });
 ```
 
 If you have a callable e.g. a function should be always called, #4 could be a good solution for you.
