@@ -10,6 +10,9 @@ cmake --build build
 ```
 CMake is automatically installing GoogleTest as dependency and build the tests against it. Please note that if you want to build tests for extensions like the DDS-Gateway you need to enable that in the CMake build. To build all tests simply add `-DBUILD_ALL` to the CMake command
 
+!!! hint
+    Before creating a Pull-Request, you should check your code for compiler warnings. For that purpose is the `-DBUILD_STRICT` CMake option available which treats compiler warnings as errors. This flag is enabled on the GitHub CI for building Pull-Requests.
+
 Now lets execute the all tests:
 ```bash
 cd iceoryx/build
@@ -41,9 +44,10 @@ To prevent these, we use the clang toolchain which offers several tools for scan
 In iceoryx below sanitizers are enabled at the moment.
 - [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
 AddressSanitizer is a fast memory error detector. 
-!!! note AddressSanitizer exits on the first detected error, which means there could be more errors in the codebase when this error is reported.
+!!! note 
+    AddressSanitizer exits on the first detected error, which means there could be more errors in the codebase when this error is reported.
 - [LeakSanitizer](https://clang.llvm.org/docs/LeakSanitizer.html)
-LeakSanitizer is a run-time memory leak detector. In iceoryx , it runs as part of the AdderssSanitizer.
+LeakSanitizer is a run-time memory leak detector. In iceoryx , it runs as part of the AddressSanitizer.
 - [UndefinedBehaviorSanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html)
 UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. iceoryx uses default behavior ie `print a verbose error report and continue execution`
 
@@ -59,8 +63,7 @@ Then you need to compile the iceoryx with the sanitizer flags:
 ```
 After that we can run the tests with enabled sanitizer options:
 ```bash
-cd build
-../tools/run_tests.sh
+cd build && ./tools/run_tests.sh
 ```
 When the tests are running without errors then it is fine, else an error report is shown with a stacktrace to find the place where the leak occurs. If the leak comes from an external dependency or shall be handled later then it is possible to set a function on a suppression list.
 This should be only rarely used and only in coordination with an iceoryx maintainer.
@@ -70,20 +73,19 @@ This should be only rarely used and only in coordination with an iceoryx maintai
 
 ## Iceoryx library build
 
-Iceoryx consists of several libraries which have dependencies to each other. The goal is to have self-encapsulated library packages available
+The iceoryx build consists of several libraries which have dependencies to each other. The goal is to have self-encapsulated library packages available
 where the end-user can easily find it with the CMake command `find-package(...)`.
 In the default case the iceoryx libraries are installed by `make install` into `/usr/lib` which need root access. To avoid that CMake gives you the possibility to install the libs into a custom folder.
 This can be done by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
 
-Iceoryx_meta is a CMake file which collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for building. 
-The alternate solution is provided for Ubuntu-users by having a build script `iceoryx_build_test.sh` in the tools folder.
+Iceoryx_meta is a CMake file which collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for building. The provided build script `iceoryx_build_test.sh` in the tools folder use iceoryx_meta for building.
 
-Per default iceoryx is build as static libraries for usability.
+Per default iceoryx is build as static libraries for better usability.
 Additionally we offer to build as shared because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
 This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as flag in the build script.
 
-If iceoryx libs are build as shared libraries and you installed them in a custom path (e.g. build/install/prefix) you need to set
-the `LD_LIBRARY_PATH` to the directory containing the libiceoryx_.so files. This can be done by calling:
+If iceoryx is build as shared libraries and you installed them in a custom path (e.g. build/install/prefix) you need to set
+the `LD_LIBRARY_PATH` to the directory containing the libiceoryx_*.so files. This can be done by calling:
 ```bash
 export LD_LIBRARY_PATH=/your/path/to/iceoryx/libs
 ```
@@ -95,7 +97,7 @@ LD_LIBRARY_PATH=/your/path/to/lib iox-roudi
 If you want to share the iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will be build it in `build_package`.
 
 !!! note 
-    The CMake libraries are exporting their dependencies for easier integration. This means that you do not need to do a `findpackage()` to   all the dependencies. For example, you don't need to call `findpackage(iceoryx_utils)` when you have it done for iceoryx_posh. It includes it already.
+    The CMake libraries are exporting their dependencies for easier integration. This means that you do not need to do a `findpackage()` to all the dependencies. For example, you don't need to call `findpackage(iceoryx_utils)` when you have it done for iceoryx_posh. It includes it already.
 
 ## CMake switches for configuring iceoryx_posh build
 
@@ -112,13 +114,13 @@ These options adjust the limits of Publisher and Subscriber Ports for the resour
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | the maximum number of chunks a subscriber can hold at a given time (subscriber history size)|
  | `IOX_MAX_INTERFACE_NUMBER` | the maximum number for interface ports, which are used for e.g. gateways |
 
-Have a look at [iceoryx_posh_deployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/iceoryx_posh_deployment.cmake) for the default values of this constants.
+Have a look at [iceoryx_posh_deployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/iceoryx_posh_deployment.cmake) for the default values of the constants.
 
 !!! hint
-    With the default values set, the size of `iceoryx_mgmt` is ~64.5 Mbyte. You can reduce the size by decreasing the values from the table via CMake options. The current set values are printed in the CMake stage when building iceoryx.
+    With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You can reduce the size by decreasing the values from the table via CMake options. The current set values are printed in the CMake stage when building iceoryx.
 
 Example:
 ```bash
 cmake -Bbuild -Hiceoryx_meta -DIOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY=64
 ```
-With that change the footprint of the management segment is reduced to 52.7 Mbytes. For larger usecases you can increase the value to avoid that samples are dropped when arriving the subscriber.
+With that change the footprint of the management segment is reduced to ~52.7 MBytes. For larger usecases you can increase the value to avoid that samples are dropped on the subscriber side.

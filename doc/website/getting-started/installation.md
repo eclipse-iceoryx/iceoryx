@@ -1,5 +1,5 @@
 # Installation
-All iceoryx libraries are deployed as independent CMake packages. Posh is using functions from utils and is depending on it. You are able to build posh and utils and integrate in into existing CMake projects.
+All iceoryx libraries are deployed as independent CMake packages. Posh is using functions from utils and is depending on it. You are able to build posh and utils and integrate them into existing CMake projects.
 
 ## Prerequisites
 
@@ -79,33 +79,36 @@ X86_64:
 ## Build with CMake
 
 !!! note
-    Requires CMake version 3.5 or higher. Building from CMake is the preferred way, for more complex actions like a coverage scan
+    Building from CMake is the preferred way, for more complex actions like a coverage scan
     is a script available (see chapter below).
 
 The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx with an IDE.
 
 1. Clone the repository
-```sh
-git clone https://github.com/eclipse-iceoryx/iceoryx.git
-```
+
+    ```sh
+    git clone https://github.com/eclipse-iceoryx/iceoryx.git
+    ```
 2. Generate the necessary build files
-```bash
-cd iceoryx
-cmake -Bbuild -Hiceoryx_meta
-# when you have installed external dependencies like ncurses you have to add them
-# to your prefix path
-cmake -Bbuild -Hiceoryx_meta -DCMAKE_PREFIX_PATH=$(PWD)/build/dependencies/
-```
+
+    ```bash
+    cd iceoryx
+    cmake -Bbuild -Hiceoryx_meta
+    # when you have installed external dependencies like ncurses you have to add them
+    # to your prefix path
+    cmake -Bbuild -Hiceoryx_meta -DCMAKE_PREFIX_PATH=$(PWD)/build/dependencies/
+    ```
     !!! tip
         To build all iceoryx components add `-DBUILD_ALL` to the CMake command
 
 3. Compile the source code
-```bash
-cmake --build build
-```
-!!! tip
-    You can fasten up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
-    You can choose more or less depending on your available CPU cores on your machine.
+    
+    ```bash
+    cmake --build build
+    ```
+    !!! tip
+        You can fasten up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
+        You can choose more or less depending on your available CPU cores on your machine.
 
 4. Install to system
 
@@ -144,6 +147,8 @@ The script currently only works for Linux and QNX, it is planned to offer a mult
     cd iceoryx
     ./tools/iceoryx_build_test.sh build-all
     ```
+    !!! note
+        The build script is installing the header files and binaries into `build/install/prefix`.
 
 You can use the help for getting an overview over the available options:
     ```bash
@@ -170,7 +175,8 @@ cd ..
 colcon build
 ```
 
-!!! note if you don't want to install ROS2, you can skip the iceoryx_integrationtest package by calling:
+!!! note 
+    If you don't want to install ROS2, you can skip the iceoryx_integrationtest package by calling:
 ```bash
 colcon build --packages-skip iceoryx_integrationtest
 ```
