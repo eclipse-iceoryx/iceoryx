@@ -1,18 +1,19 @@
 # Installation
+
 All iceoryx libraries are deployed as independent CMake packages. Posh is using functions from utils and is depending on it. You are able to build posh and utils and integrate them into existing CMake projects.
 
 ## Prerequisites
 
 ### Dependencies
 
- - 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware might work, but is not supported)
- - [CMake](https://cmake.org), 3.10 or later
- - One of the following compilers:
-   - [GCC](https://gcc.gnu.org), 7.4 or later (5.4 currently supported too)
-   - [Clang](https://clang.llvm.org), 9.0 or later
-   - [MSVC](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
- - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
- - optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool.
+- 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware might work, but is not supported)
+- [CMake](https://cmake.org), 3.10 or later
+- One of the following compilers:
+    - [GCC](https://gcc.gnu.org), 7.4 or later (5.4 currently supported too)
+    - [Clang](https://clang.llvm.org), 9.0 or later
+    - [MSVC](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
+- [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
+- optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool.
 
 #### Optional, Cyclone DDS Gateway
 
@@ -61,14 +62,17 @@ Additionally, there is an optional dependency to the [cpptoml](https://github.co
 
 QNX SDP 7.0 and 7.1 are supported (shipping with gcc 5.4 and gcc 8.3 respectively).
 
-Easiest way to build iceoryx on QNX is using the build script and providing a toolchain file.<br>
+The easiest way to build iceoryx on QNX is using the build script and providing a toolchain file.
 We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools/toolchains/qnx` ([Direct Link](https://github.com/eclipse-iceoryx/iceoryx/tree/master/tools/toolchains/qnx)).
 
-ARM_64: 
+ARM_64:
+
 ```bash
 ./tools/iceoryx_build_test.sh -t /home/user/toolchains/qnx/qnx_sdp70_aarch64le.cmake
 ```
-X86_64: 
+
+X86_64:
+
 ```bash
 ./tools/iceoryx_build_test.sh -t /home/user/toolchains/qnx/qnx_sdp70_x86_64.cmake
 ```
@@ -89,6 +93,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     ```sh
     git clone https://github.com/eclipse-iceoryx/iceoryx.git
     ```
+
 2. Generate the necessary build files
 
     ```bash
@@ -98,14 +103,16 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     # to your prefix path
     cmake -Bbuild -Hiceoryx_meta -DCMAKE_PREFIX_PATH=$(PWD)/build/dependencies/
     ```
+
     !!! tip
         To build all iceoryx components add `-DBUILD_ALL` to the CMake command
 
 3. Compile the source code
-    
+
     ```bash
     cmake --build build
     ```
+
     !!! tip
         You can fasten up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
         You can choose more or less depending on your available CPU cores on your machine.
@@ -113,18 +120,22 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 4. Install to system
 
     Mac:
+
     ```bash
     cmake --build build --target install
     ```
+
     Linux:
+
     ```bash
     sudo cmake --build build --target install
     ```
+
     !!! tip
         The installation directory is usually left at its default, which is `/usr/local`
 
     !!! note
-        iceoryx is build in Release mode with `-O3` optimization by default. If you want to enable debug symbols please
+        iceoryx is build in release mode with `-O3` optimization by default. If you want to enable debug symbols please
         set `CMAKE_BUILD_TYPE=Debug`.
 
 ### Build options
@@ -134,39 +145,47 @@ Please take a look at the CMake file [build_options.cmake](https://github.com/ec
 ## Build with script
 
 As an alternative we provide a build-test script which we use to integrate iceoryx into our infrastructure.
-The intention of the script is more than just building with iceoryx. This is for doing a code coverage scan or using the adress-sanitizer.
-The script currently only works for Linux and QNX, it is planned to offer a multi-platform solution.
+The intention of the script is more than just building with iceoryx, it is also used for the code coverage scan or the address-sanitizer runs on the CI. The script currently only works for Linux and QNX, it is planned to offer a multi-platform solution.
 
  1. Clone the repository
+
     ```bash
     git clone https://github.com/eclipse-iceoryx/iceoryx.git
     ```
 
  2. Build everything
+
     ```bash
     cd iceoryx
     ./tools/iceoryx_build_test.sh build-all
     ```
+
     !!! note
         The build script is installing the header files and binaries into `build/install/prefix`.
 
 You can use the help for getting an overview over the available options:
-    ```bash
-    ./tools/iceoryx_build_test.sh help
-    ```
+
+```bash
+./tools/iceoryx_build_test.sh help
+```
+
+!!! tip
+    The examples can be built with `-DEXAMPLES=ON` with iceoryx_meta or by providing the `examples` argument to the build script.
 
 ## Build with colcon
 
 Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/en/released/user/installation.html#using-debian-packages) to provide a smooth integration for ROS2 developers.
-For building the iceoryx_integrationtest package is at least a minimal ROS2 installation needed (https://docs.ros.org/en/foxy/Installation/Linux-Install-Debians.html).
+To build the iceoryx_integrationtest package one requires a minimal [ROS2 installation](https://docs.ros.org/en/foxy/Installation/Linux-Install-Debians.html).
 
-Install minimum required ROS2 packages:
+Install required ROS2 packages:
+
 ```bash
 sudo apt install ros-foxy-ros-testing ros-foxy-ros-base
 source /opt/ros/foxy/setup.bash
 ```
 
 build with colcon:
+
 ```bash
 mkdir -p iceoryx_ws/src
 cd $_
@@ -175,8 +194,10 @@ cd ..
 colcon build
 ```
 
-!!! note 
-    If you don't want to install ROS2, you can skip the iceoryx_integrationtest package by calling:
+!!! note
+
+If you don't want to install ROS2, you can skip the iceoryx_integrationtest package by calling:
+
 ```bash
 colcon build --packages-skip iceoryx_integrationtest
 ```

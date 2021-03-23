@@ -4,25 +4,31 @@
 
 While developing on iceoryx you want to know if your changes are breaking existing functions or if your newly written googletests are passing.
 For that purpose we are generating CMake targets which are executing the tests. But first we need to build them:
+
 ```bash
 cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON
 cmake --build build
 ```
-CMake is automatically installing GoogleTest as dependency and build the tests against it. Please note that if you want to build tests for extensions like the DDS-Gateway you need to enable that in the CMake build. To build all tests simply add `-DBUILD_ALL` to the CMake command
+
+CMake is automatically installing GoogleTest as dependency and build the tests against it. Please note that if you want to build tests for extensions like the DDS-Gateway you need to enable that as well in the CMake build. To build all tests simply add `-DBUILD_ALL` to the CMake command
 
 !!! hint
     Before creating a Pull-Request, you should check your code for compiler warnings. For that purpose is the `-DBUILD_STRICT` CMake option available which treats compiler warnings as errors. This flag is enabled on the GitHub CI for building Pull-Requests.
 
 Now lets execute the all tests:
+
 ```bash
 cd iceoryx/build
 make all_tests
 ```
+
 Some of the tests are timing critical and needs a stable environment. We call them timing tests and have them in a separate targets available:
+
 ```bash
 make timing_module_tests
 make timing_integration_tests
 ```
+
 In iceoryx we distinguish between different testlevels. The most important are: Moduletests and Integrationtests.
 Moduletests are basically Unit-tests where the focus is on class level with black-box testing.
 In Integrationtests are multiple classes within one component (e.g. mepoo config) tested together.
@@ -32,6 +38,7 @@ If you now want to create a new test you can place the sourcefile directly into 
 For every test level are executables created, for example `posh_moduletests`. They are placed into the corresponding build folder (e.g. `iceoryx/build/posh/test/posh_moduletests`).
 
 If you want to execute only individual testcases then you can use these executables and a gtest filter. Let's assume you want to execute only the `ServiceDescription_test` from the posh_moduletests, then you can do the following:
+
 ```bash
 ./build/posh/test/posh_moduletests --gtest_filter="ServiceDescription_test*"
 ```
@@ -42,9 +49,10 @@ Due to the fact that iceoryx works a lot with system memory it should be ensured
 To prevent these, we use the clang toolchain which offers several tools for scanning the codebase. One of them is the [Address-Sanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) which checks for example on dangling pointers.
 
 In iceoryx below sanitizers are enabled at the moment.
+
 - [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
-AddressSanitizer is a fast memory error detector. 
-!!! note 
+AddressSanitizer is a fast memory error detector.
+!!! note
     AddressSanitizer exits on the first detected error, which means there could be more errors in the codebase when this error is reported.
 - [LeakSanitizer](https://clang.llvm.org/docs/LeakSanitizer.html)
 LeakSanitizer is a run-time memory leak detector. In iceoryx , it runs as part of the AddressSanitizer.
@@ -53,22 +61,27 @@ UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. iceory
 
 In iceoryx are scripts available to do the scan on your own. Additionally the Scans are running on the CI in every Pull-Request.
 As Requirement you should install the clang compiler:
+
 ```bash
 sudo apt install clang
 ```
 
 Then you need to compile the iceoryx with the sanitizer flags:
+
 ```bash
 ./tools/iceoryx_build_test.sh build-strict build-all sanitize clang clean
 ```
+
 After that we can run the tests with enabled sanitizer options:
+
 ```bash
 cd build && ./tools/run_tests.sh
 ```
+
 When the tests are running without errors then it is fine, else an error report is shown with a stacktrace to find the place where the leak occurs. If the leak comes from an external dependency or shall be handled later then it is possible to set a function on a suppression list.
 This should be only rarely used and only in coordination with an iceoryx maintainer.
 
-!!! note 
+!!! note
     iceoryx needs to be build as static library for working with sanitizer flags. The script does it automatically.
 
 ## Iceoryx library build
@@ -86,41 +99,18 @@ This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If
 
 If iceoryx is build as shared libraries and you installed them in a custom path (e.g. build/install/prefix) you need to set
 the `LD_LIBRARY_PATH` to the directory containing the libiceoryx_*.so files. This can be done by calling:
+
 ```bash
 export LD_LIBRARY_PATH=/your/path/to/iceoryx/libs
 ```
+
 or you can set it directly:
+
 ```bash
 LD_LIBRARY_PATH=/your/path/to/lib iox-roudi
 ```
 
-If you want to share the iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will be build it in `build_package`.
+If you want to share iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will be build it in `build_package`.
 
-!!! note 
-    The CMake libraries are exporting their dependencies for easier integration. This means that you do not need to do a `findpackage()` to all the dependencies. For example, you don't need to call `findpackage(iceoryx_utils)` when you have it done for iceoryx_posh. It includes it already.
-
-## CMake switches for configuring iceoryx_posh build
-
-When building iceoryx_posh, there are several configuration options set by default. 
-These options adjust the limits of Publisher and Subscriber Ports for the resource management. These limits are used to create management structures in the shared memory segment called `iceoryx_mgmt` when starting up RouDi.
-
- |  switch  |  description |
- |:---------|:-------------|
- | `IOX_MAX_PUBLISHERS` | the maximum number of publishers one `RouDi` instance can manage |
- | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | the maximum number of subscriber a publisher can deliver chunks to|
- | `IOX_MAX_PUBLISHER_HISTORY` | the maximum number chunks available for the publisher history |
- | `IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY` | the maximum number of chunks a publisher can allocate at a given time |
- | `IOX_MAX_SUBSCRIBERS` | the maximum number of subscribers one `RouDi` instance can manage |
- | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | the maximum number of chunks a subscriber can hold at a given time (subscriber history size)|
- | `IOX_MAX_INTERFACE_NUMBER` | the maximum number for interface ports, which are used for e.g. gateways |
-
-Have a look at [iceoryx_posh_deployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/iceoryx_posh_deployment.cmake) for the default values of the constants.
-
-!!! hint
-    With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You can reduce the size by decreasing the values from the table via CMake options. The current set values are printed in the CMake stage when building iceoryx.
-
-Example:
-```bash
-cmake -Bbuild -Hiceoryx_meta -DIOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY=64
-```
-With that change the footprint of the management segment is reduced to ~52.7 MBytes. For larger usecases you can increase the value to avoid that samples are dropped on the subscriber side.
+!!! note
+    The CMake libraries exports their dependencies for easier integration. This means that you do not need to do a `findpackage()` to all the dependencies. For example, you don't need to call `findpackage(iceoryx_utils)` when you have it done for iceoryx_posh. It includes it already.
