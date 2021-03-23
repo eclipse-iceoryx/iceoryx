@@ -325,7 +325,7 @@ TEST_P(ChunkHeader_AlteringPayloadWithCustomHeader, checkIntegrityOfChunkHeaderW
 
     constexpr uint32_t CUSTOM_HEADER_SIZES[]{
         1U, sizeof(ChunkHeader) / 2U, sizeof(ChunkHeader), sizeof(ChunkHeader) * 2U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENTS[]{0U, 1U, alignof(ChunkHeader), alignof(ChunkHeader)};
+    constexpr uint32_t CUSTOM_HEADER_ALIGNMENTS[]{0U, 1U, alignof(ChunkHeader) / 2U, alignof(ChunkHeader)};
 
     for (const auto customHeaderAlignment : CUSTOM_HEADER_ALIGNMENTS)
     {
