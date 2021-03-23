@@ -170,7 +170,7 @@ TEST_F(PortIntrospection_test, sendPortData_EmptyList)
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
     bool chunkWasSent = false;
 
-    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
+    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
         .WillOnce(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
             chunk.get()->chunkHeader())));
 
@@ -234,7 +234,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(false));
 
-    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
+    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
             chunk.get()->chunkHeader())));
 
@@ -365,7 +365,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(false));
 
-    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
+    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
         .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
             chunk.get()->chunkHeader())));
 
@@ -471,4 +471,3 @@ TEST_F(PortIntrospection_test, DISABLED_thread)
     std::this_thread::sleep_for(
         std::chrono::milliseconds(555)); // if the thread doesn't stop, we have 12 runs after the sleep period
 }
-
