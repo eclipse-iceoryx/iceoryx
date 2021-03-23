@@ -19,6 +19,7 @@ cmake_minimum_required(VERSION 3.7)
 file (STRINGS "../VERSION" VERSION_STRING)
 find_package(iceoryx_utils REQUIRED)
 
+include(IceoryxVersion)
 parse_version(${VERSION_STRING})
 adjust_version()
 
