@@ -43,12 +43,16 @@ void sending()
         if (counter % 3 == 0)
         {
             std::cout << "Radar.FrontLeft.Counter sending : " << counter << std::endl;
-            myPublisherLeft.publishCopyOf(CounterTopic{counter});
+            myPublisherLeft.publishCopyOf(CounterTopic{counter}).or_else([](auto) {
+                std::cerr << "Radar.FrontLeft.Counter send failed\n";
+            });
         }
         else
         {
             std::cout << "Radar.FrontRight.Counter sending : " << counter * 2 << std::endl;
-            myPublisherRight.publishCopyOf(CounterTopic{counter * 2});
+            myPublisherRight.publishCopyOf(CounterTopic{counter * 2}).or_else([](auto) {
+                std::cerr << "Radar.FrontRight.Counter send failed\n";
+            });
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

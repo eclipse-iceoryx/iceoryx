@@ -122,11 +122,8 @@ void UDS::shutdown() noexcept
 
     if (m_sockfdSubscriber != INVALID_FD)
     {
-        auto closeCall = iox::cxx::makeSmartC(iox_close,
-                                              iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                              {ERROR_CODE},
-                                              {},
-                                              m_sockfdSubscriber);
+        auto closeCall = iox::cxx::makeSmartC(
+            iox_close, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfdSubscriber);
 
         if (closeCall.hasErrors())
         {
@@ -192,11 +189,11 @@ void UDS::send(const char* buffer, uint32_t length) noexcept
     {
         auto sendCall = iox::cxx::makeSmartC(sendto,
                                              iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                             {ERROR_CODE},
+                                             {static_cast<long int>(ERROR_CODE)},
                                              {ENOBUFS},
                                              m_sockfdPublisher,
                                              buffer,
-                                             length,
+                                             static_cast<size_t>(length),
                                              static_cast<int>(0),
                                              reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
                                              static_cast<socklen_t>(sizeof(m_sockAddrPublisher)));
@@ -220,7 +217,7 @@ void UDS::receive(char* buffer) noexcept
 {
     auto recvCall = iox::cxx::makeSmartC(recvfrom,
                                          iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                         {ERROR_CODE},
+                                         {static_cast<long int>(ERROR_CODE)},
                                          {},
                                          m_sockfdSubscriber,
                                          buffer,

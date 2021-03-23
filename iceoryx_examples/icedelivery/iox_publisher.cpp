@@ -110,15 +110,23 @@ int main()
         //  * Basic copy-and-publish. Useful for smaller data types.
         //
         auto object = RadarObject(ct, ct, ct);
-        publisher.publishCopyOf(object);
+        publisher.publishCopyOf(object).or_else([](iox::popo::AllocationError) {
+            // Do something with error.
+        });
 
         // API Usage #5
         //  * Provide a callable that will be used to populate the loaned sample.
         //  * The first argument of the callable must be T* and is the location that the callable should
         //      write its result to.
         //
-        publisher.publishResultOf(getRadarObject, ct);
-        publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); });
+        publisher.publishResultOf(getRadarObject, ct).or_else([](iox::popo::AllocationError) {
+            // Do something with error.
+        });
+        publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); })
+            .or_else([](iox::popo::AllocationError) {
+                // Do something with error.
+            });
+
 
         std::cout << APP_NAME << " sent six times value: " << ct << std::endl;
 
