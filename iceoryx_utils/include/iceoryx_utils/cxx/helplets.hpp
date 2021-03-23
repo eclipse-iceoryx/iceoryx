@@ -257,8 +257,19 @@ using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 /// @endcode
 #define IOX_DISCARD_RESULT(expr) static_cast<void>(expr) // NOLINT
 
+// the __attribute__((warn_unused)) is even stronger than [[nodiscard]] therefore we prefer it
+// whenever possible
+#if defined(__GNUC__) || defined(__clang__)
+#define IOX_NO_DISCARD __attribute__((warn_unused)) // NOLINT
+#else
+// on Mac OS and WIN32 we are using C++17 which makes the keyword [[nodiscard]] available
+#if defined(__APPLE__) || defined(_WIN32)
 #define IOX_NO_DISCARD [[nodiscard]] // NOLINT
-
+// on an unknown platform we use for now nothing since we do not know what
+#else
+#define IOX_NO_DISCARD
+#endif
+#endif
 /// @brief Returns info whether called on a 32-bit system
 /// @return True if called on 32-bit, false if not 32-bit system
 constexpr bool isCompiledOn32BitSystem()

@@ -55,4 +55,5 @@ TEST_F(ChannelTest, ReturnsEmptyOptionalIfObjectPoolExhausted)
 {
     auto channel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create(
         {"", "", ""}, StubbedIceoryxTerminal::Options());
+    EXPECT_FALSE(channel.has_error());
 }

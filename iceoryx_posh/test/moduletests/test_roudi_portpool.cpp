@@ -293,16 +293,7 @@ TEST_F(PortPool_test, AddSubscriberPortToMaxCapacityIsSuccessful)
 
 TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
 {
-    auto errorHandlerCalled{false};
-    Error errorHandlerType;
-    auto errorHandlerGuard =
-        ErrorHandler::SetTemporaryErrorHandler([&](const Error error, const std::function<void()>, const ErrorLevel) {
-            errorHandlerType = error;
-            errorHandlerCalled = true;
-        });
-
-    for (uint32_t i = 0U; i <= MAX_SUBSCRIBERS; ++i)
-    {
+    auto addSubscriberPort = [&](const uint32_t i) -> bool {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
         ProcessName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
@@ -312,7 +303,22 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
             {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
             applicationName,
             m_subscriberOptions);
+        return publisherPort.has_error();
+    };
+
+    for (uint32_t i = 0U; i < MAX_SUBSCRIBERS; ++i)
+    {
+        EXPECT_FALSE(addSubscriberPort(i));
     }
+
+    auto errorHandlerCalled{false};
+    Error errorHandlerType;
+    auto errorHandlerGuard =
+        ErrorHandler::SetTemporaryErrorHandler([&](const Error error, const std::function<void()>, const ErrorLevel) {
+            errorHandlerType = error;
+            errorHandlerCalled = true;
+        });
+    EXPECT_TRUE(addSubscriberPort(MAX_SUBSCRIBERS));
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_EQ(errorHandlerType, Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW);
@@ -321,6 +327,7 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
 TEST_F(PortPool_test, GetSubscriberPortDataListIsSuccessful)
 {
     auto subscriberPort = sut.addSubscriberPort(m_serviceDescription, m_applicationName, m_subscriberOptions);
+    EXPECT_FALSE(subscriberPort.has_error());
     auto subscriberPortDataList = sut.getSubscriberPortDataList();
 
     ASSERT_EQ(subscriberPortDataList.size(), 1U);
@@ -345,6 +352,7 @@ TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
             {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
             applicationName,
             m_subscriberOptions);
+        EXPECT_FALSE(publisherPort.has_error());
     }
     auto subscriberPortDataList = sut.getSubscriberPortDataList();
 
@@ -383,6 +391,11 @@ TEST_F(PortPool_test, AddInterfacePortWithMaxCapacityIsSuccessful)
 
 TEST_F(PortPool_test, AddInterfacePortWhenInterfaceListOverflowsReturnsError)
 {
+    for (uint32_t i = 0U; i < MAX_INTERFACE_NUMBER; ++i)
+    {
+        EXPECT_FALSE(sut.addInterfacePort(m_applicationName, Interfaces::INTERFACE_END).has_error());
+    }
+
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
@@ -390,11 +403,7 @@ TEST_F(PortPool_test, AddInterfacePortWhenInterfaceListOverflowsReturnsError)
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
-
-    for (uint32_t i = 0U; i <= MAX_INTERFACE_NUMBER; ++i)
-    {
-        auto interfacePortData = sut.addInterfacePort(m_applicationName, Interfaces::INTERNAL);
-    }
+    EXPECT_TRUE(sut.addInterfacePort(m_applicationName, Interfaces::INTERFACE_END).has_error());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_EQ(errorHandlerType, Error::kPORT_POOL__INTERFACELIST_OVERFLOW);
@@ -403,6 +412,7 @@ TEST_F(PortPool_test, AddInterfacePortWhenInterfaceListOverflowsReturnsError)
 TEST_F(PortPool_test, GetInterfacePortDataListIsSuccessful)
 {
     auto interfacePort = sut.addInterfacePort(m_applicationName, Interfaces::INTERNAL);
+    EXPECT_FALSE(interfacePort.has_error());
     auto interfacePortDataList = sut.getInterfacePortDataList();
 
     ASSERT_EQ(interfacePortDataList.size(), 1U);
@@ -458,6 +468,11 @@ TEST_F(PortPool_test, AddApplicationPortWithMaxCapacityIsSuccessful)
 
 TEST_F(PortPool_test, AddApplicationPortWhenApplicationListOverflowsReturnsError)
 {
+    for (uint32_t i = 0U; i < MAX_PROCESS_NUMBER; ++i)
+    {
+        EXPECT_FALSE(sut.addApplicationPort(m_applicationName).has_error());
+    }
+
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
@@ -465,11 +480,7 @@ TEST_F(PortPool_test, AddApplicationPortWhenApplicationListOverflowsReturnsError
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
-
-    for (uint32_t i = 0U; i <= MAX_PROCESS_NUMBER; ++i)
-    {
-        auto applicationData = sut.addApplicationPort(m_applicationName);
-    }
+    EXPECT_TRUE(sut.addApplicationPort(m_applicationName).has_error());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_EQ(errorHandlerType, Error::kPORT_POOL__APPLICATIONLIST_OVERFLOW);
@@ -533,6 +544,11 @@ TEST_F(PortPool_test, AddConditionVariableDataWithMaxCapacityIsSuccessful)
 
 TEST_F(PortPool_test, AddConditionVariableDataWhenContainerIsFullReturnsError)
 {
+    for (uint32_t i = 0U; i < MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
+    {
+        EXPECT_FALSE(sut.addConditionVariableData(m_applicationName).has_error());
+    }
+
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
@@ -540,11 +556,7 @@ TEST_F(PortPool_test, AddConditionVariableDataWhenContainerIsFullReturnsError)
             errorHandlerType = error;
             errorHandlerCalled = true;
         });
-
-    for (uint32_t i = 0U; i <= MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
-    {
-        auto conditionVariableData = sut.addConditionVariableData(m_applicationName);
-    }
+    EXPECT_TRUE(sut.addConditionVariableData(m_applicationName).has_error());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_EQ(errorHandlerType, Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW);
