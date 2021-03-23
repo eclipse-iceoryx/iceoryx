@@ -122,7 +122,7 @@ int main()
 
     // wait until someone presses CTRL+c
     shutdownSemaphore.wait().or_else(
-        [](auto) { std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl; });
+        [](auto) { std::cerr << "unable to call wait on shutdownSemaphore - semaphore corrupt?" << std::endl; });
 
     // optional detachEvent, but not required.
     //   when the listener goes out of scope it will detach all events and when a

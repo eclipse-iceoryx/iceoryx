@@ -62,7 +62,7 @@ void RouDiApp::roudiSigHandler(int32_t signal) noexcept
         // Post semaphore to exit
         g_RouDiApp->m_semaphore.post().or_else([](auto) {
             LogFatal() << "RouDi app semaphore seems corrupted. Unable to send termination signal.";
-            std::terminate();
+            errorHandler(Error::kROUDI_APP__FAILED_TO_UNLOCK_SEMAPHORE_IN_SIG_HANDLER, nullptr, ErrorLevel::FATAL);
         });
     }
 }

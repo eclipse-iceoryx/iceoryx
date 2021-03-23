@@ -272,7 +272,7 @@ publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct,
     });
 ```
 
-If you have a callable e.g. a function should be always called, #4 could be a good solution for you.
+If you have a callable e.g. a function should be always called, this approach could be a good solution for you.
 
 Another difference compared to the untyped publisher, is the easier handling of `iox::popo::Sample`. There is no need
 for any casts with the typed publisher, as the type of the stored data is know. One can directly access the data with

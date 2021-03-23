@@ -45,25 +45,25 @@ Require(const bool condition, const char* file, const int line, const char* func
 
 /// @brief struct to find the best fitting unsigned integer type
 template <bool GreaterUint8, bool GreaterUint16, bool GreaterUint32>
-struct bestFittingTypeImpl
+struct BestFittingTypeImpl
 {
     using Type_t = uint64_t;
 };
 
 template <>
-struct bestFittingTypeImpl<false, false, false>
+struct BestFittingTypeImpl<false, false, false>
 {
     using Type_t = uint8_t;
 };
 
 template <>
-struct bestFittingTypeImpl<true, false, false>
+struct BestFittingTypeImpl<true, false, false>
 {
     using Type_t = uint16_t;
 };
 
 template <>
-struct bestFittingTypeImpl<true, true, false>
+struct BestFittingTypeImpl<true, true, false>
 {
     using Type_t = uint32_t;
 };
@@ -239,7 +239,7 @@ struct BestFittingType
 /// ignore the warnings because we need the comparisons to find the best fitting type
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
-    using Type_t = typename internal::bestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
+    using Type_t = typename internal::BestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
                                                           (Value > std::numeric_limits<uint16_t>::max()),
                                                           (Value > std::numeric_limits<uint32_t>::max())>::Type_t;
 #pragma GCC diagnostic pop
@@ -250,7 +250,7 @@ using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 
 /// @brief if a function has a return value which you do not want to use then you can wrap the function with that macro.
 /// Purpose is to suppress the unused compiler warning by adding an attribute to the return value
-/// @param[in] name name of the function where the return value is not used.
+/// @param[in] expr name of the function where the return value is not used.
 /// @code
 ///     uint32_t foo();
 ///     IOX_DISCARD_RESULT(foo()); // suppress compiler warning for unused return value

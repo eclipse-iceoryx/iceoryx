@@ -87,7 +87,7 @@ listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSa
 Since a user trigger has only one event we do not have to specify an event when we attach 
 it to the listener. `attachEvent` returns a `cxx::expected` to inform us if the attachment
 succeeded. When this is not the case the error handling is performed in the `.or_else([](auto){` part 
-of each line.
+after each `attachEvent` call.
 In this example we choose to attach the same callback twice to make things easier 
 but you are free to attach any callback with the signature `void(iox::popo::Subscriber<CounterTopic> *)`.
 
