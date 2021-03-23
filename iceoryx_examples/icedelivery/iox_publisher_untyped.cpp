@@ -56,6 +56,7 @@ int main()
             // in place
             void* chunk = result.value();
             RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
+            iox::cxx::Expects(chunk == data);
 
             data->x = 1.0;
             data->y = 2.0;
@@ -75,8 +76,12 @@ int main()
         // * Loan chunk and provide logic to populate it via a lambda
         publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& chunk) {
-                auto data = new (chunk) RadarObject(ct, ct, ct);
-                assert(chunk == data);
+                RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
+                iox::cxx::Expects(chunk == data);
+
+                data->x = 1.0;
+                data->y = 2.0;
+                data->z = 3.0;
                 publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
