@@ -86,7 +86,7 @@ int main()
         {
             auto error = result.get_error();
             // Ignore unused variable warning
-            (void)error;
+            IOX_DISCARD_RESULT(error);
             // Do something with error
         }
 
