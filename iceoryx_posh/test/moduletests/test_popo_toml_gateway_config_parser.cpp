@@ -220,3 +220,19 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServicesInConfig)
         EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
     }
 }
+
+TEST_F(TomlGatewayConfigParserTest, ParseIllFormedTomlFileCausesExceptionInParser)
+{
+    auto result = iox::config::TomlGatewayConfigParser::parse("toml_parser_exception.toml");
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_EQ(iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER, result.get_error());
+}
+
+TEST_F(TomlGatewayConfigParserTest, ParseTomlFileWithErrorResultsInFail)
+{
+    auto result = iox::config::TomlGatewayConfigParser::parse("toml_parser_fail_incomplete_configuration.toml");
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
+}

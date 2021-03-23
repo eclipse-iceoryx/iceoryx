@@ -83,3 +83,11 @@ set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
+
+# install input files for tests
+install(
+  FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/input/toml_parser_exception.toml
+    ${CMAKE_CURRENT_SOURCE_DIR}/input/toml_parser_fail_incomplete_configuration.toml
+  DESTINATION ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test
+  COMPONENT dev)
