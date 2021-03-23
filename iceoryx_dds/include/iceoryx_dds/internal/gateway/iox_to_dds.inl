@@ -51,7 +51,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const co
                        << ", " << serviceDescription.getEventIDString() << "}";
             popo::SubscriberOptions options;
             options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
-            setupChannel(serviceDescription, options);
+            IOX_DISCARD_RESULT(setupChannel(serviceDescription, options));
         }
     }
 }
@@ -82,7 +82,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
         {
             popo::SubscriberOptions options;
             options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
-            setupChannel(msg.m_serviceDescription, options);
+            IOX_DISCARD_RESULT(setupChannel(msg.m_serviceDescription, options));
         }
         break;
     }
@@ -90,7 +90,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
     {
         if (this->findChannel(msg.m_serviceDescription).has_value())
         {
-            this->discardChannel(msg.m_serviceDescription);
+            IOX_DISCARD_RESULT(this->discardChannel(msg.m_serviceDescription));
         }
         break;
     }

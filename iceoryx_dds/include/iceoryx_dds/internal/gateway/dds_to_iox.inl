@@ -44,7 +44,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const co
             LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
                        << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
                        << ", " << serviceDescription.getEventIDString() << "}";
-            setupChannel(serviceDescription, popo::PublisherOptions());
+            IOX_DISCARD_RESULT(setupChannel(serviceDescription, popo::PublisherOptions()));
         }
     }
 }
