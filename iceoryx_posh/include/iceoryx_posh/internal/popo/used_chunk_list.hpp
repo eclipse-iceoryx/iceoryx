@@ -29,22 +29,38 @@ namespace iox
 {
 namespace popo
 {
+/// @brief This class is used to keep track of the chunks currently in use by the application.
+///        In case the application terminates while holding chunks, this list is used by RouDi to retain ownership of
+///        the chunks and prevent a chunk leak.
+///        In order to always be able to access the used chunks, neither a vector or list can be used, because these
+///        container could be corrupt when the application dies in the wrong moment.
+///        To be able to do the cleanup, RouDi needs to be able to access the list with the used chunk under all
+///        circumstances. This is achieved by storing the ChunkManagement pointer in an array which can always be
+///        accessed. Additionally, the type stored is this array must be less or equal to 64 bit in order to write it
+///        within one clock cycle to prevent torn writes, which would corrupt the list and could potentially crash
+///        RouDi.
 template <uint32_t Size>
 class UsedChunkList
 {
   public:
+    /// @brief Constructs a default UsedChunkList
     UsedChunkList();
 
-    // only from runtime context
+    /// @brief Inserts a SharedChunk into the list
+    /// @param[in] chunk to store in the list
+    /// @return true if successful, otherwise false if e.g. the list is already full
+    /// @note only from runtime context
     bool insert(mepoo::SharedChunk chunk);
 
-    // only from runtime context
+    /// @brief Removes a chunk from the list
+    /// @param[in] chunkHeader to look for a corresponding SharedChunk
+    /// @param[out] chunk which is removed
+    /// @return true if successfully removed, otherwise false if e.g. the chunkHeader was not found in the list
+    /// @note only from runtime context
     bool remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk);
 
-    // only once from runtime context
-    void setup();
-
-    // from RouDi context once the applications walked the plank
+    /// @brief Cleans up all the remaining chunks from the list.
+    /// @note from RouDi context once the applications walked the plank
     void cleanup();
 
   private:

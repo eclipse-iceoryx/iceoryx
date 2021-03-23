@@ -95,13 +95,6 @@ bool UsedChunkList<Size>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::S
 }
 
 template <uint32_t Size>
-void UsedChunkList<Size>::setup()
-{
-    m_synchronizer.test_and_set(std::memory_order_acquire);
-    /// @todo maybe also call init here?
-}
-
-template <uint32_t Size>
 void UsedChunkList<Size>::cleanup()
 {
     m_synchronizer.test_and_set(std::memory_order_acquire);
