@@ -281,13 +281,13 @@ constexpr bool isCompiledOn32BitSystem()
     return INTPTR_MAX == INT32_MAX;
 }
 
-/// @brief Checks if an integer is a power of two
+/// @brief Checks if an unsigned integer is a power of two
 /// @return true if power of two, otherwise false
 template <typename T>
 constexpr bool isPowerOfTwo(const T n)
 {
-    static_assert(std::is_integral<T>::value && !std::is_same<T, bool>::value, "Only integer are allowed!");
-    return n && ((n & (n - 1)) == 0);
+    static_assert(std::is_unsigned<T>::value && !std::is_same<T, bool>::value, "Only unsigned integer are allowed!");
+    return n && ((n & (n - 1U)) == 0U);
 }
 
 } // namespace cxx
