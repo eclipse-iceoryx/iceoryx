@@ -7,6 +7,8 @@ markdown_extensions:
   - markdown_include.include:
       base_path: doc
   - admonition
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
 plugins:
   - awesome-pages
   - search

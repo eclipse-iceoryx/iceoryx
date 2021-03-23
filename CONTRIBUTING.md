@@ -122,6 +122,13 @@ The folder structure boils down to:
 
 All new code should follow the folder structure.
 
+### How to add a new example
+
+ 1. Add the example in the ["List of all examples"](./iceoryx_examples/README.md)
+ 2. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
+ 3. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
+ 4. Create and include a new file for the website in `doc/website/getting-started/examples/how-to-do-foo.md`
+
 ## Testing
 
 We use [Google test](https://github.com/google/googletest) for our unit and integration tests. We require compatibility
