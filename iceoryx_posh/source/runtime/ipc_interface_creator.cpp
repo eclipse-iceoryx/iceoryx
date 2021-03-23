@@ -30,16 +30,15 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
               .or_else([&name](auto& error) {
                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                   {
-                      LogError() << "An application with the name " << name
+                      LogFatal() << "An application with the name " << name
                                  << " is still running. Using the "
                                     "same name twice is not supported.";
-                      errorHandler(Error::kIPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING,
-                                   nullptr,
-                                   iox::ErrorLevel::FATAL);
+                      errorHandler(
+                          Error::kIPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
                   }
                   else
                   {
-                      LogError() << "Error occured while acquiring file lock named " << name;
+                      LogFatal() << "Error occured while acquiring file lock named " << name;
                       errorHandler(Error::kIPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
                   }
               })

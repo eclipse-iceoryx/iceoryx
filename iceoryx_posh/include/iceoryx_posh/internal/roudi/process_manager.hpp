@@ -51,6 +51,12 @@ class ProcessManager : public ProcessManagerInterface
     using ProcessList_t = cxx::list<Process, MAX_PROCESS_NUMBER>;
     using PortConfigInfo = iox::runtime::PortConfigInfo;
 
+    enum class TerminationFeedback
+    {
+        SEND_ACK_TO_PROCESS,
+        DO_NOT_SEND_ACK_TO_PROCESS
+    };
+
     ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
                    PortManager& portManager,
                    const version::CompatibilityCheckLevel compatibilityCheckLevel) noexcept;
@@ -158,14 +164,17 @@ class ProcessManager : public ProcessManagerInterface
 
     /// @brief Removes the process from the managed client process list, identified by its id.
     /// @param [in] name The process name which should be removed.
+    /// @param [in] sendAckToProcess Informs process that the termination messsage was received
     /// @return Returns true if the process was found and removed from the internal list.
-    bool searchForProcessAndRemoveIt(const ProcessName_t& name) noexcept;
+    bool searchForProcessAndRemoveIt(const ProcessName_t& name, const TerminationFeedback feedback) noexcept;
 
     /// @brief Removes the given process from the managed client process list and the respective resources in shared
     /// memory
     /// @param [in] processIter The process which should be removed.
+    /// @param [in] sendAckToProcess Informs process that the termination messsage was received
     /// @return Returns true if the process was found and removed from the internal list.
-    bool removeProcessAndDeleteRespectiveSharedMemoryObjects(ProcessList_t::iterator& processIter) noexcept;
+    bool removeProcessAndDeleteRespectiveSharedMemoryObjects(ProcessList_t::iterator& processIter,
+                                                             const TerminationFeedback feedback) noexcept;
 
     enum class ShutdownPolicy
     {

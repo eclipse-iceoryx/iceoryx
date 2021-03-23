@@ -126,7 +126,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
     switch (regState)
     {
     case RegState::WAIT_FOR_ROUDI:
-        LogError() << "Timeout registering at RouDi. Is RouDi running?";
+        LogFatal() << "Timeout registering at RouDi. Is RouDi running?";
         errorHandler(Error::kIPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
     case RegState::SEND_REGISTER_REQUEST:
@@ -249,7 +249,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
             else if (stringToIpcMessageType(cmd.c_str()) == IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED)
             {
                 // RouDi has not yet cleaned up the resources of the app, tell the user to try again later
-                LogError()
+                LogFatal()
                     << "According to RouDi an app with the same name is still running. Try starting the app again.";
                 errorHandler(
                     Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);

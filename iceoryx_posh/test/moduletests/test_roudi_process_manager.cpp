@@ -42,15 +42,13 @@ class ProcessManager_test : public Test
         m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(config);
         m_roudiMemoryManager->createAndAnnounceMemory();
         m_portManager = std::make_unique<PortManager>(m_roudiMemoryManager.get());
+        CompatibilityCheckLevel m_compLevel{CompatibilityCheckLevel::OFF};
         m_sut = std::make_unique<ProcessManager>(*m_roudiMemoryManager, *m_portManager, m_compLevel);
         m_sut->initIntrospection(&m_processIntrospection);
     }
 
     void TearDown() override
     {
-        m_roudiMemoryManager.reset();
-        m_portManager.reset();
-        m_sut.reset();
     }
 
     const iox::ProcessName_t m_processname{"TestProcess"};
@@ -58,7 +56,6 @@ class ProcessManager_test : public Test
     PosixUser m_user{iox::posix::PosixUser::getUserOfCurrentProcess().getName()};
     const bool m_isMonitored{true};
     VersionInfo m_versionInfo{42U, 42U, 42U, 42U, "Foo", "Bar"};
-    CompatibilityCheckLevel m_compLevel{CompatibilityCheckLevel::OFF};
 
     IpcInterfaceCreator m_processIpcInterface{m_processname};
     ProcessIntrospectionType m_processIntrospection;

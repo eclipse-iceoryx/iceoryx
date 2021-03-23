@@ -214,11 +214,12 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
             }
             else
             {
-                // process exists and is not monitored - remove it and add the new process afterwards
+                // process exists and is not monitored, we expect that the existing process crashed
                 LogDebug() << "Registering already existing application " << name;
 
-                // remove existing process
-                if (!searchForProcessAndRemoveIt(name))
+                // remove the existing process and add the new process afterwards, we do not send ack to new process
+                constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
+                if (!searchForProcessAndRemoveIt(name, terminationFeedback))
                 {
                     LogWarn()
                         << "Received REG from " << name
@@ -229,29 +230,27 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                 {
                     LogDebug() << "Removed existing application " << name;
                     // try registration again, should succeed since removal was successful
-                    addProcess(name,
-                               pid,
-                               segmentInfo.m_memoryManager,
-                               isMonitored,
-                               transmissionTimestamp,
-                               segmentInfo.m_segmentID,
-                               sessionId,
-                               versionInfo);
-                    returnValue = true;
+                    returnValue = addProcess(name,
+                                             pid,
+                                             segmentInfo.m_memoryManager,
+                                             isMonitored,
+                                             transmissionTimestamp,
+                                             segmentInfo.m_segmentID,
+                                             sessionId,
+                                             versionInfo);
                 }
             }
         },
         [&]() {
             // process does not exist in list and can be added
-            addProcess(name,
-                       pid,
-                       segmentInfo.m_memoryManager,
-                       isMonitored,
-                       transmissionTimestamp,
-                       segmentInfo.m_segmentID,
-                       sessionId,
-                       versionInfo);
-            returnValue = true;
+            returnValue = addProcess(name,
+                                     pid,
+                                     segmentInfo.m_memoryManager,
+                                     isMonitored,
+                                     transmissionTimestamp,
+                                     segmentInfo.m_segmentID,
+                                     sessionId,
+                                     versionInfo);
         });
 
     return returnValue;
@@ -304,7 +303,8 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
 
 bool ProcessManager::unregisterProcess(const ProcessName_t& name) noexcept
 {
-    if (!searchForProcessAndRemoveIt(name))
+    constexpr TerminationFeedback feedback{TerminationFeedback::SEND_ACK_TO_PROCESS};
+    if (!searchForProcessAndRemoveIt(name, feedback))
     {
         LogError() << "Application " << name << " could not be unregistered!";
         return false;
@@ -312,7 +312,7 @@ bool ProcessManager::unregisterProcess(const ProcessName_t& name) noexcept
     return true;
 }
 
-bool ProcessManager::searchForProcessAndRemoveIt(const ProcessName_t& name) noexcept
+bool ProcessManager::searchForProcessAndRemoveIt(const ProcessName_t& name, const TerminationFeedback feedback) noexcept
 {
     // we need to search for the process (currently linear search)
     auto it = m_processList.begin();
@@ -321,7 +321,7 @@ bool ProcessManager::searchForProcessAndRemoveIt(const ProcessName_t& name) noex
         auto otherName = it->getName();
         if (name == otherName)
         {
-            if (removeProcessAndDeleteRespectiveSharedMemoryObjects(it))
+            if (removeProcessAndDeleteRespectiveSharedMemoryObjects(it, feedback))
             {
                 LogDebug() << "Removed existing application " << name;
             }
@@ -332,17 +332,21 @@ bool ProcessManager::searchForProcessAndRemoveIt(const ProcessName_t& name) noex
     return false;
 }
 
-bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(ProcessList_t::iterator& processIter) noexcept
+bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(ProcessList_t::iterator& processIter,
+                                                                         const TerminationFeedback feedback) noexcept
 {
     if (processIter != m_processList.end())
     {
         m_portManager.deletePortsOfProcess(processIter->getName());
         m_processIntrospection->removeProcess(static_cast<int32_t>(processIter->getPid()));
 
-        // Reply with TERMINATION_ACK and let process shutdown
-        runtime::IpcMessage sendBuffer;
-        sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::TERMINATION_ACK);
-        processIter->sendViaIpcChannel(sendBuffer);
+        if (feedback == TerminationFeedback::SEND_ACK_TO_PROCESS)
+        {
+            // Reply with TERMINATION_ACK and let process shutdown
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::TERMINATION_ACK);
+            processIter->sendViaIpcChannel(sendBuffer);
+        }
 
         processIter = m_processList.erase(processIter); // delete application
         return true;
