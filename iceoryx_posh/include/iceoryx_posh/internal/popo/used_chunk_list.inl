@@ -23,8 +23,15 @@ namespace iox
 namespace popo
 {
 template <uint32_t Size>
+constexpr typename UsedChunkList<Size>::DataElement_t UsedChunkList<Size>::DATA_ELEMENT_NULLPTR;
+
+template <uint32_t Size>
 UsedChunkList<Size>::UsedChunkList()
 {
+    static_assert(sizeof(DataElement_t) <= 8U, "The size of the data element type must not exceed 64 bit!");
+    static_assert(std::is_trivially_copyable<DataElement_t>::value,
+                  "The data element type must be trivially copyable!");
+
     init();
 }
 
@@ -41,7 +48,12 @@ bool UsedChunkList<Size>::insert(mepoo::SharedChunk chunk)
         m_usedListHead = m_freeListHead;
 
         // store chunk mgmt ptr
-        m_listData[m_usedListHead] = chunk.release();
+        rp::RelativePointer<mepoo::ChunkManagement> ptr = chunk.release();
+        auto segment = ptr.getId();
+        auto offset = ptr.getOffset();
+        cxx::Ensures(segment < DataElement_t::MAX_SEGMENT && "relative_ptr Id must fit into segment type!");
+        cxx::Ensures(offset < DataElement_t::MAX_OFFSET && "relative_ptr offset must fit into offset type!");
+        m_listData[m_usedListHead] = DataElement_t(static_cast<uint16_t>(segment), offset);
 
         // set freeListHead to the next free entry
         m_freeListHead = nextFree;
@@ -64,30 +76,35 @@ bool UsedChunkList<Size>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::S
     // go through usedList with stored chunks
     for (auto current = m_usedListHead; current != InvalidIndex; current = m_listNodes[current])
     {
-        // does the entry match the one we want to remove?
-        if (m_listData[current] != nullptr && m_listData[current]->m_chunkHeader == chunkHeader)
+        if (!m_listData[current].isNullptr())
         {
-            // return the chunk mgmt entry as SharedChunk object
-            chunk = mepoo::SharedChunk(m_listData[current]);
-            m_listData[current] = nullptr;
-
-            // remove index from used list
-            if (current == m_usedListHead)
+            auto chunkMgmt =
+                rp::RelativePointer<mepoo::ChunkManagement>(m_listData[current].offset, m_listData[current].segment);
+            // does the entry match the one we want to remove?
+            if (chunkMgmt->m_chunkHeader == chunkHeader)
             {
-                m_usedListHead = m_listNodes[current];
-            }
-            else
-            {
-                m_listNodes[previous] = m_listNodes[current];
-            }
+                // return the chunk mgmt entry as SharedChunk object
+                chunk = mepoo::SharedChunk(chunkMgmt);
+                m_listData[current] = DATA_ELEMENT_NULLPTR;
 
-            // insert index to free list
-            m_listNodes[current] = m_freeListHead;
-            m_freeListHead = current;
+                // remove index from used list
+                if (current == m_usedListHead)
+                {
+                    m_usedListHead = m_listNodes[current];
+                }
+                else
+                {
+                    m_listNodes[previous] = m_listNodes[current];
+                }
 
-            /// @todo can we do this cheaper with a global fence in cleanup?
-            m_synchronizer.clear(std::memory_order_release);
-            return true;
+                // insert index to free list
+                m_listNodes[current] = m_freeListHead;
+                m_freeListHead = current;
+
+                /// @todo can we do this cheaper with a global fence in cleanup?
+                m_synchronizer.clear(std::memory_order_release);
+                return true;
+            }
         }
         previous = current;
     }
@@ -101,9 +118,9 @@ void UsedChunkList<Size>::cleanup()
 
     for (auto& data : m_listData)
     {
-        if (data != nullptr)
+        if (!data.isNullptr())
         {
-            mepoo::SharedChunk{data};
+            mepoo::SharedChunk{rp::RelativePointer<mepoo::ChunkManagement>(data.offset, data.segment)};
         }
     }
 
@@ -135,7 +152,7 @@ void UsedChunkList<Size>::init()
     // clear data
     for (auto& data : m_listData)
     {
-        data = nullptr;
+        data = DATA_ELEMENT_NULLPTR;
     }
 
     m_synchronizer.clear(std::memory_order_release);

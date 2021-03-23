@@ -71,12 +71,48 @@ class UsedChunkList
   private:
     static constexpr uint32_t InvalidIndex{Size};
 
+    // this shall be moved to the RelativePointer implementation
+    struct RelativePointerData
+    {
+        constexpr RelativePointerData() noexcept
+            : segment(MAX_SEGMENT)
+            , offset(MAX_OFFSET)
+        {
+        }
+        constexpr RelativePointerData(uint16_t segment, uint64_t offset) noexcept
+            : segment(segment)
+            , offset(offset & MAX_OFFSET)
+        {
+            cxx::Ensures(offset < MAX_OFFSET && "offset must not exceed MAX:OFFSET!");
+        }
+
+        uint16_t segment : 16;
+        uint64_t offset : 48;
+
+        void reset()
+        {
+            constexpr RelativePointerData NULLPTR_EQUIVALENT{};
+            *this = NULLPTR_EQUIVALENT;
+        }
+
+        bool isNullptr()
+        {
+            return segment == MAX_SEGMENT && offset == MAX_OFFSET;
+        }
+
+        static constexpr uint64_t MAX_SEGMENT{std::numeric_limits<uint16_t>::max()};
+        static constexpr uint64_t MAX_OFFSET{(1ULL << 48) - 1};
+    };
+
+    using DataElement_t = RelativePointerData;
+    static constexpr DataElement_t DATA_ELEMENT_NULLPTR{};
+
   private:
     std::atomic_flag m_synchronizer = ATOMIC_FLAG_INIT;
     uint32_t m_usedListHead{InvalidIndex};
     uint32_t m_freeListHead{0u};
     uint32_t m_listNodes[Size];
-    rp::RelativePointer<mepoo::ChunkManagement> m_listData[Size];
+    DataElement_t m_listData[Size];
 };
 
 } // namespace popo
