@@ -15,3 +15,6 @@ plugins:
   - search
 theme:
   name: 'material'
+extra:
+  version:
+    provider: mike
