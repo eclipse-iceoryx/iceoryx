@@ -257,15 +257,19 @@ using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 /// @endcode
 #define IOX_DISCARD_RESULT(expr) static_cast<void>(expr) // NOLINT
 
-// the __attribute__((warn_unused)) is even stronger than [[nodiscard]] therefore we prefer it
-// whenever possible
-#if defined(__GNUC__) || defined(__clang__)
-#define IOX_NO_DISCARD __attribute__((warn_unused)) // NOLINT
+/// @brief IOX_NO_DISCARD adds the [[nodiscard]] keyword if it is available for the current compiler.
+///        If additionally the keyword [[gnu::warn_unused]] is present it will be added as well.
+/// @note
+//    [[nodiscard]], [[gnu::warn_unused]] supported since gcc 4.8 (https://gcc.gnu.org/projects/cxx-status.html)
+///   [[nodiscard]], [[gnu::warn_unused]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
+///   activate keywords for gcc>=5 or clang>=4
+#if (defined(__GNUC__) && __GNUC__ >= 5) || (defined(__clang__) && __clang_major >= 4)
+#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]] // NOLINT
 #else
-// on Mac OS and WIN32 we are using C++17 which makes the keyword [[nodiscard]] available
-#if defined(__APPLE__) || defined(_WIN32)
+// On WIN32 we are using C++17 which makes the keyword [[nodiscard]] available
+#if defined(_WIN32)
 #define IOX_NO_DISCARD [[nodiscard]] // NOLINT
-// on an unknown platform we use for now nothing since we do not know what
+// on an unknown platform we use for now nothing since we do not know what is supported there
 #else
 #define IOX_NO_DISCARD
 #endif
