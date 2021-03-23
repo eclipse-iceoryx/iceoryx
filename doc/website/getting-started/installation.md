@@ -129,7 +129,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
 ### Build options
 
-Please take a look at the CMake file [build_options.cmake](../../../iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
+Please take a look at the CMake file [build_options.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
 
 ## Build with script
 
