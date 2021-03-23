@@ -195,28 +195,11 @@ void MemoryManager::configureMemoryManager(const MePooConfig& f_mePooConfig,
     generateChunkManagementPool(f_managementAllocator);
 }
 
-/// @todo iox-#14 use ChunkSettings
-SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
-                                    const uint32_t payloadAlignment,
-                                    const uint32_t customHeaderSize,
-                                    const uint32_t customHeaderAlignment) noexcept
+SharedChunk MemoryManager::getChunk(const ChunkSettings& chunkSettings) noexcept
 {
     void* chunk{nullptr};
     MemPool* memPoolPointer{nullptr};
-
-    auto chunkSettingsResult =
-        ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
-
-    if (chunkSettingsResult.has_error())
-    {
-        LogFatal() << "Invalid settings provided for the chunk!";
-
-        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_WITH_INVALID_SETTINGS, nullptr, ErrorLevel::SEVERE);
-        return SharedChunk(nullptr);
-    }
-
-    auto& chunkSettings = chunkSettingsResult.value();
-    auto requiredChunkSize = chunkSettings.requiredChunkSize();
+    const auto requiredChunkSize = chunkSettings.requiredChunkSize();
 
     uint32_t aquiredChunkSize = 0U;
 
@@ -253,7 +236,7 @@ SharedChunk MemoryManager::getChunk(const uint32_t payloadSize,
     else if (chunk == nullptr)
     {
         auto log = LogError();
-        log << "MemoryManager: unable to acquire a chunk with a payload size of " << payloadSize;
+        log << "MemoryManager: unable to acquire a chunk with a payload size of " << chunkSettings.payloadSize();
         log << "The following mempools are available:";
         printMemPoolVector(log);
         log.Flush();

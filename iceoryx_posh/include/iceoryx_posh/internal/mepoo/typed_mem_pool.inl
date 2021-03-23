@@ -126,10 +126,12 @@ inline uint32_t TypedMemPool<T>::getUsedChunks() const noexcept
 template <typename T>
 inline uint64_t TypedMemPool<T>::requiredChunkSize() noexcept
 {
+    auto chunkSettingsResult = mepoo::ChunkSettings::create(sizeof(T), alignof(T));
+    // this is safe since we use correct values for size and alignment
+    auto& chunkSettings = chunkSettingsResult.value();
+
     return cxx::align(
-        std::max(static_cast<uint64_t>(MemoryManager::requiredChunkSize(
-                     sizeof(T), alignof(T), CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)),
-                 posix::Allocator::MEMORY_ALIGNMENT),
+        std::max(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), posix::Allocator::MEMORY_ALIGNMENT),
         MemPool::MEMORY_ALIGNMENT);
 }
 

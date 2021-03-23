@@ -20,6 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_posh/mepoo/chunk_settings.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -56,10 +57,7 @@ class MemoryManager
                                 posix::Allocator* f_managementAllocator,
                                 posix::Allocator* f_payloadAllocator) noexcept;
 
-    SharedChunk getChunk(const uint32_t payloadSize,
-                         const uint32_t payloadAlignment,
-                         const uint32_t customHeaderSize,
-                         const uint32_t customHeaderAlignment) noexcept;
+    SharedChunk getChunk(const ChunkSettings& chunkSettings) noexcept;
 
     uint32_t getNumberOfMemPools() const noexcept;
 

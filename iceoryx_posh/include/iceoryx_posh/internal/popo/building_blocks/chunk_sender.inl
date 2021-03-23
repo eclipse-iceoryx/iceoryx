@@ -51,8 +51,6 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
     const auto chunkSettingsResult =
         mepoo::ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
-
-
     if (chunkSettingsResult.has_error())
     {
         return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_CHUNK);
@@ -81,9 +79,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
     {
         // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
         // get a new chunk
-        /// @todo iox-#14 also use ChunkSettings for MemoryManager::getChunk
-        mepoo::SharedChunk chunk =
-            getMembers()->m_memoryMgr->getChunk(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        mepoo::SharedChunk chunk = getMembers()->m_memoryMgr->getChunk(chunkSettings);
 
         if (chunk)
         {

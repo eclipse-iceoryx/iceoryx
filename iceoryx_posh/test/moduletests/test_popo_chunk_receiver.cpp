@@ -59,10 +59,15 @@ class ChunkReceiver_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
-        return m_memoryManager.getChunk(sizeof(DummySample),
-                                        alignof(DummySample),
-                                        iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                        iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(DummySample), alignof(DummySample));
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        return m_memoryManager.getChunk(chunkSettings);
     }
 
     static constexpr size_t MEGABYTE = 1 << 20;
