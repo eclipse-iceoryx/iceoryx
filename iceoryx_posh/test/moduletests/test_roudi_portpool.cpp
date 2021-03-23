@@ -73,6 +73,11 @@ TEST_F(PortPool_test, AddNodeDataWithMaxCapacityIsSuccessful)
 
 TEST_F(PortPool_test, AddNodeDataWhenNodeListIsFullReturnsError)
 {
+    for (uint32_t i = 0U; i < MAX_NODE_NUMBER; ++i)
+    {
+        ASSERT_FALSE(sut.addNodeData(m_processName, m_nodeName, i).has_error());
+    }
+
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
@@ -81,10 +86,7 @@ TEST_F(PortPool_test, AddNodeDataWhenNodeListIsFullReturnsError)
             errorHandlerCalled = true;
         });
 
-    for (uint32_t i = 0U; i <= MAX_NODE_NUMBER; ++i)
-    {
-        ASSERT_FALSE(sut.addNodeData(m_processName, m_nodeName, i).has_error());
-    }
+    ASSERT_TRUE(sut.addNodeData(m_processName, m_nodeName, MAX_NODE_NUMBER).has_error());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_EQ(errorHandlerType, Error::kPORT_POOL__NODELIST_OVERFLOW);
@@ -168,6 +170,25 @@ TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
 
 TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
 {
+    auto addPublisherPort = [&](const uint32_t i) -> bool {
+        std::string service = "service" + std::to_string(i);
+        std::string instance = "instance" + std::to_string(i);
+        ProcessName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+
+        return sut
+            .addPublisherPort(
+                {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
+                &m_memoryManager,
+                applicationName,
+                m_publisherOptions)
+            .has_error();
+    };
+
+    for (uint32_t i = 0U; i < MAX_PUBLISHERS; ++i)
+    {
+        EXPECT_FALSE(addPublisherPort(i));
+    }
+
     auto errorHandlerCalled{false};
     Error errorHandlerType;
     auto errorHandlerGuard =
@@ -176,19 +197,7 @@ TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
             errorHandlerCalled = true;
         });
 
-    for (uint32_t i = 0U; i <= MAX_PUBLISHERS; ++i)
-    {
-        std::string service = "service" + std::to_string(i);
-        std::string instance = "instance" + std::to_string(i);
-        ProcessName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
-
-        ASSERT_FALSE(sut.addPublisherPort({IdString_t(cxx::TruncateToCapacity, service),
-                                           IdString_t(cxx::TruncateToCapacity, instance)},
-                                          &m_memoryManager,
-                                          applicationName,
-                                          m_publisherOptions)
-                         .has_error());
-    }
+    EXPECT_TRUE(addPublisherPort(MAX_PUBLISHERS));
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_EQ(errorHandlerType, Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW);

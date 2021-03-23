@@ -161,7 +161,7 @@ TEST_F(UserTrigger_test, AttachingToSameWaitsetTwiceLeadsToOneAttachment)
     UserTrigger sut;
 
     ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
-    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
+    ASSERT_TRUE(m_waitSet.attachEvent(m_sut).has_error());
 
     EXPECT_EQ(m_waitSet.size(), 1U);
 }
@@ -192,7 +192,7 @@ TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 {
     UserTrigger sut;
-    ASSERT_FALSE(m_waitSet.attachEvent(sut, 123U, &UserTrigger_test::callback));
+    ASSERT_FALSE(m_waitSet.attachEvent(sut, 123U, &UserTrigger_test::callback).has_error());
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();

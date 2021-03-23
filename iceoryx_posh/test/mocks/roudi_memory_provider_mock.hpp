@@ -31,7 +31,10 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
   public:
     ~MemoryProviderTestImpl()
     {
-        EXPECT_FALSE(destroy().has_error());
+        if (isAvailable())
+        {
+            EXPECT_FALSE(destroy().has_error());
+        }
     }
 
     iox::cxx::expected<void*, iox::roudi::MemoryProviderError> createMemory(const uint64_t size,

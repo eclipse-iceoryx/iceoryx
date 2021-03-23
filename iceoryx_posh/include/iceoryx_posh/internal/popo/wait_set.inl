@@ -58,12 +58,9 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
         return cxx::error<WaitSetError>(WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET);
     }
 
-    Trigger possibleLogicallyEqualTrigger(
-        &eventOrigin, hasTriggeredCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>(), 0U);
-
     for (auto& currentTrigger : m_triggerList)
     {
-        if (currentTrigger.isLogicalEqualTo(possibleLogicallyEqualTrigger))
+        if (currentTrigger.isLogicalEqualTo(&eventOrigin, hasTriggeredCallback))
         {
             return cxx::error<WaitSetError>(WaitSetError::EVENT_ALREADY_ATTACHED);
         }

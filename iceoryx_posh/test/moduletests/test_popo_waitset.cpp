@@ -218,7 +218,7 @@ TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
     constexpr uint64_t USER_DEFINED_EVENT_ID = 0U;
     {
         SimpleEventClass temporaryTrigger;
-        ASSERT_FALSE(m_sut.attachEvent(temporaryTrigger, USER_DEFINED_EVENT_ID));
+        ASSERT_FALSE(m_sut.attachEvent(temporaryTrigger, USER_DEFINED_EVENT_ID).has_error());
         // goes out of scope here and creates space again for an additional trigger
         // if this doesn't work we are unable to acquire another trigger since the
         // waitset is already full
