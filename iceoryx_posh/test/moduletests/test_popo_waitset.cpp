@@ -23,6 +23,7 @@
 #include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
+#include "testutils/watch_dog.hpp"
 
 #include <chrono>
 #include <memory>
@@ -151,6 +152,8 @@ class WaitSet_test : public Test
         }
     }
 
+    const iox::units::Duration m_timeToWait = 2_s;
+    Watchdog m_watchdog{m_timeToWait};
     using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1>;
     eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1};
 };
@@ -429,6 +432,7 @@ void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
 
     test->m_simpleEvents[0].trigger();
 
+    test->m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(1U));
 
@@ -459,6 +463,7 @@ void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
     test->m_simpleEvents[0].trigger();
     test->m_simpleEvents[1].trigger();
 
+    test->m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(2U));
 
@@ -520,7 +525,7 @@ TEST_F(WaitSet_test, TriggerGoesOutOfScopeReducesSize)
 }
 
 
-TEST_F(WaitSet_test, NonResettedEventsAreReturnedAgain)
+TEST_F(WaitSet_test, NonResetEventsAreReturnedAgain)
 {
     attachAllEvents();
 
@@ -530,6 +535,7 @@ TEST_F(WaitSet_test, NonResettedEventsAreReturnedAgain)
     m_simpleEvents[7].autoResetTrigger = false;
     m_simpleEvents[7].trigger();
 
+    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto eventVector = m_sut.wait();
 
     // ACT
@@ -540,7 +546,7 @@ TEST_F(WaitSet_test, NonResettedEventsAreReturnedAgain)
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
 }
 
-TEST_F(WaitSet_test, WhenEventIsNotResettedButEverythingElseItIsReturnedAgain)
+TEST_F(WaitSet_test, WhenEventIsNotResetButEverythingElseItIsReturnedAgain)
 {
     attachAllEvents();
 
@@ -563,7 +569,7 @@ TEST_F(WaitSet_test, WhenEventIsNotResettedButEverythingElseItIsReturnedAgain)
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
 }
 
-TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredBeforeItIsReturnedAgain)
+TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredBeforeItIsReturnedAgain)
 {
     attachAllEvents();
 
@@ -582,7 +588,7 @@ TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredBeforeItIsReturnedAg
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
 }
 
-TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredAfterItIsReturnedAgain)
+TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredAfterItIsReturnedAgain)
 {
     attachAllEvents();
 
@@ -601,7 +607,7 @@ TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredAfterItIsReturnedAga
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
 }
 
-TEST_F(WaitSet_test, WhenEventIsNotResettedAndOneIsTriggeredItIsReturnedAgain)
+TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredItIsReturnedAgain)
 {
     attachAllEvents();
 

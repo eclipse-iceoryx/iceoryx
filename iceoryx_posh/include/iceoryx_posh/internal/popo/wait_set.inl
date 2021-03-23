@@ -141,12 +141,12 @@ inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args)
 template <uint64_t Capacity>
 inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    for (uint64_t i = 0U; i < Capacity; ++i)
+    for (auto& trigger : m_triggerArray)
     {
-        if (m_triggerArray[i].has_value() && m_triggerArray[i]->getUniqueId() == uniqueTriggerId)
+        if (trigger.has_value() && trigger->getUniqueId() == uniqueTriggerId)
         {
-            m_triggerArray[i]->invalidate();
-            m_triggerArray[i].reset();
+            trigger->invalidate();
+            trigger.reset();
             cxx::Ensures(m_indexRepository.push(uniqueTriggerId));
             return;
         }

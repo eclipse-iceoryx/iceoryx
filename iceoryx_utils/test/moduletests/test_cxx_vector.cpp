@@ -1256,7 +1256,8 @@ TEST_F(vector_test, EmplaceWhenFullReturnsFalse)
         sut.emplace_back(i);
     }
 
-    EXPECT_FALSE(sut.emplace(3U, 5));
+    auto index = sut.capacity() / 2;
+    EXPECT_FALSE(sut.emplace(index, 5));
     EXPECT_THAT(sut.size(), Eq(sut.capacity()));
 }
 

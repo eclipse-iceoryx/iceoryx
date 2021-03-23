@@ -188,9 +188,9 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
     }
 
     emplace_back(std::move(*reinterpret_cast<T*>(m_data[m_size - 1U])));
-    for (uint64_t i = 1U; i + 1U < m_size - position; ++i)
+    for (uint64_t i = m_size - 1U; i > position; --i)
     {
-        reinterpret_cast<T*>(m_data)[m_size - 1U - i] = std::move(reinterpret_cast<T*>(m_data)[m_size - 2U - i]);
+        reinterpret_cast<T*>(m_data)[i] = std::move(reinterpret_cast<T*>(m_data)[i - 1U]);
     }
 
     new (&at(position)) T(std::forward<Targs>(args)...);

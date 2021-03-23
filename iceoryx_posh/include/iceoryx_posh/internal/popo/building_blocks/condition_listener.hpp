@@ -58,8 +58,8 @@ class ConditionListener
 
     /// @brief returns a sorted vector of indices of active notifications; blocking for the specified time if
     /// ConditionVariableData was not notified unless destroy() was called before.
-    /// The indices of active notifications are never empty unless destroy() was called,
-    /// then it's always empty.
+    /// The indices of active notifications can be empty (spurious wakeups). When destroy() was called then it
+    /// is always empty.
     /// @param[in] timeToWait duration how long at most this method should wait
     ///
     /// @return a sorted vector of active notifications
