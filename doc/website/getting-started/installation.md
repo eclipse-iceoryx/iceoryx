@@ -67,9 +67,11 @@ We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools
 ARM_64: `./tools/iceoryx_build_test.sh -t /home/user/toolchains/qnx/qnx_sdp70_aarch64le.cmake`<br>
 X86_64: `./tools/iceoryx_build_test.sh -t /home/user/toolchains/qnx/qnx_sdp70_x86_64.cmake`
 
+**attention** Please ensure the filesystem on `/tmp` supports file locking.
+
 ## Build with CMake
 
-!!! note
+**note**
     Requires CMake version 3.5 or higher. Building from CMake is the preferred way, for more complex actions like a coverage scan
     is a script available (see chapter below).
 
