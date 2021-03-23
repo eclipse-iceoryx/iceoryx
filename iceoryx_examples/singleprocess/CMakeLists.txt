@@ -21,11 +21,10 @@ project(example_singleprocess)
 include(GNUInstallDirs)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
+find_package(iceoryx_utils CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
-if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatform)
-endif ()
+include(IceoryxPlatform)
 
 add_executable(single_process ./single_process.cpp)
 target_link_libraries(single_process
