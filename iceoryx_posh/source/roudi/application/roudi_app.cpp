@@ -60,8 +60,10 @@ void RouDiApp::roudiSigHandler(int32_t signal) noexcept
             LogWarn() << "SIGHUP not supported by RouDi";
         }
         // Post semaphore to exit
-        g_RouDiApp->m_semaphore.post().or_else(
-            [](auto) { LogError() << "RouDi app semaphore seems corrupted. Unable to send termination signal."; });
+        g_RouDiApp->m_semaphore.post().or_else([](auto) {
+            LogFatal() << "RouDi app semaphore seems corrupted. Unable to send termination signal.";
+            std::terminate();
+        });
     }
 }
 

@@ -38,8 +38,10 @@ iox::cxx::optional<CounterTopic> rightCache;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    shutdownSemaphore.post().or_else(
-        [](auto) { std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl; });
+    shutdownSemaphore.post().or_else([](auto) {
+        std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
+        std::terminate();
+    });
     keepRunning = false;
 }
 

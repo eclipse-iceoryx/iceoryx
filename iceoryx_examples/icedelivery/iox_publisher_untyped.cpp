@@ -67,7 +67,7 @@ int main()
         {
             auto error = result.get_error();
             // Ignore unused variable warning
-            IOX_DISCARD_RESULT(error);
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             // Do something with the error
         }
 
@@ -86,7 +86,7 @@ int main()
             })
             .or_else([&](iox::popo::AllocationError error) {
                 // Ignore unused variable warning
-                IOX_DISCARD_RESULT(error);
+                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
                 // Do something with the error
             });
 
