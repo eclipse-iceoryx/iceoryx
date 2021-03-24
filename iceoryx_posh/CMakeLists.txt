@@ -70,6 +70,7 @@ add_library(iceoryx_posh
     source/capro/capro_message.cpp
     source/capro/service_description.cpp
     source/mepoo/chunk_header.cpp
+    source/mepoo/chunk_settings.cpp
     source/mepoo/mepoo_config.cpp
     source/mepoo/segment_config.cpp
     source/mepoo/memory_manager.cpp

@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,14 +71,14 @@ TEST_F(UserTrigger_test, canBeTriggeredMultipleTimesWhenNotAttached)
 
 TEST_F(UserTrigger_test, canBeTriggeredWhenAttached)
 {
-    m_waitSet.attachEvent(m_sut);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
     m_sut.trigger();
     EXPECT_TRUE(m_sut.hasTriggered());
 }
 
 TEST_F(UserTrigger_test, canBeTriggeredMultipleTimesWhenAttached)
 {
-    m_waitSet.attachEvent(m_sut);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
     m_sut.trigger();
     m_sut.trigger();
     m_sut.trigger();
@@ -94,7 +95,7 @@ TEST_F(UserTrigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 
 TEST_F(UserTrigger_test, resetTriggerWhenTriggeredResultsInNotTriggered)
 {
-    m_waitSet.attachEvent(m_sut);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
     m_sut.trigger();
     m_sut.resetTrigger();
 
@@ -103,7 +104,7 @@ TEST_F(UserTrigger_test, resetTriggerWhenTriggeredResultsInNotTriggered)
 
 TEST_F(UserTrigger_test, resetTriggerAndTriggerAgainResultsInTriggered)
 {
-    m_waitSet.attachEvent(m_sut);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
     m_sut.trigger();
     m_sut.resetTrigger();
     m_sut.trigger();
@@ -113,7 +114,7 @@ TEST_F(UserTrigger_test, resetTriggerAndTriggerAgainResultsInTriggered)
 
 TEST_F(UserTrigger_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTriggered)
 {
-    m_waitSet.attachEvent(m_sut);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
     m_sut.trigger();
     m_sut.resetTrigger();
     m_sut.resetTrigger();
@@ -126,7 +127,7 @@ TEST_F(UserTrigger_test, UserTriggerGoesOutOfScopeCleansupAtWaitSet)
 {
     {
         UserTrigger sut;
-        m_waitSet.attachEvent(sut);
+        ASSERT_FALSE(m_waitSet.attachEvent(sut).has_error());
     }
 
     EXPECT_EQ(m_waitSet.size(), 0U);
@@ -137,8 +138,8 @@ TEST_F(UserTrigger_test, ReattachedUserTriggerCleansUpWhenOutOfScope)
     {
         UserTrigger sut;
 
-        m_waitSet.attachEvent(sut);
-        m_waitSet2.attachEvent(sut);
+        ASSERT_FALSE(m_waitSet.attachEvent(sut).has_error());
+        ASSERT_FALSE(m_waitSet2.attachEvent(sut).has_error());
     }
 
     EXPECT_EQ(m_waitSet.size(), 0U);
@@ -149,8 +150,8 @@ TEST_F(UserTrigger_test, AttachingToAnotherWaitSetCleansupFirstWaitset)
 {
     UserTrigger sut;
 
-    m_waitSet.attachEvent(m_sut);
-    m_waitSet2.attachEvent(m_sut);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
+    ASSERT_FALSE(m_waitSet2.attachEvent(m_sut).has_error());
 
     EXPECT_EQ(m_waitSet.size(), 0U);
     EXPECT_EQ(m_waitSet2.size(), 1U);
@@ -160,8 +161,8 @@ TEST_F(UserTrigger_test, AttachingToSameWaitsetTwiceLeadsToOneAttachment)
 {
     UserTrigger sut;
 
-    m_waitSet.attachEvent(m_sut);
-    m_waitSet.attachEvent(m_sut);
+    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
+    ASSERT_TRUE(m_waitSet.attachEvent(m_sut).has_error());
 
     EXPECT_EQ(m_waitSet.size(), 1U);
 }
@@ -171,7 +172,7 @@ TEST_F(UserTrigger_test, TriggersWaitSet)
     using namespace iox::units::duration_literals;
     UserTrigger sut;
 
-    m_waitSet.attachEvent(sut, 4412U);
+    ASSERT_FALSE(m_waitSet.attachEvent(sut, 4412U).has_error());
     sut.trigger();
 
     auto result = m_waitSet.timedWait(1_s);
@@ -182,7 +183,7 @@ TEST_F(UserTrigger_test, TriggersWaitSet)
 TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
 {
     UserTrigger sut;
-    m_waitSet.attachEvent(sut);
+    ASSERT_FALSE(m_waitSet.attachEvent(sut).has_error());
 
     m_waitSet.detachEvent(sut);
 
@@ -192,7 +193,7 @@ TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 {
     UserTrigger sut;
-    m_waitSet.attachEvent(sut, 123U, &UserTrigger_test::callback);
+    ASSERT_FALSE(m_waitSet.attachEvent(sut, 123U, &UserTrigger_test::callback).has_error());
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();
@@ -205,7 +206,7 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
 {
     UserTrigger sut;
-    m_waitSet.attachEvent(sut, 0U, &UserTrigger_test::callback);
+    ASSERT_FALSE(m_waitSet.attachEvent(sut, 0U, &UserTrigger_test::callback).has_error());
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();

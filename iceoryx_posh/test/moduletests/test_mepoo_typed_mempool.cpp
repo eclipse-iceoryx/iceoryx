@@ -87,6 +87,7 @@ TEST_F(TypedMemPool_test, ReleaseChunkWhenGoingOutOfScope)
 {
     {
         auto object = sut.createObject(1, 234);
+        EXPECT_FALSE(object.has_error());
         EXPECT_THAT(sut.getUsedChunks(), Eq(1));
     }
     EXPECT_THAT(sut.getUsedChunks(), Eq(0));
@@ -98,6 +99,10 @@ TEST_F(TypedMemPool_test, OutOfChunksErrorWhenFull)
     auto object2 = sut.createObject(0xaffe, 0xdead);
     auto object3 = sut.createObject(0xaffe, 0xdead);
     auto object4 = sut.createObject(0xaffe, 0xdead);
+
+    EXPECT_FALSE(object1.has_error());
+    EXPECT_FALSE(object2.has_error());
+    EXPECT_FALSE(object3.has_error());
 
     EXPECT_THAT(object4.has_error(), Eq(true));
     EXPECT_THAT(object4.get_error(), Eq(TypedMemPoolError::OutOfChunks));

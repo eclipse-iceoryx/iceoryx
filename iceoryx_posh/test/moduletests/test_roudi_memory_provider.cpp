@@ -1,4 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -65,7 +66,7 @@ class MemoryProvider_Test : public Test
 
     iox::cxx::expected<MemoryProviderError> commonSetup()
     {
-        sut.addMemoryBlock(&memoryBlock1);
+        EXPECT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
         EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_SIZE));
         EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_ALIGNMENT));
         EXPECT_CALL(sut, createMemoryMock(COMMON_SETUP_MEMORY_SIZE, COMMON_SETUP_MEMORY_ALIGNMENT)).Times(1);
@@ -132,7 +133,7 @@ TEST_F(MemoryProvider_Test, AddMemoryBlock)
 
 TEST_F(MemoryProvider_Test, AddMemoryBlockDoesNotMakeMemoryAvailable)
 {
-    sut.addMemoryBlock(&memoryBlock1);
+    ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
     EXPECT_THAT(sut.isAvailable(), Eq(false));
 }
 
@@ -174,7 +175,7 @@ TEST_F(MemoryProvider_Test, CreateWithCommonSetupOfOneMemoryBlockIsSuccessful)
 TEST_F(MemoryProvider_Test, CreationFailed)
 {
     MemoryProviderFailingCreation sutFailure;
-    sutFailure.addMemoryBlock(&memoryBlock1);
+    ASSERT_FALSE(sutFailure.addMemoryBlock(&memoryBlock1).has_error());
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{8};
     EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
@@ -190,7 +191,7 @@ TEST_F(MemoryProvider_Test, CreationFailed)
 
 TEST_F(MemoryProvider_Test, CreateAndAnnounceWithOneMemoryBlock)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
     EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
@@ -200,8 +201,8 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithOneMemoryBlock)
 
 TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    sut.addMemoryBlock(&memoryBlock2);
+    ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
+    ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock2).has_error());
     uint64_t MEMORY_SIZE_1{16};
     uint64_t MEMORY_ALIGNMENT_1{8};
     uint64_t MEMORY_SIZE_2{32};
@@ -227,7 +228,7 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
 
 TEST_F(MemoryProvider_Test, AddMemoryBlockAfterCreation)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
     auto expectError = sut.addMemoryBlock(&memoryBlock2);
     ASSERT_THAT(expectError.has_error(), Eq(true));
@@ -236,7 +237,7 @@ TEST_F(MemoryProvider_Test, AddMemoryBlockAfterCreation)
 
 TEST_F(MemoryProvider_Test, MultipleCreates)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
     auto expectError = sut.create();
     ASSERT_THAT(expectError.has_error(), Eq(true));
@@ -245,7 +246,7 @@ TEST_F(MemoryProvider_Test, MultipleCreates)
 
 TEST_F(MemoryProvider_Test, MultipleAnnouncesAreSuppressed)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
     EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
@@ -256,7 +257,7 @@ TEST_F(MemoryProvider_Test, MultipleAnnouncesAreSuppressed)
 
 TEST_F(MemoryProvider_Test, MultipleDestroys)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
     EXPECT_THAT(sut.destroy().has_error(), Eq(false));
 
@@ -272,7 +273,7 @@ TEST_F(MemoryProvider_Test, IntialBaseAddressValueIsUnset)
 
 TEST_F(MemoryProvider_Test, BaseAddressValueAfterCreationIsValid)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
     auto baseAddress = sut.baseAddress();
     ASSERT_THAT(baseAddress.has_value(), Eq(true));
@@ -281,9 +282,9 @@ TEST_F(MemoryProvider_Test, BaseAddressValueAfterCreationIsValid)
 
 TEST_F(MemoryProvider_Test, BaseAddressValueAfterDestructionIsUnset)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
-    sut.destroy();
+    ASSERT_FALSE(sut.destroy().has_error());
 
     EXPECT_THAT(sut.baseAddress().has_value(), Eq(false));
 }
@@ -295,16 +296,16 @@ TEST_F(MemoryProvider_Test, InitialSizeValueIsZero)
 
 TEST_F(MemoryProvider_Test, SizeValueAfterCreationHasExpectedValue)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
     EXPECT_THAT(sut.size(), Eq(COMMON_SETUP_MEMORY_SIZE));
 }
 
 TEST_F(MemoryProvider_Test, SizeValueAfterDestructionIsZero)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
-    sut.destroy();
+    ASSERT_FALSE(sut.destroy().has_error());
 
     EXPECT_THAT(sut.size(), Eq(0u));
 }
@@ -320,7 +321,7 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
     uint8_t dummy[DummyMemorySize];
     auto segmentIdOffset = iox::rp::BaseRelativePointer::registerPtr(dummy, DummyMemorySize);
 
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
     auto segmentId = sut.segmentId();
     ASSERT_THAT(segmentId.has_value(), Eq(true));
@@ -331,9 +332,9 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
 
 TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)
 {
-    commonSetup();
+    ASSERT_FALSE(commonSetup().has_error());
 
-    sut.destroy();
+    ASSERT_FALSE(sut.destroy().has_error());
 
     EXPECT_THAT(sut.segmentId().has_value(), Eq(false));
 }

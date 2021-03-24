@@ -113,11 +113,16 @@ class SharedPointer_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(mempool.getChunkSize(),
-                                                                 PAYLOAD_SIZE,
-                                                                 iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                                                 iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                                                 iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+
+        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
         new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return v;
     }

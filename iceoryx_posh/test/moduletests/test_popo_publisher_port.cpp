@@ -511,10 +511,13 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
     // allocate some samples
     auto maybeChunkHeader1 = m_sutWithHistoryUserSide.tryAllocateChunk(
         sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    EXPECT_FALSE(maybeChunkHeader1.has_error());
     auto maybeChunkHeader2 = m_sutWithHistoryUserSide.tryAllocateChunk(
         sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    EXPECT_FALSE(maybeChunkHeader2.has_error());
     auto maybeChunkHeader3 = m_sutWithHistoryUserSide.tryAllocateChunk(
         sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    EXPECT_FALSE(maybeChunkHeader3.has_error());
 
     m_sutWithHistoryRouDiSide.releaseAllChunks();
 

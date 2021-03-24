@@ -20,6 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_posh/mepoo/chunk_settings.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -32,6 +33,10 @@
 
 namespace iox
 {
+namespace log
+{
+class LogStream;
+}
 namespace mepoo
 {
 struct MePooConfig;
@@ -52,27 +57,11 @@ class MemoryManager
                                 posix::Allocator& f_managementAllocator,
                                 posix::Allocator& f_payloadAllocator) noexcept;
 
-    SharedChunk getChunk(const uint32_t payloadSize,
-                         const uint32_t payloadAlignment,
-                         const uint32_t customHeaderSize,
-                         const uint32_t customHeaderAlignment) noexcept;
+    SharedChunk getChunk(const ChunkSettings& chunkSettings) noexcept;
 
     uint32_t getNumberOfMemPools() const noexcept;
 
     MemPoolInfo getMemPoolInfo(uint32_t f_index) const noexcept;
-
-    /// @brief calculates the required chunk size regarding the constraints on payload and custom header
-    /// @param[in] payloadSize is the size of the user payload without additional headers
-    /// @param[in] payloadAlignment is the alignment of the user payload
-    /// @param[in] customHeaderSize is the size of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_SIZE to omit
-    /// a custom header
-    /// @param[in] customHeaderAlignment is the alignment of the custom user header; use
-    /// iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT to omit a custom header
-    /// @return the minimum chunk size required to hold the user payload with the custom header
-    static uint32_t requiredChunkSize(const uint32_t payloadSize,
-                                      const uint32_t payloadAlignment,
-                                      const uint32_t customHeaderSize,
-                                      const uint32_t customHeaderAlignment) noexcept;
 
     static uint64_t requiredChunkMemorySize(const MePooConfig& f_mePooConfig) noexcept;
     static uint64_t requiredManagementMemorySize(const MePooConfig& f_mePooConfig) noexcept;
@@ -81,7 +70,7 @@ class MemoryManager
   private:
     static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
-    void printMemPoolVector() const noexcept;
+    void printMemPoolVector(log::LogStream& log) const noexcept;
     void addMemPool(posix::Allocator& f_managementAllocator,
                     posix::Allocator& f_payloadAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,

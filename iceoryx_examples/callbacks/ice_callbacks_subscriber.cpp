@@ -28,7 +28,7 @@
 #include <iostream>
 
 iox::posix::Semaphore shutdownSemaphore =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0).value();
+    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 
 std::atomic_bool keepRunning{true};
 constexpr char APP_NAME[] = "iox-ex-callbacks-subscriber";
@@ -38,7 +38,10 @@ iox::cxx::optional<CounterTopic> rightCache;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    shutdownSemaphore.post();
+    shutdownSemaphore.post().or_else([](auto) {
+        std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
+        std::terminate();
+    });
     keepRunning = false;
 }
 
@@ -100,14 +103,26 @@ int main()
     });
 
     // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
-    listener.attachEvent(heartbeat, heartbeatCallback);
-    listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
+    listener.attachEvent(heartbeat, heartbeatCallback).or_else([](auto) {
+        std::cerr << "unable to attach heartbeat event" << std::endl;
+        std::terminate();
+    });
+    listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+        .or_else([](auto) {
+            std::cerr << "unable to attach subscriberLeft" << std::endl;
+            std::terminate();
+        });
     // it is possible to attach any callback here with the required signature. to simplify the
     // example we attach the same callback onSampleReceivedCallback again
-    listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
+    listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+        .or_else([](auto) {
+            std::cerr << "unable to attach subscriberRight" << std::endl;
+            std::terminate();
+        });
 
     // wait until someone presses CTRL+c
-    shutdownSemaphore.wait();
+    shutdownSemaphore.wait().or_else(
+        [](auto) { std::cerr << "unable to call wait on shutdownSemaphore - semaphore corrupt?" << std::endl; });
 
     // optional detachEvent, but not required.
     //   when the listener goes out of scope it will detach all events and when a
