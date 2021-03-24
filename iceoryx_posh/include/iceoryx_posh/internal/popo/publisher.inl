@@ -51,7 +51,7 @@ inline cxx::expected<AllocationError> Publisher<T, H, base_publisher_t>::publish
 
     return loanSample().and_then([&](auto& sample) {
         c(sample.get(), std::forward<ArgTypes>(args)...);
-        publish(std::move(sample));
+        sample.publish();
     });
 }
 
@@ -60,7 +60,7 @@ inline cxx::expected<AllocationError> Publisher<T, H, base_publisher_t>::publish
 {
     return loanSample().and_then([&](auto& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
-        publish(std::move(sample));
+        sample.publish();
     });
 }
 
