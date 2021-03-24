@@ -17,24 +17,24 @@
 
 ## This exports the parsed version info
 ## Name : parse_version
-## Params: VERSION_STRING
-## Output: Sets VERSION_MAIN and VERSION_SUFFIX in the parent scope
-function(parse_version VERSION_STRING)
-    string(REGEX MATCH "([0-9\\.]*)(-[a-z]*[0-9]*)?" _ ${VERSION_STRING})
+## Params: IOX_VERSION_STRING
+## Output: Sets IOX_VERSION_MAIN and VERSION_SUFFIX in the parent scope
+function(parse_version IOX_VERSION_STRING)
+    string(REGEX MATCH "([0-9\\.]*)(-[a-z]*[0-9]*)?" _ ${IOX_VERSION_STRING})
 
     if(CMAKE_MATCH_COUNT EQUAL 2)
-        set(VERSION_MAIN ${CMAKE_MATCH_1} PARENT_SCOPE)
-        set(VERSION_SUFFIX ${CMAKE_MATCH_2} PARENT_SCOPE)
+        set(IOX_VERSION_MAIN ${CMAKE_MATCH_1} PARENT_SCOPE)
+        set(IOX_VERSION_SUFFIX ${CMAKE_MATCH_2} PARENT_SCOPE)
     elseif(CMAKE_MATCH_COUNT EQUAL 1)
-        set(VERSION_MAIN ${CMAKE_MATCH_1} PARENT_SCOPE)
-        set(VERSION_SUFFIX "" PARENT_SCOPE)
+        set(IOX_VERSION_MAIN ${CMAKE_MATCH_1} PARENT_SCOPE)
+        set(IOX_VERSION_SUFFIX "" PARENT_SCOPE)
     else()
         message(FATAL_ERROR "Could not parse version string")
     endif()
 endfunction()
 
 function(adjust_version)
-    set(FULL_VERSION ${PROJECT_VERSION}${VERSION_SUFFIX})
-    set(PROJECT_VERSION ${FULL_VERSION} PARENT_SCOPE)
-    set(${PROJECT_NAME}_VERSION ${FULL_VERSION} PARENT_SCOPE)
+    set(IOX_FULL_VERSION ${PROJECT_VERSION}${IOX_VERSION_SUFFIX})
+    set(PROJECT_VERSION ${IOX_FULL_VERSION} PARENT_SCOPE)
+    set(${PROJECT_NAME}_VERSION ${IOX_FULL_VERSION} PARENT_SCOPE)
 endfunction()
