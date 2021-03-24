@@ -59,10 +59,15 @@ class ChunkReceiver_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
-        return m_memoryManager.getChunk(sizeof(DummySample),
-                                        alignof(DummySample),
-                                        iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                        iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(DummySample), alignof(DummySample));
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        return m_memoryManager.getChunk(chunkSettings);
     }
 
     static constexpr size_t MEGABYTE = 1 << 20;
@@ -194,11 +199,12 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
 
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE,
-                                         PAYLOAD_SIZE,
-                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
     m_chunkReceiver.release(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);

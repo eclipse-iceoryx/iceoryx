@@ -19,6 +19,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/mepoo/chunk_settings.hpp"
 
 #include <cstdint>
 
@@ -39,17 +40,8 @@ struct alignas(32) ChunkHeader
 
     /// @brief constructs and initializes a ChunkHeader
     /// @param[in] chunkSize is the size of the chunk the ChunkHeader is constructed
-    /// @param[in] payloadSize is the size of the payload
-    /// @param[in] payloadAlignment is the alignment of the payload
-    /// @param[in] customHeaderSize is the size of the custom header; use iox::CHUNK_NO_CUSTOM_HEADER_SIZE to omit a
-    /// custom header
-    /// @param[in] customHeaderAlignment is the alignment for the custom header; use
-    /// iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT to omit a custom header
-    ChunkHeader(const uint32_t chunkSize,
-                const uint32_t payloadSize,
-                const uint32_t payloadAlignment,
-                const uint32_t customHeaderSize,
-                const uint32_t customHeaderAlignment) noexcept;
+    /// @param[in] chunkSettings are the settings like payload size and custom header alignment
+    ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept;
 
     // copy/move ctors/assignment operators are deleted since the calculations for the custom header and payload
     // alignment are dependent on the address of the this pointer

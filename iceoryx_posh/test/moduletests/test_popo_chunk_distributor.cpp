@@ -49,11 +49,16 @@ class ChunkDistributor_test : public Test
     {
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
-        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(),
-                                                           PAYLOAD_SIZE,
-                                                           iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                                           iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                                           iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+
+        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
         new (chunkMgmt) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         *static_cast<uint32_t*>(chunkHeader->payload()) = value;
         return SharedChunk(chunkMgmt);

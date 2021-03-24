@@ -240,11 +240,12 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
 
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE,
-                                         PAYLOAD_SIZE,
-                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
     m_chunkSender.release(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
@@ -475,11 +476,12 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
 
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE,
-                                         PAYLOAD_SIZE,
-                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
     m_chunkSender.send(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
@@ -518,11 +520,12 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
 
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE,
-                                         PAYLOAD_SIZE,
-                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
     m_chunkSender.pushToHistory(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);

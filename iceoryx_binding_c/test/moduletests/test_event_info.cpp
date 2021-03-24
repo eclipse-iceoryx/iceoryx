@@ -78,10 +78,16 @@ class iox_event_info_test : public Test
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
         constexpr uint32_t PAYLOAD_SIZE{100U};
-        return m_memoryManager.getChunk(PAYLOAD_SIZE,
-                                        iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                        iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                        iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+
+        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        return m_memoryManager.getChunk(chunkSettings);
     }
 
 
