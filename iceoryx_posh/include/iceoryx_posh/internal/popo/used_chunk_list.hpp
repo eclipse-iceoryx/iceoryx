@@ -42,6 +42,8 @@ namespace popo
 template <uint32_t Size>
 class UsedChunkList
 {
+    static_assert(Size > 0, "UsedChunkList Size must me larger than 0!");
+
   public:
     /// @brief Constructs a default UsedChunkList
     UsedChunkList() noexcept;
@@ -69,7 +71,7 @@ class UsedChunkList
     bool freeSpaceInList() const noexcept;
 
   private:
-    static constexpr uint32_t InvalidIndex{Size};
+    static constexpr uint32_t INVALID_INDEX{Size};
 
     // this shall be moved to the RelativePointer implementation
     struct RelativePointerData
@@ -112,7 +114,7 @@ class UsedChunkList
 
   private:
     std::atomic_flag m_synchronizer = ATOMIC_FLAG_INIT;
-    uint32_t m_usedListHead{InvalidIndex};
+    uint32_t m_usedListHead{INVALID_INDEX};
     uint32_t m_freeListHead{0u};
     uint32_t m_listNodes[Size];
     DataElement_t m_listData[Size];

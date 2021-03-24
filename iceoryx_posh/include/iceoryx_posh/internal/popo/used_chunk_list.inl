@@ -71,10 +71,10 @@ bool UsedChunkList<Size>::insert(mepoo::SharedChunk chunk) noexcept
 template <uint32_t Size>
 bool UsedChunkList<Size>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept
 {
-    auto previous = InvalidIndex;
+    auto previous = INVALID_INDEX;
 
     // go through usedList with stored chunks
-    for (auto current = m_usedListHead; current != InvalidIndex; current = m_listNodes[current])
+    for (auto current = m_usedListHead; current != INVALID_INDEX; current = m_listNodes[current])
     {
         if (!m_listData[current].isNullptr())
         {
@@ -138,15 +138,15 @@ void UsedChunkList<Size>::init() noexcept
 
     if (Size > 0U)
     {
-        m_listNodes[Size - 1U] = InvalidIndex; // just to save us from the future self
+        m_listNodes[Size - 1U] = INVALID_INDEX; // just to save us from the future self
     }
     else
     {
-        m_listNodes[0U] = InvalidIndex;
+        m_listNodes[0U] = INVALID_INDEX;
     }
 
 
-    m_usedListHead = InvalidIndex;
+    m_usedListHead = INVALID_INDEX;
     m_freeListHead = 0U;
 
     // clear data
@@ -161,7 +161,7 @@ void UsedChunkList<Size>::init() noexcept
 template <uint32_t Size>
 bool UsedChunkList<Size>::freeSpaceInList() const noexcept
 {
-    return (m_freeListHead != InvalidIndex);
+    return (m_freeListHead != INVALID_INDEX);
 }
 
 } // namespace popo
