@@ -23,6 +23,26 @@ namespace iox
 namespace popo
 {
 template <typename T>
+inline Trigger::Trigger(T* const eventOrigin,
+                        const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+                        const cxx::MethodCallback<void, uint64_t>& resetCallback,
+                        const uint64_t eventId,
+                        const Callback<T> callback,
+                        const uint64_t uniqueId,
+                        const TriggerType triggerType) noexcept
+    : m_eventInfo(eventOrigin, eventId, callback)
+    , m_hasTriggeredCallback(hasTriggeredCallback)
+    , m_resetCallback(resetCallback)
+    , m_uniqueId(uniqueId)
+    , m_triggerType(triggerType)
+{
+    if (!resetCallback)
+    {
+        errorHandler(Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+    }
+}
+
+template <typename T>
 inline Trigger::Trigger(StateBasedTrigger_t,
                         T* const eventOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
@@ -30,21 +50,29 @@ inline Trigger::Trigger(StateBasedTrigger_t,
                         const uint64_t eventId,
                         const Callback<T> callback,
                         const uint64_t uniqueId) noexcept
-    : m_eventInfo(eventOrigin, eventId, callback)
-    , m_hasTriggeredCallback(hasTriggeredCallback)
-    , m_resetCallback(resetCallback)
-    , m_uniqueId(uniqueId)
-    , m_triggerType(TriggerType::STATE_BASED)
+    : Trigger(eventOrigin, hasTriggeredCallback, resetCallback, eventId, callback, uniqueId, TriggerType::STATE_BASED)
 {
-    if (!resetCallback)
-    {
-        errorHandler(Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
-    }
-
     if (!hasTriggeredCallback)
     {
         errorHandler(Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
     }
+}
+
+template <typename T>
+inline Trigger::Trigger(EventBasedTrigger_t,
+                        T* const eventOrigin,
+                        const cxx::MethodCallback<void, uint64_t>& resetCallback,
+                        const uint64_t eventId,
+                        const Callback<T> callback,
+                        const uint64_t uniqueId) noexcept
+    : Trigger(eventOrigin,
+              cxx::ConstMethodCallback<bool>(),
+              resetCallback,
+              eventId,
+              callback,
+              uniqueId,
+              TriggerType::EVENT_BASED)
+{
 }
 
 template <typename T>

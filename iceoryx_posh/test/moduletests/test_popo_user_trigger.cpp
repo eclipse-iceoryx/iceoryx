@@ -54,19 +54,19 @@ TEST_F(UserTrigger_test, isNotTriggeredWhenCreated)
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(UserTrigger_test, canBeTriggeredWhenNotAttached)
+TEST_F(UserTrigger_test, cannotBeTriggeredWhenNotAttached)
 {
     m_sut.trigger();
-    EXPECT_TRUE(m_sut.hasTriggered());
+    EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(UserTrigger_test, canBeTriggeredMultipleTimesWhenNotAttached)
+TEST_F(UserTrigger_test, cannotBeTriggeredMultipleTimesWhenNotAttached)
 {
     m_sut.trigger();
     m_sut.trigger();
     m_sut.trigger();
 
-    EXPECT_TRUE(m_sut.hasTriggered());
+    EXPECT_FALSE(m_sut.hasTriggered());
 }
 
 TEST_F(UserTrigger_test, canBeTriggeredWhenAttached)

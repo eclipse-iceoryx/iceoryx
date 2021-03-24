@@ -29,7 +29,14 @@ Trigger::~Trigger()
 
 bool Trigger::hasTriggered() const noexcept
 {
-    return (isValid()) ? m_hasTriggeredCallback().value() : false;
+    switch (getTriggerType())
+    {
+    case TriggerType::STATE_BASED:
+        return (isValid()) ? m_hasTriggeredCallback().value() : false;
+    case TriggerType::EVENT_BASED:
+        return isValid();
+    };
+    return false;
 }
 
 void Trigger::reset() noexcept
@@ -90,7 +97,8 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
         // Trigger
         m_resetCallback = std::move(rhs.m_resetCallback);
         m_hasTriggeredCallback = std::move(rhs.m_hasTriggeredCallback);
-        m_uniqueId = std::move(rhs.m_uniqueId);
+        m_uniqueId = rhs.m_uniqueId;
+        m_triggerType = rhs.m_triggerType;
 
         rhs.invalidate();
     }
@@ -100,6 +108,11 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
 uint64_t Trigger::getUniqueId() const noexcept
 {
     return m_uniqueId;
+}
+
+TriggerType Trigger::getTriggerType() const noexcept
+{
+    return m_triggerType;
 }
 
 

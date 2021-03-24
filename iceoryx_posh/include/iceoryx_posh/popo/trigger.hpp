@@ -62,10 +62,10 @@ class Trigger
     Trigger(const Trigger&) = delete;
     Trigger& operator=(const Trigger&) = delete;
 
-    /// @brief Creates a Trigger
-    /// @param[in] origin pointer to the class where the signal originates from, if its set to nullptr the Trigger is in
-    /// a defined but invalid state
+    /// @brief Creates a state based Trigger
     /// @param[in] StateBasedTrigger_t signals that we are creating a state based trigger
+    /// @param[in] eventOrigin pointer to the class where the signal originates from, if its set to nullptr the Trigger
+    /// is in a defined but invalid state
     /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
     /// empty callback is set the trigger is in a defined but invalid state.
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
@@ -74,8 +74,26 @@ class Trigger
     /// trigger.
     template <typename T>
     Trigger(StateBasedTrigger_t,
-            T* const origin,
+            T* const eventOrigin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+            const cxx::MethodCallback<void, uint64_t>& resetCallback,
+            const uint64_t eventId,
+            const Callback<T> callback,
+            const uint64_t uniqueId) noexcept;
+
+    /// @brief Creates an event based Trigger
+    /// @param[in] StateBasedTrigger_t signals that we are creating a state based trigger
+    /// @param[in] eventOrigin pointer to the class where the signal originates from, if its set to nullptr the Trigger
+    /// is in a defined but invalid state
+    /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
+    /// empty callback is set the trigger is in a defined but invalid state.
+    /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
+    /// @param[in] eventId id of the corresponding event
+    /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
+    /// trigger.
+    template <typename T>
+    Trigger(EventBasedTrigger_t,
+            T* const eventOrigin,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t eventId,
             const Callback<T> callback,
@@ -111,6 +129,7 @@ class Trigger
     /// @brief returns true if the Triggers are logical equal otherwise false. Two Triggers are logical equal when
     ///       - origin == rhs.origin
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
+    ///       - the trigger is valid
     bool isLogicalEqualTo(const void* const eventOrigin,
                           const cxx::ConstMethodCallback<bool>& hasTriggeredCallback) const noexcept;
 
@@ -124,6 +143,16 @@ class Trigger
 
     /// @brief returns the type of trigger
     TriggerType getTriggerType() const noexcept;
+
+  private:
+    template <typename T>
+    Trigger(T* const eventOrigin,
+            const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+            const cxx::MethodCallback<void, uint64_t>& resetCallback,
+            const uint64_t eventId,
+            const Callback<T> callback,
+            const uint64_t uniqueId,
+            const TriggerType triggerType) noexcept;
 
   private:
     EventInfo m_eventInfo;
