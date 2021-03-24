@@ -75,7 +75,7 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
 
 
     m_triggerArray[*index].emplace(
-        &eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback, *index);
+        StateBasedTrigger, &eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback, *index);
 
     return cxx::success<uint64_t>(*index);
 }

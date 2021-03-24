@@ -137,7 +137,6 @@ class WaitSet
                                                           const uint64_t eventId,
                                                           const EventInfo::Callback<T>& eventCallback) noexcept;
 
-    EventInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
     EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
     EventInfoVector createVectorWithTriggeredTriggers() noexcept;
 

@@ -29,6 +29,22 @@ namespace iox
 {
 namespace popo
 {
+struct StateBasedTrigger_t
+{
+};
+constexpr StateBasedTrigger_t StateBasedTrigger{};
+
+struct EventBasedTrigger_t
+{
+};
+constexpr EventBasedTrigger_t EventBasedTrigger{};
+
+enum class TriggerType
+{
+    STATE_BASED,
+    EVENT_BASED
+};
+
 /// @brief The Trigger class is usually managed by a factory class like a
 ///      WaitSet and acquired by classes which would like to signal an
 ///      event. Multiple Trigger can share a common ConditionVariableData pointer
@@ -49,6 +65,7 @@ class Trigger
     /// @brief Creates a Trigger
     /// @param[in] origin pointer to the class where the signal originates from, if its set to nullptr the Trigger is in
     /// a defined but invalid state
+    /// @param[in] StateBasedTrigger_t signals that we are creating a state based trigger
     /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
     /// empty callback is set the trigger is in a defined but invalid state.
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
@@ -56,7 +73,8 @@ class Trigger
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
     template <typename T>
-    Trigger(T* const origin,
+    Trigger(StateBasedTrigger_t,
+            T* const origin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t eventId,
@@ -104,12 +122,16 @@ class Trigger
     /// @brief returns the EventInfo
     const EventInfo& getEventInfo() const noexcept;
 
+    /// @brief returns the type of trigger
+    TriggerType getTriggerType() const noexcept;
+
   private:
     EventInfo m_eventInfo;
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
     uint64_t m_uniqueId = INVALID_TRIGGER_ID;
+    TriggerType m_triggerType = TriggerType::STATE_BASED;
 };
 
 

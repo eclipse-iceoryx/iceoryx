@@ -23,7 +23,8 @@ namespace iox
 namespace popo
 {
 template <typename T>
-inline Trigger::Trigger(T* const eventOrigin,
+inline Trigger::Trigger(StateBasedTrigger_t,
+                        T* const eventOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
@@ -33,6 +34,7 @@ inline Trigger::Trigger(T* const eventOrigin,
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
     , m_uniqueId(uniqueId)
+    , m_triggerType(TriggerType::STATE_BASED)
 {
     if (!resetCallback)
     {

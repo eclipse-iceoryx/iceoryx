@@ -64,7 +64,7 @@ Trigger::operator bool() const noexcept
 
 bool Trigger::isValid() const noexcept
 {
-    return static_cast<bool>(m_hasTriggeredCallback);
+    return m_uniqueId != INVALID_TRIGGER_ID;
 }
 
 bool Trigger::isLogicalEqualTo(const void* const eventOrigin,

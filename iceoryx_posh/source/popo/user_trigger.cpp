@@ -51,7 +51,7 @@ bool UserTrigger::hasTriggered() const noexcept
 
 WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent() const noexcept
 {
-    return {*this, &UserTrigger::hasTriggered};
+    return WaitSetHasTriggeredCallback();
 }
 
 void UserTrigger::enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept

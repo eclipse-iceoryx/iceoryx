@@ -70,7 +70,8 @@ class Trigger_test : public Test
     Trigger createValidTrigger(const uint64_t eventId = 0U)
     {
         static uint64_t uniqueId = 0U;
-        return Trigger(&m_triggerClass,
+        return Trigger(StateBasedTrigger,
+                       &m_triggerClass,
                        {m_triggerClass, &TriggerClass::hasTriggered},
                        {m_triggerClass, &TriggerClass::resetCall},
                        eventId,
@@ -134,7 +135,8 @@ TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
 {
     const uint64_t eventId = 0U;
     const uint64_t uniqueTriggerId = 0U;
-    Trigger sut(static_cast<TriggerClass*>(nullptr),
+    Trigger sut(StateBasedTrigger,
+                static_cast<TriggerClass*>(nullptr),
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 eventId,
@@ -158,7 +160,8 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
             errorType = error;
         });
 
-    Trigger sut(&m_triggerClass,
+    Trigger sut(StateBasedTrigger,
+                &m_triggerClass,
                 cxx::ConstMethodCallback<bool>(),
                 {m_triggerClass, &TriggerClass::resetCall},
                 eventId,
@@ -184,7 +187,8 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
             errorType = error;
         });
 
-    Trigger sut(&m_triggerClass,
+    Trigger sut(StateBasedTrigger,
+                &m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
                 eventId,
@@ -240,7 +244,8 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {});
 
-    Trigger sut(&m_triggerClass,
+    Trigger sut(StateBasedTrigger,
+                &m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
                 eventId,
@@ -290,7 +295,8 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFro
     constexpr uint64_t USER_DEFINED_EVENT_ID = 891U;
     const uint64_t uniqueTriggerId = 0U;
     TriggerClass secondTriggerClass, thirdTriggerClass;
-    Trigger sut(&m_triggerClass,
+    Trigger sut(StateBasedTrigger,
+                &m_triggerClass,
                 {thirdTriggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
@@ -322,7 +328,8 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
     constexpr uint64_t USER_DEFINED_EVENT_ID = 892U;
     const uint64_t uniqueTriggerId = 0U;
     TriggerClass secondTriggerClass, thirdTriggerClass;
-    Trigger sut(&m_triggerClass,
+    Trigger sut(StateBasedTrigger,
+                &m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {thirdTriggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
@@ -341,7 +348,8 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfEventInfo)
     constexpr uint64_t USER_DEFINED_EVENT_ID = 893U;
     const uint64_t uniqueTriggerId = 0U;
     TriggerClass secondTriggerClass;
-    Trigger sut(&m_triggerClass,
+    Trigger sut(StateBasedTrigger,
+                &m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
@@ -356,7 +364,8 @@ TEST_F(Trigger_test, TriggerIsLogicalEqualToItsOriginAndHasTriggeredCallback)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 894U;
     const uint64_t uniqueTriggerId = 0U;
-    Trigger sut1(&m_triggerClass,
+    Trigger sut1(StateBasedTrigger,
+                 &m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
@@ -371,7 +380,8 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfHasTriggeredCallbackDiffers)
     constexpr uint64_t USER_DEFINED_EVENT_ID = 4896U;
     const uint64_t uniqueTriggerId1 = 0U;
     TriggerClass secondTriggerClass;
-    Trigger sut1(&m_triggerClass,
+    Trigger sut1(StateBasedTrigger,
+                 &m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
@@ -386,7 +396,8 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginDiffers)
     constexpr uint64_t USER_DEFINED_EVENT_ID = 4896U;
     const uint64_t uniqueTriggerId1 = 0U;
     TriggerClass secondTriggerClass;
-    Trigger sut1(&m_triggerClass,
+    Trigger sut1(StateBasedTrigger,
+                 &m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
@@ -401,7 +412,8 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginAndHasTriggeredCallbackDiff
     constexpr uint64_t USER_DEFINED_EVENT_ID = 4896U;
     const uint64_t uniqueTriggerId1 = 0U;
     TriggerClass secondTriggerClass;
-    Trigger sut1(&m_triggerClass,
+    Trigger sut1(StateBasedTrigger,
+                 &m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
@@ -415,7 +427,8 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualWhenInvalid)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 4896U;
     const uint64_t uniqueTriggerId1 = 0U;
-    Trigger sut1(&m_triggerClass,
+    Trigger sut1(StateBasedTrigger,
+                 &m_triggerClass,
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
