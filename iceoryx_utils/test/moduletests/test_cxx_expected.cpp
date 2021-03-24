@@ -185,6 +185,7 @@ TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToInvalidState)
 {
     auto sut = expected<int, TestClass>::create_value(177);
     auto movedValue{std::move(sut)};
+    IOX_DISCARD_RESULT(movedValue);
     ASSERT_TRUE(sut.has_error());
     EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
 }
@@ -193,6 +194,7 @@ TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToInvalidState)
 {
     auto sut = expected<int, TestClass>::create_error(22, 33);
     auto movedValue{std::move(sut)};
+    IOX_DISCARD_RESULT(movedValue);
     ASSERT_TRUE(sut.has_error());
     EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
 }
@@ -201,6 +203,7 @@ TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToInvalidState)
 {
     auto sut = expected<int, TestClass>::create_value(73);
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     ASSERT_TRUE(sut.has_error());
     EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
 }
@@ -209,6 +212,7 @@ TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToInvalidState)
 {
     auto sut = expected<int, TestClass>::create_error(44, 55);
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     ASSERT_TRUE(sut.has_error());
     EXPECT_THAT(sut.get_error(), Eq(TestClassAdapter::getInvalidState()));
 }
@@ -217,6 +221,7 @@ TEST_F(expected_test, CreateInvalidExpectedAndCallGetErrorLeadsToInvalidState)
 {
     auto sut = expected<int, TestError>::create_error(TestError::ERROR1);
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     ASSERT_TRUE(sut.has_error());
     EXPECT_THAT(sut.get_error(), Eq(TestError::INVALID_STATE));
 }
@@ -225,6 +230,7 @@ TEST_F(expected_test, ErrorTypeOnlyCreateInvalidExpectedAndCallGetErrorLeadsToIn
 {
     auto sut = expected<TestError>::create_error(TestError::ERROR2);
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     ASSERT_TRUE(sut.has_error());
     EXPECT_THAT(sut.get_error(), Eq(TestError::INVALID_STATE));
 }
@@ -326,6 +332,7 @@ TEST_F(expected_test, ErrorTypeOnlyMoveCtorLeadsToInvalidState)
 {
     auto sut = expected<TestError>::create_error(TestError::ERROR2);
     auto movedValue{std::move(sut)};
+    IOX_DISCARD_RESULT(movedValue);
     ASSERT_TRUE(sut.has_error());
     EXPECT_THAT(sut.get_error(), Eq(TestError::INVALID_STATE));
 }
@@ -334,6 +341,7 @@ TEST_F(expected_test, ErrorTypeOnlyMoveAssignmentLeadsToInvalidState)
 {
     auto sut = expected<TestError>::create_error(TestError::ERROR1);
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     ASSERT_TRUE(sut.has_error());
     EXPECT_THAT(sut.get_error(), Eq(TestError::INVALID_STATE));
 }
@@ -440,6 +448,7 @@ TEST_F(expected_test, WhenHavingSuccessAndMoveAssignmentCallsOrElse)
 {
     expected<int, TestError> sut{success<int>(1143)};
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     TestError error{TestError::ERROR1};
     sut.and_then([&](auto&) { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
     EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
@@ -449,6 +458,7 @@ TEST_F(expected_test, WhenHavingAnErrorAndMoveAssignmentCallsOrElse)
 {
     expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     TestError error{TestError::ERROR1};
     sut.and_then([&](auto&) { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
     EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
@@ -458,6 +468,7 @@ TEST_F(expected_test, ErrorTypeOnlyWhenHavingSuccessAndMoveAssignmentCallsOrElse
 {
     expected<TestError> sut{success<>()};
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     TestError error{TestError::ERROR1};
     sut.and_then([&]() { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
     EXPECT_THAT(error, Eq(TestError::INVALID_STATE));
@@ -467,6 +478,7 @@ TEST_F(expected_test, ErrorTypeOnlyWhenHavingAnErrorAndMoveAssignmentCallsOrElse
 {
     expected<TestError> sut{error<TestError>(TestError::ERROR1)};
     auto movedValue = std::move(sut);
+    IOX_DISCARD_RESULT(movedValue);
     TestError error{TestError::ERROR1};
     sut.and_then([&]() { error = TestError::ERROR2; }).or_else([&](auto& e) { error = e; });
     EXPECT_THAT(error, Eq(TestError::INVALID_STATE));

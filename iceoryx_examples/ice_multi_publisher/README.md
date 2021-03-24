@@ -118,7 +118,7 @@ After construction, we immediately start sending data.
 for (uint32_t counter = 0U; !killswitch; ++counter)
 {
     CounterTopic data{counter, id};
-    publisher.publishCopyOf(data);
+    publisher.publishCopyOf(data).or_else([](auto) { std::cerr << "failed to send data" << std::endl; });
     //...
 }
 ```

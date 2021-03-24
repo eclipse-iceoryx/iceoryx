@@ -342,7 +342,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            DISCARD_RESULT(m_prcMgr->unregisterProcess(processName));
+            IOX_DISCARD_RESULT(m_prcMgr->unregisterProcess(processName));
         }
         break;
     }
@@ -364,7 +364,7 @@ void RouDi::registerProcess(const ProcessName_t& name,
                             const version::VersionInfo& versionInfo)
 {
     bool monitorProcess = (m_monitoringMode == roudi::MonitoringMode::ON);
-    DISCARD_RESULT(
+    IOX_DISCARD_RESULT(
         m_prcMgr->registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo));
 }
 

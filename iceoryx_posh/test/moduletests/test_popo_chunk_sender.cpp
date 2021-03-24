@@ -331,7 +331,7 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverWithHistoryNoLastReuse)
 
 TEST_F(ChunkSender_test, sendOneWithReceiver)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
@@ -358,7 +358,7 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL <= checkQueue.getCurrentCapacity());
 
@@ -426,7 +426,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL <= checkQueue.getCurrentCapacity());
 
@@ -531,7 +531,7 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
@@ -564,7 +564,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {

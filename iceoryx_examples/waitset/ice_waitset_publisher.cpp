@@ -36,8 +36,9 @@ void sending()
 
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
-        myPublisher.publishCopyOf(CounterTopic{counter});
-        std::cout << "Sending: " << counter << std::endl;
+        myPublisher.publishCopyOf(CounterTopic{counter})
+            .and_then([&] { std::cout << "Sending: " << counter << std::endl; })
+            .or_else([&](auto) { std::cout << "Failed sending: " << counter << std::endl; });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

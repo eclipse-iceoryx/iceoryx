@@ -141,7 +141,13 @@ class RouDi
     /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that
     /// the lifetime of the MemoryBlocks must be at least as long as RouDi; this saves us from issues if the
     /// RouDiMemoryManager outlives some MemoryBlocks
-    cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {}, [this]() { this->m_roudiMemoryInterface->destroyMemory(); }};
+    cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {},
+                                                 [this]() {
+                                                     if (this->m_roudiMemoryInterface->destroyMemory().has_error())
+                                                     {
+                                                         LogWarn() << "unable to cleanup roudi memory interface";
+                                                     };
+                                                 }};
     PortManager* m_portManager{nullptr};
     concurrent::smart_lock<ProcessManager> m_prcMgr;
 
