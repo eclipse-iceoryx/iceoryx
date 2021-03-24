@@ -40,7 +40,7 @@ class ProcessManager_test : public Test
     {
         auto config = iox::RouDiConfig_t().setDefaults();
         m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(config);
-        m_roudiMemoryManager->createAndAnnounceMemory();
+        EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = std::make_unique<PortManager>(m_roudiMemoryManager.get());
         CompatibilityCheckLevel m_compLevel{CompatibilityCheckLevel::OFF};
         m_sut = std::make_unique<ProcessManager>(*m_roudiMemoryManager, *m_portManager, m_compLevel);
