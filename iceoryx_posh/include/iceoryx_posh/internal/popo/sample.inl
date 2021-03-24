@@ -137,7 +137,7 @@ inline void Sample<T, H>::publish() noexcept
     }
     else
     {
-        std::cerr << "Tried to publish empty sample!" << std::endl;
+        LogWarn() << "Tried to publish empty sample!";
     }
 }
 
