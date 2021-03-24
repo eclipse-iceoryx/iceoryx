@@ -17,8 +17,8 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
 
 #### Optional, Cyclone DDS Gateway
 
-The Cyclone DDS Gateway depends currently on [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds).
-When building it with the CMake option: `-DDDS_GATEWAY=ON` it will be automatically installed as dependency.
+The Cyclone DDS gateway depends currently on [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds).
+When building it with the CMake option `-DDDS_GATEWAY=ON` it will be automatically installed as dependency.
 Furthermore you have to install:
 
 - [Apache Maven](http://maven.apache.org/download.cgi), 3.5 or later
@@ -90,7 +90,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
 1. Clone the repository
 
-    ```sh
+    ```bash
     git clone https://github.com/eclipse-iceoryx/iceoryx.git
     ```
 
@@ -114,7 +114,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     ```
 
     !!! tip
-        You can fasten up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
+        You can speed up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
         You can choose more or less depending on your available CPU cores on your machine.
 
 4. Install to system
@@ -140,12 +140,14 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
 ### Build options
 
-Please take a look at the CMake file [build_options.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_meta/build_options.cmake) to get an overview of the available build options for enabling additional features.
+Please take a look at the CMake file [build_options.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_meta/build_options.cmake)
+to get an overview of the available build options for enabling additional features.
 
 ## Build with script
 
 As an alternative we provide a build-test script which we use to integrate iceoryx into our infrastructure.
-The intention of the script is more than just building with iceoryx, it is also used for the code coverage scan or the address-sanitizer runs on the CI. The script currently only works for Linux and QNX, it is planned to offer a multi-platform solution.
+The intention of the script goes beyond building iceoryx, it is also used for the code coverage scan or the address-sanitizer runs on the CI.
+The script currently works for Linux and QNX only, it is planned to offer a multi-platform solution.
 
  1. Clone the repository
 
@@ -163,7 +165,7 @@ The intention of the script is more than just building with iceoryx, it is also 
     !!! note
         The build script is installing the header files and binaries into `build/install/prefix`.
 
-You can use the help for getting an overview over the available options:
+You can use the `help` argument for getting an overview of the available options:
 
 ```bash
 ./tools/iceoryx_build_test.sh help

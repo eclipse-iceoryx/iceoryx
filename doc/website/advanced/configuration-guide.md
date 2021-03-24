@@ -18,7 +18,7 @@ These options adjust the limits of Publisher and Subscriber Ports for the resour
 Have a look at [iceoryx_posh_deployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/iceoryx_posh_deployment.cmake) for the default values of the constants.
 
 !!! hint
-    With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You can reduce the size by decreasing the values from the table via the CMake options. The current set values are printed in the CMake stage when building iceoryx.
+    With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You can reduce the size by decreasing the values from the table via the CMake options. The current values are printed in the CMake stage when building iceoryx.
 
 Example:
 
@@ -37,6 +37,7 @@ Iceoryx ships a library for RouDi named in cmake `iceoryx_posh_roudi`. This lib 
 
 !!! note
     The chunk size for the mempool needs to follow these restrictions:
+
     1. Chunksize needs to be greater than the alignment
     2. Chunksize needs to be a multiple of alignment
 
@@ -47,9 +48,8 @@ The value for the alignment is set to 32.
 One way is to read a configuration dynamically at RouDi runtime (startup).
 Using TOML Config in RouDi is not mandatory for configuring segments and mempools, but a comfortable alternative.
 
-RouDi can optionally be build with support to read the mempool config from a configuration file.
-To build the feature in iceoryx, the cmake option `-DTOML_CONFIG=ON` must be used.
-The `iox-roudi` build by iceoryx is with TOML support and can be used out of the box.
+To enable the TOML config in iceoryx, the CMake option `-DTOML_CONFIG=ON` must be used (enabled by default).
+The `iox-roudi` provided by iceoryx is with TOML support and can be used out of the box.
 
 If you create your own RouDi application you need to link against `iceoryx_posh_config`:
 
