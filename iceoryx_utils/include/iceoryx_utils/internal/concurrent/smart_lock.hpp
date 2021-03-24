@@ -67,8 +67,16 @@ class smart_lock
     };
 
   public:
+    ///@brief c'tor creating empty smart_lock
     smart_lock() noexcept;
+
+    ///@brief c'tor constructing the underlying object via copy/move
     smart_lock(const T& t) noexcept;
+
+    ///@brief c'tor forwarding all args to the underlying object
+    template <typename... ArgTypes>
+    smart_lock(ArgTypes&&... args) noexcept;
+
     smart_lock(const smart_lock& rhs) noexcept;
     smart_lock(smart_lock&& rhs) noexcept;
     smart_lock& operator=(const smart_lock& rhs) noexcept;
