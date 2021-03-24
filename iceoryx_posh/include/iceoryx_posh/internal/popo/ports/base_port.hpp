@@ -63,7 +63,7 @@ class BasePort
 
     /// @brief Gets Process Name for the active port
     /// @return             Process name as String
-    RuntimeName_t getProcessName() const noexcept;
+    RuntimeName_t getRuntimeName() const noexcept;
 
     /// @brief Gets Id of thethe active port
     /// @return             UniqueId name as Integer

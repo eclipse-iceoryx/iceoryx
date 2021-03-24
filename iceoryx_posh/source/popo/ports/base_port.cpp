@@ -45,7 +45,7 @@ capro::ServiceDescription BasePort::getCaProServiceDescription() const noexcept
     return getMembers()->m_serviceDescription;
 }
 
-RuntimeName_t BasePort::getProcessName() const noexcept
+RuntimeName_t BasePort::getRuntimeName() const noexcept
 {
     return getMembers()->m_processName;
 }

@@ -170,5 +170,5 @@ TYPED_TEST(BasePort_test, getCaProServiceDescription)
 TYPED_TEST(BasePort_test, getApplicationname)
 {
     using PortData_t = typename TestFixture::PortData_t;
-    EXPECT_THAT(this->sut.getProcessName(), Eq(expectedProcessName<PortData_t>()));
+    EXPECT_THAT(this->sut.getRuntimeName(), Eq(expectedProcessName<PortData_t>()));
 }

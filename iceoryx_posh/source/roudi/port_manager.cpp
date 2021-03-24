@@ -447,7 +447,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& processName) noexcep
     for (auto port : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType sender(port);
-        if (processName == sender.getProcessName())
+        if (processName == sender.getRuntimeName())
         {
             destroyPublisherPort(port);
         }
@@ -456,7 +456,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& processName) noexcep
     for (auto port : m_portPool->getSubscriberPortDataList())
     {
         SubscriberPortUserType subscriber(port);
-        if (processName == subscriber.getProcessName())
+        if (processName == subscriber.getRuntimeName())
         {
             destroySubscriberPort(port);
         }
@@ -465,7 +465,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& processName) noexcep
     for (auto port : m_portPool->getInterfacePortDataList())
     {
         popo::InterfacePort interface(port);
-        if (processName == interface.getProcessName())
+        if (processName == interface.getRuntimeName())
         {
             m_portPool->removeInterfacePort(port);
             LogDebug() << "Deleted Interface of application " << processName;
@@ -475,7 +475,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& processName) noexcep
     for (auto port : m_portPool->getApplicationPortDataList())
     {
         popo::ApplicationPort application(port);
-        if (processName == application.getProcessName())
+        if (processName == application.getRuntimeName())
         {
             m_portPool->removeApplicationPort(port);
             LogDebug() << "Deleted ApplicationPort of application " << processName;

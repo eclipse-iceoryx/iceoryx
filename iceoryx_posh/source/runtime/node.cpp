@@ -64,7 +64,7 @@ NodeName_t Node::getNodeName() const noexcept
     return m_data->m_node;
 }
 
-RuntimeName_t Node::getProcessName() const noexcept
+RuntimeName_t Node::getRuntimeName() const noexcept
 {
     return m_data->m_process;
 }

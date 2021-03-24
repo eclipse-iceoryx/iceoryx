@@ -76,7 +76,7 @@ uint64_t iox_node_get_process_name(iox_node_t const self, char* const name, cons
         return 0U;
     }
 
-    auto nameAsString = NodeBindingExtension(self).getProcessName();
+    auto nameAsString = NodeBindingExtension(self).getRuntimeName();
     strncpy(name, nameAsString.c_str(), nameCapacity);
     name[nameCapacity - 1U] = '\0'; // strncpy doesn't add a null-termination if destination is smaller than source
 
