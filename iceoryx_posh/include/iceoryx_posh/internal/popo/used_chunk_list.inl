@@ -22,11 +22,11 @@ namespace iox
 {
 namespace popo
 {
-template <uint32_t Size>
-constexpr typename UsedChunkList<Size>::DataElement_t UsedChunkList<Size>::DATA_ELEMENT_NULLPTR;
+template <uint32_t Capacity>
+constexpr typename UsedChunkList<Capacity>::DataElement_t UsedChunkList<Capacity>::DATA_ELEMENT_NULLPTR;
 
-template <uint32_t Size>
-UsedChunkList<Size>::UsedChunkList() noexcept
+template <uint32_t Capacity>
+UsedChunkList<Capacity>::UsedChunkList() noexcept
 {
     static_assert(sizeof(DataElement_t) <= 8U, "The size of the data element type must not exceed 64 bit!");
     static_assert(std::is_trivially_copyable<DataElement_t>::value,
@@ -35,8 +35,8 @@ UsedChunkList<Size>::UsedChunkList() noexcept
     init();
 }
 
-template <uint32_t Size>
-bool UsedChunkList<Size>::insert(mepoo::SharedChunk chunk) noexcept
+template <uint32_t Capacity>
+bool UsedChunkList<Capacity>::insert(mepoo::SharedChunk chunk) noexcept
 {
     if (freeSpaceInList())
     {
@@ -68,8 +68,8 @@ bool UsedChunkList<Size>::insert(mepoo::SharedChunk chunk) noexcept
     }
 }
 
-template <uint32_t Size>
-bool UsedChunkList<Size>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept
+template <uint32_t Capacity>
+bool UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept
 {
     auto previous = INVALID_INDEX;
 
@@ -111,8 +111,8 @@ bool UsedChunkList<Size>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::S
     return false;
 }
 
-template <uint32_t Size>
-void UsedChunkList<Size>::cleanup() noexcept
+template <uint32_t Capacity>
+void UsedChunkList<Capacity>::cleanup() noexcept
 {
     m_synchronizer.test_and_set(std::memory_order_acquire);
 
@@ -127,18 +127,18 @@ void UsedChunkList<Size>::cleanup() noexcept
     init(); // just to save us from the future self
 }
 
-template <uint32_t Size>
-void UsedChunkList<Size>::init() noexcept
+template <uint32_t Capacity>
+void UsedChunkList<Capacity>::init() noexcept
 {
     // build list
-    for (uint32_t i = 0U; i < Size; ++i)
+    for (uint32_t i = 0U; i < Capacity; ++i)
     {
         m_listNodes[i] = i + 1u;
     }
 
-    if (Size > 0U)
+    if (Capacity > 0U)
     {
-        m_listNodes[Size - 1U] = INVALID_INDEX; // just to save us from the future self
+        m_listNodes[Capacity - 1U] = INVALID_INDEX; // just to save us from the future self
     }
     else
     {
@@ -158,8 +158,8 @@ void UsedChunkList<Size>::init() noexcept
     m_synchronizer.clear(std::memory_order_release);
 }
 
-template <uint32_t Size>
-bool UsedChunkList<Size>::freeSpaceInList() const noexcept
+template <uint32_t Capacity>
+bool UsedChunkList<Capacity>::freeSpaceInList() const noexcept
 {
     return (m_freeListHead != INVALID_INDEX);
 }

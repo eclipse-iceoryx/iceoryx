@@ -39,10 +39,10 @@ namespace popo
 ///        accessed. Additionally, the type stored is this array must be less or equal to 64 bit in order to write it
 ///        within one clock cycle to prevent torn writes, which would corrupt the list and could potentially crash
 ///        RouDi.
-template <uint32_t Size>
+template <uint32_t Capacity>
 class UsedChunkList
 {
-    static_assert(Size > 0, "UsedChunkList Size must me larger than 0!");
+    static_assert(Capacity > 0, "UsedChunkList Capacity must me larger than 0!");
 
   public:
     /// @brief Constructs a default UsedChunkList
@@ -71,7 +71,7 @@ class UsedChunkList
     bool freeSpaceInList() const noexcept;
 
   private:
-    static constexpr uint32_t INVALID_INDEX{Size};
+    static constexpr uint32_t INVALID_INDEX{Capacity};
 
     // this shall be moved to the RelativePointer implementation
     struct RelativePointerData
@@ -80,7 +80,7 @@ class UsedChunkList
             : segment(MAX_SEGMENT)
             , offset(MAX_OFFSET)
         {
-            static_assert(sizeof(RelativePointerData) <= 8U, "The RelativePointerData must not exceed 64 bit!");
+            static_assert(sizeof(RelativePointerData) <= 8U, "The RelativePointerData size must not exceed 64 bit!");
             static_assert(std::is_trivially_copyable<RelativePointerData>::value,
                           "The RelativePointerData must be trivially copyable!");
         }
@@ -116,8 +116,8 @@ class UsedChunkList
     std::atomic_flag m_synchronizer = ATOMIC_FLAG_INIT;
     uint32_t m_usedListHead{INVALID_INDEX};
     uint32_t m_freeListHead{0u};
-    uint32_t m_listNodes[Size];
-    DataElement_t m_listData[Size];
+    uint32_t m_listNodes[Capacity];
+    DataElement_t m_listData[Capacity];
 };
 
 } // namespace popo
