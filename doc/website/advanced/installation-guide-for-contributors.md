@@ -93,8 +93,8 @@ This can be done by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as bui
 
 Iceoryx_meta is a CMake file which collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for building. The provided build script `iceoryx_build_test.sh` in the tools folder use iceoryx_meta for building.
 
-Per default iceoryx is build as static libraries for better usability.
-Additionally we offer to build as shared because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
+Per default iceoryx is build as static lib for better usability.
+Additionally we offer to build as shared library because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
 This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as flag in the build script.
 
 If iceoryx is build as shared libraries and you installed them in a custom path (e.g. build/install/prefix) you need to set

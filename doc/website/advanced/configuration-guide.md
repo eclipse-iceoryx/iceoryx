@@ -7,13 +7,13 @@ These options adjust the limits of Publisher and Subscriber Ports for the resour
 
  |  switch  |  description |
  |:---------|:-------------|
- | `IOX_MAX_PUBLISHERS` | the maximum number of publishers one `RouDi` instance can manage |
- | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | the maximum number of connected subscriber ports per publisher port |
- | `IOX_MAX_PUBLISHER_HISTORY` | the maximum number of chunks available for the publisher history |
- | `IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY` | the maximum number of chunks a publisher can allocate at a given time |
- | `IOX_MAX_SUBSCRIBERS` | the maximum number of subscribers one `RouDi` instance can manage |
- | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | the maximum number of chunks a subscriber can hold at a given time (subscriber history size)|
- | `IOX_MAX_INTERFACE_NUMBER` | the maximum number of interface ports, which are used for e.g. gateways |
+ | `IOX_MAX_PUBLISHERS` | Maximum number of publishers which can be managed by one `RouDi` instance |
+ | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | Maximum number of connected subscriber ports per publisher port |
+ | `IOX_MAX_PUBLISHER_HISTORY` | Maximum number of chunks available for the publisher history |
+ | `IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY` | Maximum number of chunks a publisher can allocate at a given time |
+ | `IOX_MAX_SUBSCRIBERS` | Maximum number of subscribers which can be managed by one `RouDi` instance |
+ | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | Maximum number of chunks a subscriber can hold at a given time (subscriber history size)|
+ | `IOX_MAX_INTERFACE_NUMBER` | Maximum number of interface ports which are used for gateways |
 
 Have a look at [iceoryx_posh_deployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_posh/cmake/iceoryx_posh_deployment.cmake) for the default values of the constants.
 
