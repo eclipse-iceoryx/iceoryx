@@ -50,23 +50,23 @@ class ProcessIntrospection
 
 
     /// @brief This function is used to add a process to the process introspection
-    /// @param[in] f_pid is the PID of the process to add
-    /// @param[in] f_name is the name of the process
-    void addProcess(const int f_pid, const RuntimeName_t& f_name) noexcept;
+    /// @param[in] pid is the PID of the process to add
+    /// @param[in] name is the name of the process
+    void addProcess(const int pid, const RuntimeName_t& name) noexcept;
 
     /// @brief This function is used to remove process to the process introspection
-    /// @param[in] f_pid is the PID of the process to remove
-    void removeProcess(const int f_pid) noexcept;
+    /// @param[in] pid is the PID of the process to remove
+    void removeProcess(const int pid) noexcept;
 
     /// @brief This function is used to add a node to the process introspection
-    /// @param[in] f_runtimeName is the name of the proces
-    /// @param[in] f_nodeName is the name of the node to add
-    void addNode(const RuntimeName_t& f_process, const NodeName_t& f_node) noexcept;
+    /// @param[in] runtimeName is the name of the proces
+    /// @param[in] nodeName is the name of the node to add
+    void addNode(const RuntimeName_t& runtimeName, const NodeName_t& node) noexcept;
 
     /// @brief This function is used to remove a node to the process introspection
-    /// @param[in] f_runtimeName is the name of the proces
-    /// @param[in] f_nodeName is the name of the node to remove
-    void removeNode(const RuntimeName_t& f_process, const NodeName_t& f_node) noexcept;
+    /// @param[in] runtimeName is the name of the proces
+    /// @param[in] nodeName is the name of the node to remove
+    void removeNode(const RuntimeName_t& runtimeName, const NodeName_t& node) noexcept;
 
     /// @brief This functions registers the POSH publisher port which is used
     ///        to send the data to the instrospcetion client
