@@ -58,12 +58,9 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
         return cxx::error<WaitSetError>(WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET);
     }
 
-    Trigger possibleLogicallyEqualTrigger(
-        &eventOrigin, hasTriggeredCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>(), 0U);
-
     for (auto& currentTrigger : m_triggerArray)
     {
-        if (currentTrigger && currentTrigger->isLogicalEqualTo(possibleLogicallyEqualTrigger))
+        if (currentTrigger && currentTrigger->isLogicalEqualTo(&eventOrigin, hasTriggeredCallback))
         {
             return cxx::error<WaitSetError>(WaitSetError::EVENT_ALREADY_ATTACHED);
         }
@@ -183,7 +180,9 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
         for (uint64_t i = m_activeNotifications.size() - 1U;; --i)
         {
             auto index = m_activeNotifications[i];
-            if (m_triggerArray[index]->hasTriggered())
+            auto& trigger = m_triggerArray[index];
+
+            if (trigger && trigger->hasTriggered())
             {
                 cxx::Expects(triggers.push_back(&m_triggerArray[index]->getEventInfo()));
             }

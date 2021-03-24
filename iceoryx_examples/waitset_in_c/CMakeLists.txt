@@ -1,4 +1,5 @@
-# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,14 +21,10 @@ include(GNUInstallDirs)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
+find_package(iceoryx_utils CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
-if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatform)
-endif ()
-
-# compiler flag not supported on C
-list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
+include(IceoryxPlatform)
 
 add_executable(iox-ex-c-waitset-publisher ./ice_c_waitset_publisher.c)
 target_link_libraries(iox-ex-c-waitset-publisher

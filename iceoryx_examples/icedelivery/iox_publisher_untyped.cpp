@@ -55,18 +55,19 @@ int main()
             // In the untyped API we get a void pointer to the payload, therefore the data must be constructed
             // in place
             void* chunk = result.value();
-            auto data = new (chunk) RadarObject(ct, ct, ct);
+            RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
+            iox::cxx::Expects(chunk == data);
 
-            // data and chunk should be equal. otherwise we have a misalignment
-            // (note that we only requested as many bytes as needed for the object to be send)
-            assert(chunk == data);
+            data->x = 1.0;
+            data->y = 2.0;
+            data->z = 3.0;
             publisher.publish(chunk);
         }
         else
         {
             auto error = result.get_error();
             // Ignore unused variable warning
-            (void)error;
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             // Do something with the error
         }
 
@@ -75,13 +76,17 @@ int main()
         // * Loan chunk and provide logic to populate it via a lambda
         publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& chunk) {
-                auto data = new (chunk) RadarObject(ct, ct, ct);
-                assert(chunk == data);
+                RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
+                iox::cxx::Expects(chunk == data);
+
+                data->x = 1.0;
+                data->y = 2.0;
+                data->z = 3.0;
                 publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
                 // Ignore unused variable warning
-                (void)error;
+                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
                 // Do something with the error
             });
 

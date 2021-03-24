@@ -1,5 +1,5 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ class UntypedPublisherTest : public Test
 TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSize)
 {
     constexpr uint32_t ALLOCATION_SIZE = 7U;
-    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE))
+    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
     auto result = sut.loan(ALLOCATION_SIZE);
@@ -62,7 +62,7 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSize)
 TEST_F(UntypedPublisherTest, LoanFailsIfPortCannotSatisfyAllocationRequest)
 {
     constexpr uint32_t ALLOCATION_SIZE = 17U;
-    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE))
+    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
         .WillOnce(Return(
             ByMove(iox::cxx::error<iox::popo::AllocationError>(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS))));
     // ===== Test ===== //
@@ -97,7 +97,7 @@ TEST_F(UntypedPublisherTest, LoanPreviousChunkFails)
 TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
 {
     constexpr uint32_t ALLOCATION_SIZE = 7U;
-    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE))
+    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
 
     auto result = sut.loan(ALLOCATION_SIZE);

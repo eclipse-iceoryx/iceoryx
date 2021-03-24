@@ -189,7 +189,7 @@ TEST_F(WaitSet_test, AcquireMaximumAllowedPlusOneTriggerFails)
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        m_sut.attachEvent(m_simpleEvents[i], 1U + i);
+        ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 1U + i).has_error());
     }
     auto result = m_sut.attachEvent(m_simpleEvents[iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET], 0U);
     ASSERT_TRUE(result.has_error());
@@ -199,7 +199,7 @@ TEST_F(WaitSet_test, AcquireMaximumAllowedPlusOneTriggerFails)
 TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 0U;
-    m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
@@ -209,7 +209,7 @@ TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
 TEST_F(WaitSet_test, AcquireSameTriggerWithNonNullIdTwiceResultsInError)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 121U;
-    m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
@@ -220,7 +220,7 @@ TEST_F(WaitSet_test, AcquireSameTriggerWithDifferentIdResultsInError)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 2101U;
     constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 9121U;
-    m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut.attachEvent(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
@@ -234,7 +234,7 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
     {
         WaitSetMock sut{m_condVarData};
         constexpr uint64_t USER_DEFINED_EVENT_ID = 421337U;
-        sut.attachEvent(simpleEvent, USER_DEFINED_EVENT_ID);
+        ASSERT_FALSE(sut.attachEvent(simpleEvent, USER_DEFINED_EVENT_ID).has_error());
         uniqueTriggerId = simpleEvent.getUniqueId();
     }
     EXPECT_THAT(SimpleEventClass::m_invalidateTriggerId, Eq(uniqueTriggerId));
@@ -245,13 +245,13 @@ TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
     for (uint64_t i = 0U; i + 1U < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        m_sut.attachEvent(m_simpleEvents[i], 100U + i);
+        ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 100U + i).has_error());
     }
 
     constexpr uint64_t USER_DEFINED_EVENT_ID = 0U;
     {
         SimpleEventClass temporaryTrigger;
-        m_sut.attachEvent(temporaryTrigger, USER_DEFINED_EVENT_ID);
+        ASSERT_FALSE(m_sut.attachEvent(temporaryTrigger, USER_DEFINED_EVENT_ID).has_error());
         // goes out of scope here and creates space again for an additional trigger
         // if this doesn't work we are unable to acquire another trigger since the
         // waitset is already full
@@ -266,15 +266,15 @@ TEST_F(WaitSet_test, MultipleTimerRemovingThemselfFromWaitsetWhenGoingOutOfScope
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
     for (uint64_t i = 3U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        m_sut.attachEvent(m_simpleEvents[i], 100U + i);
+        ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 100U + i).has_error());
     }
 
     constexpr uint64_t USER_DEFINED_EVENT_ID = 0U;
     {
         SimpleEventClass temporaryTrigger1, temporaryTrigger2, temporaryTrigger3;
-        m_sut.attachEvent(temporaryTrigger1, USER_DEFINED_EVENT_ID);
-        m_sut.attachEvent(temporaryTrigger2, USER_DEFINED_EVENT_ID);
-        m_sut.attachEvent(temporaryTrigger3, USER_DEFINED_EVENT_ID);
+        ASSERT_FALSE(m_sut.attachEvent(temporaryTrigger1, USER_DEFINED_EVENT_ID).has_error());
+        ASSERT_FALSE(m_sut.attachEvent(temporaryTrigger2, USER_DEFINED_EVENT_ID).has_error());
+        ASSERT_FALSE(m_sut.attachEvent(temporaryTrigger3, USER_DEFINED_EVENT_ID).has_error());
 
         // goes out of scope here and creates space again for an additional trigger
         // if this doesn't work we are unable to acquire another trigger since the
@@ -295,7 +295,7 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
     std::atomic_bool isThreadFinished{false};
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        m_sut.attachEvent(m_simpleEvents[i], 5U + i);
+        ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 5U + i).has_error());
     }
 
     std::thread t([&] {
@@ -323,7 +323,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        m_sut.attachEvent(m_simpleEvents[i], 5U + i);
+        ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 5U + i).has_error());
     }
 
 
@@ -336,7 +336,7 @@ void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
 {
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        test->m_sut.attachEvent(test->m_simpleEvents[i], 5U + i);
+        ASSERT_FALSE(test->m_sut.attachEvent(test->m_simpleEvents[i], 5U + i).has_error());
     }
 
     test->m_simpleEvents[0].trigger();
@@ -363,7 +363,7 @@ void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
 {
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        test->m_sut.attachEvent(test->m_simpleEvents[i], 100U + i);
+        ASSERT_FALSE(test->m_sut.attachEvent(test->m_simpleEvents[i], 100U + i).has_error());
     }
 
     for (uint64_t i = 0U; i < 24U; ++i)
@@ -396,7 +396,7 @@ void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
 {
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        test->m_sut.attachEvent(test->m_simpleEvents[i], i * 3U + 2U);
+        ASSERT_FALSE(test->m_sut.attachEvent(test->m_simpleEvents[i], i * 3U + 2U).has_error());
     }
 
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
@@ -496,29 +496,29 @@ TEST_F(WaitSet_test, WaitSetCapacity)
 
 TEST_F(WaitSet_test, OneAcquireTriggerIncreasesSizeByOne)
 {
-    m_sut.attachEvent(m_simpleEvents[0]);
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0]).has_error());
 
     EXPECT_EQ(m_sut.size(), 1U);
 }
 
 TEST_F(WaitSet_test, MultipleAcquireTriggerIncreasesSizeCorrectly)
 {
-    m_sut.attachEvent(m_simpleEvents[0]);
-    m_sut.attachEvent(m_simpleEvents[1]);
-    m_sut.attachEvent(m_simpleEvents[2]);
-    m_sut.attachEvent(m_simpleEvents[4]);
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0]).has_error());
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[1]).has_error());
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[2]).has_error());
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[4]).has_error());
 
     EXPECT_EQ(m_sut.size(), 4U);
 }
 
 TEST_F(WaitSet_test, TriggerGoesOutOfScopeReducesSize)
 {
-    m_sut.attachEvent(m_simpleEvents[0]);
-    m_sut.attachEvent(m_simpleEvents[1]);
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0]).has_error());
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[1]).has_error());
     {
         SimpleEventClass simpleEvent1, simpleEvent2;
-        m_sut.attachEvent(simpleEvent1);
-        m_sut.attachEvent(simpleEvent2);
+        ASSERT_FALSE(m_sut.attachEvent(simpleEvent1).has_error());
+        ASSERT_FALSE(m_sut.attachEvent(simpleEvent2).has_error());
     }
 
     EXPECT_EQ(m_sut.size(), 2U);

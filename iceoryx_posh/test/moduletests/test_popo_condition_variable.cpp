@@ -87,6 +87,39 @@ TEST_F(ConditionVariable_test, NoNotifyResultsInNotBeingTriggered)
     EXPECT_FALSE(m_waiter.wasNotified());
 }
 
+TEST_F(ConditionVariable_test, NotifyOnceResultsInNoWaitSingleThreaded)
+{
+    m_signaler.notify();
+    m_waiter.wait();
+    // We expect that the next line is reached
+    EXPECT_TRUE(true);
+}
+
+TEST_F(ConditionVariable_test, NotifyTwiceResultsInNoWaitSingleThreaded)
+{
+    m_signaler.notify();
+    m_signaler.notify();
+    m_waiter.wait();
+    m_waiter.wait();
+    // We expect that the next line is reached
+    EXPECT_TRUE(true);
+}
+
+TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        IOX_DISCARD_RESULT(m_syncSemaphore.post());
+        m_waiter.wait();
+        EXPECT_THAT(counter, Eq(1));
+    });
+    IOX_DISCARD_RESULT(m_syncSemaphore.wait());
+    counter++;
+    m_signaler.notify();
+    waiter.join();
+}
+
 TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstruction)
 {
     ConditionVariableData sut;
@@ -328,14 +361,14 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
     m_watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
-        threadSetupSemaphore.post();
+        IOX_DISCARD_RESULT(threadSetupSemaphore.post());
         activeNotifications = listener.wait();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
         EXPECT_THAT(activeNotifications[0], Eq(EVENT_INDEX));
     });
 
-    threadSetupSemaphore.wait();
+    IOX_DISCARD_RESULT(threadSetupSemaphore.wait());
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(hasWaited, Eq(false));
     notifier.notify();
@@ -369,7 +402,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
     watchdogSecondWait.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
-        threadSetupSemaphore.post();
+        IOX_DISCARD_RESULT(threadSetupSemaphore.post());
         activeNotifications = listener.wait();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
@@ -380,7 +413,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
         }
     });
 
-    threadSetupSemaphore.wait();
+    IOX_DISCARD_RESULT(threadSetupSemaphore.wait());
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(hasWaited, Eq(false));
     notifier1.notify();

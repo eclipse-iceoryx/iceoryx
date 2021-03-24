@@ -40,7 +40,9 @@ void ConditionNotifier::notify() noexcept
     {
         getMembers()->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
     }
-    getMembers()->m_semaphore.post();
+    getMembers()->m_semaphore.post().or_else([](auto) {
+        errorHandler(Error::kPOPO__CONDITION_NOTIFIER_SEMAPHORE_CORRUPT_IN_NOTIFY, nullptr, ErrorLevel::FATAL);
+    });
 }
 
 const ConditionVariableData* ConditionNotifier::getMembers() const noexcept

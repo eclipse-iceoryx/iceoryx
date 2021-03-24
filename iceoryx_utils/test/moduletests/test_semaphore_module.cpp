@@ -155,7 +155,7 @@ TEST_P(Semaphore_test, PostIncreasesSemaphoreValue)
 {
     for (int i = 0; i < 12; ++i)
     {
-        sut->post();
+        ASSERT_FALSE(sut->post().has_error());
     }
 
     auto result = sut->getValue();
@@ -167,11 +167,11 @@ TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
 {
     for (int i = 0; i < 18; ++i)
     {
-        sut->post();
+        ASSERT_FALSE(sut->post().has_error());
     }
     for (int i = 0; i < 7; ++i)
     {
-        sut->wait();
+        ASSERT_FALSE(sut->wait().has_error());
     }
 
     auto result = sut->getValue();
@@ -183,7 +183,7 @@ TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
 {
     for (int i = 0; i < 15; ++i)
     {
-        sut->post();
+        ASSERT_FALSE(sut->post().has_error());
     }
     for (int i = 0; i < 9; ++i)
     {
@@ -216,7 +216,7 @@ TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
     const iox::units::Duration timeToWait = 2_ms;
     for (int i = 0; i < 19; ++i)
     {
-        sut->post();
+        ASSERT_FALSE(sut->post().has_error());
     }
 
     for (int i = 0; i < 12; ++i)
@@ -249,7 +249,7 @@ TEST_P(Semaphore_test, FailingTimedWaitDoesNotChangeSemaphoreValue)
 
 TEST_P(Semaphore_test, TryWaitAfterPostIsSuccessful)
 {
-    sut->post();
+    ASSERT_FALSE(sut->post().has_error());
     auto call = sut->tryWait();
     ASSERT_THAT(call.has_error(), Eq(false));
     ASSERT_THAT(*call, Eq(true));
@@ -257,7 +257,7 @@ TEST_P(Semaphore_test, TryWaitAfterPostIsSuccessful)
 
 TEST_P(Semaphore_test, TryWaitWithNoPostIsNotSuccessful)
 {
-    sut->post();
+    ASSERT_FALSE(sut->post().has_error());
     auto call = sut->tryWait();
     ASSERT_THAT(call.has_error(), Eq(false));
     ASSERT_THAT(*call, Eq(true));
@@ -265,7 +265,7 @@ TEST_P(Semaphore_test, TryWaitWithNoPostIsNotSuccessful)
 
 TEST_P(Semaphore_test, WaitValidAfterPostIsNonBlocking)
 {
-    sut->post();
+    ASSERT_FALSE(sut->post().has_error());
     // this call should not block and should be successful
     EXPECT_THAT(sut->wait().has_error(), Eq(false));
 }
@@ -274,21 +274,21 @@ TEST_P(Semaphore_test, WaitIsBlocking)
 {
     std::atomic<int> counter{0};
     std::thread t1([&] {
-        syncSemaphore->wait();
-        sut->post();
-        syncSemaphore->wait();
+        ASSERT_FALSE(syncSemaphore->wait().has_error());
+        ASSERT_FALSE(sut->post().has_error());
+        ASSERT_FALSE(syncSemaphore->wait().has_error());
         counter++;
-        sut->post();
+        ASSERT_FALSE(sut->post().has_error());
     });
 
     EXPECT_THAT(counter.load(), Eq(0));
 
-    syncSemaphore->post();
-    sut->wait();
+    ASSERT_FALSE(syncSemaphore->post().has_error());
+    ASSERT_FALSE(sut->wait().has_error());
     EXPECT_THAT(counter.load(), Eq(0));
 
-    syncSemaphore->post();
-    sut->wait();
+    ASSERT_FALSE(syncSemaphore->post().has_error());
+    ASSERT_FALSE(sut->wait().has_error());
     EXPECT_THAT(counter.load(), Eq(1));
 
     t1.join();
@@ -317,16 +317,16 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
 
     std::thread t([&] {
         auto timeout = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
-        syncSemaphore->post();
-        sut->wait();
+        ASSERT_FALSE(syncSemaphore->post().has_error());
+        ASSERT_FALSE(sut->wait().has_error());
         auto call = sut->timedWait(timeout, false);
         TIMING_TEST_ASSERT_FALSE(call.has_error());
         TIMING_TEST_EXPECT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
         timedWaitFinish.store(true);
     });
 
-    syncSemaphore->wait();
-    sut->post();
+    ASSERT_FALSE(syncSemaphore->wait().has_error());
+    ASSERT_FALSE(sut->post().has_error());
     std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
     TIMING_TEST_EXPECT_FALSE(timedWaitFinish.load());
 
@@ -343,20 +343,20 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
 
     std::thread t([&] {
         auto timeout = Duration::fromNanoseconds(TIMING_TEST_TIMEOUT);
-        syncSemaphore->post();
-        sut->wait();
+        ASSERT_FALSE(syncSemaphore->post().has_error());
+        ASSERT_FALSE(sut->wait().has_error());
         auto call = sut->timedWait(timeout, false);
         TIMING_TEST_ASSERT_FALSE(call.has_error());
         TIMING_TEST_EXPECT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
         timedWaitFinish.store(true);
     });
 
-    syncSemaphore->wait();
-    sut->post();
+    ASSERT_FALSE(syncSemaphore->wait().has_error());
+    ASSERT_FALSE(sut->post().has_error());
     std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
     TIMING_TEST_EXPECT_FALSE(timedWaitFinish.load());
 
-    sut->post();
+    ASSERT_FALSE(sut->post().has_error());
     std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
     TIMING_TEST_EXPECT_TRUE(timedWaitFinish.load());
 
