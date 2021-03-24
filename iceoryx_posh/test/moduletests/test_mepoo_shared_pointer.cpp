@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -112,7 +113,11 @@ class SharedPointer_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader();
+        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(mempool.getChunkSize(),
+                                                                 PAYLOAD_SIZE,
+                                                                 iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
+                                                                 iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                                                 iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
         new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return v;
     }
@@ -125,10 +130,12 @@ class SharedPointer_Test : public Test
 
     int resetCounter = ResetCounter();
 
-    char memory[4096];
-    iox::posix::Allocator allocator{memory, 4096};
-    MemPool mempool{64, 10, &allocator, &allocator};
-    MemPool chunkMgmtPool{64, 10, &allocator, &allocator};
+    static constexpr uint32_t PAYLOAD_SIZE{64U};
+
+    char memory[4096U];
+    iox::posix::Allocator allocator{memory, 4096U};
+    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 10U, &allocator, &allocator};
+    MemPool chunkMgmtPool{64U, 10U, &allocator, &allocator};
 
     void* memoryChunk{mempool.getChunk()};
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);

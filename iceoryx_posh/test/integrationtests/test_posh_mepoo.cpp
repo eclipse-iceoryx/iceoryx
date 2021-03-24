@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -286,7 +287,8 @@ class Mepoo_IntegrationTest : public Test
     bool sendreceivesample(const int& times)
     {
         using Topic = MemPoolTestTopic<size>;
-        constexpr auto topicSize = sizeof(Topic);
+        constexpr auto TOPIC_SIZE = sizeof(Topic);
+        constexpr auto TOPIC_ALIGNMENT = alignof(Topic);
 
         if (!(publisherPort->isOffered()))
         {
@@ -302,12 +304,16 @@ class Mepoo_IntegrationTest : public Test
 
         for (int idx = 0; idx < times; ++idx)
         {
-            publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
-                new (sample->payload()) Topic;
-                sample->payloadSize = topicSize;
-                publisherPort->sendChunk(sample);
-                m_roudiEnv->InterOpWait();
-            });
+            publisherPort
+                ->tryAllocateChunk(TOPIC_SIZE,
+                                   TOPIC_ALIGNMENT,
+                                   iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                   iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
+                .and_then([&](auto sample) {
+                    new (sample->payload()) Topic;
+                    publisherPort->sendChunk(sample);
+                    m_roudiEnv->InterOpWait();
+                });
         }
 
         return true;
