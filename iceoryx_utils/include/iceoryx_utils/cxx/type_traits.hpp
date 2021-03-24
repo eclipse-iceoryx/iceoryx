@@ -29,16 +29,21 @@ namespace cxx
 /// @tparam T is the type to conditionally add the const qualifier
 /// @tparam Condition is the type which determines if the const qualifier needs to be added to T
 ///
-template <typename T, typename Condition>
+template <typename T, typename C>
 struct add_const_conditionally
 {
     using type = T;
 };
-template <typename T, typename Condition>
-struct add_const_conditionally<T, const Condition>
+template <typename T, typename C>
+struct add_const_conditionally<T, const C>
 {
     using type = const T;
 };
+///
+/// @brief Helper type for add_const_conditionally
+///
+template <typename T, typename C>
+using add_const_conditionally_t = typename add_const_conditionally<T, C>::type;
 
 ///
 /// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
