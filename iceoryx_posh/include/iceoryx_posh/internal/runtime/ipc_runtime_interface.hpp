@@ -53,11 +53,6 @@ class IpcRuntimeInterface
     /// @return true if communication was successful, false if not
     bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept;
 
-    /// @brief send a message to the RouDi daemon
-    /// @param[in] msg message which will be send to RouDi
-    /// @return true if communication was successful, otherwise false
-    bool sendMessageToRouDi(const IpcMessage& msg) noexcept;
-
     /// @brief get the adress offset of the segment manager
     /// @return address offset as rp::BaseRelativePointer::offset_t
     rp::BaseRelativePointer::offset_t getSegmentManagerAddressOffset() const noexcept;
@@ -77,12 +72,8 @@ class IpcRuntimeInterface
         TIMEOUT
     };
 
-    /// @brief
-    /// @return
     void waitForRoudi(cxx::DeadlineTimer& timer) noexcept;
 
-    /// @brief
-    /// @return
     RegAckResult waitForRegAck(const int64_t transmissionTimestamp) noexcept;
 
   private:

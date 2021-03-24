@@ -229,14 +229,14 @@ TYPED_TEST(IpcChannel_test, UnlinkExistingOneWorks)
     auto first = TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(anotherGoodName);
-    EXPECT_FALSE(ret.has_error());
+    ASSERT_FALSE(ret.has_error());
     EXPECT_TRUE(ret.value());
 }
 
 TYPED_TEST(IpcChannel_test, UnlinkNonExistingOneWorks)
 {
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(theUnknown);
-    EXPECT_FALSE(ret.has_error());
+    ASSERT_FALSE(ret.has_error());
     EXPECT_FALSE(ret.value());
 }
 

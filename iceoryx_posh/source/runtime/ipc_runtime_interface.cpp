@@ -84,7 +84,9 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
             // send IpcMessageType::REG to RouDi
 
             IpcMessage sendBuffer;
-            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_appName << std::to_string(getpid())
+            int pid = getpid();
+            cxx::Expects(pid >= 0);
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_appName << std::to_string(pid)
                        << std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID())
                        << std::to_string(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
@@ -124,6 +126,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
     switch (regState)
     {
     case RegState::WAIT_FOR_ROUDI:
+        LogFatal() << "Timeout registering at RouDi. Is RouDi running?";
         errorHandler(Error::kIPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
     case RegState::SEND_REGISTER_REQUEST:
@@ -164,16 +167,6 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
         return false;
     }
 
-    return true;
-}
-
-bool IpcRuntimeInterface::sendMessageToRouDi(const IpcMessage& msg) noexcept
-{
-    if (!m_RoudiIpcInterface.send(msg))
-    {
-        LogError() << "Could not send message via RouDi IPC channel interface.\n";
-        return false;
-    }
     return true;
 }
 
@@ -252,6 +245,15 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 {
                     LogWarn() << "Received a REG_ACK with an outdated timestamp!";
                 }
+            }
+            else if (stringToIpcMessageType(cmd.c_str()) == IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED)
+            {
+                // RouDi has not yet cleaned up the resources of the app, tell the user to try again later
+                LogFatal()
+                    << "According to RouDi an app with the same name is still running. Try starting the app again.";
+                errorHandler(
+                    Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
+                break;
             }
             else
             {

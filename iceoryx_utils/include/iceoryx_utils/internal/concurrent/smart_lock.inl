@@ -41,6 +41,13 @@ smart_lock<T, MutexType>::smart_lock(const T& t) noexcept
 }
 
 template <typename T, typename MutexType>
+template <typename... ArgTypes>
+smart_lock<T, MutexType>::smart_lock(ArgTypes&&... args) noexcept
+    : base(std::forward<ArgTypes>(args)...)
+{
+}
+
+template <typename T, typename MutexType>
 smart_lock<T, MutexType>::smart_lock(const smart_lock& rhs) noexcept
 {
     std::lock_guard<MutexType> guard(rhs.lock);
