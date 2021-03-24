@@ -400,10 +400,10 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
         [&]() { LogWarn() << "Unknown application " << name << " requested an interface."; });
 }
 
-void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& processName) noexcept
+void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& runtimeName) noexcept
 {
     searchForProcessAndThen(
-        processName,
+        runtimeName,
         [&](Process& process) {
             // send counter to app as a serialized relative pointer
             auto offset = RelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
@@ -412,7 +412,7 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName
             sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
         },
-        [&]() { LogWarn() << "Unknown application " << processName << " requested an serviceRegistryChangeCounter."; });
+        [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
 }
 
 void ProcessManager::addApplicationForProcess(const RuntimeName_t& name) noexcept
@@ -434,12 +434,12 @@ void ProcessManager::addApplicationForProcess(const RuntimeName_t& name) noexcep
         [&]() { LogWarn() << "Unknown application " << name << " requested an ApplicationPort." << name; });
 }
 
-void ProcessManager::addNodeForProcess(const RuntimeName_t& processName, const NodeName_t& nodeName) noexcept
+void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const NodeName_t& nodeName) noexcept
 {
     searchForProcessAndThen(
-        processName,
+        runtimeName,
         [&](Process& process) {
-            m_portManager.acquireNodeData(processName, nodeName)
+            m_portManager.acquireNodeData(runtimeName, nodeName)
                 .and_then([&](auto nodeData) {
                     auto offset = RelativePointer::getOffset(m_mgmtSegmentId, nodeData);
 
@@ -448,9 +448,9 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& processName, const N
                                << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
                     process.sendViaIpcChannel(sendBuffer);
-                    m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, processName.c_str()),
+                    m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, runtimeName.c_str()),
                                                     NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
-                    LogDebug() << "Created new node " << nodeName << " for process " << processName;
+                    LogDebug() << "Created new node " << nodeName << " for process " << runtimeName;
                 })
                 .or_else([&](PortPoolError error) {
                     runtime::IpcMessage sendBuffer;
@@ -462,10 +462,10 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& processName, const N
                     }
                     process.sendViaIpcChannel(sendBuffer);
 
-                    LogDebug() << "Could not create new node for process " << processName;
+                    LogDebug() << "Could not create new node for process " << runtimeName;
                 });
         },
-        [&]() { LogWarn() << "Unknown process " << processName << " requested a node."; });
+        [&]() { LogWarn() << "Unknown process " << runtimeName << " requested a node."; });
 }
 
 void ProcessManager::sendMessageNotSupportedToRuntime(const RuntimeName_t& name) noexcept
@@ -556,12 +556,12 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
         [&]() { LogWarn() << "Unknown application " << name << " requested a PublisherPort."; });
 }
 
-void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& processName) noexcept
+void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtimeName) noexcept
 {
     searchForProcessAndThen(
-        processName,
+        runtimeName,
         [&](Process& process) { // Try to create a condition variable
-            m_portManager.acquireConditionVariableData(processName)
+            m_portManager.acquireConditionVariableData(runtimeName)
                 .and_then([&](auto condVar) {
                     auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
 
@@ -571,7 +571,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& process
                                << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
                     process.sendViaIpcChannel(sendBuffer);
 
-                    LogDebug() << "Created new ConditionVariable for application " << processName;
+                    LogDebug() << "Created new ConditionVariable for application " << runtimeName;
                 })
                 .or_else([&](PortPoolError error) {
                     runtime::IpcMessage sendBuffer;
@@ -583,10 +583,10 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& process
                     }
                     process.sendViaIpcChannel(sendBuffer);
 
-                    LogDebug() << "Could not create new ConditionVariable for application " << processName;
+                    LogDebug() << "Could not create new ConditionVariable for application " << runtimeName;
                 });
         },
-        [&]() { LogWarn() << "Unknown application " << processName << " requested a ConditionVariable."; });
+        [&]() { LogWarn() << "Unknown application " << runtimeName << " requested a ConditionVariable."; });
 }
 
 void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept

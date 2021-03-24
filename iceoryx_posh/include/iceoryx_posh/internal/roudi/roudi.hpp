@@ -97,7 +97,7 @@ class RouDi
     void shutdown();
     virtual void processMessage(const runtime::IpcMessage& message,
                                 const iox::runtime::IpcMessageType& cmd,
-                                const RuntimeName_t& processName);
+                                const RuntimeName_t& runtimeName);
     virtual void cyclicUpdateHook();
     void IpcMessageErrorHandler();
 

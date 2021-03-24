@@ -67,21 +67,21 @@ class PortManager
     cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     acquirePublisherPortData(const capro::ServiceDescription& service,
                              const popo::PublisherOptions& publisherOptions,
-                             const RuntimeName_t& processName,
+                             const RuntimeName_t& runtimeName,
                              mepoo::MemoryManager* const payloadMemoryManager,
                              const PortConfigInfo& portConfigInfo) noexcept;
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     acquireSubscriberPortData(const capro::ServiceDescription& service,
                               const popo::SubscriberOptions& subscriberOptions,
-                              const RuntimeName_t& processName,
+                              const RuntimeName_t& runtimeName,
                               const PortConfigInfo& portConfigInfo) noexcept;
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
-                                                      const RuntimeName_t& processName,
+                                                      const RuntimeName_t& runtimeName,
                                                       const NodeName_t& node = {""}) noexcept;
 
-    popo::ApplicationPortData* acquireApplicationPortData(const RuntimeName_t& processName) noexcept;
+    popo::ApplicationPortData* acquireApplicationPortData(const RuntimeName_t& runtimeName) noexcept;
 
     cxx::expected<runtime::NodeData*, PortPoolError> acquireNodeData(const RuntimeName_t& process,
                                                                      const NodeName_t& node) noexcept;
@@ -89,7 +89,7 @@ class PortManager
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     acquireConditionVariableData(const RuntimeName_t& process) noexcept;
 
-    void deletePortsOfProcess(const RuntimeName_t& processName) noexcept;
+    void deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
     runtime::IpcMessage findService(const capro::ServiceDescription& service) noexcept;

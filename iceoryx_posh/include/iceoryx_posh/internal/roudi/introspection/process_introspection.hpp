@@ -59,12 +59,12 @@ class ProcessIntrospection
     void removeProcess(const int f_pid) noexcept;
 
     /// @brief This function is used to add a node to the process introspection
-    /// @param[in] f_processName is the name of the proces
+    /// @param[in] f_runtimeName is the name of the proces
     /// @param[in] f_nodeName is the name of the node to add
     void addNode(const RuntimeName_t& f_process, const NodeName_t& f_node) noexcept;
 
     /// @brief This function is used to remove a node to the process introspection
-    /// @param[in] f_processName is the name of the proces
+    /// @param[in] f_runtimeName is the name of the proces
     /// @param[in] f_nodeName is the name of the node to remove
     void removeNode(const RuntimeName_t& f_process, const NodeName_t& f_node) noexcept;
 

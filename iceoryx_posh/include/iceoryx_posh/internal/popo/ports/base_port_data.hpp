@@ -37,10 +37,10 @@ struct BasePortData
     /// @brief Constructor
     /// @param[in] serviceDescription creates the service service description
     /// @param[in] portType Type of port to be created
-    /// @param[in] processName Name of the process
+    /// @param[in] runtimeName Name of the process
     /// @param[in] nodeName Name of the node
     BasePortData(const capro::ServiceDescription& serviceDescription,
-                 const RuntimeName_t& processName,
+                 const RuntimeName_t& runtimeName,
                  const NodeName_t& nodeName) noexcept;
 
     BasePortData(const BasePortData&) = delete;
@@ -50,7 +50,7 @@ struct BasePortData
     ~BasePortData() = default;
 
     capro::ServiceDescription m_serviceDescription;
-    RuntimeName_t m_processName;
+    RuntimeName_t m_runtimeName;
     NodeName_t m_nodeName;
 
     UniquePortId m_uniqueId;

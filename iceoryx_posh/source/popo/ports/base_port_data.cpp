@@ -21,10 +21,10 @@ namespace iox
 namespace popo
 {
 BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
-                           const RuntimeName_t& processName,
+                           const RuntimeName_t& runtimeName,
                            const NodeName_t& nodeName) noexcept
     : m_serviceDescription(serviceDescription)
-    , m_processName(processName)
+    , m_runtimeName(runtimeName)
     , m_nodeName(nodeName)
 {
 }

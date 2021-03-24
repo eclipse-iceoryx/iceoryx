@@ -46,6 +46,6 @@ uint64_t iox_node_get_name(iox_node_t const self, char* const name, const uint64
 /// @return the actual length of the process name, if the return value is greater
 ///         then nameCapacity the name is truncated.
 ///         If name is a nullptr, 0 will be returned.
-uint64_t iox_node_get_process_name(iox_node_t const self, char* const name, const uint64_t nameCapacity);
+uint64_t iox_node_get_runtime_name(iox_node_t const self, char* const name, const uint64_t nameCapacity);
 
 #endif

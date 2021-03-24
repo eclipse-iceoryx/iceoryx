@@ -161,7 +161,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
     const auto applicationPortData = m_runtime->getMiddlewareApplication();
 
     ASSERT_NE(nullptr, applicationPortData);
-    EXPECT_EQ(m_runtimeName, applicationPortData->m_processName);
+    EXPECT_EQ(m_runtimeName, applicationPortData->m_runtimeName);
     EXPECT_EQ(iox::capro::ServiceDescription(0U, 0U, 0U), applicationPortData->m_serviceDescription);
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
 }
@@ -211,7 +211,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
     const auto interfacePortData = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_nodeName);
 
     ASSERT_NE(nullptr, interfacePortData);
-    EXPECT_EQ(m_runtimeName, interfacePortData->m_processName);
+    EXPECT_EQ(m_runtimeName, interfacePortData->m_runtimeName);
     EXPECT_EQ(iox::capro::ServiceDescription(0U, 0U, 0U), interfacePortData->m_serviceDescription);
     EXPECT_EQ(false, interfacePortData->m_toBeDestroyed);
     EXPECT_EQ(true, interfacePortData->m_doInitialOfferForward);

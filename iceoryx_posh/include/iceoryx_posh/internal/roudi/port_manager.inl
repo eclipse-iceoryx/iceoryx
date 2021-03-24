@@ -30,7 +30,7 @@ PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& ser
         popo::PublisherPortRouDi publisherPort(publisherPortData);
         if (service == publisherPort.getCaProServiceDescription())
         {
-            return cxx::make_optional<RuntimeName_t>(publisherPortData->m_processName);
+            return cxx::make_optional<RuntimeName_t>(publisherPortData->m_runtimeName);
         }
     }
     return cxx::nullopt;

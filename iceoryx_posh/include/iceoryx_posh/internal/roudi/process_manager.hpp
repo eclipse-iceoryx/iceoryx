@@ -122,7 +122,7 @@ class ProcessManager : public ProcessManagerInterface
                                 const popo::PublisherOptions& publisherOptions,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
-    void addConditionVariableForProcess(const RuntimeName_t& processName) noexcept;
+    void addConditionVariableForProcess(const RuntimeName_t& runtimeName) noexcept;
 
     void initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept;
 

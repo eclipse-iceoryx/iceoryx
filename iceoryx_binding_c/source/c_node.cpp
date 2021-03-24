@@ -69,7 +69,7 @@ uint64_t iox_node_get_name(iox_node_t const self, char* const name, const uint64
     return nameAsString.size();
 }
 
-uint64_t iox_node_get_process_name(iox_node_t const self, char* const name, const uint64_t nameCapacity)
+uint64_t iox_node_get_runtime_name(iox_node_t const self, char* const name, const uint64_t nameCapacity)
 {
     if (name == nullptr)
     {

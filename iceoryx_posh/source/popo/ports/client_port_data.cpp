@@ -21,11 +21,11 @@ namespace iox
 namespace popo
 {
 ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescription,
-                               const RuntimeName_t& processName,
+                               const RuntimeName_t& runtimeName,
                                const NodeName_t& nodeName,
                                mepoo::MemoryManager* const memoryManager,
                                const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, processName, nodeName)
+    : BasePortData(serviceDescription, runtimeName, nodeName)
     , m_chunkSenderData(memoryManager, 0, memoryInfo)
     , m_chunkReceiverData(cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
 {

@@ -71,7 +71,7 @@ class PortIntrospection
 
             PublisherInfo(typename PublisherPort::MemberType_t& portData)
                 : portData(&portData)
-                , process(portData.m_processName)
+                , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
                 , node(portData.m_nodeName)
             {
@@ -98,7 +98,7 @@ class PortIntrospection
 
             SubscriberInfo(typename SubscriberPort::MemberType_t& portData)
                 : portData(&portData)
-                , process(portData.m_processName)
+                , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
                 , node(portData.m_nodeName)
             {

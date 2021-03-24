@@ -27,7 +27,7 @@ namespace popo
 struct ApplicationPortData : public BasePortData
 {
     ApplicationPortData() = default;
-    explicit ApplicationPortData(const RuntimeName_t& processName) noexcept;
+    explicit ApplicationPortData(const RuntimeName_t& runtimeName) noexcept;
 
     concurrent::FiFo<capro::CaproMessage, MAX_APPLICATION_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
 };

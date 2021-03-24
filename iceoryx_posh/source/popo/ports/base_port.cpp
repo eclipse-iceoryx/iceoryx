@@ -47,7 +47,7 @@ capro::ServiceDescription BasePort::getCaProServiceDescription() const noexcept
 
 RuntimeName_t BasePort::getRuntimeName() const noexcept
 {
-    return getMembers()->m_processName;
+    return getMembers()->m_runtimeName;
 }
 
 UniquePortId BasePort::getUniqueID() const noexcept

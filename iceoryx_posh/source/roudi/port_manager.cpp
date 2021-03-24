@@ -442,12 +442,12 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
-void PortManager::deletePortsOfProcess(const RuntimeName_t& processName) noexcept
+void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept
 {
     for (auto port : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType sender(port);
-        if (processName == sender.getRuntimeName())
+        if (runtimeName == sender.getRuntimeName())
         {
             destroyPublisherPort(port);
         }
@@ -456,7 +456,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& processName) noexcep
     for (auto port : m_portPool->getSubscriberPortDataList())
     {
         SubscriberPortUserType subscriber(port);
-        if (processName == subscriber.getRuntimeName())
+        if (runtimeName == subscriber.getRuntimeName())
         {
             destroySubscriberPort(port);
         }
@@ -465,38 +465,38 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& processName) noexcep
     for (auto port : m_portPool->getInterfacePortDataList())
     {
         popo::InterfacePort interface(port);
-        if (processName == interface.getRuntimeName())
+        if (runtimeName == interface.getRuntimeName())
         {
             m_portPool->removeInterfacePort(port);
-            LogDebug() << "Deleted Interface of application " << processName;
+            LogDebug() << "Deleted Interface of application " << runtimeName;
         }
     }
 
     for (auto port : m_portPool->getApplicationPortDataList())
     {
         popo::ApplicationPort application(port);
-        if (processName == application.getRuntimeName())
+        if (runtimeName == application.getRuntimeName())
         {
             m_portPool->removeApplicationPort(port);
-            LogDebug() << "Deleted ApplicationPort of application " << processName;
+            LogDebug() << "Deleted ApplicationPort of application " << runtimeName;
         }
     }
 
     for (auto nodeData : m_portPool->getNodeDataList())
     {
-        if (processName == nodeData->m_process)
+        if (runtimeName == nodeData->m_process)
         {
             m_portPool->removeNodeData(nodeData);
-            LogDebug() << "Deleted node of application " << processName;
+            LogDebug() << "Deleted node of application " << runtimeName;
         }
     }
 
     for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
     {
-        if (processName == conditionVariableData->m_process)
+        if (runtimeName == conditionVariableData->m_process)
         {
             m_portPool->removeConditionVariableData(conditionVariableData);
-            LogDebug() << "Deleted condition variable of application" << processName;
+            LogDebug() << "Deleted condition variable of application" << runtimeName;
         }
     }
 }
@@ -585,14 +585,14 @@ const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter() noexcep
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
-                                      const RuntimeName_t& processName,
+                                      const RuntimeName_t& runtimeName,
                                       mepoo::MemoryManager* const payloadMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
             [&](const auto& usedByProcess) {
                 LogWarn()
-                    << "Process '" << processName
+                    << "Process '" << runtimeName
                     << "' violates the communication policy by requesting a PublisherPort which is already used by '"
                     << usedByProcess << "' with service '" << service.operator cxx::Serialization().toString() << "'.";
             }))
@@ -603,7 +603,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, payloadMemoryManager, processName, publisherOptions, portConfigInfo.memoryInfo);
+        service, payloadMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
         auto publisherPortData = maybePublisherPortData.value();
@@ -623,11 +623,11 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const popo::SubscriberOptions& subscriberOptions,
-                                       const RuntimeName_t& processName,
+                                       const RuntimeName_t& runtimeName,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
-        m_portPool->addSubscriberPort(service, processName, subscriberOptions, portConfigInfo.memoryInfo);
+        m_portPool->addSubscriberPort(service, runtimeName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
         auto subscriberPortData = maybeSubscriberPortData.value();
@@ -647,10 +647,10 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
 
 /// @todo return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
-                                                               const RuntimeName_t& processName,
+                                                               const RuntimeName_t& runtimeName,
                                                                const NodeName_t& /*node*/) noexcept
 {
-    auto result = m_portPool->addInterfacePort(processName, interface);
+    auto result = m_portPool->addInterfacePort(runtimeName, interface);
     if (!result.has_error())
     {
         return result.value();
@@ -662,9 +662,9 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 }
 
 /// @todo return a cxx::expected
-popo::ApplicationPortData* PortManager::acquireApplicationPortData(const RuntimeName_t& processName) noexcept
+popo::ApplicationPortData* PortManager::acquireApplicationPortData(const RuntimeName_t& runtimeName) noexcept
 {
-    auto result = m_portPool->addApplicationPort(processName);
+    auto result = m_portPool->addApplicationPort(runtimeName);
     if (!result.has_error())
     {
         return result.value();

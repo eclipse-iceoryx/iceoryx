@@ -23,11 +23,11 @@ namespace iox
 namespace popo
 {
 SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceDescription,
-                                       const RuntimeName_t& processName,
+                                       const RuntimeName_t& runtimeName,
                                        cxx::VariantQueueTypes queueType,
                                        const SubscriberOptions& subscriberOptions,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, processName, subscriberOptions.nodeName)
+    : BasePortData(serviceDescription, runtimeName, subscriberOptions.nodeName)
     , m_chunkReceiverData(queueType, memoryInfo)
     , m_historyRequest(subscriberOptions.historyRequest)
     , m_subscribeRequested(subscriberOptions.subscribeOnCreate)
