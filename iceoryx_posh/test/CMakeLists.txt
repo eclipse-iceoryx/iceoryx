@@ -26,6 +26,12 @@ endif(BUILD_TEST AND NOT GTest_FOUND)
 
 set(PROJECT_PREFIX "posh")
 
+# Set path for input files in test
+SET(POSH_TEST_INPUT_FILES_PATH ${CMAKE_CURRENT_SOURCE_DIR}/input/)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_roudi_config_toml_file_provider.cpp.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_roudi_config_toml_file_provider.cpp)
+
+
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
 file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
 file(GLOB_RECURSE COMPONENTTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/componenttests/*.cpp")
@@ -83,11 +89,3 @@ set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
-
-# install input files for tests
-install(
-  FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/input/toml_parser_exception.toml
-    ${CMAKE_CURRENT_SOURCE_DIR}/input/toml_parser_fail_incomplete_configuration.toml
-  DESTINATION ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test
-  COMPONENT dev)
