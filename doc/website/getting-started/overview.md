@@ -72,6 +72,13 @@ instance and topic names are the same for both of them.
 This means the group and instance identifier can be ignored to create different ``ServiceDescription``s. They will be
 needed for advanced filtering functionality in the future.
 
+The data type of the transmitted data can be any C++ class, struct or plain old data type as long as it satisfies the 
+following conditions:
+- no heap is used
+- the data structure is entirely contained in shared memory - no pointers to process local memory, no references to 
+process local constructs, no dynamic allocators
+- the data structure must not internally use pointers/references
+
 ### Publisher
 
 - typed/untyped????
@@ -267,9 +274,8 @@ Now this application is ready to communicate with the middleware daemon RouDi.
 
 ### Defining a topic
 
-- restrictions?
-
-We need to define a data type we can send, which can be any struct or class or even a plain type, such as an int.
+We need to define a data type we can send. This can be any struct or class or even a plain type, such as an int, as long as 
+it meets the requirements described in the section ``Service description``.
 
 ```cpp
 struct CounterTopic
