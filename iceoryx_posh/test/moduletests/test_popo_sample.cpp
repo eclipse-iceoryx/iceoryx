@@ -89,7 +89,7 @@ TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
     // ===== Cleanup ===== //
 }
 
-TEST_F(SampleTest, getCutomHeaderFromNonConstTypeReturnCorrectAddress)
+TEST_F(SampleTest, CallingGetCustomHeaderFromNonConstTypeReturnsCorrectAddress)
 {
     // ===== Setup ===== //
     ChunkMock<DummyData, DummyHeader> chunk;
@@ -107,7 +107,7 @@ TEST_F(SampleTest, getCutomHeaderFromNonConstTypeReturnCorrectAddress)
     // ===== Cleanup ===== //
 }
 
-TEST_F(SampleTest, getCutomHeaderFromConstTypeReturnCorrectAddress)
+TEST_F(SampleTest, CallingGetCustomHeaderFromConstTypeReturnsCorrectAddress)
 {
     // ===== Setup ===== //
     ChunkMock<DummyData, DummyHeader> chunk;
