@@ -55,8 +55,8 @@ class SharedChunk_Test : public Test
 
     char memory[4096U];
     iox::posix::Allocator allocator{memory, 4096U};
-    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 10U, &allocator, &allocator};
-    MemPool chunkMgmtPool{64U, 10U, &allocator, &allocator};
+    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 10U, allocator, allocator};
+    MemPool chunkMgmtPool{64U, 10U, allocator, allocator};
     void* memoryChunk{mempool.getChunk()};
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);
     iox::mepoo::SharedChunk sut{chunkManagement};

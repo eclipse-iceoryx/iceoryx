@@ -62,8 +62,8 @@ class ChunkQueue_testBase
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
     MemPool mempool{
-        sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
-    MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
+        sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
+    MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5U};
 };

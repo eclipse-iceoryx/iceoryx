@@ -54,8 +54,8 @@ class MemoryManager
     ~MemoryManager() noexcept = default;
 
     void configureMemoryManager(const MePooConfig& f_mePooConfig,
-                                posix::Allocator* f_managementAllocator,
-                                posix::Allocator* f_payloadAllocator) noexcept;
+                                posix::Allocator& f_managementAllocator,
+                                posix::Allocator& f_payloadAllocator) noexcept;
 
     SharedChunk getChunk(const ChunkSettings& chunkSettings) noexcept;
 
@@ -71,11 +71,11 @@ class MemoryManager
     static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
     void printMemPoolVector(log::LogStream& log) const noexcept;
-    void addMemPool(posix::Allocator* f_managementAllocator,
-                    posix::Allocator* f_payloadAllocator,
+    void addMemPool(posix::Allocator& f_managementAllocator,
+                    posix::Allocator& f_payloadAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
                     const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks) noexcept;
-    void generateChunkManagementPool(posix::Allocator* f_managementAllocator) noexcept;
+    void generateChunkManagementPool(posix::Allocator& f_managementAllocator) noexcept;
 
   private:
     bool m_denyAddMemPool{false};

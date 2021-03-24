@@ -48,7 +48,7 @@ class ChunkSender_test : public Test
     {
         m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
         m_mempoolconf.addMemPool({BIG_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~ChunkSender_test()

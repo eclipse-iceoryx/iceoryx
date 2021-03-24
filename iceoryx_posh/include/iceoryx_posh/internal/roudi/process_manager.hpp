@@ -209,7 +209,7 @@ class ProcessManager : public ProcessManagerInterface
     PortManager& m_portManager;
     mepoo::SegmentManager<>* m_segmentManager{nullptr};
     mepoo::MemoryManager* m_introspectionMemoryManager{nullptr};
-    RelativePointer::id_t m_mgmtSegmentId{RelativePointer::NULL_POINTER_ID};
+    rp::BaseRelativePointer::id_t m_mgmtSegmentId{rp::BaseRelativePointer::NULL_POINTER_ID};
     ProcessList_t m_processList;
     ProcessIntrospectionType* m_processIntrospection{nullptr};
     /// @brief is currently used for the internal publisher/subscriber ports

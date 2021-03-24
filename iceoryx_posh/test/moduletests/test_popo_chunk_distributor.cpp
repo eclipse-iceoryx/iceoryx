@@ -75,8 +75,8 @@ class ChunkDistributor_test : public Test
     static constexpr uint32_t MAX_NUMBER_QUEUES = 128U;
     char memory[MEMORY_SIZE];
     iox::posix::Allocator allocator{memory, MEMORY_SIZE};
-    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 20U, &allocator, &allocator};
-    MemPool chunkMgmtPool{128U, 20U, &allocator, &allocator};
+    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 20U, allocator, allocator};
+    MemPool chunkMgmtPool{128U, 20U, allocator, allocator};
 
     struct ChunkDistributorConfig
     {

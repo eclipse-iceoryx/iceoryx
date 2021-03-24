@@ -42,8 +42,8 @@ void MemoryManager::printMemPoolVector(log::LogStream& log) const noexcept
     }
 }
 
-void MemoryManager::addMemPool(posix::Allocator* f_managementAllocator,
-                               posix::Allocator* f_payloadAllocator,
+void MemoryManager::addMemPool(posix::Allocator& f_managementAllocator,
+                               posix::Allocator& f_payloadAllocator,
                                const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
                                const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks) noexcept
 {
@@ -70,7 +70,7 @@ void MemoryManager::addMemPool(posix::Allocator* f_managementAllocator,
     m_totalNumberOfChunks += f_numberOfChunks;
 }
 
-void MemoryManager::generateChunkManagementPool(posix::Allocator* f_managementAllocator) noexcept
+void MemoryManager::generateChunkManagementPool(posix::Allocator& f_managementAllocator) noexcept
 {
     m_denyAddMemPool = true;
     uint32_t chunkSize = sizeof(ChunkManagement);
@@ -113,8 +113,8 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig
 
 uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& f_mePooConfig) noexcept
 {
-    uint64_t memorySize{0u};
-    uint32_t sumOfAllChunks{0u};
+    uint64_t memorySize{0U};
+    uint32_t sumOfAllChunks{0U};
     for (const auto& mempool : f_mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;
@@ -135,8 +135,8 @@ uint64_t MemoryManager::requiredFullMemorySize(const MePooConfig& f_mePooConfig)
 }
 
 void MemoryManager::configureMemoryManager(const MePooConfig& f_mePooConfig,
-                                           posix::Allocator* f_managementAllocator,
-                                           posix::Allocator* f_payloadAllocator) noexcept
+                                           posix::Allocator& f_managementAllocator,
+                                           posix::Allocator& f_payloadAllocator) noexcept
 {
     for (auto entry : f_mePooConfig.m_mempoolConfig)
     {

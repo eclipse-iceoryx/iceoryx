@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 
 #include "mocks/roudi_memory_block_mock.hpp"
 #include "mocks/roudi_memory_provider_mock.hpp"
@@ -52,13 +52,13 @@ class MemoryProvider_Test : public Test
     {
         // since the MemoryProvider registers for relative pointer, it is necessary to call unregisterAll, to have a
         // clean environment especially for the first test
-        iox::RelativePointer::unregisterAll();
+        iox::rp::BaseRelativePointer::unregisterAll();
     }
 
     void TearDown() override
     {
         // unregisterAll is also called to leave a clean environment after the last test
-        iox::RelativePointer::unregisterAll();
+        iox::rp::BaseRelativePointer::unregisterAll();
     }
 
     static constexpr uint64_t COMMON_SETUP_MEMORY_SIZE{16};
@@ -319,7 +319,7 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
 {
     constexpr uint64_t DummyMemorySize{1024};
     uint8_t dummy[DummyMemorySize];
-    auto segmentIdOffset = iox::RelativePointer::registerPtr(dummy, DummyMemorySize);
+    auto segmentIdOffset = iox::rp::BaseRelativePointer::registerPtr(dummy, DummyMemorySize);
 
     ASSERT_FALSE(commonSetup().has_error());
 

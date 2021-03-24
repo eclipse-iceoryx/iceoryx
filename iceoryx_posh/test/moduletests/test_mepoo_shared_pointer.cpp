@@ -19,7 +19,7 @@
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -103,11 +103,11 @@ class SharedPointer_Test : public Test
 
     void SetUp() override
     {
-        iox::RelativePointer::registerPtr(memory, 4096);
+        iox::rp::BaseRelativePointer::registerPtr(memory, 4096);
     }
     void TearDown() override
     {
-        iox::RelativePointer::unregisterAll();
+        iox::rp::BaseRelativePointer::unregisterAll();
     }
 
     ChunkManagement* GetChunkManagement(void* memoryChunk)
@@ -139,8 +139,8 @@ class SharedPointer_Test : public Test
 
     char memory[4096U];
     iox::posix::Allocator allocator{memory, 4096U};
-    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 10U, &allocator, &allocator};
-    MemPool chunkMgmtPool{64U, 10U, &allocator, &allocator};
+    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 10U, allocator, allocator};
+    MemPool chunkMgmtPool{64U, 10U, allocator, allocator};
 
     void* memoryChunk{mempool.getChunk()};
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);
