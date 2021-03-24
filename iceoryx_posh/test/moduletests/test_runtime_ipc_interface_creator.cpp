@@ -39,8 +39,8 @@ class IpcInterfaceCreator_test : public Test
   public:
     void SetUp()
     {
-        IpcChannelType::unlinkIfExists(goodName);
-        IpcChannelType::unlinkIfExists(anotherGoodName);
+        EXPECT_FALSE(IpcChannelType::unlinkIfExists(goodName).has_error());
+        EXPECT_FALSE(IpcChannelType::unlinkIfExists(anotherGoodName).has_error());
     }
 
     void TearDown()
