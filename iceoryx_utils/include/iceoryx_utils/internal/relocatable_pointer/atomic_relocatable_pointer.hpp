@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_HPP
-#define IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_HPP
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_POINTER_HPP
+#define IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_POINTER_HPP
 
 #include <atomic>
 #include <limits>
@@ -76,6 +76,6 @@ class AtomicRelocatablePointer
 } // namespace rp
 } // namespace iox
 
-#include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_ptr.inl"
+#include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_pointer.inl"
 
-#endif // IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_HPP
+#endif // IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_POINTER_HPP

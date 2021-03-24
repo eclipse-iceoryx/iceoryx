@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/internal/relocatable_pointer/relocatable_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relocatable_pointer.hpp"
 
 #include "test.hpp"
 

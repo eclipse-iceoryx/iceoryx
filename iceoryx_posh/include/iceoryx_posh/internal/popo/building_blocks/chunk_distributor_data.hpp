@@ -24,7 +24,7 @@
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 #include <cstdint>
 #include <mutex>

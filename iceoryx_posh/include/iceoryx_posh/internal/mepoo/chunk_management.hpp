@@ -18,7 +18,7 @@
 #define IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 #include <atomic>
 #include <cstdint>

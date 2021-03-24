@@ -19,7 +19,7 @@
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "test.hpp"
 
 using namespace ::testing;

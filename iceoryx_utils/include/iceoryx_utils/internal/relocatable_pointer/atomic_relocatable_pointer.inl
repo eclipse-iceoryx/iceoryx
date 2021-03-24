@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL
-#define IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_POINTER_INL
+#define IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_POINTER_INL
 
-#include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_pointer.hpp"
 
 namespace iox
 {
@@ -81,4 +81,4 @@ AtomicRelocatablePointer<T>::computeOffset(const void* ptr) const noexcept
 } // namespace rp
 } // namespace iox
 
-#endif // IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL
+#endif // IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_POINTER_INL

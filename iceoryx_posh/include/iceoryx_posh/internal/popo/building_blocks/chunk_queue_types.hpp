@@ -18,7 +18,7 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
 
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 namespace iox
 {

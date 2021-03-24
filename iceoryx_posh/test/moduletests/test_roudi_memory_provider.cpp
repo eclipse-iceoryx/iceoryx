@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_utils/internal/relocatable_pointer/base_relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 
 #include "mocks/roudi_memory_block_mock.hpp"
 #include "mocks/roudi_memory_provider_mock.hpp"

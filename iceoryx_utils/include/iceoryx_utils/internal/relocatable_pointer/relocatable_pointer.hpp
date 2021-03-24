@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
-#define IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_POINTER_HPP
+#define IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_POINTER_HPP
 
-#include "base_relocatable_ptr.hpp"
+#include "base_relocatable_pointer.hpp"
 
 namespace iox
 {
@@ -77,6 +77,6 @@ class RelocatablePointer : public BaseRelocatablePointer
 } // namespace rp
 } // namespace iox
 
-#include "iceoryx_utils/internal/relocatable_pointer/relocatable_ptr.inl"
+#include "iceoryx_utils/internal/relocatable_pointer/relocatable_pointer.inl"
 
-#endif // IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
+#endif // IOX_UTILS_RELOCATABLE_POINTER_RELOCATABLE_POINTER_HPP

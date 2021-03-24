@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_HPP
-#define IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_HPP
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
+#define IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
 
-#include "base_relative_ptr.hpp"
+#include "base_relative_pointer.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -103,6 +103,7 @@ class RelativePointer : public BaseRelativePointer
 } // namespace rp
 } // namespace iox
 
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.inl"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.inl"
 
-#endif // IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_HPP
+#endif // IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
+

@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/internal/relocatable_pointer/base_relocatable_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relocatable_pointer.hpp"
 
 namespace iox
 {

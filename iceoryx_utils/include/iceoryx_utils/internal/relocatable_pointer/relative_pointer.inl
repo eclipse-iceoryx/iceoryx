@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_INL
-#define IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_INL
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_INL
+#define IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_INL
 
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 namespace iox
 {
@@ -118,5 +118,5 @@ inline bool RelativePointer<T>::operator!=(T* const ptr) const noexcept
 } // namespace rp
 } // namespace iox
 
-#endif // IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_INL
+#endif // IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_INL
 
