@@ -24,11 +24,6 @@ endif(NOT CMAKE_BUILD_TYPE)
 include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)
 
-# ===== Doxygen example
-if(BUILD_DOC)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../doc/aspice_swe3_4 ${CMAKE_BINARY_DIR}/doc)
-    return()
-endif()
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -38,6 +33,13 @@ endif()
 # ===== Core
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
+
+# ===== Doxygen example
+if(BUILD_DOC)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../doc/aspice_swe3_4 ${CMAKE_BINARY_DIR}/doc)
+    return()
+endif()
+
 
 # ===== Extras
 if(INTROSPECTION)
