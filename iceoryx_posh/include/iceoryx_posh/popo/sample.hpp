@@ -71,27 +71,31 @@ template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoCusto
 class Sample
 {
     static_assert(std::is_const<T>::value == std::is_const<H>::value,
-                  "The type `T` and the custom header `H` must be equal in their const qualifier!");
+                  "The type `T` and the custom header `H` must be equal in their const qualifier to ensure the same "
+                  "access restrictions for the custom header as for the sample data!");
 
+    /// @brief Helper type to enable the constructor for the publisher, i.e. when T has no const qualifier
     template <typename S, typename TT>
     using ForPublisherOnly = std::enable_if_t<std::is_same<S, TT>::value && !std::is_const<TT>::value, S>;
 
+    /// @brief Helper type to enable the constructor for the subscriber, i.e. when T has a const qualifier
     template <typename S, typename TT>
     using ForSubscriberOnly = std::enable_if_t<std::is_same<S, TT>::value && std::is_const<TT>::value, S>;
 
+    /// @brief Helper type to enable some methods only if a custom header is used
     template <typename R, typename HH>
     using HasCustomHeader =
         std::enable_if_t<std::is_same<R, HH>::value && !std::is_same<R, mepoo::NoCustomHeader>::value, R>;
 
   public:
-    /// @brief constructor for a Sample used by the Publisher
+    /// @brief Constructor for a Sample used by the Publisher
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
     /// @param sampleUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param publisher is a reference to the publisher to be able to use the `publish` and `release` methods
     template <typename S = T, typename = ForPublisherOnly<S, T>>
     Sample(cxx::unique_ptr<T>&& sampleUniquePtr, PublisherInterface<T, H>& publisher) noexcept;
 
-    /// @brief constructor for a Sample used by the Subscriber
+    /// @brief Constructor for a Sample used by the Subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
     /// @param sampleUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     template <typename S = T, typename = ForSubscriberOnly<S, T>>
@@ -107,47 +111,49 @@ class Sample
     Sample<T, H>& operator=(const Sample<T, H>&) = delete;
 
     ///
-    /// @brief operator -> Transparent access to the encapsulated type.
+    /// @brief Transparent access to the encapsulated type.
     /// @return a pointer to the encapsulated type.
     ///
     T* operator->() noexcept;
 
     ///
-    /// @brief operator -> Transparent read-only access to the encapsulated type.
+    /// @brief Transparent read-only access to the encapsulated type.
     /// @return a const pointer to the encapsulated type.
     ///
     const T* operator->() const noexcept;
 
     ///
-    /// @brief operator* Provide a reference to the encapsulated type.
+    /// @brief Provides a reference to the encapsulated type.
     /// @return A T& to the encapsulated type.
     ///
     T& operator*() noexcept;
 
     ///
-    /// @brief operator* Provide a const reference to the encapsulated type.
+    /// @brief Provides a const reference to the encapsulated type.
     /// @return A const T& to the encapsulated type.
     ///
     const T& operator*() const noexcept;
 
     ///
-    /// @brief operator bool Indciates whether the sample is valid, i.e. refers to allocated memory.
+    /// @brief Indicates whether the sample is valid, i.e. refers to allocated memory.
     /// @return true if the sample is valid, false otherwise.
     ///
     operator bool() const noexcept;
 
     ///
-    /// @brief allocation Access to the encapsulated type loaned to the sample.
+    /// @brief Mutable access to the encapsulated type loaned to the sample.
     /// @return a pointer to the encapsulated type.
     ///
     T* get() noexcept;
 
     ///
-    /// @brief allocation Read-only access to the encapsulated type loaned to the sample.
+    /// @brief Read-only access to the encapsulated type loaned to the sample.
     /// @return a const pointer to the encapsulated type.
     ///
     const T* get() const noexcept;
 
+    /// @brief Helper type to ensure the access to the ChunkHeader has the same const qualifier as the access to the
+    /// sample data
     using ConditionalConstChunkHeader_t = cxx::add_const_conditionally_t<mepoo::ChunkHeader, T>;
     ///
     /// @brief header Retrieve the header of the underlying memory chunk loaned to the sample.
@@ -156,7 +162,7 @@ class Sample
     ConditionalConstChunkHeader_t* getHeader() noexcept;
 
     ///
-    /// @brief header Retrieve the header of the underlying memory chunk loaned to the sample.
+    /// @brief Retrieve the ChunkHeader of the underlying memory chunk loaned to the sample.
     /// @return The const ChunkHeader of the underlying memory chunk.
     ///
     const mepoo::ChunkHeader* getHeader() const noexcept;
@@ -176,7 +182,7 @@ class Sample
     const R& getCustomHeader() const noexcept;
 
     ///
-    /// @brief publish Publish the sample via the publisher from which it was loaned and automatically
+    /// @brief Publish the sample via the publisher from which it was loaned and automatically
     /// release ownership to it.
     /// @details Only available for non-const type T.
     ///
