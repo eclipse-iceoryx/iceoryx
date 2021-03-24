@@ -20,7 +20,7 @@ namespace iox
 {
 namespace runtime
 {
-NodeData::NodeData(const ProcessName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept
+NodeData::NodeData(const RuntimeName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept
     : m_process(process)
     , m_node(node)
     , m_nodeDeviceIdentifier(nodeDeviceIdentifier)

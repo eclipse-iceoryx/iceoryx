@@ -54,7 +54,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
                 roudiComponents.m_portManager,
                 RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
-    const ProcessName_t m_runtimeName{"App"};
+    const RuntimeName_t m_runtimeName{"App"};
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntimeSingleProcess m_runtimeSingleProcess(m_runtimeName); });
 }
@@ -63,7 +63,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
 {
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
 
-    const ProcessName_t m_runtimeName{"App"};
+    const RuntimeName_t m_runtimeName{"App"};
 
     iox::cxx::optional<iox::Error> detectedError;
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(

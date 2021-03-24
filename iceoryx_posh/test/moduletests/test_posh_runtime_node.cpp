@@ -46,7 +46,7 @@ class PoshRuntimeNode_test : public Test
 
     virtual void TearDown(){};
 
-    const ProcessName_t m_runtimeName{"App"};
+    const RuntimeName_t m_runtimeName{"App"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
 };

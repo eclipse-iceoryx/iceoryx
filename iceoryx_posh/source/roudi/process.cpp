@@ -25,7 +25,7 @@ namespace iox
 {
 namespace roudi
 {
-Process::Process(const ProcessName_t& name,
+Process::Process(const RuntimeName_t& name,
                  const uint32_t pid,
                  mepoo::MemoryManager& payloadMemoryManager,
                  const bool isMonitored,
@@ -46,9 +46,9 @@ uint32_t Process::getPid() const noexcept
     return m_pid;
 }
 
-const ProcessName_t Process::getName() const noexcept
+const RuntimeName_t Process::getName() const noexcept
 {
-    return ProcessName_t(cxx::TruncateToCapacity, m_ipcChannel.getInterfaceName());
+    return RuntimeName_t(cxx::TruncateToCapacity, m_ipcChannel.getInterfaceName());
 }
 
 void Process::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept

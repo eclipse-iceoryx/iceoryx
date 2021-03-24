@@ -78,7 +78,7 @@ class PortIntrospection
             }
 
             typename PublisherPort::MemberType_t* portData{nullptr};
-            ProcessName_t process;
+            RuntimeName_t process;
             capro::ServiceDescription service;
             NodeName_t node;
 
@@ -105,7 +105,7 @@ class PortIntrospection
             }
 
             typename SubscriberPort::MemberType_t* portData{nullptr};
-            ProcessName_t process;
+            RuntimeName_t process;
             capro::ServiceDescription service;
             NodeName_t node;
         };

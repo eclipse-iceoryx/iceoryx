@@ -21,7 +21,7 @@ namespace iox
 {
 namespace runtime
 {
-IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
+IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& name,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
     : IpcInterfaceBase(name, maxMessages, messageSize)

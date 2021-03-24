@@ -51,7 +51,7 @@ class RouDiEnvironment
     void SetInterOpWaitingTime(const std::chrono::milliseconds& v);
     void InterOpWait();
 
-    void CleanupAppResources(const ProcessName_t& name);
+    void CleanupAppResources(const RuntimeName_t& name);
 
   protected:
     /// @note this is due to ambiguity of the cTor with the default parameter

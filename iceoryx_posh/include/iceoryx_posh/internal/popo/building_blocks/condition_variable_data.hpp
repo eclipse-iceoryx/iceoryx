@@ -30,7 +30,7 @@ namespace popo
 struct ConditionVariableData
 {
     ConditionVariableData() noexcept;
-    ConditionVariableData(const ProcessName_t& process) noexcept;
+    ConditionVariableData(const RuntimeName_t& process) noexcept;
 
     ConditionVariableData(const ConditionVariableData& rhs) = delete;
     ConditionVariableData(ConditionVariableData&& rhs) = delete;
@@ -47,7 +47,7 @@ struct ConditionVariableData
                       })
                       .value());
 
-    ProcessName_t m_process;
+    RuntimeName_t m_process;
     std::atomic_bool m_toBeDestroyed{false};
     std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE];
 };

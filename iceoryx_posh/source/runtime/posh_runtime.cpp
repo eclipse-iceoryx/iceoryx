@@ -52,7 +52,7 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
     }
 }
 
-PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const ProcessName_t*> name) noexcept
+PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const RuntimeName_t*> name) noexcept
 {
     static PoshRuntime instance(name);
     return instance;
@@ -64,17 +64,17 @@ PoshRuntime& PoshRuntime::getInstance() noexcept
     return getInstance(cxx::nullopt);
 }
 
-PoshRuntime& PoshRuntime::initRuntime(const ProcessName_t& name) noexcept
+PoshRuntime& PoshRuntime::initRuntime(const RuntimeName_t& name) noexcept
 {
-    return getInstance(cxx::make_optional<const ProcessName_t*>(&name));
+    return getInstance(cxx::make_optional<const RuntimeName_t*>(&name));
 }
 
-PoshRuntime& PoshRuntime::getInstance(cxx::optional<const ProcessName_t*> name) noexcept
+PoshRuntime& PoshRuntime::getInstance(cxx::optional<const RuntimeName_t*> name) noexcept
 {
     return getRuntimeFactory()(name);
 }
 
-PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread) noexcept
+PoshRuntime::PoshRuntime(cxx::optional<const RuntimeName_t*> name, const bool doMapSharedMemoryIntoThread) noexcept
     : m_appName(verifyInstanceName(name))
     , m_ipcChannelInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
@@ -115,7 +115,7 @@ PoshRuntime::~PoshRuntime() noexcept
 }
 
 
-const ProcessName_t& PoshRuntime::verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept
+const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const RuntimeName_t*> name) noexcept
 {
     if (!name.has_value())
     {
@@ -136,7 +136,7 @@ const ProcessName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Process
     return *name.value();
 }
 
-ProcessName_t PoshRuntime::getInstanceName() const noexcept
+RuntimeName_t PoshRuntime::getInstanceName() const noexcept
 {
     return m_appName;
 }

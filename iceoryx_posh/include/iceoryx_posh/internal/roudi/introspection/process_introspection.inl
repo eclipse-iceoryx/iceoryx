@@ -44,7 +44,7 @@ inline ProcessIntrospection<PublisherPort>::~ProcessIntrospection() noexcept
 }
 
 template <typename PublisherPort>
-inline void ProcessIntrospection<PublisherPort>::addProcess(const int f_pid, const ProcessName_t& f_name) noexcept
+inline void ProcessIntrospection<PublisherPort>::addProcess(const int f_pid, const RuntimeName_t& f_name) noexcept
 {
     ProcessIntrospectionData procIntrData;
     procIntrData.m_pid = f_pid;
@@ -74,7 +74,7 @@ inline void ProcessIntrospection<PublisherPort>::removeProcess(const int f_pid) 
 }
 
 template <typename PublisherPort>
-inline void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_process,
+inline void ProcessIntrospection<PublisherPort>::addNode(const RuntimeName_t& f_process,
                                                          const NodeName_t& f_node) noexcept
 {
     std::lock_guard<std::mutex> guard(m_mutex);
@@ -108,7 +108,7 @@ inline void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_
 }
 
 template <typename PublisherPort>
-inline void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_process,
+inline void ProcessIntrospection<PublisherPort>::removeNode(const RuntimeName_t& f_process,
                                                             const NodeName_t& f_node) noexcept
 {
     std::lock_guard<std::mutex> guard(m_mutex);

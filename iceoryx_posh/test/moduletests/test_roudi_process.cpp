@@ -44,7 +44,7 @@ class IpcInterfaceUser_Mock : public iox::roudi::Process
 class Process_test : public Test
 {
   public:
-    const iox::ProcessName_t processname = {"TestProcess"};
+    const iox::RuntimeName_t processname = {"TestProcess"};
     pid_t pid{200U};
     iox::mepoo::MemoryManager payloadMemoryManager;
     bool isMonitored = true;

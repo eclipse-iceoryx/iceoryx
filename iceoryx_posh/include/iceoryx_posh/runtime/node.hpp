@@ -53,7 +53,7 @@ class Node
 
     /// @brief returns the name of the process
     /// @return string which contains the process name
-    ProcessName_t getProcessName() const noexcept;
+    RuntimeName_t getProcessName() const noexcept;
 
   protected:
     Node(NodeData* const data) noexcept;

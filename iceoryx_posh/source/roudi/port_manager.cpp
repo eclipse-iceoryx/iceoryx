@@ -337,7 +337,7 @@ void PortManager::handleNodes() noexcept
 {
     /// @todo we have to update the introspection but node information is in process introspection which is not
     // accessible here. So currently nodes will be removed not before a process is removed
-    // m_processIntrospection->removeNode(ProcessName_t(process.c_str()),
+    // m_processIntrospection->removeNode(RuntimeName_t(process.c_str()),
     // NodeName_t(node.c_str()));
 
     for (auto nodeData : m_portPool->getNodeDataList())
@@ -442,7 +442,7 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
-void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcept
+void PortManager::deletePortsOfProcess(const RuntimeName_t& processName) noexcept
 {
     for (auto port : m_portPool->getPublisherPortDataList())
     {
@@ -585,7 +585,7 @@ const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter() noexcep
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
-                                      const ProcessName_t& processName,
+                                      const RuntimeName_t& processName,
                                       mepoo::MemoryManager* const payloadMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
@@ -623,7 +623,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const popo::SubscriberOptions& subscriberOptions,
-                                       const ProcessName_t& processName,
+                                       const RuntimeName_t& processName,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
@@ -647,7 +647,7 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
 
 /// @todo return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
-                                                               const ProcessName_t& processName,
+                                                               const RuntimeName_t& processName,
                                                                const NodeName_t& /*node*/) noexcept
 {
     auto result = m_portPool->addInterfacePort(processName, interface);
@@ -662,7 +662,7 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 }
 
 /// @todo return a cxx::expected
-popo::ApplicationPortData* PortManager::acquireApplicationPortData(const ProcessName_t& processName) noexcept
+popo::ApplicationPortData* PortManager::acquireApplicationPortData(const RuntimeName_t& processName) noexcept
 {
     auto result = m_portPool->addApplicationPort(processName);
     if (!result.has_error())
@@ -689,14 +689,14 @@ void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& servic
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const ProcessName_t& process,
+cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& process,
                                                                               const NodeName_t& node) noexcept
 {
     return m_portPool->addNodeData(process, node, 0);
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortManager::acquireConditionVariableData(const ProcessName_t& process) noexcept
+PortManager::acquireConditionVariableData(const RuntimeName_t& process) noexcept
 {
     return m_portPool->addConditionVariableData(process);
 }

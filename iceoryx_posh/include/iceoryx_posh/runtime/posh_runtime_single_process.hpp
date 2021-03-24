@@ -26,7 +26,7 @@ namespace runtime
 class PoshRuntimeSingleProcess : public PoshRuntime
 {
   public:
-    PoshRuntimeSingleProcess(const ProcessName_t& name) noexcept;
+    PoshRuntimeSingleProcess(const RuntimeName_t& name) noexcept;
     ~PoshRuntimeSingleProcess();
 };
 } // namespace runtime

@@ -50,7 +50,7 @@ PortPool::getConditionVariableDataList() noexcept
 }
 
 cxx::expected<popo::InterfacePortData*, PortPoolError>
-PortPool::addInterfacePort(const ProcessName_t& applicationName, const capro::Interfaces interface) noexcept
+PortPool::addInterfacePort(const RuntimeName_t& applicationName, const capro::Interfaces interface) noexcept
 {
     if (m_portPoolData->m_interfacePortMembers.hasFreeSpace())
     {
@@ -65,7 +65,7 @@ PortPool::addInterfacePort(const ProcessName_t& applicationName, const capro::In
 }
 
 cxx::expected<popo::ApplicationPortData*, PortPoolError>
-PortPool::addApplicationPort(const ProcessName_t& applicationName) noexcept
+PortPool::addApplicationPort(const RuntimeName_t& applicationName) noexcept
 {
     if (m_portPoolData->m_applicationPortMembers.hasFreeSpace())
     {
@@ -79,7 +79,7 @@ PortPool::addApplicationPort(const ProcessName_t& applicationName) noexcept
     }
 }
 
-cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const ProcessName_t& process,
+cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const RuntimeName_t& process,
                                                                        const NodeName_t& node,
                                                                        const uint64_t nodeDeviceIdentifier) noexcept
 {
@@ -96,7 +96,7 @@ cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const Pro
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortPool::addConditionVariableData(const ProcessName_t& process) noexcept
+PortPool::addConditionVariableData(const RuntimeName_t& process) noexcept
 {
     if (m_portPoolData->m_conditionVariableMembers.hasFreeSpace())
     {
@@ -148,7 +148,7 @@ cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::getSub
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
                            mepoo::MemoryManager* const memoryManager,
-                           const ProcessName_t& applicationName,
+                           const RuntimeName_t& applicationName,
                            const popo::PublisherOptions& publisherOptions,
                            const mepoo::MemoryInfo& memoryInfo) noexcept
 {
@@ -167,7 +167,7 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
 
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
-                            const ProcessName_t& applicationName,
+                            const RuntimeName_t& applicationName,
                             const popo::SubscriberOptions& subscriberOptions,
                             const mepoo::MemoryInfo& memoryInfo) noexcept
 {

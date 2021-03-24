@@ -38,7 +38,7 @@ class ConditionVariable_test : public Test
   public:
     using NotificationVector_t = ConditionListener::NotificationVector_t;
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
-    const iox::ProcessName_t m_process{"Ferdinand"};
+    const iox::RuntimeName_t m_process{"Ferdinand"};
     const iox::units::Duration m_timeToWait = 2_s;
 
     ConditionVariableData m_condVarData{m_process};

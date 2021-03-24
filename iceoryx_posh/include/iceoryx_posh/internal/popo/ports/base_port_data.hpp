@@ -40,7 +40,7 @@ struct BasePortData
     /// @param[in] processName Name of the process
     /// @param[in] nodeName Name of the node
     BasePortData(const capro::ServiceDescription& serviceDescription,
-                 const ProcessName_t& processName,
+                 const RuntimeName_t& processName,
                  const NodeName_t& nodeName) noexcept;
 
     BasePortData(const BasePortData&) = delete;
@@ -50,7 +50,7 @@ struct BasePortData
     ~BasePortData() = default;
 
     capro::ServiceDescription m_serviceDescription;
-    ProcessName_t m_processName;
+    RuntimeName_t m_processName;
     NodeName_t m_nodeName;
 
     UniquePortId m_uniqueId;

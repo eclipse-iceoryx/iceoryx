@@ -30,7 +30,7 @@ std::atomic<uint64_t> RuntimeTestInterface::s_currentRouDiContext{0};
 
 std::mutex RuntimeTestInterface::s_runtimeAccessMutex;
 
-std::map<ProcessName_t, PoshRuntime*> RuntimeTestInterface::s_runtimes;
+std::map<RuntimeName_t, PoshRuntime*> RuntimeTestInterface::s_runtimes;
 
 RuntimeTestInterface::RuntimeTestInterface()
 {
@@ -73,7 +73,7 @@ void RuntimeTestInterface::cleanupRuntimes()
     RuntimeTestInterface::s_currentRouDiContext.operator++(std::memory_order_relaxed);
 }
 
-void RuntimeTestInterface::eraseRuntime(const ProcessName_t& name)
+void RuntimeTestInterface::eraseRuntime(const RuntimeName_t& name)
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
     auto iter = RuntimeTestInterface::s_runtimes.find(name);
@@ -84,7 +84,7 @@ void RuntimeTestInterface::eraseRuntime(const ProcessName_t& name)
     }
 }
 
-PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(cxx::optional<const ProcessName_t*> name)
+PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(cxx::optional<const RuntimeName_t*> name)
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 

@@ -62,7 +62,7 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
-IpcInterfaceBase::IpcInterfaceBase(const ProcessName_t& InterfaceName,
+IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& InterfaceName,
                                    const uint64_t maxMessages,
                                    const uint64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
@@ -147,7 +147,7 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
     return !m_ipcChannel.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
-const ProcessName_t& IpcInterfaceBase::getInterfaceName() const noexcept
+const RuntimeName_t& IpcInterfaceBase::getInterfaceName() const noexcept
 {
     return m_interfaceName;
 }
@@ -190,7 +190,7 @@ bool IpcInterfaceBase::hasClosableIpcChannel() const noexcept
     return m_ipcChannel.isInitialized();
 }
 
-void IpcInterfaceBase::cleanupOutdatedIpcChannel(const ProcessName_t& name) noexcept
+void IpcInterfaceBase::cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept
 {
     if (IpcChannelType::unlinkIfExists(name).value_or(false))
     {

@@ -22,7 +22,7 @@ namespace iox
 namespace popo
 {
 PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                                     const ProcessName_t& processName,
+                                     const RuntimeName_t& processName,
                                      mepoo::MemoryManager* const memoryManager,
                                      const PublisherOptions& publisherOptions,
                                      const mepoo::MemoryInfo& memoryInfo) noexcept

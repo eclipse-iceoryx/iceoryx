@@ -25,8 +25,8 @@ namespace iox
 {
 namespace runtime
 {
-IpcRuntimeInterface::IpcRuntimeInterface(const ProcessName_t& roudiName,
-                                         const ProcessName_t& appName,
+IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
+                                         const RuntimeName_t& appName,
                                          const units::Duration roudiWaitingTimeout) noexcept
     : m_appName(appName)
     , m_AppIpcInterface(appName)

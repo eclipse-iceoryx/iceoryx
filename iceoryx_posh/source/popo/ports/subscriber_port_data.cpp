@@ -23,7 +23,7 @@ namespace iox
 namespace popo
 {
 SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceDescription,
-                                       const ProcessName_t& processName,
+                                       const RuntimeName_t& processName,
                                        cxx::VariantQueueTypes queueType,
                                        const SubscriberOptions& subscriberOptions,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept

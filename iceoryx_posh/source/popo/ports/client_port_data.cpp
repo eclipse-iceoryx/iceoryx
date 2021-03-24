@@ -21,7 +21,7 @@ namespace iox
 namespace popo
 {
 ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescription,
-                               const ProcessName_t& processName,
+                               const RuntimeName_t& processName,
                                const NodeName_t& nodeName,
                                mepoo::MemoryManager* const memoryManager,
                                const mepoo::MemoryInfo& memoryInfo) noexcept

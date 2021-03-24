@@ -162,7 +162,7 @@ void RouDi::processRuntimeMessages()
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
             std::string processName = message.getElementAtIndex(1);
 
-            processMessage(message, cmd, ProcessName_t(cxx::TruncateToCapacity, processName));
+            processMessage(message, cmd, RuntimeName_t(cxx::TruncateToCapacity, processName));
         }
     }
 }
@@ -181,7 +181,7 @@ version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& mess
 
 void RouDi::processMessage(const runtime::IpcMessage& message,
                            const iox::runtime::IpcMessageType& cmd,
-                           const ProcessName_t& processName)
+                           const RuntimeName_t& processName)
 {
     switch (cmd)
     {
@@ -356,7 +356,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
 }
 
-void RouDi::registerProcess(const ProcessName_t& name,
+void RouDi::registerProcess(const RuntimeName_t& name,
                             const uint32_t pid,
                             const posix::PosixUser user,
                             const int64_t transmissionTimestamp,

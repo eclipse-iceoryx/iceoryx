@@ -159,7 +159,7 @@ class IpcInterfaceBase
     /// @brief Returns the interface name, the unique char string which
     ///         explicitly identifies the IPC channel.
     /// @return name of the IPC channel
-    const ProcessName_t& getInterfaceName() const noexcept;
+    const RuntimeName_t& getInterfaceName() const noexcept;
 
     /// @brief If the IPC channel could not be opened or linked in the
     ///         constructor it will return false, otherwise true. This is
@@ -175,7 +175,7 @@ class IpcInterfaceBase
     /// @brief Since there might be an outdated IPC channel due to an unclean temination
     ///        this function closes the IPC channel if it's existing.
     /// @param[in] name of the IPC channel to clean up
-    static void cleanupOutdatedIpcChannel(const ProcessName_t& name) noexcept;
+    static void cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept;
 
     friend class IpcInterfaceUser;
     friend class IpcInterfaceCreator;
@@ -198,7 +198,7 @@ class IpcInterfaceBase
     IpcInterfaceBase() = delete;
     // TODO: unique identifier problem, multiple IpcInterfaceBase objects with the
     //        same InterfaceName are using the same IPC channel
-    IpcInterfaceBase(const ProcessName_t& InterfaceName,
+    IpcInterfaceBase(const RuntimeName_t& InterfaceName,
                      const uint64_t maxMessages,
                      const uint64_t messageSize) noexcept;
     virtual ~IpcInterfaceBase() noexcept = default;
@@ -238,7 +238,7 @@ class IpcInterfaceBase
     bool hasClosableIpcChannel() const noexcept;
 
   protected:
-    ProcessName_t m_interfaceName;
+    RuntimeName_t m_interfaceName;
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};

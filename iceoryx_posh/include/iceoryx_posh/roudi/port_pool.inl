@@ -22,7 +22,7 @@ namespace roudi
 {
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                                    const ProcessName_t& applicationName,
+                                                                    const RuntimeName_t& applicationName,
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
@@ -35,7 +35,7 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                                    const ProcessName_t& applicationName,
+                                                                    const RuntimeName_t& applicationName,
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {

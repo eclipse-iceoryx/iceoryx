@@ -181,7 +181,7 @@ struct DefaultChunkQueueConfig
 };
 
 // alias for cxx::string
-using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
+using RuntimeName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
 using ShmName_t = cxx::string<128>;
 

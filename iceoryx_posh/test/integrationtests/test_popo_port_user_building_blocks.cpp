@@ -46,8 +46,8 @@ struct DummySample
 };
 
 static const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
-static const iox::ProcessName_t TEST_SUBSCRIBER_APP_NAME("mySubscriberApp");
-static const iox::ProcessName_t TEST_PUBLISHER_APP_NAME("myPublisherApp");
+static const iox::RuntimeName_t TEST_SUBSCRIBER_APP_NAME("mySubscriberApp");
+static const iox::RuntimeName_t TEST_PUBLISHER_APP_NAME("myPublisherApp");
 
 static constexpr uint32_t NUMBER_OF_PUBLISHERS = 17U;
 static constexpr uint32_t ITERATIONS = 1000U;
@@ -78,7 +78,7 @@ class PortUser_IntegrationTest : public Test
             std::stringstream publisherAppName;
             publisherAppName << TEST_PUBLISHER_APP_NAME << i;
 
-            iox::ProcessName_t processName(TruncateToCapacity, publisherAppName.str().c_str());
+            iox::RuntimeName_t processName(TruncateToCapacity, publisherAppName.str().c_str());
 
             m_publisherPortDataVector.emplace_back(
                 TEST_SERVICE_DESCRIPTION, processName, &m_memoryManager, PublisherOptions());

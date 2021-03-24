@@ -37,7 +37,7 @@ namespace popo
 struct PublisherPortData : public BasePortData
 {
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                      const ProcessName_t& processName,
+                      const RuntimeName_t& processName,
                       mepoo::MemoryManager* const memoryManager,
                       const PublisherOptions& publisherOptions,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;

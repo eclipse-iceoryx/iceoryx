@@ -32,7 +32,7 @@ namespace popo
 struct ClientPortData : public BasePortData
 {
     ClientPortData(const capro::ServiceDescription& serviceDescription,
-                   const ProcessName_t& processName,
+                   const RuntimeName_t& processName,
                    const NodeName_t& nodeName,
                    mepoo::MemoryManager* const memoryManager,
                    const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;

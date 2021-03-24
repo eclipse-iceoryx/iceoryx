@@ -33,11 +33,11 @@ using namespace iox::popo;
 
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION_VALID("Radar", "FrontRight", "ChuckNorrisDetected");
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY(0, 0, 0);
-const iox::ProcessName_t APP_NAME_EMPTY = {""};
-const iox::ProcessName_t APP_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
-const iox::ProcessName_t APP_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
-const iox::ProcessName_t APP_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
-const iox::ProcessName_t APP_NAME_FOR_APPLICATION_PORTS = {"AppPort"};
+const iox::RuntimeName_t APP_NAME_EMPTY = {""};
+const iox::RuntimeName_t APP_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
+const iox::RuntimeName_t APP_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
+const iox::RuntimeName_t APP_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
+const iox::RuntimeName_t APP_NAME_FOR_APPLICATION_PORTS = {"AppPort"};
 
 iox::mepoo::MemoryManager m_memoryManager;
 std::vector<iox::UniquePortId> uniquePortIds;
@@ -110,27 +110,27 @@ const ServiceDescription& expectedServiceDescription<SubscriberPortData>()
 // expected ProcessName factories
 
 template <typename T>
-const iox::ProcessName_t& expectedProcessName()
+const iox::RuntimeName_t& expectedProcessName()
 {
     return APP_NAME_EMPTY;
 }
 template <>
-const iox::ProcessName_t& expectedProcessName<PublisherPortData>()
+const iox::RuntimeName_t& expectedProcessName<PublisherPortData>()
 {
     return APP_NAME_FOR_PUBLISHER_PORTS;
 }
 template <>
-const iox::ProcessName_t& expectedProcessName<SubscriberPortData>()
+const iox::RuntimeName_t& expectedProcessName<SubscriberPortData>()
 {
     return APP_NAME_FOR_SUBSCRIBER_PORTS;
 }
 template <>
-const iox::ProcessName_t& expectedProcessName<InterfacePortData>()
+const iox::RuntimeName_t& expectedProcessName<InterfacePortData>()
 {
     return APP_NAME_FOR_INTERFACE_PORTS;
 }
 template <>
-const iox::ProcessName_t& expectedProcessName<ApplicationPortData>()
+const iox::RuntimeName_t& expectedProcessName<ApplicationPortData>()
 {
     return APP_NAME_FOR_APPLICATION_PORTS;
 }

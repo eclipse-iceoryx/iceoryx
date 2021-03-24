@@ -192,8 +192,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
 
-    const iox::ProcessName_t processName1{"name1"};
-    const iox::ProcessName_t processName2{"name2"};
+    const iox::RuntimeName_t processName1{"name1"};
+    const iox::RuntimeName_t processName2{"name2"};
     const iox::NodeName_t nodeName1{"4"};
     const iox::NodeName_t nodeName2{"jkl"};
 
@@ -321,8 +321,8 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
 
-    const iox::ProcessName_t processName1{"name1"};
-    const iox::ProcessName_t processName2{"name2"};
+    const iox::RuntimeName_t processName1{"name1"};
+    const iox::RuntimeName_t processName2{"name2"};
     const iox::NodeName_t nodeName1{"4"};
     const iox::NodeName_t nodeName2{"7"};
 

@@ -38,7 +38,7 @@ cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 IceOryxPortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
                                   const uint64_t& historyCapacity,
                                   mepoo::MemoryManager* const memoryManager,
-                                  const ProcessName_t& applicationName,
+                                  const RuntimeName_t& applicationName,
                                   const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     if (m_portPoolData->m_publisherPortMembers.hasFreeSpace())
@@ -57,7 +57,7 @@ IceOryxPortPool::addPublisherPort(const capro::ServiceDescription& serviceDescri
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 IceOryxPortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
                                    const uint64_t& historyRequest,
-                                   const ProcessName_t& applicationName,
+                                   const RuntimeName_t& applicationName,
                                    const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     if (m_portPoolData->m_subscriberPortMembers.hasFreeSpace())
