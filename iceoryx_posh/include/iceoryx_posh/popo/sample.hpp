@@ -67,7 +67,7 @@ struct SamplePrivateData<const T, H>
 /// @brief The Sample class is a mutable abstraction over types which are written to loaned shared memory.
 /// These samples are publishable to the iceoryx system.
 ///
-template <typename T, typename H = typename cxx::add_const_conditionally<mepoo::NoCustomHeader, T>::type>
+template <typename T, typename H = cxx::add_const_conditionally_t<mepoo::NoCustomHeader, T>>
 class Sample
 {
     static_assert(std::is_const<T>::value == std::is_const<H>::value,
@@ -148,7 +148,7 @@ class Sample
     ///
     const T* get() const noexcept;
 
-    using ConditionalConstChunkHeader_t = typename cxx::add_const_conditionally<mepoo::ChunkHeader, T>::type;
+    using ConditionalConstChunkHeader_t = cxx::add_const_conditionally_t<mepoo::ChunkHeader, T>;
     ///
     /// @brief header Retrieve the header of the underlying memory chunk loaned to the sample.
     /// @return The ChunkHeader of the underlying memory chunk.
@@ -201,4 +201,3 @@ class Sample
 #include "iceoryx_posh/internal/popo/sample.inl"
 
 #endif // IOX_POSH_POPO_SAMPLE_HPP
-

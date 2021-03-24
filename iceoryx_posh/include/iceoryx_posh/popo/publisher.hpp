@@ -48,12 +48,6 @@ class Publisher : public base_publisher_t, public PublisherInterface<T, H>
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
     static_assert(!std::is_void<H>::value, "Custom header must not be void.");
 
-    /// @todo clarify in the PR if this can be removed for T.
-    /// This restriction is not necessary anymore, since `loan` takes ctor arguments.
-    static_assert(std::is_default_constructible<T>::value, "The Publisher requires default-constructable data types.");
-    static_assert(std::is_default_constructible<H>::value,
-                  "The Publisher requires default-constructable custom header types.");
-
     static_assert(!std::is_const<T>::value, "The type must not be const.");
     static_assert(!std::is_const<H>::value, "The custom header must not be const.");
 

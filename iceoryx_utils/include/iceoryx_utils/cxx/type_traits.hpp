@@ -40,7 +40,7 @@ struct add_const_conditionally<T, const C>
     using type = const T;
 };
 ///
-/// @brief Helper type for add_const_conditionally
+/// @brief Helper type for add_const_conditionally which adds const to type T if C has the const qualifier
 ///
 template <typename T, typename C>
 using add_const_conditionally_t = typename add_const_conditionally<T, C>::type;
