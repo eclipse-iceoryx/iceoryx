@@ -45,9 +45,6 @@ class UserTrigger
     /// @return true if the UserTrigger is trigger, otherwise false
     bool hasTriggered() const noexcept;
 
-    /// @brief Resets the UserTrigger state to not triggered
-    void resetTrigger() noexcept;
-
     friend class EventAttorney;
 
   private:
@@ -67,7 +64,6 @@ class UserTrigger
 
   private:
     TriggerHandle m_trigger;
-    std::atomic_bool m_wasTriggered{false};
 };
 
 } // namespace popo

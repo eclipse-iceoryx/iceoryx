@@ -370,12 +370,11 @@ class SomeClass
     static void cyclicRun(iox::popo::UserTrigger*)
     {
         std::cout << "activation callback\n";
-        trigger->resetTrigger();
     }
 };
 ```
-**Important** We need to reset the user trigger otherwise the _WaitSet_ would notify
-us immediately again since the user trigger is state based.
+**Important** The user trigger is event based and always reset after the WaitSet 
+has acquired all triggered objects.
 
 We begin as always, by creating a _WaitSet_ with the default capacity and by
 attaching the `shutdownTrigger` to 

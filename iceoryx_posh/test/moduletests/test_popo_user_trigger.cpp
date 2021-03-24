@@ -86,43 +86,6 @@ TEST_F(UserTrigger_test, canBeTriggeredMultipleTimesWhenAttached)
     EXPECT_TRUE(m_sut.hasTriggered());
 }
 
-TEST_F(UserTrigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
-{
-    m_sut.resetTrigger();
-
-    EXPECT_FALSE(m_sut.hasTriggered());
-}
-
-TEST_F(UserTrigger_test, resetTriggerWhenTriggeredResultsInNotTriggered)
-{
-    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
-    m_sut.trigger();
-    m_sut.resetTrigger();
-
-    EXPECT_FALSE(m_sut.hasTriggered());
-}
-
-TEST_F(UserTrigger_test, resetTriggerAndTriggerAgainResultsInTriggered)
-{
-    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
-    m_sut.trigger();
-    m_sut.resetTrigger();
-    m_sut.trigger();
-
-    EXPECT_TRUE(m_sut.hasTriggered());
-}
-
-TEST_F(UserTrigger_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTriggered)
-{
-    ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
-    m_sut.trigger();
-    m_sut.resetTrigger();
-    m_sut.resetTrigger();
-    m_sut.resetTrigger();
-
-    EXPECT_FALSE(m_sut.hasTriggered());
-}
-
 TEST_F(UserTrigger_test, UserTriggerGoesOutOfScopeCleansupAtWaitSet)
 {
     {

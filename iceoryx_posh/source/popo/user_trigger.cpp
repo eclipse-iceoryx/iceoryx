@@ -33,18 +33,7 @@ void UserTrigger::disableEvent() noexcept
 
 void UserTrigger::trigger() noexcept
 {
-    m_wasTriggered.store(true, std::memory_order_relaxed);
     m_trigger.trigger();
-}
-
-bool UserTrigger::hasTriggered() const noexcept
-{
-    return m_wasTriggered.load(std::memory_order_relaxed);
-}
-
-void UserTrigger::resetTrigger() noexcept
-{
-    m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
 void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
@@ -53,6 +42,11 @@ void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
     {
         m_trigger.invalidate();
     }
+}
+
+bool UserTrigger::hasTriggered() const noexcept
+{
+    return m_trigger.wasTriggered();
 }
 
 WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent() const noexcept

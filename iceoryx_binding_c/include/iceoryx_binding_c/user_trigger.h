@@ -42,10 +42,4 @@ void iox_user_trigger_trigger(iox_user_trigger_t const self);
 /// @return returns true if the user trigger was triggered, otherwise false
 bool iox_user_trigger_has_triggered(iox_user_trigger_t const self);
 
-/// @brief resets the user trigger triggering state. after that call
-///         iox_user_trigger_has_triggered will return false until it was
-///         triggered again
-/// @param[in] self handle to user trigger
-void iox_user_trigger_reset_trigger(iox_user_trigger_t const self);
-
 #endif
