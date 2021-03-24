@@ -44,29 +44,29 @@ class UsedChunkList
 {
   public:
     /// @brief Constructs a default UsedChunkList
-    UsedChunkList();
+    UsedChunkList() noexcept;
 
     /// @brief Inserts a SharedChunk into the list
     /// @param[in] chunk to store in the list
     /// @return true if successful, otherwise false if e.g. the list is already full
     /// @note only from runtime context
-    bool insert(mepoo::SharedChunk chunk);
+    bool insert(mepoo::SharedChunk chunk) noexcept;
 
     /// @brief Removes a chunk from the list
     /// @param[in] chunkHeader to look for a corresponding SharedChunk
     /// @param[out] chunk which is removed
     /// @return true if successfully removed, otherwise false if e.g. the chunkHeader was not found in the list
     /// @note only from runtime context
-    bool remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk);
+    bool remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept;
 
     /// @brief Cleans up all the remaining chunks from the list.
     /// @note from RouDi context once the applications walked the plank
-    void cleanup();
+    void cleanup() noexcept;
 
   private:
-    void init();
+    void init() noexcept;
 
-    bool freeSpaceInList();
+    bool freeSpaceInList() const noexcept;
 
   private:
     static constexpr uint32_t InvalidIndex{Size};
@@ -78,6 +78,9 @@ class UsedChunkList
             : segment(MAX_SEGMENT)
             , offset(MAX_OFFSET)
         {
+            static_assert(sizeof(RelativePointerData) <= 8U, "The RelativePointerData must not exceed 64 bit!");
+            static_assert(std::is_trivially_copyable<RelativePointerData>::value,
+                          "The RelativePointerData must be trivially copyable!");
         }
         constexpr RelativePointerData(uint16_t segment, uint64_t offset) noexcept
             : segment(segment)
@@ -89,13 +92,13 @@ class UsedChunkList
         uint16_t segment : 16;
         uint64_t offset : 48;
 
-        void reset()
+        void reset() noexcept
         {
             constexpr RelativePointerData NULLPTR_EQUIVALENT{};
             *this = NULLPTR_EQUIVALENT;
         }
 
-        bool isNullptr()
+        bool isNullptr() const noexcept
         {
             return segment == MAX_SEGMENT && offset == MAX_OFFSET;
         }

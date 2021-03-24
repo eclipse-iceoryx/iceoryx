@@ -26,7 +26,7 @@ template <uint32_t Size>
 constexpr typename UsedChunkList<Size>::DataElement_t UsedChunkList<Size>::DATA_ELEMENT_NULLPTR;
 
 template <uint32_t Size>
-UsedChunkList<Size>::UsedChunkList()
+UsedChunkList<Size>::UsedChunkList() noexcept
 {
     static_assert(sizeof(DataElement_t) <= 8U, "The size of the data element type must not exceed 64 bit!");
     static_assert(std::is_trivially_copyable<DataElement_t>::value,
@@ -36,7 +36,7 @@ UsedChunkList<Size>::UsedChunkList()
 }
 
 template <uint32_t Size>
-bool UsedChunkList<Size>::insert(mepoo::SharedChunk chunk)
+bool UsedChunkList<Size>::insert(mepoo::SharedChunk chunk) noexcept
 {
     if (freeSpaceInList())
     {
@@ -69,7 +69,7 @@ bool UsedChunkList<Size>::insert(mepoo::SharedChunk chunk)
 }
 
 template <uint32_t Size>
-bool UsedChunkList<Size>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk)
+bool UsedChunkList<Size>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept
 {
     auto previous = InvalidIndex;
 
@@ -112,7 +112,7 @@ bool UsedChunkList<Size>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::S
 }
 
 template <uint32_t Size>
-void UsedChunkList<Size>::cleanup()
+void UsedChunkList<Size>::cleanup() noexcept
 {
     m_synchronizer.test_and_set(std::memory_order_acquire);
 
@@ -128,7 +128,7 @@ void UsedChunkList<Size>::cleanup()
 }
 
 template <uint32_t Size>
-void UsedChunkList<Size>::init()
+void UsedChunkList<Size>::init() noexcept
 {
     // build list
     for (uint32_t i = 0U; i < Size; ++i)
@@ -159,7 +159,7 @@ void UsedChunkList<Size>::init()
 }
 
 template <uint32_t Size>
-bool UsedChunkList<Size>::freeSpaceInList()
+bool UsedChunkList<Size>::freeSpaceInList() const noexcept
 {
     return (m_freeListHead != InvalidIndex);
 }
