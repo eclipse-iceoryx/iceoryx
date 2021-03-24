@@ -87,27 +87,32 @@ TEST_F(ConditionVariable_test, NoNotifyResultsInNotBeingTriggered)
     EXPECT_FALSE(m_waiter.wasNotified());
 }
 
-TEST_F(ConditionVariable_test, NotifyOnceResultsInNoWaitSingleThreaded)
+TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
 {
     m_signaler.notify();
-    m_waiter.wait();
-    // We expect that the next line is reached
-    EXPECT_TRUE(true);
-}
+    m_signaler.notify();
+    m_signaler.notify();
 
-TEST_F(ConditionVariable_test, NotifyTwiceResultsInNoWaitSingleThreaded)
-{
-    m_signaler.notify();
-    m_signaler.notify();
+    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     m_waiter.wait();
-    m_waiter.wait();
-    // We expect that the next line is reached
-    EXPECT_TRUE(true);
+
+    std::atomic_bool isThreadFinished{false};
+    std::thread t([&] {
+        m_waiter.wait();
+        isThreadFinished = true;
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    EXPECT_FALSE(isThreadFinished.load());
+    m_signaler.notify();
+    t.join();
+    EXPECT_TRUE(isThreadFinished.load());
 }
 
 TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThreaded)
 {
     std::atomic<int> counter{0};
+    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         IOX_DISCARD_RESULT(m_syncSemaphore.post());
