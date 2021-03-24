@@ -23,6 +23,7 @@
 #include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
+#include "testutils/watch_dog.hpp"
 
 #include <chrono>
 #include <memory>
@@ -69,7 +70,11 @@ class WaitSet_test : public Test
 
         bool hasTriggered() const
         {
-            return m_hasTriggered.exchange(false);
+            if (autoResetTrigger)
+            {
+                return m_hasTriggered.exchange(false);
+            }
+            return m_hasTriggered.load();
         }
 
         void disableEvent()
@@ -99,6 +104,7 @@ class WaitSet_test : public Test
 
         SimpleEventClass* m_triggerCallbackArgument1 = nullptr;
         SimpleEventClass* m_triggerCallbackArgument2 = nullptr;
+        bool autoResetTrigger = true;
     };
 
     ConditionVariableData m_condVarData{"Horscht"};
@@ -121,6 +127,33 @@ class WaitSet_test : public Test
 
     void TearDown(){};
 
+    template <uint64_t EventInfoVectorCapacity, typename EventOrigin>
+    static bool
+    doesEventInfoVectorContain(const iox::cxx::vector<const EventInfo*, EventInfoVectorCapacity>& eventInfoVector,
+                               const uint64_t eventId,
+                               const EventOrigin& origin)
+    {
+        for (auto& e : eventInfoVector)
+        {
+            if (e->getEventId() == eventId && e->doesOriginateFrom(&origin)
+                && e->template getOrigin<EventOrigin>() == &origin)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void attachAllEvents()
+    {
+        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+        {
+            ASSERT_TRUE(m_sut.attachEvent(m_simpleEvents[i], i));
+        }
+    }
+
+    const iox::units::Duration m_timeToWait = 2_s;
+    Watchdog m_watchdog{m_timeToWait};
     using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1>;
     eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1};
 };
@@ -343,9 +376,7 @@ void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
 
     for (uint64_t i = 0U; i < 24U; ++i)
     {
-        EXPECT_THAT(triggerVector[i]->getEventId(), 100U + i);
-        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(&test->m_simpleEvents[i]));
-        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test::SimpleEventClass>(), &test->m_simpleEvents[i]);
+        EXPECT_TRUE(WaitSet_test::doesEventInfoVectorContain(triggerVector, 100U + i, test->m_simpleEvents[i]));
     }
 }
 
@@ -378,9 +409,7 @@ void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
 
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
     {
-        EXPECT_THAT(triggerVector[i]->getEventId(), i * 3U + 2U);
-        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(&test->m_simpleEvents[i]));
-        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test::SimpleEventClass>(), &test->m_simpleEvents[i]);
+        EXPECT_TRUE(WaitSet_test::doesEventInfoVectorContain(triggerVector, i * 3U + 2U, test->m_simpleEvents[i]));
     }
 }
 
@@ -394,8 +423,36 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
     WaitReturnsAllTriggeredConditionWhenAllAreTriggered(this, [&] { return m_sut.timedWait(10_ms); });
 }
 
-void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
-                                             const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
+                                               const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    auto result1 = test->m_sut.attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
+
+    ASSERT_THAT(result1.has_error(), Eq(false));
+
+    test->m_simpleEvents[0].trigger();
+
+    test->m_watchdog.watchAndActOnFailure([] { std::terminate(); });
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(1U));
+
+    (*triggerVector[0U])();
+
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
+}
+
+TEST_F(WaitSet_test, WaitReturnsTriggersWithOneCorrectCallback)
+{
+    WaitReturnsTriggersWithOneCorrectCallback(this, [&] { return m_sut.wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallback)
+{
+    WaitReturnsTriggersWithOneCorrectCallback(this, [&] { return m_sut.timedWait(10_ms); });
+}
+
+void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
+                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
     auto result1 = test->m_sut.attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
     auto result2 = test->m_sut.attachEvent(test->m_simpleEvents[1], 2U, &WaitSet_test::triggerCallback2);
@@ -406,25 +463,25 @@ void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
     test->m_simpleEvents[0].trigger();
     test->m_simpleEvents[1].trigger();
 
-
+    test->m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(2U));
 
     (*triggerVector[0U])();
-    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
-
     (*triggerVector[1U])();
+
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
     EXPECT_THAT(test->m_simpleEvents[1].m_triggerCallbackArgument2, Eq(&test->m_simpleEvents[1]));
 }
 
-TEST_F(WaitSet_test, WaitReturnsTriggersWithCorrectCallbacks)
+TEST_F(WaitSet_test, WaitReturnsTriggersWithTwoCorrectCallbacks)
 {
-    WaitReturnsTriggersWithCorrectCallbacks(this, [&] { return m_sut.wait(); });
+    WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut.wait(); });
 }
 
-TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithCorrectCallbacks)
+TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallbacks)
 {
-    WaitReturnsTriggersWithCorrectCallbacks(this, [&] { return m_sut.timedWait(10_ms); });
+    WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut.timedWait(10_ms); });
 }
 
 TEST_F(WaitSet_test, InitialWaitSetHasSizeZero)
@@ -466,3 +523,139 @@ TEST_F(WaitSet_test, TriggerGoesOutOfScopeReducesSize)
 
     EXPECT_EQ(m_sut.size(), 2U);
 }
+
+
+TEST_F(WaitSet_test, NonResetEventsAreReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].trigger();
+
+    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
+    auto eventVector = m_sut.wait();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+}
+
+TEST_F(WaitSet_test, WhenEventIsNotResetButEverythingElseItIsReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].trigger();
+
+    for (auto& event : m_simpleEvents)
+        event.trigger();
+
+    auto eventVector = m_sut.wait();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+}
+
+TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredBeforeItIsReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    m_simpleEvents[1].trigger();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 1U, m_simpleEvents[1]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+}
+
+TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredAfterItIsReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    m_simpleEvents[3].trigger();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
+}
+
+TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredItIsReturnedAgain)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].trigger();
+
+    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].trigger();
+
+    m_simpleEvents[12].autoResetTrigger = false;
+    m_simpleEvents[12].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    m_simpleEvents[1].trigger();
+    m_simpleEvents[3].trigger();
+    m_simpleEvents[6].trigger();
+    m_simpleEvents[13].trigger();
+
+    // ACT
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(7));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 1U, m_simpleEvents[1]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 6U, m_simpleEvents[6]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 12U, m_simpleEvents[12]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 13U, m_simpleEvents[13]));
+}
+
+TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorks)
+{
+    attachAllEvents();
+
+    m_simpleEvents[2].trigger();
+    m_simpleEvents[7].trigger();
+
+    auto eventVector = m_sut.wait();
+
+    m_simpleEvents[2].trigger();
+    m_simpleEvents[7].trigger();
+
+    eventVector = m_sut.wait();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+}
+

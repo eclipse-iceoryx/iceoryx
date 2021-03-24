@@ -185,8 +185,8 @@ TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
     auto chunk = this->allocateChunk();
     this->m_pusher.push(chunk);
 
-    EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(true));
-    EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
+    EXPECT_THAT(condVarWaiter.timedWait(1_ns).empty(), Eq(false));
+    EXPECT_THAT(condVarWaiter.timedWait(1_ns).empty(), Eq(true)); // shouldn't trigger a second time
 }
 
 TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
@@ -199,14 +199,14 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
     this->m_popper.setConditionVariable(condVar1, 0U);
     this->m_popper.setConditionVariable(condVar2, 1U);
 
-    EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
-    EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ns).empty(), Eq(true));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ns).empty(), Eq(true));
 
     auto chunk = this->allocateChunk();
     this->m_pusher.push(chunk);
 
-    EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(false));
-    EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(true));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ms).empty(), Eq(true));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ms).empty(), Eq(false));
 }
 
 /// @note this could be changed to a parameterized ChunkQueueSaturatingFIFO_test when there are more FIFOs available
