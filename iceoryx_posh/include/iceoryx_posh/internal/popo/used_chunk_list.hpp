@@ -74,43 +74,53 @@ class UsedChunkList
     static constexpr uint32_t INVALID_INDEX{Capacity};
 
     // this shall be moved to the RelativePointer implementation
-    struct RelativePointerData
+    class RelativePointerData
     {
+      public:
         constexpr RelativePointerData() noexcept
-            : segment(MAX_SEGMENT)
-            , offset(MAX_OFFSET)
+            : m_idAndOffset(LOGICAL_NULLPTR)
         {
             static_assert(sizeof(RelativePointerData) <= 8U, "The RelativePointerData size must not exceed 64 bit!");
             static_assert(std::is_trivially_copyable<RelativePointerData>::value,
                           "The RelativePointerData must be trivially copyable!");
         }
-        constexpr RelativePointerData(uint16_t segment, uint64_t offset) noexcept
-            : segment(segment)
-            , offset(offset & MAX_OFFSET)
+        constexpr RelativePointerData(uint16_t id, uint64_t offset) noexcept
+            : m_idAndOffset(static_cast<uint64_t>(id) | (offset << 16U))
         {
             cxx::Ensures(offset < MAX_OFFSET && "offset must not exceed MAX:OFFSET!");
         }
 
-        uint16_t segment : 16;
-        uint64_t offset : 48;
+        uint16_t id() const noexcept
+        {
+            return static_cast<uint16_t>(m_idAndOffset & MAX_ID);
+        }
+
+        uint64_t offset() const noexcept
+        {
+            return (m_idAndOffset >> 16) & MAX_OFFSET;
+        }
 
         void reset() noexcept
         {
-            constexpr RelativePointerData NULLPTR_EQUIVALENT{};
-            *this = NULLPTR_EQUIVALENT;
+            *this = LOGICAL_NULLPTR;
         }
 
-        bool isNullptr() const noexcept
+        bool isLogicalNullptr() const noexcept
         {
-            return segment == MAX_SEGMENT && offset == MAX_OFFSET;
+            return m_idAndOffset == LOGICAL_NULLPTR;
         }
 
-        static constexpr uint64_t MAX_SEGMENT{std::numeric_limits<uint16_t>::max()};
-        static constexpr uint64_t MAX_OFFSET{(1ULL << 48) - 1};
+        static constexpr uint64_t MAX_ID{std::numeric_limits<uint16_t>::max()};
+        /// @note the id is 16 bit and the offset consumes the remaining 48 bits -> max offset is 2^48 - 1
+        static constexpr uint64_t MAX_OFFSET{(1ULL << 48U) - 1U};
+        static constexpr uint64_t LOGICAL_NULLPTR{std::numeric_limits<uint64_t>::max()};
+
+      private:
+        uint64_t m_idAndOffset;
     };
 
     using DataElement_t = RelativePointerData;
-    static constexpr DataElement_t DATA_ELEMENT_NULLPTR{};
+    static constexpr DataElement_t DATA_ELEMENT_LOGICAL_NULLPTR{};
 
   private:
     std::atomic_flag m_synchronizer = ATOMIC_FLAG_INIT;
