@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,7 +45,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const co
             LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
                        << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
                        << ", " << serviceDescription.getEventIDString() << "}";
-            setupChannel(serviceDescription, popo::PublisherOptions());
+            IOX_DISCARD_RESULT(setupChannel(serviceDescription, popo::PublisherOptions()));
         }
     }
 }

@@ -166,7 +166,7 @@ TEST_F(SubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
     EXPECT_CALL(sut.port(), releaseChunk).Times(AtLeast(1));
     // ===== Test ===== //
     {
-        sut.take();
+        EXPECT_FALSE(sut.take().has_error());
     }
     // ===== Verify ===== //
     // ===== Cleanup ===== //

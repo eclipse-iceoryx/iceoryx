@@ -195,7 +195,7 @@ void MQ::send(const char* buffer, uint32_t length) noexcept
                                        m_mqDescriptorPublisher,
                                        buffer,
                                        length,
-                                       1);
+                                       1U);
 
     if (mqCall.hasErrors())
     {

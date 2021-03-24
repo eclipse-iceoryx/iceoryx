@@ -12,7 +12,7 @@ Chunks are the transport capsules in iceoryx. They store data from a publisher a
 | Chunk Header      | contains meta information related to the chunk           |
 | Custom Header     | contains custom meta information, e.g. timestamps        |
 | Payload           | the user data                                            |
-| Back-Offset       | offset stored in front of the payload to calculate back to the chunk header |
+| Back-Offset       | offset stored in front of the payload to calculate back to the chunk header (for the most simple case it will overlap with the payload offset stored in the Chunk Header) |
 
 ## Design
 
@@ -62,13 +62,15 @@ For back calculation from the payload pointer to the `ChunkHeader` pointer, the 
 |------------------>|--------------------->|
 |                   |                      |
 +===================+======================+==================================+
-|  ChunkHeader  ¦   |       Payload        |  Padding                         |
+|  ChunkHeader  ¦ * |       Payload        |  Padding                         |
 +===================+======================+==================================+
 |                   |                                                         |
 |   payloadOffset   |                                                         |
 |------------------>|                                                         |
 |                                 chunkSize                                   |
 |---------------------------------------------------------------------------->|
+
+*) payloadOffset from ChunkHeader and back-offset are overlapping
 ```
 
 2. No custom header and alignment exceeds the `ChunkHeader` alignment
@@ -115,22 +117,22 @@ Depending on the address of the chunk there is the chance that `ChunkHeader` is 
 payloadOffset = sizeof(ChunkHeader);
 ```
 
-2. No custom header and payload alignment exceeds the `ChunkHeader` alignment, which means the payload is either adjacent to the `ChunkHeader` or there is a padding with at least the size of `ChunkHeader` in front of the payload and therefore enough space to store the `back-offset`
+2. No custom header and payload alignment exceeds the `ChunkHeader` alignment, which means the payload is either adjacent to the `ChunkHeader` or there is a padding with at least the size of `ChunkHeader` alignment in front of the payload and therefore enough space to store the `back-offset`
 
 ```
 headerEndAddress = addressof(chunkHeader) + sizeof(chunkHeader);
-payloadAddress = align(headerEndAddress, payloadAlignment);
-payloadOffset = payloadAddress - addressof(chunkHeader);
+alignedPayloadAddress = align(headerEndAddress, payloadAlignment);
+payloadOffset = alignedPayloadAddress - addressof(chunkHeader);
 ```
 
 3. Custom header is used
 
 ```
 headerEndAddress = addressof(chunkHeader) + sizeof(chunkHeader) + sizeof(customHeader);
-potentialBackOffsetAddress = align(headerEndAddress, alignof(payloadOffset));
-potentialPayloadAddress = potentialBackOffsetAddress + sizeof(payloadOffset);
-payloadAddress = align(potentialPayloadAddress, payloadAlignment);
-payloadOffset = payloadAddress - addressof(chunkHeader);
+anticipatedBackOffsetAddress = align(headerEndAddress, alignof(payloadOffset));
+unalignedPayloadAddress = anticipatedBackOffsetAddress + sizeof(payloadOffset);
+alignedPayloadAddress = align(unalignedPayloadAddress, payloadAlignment);
+payloadOffset = alignedPayloadAddress - addressof(chunkHeader);
 ```
 
 #### Required Chunk Size Calculation
@@ -192,8 +194,8 @@ The following formula is used to calculate the required chunk size.
 ```
 headerSize = sizeof(chunkHeader) + sizeof(customHeader)
 prePayloadAlignmentOverhang = align(headerSize, alignof(payloadOffset));
-maxAlignment = max(alignof(payloadOffset), payloadAlignment);
-chunkSize = prePayloadAlignmentOverhang + maxAlignment + payloadSize;
+maxPadding = max(sizeof(payloadOffset), payloadAlignment);
+chunkSize = prePayloadAlignmentOverhang + maxPadding + payloadSize;
 ```
 
 #### Accessing Chunk Header Extension

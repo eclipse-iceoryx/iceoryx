@@ -87,14 +87,30 @@ PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool do
     {
         LogWarn() << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
     }
+
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 
 PoshRuntime::~PoshRuntime() noexcept
 {
-    if (m_applicationPort)
+    // Inform RouDi that we're shutting down
+    IpcMessage sendBuffer;
+    sendBuffer << IpcMessageTypeToString(IpcMessageType::TERMINATION) << m_appName;
+    IpcMessage receiveBuffer;
+
+    if (m_ipcChannelInterface.sendRequestToRouDi(sendBuffer, receiveBuffer)
+        && (1U == receiveBuffer.getNumberOfElements()))
     {
-        m_applicationPort.destroy();
+        std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
+
+        if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::TERMINATION_ACK)
+        {
+            LogVerbose() << "RouDi cleaned up resources of " << m_appName << ". Shutting down gracefully.";
+        }
+        else
+        {
+            LogError() << "Got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
+        }
     }
 }
 

@@ -67,14 +67,27 @@ everytime a new sample (`iox::popo::SubscriberEvent::HAS_DATA`) is received our 
 our `heartbeat` user trigger to print the hearbeat message to the console via another
 callback (`heartbeatCallback`).
 ```cpp
-listener.attachEvent(heartbeat, heartbeatCallback);
-listener.attachEvent(subscriberLeft, 
-      iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
-listener.attachEvent(subscriberRight, 
-      iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback);
+listener.attachEvent(heartbeat, heartbeatCallback).or_else([](auto) {
+    std::cerr << "unable to attach heartbeat event" << std::endl;
+    std::terminate();
+});
+listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+    .or_else([](auto) {
+        std::cerr << "unable to attach subscriberLeft" << std::endl;
+        std::terminate();
+    });
+// it is possible to attach any callback here with the required signature. to simplify the
+// example we attach the same callback onSampleReceivedCallback again
+listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+    .or_else([](auto) {
+        std::cerr << "unable to attach subscriberRight" << std::endl;
+        std::terminate();
+    });
 ```
 Since a user trigger has only one event we do not have to specify an event when we attach 
-it to the listener.
+it to the listener. `attachEvent` returns a `cxx::expected` to inform us if the attachment
+succeeded. When this is not the case the error handling is performed in the `.or_else([](auto){` part 
+after each `attachEvent` call.
 In this example we choose to attach the same callback twice to make things easier 
 but you are free to attach any callback with the signature `void(iox::popo::Subscriber<CounterTopic> *)`.
 

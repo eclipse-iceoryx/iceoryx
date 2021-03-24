@@ -57,7 +57,10 @@ int main()
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger);
+    waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+        std::cerr << "failed to attach shutdown trigger" << std::endl;
+        std::terminate();
+    });
 
     // create subscriber and subscribe them to our service
     iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
@@ -66,7 +69,11 @@ int main()
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
 
-        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 0, &subscriberCallback);
+        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 0, &subscriberCallback)
+            .or_else([&](auto) {
+                std::cerr << "failed to attach subscriber" << i << std::endl;
+                std::terminate();
+            });
     }
 
     // event loop
