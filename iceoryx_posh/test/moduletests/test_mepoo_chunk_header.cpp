@@ -73,7 +73,7 @@ TEST(ChunkHeader_test, FromPayloadFunctionCalledWithNullptrReturnsNullptr)
     EXPECT_THAT(ChunkHeader::fromPayload(nullptr), Eq(nullptr));
 }
 
-TEST(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
+TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
 {
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
@@ -88,7 +88,7 @@ TEST(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderWhenPayloadIsZero)
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader)));
 }
 
-TEST(ChunkHeader_test, usedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne)
+TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderPlusOneWhenPayloadIsOne)
 {
     constexpr uint32_t CHUNK_SIZE{128U};
     constexpr uint32_t PAYLOAD_SIZE{1U};
@@ -262,7 +262,7 @@ INSTANTIATE_TEST_CASE_P(ChunkHeader_test,
                             PayloadParams{sizeof(ChunkHeader), alignof(ChunkHeader) * 2},
                             PayloadParams{sizeof(ChunkHeader) * 42U, alignof(ChunkHeader) * 2}));
 
-TEST_P(ChunkHeader_AlteringPayloadWithoutCustomHeader, checkIntegrityOfChunkHeaderWithoutCustomHeader)
+TEST_P(ChunkHeader_AlteringPayloadWithoutCustomHeader, CheckIntegrityOfChunkHeaderWithoutCustomHeader)
 {
     const auto payloadParams = GetParam();
 
@@ -316,7 +316,7 @@ INSTANTIATE_TEST_CASE_P(ChunkHeader_test,
                             PayloadParams{sizeof(PayloadOffset_t), alignof(PayloadOffset_t) * 2},
                             PayloadParams{sizeof(PayloadOffset_t) * 42U, alignof(PayloadOffset_t) * 2}));
 
-TEST_P(ChunkHeader_AlteringPayloadWithCustomHeader, checkIntegrityOfChunkHeaderWithCustomHeader)
+TEST_P(ChunkHeader_AlteringPayloadWithCustomHeader, CheckIntegrityOfChunkHeaderWithCustomHeader)
 {
     const auto payloadParams = GetParam();
 

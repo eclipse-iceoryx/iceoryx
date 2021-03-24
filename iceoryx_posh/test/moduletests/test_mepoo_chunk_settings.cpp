@@ -29,7 +29,7 @@ using PayloadOffset_t = iox::mepoo::ChunkHeader::PayloadOffset_t;
 
 // BEGIN GETTER METHOD TESTS
 
-TEST(ChunkSettings_test, payloadSizeReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingPayloadSizeReturnsCorrectValue)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
@@ -44,7 +44,7 @@ TEST(ChunkSettings_test, payloadSizeReturnsCorrectValue)
     EXPECT_THAT(sut.payloadSize(), Eq(PAYLOAD_SIZE));
 }
 
-TEST(ChunkSettings_test, payloadAlignmentReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingPayloadAlignmentReturnsCorrectValue)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
@@ -59,7 +59,7 @@ TEST(ChunkSettings_test, payloadAlignmentReturnsCorrectValue)
     EXPECT_THAT(sut.payloadAlignment(), Eq(PAYLOAD_ALIGNMENT));
 }
 
-TEST(ChunkSettings_test, customHeaderSizeReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingCustomHeaderSizeReturnsCorrectValue)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
@@ -74,7 +74,7 @@ TEST(ChunkSettings_test, customHeaderSizeReturnsCorrectValue)
     EXPECT_THAT(sut.customHeaderSize(), Eq(CUSTOM_HEADER_SIZE));
 }
 
-TEST(ChunkSettings_test, customHeaderAlignmentReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingCustomHeaderAlignmentReturnsCorrectValue)
 {
     constexpr uint32_t PAYLOAD_SIZE{42U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
@@ -89,7 +89,7 @@ TEST(ChunkSettings_test, customHeaderAlignmentReturnsCorrectValue)
     EXPECT_THAT(sut.customHeaderAlignment(), Eq(CUSTOM_HEADER_ALIGNMENT));
 }
 
-TEST(ChunkSettings_test, requiredChunkSizeReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingRequiredChunkSizeReturnsCorrectValue)
 {
     constexpr uint32_t PAYLOAD_SIZE{0U};
     constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
