@@ -46,7 +46,7 @@ template <typename T, typename H = iox::mepoo::NoCustomHeader>
 class MockPublisherInterface : public iox::popo::PublisherInterface<T, H>
 {
   public:
-    void publish(iox::popo::Sample<T, H>&& sample) noexcept
+    void publish(iox::popo::Sample<T, H>&& sample) noexcept override
     {
         return publishMock(std::move(sample));
     }
@@ -60,11 +60,11 @@ class SampleTest : public Test
     {
     }
 
-    void SetUp()
+    void SetUp() override
     {
     }
 
-    void TearDown()
+    void TearDown() override
     {
     }
 
@@ -97,6 +97,10 @@ TEST_F(SampleTest, CallingGetCustomHeaderFromNonConstTypeReturnsCorrectAddress)
     MockPublisherInterface<DummyData, DummyHeader> mockPublisherInterface{};
 
     auto sut = iox::popo::Sample<DummyData, DummyHeader>(std::move(testSamplePtr), mockPublisherInterface);
+
+    // this line is actually not needed for the tests but if it is not present gmock raises a unused-function warning in
+    // gmock-spec-builders.h which breaks the build with -Werror
+    EXPECT_CALL(mockPublisherInterface, publishMock).Times(0);
 
     // ===== Test ===== //
     auto& customHeader = sut.getCustomHeader();
