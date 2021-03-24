@@ -342,7 +342,7 @@ publisher.loan()
         sample.publish();
     })
     .or_else([](iox::popo::AllocationError) {
-        /* handle the error */
+        // handle the error
     });
 
 ```
@@ -360,11 +360,11 @@ new (ptr) CounterTopic(73);
 
 ##### 3. Publish by copy
 
-- fetch return value and do error handling
-
 ```cpp
 CounterTopic counter(73);
-publisher.publishCopyOf(counter);
+publisher.publishCopyOf(counter).or_else([](iox:popo::AllocationError) {
+    // handle the error
+});
 ```
 This copies the constructed ``counter`` object and hence should mostly be used for small data.
 
@@ -448,9 +448,9 @@ while (keepRunning)
     subscriber->take()
         .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
             CounterTopic* ptr = sample.get();
-            /* process the received data using the ptr */
+            // process the received data using the ptr
 
-            /* alternatively use operator-> */
+            // alternatively use operator->
             uint32_t counter = sample->counter;
         })
         .or_else([](iox::popo::ChunkReceiveResult) { /* handle the error */ });
@@ -481,9 +481,9 @@ while (keepRunning)
         subscriber->take()
             .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                 CounterTopic* ptr = sample.get();
-                /* process the received data using the ptr */
+                // process the received data using the ptr
 
-                /* alternatively use operator-> */
+                // alternatively use operator->
                 uint32_t counter = sample->counter;
             })
             .or_else([](iox::popo::ChunkReceiveResult) { /* handle the error */ });
@@ -549,7 +549,7 @@ publisher.loan(sizeof(CounterTopic))
         sample.publish();
     })
     .or_else([](iox::popo::AllocationError) {
-        /* handle the error */
+        // handle the error
     });
 ```
 
@@ -580,7 +580,7 @@ while (keepRunning)
     subscriber->take()
         .and_then([](iox::popo::Sample<const void>& sample) {
             auto counter = reinterpret_cast<const CounterTopic*>(sample.get());
-            /* process the received data using counter */
+            // process the received data using counter
         })
         .or_else([](iox::popo::ChunkReceiveResult) { /* handle the error */ });
 }
