@@ -53,6 +53,7 @@ class ConditionVariable_test : public Test
         {
             m_notifiers.emplace_back(m_condVarData, i);
         }
+        m_watchdog.watchAndActOnFailure([&] { std::terminate(); });
     }
 
     Watchdog m_watchdog{m_timeToWait};
@@ -92,8 +93,6 @@ TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
     m_signaler.notify();
     m_signaler.notify();
     m_signaler.notify();
-
-    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     m_waiter.wait();
 
     std::atomic_bool isThreadFinished{false};
@@ -112,7 +111,6 @@ TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
 TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThreaded)
 {
     std::atomic<int> counter{0};
-    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         IOX_DISCARD_RESULT(m_syncSemaphore.post());
@@ -263,7 +261,6 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilNotification, Repeat(5
 TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVector)
 {
     ConditionListener sut(m_condVarData);
-    m_watchdog.watchAndActOnFailure([&] { std::terminate(); });
 
     sut.destroy();
     const auto& activeNotifications = sut.wait();
@@ -274,7 +271,6 @@ TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndReturnsEmptyVecto
 TEST_F(ConditionVariable_test, WaitIsNonBlockingAfterDestroyAndNotifyAndReturnsEmptyVector)
 {
     ConditionListener sut(m_condVarData);
-    m_watchdog.watchAndActOnFailure([&] { std::terminate(); });
     sut.destroy();
 
     ConditionNotifier notifier(m_condVarData, 0U);
@@ -289,8 +285,6 @@ TEST_F(ConditionVariable_test, DestroyWakesUpWaitWhichReturnsEmptyVector)
     ConditionListener sut(m_condVarData);
 
     NotificationVector_t activeNotifications;
-
-    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
 
     std::thread waiter([&] {
         activeNotifications = sut.wait();
@@ -307,8 +301,6 @@ TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterNotifyAndWait)
     ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
     ConditionListener listener(m_condVarData);
 
-    m_watchdog.watchAndActOnFailure([&] { listener.destroy(); });
-
     notifier.notify();
     const auto& activeNotifications = listener.wait();
 
@@ -323,8 +315,6 @@ TEST_F(ConditionVariable_test, GetCorrectNotificationVectorAfterMultipleNotifyAn
     ConditionNotifier notifier1(m_condVarData, FIRST_EVENT_INDEX);
     ConditionNotifier notifier2(m_condVarData, SECOND_EVENT_INDEX);
     ConditionListener listener(m_condVarData);
-
-    m_watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     notifier1.notify();
     notifier2.notify();
@@ -341,8 +331,6 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
     ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-
-    m_watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
         activeNotifications = listener.wait();
@@ -362,8 +350,6 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
     iox::posix::Semaphore threadSetupSemaphore =
         iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
-
-    m_watchdog.watchAndActOnFailure([&] { listener.destroy(); });
 
     std::thread waiter([&] {
         IOX_DISCARD_RESULT(threadSetupSemaphore.post());
@@ -435,7 +421,6 @@ void waitReturnsSortedListWhenTriggeredInOrder(ConditionVariable_test& test,
         test.m_notifiers[i].notify();
     }
 
-    test.m_watchdog.watchAndActOnFailure([&] { std::terminate(); });
     auto notifications = wait();
     ASSERT_THAT(notifications.size(), Eq(test.m_notifiers.size()));
     for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
@@ -463,7 +448,6 @@ void waitReturnsSortedListWhenTriggeredInReverseOrder(
         test.m_notifiers[test.m_notifiers.size() - i - 1U].notify();
     }
 
-    test.m_watchdog.watchAndActOnFailure([&] { std::terminate(); });
     auto notifications = wait();
     ASSERT_THAT(notifications.size(), Eq(test.m_notifiers.size()));
     for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
