@@ -26,8 +26,9 @@ namespace iox
 {
 namespace popo
 {
-/// @brief A trigger which can be used by the application developer directly.
-///        If you would like to trigger a WaitSet through an event of your class
+/// @brief An event based trigger which can be used by the application developer
+///        directly.
+///        If you would like to trigger a WaitSet/Listener through an event of your class
 ///        you should use the Trigger class.
 class UserTrigger
 {
@@ -42,7 +43,8 @@ class UserTrigger
     void trigger() noexcept;
 
     /// @brief Checks if the UserTrigger was triggered
-    /// @return true if the UserTrigger is trigger, otherwise false
+    /// @return true if the UserTrigger is trigger, otherwise false. The hasTrigger
+    ///         state is reset when it was handled by the WaitSet/Listener
     bool hasTriggered() const noexcept;
 
     friend class EventAttorney;
