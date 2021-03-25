@@ -20,8 +20,6 @@ project(iceoryx_integrationtest)
 find_package(ament_cmake REQUIRED)
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
   find_package(ros_testing)
 
   add_ros_test(iceoryx_integrationtest/test_roudi_startup_shutdown.py)

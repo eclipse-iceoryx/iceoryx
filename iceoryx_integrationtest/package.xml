@@ -12,7 +12,5 @@
   <build_depend>ros_testing</build_depend>
   <test_depend>ros_testing</test_depend>
 
-  <export>
-    <build_type>ament_cmake</build_type>
-  </export>
+
 </package>

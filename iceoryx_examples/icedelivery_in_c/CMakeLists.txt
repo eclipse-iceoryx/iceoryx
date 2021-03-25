@@ -28,6 +28,10 @@ find_package(iceoryx_utils CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
+if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
+    list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
+endif()
+
 add_executable(iox-c-publisher ./ice_c_publisher.c)
 set_source_files_properties(./ice_c_publisher.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-c-publisher
