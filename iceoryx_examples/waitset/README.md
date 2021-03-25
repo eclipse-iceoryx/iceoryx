@@ -4,7 +4,8 @@
 The WaitSet is **not** threadsafe!
 - It is **not** allowed to attach or detach _Triggerable_
    classes with `attachEvent` or `detachEvent` when another thread is currently
-   waiting for events with `wait`.
+   waiting for events with `wait` or `timedWait`.
+- Do **not** call any of the WaitSet methods concurrently.
 
 The _TriggerHandle_ on the other hand is threadsafe! Therefore you are allowed to
 attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
