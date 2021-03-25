@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +21,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_posh/popo/base_options.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 #include <atomic>
@@ -52,7 +54,7 @@ struct BasePortData
     capro::ServiceDescription m_serviceDescription;
     ProcessName_t m_processName;
     NodeName_t m_nodeName;
-    const bool m_queueFullPolicy{false};
+    const QueueFullPolicy m_deliveryQueueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
     UniquePortId m_uniqueId;
     std::atomic_bool m_toBeDestroyed{false};
 };
