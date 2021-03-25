@@ -36,6 +36,7 @@ using ::testing::Return;
 
 using iox::popo::PublisherOptions;
 using iox::popo::PublisherPortUser;
+using iox::popo::QueueFullPolicy;
 using iox::popo::SubscriberOptions;
 using iox::popo::SubscriberPortUser;
 using iox::roudi::IceOryxRouDiMemoryManager;
@@ -462,6 +463,106 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
         EXPECT_EQ(interfacePort, nullptr);
         EXPECT_TRUE(errorHandlerCalled);
     }
+}
+
+TEST_F(PortManager_test, DoDiscoveryBothBlockingQueueFullPolicyLeadsToConnect)
+{
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false, QueueFullPolicy::BLOCK_PUBLISHER};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false, QueueFullPolicy::BLOCK_PUBLISHER};
+
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+    publisher.offer();
+    // no doDiscovery() at this position is intentional
+
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    ASSERT_TRUE(subscriber);
+    subscriber.subscribe();
+
+    m_portManager->doDiscovery();
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryBothDiscardOldestQueueFullPolicyLeadsToConnect)
+{
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false, QueueFullPolicy::DISCARD_OLDEST_DATA};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false, QueueFullPolicy::DISCARD_OLDEST_DATA};
+
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+    publisher.offer();
+    // no doDiscovery() at this position is intentional
+
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    ASSERT_TRUE(subscriber);
+    subscriber.subscribe();
+
+    m_portManager->doDiscovery();
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryDiscardOldestAndBlockPubQueueFullPolicyLeadsToNoConnect)
+{
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false, QueueFullPolicy::DISCARD_OLDEST_DATA};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false, QueueFullPolicy::BLOCK_PUBLISHER};
+
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+    publisher.offer();
+    // no doDiscovery() at this position is intentional
+
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    ASSERT_TRUE(subscriber);
+    subscriber.subscribe();
+
+    m_portManager->doDiscovery();
+
+    ASSERT_FALSE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::NOT_SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryBlockPubAndDiscardOldestQueueFullPolicyLeadsToConnect)
+{
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false, QueueFullPolicy::BLOCK_PUBLISHER};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false, QueueFullPolicy::DISCARD_OLDEST_DATA};
+
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+    publisher.offer();
+    // no doDiscovery() at this position is intentional
+
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    ASSERT_TRUE(subscriber);
+    subscriber.subscribe();
+
+    m_portManager->doDiscovery();
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
 TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessful)
