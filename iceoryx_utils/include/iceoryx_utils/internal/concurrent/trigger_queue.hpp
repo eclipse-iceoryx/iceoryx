@@ -28,6 +28,8 @@ namespace concurrent
 {
 template <typename ElementType, uint64_t Capacity>
 class LockFreeQueue;
+template <typename ElementType, uint64_t Capacity>
+class ResizeableLockFreeQueue;
 
 template <typename T, uint64_t Capacity, template <typename, uint64_t> class Queue>
 struct QueueAdapter
@@ -39,6 +41,12 @@ template <typename T, uint64_t Capacity>
 struct QueueAdapter<T, Capacity, LockFreeQueue>
 {
     static bool push(LockFreeQueue<T, Capacity>& queue, const T& in) noexcept;
+};
+
+template <typename T, uint64_t Capacity>
+struct QueueAdapter<T, Capacity, ResizeableLockFreeQueue>
+{
+    static bool push(ResizeableLockFreeQueue<T, Capacity>& queue, const T& in) noexcept;
 };
 
 
@@ -56,7 +64,7 @@ class TriggerQueue
     /// @brief Pushs an element into the trigger queue and notifies one thread
     ///         which is waiting in blocking_pop().
     ///         If the queue is full it returns false and no element is inserted
-    ///         and nothing is notified. If the push was successfull, it returns
+    ///         and nothing is notified. If the push was successful, it returns
     ///         true.
     bool push(const T& in) noexcept;
 
@@ -74,6 +82,10 @@ class TriggerQueue
     static constexpr uint64_t capacity() noexcept;
 
     void destroy() noexcept;
+
+    /// @brief resizes the queue.
+    /// @return true if resize was successful otherwise false
+    bool setCapacity(const uint64_t capacity) noexcept;
 
   private:
     QueueType<T, Capacity> m_queue;

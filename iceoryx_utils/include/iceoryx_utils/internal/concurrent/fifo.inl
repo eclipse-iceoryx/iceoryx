@@ -56,6 +56,12 @@ inline uint64_t FiFo<ValueType, Capacity>::size() const noexcept
 }
 
 template <class ValueType, uint64_t Capacity>
+inline constexpr uint64_t FiFo<ValueType, Capacity>::capacity() noexcept
+{
+    return Capacity;
+}
+
+template <class ValueType, uint64_t Capacity>
 inline bool FiFo<ValueType, Capacity>::empty() const noexcept
 {
     return m_read_pos.load(std::memory_order_relaxed) == m_write_pos.load(std::memory_order_relaxed);

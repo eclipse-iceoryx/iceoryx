@@ -45,6 +45,9 @@ class FiFo
     /// @brief returns the size of the fifo
     uint64_t size() const noexcept;
 
+    /// @brief returns the capacity of the fifo
+    static constexpr uint64_t capacity() noexcept;
+
   private:
     bool is_full() const noexcept;
 

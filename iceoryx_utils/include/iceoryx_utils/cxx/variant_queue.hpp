@@ -22,6 +22,7 @@
 #include "iceoryx_utils/cxx/variant.hpp"
 #include "iceoryx_utils/internal/concurrent/fifo.hpp"
 #include "iceoryx_utils/internal/concurrent/sofi.hpp"
+#include "iceoryx_utils/internal/concurrent/trigger_queue.hpp"
 
 #include <cstdint>
 
@@ -40,7 +41,9 @@ enum class VariantQueueTypes : uint64_t
     FiFo_SingleProducerSingleConsumer = 0,
     SoFi_SingleProducerSingleConsumer = 1,
     FiFo_MultiProducerSingleConsumer = 2,
-    SoFi_MultiProducerSingleConsumer = 3
+    SoFi_MultiProducerSingleConsumer = 3,
+    BlockingFiFo_SingleProducerSingleConsumer = 4,
+    BlockingFiFo_MultiProducerSingleConsumer = 5,
 };
 
 // remark: we need to consider to support the non-resizable queue as well
@@ -71,7 +74,10 @@ class VariantQueue
   public:
     using fifo_t = variant<concurrent::FiFo<ValueType, Capacity>,
                            concurrent::SoFi<ValueType, Capacity>,
-                           concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>;
+                           concurrent::ResizeableLockFreeQueue<ValueType, Capacity>,
+                           concurrent::ResizeableLockFreeQueue<ValueType, Capacity>,
+                           concurrent::TriggerQueue<ValueType, Capacity, concurrent::FiFo>,
+                           concurrent::TriggerQueue<ValueType, Capacity, concurrent::ResizeableLockFreeQueue>>;
 
     /// @brief Constructor of a VariantQueue
     /// @param[in] type type of the underlying queue

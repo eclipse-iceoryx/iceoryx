@@ -28,9 +28,15 @@ inline bool QueueAdapter<T, Capacity, Queue>::push(Queue<T, Capacity>& queue, co
     return queue.push(in);
 }
 
-
 template <typename T, uint64_t Capacity>
 inline bool QueueAdapter<T, Capacity, LockFreeQueue>::push(LockFreeQueue<T, Capacity>& queue, const T& in) noexcept
+{
+    return queue.tryPush(in);
+}
+
+template <typename T, uint64_t Capacity>
+inline bool QueueAdapter<T, Capacity, ResizeableLockFreeQueue>::push(ResizeableLockFreeQueue<T, Capacity>& queue,
+                                                                     const T& in) noexcept
 {
     return queue.tryPush(in);
 }
@@ -74,6 +80,12 @@ template <typename T, uint64_t Capacity, template <typename, uint64_t> class Que
 inline void TriggerQueue<T, Capacity, QueueType>::destroy() noexcept
 {
     m_toBeDestroyed.store(true, std::memory_order_relaxed);
+}
+
+template <typename T, uint64_t Capacity, template <typename, uint64_t> class QueueType>
+inline bool TriggerQueue<T, Capacity, QueueType>::setCapacity(const uint64_t capacity) noexcept
+{
+    return m_queue.setCapacity(capacity);
 }
 
 
