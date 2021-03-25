@@ -23,7 +23,6 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
-
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -79,17 +78,27 @@ class PublisherPort_test : public Test
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
-    iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{0U, iox::NodeName_t{""}, false};
-    ;
+
 
     // publisher port w/o offer on create
-    iox::popo::PublisherPortData m_publisherPortData{
+    iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{
+        0U, iox::NodeName_t{""}, false, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+    iox::popo::PublisherPortData m_publisherPortDataNoOfferOnCreate{
         iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, m_noOfferOnCreatePublisherOptions};
-    iox::popo::PublisherPortRouDi m_sutNoOfferOnCreateRouDiSide{&m_publisherPortData};
-    iox::popo::PublisherPortUser m_sutNoOfferOnCreateUserSide{&m_publisherPortData};
+    iox::popo::PublisherPortRouDi m_sutNoOfferOnCreateRouDiSide{&m_publisherPortDataNoOfferOnCreate};
+    iox::popo::PublisherPortUser m_sutNoOfferOnCreateUserSide{&m_publisherPortDataNoOfferOnCreate};
+
+    // publisher port that waits for subscriber when queue is full
+    iox::popo::PublisherOptions m_waitForSubscriberPublisherOptions{
+        0U, iox::NodeName_t{""}, false, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    iox::popo::PublisherPortData m_publisherPortDataWaitForSubscriber{
+        iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, m_waitForSubscriberPublisherOptions};
+    iox::popo::PublisherPortRouDi m_sutWaitForSubscriberRouDiSide{&m_publisherPortDataWaitForSubscriber};
+    iox::popo::PublisherPortUser m_sutWaitForSubscriberUserSide{&m_publisherPortDataWaitForSubscriber};
 
     // publisher port w/ history
-    iox::popo::PublisherOptions m_withHistoryPublisherOptions{iox::MAX_PUBLISHER_HISTORY, iox::NodeName_t{""}, true};
+    iox::popo::PublisherOptions m_withHistoryPublisherOptions{
+        iox::MAX_PUBLISHER_HISTORY, iox::NodeName_t{""}, true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     iox::popo::PublisherPortData m_publisherPortDataHistory{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withHistoryPublisherOptions};
     iox::popo::PublisherPortUser m_sutWithHistoryUserSide{&m_publisherPortDataHistory};
@@ -99,13 +108,13 @@ class PublisherPort_test : public Test
     iox::popo::PublisherOptions m_withDefaultPublisherOptions{};
     iox::popo::PublisherPortData m_publisherPortDataDefault{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withDefaultPublisherOptions};
-    iox::popo::PublisherPortUser m_sutWithDefaultOptionsUseriSide{&m_publisherPortDataDefault};
+    iox::popo::PublisherPortUser m_sutWithDefaultOptionsUserSide{&m_publisherPortDataDefault};
     iox::popo::PublisherPortRouDi m_sutWithDefaultOptionsRouDiSide{&m_publisherPortDataDefault};
 };
 
 TEST_F(PublisherPort_test, initialStateIsOfferedWithDefaultOptions)
 {
-    EXPECT_TRUE(m_sutWithDefaultOptionsUseriSide.isOffered());
+    EXPECT_TRUE(m_sutWithDefaultOptionsUserSide.isOffered());
 }
 
 TEST_F(PublisherPort_test, initialStateIsNotOfferedWhenNoOfferOnCreate)
@@ -113,10 +122,15 @@ TEST_F(PublisherPort_test, initialStateIsNotOfferedWhenNoOfferOnCreate)
     EXPECT_FALSE(m_sutNoOfferOnCreateUserSide.isOffered());
 }
 
-
 TEST_F(PublisherPort_test, initialStateIsNoSubscribers)
 {
     EXPECT_FALSE(m_sutNoOfferOnCreateUserSide.hasSubscribers());
+}
+
+TEST_F(PublisherPort_test, noWaitingForSubscriberWithDefaultOptions)
+{
+    EXPECT_THAT(m_sutWithDefaultOptionsRouDiSide.getSubscriberTooSlowPolicy(),
+                Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
 }
 
 TEST_F(PublisherPort_test, initialStateReturnsOfferCaProMessageWithDefaultOptions)
@@ -135,6 +149,11 @@ TEST_F(PublisherPort_test, initialStateReturnsNoCaProMessageWhenNoOfferOnCreate)
     EXPECT_FALSE(maybeCaproMessage.has_value());
 }
 
+TEST_F(PublisherPort_test, waitingForSubscriberWhenDesired)
+{
+    EXPECT_THAT(m_sutWaitForSubscriberRouDiSide.getSubscriberTooSlowPolicy(),
+                Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
+}
 
 TEST_F(PublisherPort_test, offerCallResultsInOfferedState)
 {
@@ -522,10 +541,4 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
     m_sutWithHistoryRouDiSide.releaseAllChunks();
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
-}
-
-TEST_F(PublisherPort_test, CallingGetQueueFullPolicyWorks)
-{
-    //m_sutWithDefaultOptionsRouDiSide
-    //EXPECT_THAT(m_sutWithDefaultOptionsRouDiSide.getQueueFullPolicy(), Eq(expectedQueueFullPolicy<PortData_t>()));
 }
