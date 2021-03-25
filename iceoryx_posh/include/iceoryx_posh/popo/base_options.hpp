@@ -23,12 +23,18 @@ namespace iox
 {
 namespace popo
 {
+/// @brief Used by publisher
+enum class SubscriberTooSlowPolicy : uint8_t
+{
+    WAIT_FOR_SUBSCRIBER,
+    DISCARD_OLDEST_DATA
+};
+/// @brief Used by subscriber
 enum class QueueFullPolicy : uint8_t
 {
     BLOCK_PUBLISHER,
     DISCARD_OLDEST_DATA
 };
-}
+} // namespace popo
 } // namespace iox
 #endif // IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
-
