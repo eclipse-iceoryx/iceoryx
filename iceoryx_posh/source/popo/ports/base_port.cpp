@@ -46,11 +46,6 @@ capro::ServiceDescription BasePort::getCaProServiceDescription() const noexcept
     return getMembers()->m_serviceDescription;
 }
 
-QueueFullPolicy BasePort::getQueueFullPolicy() const noexcept
-{
-    return getMembers()->m_deliveryQueueFullPolicy;
-}
-
 ProcessName_t BasePort::getProcessName() const noexcept
 {
     return getMembers()->m_processName;

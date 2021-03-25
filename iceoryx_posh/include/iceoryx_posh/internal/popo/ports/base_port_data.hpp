@@ -54,7 +54,6 @@ struct BasePortData
     capro::ServiceDescription m_serviceDescription;
     ProcessName_t m_processName;
     NodeName_t m_nodeName;
-    const QueueFullPolicy m_deliveryQueueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
     UniquePortId m_uniqueId;
     std::atomic_bool m_toBeDestroyed{false};
 };

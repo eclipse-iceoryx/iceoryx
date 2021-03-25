@@ -109,14 +109,6 @@ const ServiceDescription& expectedServiceDescription<SubscriberPortData>()
     return SERVICE_DESCRIPTION_VALID;
 }
 
-// expected QueueFullPolicy factories
-
-template <typename T>
-const QueueFullPolicy& expectedQueueFullPolicy()
-{
-    return QUEUE_FULL_POLICY_BLOCKING;
-}
-
 // expected ProcessName factories
 
 template <typename T>
@@ -175,12 +167,6 @@ TYPED_TEST(BasePort_test, CallingGetCaProServiceDescriptionWorks)
 {
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getCaProServiceDescription(), Eq(expectedServiceDescription<PortData_t>()));
-}
-
-TYPED_TEST(BasePort_test, CallingGetQueueFullPolicyWorks)
-{
-    using PortData_t = typename TestFixture::PortData_t;
-    EXPECT_THAT(this->sut.getQueueFullPolicy(), Eq(expectedQueueFullPolicy<PortData_t>()));
 }
 
 TYPED_TEST(BasePort_test, CallingGetProcessNameWorks)

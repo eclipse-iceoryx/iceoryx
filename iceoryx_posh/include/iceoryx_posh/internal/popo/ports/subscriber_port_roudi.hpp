@@ -44,6 +44,10 @@ class SubscriberPortRouDi : public BasePort
     SubscriberPortRouDi& operator=(SubscriberPortRouDi&& rhs) = default;
     virtual ~SubscriberPortRouDi() = default;
 
+    /// @brief Returns behaviour in case of a full delivery queue
+    /// @return QueueFullPolicy What happens if the delivery queue is full
+    QueueFullPolicy getQueueFullPolicy() const noexcept;
+
     /// @brief get an optional CaPro message that requests changes to the subscription state of the subscriber
     /// @return CaPro message with new subscription requet, empty optional if no state change
     virtual cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept = 0;

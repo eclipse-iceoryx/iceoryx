@@ -370,7 +370,8 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
         if (subscriberSource.getCaProServiceDescription() == publisherPort.getCaProServiceDescription()
-            && subscriberSource.getQueueFullPolicy() == publisherPort.getQueueFullPolicy())
+            && !(publisherPort.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
+                 && subscriberSource.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
         {
             auto publisherResponse = publisherPort.dispatchCaProMessageAndGetPossibleResponse(message);
             if (publisherResponse.has_value())
@@ -398,7 +399,8 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
     {
         SubscriberPortType subscriberPort(subscriberPortData);
         if (subscriberPort.getCaProServiceDescription() == publisherSource.getCaProServiceDescription()
-            && subscriberPort.getQueueFullPolicy() == publisherSource.getQueueFullPolicy())
+            && !(publisherSource.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
+                 && subscriberPort.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
         {
             auto subscriberResponse = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(message);
 

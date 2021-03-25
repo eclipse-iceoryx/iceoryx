@@ -347,6 +347,12 @@ TEST_F(SubscriberPortSingleProducer_test, NackWhenNotWaitingForResultsInError)
     ASSERT_THAT(receivedError, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
 }
 
+TEST_F(SubscriberPortSingleProducer_test, CallingGetQueueFullPolicyWorks)
+{
+    //m_sutRouDiSideSingleProducer
+    //EXPECT_THAT(m_sutRouDiSideSingleProducer.getQueueFullPolicy(), Eq(expectedQueueFullPolicy<PortData_t>()));
+}
+
 class SubscriberPortMultiProducer_test : public Test
 {
   protected:

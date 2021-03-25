@@ -47,6 +47,7 @@ struct SubscriberPortData : public BasePortData
     const uint64_t m_historyRequest;
     std::atomic_bool m_subscribeRequested{false};
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
+    const QueueFullPolicy m_deliveryQueueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
 };
 
 } // namespace popo

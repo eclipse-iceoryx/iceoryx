@@ -523,3 +523,9 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0U));
 }
+
+TEST_F(PublisherPort_test, CallingGetQueueFullPolicyWorks)
+{
+    //m_sutWithDefaultOptionsRouDiSide
+    //EXPECT_THAT(m_sutWithDefaultOptionsRouDiSide.getQueueFullPolicy(), Eq(expectedQueueFullPolicy<PortData_t>()));
+}
