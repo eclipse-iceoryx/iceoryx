@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +34,7 @@ using namespace iox::popo;
 
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION_VALID("Radar", "FrontRight", "ChuckNorrisDetected");
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY(0, 0, 0);
+const iox::popo::QueueFullPolicy QUEUE_FULL_POLICY_BLOCKING{QueueFullPolicy::DISCARD_OLDEST_DATA};
 const iox::ProcessName_t APP_NAME_EMPTY = {""};
 const iox::ProcessName_t APP_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
 const iox::ProcessName_t APP_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
@@ -107,6 +109,14 @@ const ServiceDescription& expectedServiceDescription<SubscriberPortData>()
     return SERVICE_DESCRIPTION_VALID;
 }
 
+// expected QueueFullPolicy factories
+
+template <typename T>
+const QueueFullPolicy& expectedQueueFullPolicy()
+{
+    return QUEUE_FULL_POLICY_BLOCKING;
+}
+
 // expected ProcessName factories
 
 template <typename T>
@@ -161,13 +171,19 @@ class BasePort_test : public Test
     BasePort sut{sutData.get()};
 };
 
-TYPED_TEST(BasePort_test, getCaProServiceDescription)
+TYPED_TEST(BasePort_test, CallingGetCaProServiceDescriptionWorks)
 {
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getCaProServiceDescription(), Eq(expectedServiceDescription<PortData_t>()));
 }
 
-TYPED_TEST(BasePort_test, getApplicationname)
+TYPED_TEST(BasePort_test, CallingGetQueueFullPolicyWorks)
+{
+    using PortData_t = typename TestFixture::PortData_t;
+    EXPECT_THAT(this->sut.getQueueFullPolicy(), Eq(expectedQueueFullPolicy<PortData_t>()));
+}
+
+TYPED_TEST(BasePort_test, CallingGetProcessNameWorks)
 {
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getProcessName(), Eq(expectedProcessName<PortData_t>()));
