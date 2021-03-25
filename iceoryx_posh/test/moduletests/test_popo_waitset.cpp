@@ -125,6 +125,7 @@ class WaitSet_test : public Test
     void SetUp()
     {
         WaitSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     };
 
     void TearDown(){};
@@ -434,7 +435,6 @@ void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
 
     test->m_simpleEvents[0].trigger();
 
-    test->m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(1U));
 
@@ -465,7 +465,6 @@ void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
     test->m_simpleEvents[0].trigger();
     test->m_simpleEvents[1].trigger();
 
-    test->m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(2U));
 
@@ -537,7 +536,6 @@ TEST_F(WaitSet_test, NonResetEventsAreReturnedAgain)
     m_simpleEvents[7].autoResetTrigger = false;
     m_simpleEvents[7].trigger();
 
-    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto eventVector = m_sut.wait();
 
     // ACT

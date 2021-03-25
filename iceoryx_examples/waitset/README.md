@@ -290,7 +290,7 @@ we just dismiss the received data.
         subscriber->releaseQueuedData();
     }
 ```
-**Important** The second group needs to release all queued samples otherwise
+!!! attention The second group needs to release all queued samples otherwise
 the WaitSet would notify the user again and again that the subscriber from the second
 group has new samples.
 
