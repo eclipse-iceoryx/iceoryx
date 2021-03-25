@@ -52,7 +52,7 @@ jobs:
         run: |
           source /opt/ros/foxy/setup.bash
           cd $GITHUB_WORKSPACE
-          rm -rf iceoryx_examples/COLCON_IGNORE
+          rm -rf iceoryx_examples/COLCON_IGNORE iceoryx_integrationtest/COLCON_IGNORE
           colcon build
 
       - name: Test Execution
