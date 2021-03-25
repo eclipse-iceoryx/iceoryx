@@ -41,7 +41,7 @@ It's all about the API?!
 
 Don't get too frighten of the API when strolling through the codebase. Think of iceoryx's API as a "plumbing" one
 ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" API ourselves, but instead a typed API.
-The normal use case is that iceoryx is integrated as high-performance IPC transport layer in a bigger framework with additional API layers. 
+The normal use case is that iceoryx is integrated as high-performance IPC transport layer in a bigger framework with additional API layers.
 An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
 
 ### Where is Eclipse iceoryx used?
@@ -52,7 +52,7 @@ An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Oth
 | [eCAL](https://github.com/continental/ecal) | Open-source framework from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
-| [Apex.OS](https://www.apex.ai/apex-os) | Safe and certified software framework for autonomous mobility systems. |
+| [Apex.OS](https://www.apex.ai/apex-os) | Safe and certified software framework for autonomous mobility systems from Apex.AI |
 
 ## Build and install
 
