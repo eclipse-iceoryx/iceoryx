@@ -78,6 +78,7 @@ following conditions:
 - the data structure is entirely contained in shared memory - no pointers to process local memory, no references to 
 process local constructs, no dynamic allocators
 - the data structure must not internally use pointers/references
+- no virtual members
 
 ### Publisher
 
