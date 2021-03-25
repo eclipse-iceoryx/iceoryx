@@ -13,8 +13,6 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>ros_testing</build_depend>
-  <build_depend>ros_testing</build_depend>
-  <build_depend>ros_testing</build_depend>
 
   <test_depend>ros_testing</test_depend>
   <test_depend>iceoryx_binding_c</test_depend>
