@@ -64,14 +64,6 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
 
         return iox::cxx::error<iox::config::TomlGatewayConfigParseError>(parserError);
     }
-    catch (...)
-    {
-        auto parserError = iox::config::TomlGatewayConfigParseError::UNKNOWN_EXCEPTION_IN_PARSER;
-
-        LogWarn() << iox::cxx::convertEnumToString(iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS, parserError);
-
-        return iox::cxx::error<iox::config::TomlGatewayConfigParseError>(parserError);
-    }
 
     auto result = validate(*parsedToml);
     if (result.has_error())

@@ -35,8 +35,7 @@ enum TomlGatewayConfigParseError
     INCOMPLETE_CONFIGURATION,
     INCOMPLETE_SERVICE_DESCRIPTION,
     INVALID_SERVICE_DESCRIPTION,
-    EXCEPTION_IN_PARSER,
-    UNKNOWN_EXCEPTION_IN_PARSER
+    EXCEPTION_IN_PARSER
 };
 
 constexpr char TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[][64] = {"INVALID_STATE",
@@ -44,8 +43,7 @@ constexpr char TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[][64] = {"INVALID_ST
                                                                      "INCOMPLETE_CONFIGURATION",
                                                                      "INCOMPLETE_SERVICE_DESCRIPTION",
                                                                      "INVALID_SERVICE_DESCRIPTION",
-                                                                     "EXCEPTION_IN_PARSER",
-                                                                     "UNKNOWN_EXCEPTION_IN_PARSER"};
+                                                                     "EXCEPTION_IN_PARSER"};
 
 static constexpr const char REGEX_VALID_CHARACTERS[] = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 

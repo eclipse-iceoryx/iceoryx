@@ -46,8 +46,7 @@ enum class RouDiConfigFileParseError
     MAX_NUMBER_OF_MEMPOOLS_PER_SEGMENT_EXCEEDED,
     MEMPOOL_WITHOUT_CHUNK_SIZE,
     MEMPOOL_WITHOUT_CHUNK_COUNT,
-    EXCEPTION_IN_PARSER,
-    UNKNOWN_EXCEPTION_IN_PARSER
+    EXCEPTION_IN_PARSER
 };
 
 constexpr const char* ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[] = {"INVALID_STATE",
@@ -59,8 +58,7 @@ constexpr const char* ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[] = {"INVALID_STATE"
                                                                  "MAX_NUMBER_OF_MEMPOOLS_PER_SEGMENT_EXCEEDED",
                                                                  "MEMPOOL_WITHOUT_CHUNK_SIZE",
                                                                  "MEMPOOL_WITHOUT_CHUNK_COUNT",
-                                                                 "EXCEPTION_IN_PARSER",
-                                                                 "UNKNOWN_EXCEPTION_IN_PARSER"};
+                                                                 "EXCEPTION_IN_PARSER"};
 
 /// @brief Base class for a config file provider.
 class RouDiConfigFileProvider

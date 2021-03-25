@@ -80,14 +80,6 @@ iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> To
 
         return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(parserError);
     }
-    catch (...)
-    {
-        auto parserError = iox::roudi::RouDiConfigFileParseError::UNKNOWN_EXCEPTION_IN_PARSER;
-
-        LogWarn() << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS, parserError);
-
-        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(parserError);
-    }
 
     auto general = parsedFile->get_table("general");
     if (!general)
