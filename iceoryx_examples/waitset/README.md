@@ -1,5 +1,15 @@
 # WaitSet
 
+## Threadsafety
+The WaitSet is **not** threadsafe!
+- It is **not** allowed to attach or detach _Triggerable_
+   classes with `attachEvent` or `detachEvent` when another thread is currently
+   waiting for events with `wait`.
+
+The _TriggerHandle_ on the other hand is threadsafe! Therefore you are allowed to
+attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
+trigger the _TriggerHandle_.
+
 ## Introduction
 
 The WaitSet is a set where you can attach objects so that they can signal a wide variety
@@ -17,16 +27,6 @@ attaches one shot events. These are events which will trigger the WaitSet only o
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 <!-- @todo multiple examples described in here, expected output should be in front of every example -->
-
-## Threadsafety
-The WaitSet is **not** threadsafe!
-- It is **not** allowed to attach or detach _Triggerable_
-   classes with `attachEvent` or `detachEvent` when another thread is currently
-   waiting for events with `wait`.
-
-The _TriggerHandle_ on the other hand is threadsafe! Therefore you are allowed to
-attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
-trigger the _TriggerHandle_.
 
 ## Glossary
 

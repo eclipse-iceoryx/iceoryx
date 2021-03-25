@@ -1,5 +1,8 @@
 # Listener in C (or how to use callbacks with iceoryx)
 
+## Threadsafety
+The Listener is threadsafe and can be used without restrictions.
+
 ## Introduction
 
 For a general introduction into the Listener concept please take a look at

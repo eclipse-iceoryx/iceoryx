@@ -1,5 +1,8 @@
 # Listener (or how to use callbacks with iceoryx)
 
+## Threadsafety
+The Listener is threadsafe and can be used without restrictions.
+
 ## Introduction
 
 For an introduction into the terminology please read the Glossary in the

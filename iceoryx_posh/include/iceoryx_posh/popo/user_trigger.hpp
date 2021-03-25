@@ -40,6 +40,7 @@ class UserTrigger
     UserTrigger& operator=(UserTrigger&& rhs) = delete;
 
     /// @brief If it is attached it will trigger otherwise it will do nothing
+    /// @note a user trigger cannot be triggered when it is not attached
     void trigger() noexcept;
 
     /// @brief Checks if the UserTrigger was triggered
