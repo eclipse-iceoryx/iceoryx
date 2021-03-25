@@ -28,8 +28,8 @@ namespace mepoo
 {
 template <typename T>
 inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
-                                     posix::Allocator* f_managementAllocator,
-                                     posix::Allocator* f_payloadAllocator) noexcept
+                                     posix::Allocator& f_managementAllocator,
+                                     posix::Allocator& f_payloadAllocator) noexcept
     : m_memPool(static_cast<uint32_t>(requiredChunkSize()), f_numberOfChunks, f_managementAllocator, f_payloadAllocator)
     , m_chunkManagementPool(sizeof(ChunkManagement), f_numberOfChunks, f_managementAllocator, f_managementAllocator)
 {
@@ -51,8 +51,11 @@ inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acqui
         return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
-    new (chunkHeader) ChunkHeader(
-        m_memPool.getChunkSize(), sizeof(T), alignof(T), CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+    auto chunkSettingsResult = mepoo::ChunkSettings::create(sizeof(T), alignof(T));
+    // this is safe since we use correct values for size and alignment
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    new (chunkHeader) ChunkHeader(m_memPool.getChunkSize(), chunkSettings);
     new (chunkManagement) ChunkManagement(chunkHeader, &m_memPool, &m_chunkManagementPool);
 
     return cxx::success<ChunkManagement*>(chunkManagement);
@@ -123,10 +126,12 @@ inline uint32_t TypedMemPool<T>::getUsedChunks() const noexcept
 template <typename T>
 inline uint64_t TypedMemPool<T>::requiredChunkSize() noexcept
 {
+    auto chunkSettingsResult = mepoo::ChunkSettings::create(sizeof(T), alignof(T));
+    // this is safe since we use correct values for size and alignment
+    auto& chunkSettings = chunkSettingsResult.value();
+
     return cxx::align(
-        std::max(static_cast<uint64_t>(MemoryManager::requiredChunkSize(
-                     sizeof(T), alignof(T), CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)),
-                 posix::Allocator::MEMORY_ALIGNMENT),
+        std::max(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), posix::Allocator::MEMORY_ALIGNMENT),
         MemPool::MEMORY_ALIGNMENT);
 }
 

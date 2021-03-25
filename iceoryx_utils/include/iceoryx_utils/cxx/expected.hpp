@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,8 @@ template <typename T>
 struct ErrorTypeAdapter
 {
     static_assert(internal::HasInvalidStateMember<T>::value,
-                  "T must have a INVALID_STATE. Alternatively write an ErrorTypeAdapter specialisation for your type");
+                  "T must have an INVALID_STATE value/member. Alternatively write an ErrorTypeAdapter specialisation "
+                  "for your type");
 
     static T getInvalidState() noexcept;
 };

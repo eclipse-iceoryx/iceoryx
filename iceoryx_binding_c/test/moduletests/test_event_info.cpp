@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class iox_event_info_test : public Test
     {
         m_lastEventCallbackArgument = nullptr;
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
         m_subscriber.m_portData = &m_portPtr;
     }
 
@@ -78,10 +78,16 @@ class iox_event_info_test : public Test
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
         constexpr uint32_t PAYLOAD_SIZE{100U};
-        return m_memoryManager.getChunk(PAYLOAD_SIZE,
-                                        iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                        iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                        iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+
+        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        return m_memoryManager.getChunk(chunkSettings);
     }
 
 

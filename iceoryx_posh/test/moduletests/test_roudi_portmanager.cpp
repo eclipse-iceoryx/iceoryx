@@ -25,7 +25,7 @@
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <cstdint>
@@ -92,7 +92,7 @@ class PortManager_test : public Test
     {
         delete m_portManager;
         delete m_roudiMemoryManager;
-        iox::RelativePointer::unregisterAll();
+        iox::rp::BaseRelativePointer::unregisterAll();
 
         if (Test::HasFailure())
         {

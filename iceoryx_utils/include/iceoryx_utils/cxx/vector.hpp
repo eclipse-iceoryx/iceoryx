@@ -100,7 +100,7 @@ class vector
     //          is undefined if the element at index does not exist.
     T& at(const uint64_t index) noexcept;
 
-    /// @brief returns a cost reference to the element stored at index. the
+    /// @brief returns a const reference to the element stored at index. the
     ///         behavior is undefined if the element at index does not exist.
     const T& at(const uint64_t index) const noexcept;
 
@@ -108,7 +108,7 @@ class vector
     //          is undefined if the element at index does not exist.
     T& operator[](const uint64_t index) noexcept;
 
-    /// @brief returns a cost reference to the element stored at index. the
+    /// @brief returns a const reference to the element stored at index. the
     ///         behavior is undefined if the element at index does not exist.
     const T& operator[](const uint64_t index) const noexcept;
 

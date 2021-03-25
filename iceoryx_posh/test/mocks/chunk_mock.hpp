@@ -40,15 +40,19 @@ class ChunkMock
             std::is_same<CustomHeader, iox::mepoo::NoCustomHeader>::value ? 0U : sizeof(CustomHeader);
         const uint32_t customHeaderAlignment = alignof(CustomHeader);
 
-        auto requiredSize = iox::mepoo::MemoryManager::requiredChunkSize(
-            payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        auto chunkSettingsResult =
+            iox::mepoo::ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
 
-        m_rawMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignof(iox::mepoo::ChunkHeader), requiredSize));
+        iox::cxx::Ensures(!chunkSettingsResult.has_error() && "Invalid parameter for ChunkMock");
+        auto& chunkSettings = chunkSettingsResult.value();
+        auto chunkSize = chunkSettings.requiredChunkSize();
+
+        m_rawMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignof(iox::mepoo::ChunkHeader), chunkSize));
         assert(m_rawMemory != nullptr && "Could not get aligned memory");
-        memset(m_rawMemory, 0xFF, requiredSize);
+        memset(m_rawMemory, 0xFF, chunkSize);
 
-        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader(
-            requiredSize, payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+
+        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader(chunkSize, chunkSettings);
         m_topic = static_cast<Topic*>(m_chunkHeader->payload());
     }
     ~ChunkMock()

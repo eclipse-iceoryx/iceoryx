@@ -19,7 +19,7 @@
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 #include <array>
 #include <atomic>
@@ -39,7 +39,7 @@ class UsedChunkList
     }
 
     // only from runtime context
-    bool insert(mepoo::SharedChunk f_chunk)
+    bool insert(mepoo::SharedChunk chunk)
     {
         if (freeSpaceInList())
         {
@@ -51,7 +51,7 @@ class UsedChunkList
             m_usedListHead = m_freeListHead;
 
             // store chunk mgmt ptr
-            m_data[m_usedListHead] = f_chunk.release();
+            m_data[m_usedListHead] = chunk.release();
 
             // set freeListHead to the next free entry
             m_freeListHead = nextFree;
@@ -67,7 +67,7 @@ class UsedChunkList
     }
 
     // only from runtime context
-    bool remove(const mepoo::ChunkHeader* f_chunkHeader, mepoo::SharedChunk& f_chunk)
+    bool remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk)
     {
         uint32_t previous = InvalidIndex;
 
@@ -75,10 +75,10 @@ class UsedChunkList
         for (uint32_t current = m_usedListHead; current != InvalidIndex; current = m_list[current])
         {
             // does the entry match the one we want to remove?
-            if (m_data[current] != nullptr && m_data[current]->m_chunkHeader == f_chunkHeader)
+            if (m_data[current] != nullptr && m_data[current]->m_chunkHeader == chunkHeader)
             {
                 // return the chunk mgmt entry as SharedChunk object
-                f_chunk = mepoo::SharedChunk(m_data[current]);
+                chunk = mepoo::SharedChunk(m_data[current]);
                 m_data[current] = nullptr;
 
                 // remove index from used list
@@ -172,7 +172,7 @@ class UsedChunkList
     uint32_t m_usedListHead{InvalidIndex};
     uint32_t m_freeListHead{0u};
     std::array<uint32_t, Size> m_list;
-    std::array<relative_ptr<mepoo::ChunkManagement>, Size> m_data;
+    std::array<rp::RelativePointer<mepoo::ChunkManagement>, Size> m_data;
 };
 
 } // namespace popo

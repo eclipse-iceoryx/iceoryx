@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_pointer.hpp"
 
 #include "test.hpp"
 
@@ -69,7 +69,7 @@ class Foo
 };
 
 template <typename T>
-using Ptr = iox::atomic_relocatable_ptr<T>;
+using Ptr = iox::rp::AtomicRelocatablePointer<T>;
 
 class AtomicRelocatablePointer_test : public Test
 {
