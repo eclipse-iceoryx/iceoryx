@@ -58,7 +58,7 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParseDefaultConfigIsSuccessful)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(
-    ParseAllMalformedInputConfigFilesCausesFailures,
+    ParseAllMalformedInputConfigFiles,
     RoudiConfigTomlFileProvider_test,
     Values(ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::NO_GENERAL_SECTION,
                                  "roudi_config_error_no_general.toml"},
@@ -80,7 +80,7 @@ INSTANTIATE_TEST_CASE_P(
                                  "toml_parser_exception.toml"}));
 #pragma GCC diagnostic pop
 
-TEST_P(RoudiConfigTomlFileProvider_test, RouDiConfigFileParseError)
+TEST_P(RoudiConfigTomlFileProvider_test, ParseMalformedInputFileCausesError)
 {
     const auto parseErrorInputFile = GetParam();
 
