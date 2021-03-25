@@ -82,7 +82,7 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
                 ->push(value, overriddenValue);
 
-        return (hadSpace) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
+        return (hadSpace) ? cxx::nullopt : cxx::make_optional<ValueType>(overriddenValue);
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     {
