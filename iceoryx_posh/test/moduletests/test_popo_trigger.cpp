@@ -573,3 +573,29 @@ TEST_F(Trigger_test, InvalidEventBasedTriggerUpdateOriginDoesNotWork)
     EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
 }
 
+TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
+{
+    const uint64_t eventId = 0U;
+    const uint64_t uniqueTriggerId = 0U;
+
+    bool hasTerminated = false;
+    iox::Error errorType = iox::Error::kNO_ERROR;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            hasTerminated = true;
+            errorType = error;
+        });
+
+    Trigger sut(EventBasedTrigger,
+                &m_triggerClass,
+                cxx::MethodCallback<void, uint64_t>(),
+                eventId,
+                TriggerClass::callback,
+                uniqueTriggerId);
+
+    EXPECT_TRUE(hasTerminated);
+    EXPECT_THAT(errorType, Eq(iox::Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK));
+    EXPECT_FALSE(sut.isValid());
+    EXPECT_FALSE(static_cast<bool>(sut));
+}
+
