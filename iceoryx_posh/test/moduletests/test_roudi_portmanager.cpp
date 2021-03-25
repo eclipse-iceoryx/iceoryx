@@ -467,7 +467,8 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
 
 TEST_F(PortManager_test, DoDiscoveryBothBlockingQueueFullPolicyLeadsToConnect)
 {
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false, QueueFullPolicy::BLOCK_PUBLISHER};
+    PublisherOptions publisherOptions{
+        1U, iox::NodeName_t("node"), false, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false, QueueFullPolicy::BLOCK_PUBLISHER};
 
     PublisherPortUser publisher(
@@ -492,7 +493,8 @@ TEST_F(PortManager_test, DoDiscoveryBothBlockingQueueFullPolicyLeadsToConnect)
 
 TEST_F(PortManager_test, DoDiscoveryBothDiscardOldestQueueFullPolicyLeadsToConnect)
 {
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false, QueueFullPolicy::DISCARD_OLDEST_DATA};
+    PublisherOptions publisherOptions{
+        1U, iox::NodeName_t("node"), false, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false, QueueFullPolicy::DISCARD_OLDEST_DATA};
 
     PublisherPortUser publisher(
@@ -517,7 +519,8 @@ TEST_F(PortManager_test, DoDiscoveryBothDiscardOldestQueueFullPolicyLeadsToConne
 
 TEST_F(PortManager_test, DoDiscoveryDiscardOldestAndBlockPubQueueFullPolicyLeadsToNoConnect)
 {
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false, QueueFullPolicy::DISCARD_OLDEST_DATA};
+    PublisherOptions publisherOptions{
+        1U, iox::NodeName_t("node"), false, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false, QueueFullPolicy::BLOCK_PUBLISHER};
 
     PublisherPortUser publisher(
@@ -542,7 +545,8 @@ TEST_F(PortManager_test, DoDiscoveryDiscardOldestAndBlockPubQueueFullPolicyLeads
 
 TEST_F(PortManager_test, DoDiscoveryBlockPubAndDiscardOldestQueueFullPolicyLeadsToConnect)
 {
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false, QueueFullPolicy::BLOCK_PUBLISHER};
+    PublisherOptions publisherOptions{
+        1U, iox::NodeName_t("node"), false, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false, QueueFullPolicy::DISCARD_OLDEST_DATA};
 
     PublisherPortUser publisher(
