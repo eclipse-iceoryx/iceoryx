@@ -26,10 +26,10 @@ namespace iox
 namespace runtime
 {
 IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
-                                         const RuntimeName_t& appName,
+                                         const RuntimeName_t& runtimeName,
                                          const units::Duration roudiWaitingTimeout) noexcept
-    : m_appName(appName)
-    , m_AppIpcInterface(appName)
+    : m_runtimeName(runtimeName)
+    , m_AppIpcInterface(runtimeName)
     , m_RoudiIpcInterface(roudiName)
 {
     if (!m_AppIpcInterface.isInitialized())
@@ -86,7 +86,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
             IpcMessage sendBuffer;
             int pid = getpid();
             cxx::Expects(pid >= 0);
-            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_appName << std::to_string(pid)
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << std::to_string(pid)
                        << std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID())
                        << std::to_string(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
@@ -143,7 +143,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
 bool IpcRuntimeInterface::sendKeepalive() noexcept
 {
-    return m_RoudiIpcInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_appName});
+    return m_RoudiIpcInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_runtimeName});
 }
 
 RelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept

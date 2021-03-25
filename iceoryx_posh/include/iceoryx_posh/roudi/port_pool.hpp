@@ -71,33 +71,33 @@ class PortPool
     cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,
                      mepoo::MemoryManager* const memoryManager,
-                     const RuntimeName_t& applicationName,
+                     const RuntimeName_t& runtimeName,
                      const popo::PublisherOptions& publisherOptions,
                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     addSubscriberPort(const capro::ServiceDescription& serviceDescription,
-                      const RuntimeName_t& applicationName,
+                      const RuntimeName_t& runtimeName,
                       const popo::SubscriberOptions& subscriberOptions,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                       const RuntimeName_t& applicationName,
+                                                       const RuntimeName_t& runtimeName,
                                                        const popo::SubscriberOptions& subscriberOptions,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                       const RuntimeName_t& applicationName,
+                                                       const RuntimeName_t& runtimeName,
                                                        const popo::SubscriberOptions& subscriberOptions,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
-    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& applicationName,
+    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& runtimeName,
                                                                             const capro::Interfaces interface) noexcept;
 
     cxx::expected<popo::ApplicationPortData*, PortPoolError>
-    addApplicationPort(const RuntimeName_t& applicationName) noexcept;
+    addApplicationPort(const RuntimeName_t& runtimeName) noexcept;
 
     cxx::expected<runtime::NodeData*, PortPoolError>
     addNodeData(const RuntimeName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept;

@@ -525,8 +525,8 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
 
     auto nodeData = m_runtime->createNode(nodeProperty);
 
-    EXPECT_EQ(m_runtimeName, nodeData->m_process);
-    EXPECT_EQ(m_nodeName, nodeData->m_node);
+    EXPECT_EQ(m_runtimeName, nodeData->m_runtimeName);
+    EXPECT_EQ(m_nodeName, nodeData->m_nodeName);
 
     /// @todo I am passing nodeDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);

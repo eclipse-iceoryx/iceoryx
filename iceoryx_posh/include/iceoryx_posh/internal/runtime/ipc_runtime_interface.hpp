@@ -30,10 +30,10 @@ class IpcRuntimeInterface
   public:
     /// @brief Runtime Interface for the own IPC channel and the one to the RouDi daemon
     /// @param[in] roudiName name of the RouDi IPC channel
-    /// @param[in] appName name of the appplication and its IPC channel
+    /// @param[in] runtimeName name of the application's runtime and its IPC channel
     /// @param[in] roudiWaitingTimeout timeout for searching the RouDi IPC channel
     IpcRuntimeInterface(const RuntimeName_t& roudiName,
-                        const RuntimeName_t& appName,
+                        const RuntimeName_t& runtimeName,
                         const units::Duration roudiWaitingTimeout) noexcept;
     ~IpcRuntimeInterface() noexcept = default;
 
@@ -77,7 +77,7 @@ class IpcRuntimeInterface
     RegAckResult waitForRegAck(const int64_t transmissionTimestamp) noexcept;
 
   private:
-    RuntimeName_t m_appName;
+    RuntimeName_t m_runtimeName;
     cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
     IpcInterfaceCreator m_AppIpcInterface;
     IpcInterfaceUser m_RoudiIpcInterface;

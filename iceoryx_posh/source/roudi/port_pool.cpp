@@ -50,11 +50,11 @@ PortPool::getConditionVariableDataList() noexcept
 }
 
 cxx::expected<popo::InterfacePortData*, PortPoolError>
-PortPool::addInterfacePort(const RuntimeName_t& applicationName, const capro::Interfaces interface) noexcept
+PortPool::addInterfacePort(const RuntimeName_t& runtimeName, const capro::Interfaces interface) noexcept
 {
     if (m_portPoolData->m_interfacePortMembers.hasFreeSpace())
     {
-        auto interfacePortData = m_portPoolData->m_interfacePortMembers.insert(applicationName, interface);
+        auto interfacePortData = m_portPoolData->m_interfacePortMembers.insert(runtimeName, interface);
         return cxx::success<popo::InterfacePortData*>(interfacePortData);
     }
     else
@@ -65,11 +65,11 @@ PortPool::addInterfacePort(const RuntimeName_t& applicationName, const capro::In
 }
 
 cxx::expected<popo::ApplicationPortData*, PortPoolError>
-PortPool::addApplicationPort(const RuntimeName_t& applicationName) noexcept
+PortPool::addApplicationPort(const RuntimeName_t& runtimeName) noexcept
 {
     if (m_portPoolData->m_applicationPortMembers.hasFreeSpace())
     {
-        auto applicationPortData = m_portPoolData->m_applicationPortMembers.insert(applicationName);
+        auto applicationPortData = m_portPoolData->m_applicationPortMembers.insert(runtimeName);
         return cxx::success<popo::ApplicationPortData*>(applicationPortData);
     }
     else
@@ -148,14 +148,14 @@ cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::getSub
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
                            mepoo::MemoryManager* const memoryManager,
-                           const RuntimeName_t& applicationName,
+                           const RuntimeName_t& runtimeName,
                            const popo::PublisherOptions& publisherOptions,
                            const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     if (m_portPoolData->m_publisherPortMembers.hasFreeSpace())
     {
         auto publisherPortData = m_portPoolData->m_publisherPortMembers.insert(
-            serviceDescription, applicationName, memoryManager, publisherOptions, memoryInfo);
+            serviceDescription, runtimeName, memoryManager, publisherOptions, memoryInfo);
         return cxx::success<PublisherPortRouDiType::MemberType_t*>(publisherPortData);
     }
     else
@@ -167,14 +167,14 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
 
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
-                            const RuntimeName_t& applicationName,
+                            const RuntimeName_t& runtimeName,
                             const popo::SubscriberOptions& subscriberOptions,
                             const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     if (m_portPoolData->m_subscriberPortMembers.hasFreeSpace())
     {
         auto subscriberPortData = constructSubscriber<iox::build::CommunicationPolicy>(
-            serviceDescription, applicationName, subscriberOptions, memoryInfo);
+            serviceDescription, runtimeName, subscriberOptions, memoryInfo);
 
         return cxx::success<SubscriberPortType::MemberType_t*>(subscriberPortData);
     }

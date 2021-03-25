@@ -26,6 +26,7 @@ namespace iox
 namespace runtime
 {
 /// @brief Class for creating and handling a IPC channel
+/// @note This class makes sures the IPC channel is created uniquely
 class IpcInterfaceCreator : public IpcInterfaceBase
 {
   public:

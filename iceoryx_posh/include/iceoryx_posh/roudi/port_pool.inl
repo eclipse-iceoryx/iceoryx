@@ -23,12 +23,12 @@ namespace roudi
 {
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                                    const RuntimeName_t& applicationName,
+                                                                    const RuntimeName_t& runtimeName,
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
-                                                          applicationName,
+                                                          runtimeName,
                                                           cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
                                                           subscriberOptions,
                                                           memoryInfo);
@@ -36,12 +36,12 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                                    const RuntimeName_t& applicationName,
+                                                                    const RuntimeName_t& runtimeName,
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
-                                                          applicationName,
+                                                          runtimeName,
                                                           cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                                           subscriberOptions,
                                                           memoryInfo);

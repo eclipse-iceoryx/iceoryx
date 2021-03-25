@@ -38,10 +38,10 @@ class ConditionVariable_test : public Test
   public:
     using NotificationVector_t = ConditionListener::NotificationVector_t;
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
-    const iox::RuntimeName_t m_process{"Ferdinand"};
+    const iox::RuntimeName_t m_runtimeName{"Ferdinand"};
     const iox::units::Duration m_timeToWait = 2_s;
 
-    ConditionVariableData m_condVarData{m_process};
+    ConditionVariableData m_condVarData{m_runtimeName};
     ConditionListener m_waiter{m_condVarData};
     ConditionNotifier m_signaler{m_condVarData, 0U};
 
@@ -196,12 +196,12 @@ TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstruction)
     }
 }
 
-TEST_F(ConditionVariable_test, CorrectProcessNameAfterConstructionWithProcessName)
+TEST_F(ConditionVariable_test, CorrectRuntimeNameAfterConstructionWithRuntimeName)
 {
-    EXPECT_THAT(m_condVarData.m_process.c_str(), StrEq(m_process));
+    EXPECT_THAT(m_condVarData.m_runtimeName.c_str(), StrEq(m_runtimeName));
 }
 
-TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithProcessName)
+TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithRuntimeName)
 {
     for (auto& notification : m_condVarData.m_activeNotifications)
     {
@@ -400,4 +400,3 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
     EXPECT_THAT(hasWaited, Eq(true));
     waiter.join();
 })
-

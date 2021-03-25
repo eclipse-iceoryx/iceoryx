@@ -62,12 +62,12 @@ class BasePort
     /// @return m_portType  Type of Port in struct BasePortType
     capro::ServiceDescription getCaProServiceDescription() const noexcept;
 
-    /// @brief Gets Process Name for the active port
-    /// @return             Process name as String
+    /// @brief Gets name of the application's runtime for the active port
+    /// @return runtime name as String
     RuntimeName_t getRuntimeName() const noexcept;
 
     /// @brief Gets Id of thethe active port
-    /// @return             UniqueId name as Integer
+    /// @return UniqueId name as Integer
     UniquePortId getUniqueID() const noexcept;
 
     /// @brief returns node name for the active port
@@ -78,7 +78,7 @@ class BasePort
     void destroy() noexcept;
 
     /// @brief Checks whether port can be destroyed
-    /// @return             true if it shall be destroyed, false if not
+    /// @return true if it shall be destroyed, false if not
     bool toBeDestroyed() const noexcept;
 
   protected:

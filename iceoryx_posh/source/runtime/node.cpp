@@ -62,12 +62,12 @@ Node& Node::operator=(Node&& rhs) noexcept
 
 NodeName_t Node::getNodeName() const noexcept
 {
-    return m_data->m_node;
+    return m_data->m_nodeName;
 }
 
 RuntimeName_t Node::getRuntimeName() const noexcept
 {
-    return m_data->m_process;
+    return m_data->m_runtimeName;
 }
 
 } // namespace runtime

@@ -40,11 +40,11 @@ void iox_node_destroy(iox_node_t const self);
 ///         If name is a nullptr, 0 will be returned.
 uint64_t iox_node_get_name(iox_node_t const self, char* const name, const uint64_t nameCapacity);
 
-/// @brief acquires the name of the process in which the node is stored
+/// @brief acquires the name of the application's runtime in which the node is stored
 /// @param[in] self handle to the node
 /// @param[in] name pointer to a memory location where the name can be written to
 /// @param[in] nameCapacity size of the memory location where the name is written to
-/// @return the actual length of the process name, if the return value is greater
+/// @return the actual length of the runtime name, if the return value is greater
 ///         then nameCapacity the name is truncated.
 ///         If name is a nullptr, 0 will be returned.
 uint64_t iox_node_get_runtime_name(iox_node_t const self, char* const name, const uint64_t nameCapacity);

@@ -62,10 +62,10 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
-IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& InterfaceName,
+IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& runtimeName,
                                    const uint64_t maxMessages,
                                    const uint64_t messageSize) noexcept
-    : m_interfaceName(InterfaceName)
+    : m_runtimeName(runtimeName)
 {
     m_maxMessages = maxMessages;
     m_maxMessageSize = messageSize;
@@ -147,9 +147,9 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
     return !m_ipcChannel.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
-const RuntimeName_t& IpcInterfaceBase::getInterfaceName() const noexcept
+const RuntimeName_t& IpcInterfaceBase::getRuntimeName() const noexcept
 {
-    return m_interfaceName;
+    return m_runtimeName;
 }
 
 bool IpcInterfaceBase::isInitialized() const noexcept
@@ -160,11 +160,11 @@ bool IpcInterfaceBase::isInitialized() const noexcept
 bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) noexcept
 {
     m_ipcChannel.destroy().or_else(
-        [this](auto) { LogWarn() << "unable to destroy previous ipc channel " << m_interfaceName; });
+        [this](auto) { LogWarn() << "unable to destroy previous ipc channel " << m_runtimeName; });
 
     m_channelSide = channelSide;
     IpcChannelType::create(
-        m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
+        m_runtimeName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
         .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); });
 
     return m_ipcChannel.isInitialized();

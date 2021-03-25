@@ -484,7 +484,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
 
     for (auto nodeData : m_portPool->getNodeDataList())
     {
-        if (runtimeName == nodeData->m_process)
+        if (runtimeName == nodeData->m_runtimeName)
         {
             m_portPool->removeNodeData(nodeData);
             LogDebug() << "Deleted node of application " << runtimeName;
@@ -493,7 +493,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
 
     for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
     {
-        if (runtimeName == conditionVariableData->m_process)
+        if (runtimeName == conditionVariableData->m_runtimeName)
         {
             m_portPool->removeConditionVariableData(conditionVariableData);
             LogDebug() << "Deleted condition variable of application" << runtimeName;

@@ -54,8 +54,8 @@ TEST_F(PortPool_test, AddNodeDataIsSuccessful)
     auto nodeData = sut.addNodeData(m_runtimeName, m_nodeName, m_nodeDeviceId);
 
     ASSERT_THAT(nodeData.has_error(), Eq(false));
-    EXPECT_EQ(nodeData.value()->m_process, m_runtimeName);
-    EXPECT_EQ(nodeData.value()->m_node, m_nodeName);
+    EXPECT_EQ(nodeData.value()->m_runtimeName, m_runtimeName);
+    EXPECT_EQ(nodeData.value()->m_nodeName, m_nodeName);
     EXPECT_EQ(nodeData.value()->m_nodeDeviceIdentifier, m_nodeDeviceId);
 }
 
@@ -100,8 +100,8 @@ TEST_F(PortPool_test, GetNodeDataListIsSuccessful)
     auto nodeDataList = sut.getNodeDataList();
 
     EXPECT_EQ(nodeDataList.size(), 1U);
-    EXPECT_EQ(nodeDataList[0]->m_process, m_runtimeName);
-    EXPECT_EQ(nodeDataList[0]->m_node, m_nodeName);
+    EXPECT_EQ(nodeDataList[0]->m_runtimeName, m_runtimeName);
+    EXPECT_EQ(nodeDataList[0]->m_nodeName, m_nodeName);
     EXPECT_EQ(nodeDataList[0]->m_nodeDeviceIdentifier, m_nodeDeviceId);
 }
 
@@ -529,7 +529,7 @@ TEST_F(PortPool_test, AddConditionVariableDataIsSuccessful)
     auto conditionVariableData = sut.addConditionVariableData(m_applicationName);
 
     ASSERT_THAT(conditionVariableData.has_error(), Eq(false));
-    EXPECT_EQ(conditionVariableData.value()->m_process, m_applicationName);
+    EXPECT_EQ(conditionVariableData.value()->m_runtimeName, m_applicationName);
 }
 
 TEST_F(PortPool_test, AddConditionVariableDataWithMaxCapacityIsSuccessful)

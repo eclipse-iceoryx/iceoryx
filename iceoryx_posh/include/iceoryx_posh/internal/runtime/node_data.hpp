@@ -30,9 +30,10 @@ class NodeData
 {
   public:
     /// @brief constructor
-    /// @param[in] name name of the node
+    /// @param[in] runtimeName name of associated runtime
+    /// @param[in] nodeName name of the node
     /// @param[in] nodeDeviceIdentifier identifier of the device on which the node will run
-    NodeData(const RuntimeName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept;
+    NodeData(const RuntimeName_t& runtimeName, const NodeName_t& nodeName, const uint64_t nodeDeviceIdentifier) noexcept;
 
     NodeData(const NodeData&) = delete;
     NodeData(NodeData&&) = delete;
@@ -40,8 +41,8 @@ class NodeData
     NodeData& operator=(NodeData&&) = delete;
 
 
-    RuntimeName_t m_process;
-    NodeName_t m_node;
+    RuntimeName_t m_runtimeName;
+    NodeName_t m_nodeName;
     uint64_t m_nodeDeviceIdentifier;
     std::atomic_bool m_toBeDestroyed{false};
 };

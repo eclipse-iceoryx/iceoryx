@@ -48,7 +48,7 @@ uint32_t Process::getPid() const noexcept
 
 const RuntimeName_t Process::getName() const noexcept
 {
-    return RuntimeName_t(cxx::TruncateToCapacity, m_ipcChannel.getInterfaceName());
+    return RuntimeName_t(cxx::TruncateToCapacity, m_ipcChannel.getRuntimeName());
 }
 
 void Process::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept

@@ -65,7 +65,7 @@ class PortManager_test : public Test
 
     uint16_t m_instIdCounter, m_eventIdCounter, m_sIdCounter;
 
-    iox::RuntimeName_t m_ProcessName{"TestProcess"};
+    iox::RuntimeName_t m_runtimeName{"TestProcess"};
 
     void SetUp() override
     {
@@ -623,8 +623,8 @@ TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
     std::string nodeName = iox::NodeName_t("node");
 
     acquireMaxNumberOfNodes(nodeName, runtimeName, [&](auto node, auto newNodeName, auto newProcessName) {
-        EXPECT_THAT(node->m_node, StrEq(newNodeName));
-        EXPECT_THAT(node->m_process, StrEq(newProcessName));
+        EXPECT_THAT(node->m_nodeName, StrEq(newNodeName));
+        EXPECT_THAT(node->m_runtimeName, StrEq(newProcessName));
     });
 }
 
@@ -666,8 +666,8 @@ TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 
     auto nodeResult = m_portManager->acquireNodeData(newProcessName, newNodeName);
     ASSERT_THAT(nodeResult.has_error(), Eq(false));
-    EXPECT_THAT(nodeResult.value()->m_node, StrEq(newNodeName));
-    EXPECT_THAT(nodeResult.value()->m_process, StrEq(newProcessName));
+    EXPECT_THAT(nodeResult.value()->m_nodeName, StrEq(newNodeName));
+    EXPECT_THAT(nodeResult.value()->m_runtimeName, StrEq(newProcessName));
 }
 
 
@@ -817,7 +817,7 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
     PublisherOptions publisherOptions{1};
 
     auto publisherPortData = m_portManager->acquirePublisherPortData(
-        {1U, 1U, 1U}, publisherOptions, m_ProcessName, m_payloadMemoryManager, PortConfigInfo());
+        {1U, 1U, 1U}, publisherOptions, m_runtimeName, m_payloadMemoryManager, PortConfigInfo());
     ASSERT_FALSE(publisherPortData.has_error());
 
     PublisherPortUser publisher(publisherPortData.value());
