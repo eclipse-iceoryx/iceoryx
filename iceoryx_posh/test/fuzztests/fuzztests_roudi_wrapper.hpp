@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,80 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
+/// @brief     fuzztests_roudi_wrapper contains the main method for the RouDi Wrappers which can be used to fuzz several interfaces
 
-enum class fuzzingAPI
-{
-    NONE,
-	UDS,
-    COM,
-	TOML
-};
-
-enum class inputMode
-{
-	NONE,
-    STDIN,
-    CL
-};
-
-
-class StringToIPCMessage : public iox::runtime::IpcInterfaceBase
-{
-   public:
-      StringToIPCMessage(const iox::ProcessName_t& name, const int64_t maxMessages, const int64_t messageSize);
-   using iox::runtime::IpcInterfaceBase::setMessageFromString;
-};
-
-
-class RouDiFuzz : iox::roudi::RouDi
-{
-   public:
-      RouDiFuzz(iox::roudi::RouDiMemoryInterface& roudiMemoryInterface, iox::roudi::PortManager& portManager, iox::roudi::RouDi::RoudiStartupParameters aStartupParameter);
-      void processMessageFuzz( std::string aMessage);
-};
-
-class FuzzHelper
-{
-
-	public:
-		std::vector<std::string> getStdInMessages();
-		std::shared_ptr<RouDiFuzz>  startRouDiThread();
-		std::vector<std::string> combineString(std::vector<std::string> allMessages);
-		bool checkIsRouDiRunning();
-
-
-};
-
-class Fuzzing
-{
-
-   public:
-      Fuzzing();
-      void fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage);
-      int fuzzingRouDiUDS(std::string aMessage);	   
-      void fuzzing_TOML_parser(std::string toml_file, std::string temp_file);
-};
-
-
-class CmdLineParserFuzzing
-{
-	public:
-
-		CmdLineParserFuzzing();
-		std::vector<std::string> parseCmd(int argc, char* argv[]) noexcept;
-		
-		fuzzingAPI fuzzing_API;
-		inputMode input_mode;
-		bool errorFlag;
-		bool cmdLineFlag;
-		bool helpFlag;
-		bool tomlFileFlag;
-		std::vector<std::string> allMessages;
-		std::string tomlFile;
- };
-
-
+/// @brief	Main function of the Fuzz Wrapper
+/// @param[in] 	amount of arguments given to the method
+///	@param[in]	containing the command line parameters
+///	@param[out]	int containing the status if the fuzzing was successfull. If the return value is -1 something went wrong.
 int main (int argc, char* argv[]);
 
 
