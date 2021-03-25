@@ -144,7 +144,7 @@ constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50U;
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;
 constexpr uint32_t MAX_NODE_PER_PROCESS = 50U;
 
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = MAX_IPC_CHANNEL_NAME_LENGTH;
+constexpr uint32_t MAX_RUNTIME_NAME_LENGTH = MAX_IPC_CHANNEL_NAME_LENGTH;
 
 
 static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
@@ -181,7 +181,7 @@ struct DefaultChunkQueueConfig
 };
 
 // alias for cxx::string
-using RuntimeName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
+using RuntimeName_t = cxx::string<MAX_RUNTIME_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
 using ShmName_t = cxx::string<128>;
 

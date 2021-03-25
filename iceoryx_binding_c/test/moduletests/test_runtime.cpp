@@ -38,31 +38,31 @@ class BindingC_Runtime_test : public RouDi_GTest
 
 TEST_F(BindingC_Runtime_test, SuccessfulRegistration)
 {
-    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chucky";
+    constexpr char EXPECTED_APP_NAME[iox::MAX_RUNTIME_NAME_LENGTH + 1] = "chucky";
     iox_runtime_init(EXPECTED_APP_NAME);
 
-    char actualAppName[iox::MAX_PROCESS_NAME_LENGTH + 1];
-    auto nameLength = iox_runtime_get_instance_name(actualAppName, iox::MAX_PROCESS_NAME_LENGTH + 1);
+    char actualAppName[iox::MAX_RUNTIME_NAME_LENGTH + 1];
+    auto nameLength = iox_runtime_get_instance_name(actualAppName, iox::MAX_RUNTIME_NAME_LENGTH + 1);
 
-    ASSERT_THAT(nameLength, Eq(strnlen(EXPECTED_APP_NAME, iox::MAX_PROCESS_NAME_LENGTH + 1)));
+    ASSERT_THAT(nameLength, Eq(strnlen(EXPECTED_APP_NAME, iox::MAX_RUNTIME_NAME_LENGTH + 1)));
     EXPECT_THAT(actualAppName, StrEq(EXPECTED_APP_NAME));
 }
 
 TEST_F(BindingC_Runtime_test, AppNameLengthIsMax)
 {
-    std::string maxName(iox::MAX_PROCESS_NAME_LENGTH, 's');
+    std::string maxName(iox::MAX_RUNTIME_NAME_LENGTH, 's');
 
     iox_runtime_init(maxName.c_str());
 
-    char actualAppName[iox::MAX_PROCESS_NAME_LENGTH + 1];
-    auto nameLength = iox_runtime_get_instance_name(actualAppName, iox::MAX_PROCESS_NAME_LENGTH + 1);
+    char actualAppName[iox::MAX_RUNTIME_NAME_LENGTH + 1];
+    auto nameLength = iox_runtime_get_instance_name(actualAppName, iox::MAX_RUNTIME_NAME_LENGTH + 1);
 
-    ASSERT_THAT(nameLength, Eq(iox::MAX_PROCESS_NAME_LENGTH));
+    ASSERT_THAT(nameLength, Eq(iox::MAX_RUNTIME_NAME_LENGTH));
 }
 
 TEST_F(BindingC_Runtime_test, AppNameLengthIsOutOfLimit)
 {
-    std::string tooLongName(iox::MAX_PROCESS_NAME_LENGTH + 1, 's');
+    std::string tooLongName(iox::MAX_RUNTIME_NAME_LENGTH + 1, 's');
 
     EXPECT_DEATH({ iox_runtime_init(tooLongName.c_str()); }, "Application name has more than 100 characters!");
 }
@@ -74,19 +74,19 @@ TEST_F(BindingC_Runtime_test, AppNameIsNullptr)
 
 TEST_F(BindingC_Runtime_test, GetInstanceNameIsNullptr)
 {
-    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chucky";
+    constexpr char EXPECTED_APP_NAME[iox::MAX_RUNTIME_NAME_LENGTH + 1] = "chucky";
     iox_runtime_init(EXPECTED_APP_NAME);
 
-    char actualAppName[iox::MAX_PROCESS_NAME_LENGTH + 1];
-    auto nameLength = iox_runtime_get_instance_name(nullptr, iox::MAX_PROCESS_NAME_LENGTH + 1);
+    char actualAppName[iox::MAX_RUNTIME_NAME_LENGTH + 1];
+    auto nameLength = iox_runtime_get_instance_name(nullptr, iox::MAX_RUNTIME_NAME_LENGTH + 1);
 
     ASSERT_THAT(nameLength, Eq(0U));
 }
 
 TEST_F(BindingC_Runtime_test, GetInstanceNameLengthIsLessThanAppNameLength)
 {
-    constexpr char ACTUAL_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chucky";
-    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chuck";
+    constexpr char ACTUAL_APP_NAME[iox::MAX_RUNTIME_NAME_LENGTH + 1] = "chucky";
+    constexpr char EXPECTED_APP_NAME[iox::MAX_RUNTIME_NAME_LENGTH + 1] = "chuck";
     iox_runtime_init(ACTUAL_APP_NAME);
 
     constexpr uint64_t APP_NAME_BUFFER_LENGTH{6};
@@ -97,6 +97,6 @@ TEST_F(BindingC_Runtime_test, GetInstanceNameLengthIsLessThanAppNameLength)
     }
     auto nameLength = iox_runtime_get_instance_name(truncatedAppName, APP_NAME_BUFFER_LENGTH);
 
-    ASSERT_THAT(nameLength, Eq(strnlen(ACTUAL_APP_NAME, iox::MAX_PROCESS_NAME_LENGTH + 1)));
+    ASSERT_THAT(nameLength, Eq(strnlen(ACTUAL_APP_NAME, iox::MAX_RUNTIME_NAME_LENGTH + 1)));
     EXPECT_THAT(truncatedAppName, StrEq(EXPECTED_APP_NAME));
 }

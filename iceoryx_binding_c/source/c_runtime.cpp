@@ -31,7 +31,7 @@ void iox_runtime_init(const char* const name)
         LogError() << "Application name is a nullptr!";
         std::terminate();
     }
-    else if (strnlen(name, iox::MAX_PROCESS_NAME_LENGTH + 1) > MAX_PROCESS_NAME_LENGTH)
+    else if (strnlen(name, iox::MAX_RUNTIME_NAME_LENGTH + 1) > MAX_RUNTIME_NAME_LENGTH)
     {
         LogError() << "Application name has more than 100 characters!";
         std::terminate();
