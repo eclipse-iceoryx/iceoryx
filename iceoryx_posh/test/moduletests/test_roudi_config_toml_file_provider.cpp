@@ -16,6 +16,7 @@
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 
+#include "test_input_path.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -31,7 +32,7 @@ class RoudiConfigTomlFileProvider_test : public TestWithParam<ParseErrorInputFil
     void SetUp()
     {
         // get file path via cmake
-        m_cmdLineArgs.configFilePath = "@POSH_TEST_INPUT_FILES_PATH@";
+        m_cmdLineArgs.configFilePath = iox::testing::TEST_INPUT_PATH;
     }
 
     void TearDown()
@@ -57,7 +58,7 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParseDefaultConfigIsSuccessful)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(
-    AllRouDiConfigFileParseErrors,
+    ParseAllMalformedInputConfigFilesCausesFailures,
     RoudiConfigTomlFileProvider_test,
     Values(ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::NO_GENERAL_SECTION,
                                  "roudi_config_error_no_general.toml"},

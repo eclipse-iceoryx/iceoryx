@@ -28,8 +28,8 @@ set(PROJECT_PREFIX "posh")
 
 # Set path for input files in test
 SET(POSH_TEST_INPUT_FILES_PATH ${CMAKE_CURRENT_SOURCE_DIR}/input/)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_roudi_config_toml_file_provider.cpp.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_roudi_config_toml_file_provider.cpp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_input_path.hpp.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_input_path.hpp)
 
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
