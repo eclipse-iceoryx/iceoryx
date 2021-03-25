@@ -32,18 +32,21 @@ class FiFo
     /// @brief pushes a value into the fifo
     /// @return if the values was pushed successfully into the fifo it returns
     ///         true, otherwise false
-    bool push(const ValueType& f_value);
+    bool push(const ValueType& f_value) noexcept;
 
     /// @brief returns the oldest value from the fifo and removes it
     /// @return if the fifo was not empty the optional contains the value,
     ///         otherwise it contains a nullopt
-    cxx::optional<ValueType> pop();
+    cxx::optional<ValueType> pop() noexcept;
 
     /// @brief returns true when the fifo is empty, otherwise false
-    bool empty() const;
+    bool empty() const noexcept;
+
+    /// @brief returns the size of the fifo
+    uint64_t size() const noexcept;
 
   private:
-    bool is_full() const;
+    bool is_full() const noexcept;
 
   private:
     ValueType m_data[Capacity];

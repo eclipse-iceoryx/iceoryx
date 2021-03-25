@@ -19,6 +19,7 @@
 #include <functional>
 #include <thread>
 
+#include "iceoryx_utils/internal/concurrent/fifo.hpp"
 #include "iceoryx_utils/internal/concurrent/trigger_queue.hpp"
 
 namespace iox
@@ -32,17 +33,15 @@ class ActiveObject
     virtual ~ActiveObject();
     void addTask(const std::function<void()> f);
     void mainLoop();
-    bool isInitialized() const;
     void stopRunning();
 
     friend class cxx::optional<ActiveObject>;
 
   private:
     static constexpr uint32_t taskQueueSize = 128;
-    using taskQueue_t = concurrent::TriggerQueue<std::function<void()>, taskQueueSize>;
+    using taskQueue_t = concurrent::TriggerQueue<std::function<void()>, taskQueueSize, concurrent::FiFo>;
 
-    cxx::optional<taskQueue_t> m_tasks = taskQueue_t::CreateTriggerQueue();
-    bool m_isInitialized = m_tasks.has_value();
+    taskQueue_t m_tasks;
 
     bool m_keepRunning{true};
     std::thread m_mainLoopThread;

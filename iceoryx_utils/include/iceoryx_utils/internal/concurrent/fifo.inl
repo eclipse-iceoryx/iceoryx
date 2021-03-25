@@ -23,7 +23,7 @@ namespace iox
 namespace concurrent
 {
 template <class ValueType, uint64_t Capacity>
-inline bool FiFo<ValueType, Capacity>::push(const ValueType& f_param_r)
+inline bool FiFo<ValueType, Capacity>::push(const ValueType& f_param_r) noexcept
 {
     if (is_full())
     {
@@ -44,19 +44,25 @@ inline bool FiFo<ValueType, Capacity>::push(const ValueType& f_param_r)
 }
 
 template <class ValueType, uint64_t Capacity>
-inline bool FiFo<ValueType, Capacity>::is_full() const
+inline bool FiFo<ValueType, Capacity>::is_full() const noexcept
 {
     return m_write_pos.load(std::memory_order_relaxed) == m_read_pos.load(std::memory_order_relaxed) + Capacity;
 }
 
 template <class ValueType, uint64_t Capacity>
-inline bool FiFo<ValueType, Capacity>::empty() const
+inline uint64_t FiFo<ValueType, Capacity>::size() const noexcept
+{
+    return m_write_pos.load(std::memory_order_relaxed) - m_read_pos.load(std::memory_order_relaxed);
+}
+
+template <class ValueType, uint64_t Capacity>
+inline bool FiFo<ValueType, Capacity>::empty() const noexcept
 {
     return m_read_pos.load(std::memory_order_relaxed) == m_write_pos.load(std::memory_order_relaxed);
 }
 
 template <class ValueType, uint64_t Capacity>
-inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop()
+inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
 {
     auto currentReadPos = m_read_pos.load(std::memory_order_relaxed);
     bool isEmpty = (currentReadPos ==

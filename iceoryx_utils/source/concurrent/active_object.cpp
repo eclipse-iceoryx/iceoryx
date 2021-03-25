@@ -32,24 +32,19 @@ ActiveObject::~ActiveObject()
 
 void ActiveObject::addTask(const std::function<void()> f)
 {
-    m_tasks->push(f);
+    m_tasks.push(f);
 }
 
 void ActiveObject::mainLoop()
 {
     while (m_keepRunning)
     {
-        std::function<void()> task;
-        if (m_tasks->blocking_pop(task) && task)
+        auto task = m_tasks.pop();
+        if (task)
         {
-            task();
+            (*task)();
         }
     }
-}
-
-bool ActiveObject::isInitialized() const
-{
-    return m_isInitialized;
 }
 
 void ActiveObject::stopRunning()
