@@ -61,6 +61,10 @@ class BasePort
     /// @return m_portType  Type of Port in struct BasePortType
     capro::ServiceDescription getCaProServiceDescription() const noexcept;
 
+    /// @brief Returns behaviour in case of a full queue
+    /// @return QueueFullPolicy
+    bool getQueueFullPolicy() const noexcept;
+
     /// @brief Gets Process Name for the active port
     /// @return             Process name as String
     ProcessName_t getProcessName() const noexcept;

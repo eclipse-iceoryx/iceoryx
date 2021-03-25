@@ -52,7 +52,7 @@ struct BasePortData
     capro::ServiceDescription m_serviceDescription;
     ProcessName_t m_processName;
     NodeName_t m_nodeName;
-
+    const bool m_queueFullPolicy{false};
     UniquePortId m_uniqueId;
     std::atomic_bool m_toBeDestroyed{false};
 };
