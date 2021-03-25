@@ -23,6 +23,8 @@ limitations:
 For building and executing the tests you need to have ROS2 installed. Please follow the instructions on https://index.ros.org/doc/ros2/Installation.
 The system tests are currently tested on ROS 2 "Foxy Fitzroy" in Ubuntu 20.04 LTS.
 
+Please remove beforehand the `COLCON_IGNORE` files from `iceoryx_integrationtest` and `iceoryx_examples`.
+
 For a basic setup you need to install the following packages:
 ```bash
 sudo apt install ros-foxy-ros-base ros-foxy-ros-testing ros-foxy-launch-testing ros-foxy-ament-cmake python3-colcon-common-extensions

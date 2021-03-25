@@ -277,7 +277,6 @@ if(TOML_CONFIG)
         find_package(cpptoml_vendor QUIET)
         find_package(cpptoml REQUIRED)
     endif(NOT cpptoml_FOUND)
-    message("-- Build with TOML config file support.")
 
     #
     ######### posh config lib ##########
