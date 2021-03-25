@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,6 +61,10 @@ class BasePort
     /// @brief Reads Type of actual CaPro Port (publisher/subscriber...)
     /// @return m_portType  Type of Port in struct BasePortType
     capro::ServiceDescription getCaProServiceDescription() const noexcept;
+
+    /// @brief Returns behaviour in case of a full delivery queue
+    /// @return QueueFullPolicy What happens if the delivery queue is full
+    QueueFullPolicy getQueueFullPolicy() const noexcept;
 
     /// @brief Gets Process Name for the active port
     /// @return             Process name as String
