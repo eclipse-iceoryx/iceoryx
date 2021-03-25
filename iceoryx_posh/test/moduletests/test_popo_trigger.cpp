@@ -54,11 +54,11 @@ class Trigger_test : public Test
         void* m_moveCallNewOriginArg = nullptr;
     };
 
-    virtual void SetUp()
+    void SetUp() override
     {
         internal::CaptureStderr();
     }
-    virtual void TearDown()
+    void TearDown() override
     {
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -67,16 +67,31 @@ class Trigger_test : public Test
         }
     }
 
-    Trigger createValidTrigger(const uint64_t eventId = 0U)
+    Trigger createValidStateBasedTrigger(const uint64_t eventId = 0U)
     {
         static uint64_t uniqueId = 0U;
-        return Trigger(StateBasedTrigger,
-                       &m_triggerClass,
-                       {m_triggerClass, &TriggerClass::hasTriggered},
-                       {m_triggerClass, &TriggerClass::resetCall},
-                       eventId,
-                       TriggerClass::callback,
-                       uniqueId++);
+        Trigger trigger(StateBasedTrigger,
+                        &m_triggerClass,
+                        {m_triggerClass, &TriggerClass::hasTriggered},
+                        {m_triggerClass, &TriggerClass::resetCall},
+                        eventId,
+                        TriggerClass::callback,
+                        uniqueId++);
+        EXPECT_THAT(trigger.getTriggerType(), Eq(TriggerType::STATE_BASED));
+        return trigger;
+    }
+
+    Trigger createValidEventBasedTrigger(const uint64_t eventId = 0U)
+    {
+        static uint64_t uniqueId = 0U;
+        Trigger trigger(EventBasedTrigger,
+                        &m_triggerClass,
+                        {m_triggerClass, &TriggerClass::resetCall},
+                        eventId,
+                        TriggerClass::callback,
+                        uniqueId++);
+        EXPECT_THAT(trigger.getTriggerType(), Eq(TriggerType::EVENT_BASED));
+        return trigger;
     }
 
     ConditionVariableData m_condVar{"Horscht"};
@@ -85,9 +100,11 @@ class Trigger_test : public Test
 
 Trigger_test::TriggerClass* Trigger_test::TriggerClass::m_lastCallbackArgument = nullptr;
 
+// state based trigger
+
 TEST_F(Trigger_test, TriggerWithValidOriginIsValid)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
 
     EXPECT_TRUE(sut.isValid());
     EXPECT_TRUE(static_cast<bool>(sut));
@@ -95,7 +112,7 @@ TEST_F(Trigger_test, TriggerWithValidOriginIsValid)
 
 TEST_F(Trigger_test, MovedConstructedValidTriggerIsValid)
 {
-    Trigger trigger = createValidTrigger();
+    Trigger trigger = createValidStateBasedTrigger();
     Trigger sut{std::move(trigger)};
 
     EXPECT_TRUE(sut.isValid());
@@ -104,8 +121,8 @@ TEST_F(Trigger_test, MovedConstructedValidTriggerIsValid)
 
 TEST_F(Trigger_test, MovedAssignedValidTriggerIsValid)
 {
-    Trigger sut = createValidTrigger();
-    Trigger trigger = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
+    Trigger trigger = createValidStateBasedTrigger();
     sut = std::move(trigger);
 
     EXPECT_TRUE(sut.isValid());
@@ -114,7 +131,7 @@ TEST_F(Trigger_test, MovedAssignedValidTriggerIsValid)
 
 TEST_F(Trigger_test, MovedConstructedOriginIsInvalidTriggerAfterMove)
 {
-    Trigger trigger = createValidTrigger();
+    Trigger trigger = createValidStateBasedTrigger();
     Trigger sut{std::move(trigger)};
 
     EXPECT_FALSE(trigger.isValid());
@@ -123,8 +140,8 @@ TEST_F(Trigger_test, MovedConstructedOriginIsInvalidTriggerAfterMove)
 
 TEST_F(Trigger_test, MovedAssignedOriginIsInvalidTriggerAfterMove)
 {
-    Trigger sut = createValidTrigger();
-    Trigger trigger = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
+    Trigger trigger = createValidStateBasedTrigger();
     sut = std::move(trigger);
 
     EXPECT_FALSE(trigger.isValid());
@@ -197,13 +214,13 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
 
     EXPECT_TRUE(hasTerminated);
     EXPECT_THAT(errorType, Eq(iox::Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK));
-    EXPECT_TRUE(sut.isValid());
-    EXPECT_TRUE(static_cast<bool>(sut));
+    EXPECT_FALSE(sut.isValid());
+    EXPECT_FALSE(static_cast<bool>(sut));
 }
 
 TEST_F(Trigger_test, ResetInvalidatesTrigger)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
     sut.reset();
 
     EXPECT_FALSE(sut.isValid());
@@ -212,7 +229,7 @@ TEST_F(Trigger_test, ResetInvalidatesTrigger)
 
 TEST_F(Trigger_test, InvalidateInvalidatesTrigger)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
     sut.invalidate();
 
     EXPECT_FALSE(sut.isValid());
@@ -221,7 +238,7 @@ TEST_F(Trigger_test, InvalidateInvalidatesTrigger)
 
 TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
     auto uniqueId = sut.getUniqueId();
     sut.reset();
 
@@ -230,7 +247,7 @@ TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
 
 TEST_F(Trigger_test, ResetSetsTriggerIdToInvalid)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
     sut.reset();
 
     EXPECT_EQ(sut.getUniqueId(), Trigger::INVALID_TRIGGER_ID);
@@ -260,7 +277,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
 
 TEST_F(Trigger_test, TriggerCallsHasTriggeredCallback)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
 
     m_triggerClass.m_hasTriggered = true;
     EXPECT_TRUE(sut.hasTriggered());
@@ -270,7 +287,7 @@ TEST_F(Trigger_test, TriggerCallsHasTriggeredCallback)
 
 TEST_F(Trigger_test, HasTriggeredCallbackReturnsAlwaysFalseWhenInvalid)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
     m_triggerClass.m_hasTriggered = true;
     sut.reset();
 
@@ -280,9 +297,9 @@ TEST_F(Trigger_test, HasTriggeredCallbackReturnsAlwaysFalseWhenInvalid)
 TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
 {
     TriggerClass secondTriggerClass;
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
 
-    sut.updateOrigin(&secondTriggerClass);
+    sut.updateOrigin(secondTriggerClass);
 
     secondTriggerClass.m_hasTriggered = false;
     EXPECT_FALSE(sut.hasTriggered());
@@ -303,7 +320,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFro
                 TriggerClass::callback,
                 uniqueTriggerId);
 
-    sut.updateOrigin(&secondTriggerClass);
+    sut.updateOrigin(secondTriggerClass);
 
     thirdTriggerClass.m_hasTriggered = false;
     EXPECT_FALSE(sut.hasTriggered());
@@ -313,10 +330,10 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFro
 
 TEST_F(Trigger_test, UpdateOriginLeadsToDifferentResetCallback)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidStateBasedTrigger();
     TriggerClass secondTriggerClass;
 
-    sut.updateOrigin(&secondTriggerClass);
+    sut.updateOrigin(secondTriggerClass);
     auto uniqueId = sut.getUniqueId();
     sut.reset();
 
@@ -336,7 +353,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
                 TriggerClass::callback,
                 uniqueTriggerId);
 
-    sut.updateOrigin(&secondTriggerClass);
+    sut.updateOrigin(secondTriggerClass);
     auto uniqueId = sut.getUniqueId();
     sut.reset();
 
@@ -356,7 +373,7 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfEventInfo)
                 TriggerClass::callback,
                 uniqueTriggerId);
 
-    sut.updateOrigin(&secondTriggerClass);
+    sut.updateOrigin(secondTriggerClass);
     EXPECT_TRUE(sut.getEventInfo().doesOriginateFrom(&secondTriggerClass));
 }
 
@@ -438,3 +455,121 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualWhenInvalid)
 
     EXPECT_FALSE(sut1.isLogicalEqualTo(&m_triggerClass, {m_triggerClass, &TriggerClass::hasTriggered}));
 }
+
+// event based trigger
+
+TEST_F(Trigger_test, ValidEventBasedTriggerIsValidAndAlwaysTriggered)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    EXPECT_TRUE(sut.isValid());
+    EXPECT_TRUE(sut.hasTriggered());
+    EXPECT_THAT(sut.getUniqueId(), Ne(Trigger::INVALID_TRIGGER_ID));
+    EXPECT_THAT(sut.getTriggerType(), Eq(TriggerType::EVENT_BASED));
+}
+
+TEST_F(Trigger_test, InvalidatedEventBasedTriggerIsNotValidAndNotTriggered)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    sut.invalidate();
+
+    EXPECT_FALSE(sut.isValid());
+    EXPECT_FALSE(sut.hasTriggered());
+    EXPECT_THAT(sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
+    EXPECT_THAT(sut.getTriggerType(), Eq(TriggerType::INVALID));
+}
+
+TEST_F(Trigger_test, ResetEventBasedTriggerIsNotValidAndNotTriggered)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    sut.reset();
+
+    EXPECT_FALSE(sut.isValid());
+    EXPECT_FALSE(sut.hasTriggered());
+    EXPECT_THAT(sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
+}
+
+TEST_F(Trigger_test, ValidEventBasedTriggerIsLogicalEqualToSameEventOriginAndEmptyHasTriggeredCallback)
+{
+    Trigger sut = createValidEventBasedTrigger();
+
+    EXPECT_TRUE(sut.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
+}
+
+TEST_F(Trigger_test, ValidEventBasedTriggerIsNotLogicalEqualToSameEventOriginAndNonEmptyHasTriggeredCallback)
+{
+    Trigger sut = createValidEventBasedTrigger();
+
+    EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, {m_triggerClass, &TriggerClass::hasTriggered}));
+}
+
+TEST_F(Trigger_test, ValidEventBasedTriggerIsNotLogicalEqualToDifferentEventOriginAndEmptyHasTriggeredCallback)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    TriggerClass anotherTriggerClass;
+
+    EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, cxx::ConstMethodCallback<bool>()));
+}
+
+TEST_F(Trigger_test, ValidEventBasedTriggerIsNotLogicalEqualToDifferentEventOriginAndNonEmptyHasTriggeredCallback)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    TriggerClass anotherTriggerClass;
+
+    EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, {m_triggerClass, &TriggerClass::hasTriggered}));
+}
+
+TEST_F(Trigger_test, InvalidEventBasedTriggerIsLogicalEqualToSameEventOriginAndEmptyHasTriggeredCallback)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    sut.invalidate();
+
+    EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
+}
+
+TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToSameEventOriginAndNonEmptyHasTriggeredCallback)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    sut.invalidate();
+
+    EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, {m_triggerClass, &TriggerClass::hasTriggered}));
+}
+
+TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToDifferentEventOriginAndEmptyHasTriggeredCallback)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    sut.invalidate();
+    TriggerClass anotherTriggerClass;
+
+    EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, cxx::ConstMethodCallback<bool>()));
+}
+
+TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToDifferentEventOriginAndNonEmptyHasTriggeredCallback)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    sut.invalidate();
+    TriggerClass anotherTriggerClass;
+
+    EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, {m_triggerClass, &TriggerClass::hasTriggered}));
+}
+
+TEST_F(Trigger_test, ValidEventBasedTriggerUpdateOriginWorks)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    TriggerClass anotherTriggerClass;
+    sut.updateOrigin(anotherTriggerClass);
+
+    EXPECT_TRUE(sut.isLogicalEqualTo(&anotherTriggerClass, cxx::ConstMethodCallback<bool>()));
+    EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
+}
+
+TEST_F(Trigger_test, InvalidEventBasedTriggerUpdateOriginDoesNotWork)
+{
+    Trigger sut = createValidEventBasedTrigger();
+    sut.invalidate();
+    TriggerClass anotherTriggerClass;
+    sut.updateOrigin(anotherTriggerClass);
+
+    EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, cxx::ConstMethodCallback<bool>()));
+    EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
+}
+

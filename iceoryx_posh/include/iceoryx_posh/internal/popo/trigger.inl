@@ -39,6 +39,7 @@ inline Trigger::Trigger(T* const eventOrigin,
     if (!resetCallback)
     {
         errorHandler(Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+        invalidate();
     }
 }
 
@@ -55,6 +56,7 @@ inline Trigger::Trigger(StateBasedTrigger_t,
     if (!hasTriggeredCallback)
     {
         errorHandler(Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
+        invalidate();
     }
 }
 
@@ -76,21 +78,21 @@ inline Trigger::Trigger(EventBasedTrigger_t,
 }
 
 template <typename T>
-inline void Trigger::updateOrigin(T* const newOrigin) noexcept
+inline void Trigger::updateOrigin(T& newOrigin) noexcept
 {
-    if (newOrigin != m_eventInfo.m_eventOrigin)
+    if (isValid() && &newOrigin != m_eventInfo.m_eventOrigin)
     {
         if (m_hasTriggeredCallback && m_hasTriggeredCallback.getObjectPointer<T>() == m_eventInfo.m_eventOrigin)
         {
-            m_hasTriggeredCallback.setCallback(*newOrigin, m_hasTriggeredCallback.getMethodPointer<T>());
+            m_hasTriggeredCallback.setCallback(newOrigin, m_hasTriggeredCallback.getMethodPointer<T>());
         }
 
         if (m_resetCallback && m_resetCallback.getObjectPointer<T>() == m_eventInfo.m_eventOrigin)
         {
-            m_resetCallback.setCallback(*newOrigin, m_resetCallback.getMethodPointer<T>());
+            m_resetCallback.setCallback(newOrigin, m_resetCallback.getMethodPointer<T>());
         }
 
-        m_eventInfo.m_eventOrigin = newOrigin;
+        m_eventInfo.m_eventOrigin = &newOrigin;
     }
 }
 

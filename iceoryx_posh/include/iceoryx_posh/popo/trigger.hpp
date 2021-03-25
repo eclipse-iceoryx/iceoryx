@@ -42,7 +42,8 @@ constexpr EventBasedTrigger_t EventBasedTrigger{};
 enum class TriggerType
 {
     STATE_BASED,
-    EVENT_BASED
+    EVENT_BASED,
+    INVALID
 };
 
 /// @brief The Trigger class is usually managed by a factory class like a
@@ -115,6 +116,7 @@ class Trigger
     bool isValid() const noexcept;
 
     /// @brief returns the result of the provided hasTriggeredCallback
+    ///        an event based trigger returns always true when its valid
     bool hasTriggered() const noexcept;
 
     /// @brief resets and invalidates the Trigger
@@ -136,7 +138,7 @@ class Trigger
     /// @brief sets a new origin of the trigger
     /// @param[in] newOrigin pointer to the new origin
     template <typename T>
-    void updateOrigin(T* const newOrigin) noexcept;
+    void updateOrigin(T& newOrigin) noexcept;
 
     /// @brief returns the EventInfo
     const EventInfo& getEventInfo() const noexcept;

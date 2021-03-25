@@ -35,6 +35,8 @@ bool Trigger::hasTriggered() const noexcept
         return (isValid()) ? m_hasTriggeredCallback().value() : false;
     case TriggerType::EVENT_BASED:
         return isValid();
+    case TriggerType::INVALID:
+        return false;
     };
     return false;
 }
@@ -62,6 +64,7 @@ void Trigger::invalidate() noexcept
     m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
     m_resetCallback = cxx::MethodCallback<void, uint64_t>();
     m_uniqueId = INVALID_TRIGGER_ID;
+    m_triggerType = TriggerType::INVALID;
 }
 
 Trigger::operator bool() const noexcept
