@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
 #define IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
 
-#include "base_options.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "port_queue_policies.hpp"
 #include <cstdint>
 
 namespace iox

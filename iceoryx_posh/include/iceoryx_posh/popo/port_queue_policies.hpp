@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_BASE_OPTIONS_HPP
-#define IOX_POSH_POPO_BASE_OPTIONS_HPP
+#ifndef IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
+#define IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
 
 #include <cstdint>
 
@@ -37,4 +37,4 @@ enum class QueueFullPolicy : uint8_t
 };
 } // namespace popo
 } // namespace iox
-#endif // IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
+#endif // IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP

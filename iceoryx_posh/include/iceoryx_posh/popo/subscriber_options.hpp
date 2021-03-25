@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 #define IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 
-#include "base_options.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "port_queue_policies.hpp"
 
 #include <cstdint>
 
