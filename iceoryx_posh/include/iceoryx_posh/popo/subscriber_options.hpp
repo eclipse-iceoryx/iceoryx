@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 #define IOX_POSH_POPO_SUBSCRIBER_OPTIONS_HPP
 
+#include "base_options.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 
 #include <cstdint>
@@ -40,6 +41,9 @@ struct SubscriberOptions
 
     /// @brief The option whether the subscriber shall try to subscribe when creating it
     bool subscribeOnCreate{true};
+
+    /// @brief The option whether the publisher should block when the subscriber queue is full
+    QueueFullPolicy receiverQueueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
 };
 
 } // namespace popo

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
 #define IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
 
+#include "base_options.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include <cstdint>
 
@@ -35,6 +36,9 @@ struct PublisherOptions
 
     /// @brief The option whether the publisher should already be offered when creating it
     bool offerOnCreate{true};
+
+    /// @brief The option whether the publisher should block when the subscriber queue is full
+    QueueFullPolicy deliveryQueueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
 };
 
 } // namespace popo
