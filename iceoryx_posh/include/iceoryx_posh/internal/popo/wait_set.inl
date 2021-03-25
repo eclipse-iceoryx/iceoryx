@@ -58,9 +58,9 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
         return cxx::error<WaitSetError>(WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET);
     }
 
-    for (auto& currentTrigger : m_triggerList)
+    for (auto& currentTrigger : m_triggerArray)
     {
-        if (currentTrigger.isLogicalEqualTo(&eventOrigin, hasTriggeredCallback))
+        if (currentTrigger && currentTrigger->isLogicalEqualTo(&eventOrigin, hasTriggeredCallback))
         {
             return cxx::error<WaitSetError>(WaitSetError::EVENT_ALREADY_ATTACHED);
         }
@@ -74,8 +74,8 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
     }
 
 
-    cxx::Ensures(m_triggerList.push_back(
-        Trigger{&eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback, *index}));
+    m_triggerArray[*index].emplace(
+        &eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback, *index);
 
     return cxx::success<uint64_t>(*index);
 }
@@ -138,12 +138,12 @@ inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args)
 template <uint64_t Capacity>
 inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    for (auto currentTrigger = m_triggerList.begin(); currentTrigger != m_triggerList.end(); ++currentTrigger)
+    for (auto& trigger : m_triggerArray)
     {
-        if (currentTrigger->getUniqueId() == uniqueTriggerId)
+        if (trigger.has_value() && trigger->getUniqueId() == uniqueTriggerId)
         {
-            currentTrigger->invalidate();
-            m_triggerList.erase(currentTrigger);
+            trigger->invalidate();
+            trigger.reset();
             cxx::Ensures(m_indexRepository.push(uniqueTriggerId));
             return;
         }
@@ -153,42 +153,48 @@ inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noe
 template <uint64_t Capacity>
 inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 {
-    for (auto& trigger : m_triggerList)
+    for (auto& trigger : m_triggerArray)
     {
         trigger.reset();
     }
-
-    m_triggerList.clear();
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionListener.timedWait(timeout); });
+    return waitAndReturnTriggeredTriggers([this, timeout] { return this->m_conditionListener.timedWait(timeout); });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
 {
-    return waitAndReturnTriggeredTriggers([this] {
-        m_conditionListener.wait();
-        return false;
-    });
+    return waitAndReturnTriggeredTriggers([this] { return this->m_conditionListener.wait(); });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
 {
     EventInfoVector triggers;
-    for (auto& currentTrigger : m_triggerList)
+    if (!m_activeNotifications.empty())
     {
-        if (currentTrigger.hasTriggered())
+        for (uint64_t i = m_activeNotifications.size() - 1U;; --i)
         {
-            // We do not need to verify if push_back was successful since
-            // m_conditionVector and triggers are having the same type, a
-            // vector with the same guaranteed capacity.
-            // Therefore it is guaranteed that push_back works!
-            triggers.push_back(&currentTrigger.getEventInfo());
+            auto index = m_activeNotifications[i];
+            auto& trigger = m_triggerArray[index];
+
+            if (trigger && trigger->hasTriggered())
+            {
+                cxx::Expects(triggers.push_back(&m_triggerArray[index]->getEventInfo()));
+            }
+            else
+            {
+                m_activeNotifications.erase(m_activeNotifications.begin() + i);
+            }
+
+            if (i == 0U)
+            {
+                break;
+            }
         }
     }
 
@@ -196,52 +202,51 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
 }
 
 template <uint64_t Capacity>
-template <typename WaitFunction>
+inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) noexcept
+{
+    auto notificationVector = wait();
+    if (m_activeNotifications.empty())
+    {
+        m_activeNotifications = notificationVector;
+    }
+    else if (!notificationVector.empty())
+    {
+        m_activeNotifications = algorithm::uniqueMergeSortedContainers(notificationVector, m_activeNotifications);
+    }
+}
+
+template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector
 WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
-    WaitSet::EventInfoVector triggers;
+    if (m_conditionListener.wasNotified())
+    {
+        this->acquireNotifications(wait);
+    }
 
-    /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
-    m_conditionListener.resetSemaphore();
-    triggers = createVectorWithTriggeredTriggers();
+    EventInfoVector triggers = createVectorWithTriggeredTriggers();
 
-    // It is possible that after the reset call and before the createVectorWithTriggeredTriggers call
-    // another trigger came in. Then createVectorWithTriggeredTriggers would have already handled it.
-    // But this would lead to an empty triggers vector in the next run if no other trigger
-    // came in.
     if (!triggers.empty())
     {
         return triggers;
     }
 
-    return (wait()) ? triggers : createVectorWithTriggeredTriggers();
+    acquireNotifications(wait);
+    return createVectorWithTriggeredTriggers();
 }
 
 template <uint64_t Capacity>
 inline uint64_t WaitSet<Capacity>::size() const noexcept
 {
-    return m_triggerList.size();
+    return Capacity - m_indexRepository.size();
 }
 
 template <uint64_t Capacity>
-inline uint64_t WaitSet<Capacity>::capacity() const noexcept
+inline constexpr uint64_t WaitSet<Capacity>::capacity() noexcept
 {
-    return m_triggerList.capacity();
+    return Capacity;
 }
 
-template <uint64_t Capacity>
-template <typename T>
-inline void WaitSet<Capacity>::moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept
-{
-    for (auto& currentTrigger : m_triggerList)
-    {
-        if (currentTrigger.isLogicalEqualTo(trigger))
-        {
-            currentTrigger.updateOrigin(newOrigin);
-        }
-    }
-}
 
 } // namespace popo
 } // namespace iox

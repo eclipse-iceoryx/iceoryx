@@ -134,3 +134,56 @@ TEST_F(Helplets_test, bestFittingTypeUsesUint32WhenValueGreater2p32)
 {
     EXPECT_TRUE((std::is_same<BestFittingType_t<42949672961U>, uint64_t>::value));
 }
+
+template <class T>
+class Helplets_test_isPowerOfTwo : public Helplets_test
+{
+  public:
+    using CurrentType = T;
+
+    static constexpr T MAX = std::numeric_limits<T>::max();
+    static constexpr T MAX_POWER_OF_TWO = MAX / 2U + 1U;
+};
+
+using HelpletsIsPowerOfTwoTypes = Types<uint8_t, uint16_t, uint32_t, uint64_t, size_t>;
+
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+TYPED_TEST_CASE(Helplets_test_isPowerOfTwo, HelpletsIsPowerOfTwoTypes);
+#pragma GCC diagnostic pop
+
+TYPED_TEST(Helplets_test_isPowerOfTwo, OneIsPowerOfTwo)
+{
+    EXPECT_TRUE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(1)));
+}
+
+TYPED_TEST(Helplets_test_isPowerOfTwo, TwoIsPowerOfTwo)
+{
+    EXPECT_TRUE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(2)));
+}
+
+TYPED_TEST(Helplets_test_isPowerOfTwo, FourIsPowerOfTwo)
+{
+    EXPECT_TRUE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(4)));
+}
+
+TYPED_TEST(Helplets_test_isPowerOfTwo, MaxPossiblePowerOfTwoForTypeIsPowerOfTwo)
+{
+    EXPECT_TRUE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(TestFixture::MAX_POWER_OF_TWO)));
+}
+
+TYPED_TEST(Helplets_test_isPowerOfTwo, ZeroIsNotPowerOfTwo)
+{
+    EXPECT_FALSE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(0)));
+}
+
+TYPED_TEST(Helplets_test_isPowerOfTwo, FourtyTwoIsNotPowerOfTwo)
+{
+    EXPECT_FALSE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(42)));
+}
+
+TYPED_TEST(Helplets_test_isPowerOfTwo, MaxValueForTypeIsNotPowerOfTwo)
+{
+    EXPECT_FALSE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(TestFixture::MAX)));
+}

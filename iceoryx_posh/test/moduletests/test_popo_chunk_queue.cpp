@@ -42,11 +42,16 @@ class ChunkQueue_testBase
     {
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
-        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(),
-                                                           PAYLOAD_SIZE,
-                                                           iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                                           iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                                           iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+
+        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
         new (chunkMgmt) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return SharedChunk(chunkMgmt);
     }
@@ -57,8 +62,8 @@ class ChunkQueue_testBase
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
     MemPool mempool{
-        sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
-    MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
+        sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
+    MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5U};
 };
@@ -185,8 +190,8 @@ TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
     auto chunk = this->allocateChunk();
     this->m_pusher.push(chunk);
 
-    EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(true));
-    EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
+    EXPECT_THAT(condVarWaiter.timedWait(1_ns).empty(), Eq(false));
+    EXPECT_THAT(condVarWaiter.timedWait(1_ns).empty(), Eq(true)); // shouldn't trigger a second time
 }
 
 TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
@@ -199,14 +204,14 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
     this->m_popper.setConditionVariable(condVar1, 0U);
     this->m_popper.setConditionVariable(condVar2, 1U);
 
-    EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
-    EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ns).empty(), Eq(true));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ns).empty(), Eq(true));
 
     auto chunk = this->allocateChunk();
     this->m_pusher.push(chunk);
 
-    EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(false));
-    EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(true));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ms).empty(), Eq(true));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ms).empty(), Eq(false));
 }
 
 /// @note this could be changed to a parameterized ChunkQueueSaturatingFIFO_test when there are more FIFOs available

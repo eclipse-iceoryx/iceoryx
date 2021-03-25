@@ -84,7 +84,7 @@ void Listener::threadLoop() noexcept
 {
     while (m_wasDtorCalled.load(std::memory_order_relaxed) == false)
     {
-        auto activateNotificationIds = m_conditionListener.waitForNotifications();
+        auto activateNotificationIds = m_conditionListener.wait();
 
         cxx::forEach(activateNotificationIds, [this](auto id) { m_events[id]->executeCallback(); });
     }

@@ -46,7 +46,7 @@ class alignas(32) TypedMemPool_test : public Test
 
     TypedMemPool_test()
         : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
-        , sut(NumberOfChunks, &allocator, &allocator)
+        , sut(NumberOfChunks, allocator, allocator)
     {
     }
 
@@ -118,7 +118,7 @@ class alignas(32) TypedMemPool_Semaphore_test : public Test
 
     TypedMemPool_Semaphore_test()
         : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
-        , sut(NumberOfChunks, &allocator, &allocator)
+        , sut(NumberOfChunks, allocator, allocator)
     {
     }
 

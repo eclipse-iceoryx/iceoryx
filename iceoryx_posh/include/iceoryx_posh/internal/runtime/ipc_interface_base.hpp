@@ -23,7 +23,7 @@
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
