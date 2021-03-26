@@ -73,6 +73,7 @@ class Trigger
     /// @param[in] eventId id of the corresponding event
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
+    /// @param[in] uniqueId a context wide unique id to identify the trigger
     template <typename T>
     Trigger(StateBasedTrigger_t,
             T* const eventOrigin,
@@ -83,15 +84,14 @@ class Trigger
             const uint64_t uniqueId) noexcept;
 
     /// @brief Creates an event based Trigger
-    /// @param[in] StateBasedTrigger_t signals that we are creating a state based trigger
+    /// @param[in] EventBasedTrigger_t signals that we are creating a event based trigger
     /// @param[in] eventOrigin pointer to the class where the signal originates from, if its set to nullptr the Trigger
     /// is in a defined but invalid state
-    /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
-    /// empty callback is set the trigger is in a defined but invalid state.
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
     /// @param[in] eventId id of the corresponding event
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
+    /// @param[in] uniqueId a context wide unique id to identify the trigger
     template <typename T>
     Trigger(EventBasedTrigger_t,
             T* const eventOrigin,
@@ -116,7 +116,7 @@ class Trigger
     bool isValid() const noexcept;
 
     /// @brief returns the result of the provided hasTriggeredCallback
-    ///        an event based trigger returns always true when its valid
+    /// @note  an event based trigger returns always true when it's valid
     bool hasTriggered() const noexcept;
 
     /// @brief resets and invalidates the Trigger
@@ -136,7 +136,7 @@ class Trigger
                           const cxx::ConstMethodCallback<bool>& hasTriggeredCallback) const noexcept;
 
     /// @brief sets a new origin of the trigger
-    /// @param[in] newOrigin pointer to the new origin
+    /// @param[in] newOrigin reference to the new origin
     template <typename T>
     void updateOrigin(T& newOrigin) noexcept;
 
