@@ -45,7 +45,7 @@ uint64_t iox_node_get_name(iox_node_t const self, char* const name, const uint64
 /// @param[in] name pointer to a memory location where the name can be written to
 /// @param[in] nameCapacity size of the memory location where the name is written to
 /// @return the actual length of the runtime name, if the return value is greater
-///         then nameCapacity the name is truncated.
+///         than nameCapacity the name is truncated.
 ///         If name is a nullptr, 0 will be returned.
 uint64_t iox_node_get_runtime_name(iox_node_t const self, char* const name, const uint64_t nameCapacity);
 

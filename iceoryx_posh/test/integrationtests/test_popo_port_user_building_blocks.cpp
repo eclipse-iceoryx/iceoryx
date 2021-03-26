@@ -46,8 +46,8 @@ struct DummySample
 };
 
 static const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
-static const iox::RuntimeName_t TEST_SUBSCRIBER_APP_NAME("mySubscriberApp");
-static const iox::RuntimeName_t TEST_PUBLISHER_APP_NAME("myPublisherApp");
+static const iox::RuntimeName_t TEST_SUBSCRIBER_RUNTIME_NAME("mySubscriberApp");
+static const iox::RuntimeName_t TEST_PUBLISHER_RUNTIME_NAME("myPublisherApp");
 
 static constexpr uint32_t NUMBER_OF_PUBLISHERS = 17U;
 static constexpr uint32_t ITERATIONS = 1000U;
@@ -75,10 +75,10 @@ class PortUser_IntegrationTest : public Test
     {
         for (uint32_t i = 0U; i < NUMBER_OF_PUBLISHERS; i++)
         {
-            std::stringstream publisherAppName;
-            publisherAppName << TEST_PUBLISHER_APP_NAME << i;
+            std::stringstream publisherRuntimeName;
+            publisherRuntimeName << TEST_PUBLISHER_RUNTIME_NAME << i;
 
-            iox::RuntimeName_t runtimeName(TruncateToCapacity, publisherAppName.str().c_str());
+            iox::RuntimeName_t runtimeName(TruncateToCapacity, publisherRuntimeName.str().c_str());
 
             m_publisherPortDataVector.emplace_back(
                 TEST_SERVICE_DESCRIPTION, runtimeName, &m_memoryManager, PublisherOptions());
@@ -120,7 +120,7 @@ class PortUser_IntegrationTest : public Test
 
     // subscriber port for single producer
     SubscriberPortData m_subscriberPortDataSingleProducer{TEST_SERVICE_DESCRIPTION,
-                                                          TEST_SUBSCRIBER_APP_NAME,
+                                                          TEST_SUBSCRIBER_RUNTIME_NAME,
                                                           VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                                           SubscriberOptions()};
     SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
@@ -128,7 +128,7 @@ class PortUser_IntegrationTest : public Test
 
     // subscriber port for multi producer
     SubscriberPortData m_subscriberPortDataMultiProducer{TEST_SERVICE_DESCRIPTION,
-                                                         TEST_SUBSCRIBER_APP_NAME,
+                                                         TEST_SUBSCRIBER_RUNTIME_NAME,
                                                          VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
                                                          SubscriberOptions()};
     SubscriberPortUser m_subscriberPortUserMultiProducer{&m_subscriberPortDataMultiProducer};

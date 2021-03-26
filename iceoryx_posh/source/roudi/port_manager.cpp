@@ -689,16 +689,16 @@ void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& servic
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& process,
-                                                                              const NodeName_t& node) noexcept
+cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,
+                                                                              const NodeName_t& nodeName) noexcept
 {
-    return m_portPool->addNodeData(process, node, 0);
+    return m_portPool->addNodeData(runtimeName, nodeName, 0);
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortManager::acquireConditionVariableData(const RuntimeName_t& process) noexcept
+PortManager::acquireConditionVariableData(const RuntimeName_t& runtimeName) noexcept
 {
-    return m_portPool->addConditionVariableData(process);
+    return m_portPool->addConditionVariableData(runtimeName);
 }
 
 } // namespace roudi

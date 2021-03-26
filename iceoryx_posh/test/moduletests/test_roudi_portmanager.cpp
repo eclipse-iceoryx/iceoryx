@@ -65,7 +65,7 @@ class PortManager_test : public Test
 
     uint16_t m_instIdCounter, m_eventIdCounter, m_sIdCounter;
 
-    iox::RuntimeName_t m_runtimeName{"TestProcess"};
+    iox::RuntimeName_t m_runtimeName{"TestApp"};
 
     void SetUp() override
     {
@@ -693,14 +693,14 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
 
 TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
 {
-    iox::RuntimeName_t runtimeName1 = "myProcess1";
-    iox::RuntimeName_t runtimeName2 = "myProcess2";
+    iox::RuntimeName_t runtimeName1 = "myApp1";
+    iox::RuntimeName_t runtimeName2 = "myApp2";
     iox::capro::ServiceDescription cap1(1, 1, 1);
     iox::capro::ServiceDescription cap2(2, 2, 2);
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
 
-    // two processes process1 and process2 each with a publisher and subscriber that match to the other process
+    // two applications app1 and app2 each with a publisher and subscriber that match to the other applications
     auto publisherData1 =
         m_portManager
             ->acquirePublisherPortData(cap1, publisherOptions, runtimeName1, m_payloadMemoryManager, PortConfigInfo())

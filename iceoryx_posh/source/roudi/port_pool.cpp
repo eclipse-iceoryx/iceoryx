@@ -79,13 +79,13 @@ PortPool::addApplicationPort(const RuntimeName_t& runtimeName) noexcept
     }
 }
 
-cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const RuntimeName_t& process,
-                                                                       const NodeName_t& node,
+cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const RuntimeName_t& runtimeName,
+                                                                       const NodeName_t& nodeName,
                                                                        const uint64_t nodeDeviceIdentifier) noexcept
 {
     if (m_portPoolData->m_nodeMembers.hasFreeSpace())
     {
-        auto nodeData = m_portPoolData->m_nodeMembers.insert(process, node, nodeDeviceIdentifier);
+        auto nodeData = m_portPoolData->m_nodeMembers.insert(runtimeName, nodeName, nodeDeviceIdentifier);
         return cxx::success<runtime::NodeData*>(nodeData);
     }
     else
@@ -96,11 +96,11 @@ cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const Run
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortPool::addConditionVariableData(const RuntimeName_t& process) noexcept
+PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
 {
     if (m_portPoolData->m_conditionVariableMembers.hasFreeSpace())
     {
-        auto conditionVariableData = m_portPoolData->m_conditionVariableMembers.insert(process);
+        auto conditionVariableData = m_portPoolData->m_conditionVariableMembers.insert(runtimeName);
         return cxx::success<popo::ConditionVariableData*>(conditionVariableData);
     }
     else

@@ -55,7 +55,7 @@ class ProcessIntrospection
     /// @param[in] name is the name of the process
     void addProcess(const int pid, const RuntimeName_t& name) noexcept;
 
-    /// @brief This function is used to remove process to the process introspection
+    /// @brief This function is used to remove the process from the process introspection
     /// @param[in] pid is the PID of the process to remove
     void removeProcess(const int pid) noexcept;
 
@@ -64,7 +64,7 @@ class ProcessIntrospection
     /// @param[in] nodeName is the name of the node to add
     void addNode(const RuntimeName_t& runtimeName, const NodeName_t& node) noexcept;
 
-    /// @brief This function is used to remove a node to the process introspection
+    /// @brief This function is used to remove a node from the process introspection
     /// @param[in] runtimeName is the name of the proces
     /// @param[in] nodeName is the name of the node to remove
     void removeNode(const RuntimeName_t& runtimeName, const NodeName_t& node) noexcept;

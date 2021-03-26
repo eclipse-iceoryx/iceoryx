@@ -66,7 +66,7 @@ class BasePort
     /// @return runtime name as String
     RuntimeName_t getRuntimeName() const noexcept;
 
-    /// @brief Gets Id of thethe active port
+    /// @brief Gets Id of the active port
     /// @return UniqueId name as Integer
     UniquePortId getUniqueID() const noexcept;
 

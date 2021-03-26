@@ -79,15 +79,15 @@ class PortManager
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const RuntimeName_t& runtimeName,
-                                                      const NodeName_t& node = {""}) noexcept;
+                                                      const NodeName_t& nodeName = {""}) noexcept;
 
     popo::ApplicationPortData* acquireApplicationPortData(const RuntimeName_t& runtimeName) noexcept;
 
-    cxx::expected<runtime::NodeData*, PortPoolError> acquireNodeData(const RuntimeName_t& process,
-                                                                     const NodeName_t& node) noexcept;
+    cxx::expected<runtime::NodeData*, PortPoolError> acquireNodeData(const RuntimeName_t& runtimeName,
+                                                                     const NodeName_t& nodeName) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
-    acquireConditionVariableData(const RuntimeName_t& process) noexcept;
+    acquireConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
     void deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept;
 

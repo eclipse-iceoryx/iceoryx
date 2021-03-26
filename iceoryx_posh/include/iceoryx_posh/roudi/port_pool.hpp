@@ -100,10 +100,10 @@ class PortPool
     addApplicationPort(const RuntimeName_t& runtimeName) noexcept;
 
     cxx::expected<runtime::NodeData*, PortPoolError>
-    addNodeData(const RuntimeName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept;
+    addNodeData(const RuntimeName_t& runtimeName, const NodeName_t& nodeName, const uint64_t nodeDeviceIdentifier) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
-    addConditionVariableData(const RuntimeName_t& process) noexcept;
+    addConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
     void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept;
     void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;
