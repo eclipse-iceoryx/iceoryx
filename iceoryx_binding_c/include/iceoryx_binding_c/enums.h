@@ -35,6 +35,13 @@ enum iox_SubscribeState
     SubscribeState_UNDEFINED_ERROR,
 };
 
+/// @brief used by subscriber; describes whether a publisher blocks when subscriber queue is full
+enum iox_QueueFullPolicy
+{
+    QueueFullPolicy_BLOCK_PUBLISHER,
+    QueueFullPolicy_DISCARD_OLDEST_DATA,
+};
+
 /// @brief describes the state of getChunk in the subscriber
 enum iox_ChunkReceiveResult
 {
