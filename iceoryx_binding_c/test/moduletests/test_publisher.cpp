@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
@@ -280,6 +281,7 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     sut.historyCapacity = 37;
     sut.nodeName = "Dr.Gonzo";
     sut.offerOnCreate = false;
+    sut.deliveryQueueFullPolicy = SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
 
     PublisherOptions options;
     // set offerOnCreate to the opposite of the expected default to check if it gets overwritten to default
@@ -289,6 +291,7 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.offerOnCreate, options.offerOnCreate);
+    EXPECT_EQ(c2cpp::SubscriberTooSlowPolicy(sut.deliveryQueueFullPolicy), options.deliveryQueueFullPolicy);
     EXPECT_TRUE(iox_pub_options_is_initialized(&sut));
 }
 

@@ -24,7 +24,8 @@
 
 namespace c2cpp
 {
-iox::popo::QueueFullPolicy QueueFullPolicy(const ENUM iox_QueueFullPolicy value);
+iox::popo::SubscriberTooSlowPolicy SubscriberTooSlowPolicy(const ENUM iox_SubscriberTooSlowPolicy policy);
+iox::popo::QueueFullPolicy QueueFullPolicy(const ENUM iox_QueueFullPolicy policy);
 } // namespace c2cpp
 
 #endif

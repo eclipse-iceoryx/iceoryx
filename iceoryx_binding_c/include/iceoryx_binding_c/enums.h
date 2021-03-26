@@ -35,13 +35,6 @@ enum iox_SubscribeState
     SubscribeState_UNDEFINED_ERROR,
 };
 
-/// @brief used by subscriber; describes whether a publisher blocks when subscriber queue is full
-enum iox_QueueFullPolicy
-{
-    QueueFullPolicy_BLOCK_PUBLISHER,
-    QueueFullPolicy_DISCARD_OLDEST_DATA,
-};
-
 /// @brief describes the state of getChunk in the subscriber
 enum iox_ChunkReceiveResult
 {
@@ -49,6 +42,20 @@ enum iox_ChunkReceiveResult
     ChunkReceiveResult_NO_CHUNK_AVAILABLE,
     ChunkReceiveResult_UNDEFINED_ERROR,
     ChunkReceiveResult_SUCCESS,
+};
+
+/// @brief used by subscriber; describes whether a publisher blocks when subscriber queue is full
+enum iox_QueueFullPolicy
+{
+    QueueFullPolicy_BLOCK_PUBLISHER,
+    QueueFullPolicy_DISCARD_OLDEST_DATA,
+};
+
+/// @brief used by publisher; describes whether a publisher blocks when subscriber queue is full
+enum iox_SubscriberTooSlowPolicy
+{
+    SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER,
+    SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA,
 };
 
 /// @brief state of allocateChunk

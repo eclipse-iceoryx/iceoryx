@@ -19,9 +19,20 @@
 
 namespace c2cpp
 {
-iox::popo::QueueFullPolicy QueueFullPolicy(const ENUM iox_QueueFullPolicy value)
+iox::popo::SubscriberTooSlowPolicy SubscriberTooSlowPolicy(const ENUM iox_SubscriberTooSlowPolicy policy)
 {
-    switch (value)
+    switch (policy)
+    {
+    case SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER:
+        return iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+    default:
+        return iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
+    }
+}
+
+iox::popo::QueueFullPolicy QueueFullPolicy(const ENUM iox_QueueFullPolicy policy)
+{
+    switch (policy)
     {
     case QueueFullPolicy_BLOCK_PUBLISHER:
         return iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;

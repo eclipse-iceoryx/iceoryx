@@ -375,6 +375,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     sut.historyRequest = 73;
     sut.nodeName = "Dr.Gonzo";
     sut.subscribeOnCreate = false;
+    sut.receiverQueueFullPolicy = QueueFullPolicy_BLOCK_PUBLISHER;
 
     SubscriberOptions options;
     // set subscribeOnCreate to the opposite of the expected default to check if it gets overwritten to default
