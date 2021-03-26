@@ -49,7 +49,12 @@ class Publisher : public base_publisher_t, public PublisherInterface<T, H>
     static_assert(!std::is_void<H>::value, "Custom header must not be void.");
 
     static_assert(!std::is_const<T>::value, "The type must not be const.");
+    static_assert(!std::is_reference<T>::value, "The type must not be a reference.");
+    static_assert(!std::is_pointer<T>::value, "The type must not be a pointer.");
+
     static_assert(!std::is_const<H>::value, "The custom header must not be const.");
+    static_assert(!std::is_reference<H>::value, "The custom header must not be a reference.");
+    static_assert(!std::is_pointer<H>::value, "The custom header must not be a pointer.");
 
   public:
     Publisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions = PublisherOptions());
