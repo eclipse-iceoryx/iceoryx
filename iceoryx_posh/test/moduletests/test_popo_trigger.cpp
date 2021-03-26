@@ -563,8 +563,8 @@ TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToDifferentEventOr
 
 TEST_F(Trigger_test, ValidEventBasedTriggerUpdateOriginWorks)
 {
-    Trigger sut = createValidEventBasedTrigger();
     TriggerClass anotherTriggerClass;
+    Trigger sut = createValidEventBasedTrigger();
     sut.updateOrigin(anotherTriggerClass);
 
     EXPECT_TRUE(sut.isLogicalEqualTo(&anotherTriggerClass, cxx::ConstMethodCallback<bool>()));
