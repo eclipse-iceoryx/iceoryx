@@ -672,7 +672,7 @@ TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
     ASSERT_THAT(eventVector.size(), Eq(1));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3431, m_simpleEvents[0]));
 
-    eventVector = m_sut.timedWait(iox::units::Duration::fromMilliseconds(100));
+    eventVector = m_sut.timedWait(iox::units::Duration::fromMilliseconds(1));
     EXPECT_TRUE(eventVector.empty());
 }
 
@@ -693,7 +693,7 @@ TEST_F(WaitSet_test, EventStateBasedMixTriggerIsReturnedHandledCorrectly)
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3431, m_simpleEvents[0]));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
 
-    eventVector = m_sut.timedWait(iox::units::Duration::fromMilliseconds(100));
+    eventVector = m_sut.timedWait(iox::units::Duration::fromMilliseconds(1));
     ASSERT_THAT(eventVector.size(), Eq(1));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
 }

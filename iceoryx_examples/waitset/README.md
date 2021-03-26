@@ -290,7 +290,8 @@ we just dismiss the received data.
         subscriber->releaseQueuedData();
     }
 ```
-!!! attention The second group needs to release all queued samples otherwise
+!!! attention 
+The second group needs to release all queued samples otherwise
 the WaitSet would notify the user again and again that the subscriber from the second
 group has new samples.
 
@@ -374,7 +375,8 @@ class SomeClass
     }
 };
 ```
-**Important** The user trigger is event based and always reset after the WaitSet 
+!!! attention 
+The user trigger is event based and always reset after the WaitSet 
 has acquired all triggered objects.
 
 We begin as always, by creating a _WaitSet_ with the default capacity and by

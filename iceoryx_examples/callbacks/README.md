@@ -2,6 +2,10 @@
 
 ## Threadsafety
 The Listener is threadsafe and can be used without restrictions.
+But be aware that all provided callbacks are executed concurrently 
+in the background thread of the Listener. If you access structures
+inside this callback you have to either ensure that you are the only
+one accessing it or that it is accessed with a guard like a `std::mutex`.
 
 ## Introduction
 
