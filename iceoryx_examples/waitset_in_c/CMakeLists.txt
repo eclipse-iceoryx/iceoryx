@@ -26,6 +26,10 @@ find_package(iceoryx_utils CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
+if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
+    list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
+endif()
+
 add_executable(iox-ex-c-waitset-publisher ./ice_c_waitset_publisher.c)
 target_link_libraries(iox-ex-c-waitset-publisher
     iceoryx_binding_c::iceoryx_binding_c
