@@ -37,7 +37,7 @@ struct BasePortData
 
     /// @brief Constructor
     /// @param[in] serviceDescription creates the service service description
-    /// @param[in] runtimeName Name of the process
+    /// @param[in] runtimeName Name of the application's runtime
     /// @param[in] nodeName Name of the node
     BasePortData(const capro::ServiceDescription& serviceDescription,
                  const RuntimeName_t& runtimeName,
