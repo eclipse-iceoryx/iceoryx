@@ -13,20 +13,19 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
     - [Clang](https://clang.llvm.org), 9.0 or later
     - [MSVC](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
 - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
-- optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool.
+- optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool (only for Linux, QNX and MacOS).
 
 #### Optional, Cyclone DDS Gateway
 
 The Cyclone DDS gateway depends currently on [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds).
-When building it with the CMake option `-DDDS_GATEWAY=ON` it will be automatically installed as dependency.
-Furthermore you have to install:
+When building it with the CMake option `-DDDS_GATEWAY=ON` it will be automatically installed as a dependency.
+Furthermore, you have to install:
 
 - [Apache Maven](http://maven.apache.org/download.cgi), 3.5 or later
 - [OpenJDK](http://jdk.java.net/11/), 11.0 or later. Alternatively, Java JDK version 8 or later
 
 !!! hint
-    If you are behind a corporate firewall you may have to adjust the proxy
-    settings of maven in `/etc/maven/settings.xml`. See: [Maven Proxy Configuration](https://maven.apache.org/settings.html#proxies)
+    If you are behind a corporate firewall you may have to adjust the proxy settings of maven in `/etc/maven/settings.xml`. See: [Maven Proxy Configuration](https://maven.apache.org/settings.html#proxies)
 
 ### Mac OS
 
@@ -56,13 +55,13 @@ You will need to install the following packages:
 sudo apt install gcc g++ cmake libacl1-dev libncurses5-dev pkg-config
 ```
 
-Additionally, there is an optional dependency to the [cpptoml](https://github.com/skystrife/cpptoml) library, which is used to parse a RouDi config file for the mempool config.
+Additionally, there is an optional dependency to the [cpptoml](https://github.com/skystrife/cpptoml) library, which is used to parse the RouDi config file containing mempool configuration.
 
 ### QNX
 
 QNX SDP 7.0 and 7.1 are supported (shipping with gcc 5.4 and gcc 8.3 respectively).
 
-The easiest way to build iceoryx on QNX is using the build script and providing a toolchain file.
+The easiest way to build iceoryx on QNX is by using the build script and providing a toolchain file.
 We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools/toolchains/qnx` ([Direct Link](https://github.com/eclipse-iceoryx/iceoryx/tree/master/tools/toolchains/qnx)).
 
 ARM_64:
@@ -83,7 +82,7 @@ X86_64:
 ## Build with CMake
 
 !!! note
-    Building from CMake is the preferred way, for more complex actions like a coverage scan
+    Building with CMake is the preferred way, for more complex actions like a coverage scan
     is a script available (see chapter below).
 
 The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx with an IDE.
@@ -135,8 +134,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
         The installation directory is usually left at its default, which is `/usr/local`
 
     !!! note
-        iceoryx is build in release mode with `-O3` optimization by default. If you want to enable debug symbols please
-        set `CMAKE_BUILD_TYPE=Debug`.
+        iceoryx is built in release mode with `-O3` optimization by default. If you want to enable debug symbols please set `CMAKE_BUILD_TYPE=Debug`.
 
 ### Build options
 
@@ -145,7 +143,7 @@ to get an overview of the available build options for enabling additional featur
 
 ## Build with script
 
-As an alternative we provide a build-test script which we use to integrate iceoryx into our infrastructure.
+As an alternative, we provide a build-test script which we use to integrate iceoryx into our infrastructure.
 The intention of the script goes beyond building iceoryx, it is also used for the code coverage scan or the address-sanitizer runs on the CI.
 The script currently works for Linux and QNX only, it is planned to offer a multi-platform solution.
 

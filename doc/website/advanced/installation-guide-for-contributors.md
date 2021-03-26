@@ -3,26 +3,26 @@
 ## Build and run tests
 
 While developing on iceoryx you want to know if your changes are breaking existing functions or if your newly written tests are passing.
-For that purpose we are generating CMake targets which are executing the tests. First we need to build them:
+For that purpose, we are generating CMake targets that are executing the tests. First, we need to build them:
 
 ```bash
 cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON
 cmake --build build
 ```
 
-CMake is automatically installing GoogleTest as local dependency and build the tests against it. Please note that if you want to build tests for extensions like the DDS-Gateway you need to enable this extension as well in the CMake build. To build tests for all extensions simply add `-DBUILD_ALL` to the CMake command.
+CMake is automatically installing GoogleTest as a local dependency and build the tests against it. Please note that if you want to build tests for extensions like the DDS-Gateway you need to enable this extension as well in the CMake build. To build tests for all extensions simply add `-DBUILD_ALL` to the CMake command.
 
 !!! hint
     Before creating a Pull-Request, you should check your code for compiler warnings. For that purpose is the `-DBUILD_STRICT` CMake option available which treats compiler warnings as errors. This flag is enabled on the GitHub CI for building Pull-Requests.
 
-Now let's execute the all tests:
+Now let's execute tests:
 
 ```bash
 cd iceoryx/build
 make all_tests
 ```
 
-Some of the tests are timing critical and needs a stable environment. We call them timing tests and have them in a separate targets available:
+Some of the tests are timing critical and need a stable environment. We call them timing tests and have them in separate targets available:
 
 ```bash
 make timing_module_tests
@@ -46,22 +46,22 @@ Let's assume you want to execute only `ServiceDescription_test` from posh_module
 
 ## Use Sanitizer Scan
 
-Due to the fact that iceoryx works a lot with system memory it should be ensured that errors like memory leaks are not introduced.
-To prevent these, we use the clang toolchain which offers several tools for scanning the codebase. One of them is the [Address-Sanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) which checks for example on dangling pointers.
+Due to the fact that iceoryx works a lot with system memory, it should be ensured that errors like memory leaks are not introduced.
+To prevent this, we use the clang toolchain which offers several tools for scanning the codebase. One of them is the [Address-Sanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) which checks for example on dangling pointers.
 
-The below listed sanitizers are enabled at the moment.
+The below-listed sanitizers are enabled at the moment.
 
 - [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
 AddressSanitizer is a fast memory error detector.
 !!! note
     AddressSanitizer exits on the first detected error, which means there could be more errors in the codebase when this error is reported.
 - [LeakSanitizer](https://clang.llvm.org/docs/LeakSanitizer.html)
-LeakSanitizer is a run-time memory leak detector. In iceoryx , it runs as part of the AddressSanitizer.
+LeakSanitizer is a run-time memory leak detector. In iceoryx, it runs as part of the AddressSanitizer.
 - [UndefinedBehaviorSanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html)
-UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. iceoryx uses default behavior ie `print a verbose error report and continue execution`
+UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. iceoryx uses default behavior i.e. `print a verbose error report and continue execution`
 
-With the `iceoryx_build_test.sh` script you can do the scan on your own. Additionally the scans are running on the CI in every Pull-Request.
-As a prerequisite you need to install the clang compiler:
+With the `iceoryx_build_test.sh` script you can do the scan on your own. Additionally, the scans are running on the CI in every Pull-Request.
+As a prerequisite, you need to install the clang compiler:
 
 ```bash
 sudo apt install clang
@@ -79,26 +79,28 @@ After that we can run the tests with enabled sanitizer options:
 cd build && ./tools/run_tests.sh
 ```
 
-When the tests are running without errors then it is fine, else an error report is shown with a stacktrace to find the place where the leak occurs. If the leak comes from an external dependency or shall be handled later then it is possible to set a function on a suppression list.
+If errors occur, an error report is shown with a stack trace to find the place where the leak occurs. If the leak comes from an external dependency or shall be handled later then it is possible to set a function on a suppression list.
 This should be only rarely used and only in coordination with an iceoryx maintainer.
 
 !!! note
-    iceoryx needs to be build as static library for working with sanitizer flags. The script does it automatically.
+    iceoryx needs to be built as a static library for working with sanitizer flags. The script does it automatically.
+    Except when you want to use the ${ICEORYX_WARNINGS} then you have to call `findpackage(iceoryx_utils)`
 
 ## Iceoryx library build
 
 The iceoryx build consists of several libraries which have dependencies to each other. The goal is to have self-encapsulated library packages available
 where the end-user can easily find it with the CMake command `find-package(...)`.
-In the default case the iceoryx libraries are installed by `make install` into `/usr/lib` which need root access. To avoid that CMake gives you the possibility to install the libs into a custom folder.
-This can be done by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
+In the default case, the iceoryx libraries are installed by `make install` into `/usr/lib` which requires root access. As alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
 
-Iceoryx_meta is a CMake file which collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for building. The provided build script `iceoryx_build_test.sh` in the tools folder use iceoryx_meta for building.
+Iceoryx_meta is a CMake file that collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for the CMake build. The provided build script `iceoryx_build_test.sh` in the `tools` folder uses iceoryx_meta.
 
-Per default iceoryx is build as static lib for better usability.
-Additionally we offer to build as shared library because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
-This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as flag in the build script.
+Per default, iceoryx is built as static lib for better usability.
+Additionally, we offer to build as shared library because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
+This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as a flag in the build script.
 
-If iceoryx is build as shared libraries and you installed them in a custom path (e.g. build/install/prefix) you need to set
+If iceoryx builds shared libraries you have to copy them into a custom path and you need to set the LD_LIBRARY_PATH to this custom path (e.g. build/install/prefix).
+
+If iceoryx is built as shared library and you installed them in a custom path (e.g. build/install/prefix) you need to set
 the `LD_LIBRARY_PATH` to the directory containing the libiceoryx_*.so files. This can be done by calling:
 
 ```bash
