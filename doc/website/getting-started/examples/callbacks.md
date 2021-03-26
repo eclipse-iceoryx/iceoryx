@@ -1,5 +1,5 @@
 ---
-title: Implement callbacks which are triggered by events
+title: Implementing event triggered callbacks using C++
 ---
 
 {! ./../iceoryx_examples/callbacks/README.md !}

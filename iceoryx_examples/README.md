@@ -1,3 +1,16 @@
-# Examples for iceoryx
+# List of examples
 
-Please visit [iceoryx.io/getting-started/list-of-examples](http://iceoryx.io/getting-started/list-of-examples/) to find a description of the examples.
+| Example                                | Description                                                               | Level              |
+|:---------------------------------------|:--------------------------------------------------------------------------|:-------------------|
+|[icehello](./icehello/)                 | How to send data to another process                                       | :star:             |
+|[icedelivery](./icedelivery/)           | How to send and receive data using C++                                    | :star:             |
+|[icedelivery_in_c](./icedelivery_in_c/) | How to send and receive data using C                                      | :star:             |
+|[iceoptions](./iceoptions/)             | Configuring pub/sub settings like history cache size or startup behaviour | :star:             |
+|[callbacks](./callbacks/)               | Implementing event triggered callbacks using C++                          | :star::star:       |
+|[callbacks_in_c](./callbacks_in_c/)     | Implementing event triggered callbacks using C                            | :star::star:       |
+|[waitset](./waitset/)                   | Waiting for events like arrival of data using C++                         | :star::star:       |
+|[waitset_in_c](./waitset_in_c/)         | Waiting for events like arrival of data using C                           | :star::star:       |
+|[iceensemble](./iceensemble/)           | Using multiple publishers for one topic (n:m communication)               | :star::star:       |
+|[singleprocess](./singleprocess/)       | How to communicate in a single process between threads                    | :star::star:       |
+|[iceperf](./iceperf/)                   | Measuring the latency of different IPC mechanisms                         | :star::star::star: |
+|[icecrystal](./icecrystal/)             | How to use the introspection client for debugging                         | :star::star::star: |

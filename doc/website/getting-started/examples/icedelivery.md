@@ -1,5 +1,5 @@
 ---
-title: How to send and receive data in a functional way
+title: How to send and receive data using C++
 ---
 
 {! ./../iceoryx_examples/icedelivery/README.md !}
