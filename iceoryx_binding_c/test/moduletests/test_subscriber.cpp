@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
@@ -386,7 +386,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.subscribeOnCreate, options.subscribeOnCreate);
-    EXPECT_EQ(c2cpp::QueueFullPolicy(sut.receiverQueueFullPolicy), options.receiverQueueFullPolicy);
+    EXPECT_EQ(sut.receiverQueueFullPolicy, cpp2c::QueueFullPolicy(options.receiverQueueFullPolicy));
     EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
 }
 

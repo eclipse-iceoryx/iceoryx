@@ -53,7 +53,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
     options->historyRequest = subscriberOptions.historyRequest;
     options->nodeName = nullptr;
     options->subscribeOnCreate = subscriberOptions.subscribeOnCreate;
-    options->receiverQueueFullPolicy = QueueFullPolicy_DISCARD_OLDEST_DATA;
+    options->receiverQueueFullPolicy = cpp2c::QueueFullPolicy(subscriberOptions.receiverQueueFullPolicy);
 
     options->initCheck = SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
 }

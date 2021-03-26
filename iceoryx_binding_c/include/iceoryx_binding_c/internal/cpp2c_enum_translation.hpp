@@ -33,6 +33,8 @@ iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult va
 iox_AllocationResult AllocationResult(const iox::popo::AllocationError value);
 iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value);
 iox_ListenerResult ListenerResult(const iox::popo::ListenerError value);
+iox_SubscriberTooSlowPolicy SubscriberTooSlowPolicy(const iox::popo::SubscriberTooSlowPolicy policy);
+iox_QueueFullPolicy QueueFullPolicy(const iox::popo::QueueFullPolicy policy);
 } // namespace cpp2c
 
 #endif

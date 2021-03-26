@@ -47,7 +47,7 @@ void iox_pub_options_init(iox_pub_options_t* options)
     options->historyCapacity = publisherOptions.historyCapacity;
     options->nodeName = nullptr;
     options->offerOnCreate = publisherOptions.offerOnCreate;
-    options->deliveryQueueFullPolicy = SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA;
+    options->deliveryQueueFullPolicy = cpp2c::SubscriberTooSlowPolicy(publisherOptions.deliveryQueueFullPolicy);
 
     options->initCheck = PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT;
 }
