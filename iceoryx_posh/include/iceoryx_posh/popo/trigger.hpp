@@ -65,7 +65,7 @@ class Trigger
 
     /// @brief Creates a state based Trigger
     /// @param[in] StateBasedTrigger_t signals that we are creating a state based trigger
-    /// @param[in] eventOrigin pointer to the class where the signal originates from, if its set to nullptr the Trigger
+    /// @param[in] eventOrigin pointer to the class where the signal originates from, if it's set to nullptr the Trigger
     /// is in a defined but invalid state
     /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
     /// empty callback is set the trigger is in a defined but invalid state.
@@ -84,8 +84,8 @@ class Trigger
             const uint64_t uniqueId) noexcept;
 
     /// @brief Creates an event based Trigger
-    /// @param[in] EventBasedTrigger_t signals that we are creating a event based trigger
-    /// @param[in] eventOrigin pointer to the class where the signal originates from, if its set to nullptr the Trigger
+    /// @param[in] EventBasedTrigger_t signals that we are creating an event based trigger
+    /// @param[in] eventOrigin pointer to the class where the signal originates from, if it's set to nullptr the Trigger
     /// is in a defined but invalid state
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
     /// @param[in] eventId id of the corresponding event

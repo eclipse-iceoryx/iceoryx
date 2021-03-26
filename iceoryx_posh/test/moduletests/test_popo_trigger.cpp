@@ -632,7 +632,7 @@ TEST_F(Trigger_test, EventBasedMovedConstructedWithValidTriggerWorks)
     EXPECT_FALSE(trigger.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
 }
 
-TEST_F(Trigger_test, EventBasedMovedAssignedWithValidTriggerIsWorks)
+TEST_F(Trigger_test, EventBasedMovedAssignedWithValidTriggerWorks)
 {
     Trigger sut = createValidStateBasedTrigger();
     Trigger trigger = createValidEventBasedTrigger();
@@ -649,7 +649,7 @@ TEST_F(Trigger_test, EventBasedMovedAssignedWithValidTriggerIsWorks)
     EXPECT_FALSE(trigger.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
 }
 
-TEST_F(Trigger_test, EventBasedMovedConstructedWithInvalidTriggerWorks)
+TEST_F(Trigger_test, EventBasedMovedConstructedWithInvalidTrigger)
 {
     Trigger trigger = createValidEventBasedTrigger();
     Trigger trigger1 = std::move(trigger);
@@ -666,7 +666,7 @@ TEST_F(Trigger_test, EventBasedMovedConstructedWithInvalidTriggerWorks)
     EXPECT_FALSE(trigger.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
 }
 
-TEST_F(Trigger_test, EventBasedMovedAssignedWithInvalidTriggerIsWorks)
+TEST_F(Trigger_test, EventBasedMovedAssignedWithInvalidTrigger)
 {
     Trigger sut = createValidStateBasedTrigger();
     Trigger trigger = createValidEventBasedTrigger();
