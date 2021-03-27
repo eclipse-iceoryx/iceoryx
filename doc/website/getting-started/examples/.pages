@@ -1,8 +1,9 @@
 nav:
+  - index.md
   - icehello.md
   - icedelivery.md
-  - iceoptions.md
   - icedelivery_in_c.md
+  - iceoptions.md
   - callbacks.md
   - callbacks_in_c.md
   - waitset.md

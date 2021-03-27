@@ -1,5 +1,5 @@
 ---
-title: How to make use of the n:m communication feature
+title: Using multiple publishers for one topic
 ---
 
 {! ./../iceoryx_examples/iceensemble/README.md !}

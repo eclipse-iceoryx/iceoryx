@@ -49,12 +49,12 @@ contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
 Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
-1. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
-1. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
-1. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
-1. All commits have been signed with `git commit -s`
-1. You open your pull request towards the base branch `staging`
-1. Link the pull request to the according Github issue and set the label accordingly
+2. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
+3. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
+4. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
+5. All commits have been signed with `git commit -s`
+6. You open your pull request towards the base branch `staging`
+7. Link the pull request to the according Github issue and set the label accordingly
 
 ## Coding style
 
@@ -125,9 +125,9 @@ All new code should follow the folder structure.
 ### How to add a new example
 
 1. Add the example in the ["List of all examples"](./doc/website/getting-started/list-of-examples.md)
-1. Create a new file and include the readme in `doc/website/getting-started/examples/ice-foo.md`
-1. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
-1. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
+2. Create a new file and include the readme in `doc/website/getting-started/examples/ice-foo.md`
+3. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
+4. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
 
 ## Testing
 
