@@ -53,9 +53,12 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
                               const uint64_t eventId,
                               const EventInfo::Callback<T>& eventCallback) noexcept
 {
+    const uint64_t originType = 0U;
+    const uint64_t originTypeHash = 0U;
+
     for (auto& currentTrigger : m_triggerArray)
     {
-        if (currentTrigger && currentTrigger->isLogicalEqualTo(&eventOrigin, hasTriggeredCallback))
+        if (currentTrigger && currentTrigger->isLogicalEqualTo(&eventOrigin, originType, originTypeHash))
         {
             return cxx::error<WaitSetError>(WaitSetError::ALREADY_ATTACHED);
         }
@@ -77,12 +80,20 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
                                        invalidationCallback,
                                        eventId,
                                        eventCallback,
-                                       *index);
+                                       *index,
+                                       originType,
+                                       originTypeHash);
     }
     else
     {
-        m_triggerArray[*index].emplace(
-            EventBasedTrigger, &eventOrigin, invalidationCallback, eventId, eventCallback, *index);
+        m_triggerArray[*index].emplace(EventBasedTrigger,
+                                       &eventOrigin,
+                                       invalidationCallback,
+                                       eventId,
+                                       eventCallback,
+                                       *index,
+                                       originType,
+                                       originTypeHash);
     }
 
     return cxx::success<uint64_t>(*index);
