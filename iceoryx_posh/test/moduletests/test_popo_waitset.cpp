@@ -779,7 +779,7 @@ TEST_F(WaitSet_test, EventAttachmentRemovesItselfFromWaitsetWhenGoingOutOfScope)
     // if this doesn't work we are unable to acquire another trigger since the
     // waitset is already full
     temporaryTrigger.reset();
-    EXPECT_THAT(m_sut->size(), Eq(0U));
+    EXPECT_THAT(m_sut->size(), Eq(m_sut->capacity() - 1U));
     temporaryTrigger.emplace();
 
     EXPECT_FALSE(m_sut->attachEvent(*temporaryTrigger, USER_DEFINED_EVENT_ID).has_error());
@@ -800,7 +800,7 @@ TEST_F(WaitSet_test, StateAttachmentRemovesItselfFromWaitsetWhenGoingOutOfScope)
     // if this doesn't work we are unable to acquire another trigger since the
     // waitset is already full
     temporaryTrigger.reset();
-    EXPECT_THAT(m_sut->size(), Eq(0U));
+    EXPECT_THAT(m_sut->size(), Eq(m_sut->capacity() - 1U));
     temporaryTrigger.emplace();
 
     EXPECT_FALSE(m_sut->attachState(*temporaryTrigger, USER_DEFINED_EVENT_ID).has_error());
@@ -816,15 +816,27 @@ TEST_F(WaitSet_test, MultipleAttachmentsRemovingThemselfFromWaitsetWhenGoingOutO
     EXPECT_THAT(m_sut->size(), Eq(0U));
 }
 
+TEST_F(WaitSet_test, AttachmentsGoingOutOfScopeReducesSize)
+{
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[1]).has_error());
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[2]).has_error());
+    {
+        SimpleEventClass simpleEvent1, simpleEvent2;
+        ASSERT_FALSE(m_sut->attachEvent(simpleEvent1).has_error());
+        ASSERT_FALSE(m_sut->attachEvent(simpleEvent2).has_error());
+    }
+
+    EXPECT_EQ(m_sut->size(), 3U);
+}
+
 ////////////////////////
 // END
 ////////////////////////
 
 ////////////////////////
-// BEGIN trigger
+// BEGIN trigger and blocking
 ////////////////////////
-
-
 TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 {
     std::atomic_bool doStartWaiting{false};
@@ -861,7 +873,6 @@ TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
     {
         ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[i], 5U + i).has_error());
     }
-
 
     auto triggerVector = m_sut->timedWait(10_ms);
     ASSERT_THAT(triggerVector.size(), Eq(0U));
@@ -1018,50 +1029,9 @@ TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallbacks)
     WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
-TEST_F(WaitSet_test, InitialWaitSetHasSizeZero)
+TEST_F(WaitSet_test, NonResetStatesAreReturnedAgain)
 {
-    EXPECT_EQ(m_sut->size(), 0U);
-}
-
-TEST_F(WaitSet_test, WaitSetCapacity)
-{
-    EXPECT_EQ(m_sut->capacity(), iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET);
-}
-
-TEST_F(WaitSet_test, OneAcquireTriggerIncreasesSizeByOne)
-{
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
-
-    EXPECT_EQ(m_sut->size(), 1U);
-}
-
-TEST_F(WaitSet_test, MultipleAcquireTriggerIncreasesSizeCorrectly)
-{
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[1]).has_error());
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[2]).has_error());
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[4]).has_error());
-
-    EXPECT_EQ(m_sut->size(), 4U);
-}
-
-TEST_F(WaitSet_test, TriggerGoesOutOfScopeReducesSize)
-{
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[1]).has_error());
-    {
-        SimpleEventClass simpleEvent1, simpleEvent2;
-        ASSERT_FALSE(m_sut->attachEvent(simpleEvent1).has_error());
-        ASSERT_FALSE(m_sut->attachEvent(simpleEvent2).has_error());
-    }
-
-    EXPECT_EQ(m_sut->size(), 2U);
-}
-
-
-TEST_F(WaitSet_test, DISABLED_NonResetEventsAreReturnedAgain)
-{
-    attachAllEvents();
+    attachAllStates();
 
     m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
@@ -1069,42 +1039,56 @@ TEST_F(WaitSet_test, DISABLED_NonResetEventsAreReturnedAgain)
     m_simpleEvents[7].m_autoResetTrigger = false;
     m_simpleEvents[7].trigger();
 
-    auto eventVector = m_sut->wait();
+    auto eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
 
     // ACT
-    eventVector = m_sut->wait();
+    eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
 
-    ASSERT_THAT(eventVector.size(), Eq(2));
+    ASSERT_THAT(eventVector.size(), Eq(2U));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
 }
 
-TEST_F(WaitSet_test, DISABLED_WhenEventIsNotResetButEverythingElseItIsReturnedAgain)
+TEST_F(WaitSet_test, TriggeredEventsAreNotReturnedTwice)
 {
     attachAllEvents();
 
-    m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
-
-    m_simpleEvents[7].m_autoResetTrigger = false;
     m_simpleEvents[7].trigger();
+
+    auto eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
+
+    // ACT
+    eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
+
+    ASSERT_THAT(eventVector.size(), Eq(0U));
+}
+
+TEST_F(WaitSet_test, InMixSetupOnlyStateTriggerAreReturnedTwice)
+{
+    attachAllWithEventStateMix();
 
     for (auto& event : m_simpleEvents)
+    {
+        event.m_autoResetTrigger = false;
         event.trigger();
+    }
 
-    auto eventVector = m_sut->wait();
+    auto eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
 
     // ACT
-    eventVector = m_sut->wait();
+    eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
 
-    ASSERT_THAT(eventVector.size(), Eq(2));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+    ASSERT_THAT(eventVector.size(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET / 2U));
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; i += 2)
+    {
+        EXPECT_TRUE(doesEventInfoVectorContain(eventVector, i, m_simpleEvents[i]));
+    }
 }
 
-TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredBeforeItIsReturnedAgain)
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain)
 {
-    attachAllEvents();
+    attachAllWithEventStateMix();
 
     m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
@@ -1121,9 +1105,9 @@ TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredBeforeItIsReturnedAgain
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
 }
 
-TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredAfterItIsReturnedAgain)
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain)
 {
-    attachAllEvents();
+    attachAllWithEventStateMix();
 
     m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
@@ -1140,14 +1124,13 @@ TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredAfterItIsReturnedAgain)
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
 }
 
-TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredItIsReturnedAgain)
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain)
 {
-    attachAllEvents();
+    attachAllWithEventStateMix();
 
     m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
 
-    m_simpleEvents[7].m_autoResetTrigger = false;
     m_simpleEvents[7].trigger();
 
     m_simpleEvents[12].m_autoResetTrigger = false;
@@ -1163,12 +1146,11 @@ TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredItIsReturnedAgain)
     // ACT
     eventVector = m_sut->wait();
 
-    ASSERT_THAT(eventVector.size(), Eq(7));
+    ASSERT_THAT(eventVector.size(), Eq(6));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 1U, m_simpleEvents[1]));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 6U, m_simpleEvents[6]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 12U, m_simpleEvents[12]));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 13U, m_simpleEvents[13]));
 }
@@ -1211,12 +1193,11 @@ TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
 
 TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWaitCorrectly)
 {
-    m_simpleEvents[0].m_isEventBased = true;
     m_simpleEvents[0].m_autoResetTrigger = false;
     m_simpleEvents[1].m_autoResetTrigger = false;
 
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0], 3431).has_error());
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[1], 8171).has_error());
+    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[1], 8171).has_error());
 
     m_simpleEvents[0].trigger();
     m_simpleEvents[1].trigger();
