@@ -67,7 +67,7 @@ We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools
 ARM_64: `./tools/iceoryx_build_test.sh -t /home/user/toolchains/qnx/qnx_sdp70_aarch64le.cmake`<br>
 X86_64: `./tools/iceoryx_build_test.sh -t /home/user/toolchains/qnx/qnx_sdp70_x86_64.cmake`
 
-!!! attention Please ensure the filesystem on `/tmp` supports file locking.
+!!! attention Please ensure that the folder `/var/lock` exist and the filesystem supports file locking.
 
 ## Build with CMake
 
