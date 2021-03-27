@@ -68,9 +68,8 @@ int main()
         else
         {
             auto error = result.get_error();
-            // Ignore unused variable warning
-            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             // Do something with error
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
         }
 
         // API Usage #2
@@ -85,9 +84,8 @@ int main()
         else
         {
             auto error = result.get_error();
-            // Ignore unused variable warning
-            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             // Do something with error
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
         }
 
         // API Usage #3

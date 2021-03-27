@@ -46,13 +46,12 @@ int main()
     {
         ++ct;
 
-        // Retrieve a typed sample from shared memory.
-        // Data is default constructed during loan
+        // Retrieve a sample from shared memory
         auto loanResult = publisher.loan();
         if (!loanResult.has_error())
         {
             auto& sample = loanResult.value();
-            // Sample can be held until ready to publish.
+            // Sample can be held until ready to publish
             sample->x = ct;
             sample->y = ct;
             sample->z = ct;
@@ -61,9 +60,8 @@ int main()
         else
         {
             auto error = loanResult.get_error();
-            // Ignore unused variable warning
-            (void)error;
             // Do something with error
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
         }
 
         std::cout << APP_NAME << " sent value: " << ct << std::endl;

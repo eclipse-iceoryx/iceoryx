@@ -1,8 +1,13 @@
-# How to send data to another process
+# icehello
 
 ## Introduction
 
-This example showcases a data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
-It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed).
+This example demonstrates a basic data transmission with zero-copy inter-process communication (IPC).
+It provides a publisher and a subscriber application.
 
 ## Expected output
+
+<!-- Add asciinema link here -->
+
+## Code walkthrough
+

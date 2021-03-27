@@ -41,9 +41,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialized subscriber
-    iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = 10U;
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
@@ -58,10 +56,11 @@ int main()
             }
             else
             {
-                // only has to be called if the alternative is of interest,
-                // i.e. if nothing has to happen when no data is received and
-                // a possible error alternative is not checked or_else is not needed
-                if (takeResult.get_error() != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                {
+                    std::cout << "No chunk available." << std::endl;
+                }
+                else
                 {
                     std::cout << "Error receiving chunk." << std::endl;
                 }
