@@ -10,7 +10,7 @@
 |[callbacks_in_c](./callbacks_in_c/)     | Implementing event triggered callbacks using C                            | :star::star:       |
 |[waitset](./waitset/)                   | Waiting for events like arrival of data using C++                         | :star::star:       |
 |[waitset_in_c](./waitset_in_c/)         | Waiting for events like arrival of data using C                           | :star::star:       |
-|[iceensemble](./iceensemble/)           | Using multiple publishers for one topic (n:m communication)               | :star::star:       |
+|[iceensemble](./iceensemble/)           | Using multiple publishers for one topic                                   | :star::star:       |
 |[singleprocess](./singleprocess/)       | Communicating in a single process between threads                         | :star::star:       |
 |[iceperf](./iceperf/)                   | Measuring the latency of different IPC mechanisms                         | :star::star::star: |
 |[icecrystal](./icecrystal/)             | Using the introspection client for debugging                              | :star::star::star: |

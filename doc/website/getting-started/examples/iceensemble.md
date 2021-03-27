@@ -1,5 +1,5 @@
 ---
-title: Using multiple publishers for one topic (n:m communication)
+title: Using multiple publishers for one topic
 ---
 
 {! ./../iceoryx_examples/iceensemble/README.md !}
