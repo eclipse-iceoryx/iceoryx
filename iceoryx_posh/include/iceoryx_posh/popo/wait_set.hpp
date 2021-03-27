@@ -33,6 +33,8 @@
 #include "iceoryx_utils/cxx/stack.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
+#include <typeinfo>
+
 namespace iox
 {
 namespace popo
@@ -169,12 +171,24 @@ class WaitSet
     explicit WaitSet(ConditionVariableData& condVarData) noexcept;
 
   private:
+    enum class NoStateEnumUsed : StateEnumIdentifier
+    {
+        PLACEHOLDER
+    };
+
+    enum class NoEventEnumUsed : EventEnumIdentifier
+    {
+        PLACEHOLDER
+    };
+
     using WaitFunction = cxx::function_ref<ConditionListener::NotificationVector_t()>;
     template <typename T>
     cxx::expected<uint64_t, WaitSetError> attachImpl(T& eventOrigin,
                                                      const WaitSetHasTriggeredCallback& hasTriggeredCallback,
                                                      const uint64_t eventId,
-                                                     const EventInfo::Callback<T>& eventCallback) noexcept;
+                                                     const EventInfo::Callback<T>& eventCallback,
+                                                     const uint64_t originType,
+                                                     const uint64_t originTypeHash) noexcept;
 
     EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
     EventInfoVector createVectorWithTriggeredTriggers() noexcept;
