@@ -34,6 +34,18 @@ inline void EventAttorney::disableEvent(T& eventOrigin, Targs&&... args) noexcep
 }
 
 template <typename T, typename... Targs>
+inline void EventAttorney::enableState(T& eventOrigin, Targs&&... args) noexcept
+{
+    eventOrigin.enableState(std::forward<Targs>(args)...);
+}
+
+template <typename T, typename... Targs>
+inline void EventAttorney::disableState(T& eventOrigin, Targs&&... args) noexcept
+{
+    eventOrigin.disableState(std::forward<Targs>(args)...);
+}
+
+template <typename T, typename... Targs>
 inline cxx::ConstMethodCallback<bool> EventAttorney::getHasTriggeredCallbackForState(T& eventOrigin,
                                                                                      Targs&&... args) noexcept
 {

@@ -89,10 +89,10 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 template <uint64_t Capacity>
 template <typename T>
 inline cxx::expected<uint64_t, WaitSetError>
-WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
-                                   const WaitSetHasTriggeredCallback& hasTriggeredCallback,
-                                   const uint64_t eventId,
-                                   const EventInfo::Callback<T>& eventCallback) noexcept
+WaitSet<Capacity>::attachImpl(T& eventOrigin,
+                              const WaitSetHasTriggeredCallback& hasTriggeredCallback,
+                              const uint64_t eventId,
+                              const EventInfo::Callback<T>& eventCallback) noexcept
 {
     for (auto& currentTrigger : m_triggerArray)
     {
@@ -136,12 +136,12 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    static_assert(IS_EVENT_ENUM<EventType> || IS_STATE_ENUM<EventType>,
+    static_assert(IS_EVENT_ENUM<EventType>,
                   "Only enums with an underlying EventEnumIdentifier or StateEnumIdentifier are allowed.");
 
     auto hasTriggeredCallback = internal::GetHasTriggeredCallbackForState<T, EventType>::get(eventOrigin, eventType);
 
-    return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
+    return attachImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
             eventOrigin,
             TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
@@ -166,7 +166,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
 {
     auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin);
 
-    return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
+    return attachImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
             eventOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
     });
@@ -174,10 +174,54 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
 
 template <uint64_t Capacity>
 template <typename T>
-cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
-                                                           const EventInfo::Callback<T>& eventCallback) noexcept
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const EventInfo::Callback<T>& eventCallback) noexcept
 {
     return attachEvent(eventOrigin, EventInfo::INVALID_ID, eventCallback);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename StateType, typename>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin,
+                                                                  const StateType stateType,
+                                                                  const uint64_t id,
+                                                                  const EventInfo::Callback<T>& stateCallback) noexcept
+{
+    static_assert(IS_STATE_ENUM<StateType>, "Only enums with an underlying StateEnumIdentifier are allowed.");
+    return attachImpl(stateOrigin, WaitSetHasTriggeredCallback(), id, stateCallback).and_then([&](auto& uniqueId) {
+        EventAttorney::enableEvent(
+            stateOrigin,
+            TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
+            stateType);
+    });
+}
+
+template <uint64_t Capacity>
+template <typename T, typename StateType, typename>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin,
+                                                                  const StateType stateType,
+                                                                  const EventInfo::Callback<T>& stateCallback) noexcept
+{
+    return attachState(stateOrigin, stateType, EventInfo::INVALID_ID, stateCallback);
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline cxx::expected<WaitSetError>
+WaitSet<Capacity>::attachState(T& stateOrigin, const uint64_t id, const EventInfo::Callback<T>& stateCallback) noexcept
+{
+    return attachImpl(stateOrigin, WaitSetHasTriggeredCallback(), id, stateCallback).and_then([&](auto& uniqueId) {
+        EventAttorney::enableEvent(
+            stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+    });
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin,
+                                                                  const EventInfo::Callback<T>& stateCallback) noexcept
+{
+    return attachState(stateOrigin, EventInfo::INVALID_ID, stateCallback);
 }
 
 template <uint64_t Capacity>
@@ -185,6 +229,13 @@ template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
     EventAttorney::disableEvent(eventOrigin, args...);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename... Targs>
+inline void WaitSet<Capacity>::detachState(T& stateOrigin, const Targs&... args) noexcept
+{
+    EventAttorney::disableState(stateOrigin, args...);
 }
 
 template <uint64_t Capacity>

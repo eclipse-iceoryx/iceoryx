@@ -221,12 +221,12 @@ int main()
     triggerClass.emplace();
 
     // attach both events to a waitset and assign a callback
-    waitset->attachEvent(*triggerClass, MyTriggerClassStates::ACTIVATE, ACTIVATE_ID, &callOnActivate).or_else([](auto) {
+    waitset->attachState(*triggerClass, MyTriggerClassStates::ACTIVATE, ACTIVATE_ID, &callOnActivate).or_else([](auto) {
         std::cerr << "failed to attach MyTriggerClass::ACTIVATE event " << std::endl;
         std::terminate();
     });
     waitset
-        ->attachEvent(*triggerClass, MyTriggerClassStates::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction)
+        ->attachState(*triggerClass, MyTriggerClassStates::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction)
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClass::PERFORMED_ACTION event " << std::endl;
             std::terminate();
