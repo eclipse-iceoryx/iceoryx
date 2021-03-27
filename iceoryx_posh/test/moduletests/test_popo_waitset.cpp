@@ -676,7 +676,7 @@ TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
     EXPECT_TRUE(eventVector.empty());
 }
 
-TEST_F(WaitSet_test, EventStateBasedMixTriggerIsReturnedHandledCorrectly)
+TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWaitCorrectly)
 {
     m_simpleEvents[0].isEventBased = true;
     m_simpleEvents[0].autoResetTrigger = false;

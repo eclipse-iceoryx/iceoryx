@@ -1,6 +1,6 @@
 # WaitSet in C
 
-## Threadsafety
+## Thread Safety
 The WaitSet is **not** threadsafe!
 - It is **not** allowed to attach or detach _Triggerable_
    classes with `iox_ws_attach_**` or `iox_ws_detach_**` when another thread is currently
@@ -19,11 +19,11 @@ not the WaitSet in general. For that we will take a look at the same use case
 as the [waitset C++ example](../waitset). The examples are also structured 
 in the same way as the C++ ones.
 
-## Expected output
+## Expected Output
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 
-## Code walkthrough
+## Code Walkthrough
 
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced

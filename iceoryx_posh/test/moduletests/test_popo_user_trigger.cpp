@@ -49,18 +49,18 @@ class UserTrigger_test : public Test
 
 UserTrigger* UserTrigger_test::m_callbackOrigin = nullptr;
 
-TEST_F(UserTrigger_test, isNotTriggeredWhenCreated)
+TEST_F(UserTrigger_test, IsNotTriggeredWhenCreated)
 {
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(UserTrigger_test, cannotBeTriggeredWhenNotAttached)
+TEST_F(UserTrigger_test, CannotBeTriggeredWhenNotAttached)
 {
     m_sut.trigger();
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(UserTrigger_test, cannotBeTriggeredMultipleTimesWhenNotAttached)
+TEST_F(UserTrigger_test, CannotBeTriggeredMultipleTimesWhenNotAttached)
 {
     m_sut.trigger();
     m_sut.trigger();
@@ -69,14 +69,14 @@ TEST_F(UserTrigger_test, cannotBeTriggeredMultipleTimesWhenNotAttached)
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(UserTrigger_test, canBeTriggeredWhenAttached)
+TEST_F(UserTrigger_test, CanBeTriggeredWhenAttached)
 {
     ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
     m_sut.trigger();
     EXPECT_TRUE(m_sut.hasTriggered());
 }
 
-TEST_F(UserTrigger_test, canBeTriggeredMultipleTimesWhenAttached)
+TEST_F(UserTrigger_test, CanBeTriggeredMultipleTimesWhenAttached)
 {
     ASSERT_FALSE(m_waitSet.attachEvent(m_sut).has_error());
     m_sut.trigger();

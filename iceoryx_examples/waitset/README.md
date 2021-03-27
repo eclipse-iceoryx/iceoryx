@@ -1,13 +1,13 @@
 # WaitSet
 
-## Threadsafety
-The WaitSet is **not** threadsafe!
+## Thread Safety
+The WaitSet is **not** thread-safe!
 - It is **not** allowed to attach or detach _Triggerable_
    classes with `attachEvent` or `detachEvent` when another thread is currently
    waiting for events with `wait` or `timedWait`.
 - Do **not** call any of the WaitSet methods concurrently.
 
-The _TriggerHandle_ on the other hand is threadsafe! Therefore you are allowed to
+The _TriggerHandle_ on the other hand is thread-safe! Therefore you are allowed to
 attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
 trigger the _TriggerHandle_.
 
@@ -24,7 +24,7 @@ till you reset the state. The `HAS_DATA` event of the subscriber for instance
 will notify you as long as there are samples. But it is also possible that one
 attaches one shot events. These are events which will trigger the WaitSet only once.
 
-## Expected output
+## Expected Output
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 <!-- @todo multiple examples described in here, expected output should be in front of every example -->
@@ -55,7 +55,7 @@ attaches one shot events. These are events which will trigger the WaitSet only o
      _Trigger_ will be invalidated.
  - **Triggerable** a class which has attached a _TriggerHandle_ to itself to signal
      certain _Events_ to a _Notifyable_.
- - **TriggerHandle** a threadsafe class which can be used to trigger a _Notifyable_.
+ - **TriggerHandle** a thread-safe class which can be used to trigger a _Notifyable_.
      If a _TriggerHandle_ goes out of scope it will detach itself from the _Notifyable_. A _TriggerHandle_ is
      logical equal to another _Trigger_ if they:
      - are attached to the same _Notifyable_ (or in other words they are using the
@@ -91,7 +91,7 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 |call eventCallback|`event()`|
 |acquire _EventOrigin_|`event.getOrigin<OriginType>();`|
 
-## Use cases
+## Use Cases
 This example consists of 5 use cases.
  
  1. `ice_waitset_gateway.cpp`: We build a gateway to forward data

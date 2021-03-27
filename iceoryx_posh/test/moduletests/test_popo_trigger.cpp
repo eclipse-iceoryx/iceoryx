@@ -590,7 +590,7 @@ TEST_F(Trigger_test, InvalidEventBasedTriggerUpdateOriginDoesNotWork)
     EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, cxx::ConstMethodCallback<bool>()));
 }
 
-TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
+TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIsInvalid)
 {
     const uint64_t eventId = 0U;
     const uint64_t uniqueTriggerId = 0U;
