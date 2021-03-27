@@ -69,8 +69,6 @@ class UsedChunkList
   private:
     void init() noexcept;
 
-    bool freeSpaceInList() const noexcept;
-
   private:
     static constexpr uint32_t INVALID_INDEX{Capacity};
 

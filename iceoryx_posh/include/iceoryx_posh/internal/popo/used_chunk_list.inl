@@ -38,7 +38,8 @@ UsedChunkList<Capacity>::UsedChunkList() noexcept
 template <uint32_t Capacity>
 bool UsedChunkList<Capacity>::insert(mepoo::SharedChunk chunk) noexcept
 {
-    if (freeSpaceInList())
+    auto hasFreeSpace = m_freeListHead != INVALID_INDEX;
+    if (hasFreeSpace)
     {
         // get next free entry after freelistHead
         auto nextFree = m_listNodes[m_freeListHead];
@@ -156,12 +157,6 @@ void UsedChunkList<Capacity>::init() noexcept
     }
 
     m_synchronizer.clear(std::memory_order_release);
-}
-
-template <uint32_t Capacity>
-bool UsedChunkList<Capacity>::freeSpaceInList() const noexcept
-{
-    return (m_freeListHead != INVALID_INDEX);
 }
 
 } // namespace popo
