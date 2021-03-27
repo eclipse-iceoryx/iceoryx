@@ -64,7 +64,7 @@ class PortUser_IntegrationTest : public Test
     PortUser_IntegrationTest()
     {
         m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolConfig, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolConfig, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~PortUser_IntegrationTest()
@@ -294,7 +294,11 @@ class PortUser_IntegrationTest : public Test
         // Subscriber is ready to receive -> start sending samples
         for (size_t i = 0U; i < ITERATIONS; i++)
         {
-            publisherPortUser.tryAllocateChunk(sizeof(DummySample))
+            publisherPortUser
+                .tryAllocateChunk(sizeof(DummySample),
+                                  alignof(DummySample),
+                                  iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
+                                  iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
                 .and_then([&](auto chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();

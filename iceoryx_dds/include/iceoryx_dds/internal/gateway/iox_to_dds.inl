@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,7 +52,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const co
                        << ", " << serviceDescription.getEventIDString() << "}";
             popo::SubscriberOptions options;
             options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
-            setupChannel(serviceDescription, options);
+            IOX_DISCARD_RESULT(setupChannel(serviceDescription, options));
         }
     }
 }
@@ -82,7 +83,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
         {
             popo::SubscriberOptions options;
             options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
-            setupChannel(msg.m_serviceDescription, options);
+            IOX_DISCARD_RESULT(setupChannel(msg.m_serviceDescription, options));
         }
         break;
     }
@@ -90,7 +91,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
     {
         if (this->findChannel(msg.m_serviceDescription).has_value())
         {
-            this->discardChannel(msg.m_serviceDescription);
+            IOX_DISCARD_RESULT(this->discardChannel(msg.m_serviceDescription));
         }
         break;
     }

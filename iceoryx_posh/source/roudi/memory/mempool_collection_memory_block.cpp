@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,7 +56,7 @@ void MemPoolCollectionMemoryBlock::memoryAvailable(void* memory) noexcept
     auto memoryManager = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
     m_memoryManager = new (memoryManager) mepoo::MemoryManager;
 
-    m_memoryManager->configureMemoryManager(m_memPoolConfig, &allocator, &allocator);
+    m_memoryManager->configureMemoryManager(m_memPoolConfig, allocator, allocator);
 }
 
 void MemPoolCollectionMemoryBlock::destroy() noexcept

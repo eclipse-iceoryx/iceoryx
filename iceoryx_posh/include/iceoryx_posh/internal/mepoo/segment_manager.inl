@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,7 +45,7 @@ inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::Segm
         auto readerGroup = iox::posix::PosixGroup(f_segmentEntry.m_readerGroup);
         auto writerGroup = iox::posix::PosixGroup(f_segmentEntry.m_writerGroup);
         m_segmentContainer.emplace_back(f_segmentEntry.m_mempoolConfig,
-                                        m_managementAllocator,
+                                        *m_managementAllocator,
                                         readerGroup,
                                         writerGroup,
                                         f_segmentEntry.m_memoryInfo);

@@ -100,7 +100,7 @@ class vector
     //          is undefined if the element at index does not exist.
     T& at(const uint64_t index) noexcept;
 
-    /// @brief returns a cost reference to the element stored at index. the
+    /// @brief returns a const reference to the element stored at index. the
     ///         behavior is undefined if the element at index does not exist.
     const T& at(const uint64_t index) const noexcept;
 
@@ -108,7 +108,7 @@ class vector
     //          is undefined if the element at index does not exist.
     T& operator[](const uint64_t index) noexcept;
 
-    /// @brief returns a cost reference to the element stored at index. the
+    /// @brief returns a const reference to the element stored at index. the
     ///         behavior is undefined if the element at index does not exist.
     const T& operator[](const uint64_t index) const noexcept;
 
@@ -155,7 +155,13 @@ class vector
     bool resize(const uint64_t count, const Targs&... args) noexcept;
 
     /// @brief forwards all arguments to the constructor of the contained element
-    ///         and performs a placement new
+    ///         and performs a placement new at the provided position
+    /// @param[in] position the position where the element should be created
+    template <typename... Targs>
+    bool emplace(const uint64_t position, Targs&&... args) noexcept;
+
+    /// @brief forwards all arguments to the constructor of the contained element
+    ///         and performs a placement new at the end
     template <typename... Targs>
     bool emplace_back(Targs&&... args) noexcept;
 

@@ -23,7 +23,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 namespace iox
@@ -43,7 +43,7 @@ struct ChunkQueueData : public LockingPolicy
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
 
-    relative_ptr<ConditionVariableData> m_conditionVariableDataPtr;
+    rp::RelativePointer<ConditionVariableData> m_conditionVariableDataPtr;
     cxx::optional<uint64_t> m_conditionVariableNotificationIndex;
 };
 

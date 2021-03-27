@@ -51,6 +51,7 @@ BUILD_SHARED="OFF"
 TOML_FLAG="ON"
 EXAMPLES="callbacks callbacks_in_c ice_multi_publisher icedelivery singleprocess waitset icehello"
 COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
+TOOLCHAIN_FILE=""
 
 while (( "$#" )); do
   case "$1" in

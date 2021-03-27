@@ -1,5 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -122,6 +122,10 @@ constexpr uint32_t MAX_SHM_SEGMENTS = 100U;
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8U;
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64U;
 
+constexpr uint32_t CHUNK_DEFAULT_PAYLOAD_ALIGNMENT{8U};
+constexpr uint32_t CHUNK_NO_CUSTOM_HEADER_SIZE{0U};
+constexpr uint32_t CHUNK_NO_CUSTOM_HEADER_ALIGNMENT{1U};
+
 // Message Queue
 constexpr uint32_t ROUDI_MAX_MESSAGES = 5U;
 constexpr uint32_t ROUDI_MESSAGE_SIZE = 512U;
@@ -191,7 +195,7 @@ namespace roudi
 {
 using ConfigFilePathString_t = cxx::string<1024>;
 
-constexpr char IPC_CHANNEL_ROUDI_NAME[] = "/roudi";
+constexpr char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memmory segment for the iceoryx managment data
 constexpr char SHM_NAME[] = "/iceoryx_mgmt";

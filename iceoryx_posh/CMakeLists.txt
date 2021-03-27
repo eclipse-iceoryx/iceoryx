@@ -70,6 +70,7 @@ add_library(iceoryx_posh
     source/capro/capro_message.cpp
     source/capro/service_description.cpp
     source/mepoo/chunk_header.cpp
+    source/mepoo/chunk_settings.cpp
     source/mepoo/mepoo_config.cpp
     source/mepoo/segment_config.cpp
     source/mepoo/memory_manager.cpp
@@ -224,7 +225,8 @@ add_library(iceoryx_posh_roudi
     source/roudi/port_pool.cpp
     source/roudi/roudi.cpp
     source/roudi/roudi_lock.cpp
-    source/roudi/roudi_process.cpp
+    source/roudi/process.cpp
+    source/roudi/process_manager.cpp
     source/roudi/service_registry.cpp
     source/roudi/iceoryx_roudi_components.cpp
     source/roudi/roudi_cmd_line_parser.cpp
@@ -275,7 +277,6 @@ if(TOML_CONFIG)
         find_package(cpptoml_vendor QUIET)
         find_package(cpptoml REQUIRED)
     endif(NOT cpptoml_FOUND)
-    message("-- Build with TOML config file support.")
 
     #
     ######### posh config lib ##########
