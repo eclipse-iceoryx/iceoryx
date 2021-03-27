@@ -33,7 +33,7 @@ With that change, the footprint of the management segment is reduced to ~52.7 MB
 RouDi supports several shared memory segments with different access rights, to limit the read and write access between different applications. Inside of these segments reside mempools where the user payload data for transfer is stored.
 Based on the [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) the end-user may want to configure the mempools with the number of chunks and their size.
 
-Iceoryx ships a library for RouDi named in cmake `iceoryx_posh_roudi`. This lib gives you an API for compiling your own RouDi application if needed and is part of `iceoryx_posh`.
+For building RouDi, iceoryx ships a library named `iceoryx_posh_roudi`. This lib gives you an API for compiling your own RouDi application and is part of `iceoryx_posh`.
 
 !!! note
     The chunk size for the mempool needs to follow these restrictions:

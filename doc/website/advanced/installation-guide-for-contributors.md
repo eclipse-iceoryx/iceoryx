@@ -51,14 +51,11 @@ To prevent this, we use the clang toolchain which offers several tools for scann
 
 The below-listed sanitizers are enabled at the moment.
 
-- [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html)
-AddressSanitizer is a fast memory error detector.
+- [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) (ASan) is a fast memory error detector.
 !!! note
     AddressSanitizer exits on the first detected error, which means there could be more errors in the codebase when this error is reported.
-- [LeakSanitizer](https://clang.llvm.org/docs/LeakSanitizer.html)
-LeakSanitizer is a run-time memory leak detector. In iceoryx, it runs as part of the AddressSanitizer.
-- [UndefinedBehaviorSanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html)
-UndefinedBehaviorSanitizer (UBSan) is a fast undefined behavior detector. iceoryx uses default behavior i.e. `print a verbose error report and continue execution`
+- [LeakSanitizer](https://clang.llvm.org/docs/LeakSanitizer.html) (LSan) is a run-time memory leak detector. In iceoryx, it runs as part of the AddressSanitizer.
+- [UndefinedBehaviorSanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html) (UBSan) is a fast undefined behavior detector. iceoryx uses default behavior i.e. `print a verbose error report and continue execution`
 
 With the `iceoryx_build_test.sh` script you can do the scan on your own. Additionally, the scans are running on the CI in every Pull-Request.
 As a prerequisite, you need to install the clang compiler:
@@ -73,7 +70,7 @@ Then you need to compile iceoryx with the sanitizer flags:
 ./tools/iceoryx_build_test.sh build-strict build-all sanitize clang clean
 ```
 
-After that we can run the tests with enabled sanitizer options:
+Now we can run the tests with enabled sanitizer options:
 
 ```bash
 cd build && ./tools/run_tests.sh
@@ -86,22 +83,18 @@ This should be only rarely used and only in coordination with an iceoryx maintai
     iceoryx needs to be built as a static library for working with sanitizer flags. The script does it automatically.
     Except when you want to use the ${ICEORYX_WARNINGS} then you have to call `findpackage(iceoryx_utils)`
 
-## Iceoryx library build
+## iceoryx library build
 
-The iceoryx build consists of several libraries which have dependencies to each other. The goal is to have self-encapsulated library packages available
-where the end-user can easily find it with the CMake command `find-package(...)`.
+The iceoryx build consists of several libraries which have dependencies to each other. The goal is to have self-encapsulated library packages available where the end-user can easily find it with the CMake command `find-package(...)`.
 In the default case, the iceoryx libraries are installed by `make install` into `/usr/lib` which requires root access. As alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
 
-Iceoryx_meta is a CMake file that collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together to have a single point for the CMake build. The provided build script `iceoryx_build_test.sh` in the `tools` folder uses iceoryx_meta.
+As a starting point for the CMake build, iceoryx_meta collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together. The provided build script `iceoryx_build_test.sh` in the `tools` folder uses iceoryx_meta.
 
 Per default, iceoryx is built as static lib for better usability.
-Additionally, we offer to build as shared library because it is a cleaner solution for resolving dependency issues and it reduces the linker time while building.
+Additionally, we offer to build as shared library because it is a cleaner solution for resolving dependency issues and it reduces the linker time.
 This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as a flag in the build script.
 
-If iceoryx builds shared libraries you have to copy them into a custom path and you need to set the LD_LIBRARY_PATH to this custom path (e.g. build/install/prefix).
-
-If iceoryx is built as shared library and you installed them in a custom path (e.g. build/install/prefix) you need to set
-the `LD_LIBRARY_PATH` to the directory containing the libiceoryx_*.so files. This can be done by calling:
+If iceoryx builds shared libraries you have to copy them into a custom path need to set the LD_LIBRARY_PATH to the custom path (e.g. build/install/prefix).
 
 ```bash
 export LD_LIBRARY_PATH=/your/path/to/iceoryx/libs
@@ -113,7 +106,7 @@ or you can set it directly:
 LD_LIBRARY_PATH=/your/path/to/lib iox-roudi
 ```
 
-If you want to share iceoryx to other users, you can also create a debian package. You can create it by calling: `./tools/iceoryx_build_test.sh package` where it will be deployed into the `build_package` folder.
+If you want to share iceoryx to other users, you can create a debian package. This can be done by using: `./tools/iceoryx_build_test.sh package` where it will be deployed into the `build_package` folder.
 
 !!! note
-    The CMake libraries exports their dependencies for easier integration. This means that you do not need to do a `findpackage()` to all the dependencies. For example, you don't need to call `findpackage(iceoryx_utils)` when you have it done for iceoryx_posh. It includes it already.
+    The CMake libraries export their dependencies for easier integration. This means that you do not need to do a `findpackage()` to all the dependencies. For example, you don't need to call `findpackage(iceoryx_utils)` when you have it done for iceoryx_posh. It includes it already.
