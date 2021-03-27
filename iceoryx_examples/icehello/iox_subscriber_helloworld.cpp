@@ -46,29 +46,22 @@ int main()
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
-        {
-            auto takeResult = subscriber.take();
+        auto takeResult = subscriber.take();
 
-            if (!takeResult.has_error())
-            {
-                std::cout << APP_NAME << " got value: " << takeResult.value()->x << std::endl;
-            }
-            else
-            {
-                if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-                {
-                    std::cout << "No chunk available." << std::endl;
-                }
-                else
-                {
-                    std::cout << "Error receiving chunk." << std::endl;
-                }
-            }
+        if (!takeResult.has_error())
+        {
+            std::cout << APP_NAME << " got value: " << takeResult.value()->x << std::endl;
         }
         else
         {
-            std::cout << "Not subscribed!" << std::endl;
+            if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+            {
+                std::cout << "No chunk available." << std::endl;
+            }
+            else
+            {
+                std::cout << "Error receiving chunk." << std::endl;
+            }
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

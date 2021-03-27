@@ -79,12 +79,6 @@ to everyone:
 iox::popo::UntypedPublisher untypedPublisher({"Radar", "FrontLeft", "Object"});
 ```
 
-The strings inside the first parameter of the constructor of `iox::popo::Publisher` are of the type
-`capro::ServiceDescription`. `capro` stands for **ca**nionical **pro**tocol and is used to abstract different
-[SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture) protocols. `Radar` is the service name, `FrontLeft`
-an instance of the service `Radar` and the third string the specific event `Object` of the instance.
-In iceoryx a publisher and a subscriber only match if all the three IDs match.
-
 Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk
 which fits our RadarObject struct
 ```cpp
