@@ -1,7 +1,6 @@
 # Limitations in iceoryx
 
 - limited Windows 10 support [\#33](https://github.com/eclipse-iceoryx/iceoryx/issues/33)
-- no support for datatypes with heap or virtual functions for transferring data over iceoryx [\#517](https://github.com/eclipse-iceoryx/iceoryx/issues/517)
 - Duplicated service description entries within gateway config toml file should not result in duplication of service entries [\#574](https://github.com/eclipse-iceoryx/iceoryx/issues/574)
 - Possible double free of memory chunks on 32-bit systems [\#562](https://github.com/eclipse-iceoryx/iceoryx/issues/562)
 - resource leak caused by move ctor/assignment [\#542](https://github.com/eclipse-iceoryx/iceoryx/issues/542)

@@ -265,10 +265,23 @@ echo " [i] Current working directory: $(pwd)"
 
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL=$BUILD_ALL_FLAG -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
--DBUILD_TEST=$TEST_FLAG -DCOVERAGE=$COV_FLAG -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG -DEXAMPLES=$EXAMPLE_FLAG -DTOML_CONFIG=$TOML_FLAG -DBUILD_DOC=$BUILD_DOC \
--DDDS_GATEWAY=$DDS_GATEWAY_FLAG -DBINDING_C=$BINDING_C_FLAG -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -DBUILD_SHARED_LIBS=$BUILD_SHARED \
--DSANITIZE=$SANITIZE_FLAG -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DBUILD_ALL=$BUILD_ALL_FLAG \
+      -DBUILD_STRICT=$STRICT_FLAG \
+      -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
+      -DBUILD_TEST=$TEST_FLAG \
+      -DCOVERAGE=$COV_FLAG \
+      -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG \
+      -DEXAMPLES=$EXAMPLE_FLAG \
+      -DTOML_CONFIG=$TOML_FLAG \
+      -DBUILD_DOC=$BUILD_DOC \
+      -DDDS_GATEWAY=$DDS_GATEWAY_FLAG \
+      -DBINDING_C=$BINDING_C_FLAG \
+      -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG \
+      -DBUILD_SHARED_LIBS=$BUILD_SHARED \
+      -DSANITIZE=$SANITIZE_FLAG \
+      -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE \
+      $WORKSPACE/iceoryx_meta
 
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx <<<<<<"
@@ -294,7 +307,9 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     cd $WORKSPACE && mkdir -p build_out_of_tree && cd build_out_of_tree
         for ex in ${EXAMPLES}  ; do
             mkdir -p $ex && cd $ex
-            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=$TOML_FLAG $WORKSPACE/iceoryx_examples/$ex
+            cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
+                  -DTOML_CONFIG=$TOML_FLAG \
+                  $WORKSPACE/iceoryx_examples/$ex
             cmake --build . --target install -- -j$NUM_JOBS
             if [ $? -ne 0 ]; then
                 echo "Out of tree build failed"
