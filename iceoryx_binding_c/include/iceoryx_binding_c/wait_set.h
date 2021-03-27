@@ -75,15 +75,29 @@ uint64_t iox_ws_capacity(iox_ws_t const self);
 
 /// @brief attaches a subscriber state to a waitset
 /// @param[in] self handle to the waitset
-/// @param[in] subscriber the subscriber of the event which should be attached
-/// @param[in] subscriberState the event which should be attached
-/// @param[in] eventId an arbitrary id which will be tagged to the event
-/// @param[in] callback a callback which is attached to the event
+/// @param[in] subscriber the subscriber of the state which should be attached
+/// @param[in] subscriberState the state which should be attached
+/// @param[in] id an arbitrary id which will be tagged to the state
+/// @param[in] callback a callback which is attached to the state
 /// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
 ///             an enum which describes the error
 ENUM iox_WaitSetResult iox_ws_attach_subscriber_state(iox_ws_t const self,
                                                       iox_sub_t const subscriber,
                                                       const ENUM iox_SubscriberState subscriberState,
+                                                      const uint64_t id,
+                                                      void (*callback)(iox_sub_t));
+
+/// @brief attaches a subscriber event to a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] subscriber the subscriber of the event which should be attached
+/// @param[in] subscriberEvent the event which should be attached
+/// @param[in] eventId an arbitrary id which will be tagged to the event
+/// @param[in] callback a callback which is attached to the event
+/// @return if the attaching was successfull it returns WaitSetResult_SUCCESS, otherwise
+///             an enum which describes the error
+ENUM iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
+                                                      iox_sub_t const subscriber,
+                                                      const ENUM iox_SubscriberEvent subscriberEvent,
                                                       const uint64_t eventId,
                                                       void (*callback)(iox_sub_t));
 
@@ -103,6 +117,14 @@ ENUM iox_WaitSetResult iox_ws_attach_user_trigger_event(iox_ws_t const self,
 /// @param[in] self handle to the waitset
 /// @param[in] subscriber the subscriber from which the event should be detached
 /// @param[in] subscriberState the event which should be detached from the subscriber
+void iox_ws_detach_subscriber_event(iox_ws_t const self,
+                                    iox_sub_t const subscriber,
+                                    const ENUM iox_SubscriberEvent subscriberEvent);
+
+/// @brief detaches a subscriber state from a waitset
+/// @param[in] self handle to the waitset
+/// @param[in] subscriber the subscriber from which the state should be detached
+/// @param[in] subscriberState the state which should be detached from the subscriber
 void iox_ws_detach_subscriber_state(iox_ws_t const self,
                                     iox_sub_t const subscriber,
                                     const ENUM iox_SubscriberState subscriberState);

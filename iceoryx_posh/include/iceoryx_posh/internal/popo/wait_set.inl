@@ -98,9 +98,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
     static_assert(IS_EVENT_ENUM<EventType>,
                   "Only enums with an underlying EventEnumIdentifier or StateEnumIdentifier are allowed.");
 
-    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin, eventType);
-
-    return attachImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
+    return attachImpl(eventOrigin, WaitSetHasTriggeredCallback(), eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
             eventOrigin,
             TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
@@ -123,9 +121,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin);
-
-    return attachImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
+    return attachImpl(eventOrigin, WaitSetHasTriggeredCallback(), eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
             eventOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
     });
@@ -147,7 +143,9 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin
                                                                   const EventInfo::Callback<T>& stateCallback) noexcept
 {
     static_assert(IS_STATE_ENUM<StateType>, "Only enums with an underlying StateEnumIdentifier are allowed.");
-    return attachImpl(stateOrigin, WaitSetHasTriggeredCallback(), id, stateCallback).and_then([&](auto& uniqueId) {
+    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(stateOrigin, stateType);
+
+    return attachImpl(stateOrigin, hasTriggeredCallback, id, stateCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableState(
             stateOrigin,
             TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
@@ -169,7 +167,8 @@ template <typename T>
 inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachState(T& stateOrigin, const uint64_t id, const EventInfo::Callback<T>& stateCallback) noexcept
 {
-    return attachImpl(stateOrigin, WaitSetHasTriggeredCallback(), id, stateCallback).and_then([&](auto& uniqueId) {
+    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(stateOrigin);
+    return attachImpl(stateOrigin, hasTriggeredCallback, id, stateCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableState(
             stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
     });

@@ -28,6 +28,7 @@ iox::popo::SubscriberEvent subscriberEvent(const iox_SubscriberEvent value) noex
 
     iox::LogFatal() << "invalid iox_SubscriberEvent value";
     errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_EVENT_VALUE);
+    return iox::popo::SubscriberEvent::DATA_RECEIVED;
 }
 
 iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noexcept
@@ -40,6 +41,7 @@ iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noex
 
     iox::LogFatal() << "invalid iox_SubscriberState value";
     errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_STATE_VALUE);
+    return iox::popo::SubscriberState::HAS_DATA;
 }
 
 } // namespace c2cpp

@@ -153,8 +153,8 @@ int main()
     //   when the listener goes out of scope it will detach all events and when a
     //   subscriber goes out of scope it will detach itself from the listener
     iox_listener_detach_user_trigger_event(listener, heartbeat);
-    iox_listener_detach_subscriber_event(listener, subscriberLeft, SubscriberState_HAS_DATA);
-    iox_listener_detach_subscriber_event(listener, subscriberRight, SubscriberState_HAS_DATA);
+    iox_listener_detach_subscriber_event(listener, subscriberLeft, SubscriberEvent_DATA_RECEIVED);
+    iox_listener_detach_subscriber_event(listener, subscriberRight, SubscriberEvent_DATA_RECEIVED);
 
 #if !defined(_WIN32)
     pthread_join(heartbeatTriggerThread, NULL);
