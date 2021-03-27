@@ -49,11 +49,16 @@ class ChunkDistributor_test : public Test
     {
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
-        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(),
-                                                           PAYLOAD_SIZE,
-                                                           iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                                           iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                                           iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+
+        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        EXPECT_FALSE(chunkSettingsResult.has_error());
+        if (chunkSettingsResult.has_error())
+        {
+            return nullptr;
+        }
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
         new (chunkMgmt) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         *static_cast<uint32_t*>(chunkHeader->payload()) = value;
         return SharedChunk(chunkMgmt);
@@ -70,8 +75,8 @@ class ChunkDistributor_test : public Test
     static constexpr uint32_t MAX_NUMBER_QUEUES = 128U;
     char memory[MEMORY_SIZE];
     iox::posix::Allocator allocator{memory, MEMORY_SIZE};
-    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 20U, &allocator, &allocator};
-    MemPool chunkMgmtPool{128U, 20U, &allocator, &allocator};
+    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 20U, allocator, allocator};
+    MemPool chunkMgmtPool{128U, 20U, allocator, allocator};
 
     struct ChunkDistributorConfig
     {
@@ -108,7 +113,7 @@ TYPED_TEST(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-    EXPECT_DEATH(sut.tryAddQueue(nullptr), ".*");
+    EXPECT_DEATH(IOX_DISCARD_RESULT(sut.tryAddQueue(nullptr)), ".*");
 }
 
 TYPED_TEST(ChunkDistributor_test, NewChunkDistributorHasNoQueues)
@@ -145,7 +150,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
     {
         auto queueData = this->getChunkQueueData();
-        sut.tryAddQueue(queueData.get());
+        ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
         queueVector.push_back(queueData);
     }
 
@@ -164,7 +169,7 @@ TYPED_TEST(ChunkDistributor_test, RemovingExistingQueueWorks)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
     auto ret = sut.tryRemoveQueue(queueData.get());
     EXPECT_FALSE(ret.has_error());
     EXPECT_THAT(sut.hasStoredQueues(), Eq(false));
@@ -176,7 +181,7 @@ TYPED_TEST(ChunkDistributor_test, RemovingNonExistingQueueChangesNothing)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto queueData2 = this->getChunkQueueData();
     auto ret = sut.tryRemoveQueue(queueData2.get());
@@ -191,7 +196,7 @@ TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingOne)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
     sut.removeAllQueues();
 
     EXPECT_THAT(sut.hasStoredQueues(), Eq(false));
@@ -203,9 +208,9 @@ TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingMultipleQueues)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
     auto queueData2 = this->getChunkQueueData();
-    sut.tryAddQueue(queueData2.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData2.get()).has_error());
     sut.removeAllQueues();
 
     EXPECT_THAT(sut.hasStoredQueues(), Eq(false));
@@ -217,7 +222,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
@@ -235,7 +240,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOn
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
@@ -251,9 +256,9 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDel
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
-    sut.tryAddQueue(queueData.get());
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
@@ -270,7 +275,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleCh
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto limit = 10;
     for (auto i = 0; i < limit; ++i)
@@ -292,7 +297,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMul
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto limit = 10u;
     for (auto i = 0u; i < limit; ++i)
@@ -313,7 +318,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
     for (auto i = 0; i < limit; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
-        sut.tryAddQueue(queueData.back().get());
+        ASSERT_FALSE(sut.tryAddQueue(queueData.back().get()).has_error());
     }
 
     auto chunk = this->allocateChunk(24451);
@@ -339,7 +344,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
     for (auto i = 0u; i < limit; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
-        sut.tryAddQueue(queueData.back().get());
+        ASSERT_FALSE(sut.tryAddQueue(queueData.back().get()).has_error());
     }
 
     for (auto i = 0u; i < limit; ++i)
@@ -422,7 +427,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto chunk = this->allocateChunk(451);
     sut.deliverToQueue(queueData.get(), chunk);
@@ -453,7 +458,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAddedDoesNotChangeHi
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.tryAddQueue(queueData.get());
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
     auto chunk = this->allocateChunk(4451);
     sut.deliverToQueue(queueData.get(), chunk);
@@ -475,7 +480,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
     // add a queue with a requested history of one must deliver the latest sample
     auto queueData = this->getChunkQueueData();
     ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
-    sut.tryAddQueue(queueData.get(), 1);
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get(), 1).has_error());
 
     EXPECT_THAT(queue.size(), Eq(1u));
     auto maybeSharedChunk = queue.tryPop();
@@ -498,7 +503,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
     // add a queue with a requested history of 3 must deliver all three in the order oldest to newest
     auto queueData = this->getChunkQueueData();
     ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
-    sut.tryAddQueue(queueData.get(), 3);
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get(), 3).has_error());
 
     EXPECT_THAT(queue.size(), Eq(3u));
     auto maybeSharedChunk = queue.tryPop();
@@ -526,7 +531,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
     // add a queue with a requested history of 5 must deliver only the three available in the order oldest to newest
     auto queueData = this->getChunkQueueData();
     ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
-    sut.tryAddQueue(queueData.get(), 5);
+    ASSERT_FALSE(sut.tryAddQueue(queueData.get(), 5).has_error());
 
     EXPECT_THAT(queue.size(), Eq(3u));
     auto maybeSharedChunk = queue.tryPop();

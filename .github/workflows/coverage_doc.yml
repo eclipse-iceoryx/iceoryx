@@ -37,10 +37,13 @@ jobs:
         run: |
           mkdir $GITHUB_WORKSPACE/lcov_results
           mkdir $GITHUB_WORKSPACE/lcov_results/unittest
+          mkdir $GITHUB_WORKSPACE/lcov_results/unittest_timing
           # add flag to include coverage
           sudo $GITHUB_WORKSPACE/tools/add_test_users.sh
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all test-add-user -c unit
           cp -rf $GITHUB_WORKSPACE/build/lcov/ $GITHUB_WORKSPACE/lcov_results/unittest/
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-strict build-all test-add-user -c unit-timing clean
+          cp -rf $GITHUB_WORKSPACE/build/lcov/ $GITHUB_WORKSPACE/lcov_results/unittest_timing/
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
@@ -48,6 +51,14 @@ jobs:
           file: ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
           name: iceoryx
           flags: unittests
+          fail_ci_if_error: true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./lcov_results/unittest_timing/lcov/iceoryx_lcov_result_unit-timing.info
+          name: iceoryx
+          flags: unittests_timing
           fail_ci_if_error: true
 
       - name: Generate doxygen documentation

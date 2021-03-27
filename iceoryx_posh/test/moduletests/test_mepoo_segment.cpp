@@ -135,7 +135,7 @@ class MePooSegment_test : public Test
 
     MePooConfig mepooConfig = setupMepooConfig();
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut{
-        mepooConfig, &m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
+        mepooConfig, m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
 };
 MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedMemoryObject_MOCK::createVerificator;
 
@@ -157,7 +157,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
         EXPECT_THAT(f_ownerShip, Eq(iox::posix::OwnerShip::MINE));
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, &m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
+        mepooConfig, m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 }
@@ -174,7 +174,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
         memorySizeInBytes = f_memorySizeInBytes;
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, &m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
+        mepooConfig, m_managementAllocator, {"iox_roudi_test1"}, {"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 
@@ -196,9 +196,12 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     ASSERT_THAT(sut.getMemoryManager().getNumberOfMemPools(), Eq(1U));
     auto config = sut.getMemoryManager().getMemPoolInfo(0);
     ASSERT_THAT(config.m_numChunks, Eq(100U));
-    auto chunk = sut.getMemoryManager().getChunk(128U,
-                                                 iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                                 iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                                 iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
-    EXPECT_THAT(chunk.getChunkHeader()->payloadSize, Eq(128U));
+
+    constexpr uint32_t PAYLOAD_SIZE{128U};
+    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    auto chunk = sut.getMemoryManager().getChunk(chunkSettings);
+    EXPECT_THAT(chunk.getChunkHeader()->payloadSize, Eq(PAYLOAD_SIZE));
 }

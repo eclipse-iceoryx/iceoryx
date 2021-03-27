@@ -48,7 +48,7 @@ class ChunkSender_test : public Test
     {
         m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
         m_mempoolconf.addMemPool({BIG_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~ChunkSender_test()
@@ -240,11 +240,12 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
 
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE,
-                                         PAYLOAD_SIZE,
-                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
     m_chunkSender.release(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
@@ -331,7 +332,7 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverWithHistoryNoLastReuse)
 
 TEST_F(ChunkSender_test, sendOneWithReceiver)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
@@ -358,7 +359,7 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL <= checkQueue.getCurrentCapacity());
 
@@ -426,7 +427,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL <= checkQueue.getCurrentCapacity());
 
@@ -475,11 +476,12 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
 
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE,
-                                         PAYLOAD_SIZE,
-                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
     m_chunkSender.send(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
@@ -518,11 +520,12 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
 
     constexpr uint32_t CHUNK_SIZE{32U};
     constexpr uint32_t PAYLOAD_SIZE{0U};
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE,
-                                         PAYLOAD_SIZE,
-                                         iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                         iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+
+    auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
     m_chunkSender.pushToHistory(&myCrazyChunk);
 
     EXPECT_TRUE(errorHandlerCalled);
@@ -531,7 +534,7 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
@@ -564,7 +567,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed)
 {
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
+    ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {

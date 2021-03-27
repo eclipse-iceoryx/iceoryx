@@ -1,4 +1,5 @@
-# Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,11 +23,10 @@ option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
+find_package(iceoryx_utils CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
-if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatform)
-endif ()
+include(IceoryxPlatform)
 
 add_executable(iceperf-laurel iceperf_laurel.cpp base.cpp example_common.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp)
 

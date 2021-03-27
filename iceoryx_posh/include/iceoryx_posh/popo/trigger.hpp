@@ -19,6 +19,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/event_info.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
 #include <type_traits>
@@ -92,7 +93,8 @@ class Trigger
     /// @brief returns true if the Triggers are logical equal otherwise false. Two Triggers are logical equal when
     ///       - origin == rhs.origin
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
-    bool isLogicalEqualTo(const Trigger& rhs) const noexcept;
+    bool isLogicalEqualTo(const void* const eventOrigin,
+                          const cxx::ConstMethodCallback<bool>& hasTriggeredCallback) const noexcept;
 
     /// @brief sets a new origin of the trigger
     /// @param[in] newOrigin pointer to the new origin

@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -261,9 +262,9 @@ TYPED_TEST(IpcChannel_test, SendAndReceiveWorks)
 
 TYPED_TEST(IpcChannel_test, InvalidAfterDestroy)
 {
-    this->client.destroy();
+    ASSERT_FALSE(this->client.destroy().has_error());
     ASSERT_FALSE(this->client.isInitialized());
-    this->server.destroy();
+    ASSERT_FALSE(this->server.destroy().has_error());
     ASSERT_FALSE(this->server.isInitialized());
 }
 
@@ -384,7 +385,7 @@ TYPED_TEST(IpcChannel_test, TimedReceiveWorks)
     Duration minTimeoutTolerance = 10_ms;
     Duration maxTimeoutTolerance = 20_ms;
 
-    this->client.send(msg);
+    ASSERT_FALSE(this->client.send(msg).has_error());
 
     auto received = this->server.timedReceive(timeout);
     ASSERT_FALSE(received.has_error());

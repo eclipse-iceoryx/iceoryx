@@ -75,7 +75,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     ChunkBuildingBlocks_IntegrationTest()
     {
         m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolConfig, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolConfig, m_memoryAllocator, m_memoryAllocator);
     }
     virtual ~ChunkBuildingBlocks_IntegrationTest()
     {
@@ -85,8 +85,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     void SetUp()
     {
-        m_chunkSender.tryAddQueue(&m_chunkQueueData);
-        m_chunkDistributor.tryAddQueue(&m_chunkReceiverData);
+        ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
+        ASSERT_FALSE(m_chunkDistributor.tryAddQueue(&m_chunkReceiverData).has_error());
     }
     void TearDown(){};
 

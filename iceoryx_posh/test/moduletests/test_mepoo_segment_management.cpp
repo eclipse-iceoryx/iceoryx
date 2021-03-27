@@ -21,7 +21,7 @@
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "test.hpp"
 #include "testutils/test_definitions.hpp"
 
@@ -55,7 +55,7 @@ class SegmentManager_test : public Test
     void SetUp(){};
     void TearDown()
     {
-        iox::RelativePointer::unregisterAll();
+        iox::rp::BaseRelativePointer::unregisterAll();
     };
 
     MePooConfig getMempoolConfig()

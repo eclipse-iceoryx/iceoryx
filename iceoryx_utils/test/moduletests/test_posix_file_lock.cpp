@@ -84,7 +84,7 @@ TEST_F(FileLock_test, SecondLockWithDifferentNameWorks)
 TEST_F(FileLock_test, LockAndReleaseWorks)
 {
     {
-        auto sut1 = iox::posix::FileLock::create(ANOTHER_TEST_NAME);
+        IOX_DISCARD_RESULT(iox::posix::FileLock::create(ANOTHER_TEST_NAME));
     }
     auto sut2 = iox::posix::FileLock::create(ANOTHER_TEST_NAME);
     ASSERT_FALSE(sut2.has_error());

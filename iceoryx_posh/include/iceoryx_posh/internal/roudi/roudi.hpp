@@ -28,7 +28,7 @@
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_utils/platform/file.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
@@ -129,7 +129,7 @@ class RouDi
 
     void monitorAndDiscoveryUpdate();
 
-    cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
+    cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { rp::BaseRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runDiscoveryThread;
     std::atomic_bool m_runIpcChannelThread;
@@ -141,7 +141,13 @@ class RouDi
     /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that
     /// the lifetime of the MemoryBlocks must be at least as long as RouDi; this saves us from issues if the
     /// RouDiMemoryManager outlives some MemoryBlocks
-    cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {}, [this]() { this->m_roudiMemoryInterface->destroyMemory(); }};
+    cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {},
+                                                 [this]() {
+                                                     if (this->m_roudiMemoryInterface->destroyMemory().has_error())
+                                                     {
+                                                         LogWarn() << "unable to cleanup roudi memory interface";
+                                                     };
+                                                 }};
     PortManager* m_portManager{nullptr};
     concurrent::smart_lock<ProcessManager> m_prcMgr;
 

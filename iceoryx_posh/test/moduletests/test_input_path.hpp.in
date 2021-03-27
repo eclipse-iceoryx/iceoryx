@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,5 +13,17 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_POSH_TEST_INPUT_INPUT_PATH_HPP
+#define IOX_POSH_TEST_INPUT_INPUT_PATH_HPP
 
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+
+namespace iox
+{
+namespace testing
+{
+constexpr char TEST_INPUT_PATH[] = "@POSH_TEST_INPUT_FILES_PATH@";
+} // namespace testing
+} // namespace iox
+
+#endif // IOX_POSH_TEST_INPUT_INPUT_PATH_HPP
