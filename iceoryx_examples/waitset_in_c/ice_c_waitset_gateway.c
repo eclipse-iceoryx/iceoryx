@@ -86,7 +86,7 @@ int main()
     {
         iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-        iox_ws_attach_subscriber_state(waitSet, subscriber, SubscriberState_HAS_DATA, 1U, subscriberCallback);
+        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback);
     }
 
 
