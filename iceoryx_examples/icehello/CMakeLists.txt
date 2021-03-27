@@ -14,9 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Build icedelivery example
+# Build icehello example
 cmake_minimum_required(VERSION 3.5)
-project(example_icedelivery)
+project(example_icehello)
 
 include(GNUInstallDirs)
 
@@ -27,19 +27,19 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatform)
 endif ()
 
-add_executable(iox-ex-publisher ./iox_publisher.cpp)
-target_link_libraries(iox-ex-publisher
+add_executable(iox-ex-publisher-helloworld ./iox_publisher_helloworld.cpp)
+target_link_libraries(iox-ex-publisher-helloworld
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-publisher-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber ./iox_subscriber.cpp)
-target_link_libraries(iox-ex-subscriber
+add_executable(iox-ex-subscriber-helloworld ./iox_subscriber_helloworld.cpp)
+target_link_libraries(iox-ex-subscriber-helloworld
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-subscriber-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-ex-subscriber iox-ex-publisher
+set_target_properties(iox-ex-subscriber-helloworld iox-ex-publisher-helloworld
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -48,5 +48,5 @@ set_target_properties(iox-ex-subscriber iox-ex-publisher
 
 # ========================================================== //
 
-install(TARGETS iox-ex-publisher iox-ex-subscriber
+install(TARGETS iox-ex-publisher-helloworld iox-ex-subscriber-helloworld
         RUNTIME DESTINATION bin)

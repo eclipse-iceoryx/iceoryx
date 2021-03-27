@@ -23,17 +23,12 @@
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-ex-icehello-publisher";
+constexpr char APP_NAME[] = "iox-ex-publisher-helloworld";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
-}
-
-void getRadarObject(RadarObject* const object, const double& val) noexcept
-{
-    *object = RadarObject(val, val, val);
 }
 
 int main()

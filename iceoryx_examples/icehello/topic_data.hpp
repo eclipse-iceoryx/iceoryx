@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
+#ifndef IOX_EXAMPLES_ICEHELLO_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_ICEHELLO_TOPIC_DATA_HPP
 
 #include <cstdint>
 
@@ -34,4 +34,4 @@ struct RadarObject
     double z = 0.0;
 };
 
-#endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
+#endif // IOX_EXAMPLES_ICEHELLO_TOPIC_DATA_HPP

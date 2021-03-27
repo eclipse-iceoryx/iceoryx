@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +23,7 @@
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-ex-subscriber";
+constexpr char APP_NAME[] = "iox-ex-subscriber-helloworld";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
