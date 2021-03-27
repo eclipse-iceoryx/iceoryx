@@ -23,11 +23,12 @@ namespace popo
 {
 namespace internal
 {
+/// implementation of GetHasTriggeredCallbackForState
 template <typename T, typename EventType, bool IsStateEnum>
-struct GetHasTriggeredCallbackForState;
+struct GetHasTriggeredCallbackForStateImpl;
 
 template <typename T, typename EventType>
-struct GetHasTriggeredCallbackForState<T, EventType, true>
+struct GetHasTriggeredCallbackForStateImpl<T, EventType, true>
 {
     static WaitSetHasTriggeredCallback get(T& eventOrigin, const EventType eventType) noexcept
     {
@@ -36,7 +37,7 @@ struct GetHasTriggeredCallbackForState<T, EventType, true>
 };
 
 template <typename T, typename EventType>
-struct GetHasTriggeredCallbackForState<T, EventType, false>
+struct GetHasTriggeredCallbackForStateImpl<T, EventType, false>
 {
     static WaitSetHasTriggeredCallback get(T& eventOrigin, const EventType eventType) noexcept
     {
@@ -46,6 +47,45 @@ struct GetHasTriggeredCallbackForState<T, EventType, false>
     }
 };
 
+template <typename T, typename EventType>
+using GetHasTriggeredCallbackForState = GetHasTriggeredCallbackForStateImpl<T, EventType, IS_STATE_ENUM<EventType>>;
+
+/// implementation of IsStateBased
+template <typename T, typename = void>
+struct IsStateBasedImpl : std::false_type
+{
+};
+
+template <typename T>
+struct IsStateBasedImpl<T, std::void_t<decltype(&T::getHasTriggeredCallbackForState)>> : std::true_type
+{
+};
+
+/// implementation of GetHasTriggeredCallback
+template <typename T, bool IsStateBased>
+struct GetHasTriggeredCallbackImpl;
+
+template <typename T>
+struct GetHasTriggeredCallbackImpl<T, true>
+{
+    static WaitSetHasTriggeredCallback get(T& eventOrigin) noexcept
+    {
+        return EventAttorney::getHasTriggeredCallbackForState(eventOrigin);
+    }
+};
+
+template <typename T>
+struct GetHasTriggeredCallbackImpl<T, false>
+{
+    static WaitSetHasTriggeredCallback get(T& eventOrigin) noexcept
+    {
+        static_cast<void>(eventOrigin);
+        return WaitSetHasTriggeredCallback();
+    }
+};
+
+template <typename T>
+using GetHasTriggeredCallback = GetHasTriggeredCallbackImpl<T, IsStateBasedImpl<T>::value>;
 } // namespace internal
 
 template <uint64_t Capacity>
@@ -125,8 +165,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
     static_assert(IS_EVENT_ENUM<EventType> || IS_STATE_ENUM<EventType>,
                   "Only enums with an underlying EventEnumIdentifier or StateEnumIdentifier are allowed.");
 
-    auto hasTriggeredCallback =
-        internal::GetHasTriggeredCallbackForState<T, EventType, IS_STATE_ENUM<EventType>>::get(eventOrigin, eventType);
+    auto hasTriggeredCallback = internal::GetHasTriggeredCallbackForState<T, EventType>::get(eventOrigin, eventType);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
@@ -151,7 +190,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin);
+    auto hasTriggeredCallback = internal::GetHasTriggeredCallback<T>::get(eventOrigin);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(

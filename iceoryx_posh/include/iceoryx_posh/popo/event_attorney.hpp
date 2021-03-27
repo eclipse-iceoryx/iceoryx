@@ -28,7 +28,9 @@ namespace popo
 namespace internal
 {
 template <typename, typename, bool>
-struct GetHasTriggeredCallbackForState;
+struct GetHasTriggeredCallbackForStateImpl;
+template <typename, bool>
+struct GetHasTriggeredCallbackImpl;
 } // namespace internal
 
 /// @brief Class which allows accessing private methods to
@@ -41,7 +43,9 @@ class EventAttorney
     friend class Listener;
 
     template <typename, typename, bool>
-    friend struct internal::GetHasTriggeredCallbackForState;
+    friend struct internal::GetHasTriggeredCallbackForStateImpl;
+    template <typename, bool>
+    friend struct internal::GetHasTriggeredCallbackImpl;
 
   private:
     template <typename T, typename... Targs>
