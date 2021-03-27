@@ -16,7 +16,95 @@ For further information how iceoryx can be used see the
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) provides additional 
 information about the _Shared Memory communication_ that lies at the heart of iceoryx.
 
-- Hello world????
+### icehello example
+
+Before we get into more details let's start with a simple example:
+
+We need to create a runtime with a unique name along all applications for each application.
+```cpp
+iox::runtime::PoshRuntime::initRuntime("some_unique_name");
+```
+Now this application is ready to communicate with the middleware deamon RouDi and we can define the data type we want 
+to send.
+```cpp
+struct CounterTopic
+{
+    uint32_t counter;
+};
+```
+Then we create a publisher that offers our CounterTopic.
+```cpp
+iox::popo::Publisher<CounterTopic> publisher({"Group", "Instance", "CounterTopic"});
+```
+Now we can use the publisher to send the data.
+```cpp
+auto result = publisher.loan();
+if(!result.has_error())
+{
+    auto& sample = result.value();
+    sample->counter = 30;
+    sample.publish();
+}
+else
+{
+    // handle the error
+}
+```
+Here ``result`` is an ``expected`` and hence we may get an error which we have to handle. This can happen if we try 
+to loan too many samples and exhaust memory. 
+
+We create a corresponding subscriber.
+```cpp
+iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
+```
+Now we can use the subscriber to receive data. For simplicity we assume that we periodically check for new data. It 
+is also possible to explicitly wait for data using the 
+[Waitset](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/README.md) or the 
+[Listener](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/callbacks/README.md). The code to 
+receive the data is the same, the only difference is the way we wake up before checking for data.
+```cpp
+while (keepRunning)
+{
+    // wait for new data (either sleep and wake up periodically or by notification from the waitset)
+
+    auto result = subscriber.take();
+
+    if(!result.has_error())
+    {
+        auto& sample = result.value();
+        uint32_t counter = sample->counter;
+        //process the data
+    } 
+    else 
+    {
+        //handle the error
+    }
+}
+```
+By calling ``take`` we get an ``expected`` and hence we may have to handle an error.
+
+And that's it. We have created our first simple iceoryx example. 
+[Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples 
+which demonstrate how iceoryx can be used and describe our API in more detail. Many parts of the C++ API follow a 
+functional programming approach which is less error prone. This requires using the monadic types ``cxx::expected`` and 
+``cxx::optional`` which are introduced ???????[here]()????????.
+
+Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
+
+First we need to start RouDi.
+
+```
+# If installed and available in PATH environment variable
+iox-roudi
+# If build from scratch with script in tools
+$ICEORYX_ROOT/build/posh/iox-roudi
+```
+
+Afterwards we can start the applications which immediately connect to the RouDi via their runtime.
+
+When the application terminates, the runtime cleans up all resources needed for communication with RouDi. This
+includes all memory chunks used for the data transmission which may still be hold by the application.
+
 
 We now briefly define the main entities of an iceoryx system before showing how they are created and used by the
 iceoryx API.
