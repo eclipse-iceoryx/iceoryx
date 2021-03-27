@@ -109,13 +109,13 @@ class UsedChunkList
             return m_idAndOffset == LOGICAL_NULLPTR;
         }
 
-        static constexpr uint64_t MAX_ID{std::numeric_limits<uint16_t>::max()};
+        static constexpr uint16_t MAX_ID{std::numeric_limits<uint16_t>::max()};
         /// @note the id is 16 bit and the offset consumes the remaining 48 bits -> max offset is 2^48 - 1
         static constexpr uint64_t MAX_OFFSET{(1ULL << 48U) - 1U};
         static constexpr uint64_t LOGICAL_NULLPTR{std::numeric_limits<uint64_t>::max()};
 
       private:
-        uint64_t m_idAndOffset;
+        uint64_t m_idAndOffset{LOGICAL_NULLPTR};
     };
 
     using DataElement_t = RelativePointerData;
