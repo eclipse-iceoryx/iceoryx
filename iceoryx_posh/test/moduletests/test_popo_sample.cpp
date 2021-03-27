@@ -48,7 +48,8 @@ class MockPublisherInterface : public iox::popo::PublisherInterface<T, H>
   public:
     void publish(iox::popo::Sample<T, H>&& sample) noexcept override
     {
-        return publishMock(std::move(sample));
+        auto s = std::move(sample); // this step is necessary since the mock method doesn't execute the move
+        return publishMock(std::move(s));
     }
     MOCK_METHOD1_T(publishMock, void(iox::popo::Sample<T, H>&&));
 };
@@ -71,7 +72,7 @@ class SampleTest : public Test
   protected:
 };
 
-TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
+TEST_F(SampleTest, PublishesSampleViaPublisherInterfaceWorks)
 {
     // ===== Setup ===== //
     ChunkMock<DummyData> chunk;
@@ -86,6 +87,35 @@ TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
     sut.publish();
 
     // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(SampleTest, PublishingEmptySampleCallsErrorHandler)
+{
+    // ===== Setup ===== //
+    ChunkMock<DummyData> chunk;
+    iox::cxx::unique_ptr<DummyData> testSamplePtr{chunk.sample(), [](DummyData*) {}};
+    MockPublisherInterface<DummyData> mockPublisherInterface{};
+
+    auto sut = iox::popo::Sample<DummyData>(std::move(testSamplePtr), mockPublisherInterface);
+
+    EXPECT_CALL(mockPublisherInterface, publishMock).Times(1);
+    sut.publish();
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
+        });
+
+    // ===== Test ===== //
+    sut.publish();
+
+    // ===== Verify ===== //
+    ASSERT_TRUE(detectedError.has_value());
+    ASSERT_THAT(detectedError.value(), Eq(iox::Error::kPOSH__PUBLISHING_EMPTY_SAMPLE));
+
     // ===== Cleanup ===== //
 }
 

@@ -101,7 +101,6 @@ class Sample
     template <typename S = T, typename = ForSubscriberOnly<S, T>>
     Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept;
 
-    Sample(std::nullptr_t) noexcept;
     ~Sample() noexcept = default;
 
     Sample<T, H>& operator=(Sample<T, H>&& rhs) noexcept = default;

@@ -54,12 +54,6 @@ inline Sample<T, H>::Sample(cxx::unique_ptr<T>&& sampleUniquePtr) noexcept
 }
 
 template <typename T, typename H>
-inline Sample<T, H>::Sample(std::nullptr_t) noexcept
-{
-    m_members.sampleUniquePtr.reset();
-}
-
-template <typename T, typename H>
 inline T* Sample<T, H>::operator->() noexcept
 {
     return get();
@@ -137,7 +131,8 @@ inline void Sample<T, H>::publish() noexcept
     }
     else
     {
-        LogWarn() << "Tried to publish empty sample!";
+        LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
+        errorHandler(Error::kPOSH__PUBLISHING_EMPTY_SAMPLE, nullptr, ErrorLevel::MODERATE);
     }
 }
 
