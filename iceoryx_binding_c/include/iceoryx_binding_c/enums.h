@@ -62,7 +62,7 @@ enum iox_AllocationResult
 enum iox_WaitSetResult
 {
     WaitSetResult_WAIT_SET_FULL,
-    WaitSetResult_EVENT_ALREADY_ATTACHED,
+    WaitSetResult_ALREADY_ATTACHED,
     WaitSetResult_UNDEFINED_ERROR,
     WaitSetResult_SUCCESS
 };

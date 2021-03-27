@@ -57,7 +57,7 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
     {
         if (currentTrigger && currentTrigger->isLogicalEqualTo(&eventOrigin, hasTriggeredCallback))
         {
-            return cxx::error<WaitSetError>(WaitSetError::EVENT_ALREADY_ATTACHED);
+            return cxx::error<WaitSetError>(WaitSetError::ALREADY_ATTACHED);
         }
     }
 

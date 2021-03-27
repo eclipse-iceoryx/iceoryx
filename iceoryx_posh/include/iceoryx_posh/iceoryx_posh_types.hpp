@@ -102,8 +102,8 @@ constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE = 128U;
-constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
-static_assert(MAX_NUMBER_OF_EVENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
+constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = 128U;
+static_assert(MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
               "The WaitSet capacity is restricted by the maximum amount of notifiers per condition variable.");
 // Listener
 constexpr uint8_t MAX_NUMBER_OF_EVENT_VARIABLES = 128U;

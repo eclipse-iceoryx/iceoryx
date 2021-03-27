@@ -74,8 +74,8 @@ iox_WaitSetResult waitSetResult(const iox::popo::WaitSetError value) noexcept
     {
     case WaitSetError::WAIT_SET_FULL:
         return WaitSetResult_WAIT_SET_FULL;
-    case WaitSetError::EVENT_ALREADY_ATTACHED:
-        return WaitSetResult_EVENT_ALREADY_ATTACHED;
+    case WaitSetError::ALREADY_ATTACHED:
+        return WaitSetResult_ALREADY_ATTACHED;
     default:
         return WaitSetResult_UNDEFINED_ERROR;
     }

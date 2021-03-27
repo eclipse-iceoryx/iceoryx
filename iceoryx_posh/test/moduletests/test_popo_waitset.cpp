@@ -47,12 +47,14 @@ class WaitSet_test : public Test
 
         SimpleEventClass& operator=(const SimpleEventClass&) = delete;
         SimpleEventClass& operator=(SimpleEventClass&&) = delete;
-
-        ~SimpleEventClass()
-        {
-        }
+        ~SimpleEventClass() = default;
 
         void enableEvent(iox::popo::TriggerHandle&& handle) noexcept
+        {
+            m_handle = std::move(handle);
+        }
+
+        void enableState(iox::popo::TriggerHandle&& handle) noexcept
         {
             m_handle = std::move(handle);
         }
@@ -65,13 +67,13 @@ class WaitSet_test : public Test
 
         iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForState() const noexcept
         {
-            return (isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
-                                  : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
+            return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
+                                    : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
         }
 
         bool hasTriggered() const
         {
-            if (autoResetTrigger)
+            if (m_autoResetTrigger)
             {
                 return m_hasTriggered.exchange(false);
             }
@@ -79,6 +81,11 @@ class WaitSet_test : public Test
         }
 
         void disableEvent()
+        {
+            m_handle.reset();
+        }
+
+        void disableState()
         {
             m_handle.reset();
         }
@@ -105,8 +112,8 @@ class WaitSet_test : public Test
 
         SimpleEventClass* m_triggerCallbackArgument1 = nullptr;
         SimpleEventClass* m_triggerCallbackArgument2 = nullptr;
-        bool autoResetTrigger = true;
-        bool isEventBased = false;
+        bool m_autoResetTrigger = true;
+        bool m_isEventBased = false;
     };
 
     ConditionVariableData m_condVarData{"Horscht"};
@@ -122,13 +129,15 @@ class WaitSet_test : public Test
         waitset->m_triggerCallbackArgument2 = waitset;
     }
 
-    void SetUp()
+    void SetUp() override
     {
         WaitSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
         m_watchdog.watchAndActOnFailure([] { std::terminate(); });
-    };
+    }
 
-    void TearDown(){};
+    void TearDown() override
+    {
+    }
 
     template <uint64_t EventInfoVectorCapacity, typename EventOrigin>
     static bool
@@ -147,79 +156,149 @@ class WaitSet_test : public Test
         return false;
     }
 
-    void attachAllEvents()
+    bool attachAllEvents()
     {
-        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
         {
-            ASSERT_TRUE(m_sut.attachEvent(m_simpleEvents[i], i));
+            EXPECT_TRUE(m_sut.attachEvent(m_simpleEvents[i], i));
+            EXPECT_THAT(m_sut.size(), Eq(i + 1U));
+            EXPECT_THAT(m_sut.capacity(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
         }
+
+        return m_sut.size() == m_sut.capacity();
     }
+
+    bool attachAllStates()
+    {
+        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+        {
+            EXPECT_TRUE(m_sut.attachState(m_simpleEvents[i], i));
+            EXPECT_THAT(m_sut.size(), Eq(i + 1U));
+            EXPECT_THAT(m_sut.capacity(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
+        }
+
+        return m_sut.size() == m_sut.capacity();
+    }
+
+    bool attachAllWithEventStateMix()
+    {
+        for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+        {
+            if (i % 2 == 0U)
+            {
+                EXPECT_TRUE(m_sut.attachState(m_simpleEvents[i], i));
+            }
+            else
+            {
+                EXPECT_TRUE(m_sut.attachEvent(m_simpleEvents[i], i));
+            }
+            EXPECT_THAT(m_sut.size(), Eq(i + 1U));
+            EXPECT_THAT(m_sut.capacity(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
+        }
+
+        return m_sut.size() == m_sut.capacity();
+    }
+
 
     const iox::units::Duration m_timeToWait = 2_s;
     Watchdog m_watchdog{m_timeToWait};
-    using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1>;
-    eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1};
+    using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1>;
+    eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1};
 };
 uint64_t WaitSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
 
-TEST_F(WaitSet_test, AcquireTriggerOnceIsSuccessful)
+TEST_F(WaitSet_test, AttachEventOnceIsSuccessful)
 {
     EXPECT_FALSE(m_sut.attachEvent(m_simpleEvents[0]).has_error());
+    EXPECT_THAT(m_sut.size(), Eq(1U));
+    EXPECT_THAT(m_sut.capacity(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
 }
 
-TEST_F(WaitSet_test, AcquireMultipleTriggerIsSuccessful)
+TEST_F(WaitSet_test, AttachMaxEventsIsSuccessful)
 {
-    auto result1 = m_sut.attachEvent(m_simpleEvents[0], 10U);
-    auto result2 = m_sut.attachEvent(m_simpleEvents[1], 10U);
-    auto result3 = m_sut.attachEvent(m_simpleEvents[2], 10U);
-
-    EXPECT_FALSE(result1.has_error());
-    EXPECT_FALSE(result2.has_error());
-    EXPECT_FALSE(result3.has_error());
+    EXPECT_TRUE(attachAllEvents());
 }
 
-TEST_F(WaitSet_test, AcquireMaximumAllowedTriggersIsSuccessful)
+TEST_F(WaitSet_test, AttachMoreThanMaxEventsFails)
 {
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
-    {
-        auto result = m_sut.attachEvent(m_simpleEvents[i], 1U + i);
-        EXPECT_FALSE(result.has_error());
-    }
+    EXPECT_TRUE(attachAllEvents());
+
+    EXPECT_TRUE(m_sut.attachEvent(m_simpleEvents[iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET]).has_error());
+    EXPECT_THAT(m_sut.size(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
+    EXPECT_THAT(m_sut.capacity(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
 }
 
-TEST_F(WaitSet_test, AcquireMaximumAllowedPlusOneTriggerFails)
+TEST_F(WaitSet_test, AttachStateOnceIsSuccessful)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
-    {
-        ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 1U + i).has_error());
-    }
-    auto result = m_sut.attachEvent(m_simpleEvents[iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET], 0U);
-    ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(WaitSetError::WAIT_SET_FULL));
+    EXPECT_FALSE(m_sut.attachState(m_simpleEvents[0]).has_error());
+    EXPECT_THAT(m_sut.size(), Eq(1U));
+    EXPECT_THAT(m_sut.capacity(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
 }
 
-TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
+TEST_F(WaitSet_test, AttachMaxStatesIsSuccessful)
+{
+    EXPECT_TRUE(attachAllStates());
+}
+
+TEST_F(WaitSet_test, AttachMoreThanMaxStatesFails)
+{
+    EXPECT_TRUE(attachAllStates());
+
+    EXPECT_TRUE(m_sut.attachState(m_simpleEvents[iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET]).has_error());
+    EXPECT_THAT(m_sut.size(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
+    EXPECT_THAT(m_sut.capacity(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
+}
+
+TEST_F(WaitSet_test, AttachMoreThanMaxFailsWithMixedEventsStates)
+{
+    EXPECT_TRUE(attachAllWithEventStateMix());
+
+    EXPECT_TRUE(m_sut.attachEvent(m_simpleEvents[iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET]).has_error());
+    EXPECT_THAT(m_sut.size(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
+    EXPECT_THAT(m_sut.capacity(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
+}
+
+TEST_F(WaitSet_test, AttachingSameEventTwiceResultsInError)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 0U;
     ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
+    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
 }
 
-TEST_F(WaitSet_test, AcquireSameTriggerWithNonNullIdTwiceResultsInError)
+TEST_F(WaitSet_test, AttachingSameStateTwiceResultsInError)
+{
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 0U;
+    ASSERT_FALSE(m_sut.attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
+    auto result2 = m_sut.attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
+
+    ASSERT_TRUE(result2.has_error());
+    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+}
+
+TEST_F(WaitSet_test, AttachingSameEventWithNonNullIdTwiceResultsInError)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 121U;
     ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
     auto result2 = m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
+    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
 }
 
-TEST_F(WaitSet_test, AcquireSameTriggerWithDifferentIdResultsInError)
+TEST_F(WaitSet_test, AttachingSameStateWithNonNullIdTwiceResultsInError)
+{
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 121U;
+    ASSERT_FALSE(m_sut.attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
+    auto result2 = m_sut.attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
+
+    ASSERT_TRUE(result2.has_error());
+    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+}
+
+TEST_F(WaitSet_test, AttachingSameEventWithDifferentIdResultsInError)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 2101U;
     constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 9121U;
@@ -227,8 +306,21 @@ TEST_F(WaitSet_test, AcquireSameTriggerWithDifferentIdResultsInError)
     auto result2 = m_sut.attachEvent(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::EVENT_ALREADY_ATTACHED));
+    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
 }
+
+TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
+{
+    constexpr uint64_t USER_DEFINED_EVENT_ID = 2101U;
+    constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 9121U;
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
+    auto result2 = m_sut.attachEvent(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
+
+    ASSERT_TRUE(result2.has_error());
+    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+}
+
+///
 
 TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
 {
@@ -245,8 +337,8 @@ TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
 
 TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
-    for (uint64_t i = 0U; i + 1U < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0U; i + 1U < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 100U + i).has_error());
     }
@@ -266,8 +358,8 @@ TEST_F(WaitSet_test, TriggerRemovesItselfFromWaitsetWhenGoingOutOfScope)
 
 TEST_F(WaitSet_test, MultipleTimerRemovingThemselfFromWaitsetWhenGoingOutOfScope)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
-    for (uint64_t i = 3U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 3U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 100U + i).has_error());
     }
@@ -296,7 +388,7 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 {
     std::atomic_bool doStartWaiting{false};
     std::atomic_bool isThreadFinished{false};
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 5U + i).has_error());
     }
@@ -323,8 +415,8 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 
 TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 {
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET> trigger;
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET> trigger;
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[i], 5U + i).has_error());
     }
@@ -337,7 +429,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
                                          const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(test->m_sut.attachEvent(test->m_simpleEvents[i], 5U + i).has_error());
     }
@@ -364,7 +456,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsTheOneTriggeredCondition)
 void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
     WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(test->m_sut.attachEvent(test->m_simpleEvents[i], 100U + i).has_error());
     }
@@ -397,20 +489,20 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenMultipleAreTrigger
 void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
                                                          const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(test->m_sut.attachEvent(test->m_simpleEvents[i], i * 3U + 2U).has_error());
     }
 
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         test->m_simpleEvents[i].trigger();
     }
 
     auto triggerVector = waitCall();
-    ASSERT_THAT(triggerVector.size(), Eq(iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET));
+    ASSERT_THAT(triggerVector.size(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET));
 
-    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         EXPECT_TRUE(WaitSet_test::doesEventInfoVectorContain(triggerVector, i * 3U + 2U, test->m_simpleEvents[i]));
     }
@@ -492,7 +584,7 @@ TEST_F(WaitSet_test, InitialWaitSetHasSizeZero)
 
 TEST_F(WaitSet_test, WaitSetCapacity)
 {
-    EXPECT_EQ(m_sut.capacity(), iox::MAX_NUMBER_OF_EVENTS_PER_WAITSET);
+    EXPECT_EQ(m_sut.capacity(), iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET);
 }
 
 TEST_F(WaitSet_test, OneAcquireTriggerIncreasesSizeByOne)
@@ -530,10 +622,10 @@ TEST_F(WaitSet_test, NonResetEventsAreReturnedAgain)
 {
     attachAllEvents();
 
-    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
 
-    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].m_autoResetTrigger = false;
     m_simpleEvents[7].trigger();
 
     auto eventVector = m_sut.wait();
@@ -550,10 +642,10 @@ TEST_F(WaitSet_test, WhenEventIsNotResetButEverythingElseItIsReturnedAgain)
 {
     attachAllEvents();
 
-    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
 
-    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].m_autoResetTrigger = false;
     m_simpleEvents[7].trigger();
 
     for (auto& event : m_simpleEvents)
@@ -573,7 +665,7 @@ TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredBeforeItIsReturnedAgain
 {
     attachAllEvents();
 
-    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
 
     auto eventVector = m_sut.wait();
@@ -592,7 +684,7 @@ TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredAfterItIsReturnedAgain)
 {
     attachAllEvents();
 
-    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
 
     auto eventVector = m_sut.wait();
@@ -611,13 +703,13 @@ TEST_F(WaitSet_test, WhenEventIsNotResetAndOneIsTriggeredItIsReturnedAgain)
 {
     attachAllEvents();
 
-    m_simpleEvents[2].autoResetTrigger = false;
+    m_simpleEvents[2].m_autoResetTrigger = false;
     m_simpleEvents[2].trigger();
 
-    m_simpleEvents[7].autoResetTrigger = false;
+    m_simpleEvents[7].m_autoResetTrigger = false;
     m_simpleEvents[7].trigger();
 
-    m_simpleEvents[12].autoResetTrigger = false;
+    m_simpleEvents[12].m_autoResetTrigger = false;
     m_simpleEvents[12].trigger();
 
     auto eventVector = m_sut.wait();
@@ -661,8 +753,8 @@ TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorks)
 
 TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
 {
-    m_simpleEvents[0].isEventBased = true;
-    m_simpleEvents[0].autoResetTrigger = false;
+    m_simpleEvents[0].m_isEventBased = true;
+    m_simpleEvents[0].m_autoResetTrigger = false;
 
     ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], 3431).has_error());
 
@@ -678,9 +770,9 @@ TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
 
 TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWaitCorrectly)
 {
-    m_simpleEvents[0].isEventBased = true;
-    m_simpleEvents[0].autoResetTrigger = false;
-    m_simpleEvents[1].autoResetTrigger = false;
+    m_simpleEvents[0].m_isEventBased = true;
+    m_simpleEvents[0].m_autoResetTrigger = false;
+    m_simpleEvents[1].m_autoResetTrigger = false;
 
     ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], 3431).has_error());
     ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[1], 8171).has_error());

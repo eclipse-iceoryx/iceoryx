@@ -43,7 +43,7 @@ enum class WaitSetError : uint8_t
 {
     INVALID_STATE,
     WAIT_SET_FULL,
-    EVENT_ALREADY_ATTACHED,
+    ALREADY_ATTACHED,
 };
 
 using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
@@ -54,7 +54,7 @@ using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
 /// over process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it
 /// with the destructor. Hence the lifetime of the condition variable is bound to the lifetime of the WaitSet.
 /// @param[in] Capacity the amount of events which can be attached to the waitset
-template <uint64_t Capacity = MAX_NUMBER_OF_EVENTS_PER_WAITSET>
+template <uint64_t Capacity = MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET>
 class WaitSet
 {
   public:
