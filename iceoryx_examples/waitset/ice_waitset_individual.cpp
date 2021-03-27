@@ -51,11 +51,11 @@ int main()
     iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
     iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
 
-    waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_DATA).or_else([](auto) {
+    waitset.attachEvent(subscriber1, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cerr << "failed to attach subscriber1" << std::endl;
         std::terminate();
     });
-    waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_DATA).or_else([](auto) {
+    waitset.attachEvent(subscriber2, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cerr << "failed to attach subscriber2" << std::endl;
         std::terminate();
     });

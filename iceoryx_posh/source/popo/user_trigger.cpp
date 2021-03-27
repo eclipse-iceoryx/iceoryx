@@ -50,7 +50,7 @@ bool UserTrigger::hasTriggered() const noexcept
     return m_trigger.wasTriggered();
 }
 
-WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent() const noexcept
+WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForState() const noexcept
 {
     return WaitSetHasTriggeredCallback();
 }

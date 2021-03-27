@@ -95,7 +95,10 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForEvent(eventOrigin, eventType);
+    static_assert(IS_EVENT_ENUM<EventType> || IS_STATE_ENUM<EventType>,
+                  "Only enums with an underlying EventEnumIdentifier or StateEnumIdentifier are allowed.");
+
+    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin, eventType);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
@@ -120,7 +123,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForEvent(eventOrigin);
+    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(

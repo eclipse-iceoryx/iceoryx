@@ -57,7 +57,7 @@ class UserTrigger
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to UserTrigger::hasTriggered
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent() const noexcept;
+    WaitSetHasTriggeredCallback getHasTriggeredCallbackForState() const noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.

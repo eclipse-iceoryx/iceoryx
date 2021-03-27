@@ -94,11 +94,11 @@ uint64_t iox_ws_capacity(iox_ws_t const self)
 
 iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
                                                  iox_sub_t const subscriber,
-                                                 const iox_SubscriberEvent subscriberEvent,
+                                                 const iox_SubscriberState subscriberState,
                                                  const uint64_t eventId,
                                                  void (*callback)(iox_sub_t))
 {
-    auto result = self->attachEvent(*subscriber, subscriberEvent, eventId, callback);
+    auto result = self->attachEvent(*subscriber, subscriberState, eventId, callback);
     return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
@@ -113,9 +113,9 @@ iox_WaitSetResult iox_ws_attach_user_trigger_event(iox_ws_t const self,
 
 void iox_ws_detach_subscriber_event(iox_ws_t const self,
                                     iox_sub_t const subscriber,
-                                    const iox_SubscriberEvent subscriberEvent)
+                                    const iox_SubscriberState subscriberState)
 {
-    self->detachEvent(*subscriber, subscriberEvent);
+    self->detachEvent(*subscriber, subscriberState);
 }
 
 void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t const userTrigger)

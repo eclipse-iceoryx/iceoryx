@@ -109,7 +109,7 @@ inline void BaseSubscriber<port_t>::invalidateTrigger(const uint64_t uniqueTrigg
 
 template <typename port_t>
 inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
-                                                [[gnu::unused]] const SubscriberEvent subscriberEvent) noexcept
+                                                [[gnu::unused]] const SubscriberState subscriberState) noexcept
 
 {
     m_trigger = std::move(triggerHandle);
@@ -119,22 +119,22 @@ inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& trigg
 
 template <typename port_t>
 inline WaitSetHasTriggeredCallback
-BaseSubscriber<port_t>::getHasTriggeredCallbackForEvent(const SubscriberEvent subscriberEvent) const noexcept
+BaseSubscriber<port_t>::getHasTriggeredCallbackForState(const SubscriberState subscriberState) const noexcept
 {
-    switch (subscriberEvent)
+    switch (subscriberState)
     {
-    case SubscriberEvent::HAS_DATA:
+    case SubscriberState::HAS_DATA:
         return {*this, &SelfType::hasData};
     }
     return {};
 }
 
 template <typename port_t>
-inline void BaseSubscriber<port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
+inline void BaseSubscriber<port_t>::disableEvent(const SubscriberState subscriberState) noexcept
 {
-    switch (subscriberEvent)
+    switch (subscriberState)
     {
-    case SubscriberEvent::HAS_DATA:
+    case SubscriberState::HAS_DATA:
         m_trigger.reset();
         m_port.unsetConditionVariable();
         break;

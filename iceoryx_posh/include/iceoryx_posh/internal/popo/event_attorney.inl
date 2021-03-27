@@ -34,10 +34,10 @@ inline void EventAttorney::disableEvent(T& eventOrigin, Targs&&... args) noexcep
 }
 
 template <typename T, typename... Targs>
-inline cxx::ConstMethodCallback<bool> EventAttorney::getHasTriggeredCallbackForEvent(T& eventOrigin,
+inline cxx::ConstMethodCallback<bool> EventAttorney::getHasTriggeredCallbackForState(T& eventOrigin,
                                                                                      Targs&&... args) noexcept
 {
-    return eventOrigin.getHasTriggeredCallbackForEvent(std::forward<Targs>(args)...);
+    return eventOrigin.getHasTriggeredCallbackForState(std::forward<Targs>(args)...);
 }
 
 template <typename T>

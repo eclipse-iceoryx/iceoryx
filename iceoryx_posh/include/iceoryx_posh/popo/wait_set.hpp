@@ -20,6 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"

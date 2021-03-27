@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -22,7 +23,7 @@
 #include <thread>
 
 // The two events the MyTriggerClass offers
-enum class MyTriggerClassEvents
+enum class MyTriggerClassStates : iox::popo::StateEnumIdentifier
 {
     PERFORMED_ACTION,
     ACTIVATE
@@ -81,14 +82,14 @@ class MyTriggerClass
     }
 
     // reset PERFORMED_ACTION and ACTIVATE event
-    void reset(const MyTriggerClassEvents event) noexcept
+    void reset(const MyTriggerClassStates event) noexcept
     {
         switch (event)
         {
-        case MyTriggerClassEvents::PERFORMED_ACTION:
+        case MyTriggerClassStates::PERFORMED_ACTION:
             m_hasPerformedAction = false;
             break;
-        case MyTriggerClassEvents::ACTIVATE:
+        case MyTriggerClassStates::ACTIVATE:
             m_isActivated = false;
             break;
         }
@@ -108,14 +109,14 @@ class MyTriggerClass
     // This method attaches an event of the class to a waitset.
     // The event is choosen by the event parameter. Additionally, you can
     // set a eventId to group multiple instances and a custom callback.
-    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassEvents event) noexcept
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassStates event) noexcept
     {
         switch (event)
         {
-        case MyTriggerClassEvents::PERFORMED_ACTION:
+        case MyTriggerClassStates::PERFORMED_ACTION:
             m_onActionTrigger = std::move(triggerHandle);
             break;
-        case MyTriggerClassEvents::ACTIVATE:
+        case MyTriggerClassStates::ACTIVATE:
             m_activateTrigger = std::move(triggerHandle);
             break;
         }
@@ -136,14 +137,14 @@ class MyTriggerClass
         }
     }
 
-    void disableEvent(const MyTriggerClassEvents event) noexcept
+    void disableEvent(const MyTriggerClassStates event) noexcept
     {
         switch (event)
         {
-        case MyTriggerClassEvents::PERFORMED_ACTION:
+        case MyTriggerClassStates::PERFORMED_ACTION:
             m_onActionTrigger.reset();
             break;
-        case MyTriggerClassEvents::ACTIVATE:
+        case MyTriggerClassStates::ACTIVATE:
             m_activateTrigger.reset();
             break;
         }
@@ -151,13 +152,13 @@ class MyTriggerClass
 
     /// @brief Only usable by the WaitSet, not for public use
     iox::popo::WaitSetHasTriggeredCallback
-    getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
+    getHasTriggeredCallbackForState(const MyTriggerClassStates event) const noexcept
     {
         switch (event)
         {
-        case MyTriggerClassEvents::PERFORMED_ACTION:
+        case MyTriggerClassStates::PERFORMED_ACTION:
             return {*this, &MyTriggerClass::hasPerformedAction};
-        case MyTriggerClassEvents::ACTIVATE:
+        case MyTriggerClassStates::ACTIVATE:
             return {*this, &MyTriggerClass::isActivated};
         }
         return {};
@@ -195,14 +196,14 @@ void eventLoop()
             if (event->getEventId() == ACTIVATE_ID)
             {
                 // reset MyTriggerClass instance state
-                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
+                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassStates::ACTIVATE);
                 // call the callback attached to the trigger
                 (*event)();
             }
             else if (event->getEventId() == ACTION_ID)
             {
                 // reset MyTriggerClass instance state
-                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
+                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassStates::PERFORMED_ACTION);
                 // call the callback attached to the trigger
                 (*event)();
             }
@@ -220,12 +221,12 @@ int main()
     triggerClass.emplace();
 
     // attach both events to a waitset and assign a callback
-    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, &callOnActivate).or_else([](auto) {
+    waitset->attachEvent(*triggerClass, MyTriggerClassStates::ACTIVATE, ACTIVATE_ID, &callOnActivate).or_else([](auto) {
         std::cerr << "failed to attach MyTriggerClass::ACTIVATE event " << std::endl;
         std::terminate();
     });
     waitset
-        ->attachEvent(*triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction)
+        ->attachEvent(*triggerClass, MyTriggerClassStates::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction)
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClass::PERFORMED_ACTION event " << std::endl;
             std::terminate();

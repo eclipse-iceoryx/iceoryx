@@ -19,9 +19,9 @@
 #define IOX_BINDING_C_ENUMS_H
 
 /// @brief describes events which can be triggered by a subscriber
-enum iox_SubscriberEvent
+enum iox_SubscriberState
 {
-    SubscriberEvent_HAS_DATA,
+    SubscriberState_HAS_DATA,
 };
 
 /// @brief describes the current state of a subscriber

@@ -63,7 +63,7 @@ class WaitSet_test : public Test
             m_handle.invalidate();
         }
 
-        iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent() const noexcept
+        iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForState() const noexcept
         {
             return (isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
                                   : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
