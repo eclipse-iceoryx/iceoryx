@@ -16,7 +16,7 @@ For further information how iceoryx can be used see the
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) provides additional 
 information about the _Shared Memory communication_ that lies at the heart of iceoryx.
 
-### icehello (ice_hell_oryx???) example
+### icehello example
 
 Before we get into more details let's start with a simple example:
 
@@ -24,8 +24,7 @@ We need to create a runtime with a unique name along all applications for each a
 ```cpp
 iox::runtime::PoshRuntime::initRuntime("some_unique_name");
 ```
-Now this application is ready to communicate with the middleware deamon RouDi and we can define the data type we want 
-to send.
+Now this application is ready to communicate with RouDi and we can define the data type we want to send.
 ```cpp
 struct CounterTopic
 {
@@ -54,7 +53,7 @@ Here ``result`` is an ``expected`` and hence we may get an error which we have t
 to loan too many samples and exhaust memory. If you want to know more about ``expected``, take a look at 
 [How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
-We create a corresponding subscriber.
+Let's create a corresponding subscriber.
 ```cpp
 iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
 ```
@@ -96,7 +95,7 @@ First we need to start RouDi.
 # If installed and available in PATH environment variable
 iox-roudi
 # If build from scratch with script in tools
-$ICEORYX_ROOT/build/posh/iox-roudi
+$ICEORYX_ROOT/build/iox-roudi
 ```
 
 Afterwards we can start the applications which immediately connect to the RouDi via their runtime.
@@ -105,8 +104,7 @@ When the application terminates, the runtime cleans up all resources needed for 
 includes all memory chunks used for the data transmission which may still be hold by the application.
 
 
-We now briefly define the main entities of an iceoryx system before showing how they are created and used by the
-iceoryx API.
+We now briefly define the main entities of an iceoryx system which were already used in the example above.
 
 ## RouDi
 
@@ -183,7 +181,7 @@ publishers we distinguish between typed and untyped subscribers.
 
 Once a subscriber is subscribed to some topic, it is able to receive data of the type tied to this topic. In the
 untyped case this is raw memory and the user must take care that it is interpreted in a way that is compatible to the
-data that was actually send.
+data that was actually sent.
 
 When multiple publishers have offered the same topic the subscriber will receive the data of all of them (but in
 indeterminate order between different publishers).
@@ -211,16 +209,18 @@ part of #350
 
 ## API
 
-The API is offered in two languages, C and C++. More information about the C API can be found in the 
+The API is offered in two languages, C++ and C. Detailed information can be found in the 
+[C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery) and 
 [C example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery_in_c/README.md).
 
-Many parts of the C++ API follow a functional programming approach which is less error prone. This requires using 
-the monadic types cxx::expected and cxx::optional which are introduced 
+Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using 
+the monadic types ``cxx::expected`` and ``cxx::optional`` which are introduced 
 [here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 We distinguish between the ``typed API`` and the ``untyped API``. In the typed API the underlying data type is made
 apparent by typed pointers or references to some data type T (often a template parameter). This allows working with
-the data in a C++ idiomatic and type-safe way and should be preferred whenever possible.
+the data in a C++ idiomatic and type-safe way and should be preferred whenever possible. This API is mainly used when 
+iceroryx is used stand-alone, i.e. not integrated into a third party framework.
 
 The untyped API provides [opaque](https://en.wikipedia.org/wiki/Opaque_pointer) (i.e. void) pointers to data, which
 is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as 
