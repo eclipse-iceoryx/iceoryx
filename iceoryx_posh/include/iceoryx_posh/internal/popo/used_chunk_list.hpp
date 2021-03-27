@@ -125,7 +125,7 @@ class UsedChunkList
     std::atomic_flag m_synchronizer = ATOMIC_FLAG_INIT;
     uint32_t m_usedListHead{INVALID_INDEX};
     uint32_t m_freeListHead{0u};
-    uint32_t m_listNodes[Capacity];
+    uint32_t m_listIndices[Capacity];
     DataElement_t m_listData[Capacity];
 };
 

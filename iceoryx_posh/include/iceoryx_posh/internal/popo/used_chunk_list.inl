@@ -42,10 +42,10 @@ bool UsedChunkList<Capacity>::insert(mepoo::SharedChunk chunk) noexcept
     if (hasFreeSpace)
     {
         // get next free entry after freelistHead
-        auto nextFree = m_listNodes[m_freeListHead];
+        auto nextFree = m_listIndices[m_freeListHead];
 
         // freeListHead is getting new usedListHead, next of this entry is updated to next in usedList
-        m_listNodes[m_freeListHead] = m_usedListHead;
+        m_listIndices[m_freeListHead] = m_usedListHead;
         m_usedListHead = m_freeListHead;
 
         // store chunk mgmt ptr
@@ -75,7 +75,7 @@ bool UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader, mepo
     auto previous = INVALID_INDEX;
 
     // go through usedList with stored chunks
-    for (auto current = m_usedListHead; current != INVALID_INDEX; current = m_listNodes[current])
+    for (auto current = m_usedListHead; current != INVALID_INDEX; current = m_listIndices[current])
     {
         if (!m_listData[current].isLogicalNullptr())
         {
@@ -91,15 +91,15 @@ bool UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader, mepo
                 // remove index from used list
                 if (current == m_usedListHead)
                 {
-                    m_usedListHead = m_listNodes[current];
+                    m_usedListHead = m_listIndices[current];
                 }
                 else
                 {
-                    m_listNodes[previous] = m_listNodes[current];
+                    m_listIndices[previous] = m_listIndices[current];
                 }
 
                 // insert index to free list
-                m_listNodes[current] = m_freeListHead;
+                m_listIndices[current] = m_freeListHead;
                 m_freeListHead = current;
 
                 /// @todo can we do this cheaper with a global fence in cleanup?
@@ -134,16 +134,16 @@ void UsedChunkList<Capacity>::init() noexcept
     // build list
     for (uint32_t i = 0U; i < Capacity; ++i)
     {
-        m_listNodes[i] = i + 1u;
+        m_listIndices[i] = i + 1u;
     }
 
     if (Capacity > 0U)
     {
-        m_listNodes[Capacity - 1U] = INVALID_INDEX; // just to save us from the future self
+        m_listIndices[Capacity - 1U] = INVALID_INDEX; // just to save us from the future self
     }
     else
     {
-        m_listNodes[0U] = INVALID_INDEX;
+        m_listIndices[0U] = INVALID_INDEX;
     }
 
 
