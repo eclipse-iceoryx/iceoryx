@@ -60,32 +60,6 @@ template <typename T>
 struct IsStateBasedImpl<T, std::void_t<decltype(&T::getHasTriggeredCallbackForState)>> : std::true_type
 {
 };
-
-/// implementation of GetHasTriggeredCallback
-template <typename T, bool IsStateBased>
-struct GetHasTriggeredCallbackImpl;
-
-template <typename T>
-struct GetHasTriggeredCallbackImpl<T, true>
-{
-    static WaitSetHasTriggeredCallback get(T& eventOrigin) noexcept
-    {
-        return EventAttorney::getHasTriggeredCallbackForState(eventOrigin);
-    }
-};
-
-template <typename T>
-struct GetHasTriggeredCallbackImpl<T, false>
-{
-    static WaitSetHasTriggeredCallback get(T& eventOrigin) noexcept
-    {
-        static_cast<void>(eventOrigin);
-        return WaitSetHasTriggeredCallback();
-    }
-};
-
-template <typename T>
-using GetHasTriggeredCallback = GetHasTriggeredCallbackImpl<T, IsStateBasedImpl<T>::value>;
 } // namespace internal
 
 template <uint64_t Capacity>
@@ -190,7 +164,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    auto hasTriggeredCallback = internal::GetHasTriggeredCallback<T>::get(eventOrigin);
+    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
