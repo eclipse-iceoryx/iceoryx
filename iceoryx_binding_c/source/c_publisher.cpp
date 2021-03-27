@@ -106,7 +106,7 @@ iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk
                       .and_then([&chunk](ChunkHeader* h) { *chunk = h->payload(); });
     if (result.has_error())
     {
-        return cpp2c::AllocationResult(result.get_error());
+        return cpp2c::allocationResult(result.get_error());
     }
 
     return AllocationResult_SUCCESS;

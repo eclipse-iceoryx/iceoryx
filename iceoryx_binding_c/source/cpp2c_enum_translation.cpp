@@ -23,7 +23,7 @@ using namespace iox::popo;
 
 namespace cpp2c
 {
-iox_SubscribeState SubscribeState(const iox::SubscribeState value)
+iox_SubscribeState subscribeState(const iox::SubscribeState value) noexcept
 {
     switch (value)
     {
@@ -42,7 +42,7 @@ iox_SubscribeState SubscribeState(const iox::SubscribeState value)
     }
 }
 
-iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult value)
+iox_ChunkReceiveResult chunkReceiveResult(const iox::popo::ChunkReceiveResult value) noexcept
 {
     switch (value)
     {
@@ -55,7 +55,7 @@ iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveResult va
     }
 }
 
-iox_AllocationResult AllocationResult(const iox::popo::AllocationError value)
+iox_AllocationResult allocationResult(const iox::popo::AllocationError value) noexcept
 {
     switch (value)
     {
@@ -68,7 +68,7 @@ iox_AllocationResult AllocationResult(const iox::popo::AllocationError value)
     }
 }
 
-iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
+iox_WaitSetResult waitSetResult(const iox::popo::WaitSetError value) noexcept
 {
     switch (value)
     {
@@ -81,7 +81,7 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
     }
 }
 
-iox_ListenerResult ListenerResult(const iox::popo::ListenerError value)
+iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept
 {
     switch (value)
     {

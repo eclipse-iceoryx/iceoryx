@@ -24,71 +24,71 @@ using namespace ::testing;
 
 TEST(cpp2c_enum_translation_test, SubscribeState)
 {
-    EXPECT_EQ(cpp2c::SubscribeState(iox::SubscribeState::NOT_SUBSCRIBED), SubscribeState_NOT_SUBSCRIBED);
-    EXPECT_EQ(cpp2c::SubscribeState(iox::SubscribeState::SUBSCRIBE_REQUESTED), SubscribeState_SUBSCRIBE_REQUESTED);
-    EXPECT_EQ(cpp2c::SubscribeState(iox::SubscribeState::SUBSCRIBED), SubscribeState_SUBSCRIBED);
-    EXPECT_EQ(cpp2c::SubscribeState(iox::SubscribeState::UNSUBSCRIBE_REQUESTED), SubscribeState_UNSUBSCRIBE_REQUESTED);
-    EXPECT_EQ(cpp2c::SubscribeState(iox::SubscribeState::WAIT_FOR_OFFER), SubscribeState_WAIT_FOR_OFFER);
+    EXPECT_EQ(cpp2c::subscribeState(iox::SubscribeState::NOT_SUBSCRIBED), SubscribeState_NOT_SUBSCRIBED);
+    EXPECT_EQ(cpp2c::subscribeState(iox::SubscribeState::SUBSCRIBE_REQUESTED), SubscribeState_SUBSCRIBE_REQUESTED);
+    EXPECT_EQ(cpp2c::subscribeState(iox::SubscribeState::SUBSCRIBED), SubscribeState_SUBSCRIBED);
+    EXPECT_EQ(cpp2c::subscribeState(iox::SubscribeState::UNSUBSCRIBE_REQUESTED), SubscribeState_UNSUBSCRIBE_REQUESTED);
+    EXPECT_EQ(cpp2c::subscribeState(iox::SubscribeState::WAIT_FOR_OFFER), SubscribeState_WAIT_FOR_OFFER);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::SubscribeState(static_cast<iox::SubscribeState>(-1)), SubscribeState_UNDEFINED_ERROR);
+    EXPECT_EQ(cpp2c::subscribeState(static_cast<iox::SubscribeState>(-1)), SubscribeState_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
 
 TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
 {
-    EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE),
+    EXPECT_EQ(cpp2c::chunkReceiveResult(iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE),
               ChunkReceiveResult_NO_CHUNK_AVAILABLE);
 
-    EXPECT_EQ(cpp2c::ChunkReceiveResult(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL),
+    EXPECT_EQ(cpp2c::chunkReceiveResult(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL),
               ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::ChunkReceiveResult(static_cast<iox::popo::ChunkReceiveResult>(-1)),
+    EXPECT_EQ(cpp2c::chunkReceiveResult(static_cast<iox::popo::ChunkReceiveResult>(-1)),
               ChunkReceiveResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
 
 TEST(cpp2c_enum_translation_test, AllocationResult)
 {
-    EXPECT_EQ(cpp2c::AllocationResult(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS),
+    EXPECT_EQ(cpp2c::allocationResult(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS),
               AllocationResult_RUNNING_OUT_OF_CHUNKS);
-    EXPECT_EQ(cpp2c::AllocationResult(iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL),
+    EXPECT_EQ(cpp2c::allocationResult(iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL),
               AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::AllocationResult(static_cast<iox::popo::AllocationError>(-1)), AllocationResult_UNDEFINED_ERROR);
+    EXPECT_EQ(cpp2c::allocationResult(static_cast<iox::popo::AllocationError>(-1)), AllocationResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
 
 TEST(cpp2c_enum_translation_test, WaitSetResult)
 {
-    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::WAIT_SET_FULL), WaitSetResult_WAIT_SET_FULL);
-    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::EVENT_ALREADY_ATTACHED),
+    EXPECT_EQ(cpp2c::waitSetResult(iox::popo::WaitSetError::WAIT_SET_FULL), WaitSetResult_WAIT_SET_FULL);
+    EXPECT_EQ(cpp2c::waitSetResult(iox::popo::WaitSetError::EVENT_ALREADY_ATTACHED),
               WaitSetResult_EVENT_ALREADY_ATTACHED);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::WaitSetResult(static_cast<iox::popo::WaitSetError>(-1)), WaitSetResult_UNDEFINED_ERROR);
+    EXPECT_EQ(cpp2c::waitSetResult(static_cast<iox::popo::WaitSetError>(-1)), WaitSetResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }
 
 TEST(cpp2c_enum_translation_test, ListenerResult)
 {
-    EXPECT_EQ(cpp2c::ListenerResult(iox::popo::ListenerError::LISTENER_FULL), ListenerResult_LISTENER_FULL);
-    EXPECT_EQ(cpp2c::ListenerResult(iox::popo::ListenerError::EVENT_ALREADY_ATTACHED),
+    EXPECT_EQ(cpp2c::listenerResult(iox::popo::ListenerError::LISTENER_FULL), ListenerResult_LISTENER_FULL);
+    EXPECT_EQ(cpp2c::listenerResult(iox::popo::ListenerError::EVENT_ALREADY_ATTACHED),
               ListenerResult_EVENT_ALREADY_ATTACHED);
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::ListenerResult(static_cast<iox::popo::ListenerError>(-1)), ListenerResult_UNDEFINED_ERROR);
+    EXPECT_EQ(cpp2c::listenerResult(static_cast<iox::popo::ListenerError>(-1)), ListenerResult_UNDEFINED_ERROR);
 #pragma GCC diagnostic pop
 }

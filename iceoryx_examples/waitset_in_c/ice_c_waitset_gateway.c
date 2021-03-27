@@ -84,10 +84,9 @@ int main()
     options.nodeName = "iox-c-ex-waitSet-gateway-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_t subscriber = iox_sub_init(
-            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
+        iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
+        iox_ws_attach_subscriber_state(waitSet, subscriber, SubscriberState_HAS_DATA, 1U, subscriberCallback);
     }
 
 
