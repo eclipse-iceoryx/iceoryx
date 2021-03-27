@@ -33,7 +33,7 @@ namespace popo
 ///        In case the application terminates while holding chunks, this list is used by RouDi to retain ownership of
 ///        the chunks and prevent a chunk leak.
 ///        In order to always be able to access the used chunks, neither a vector or list can be used, because these
-///        container could be corrupt when the application dies in the wrong moment.
+///        container could be corrupted when the application dies in the wrong moment.
 ///        To be able to do the cleanup, RouDi needs to be able to access the list with the used chunk under all
 ///        circumstances. This is achieved by storing the ChunkManagement pointer in an array which can always be
 ///        accessed. Additionally, the type stored is this array must be less or equal to 64 bit in order to write it
@@ -42,7 +42,7 @@ namespace popo
 template <uint32_t Capacity>
 class UsedChunkList
 {
-    static_assert(Capacity > 0, "UsedChunkList Capacity must me larger than 0!");
+    static_assert(Capacity > 0, "UsedChunkList Capacity must be larger than 0!");
 
   public:
     /// @brief Constructs a default UsedChunkList
@@ -62,7 +62,8 @@ class UsedChunkList
     bool remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept;
 
     /// @brief Cleans up all the remaining chunks from the list.
-    /// @note from RouDi context once the applications walked the plank
+    /// @note from RouDi context once the applications walked the plank. It is unsafe to call this if the application is
+    /// still running.
     void cleanup() noexcept;
 
   private:
