@@ -123,7 +123,7 @@ class BaseSubscriber
     /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     /// @param[in] subscriberState the event which should be attached
-    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const SubscriberState subscriberState) noexcept;
+    void enableState(iox::popo::TriggerHandle&& triggerHandle, const SubscriberState subscriberState) noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to the event corresponding
     /// hasTriggered method callback
@@ -132,7 +132,7 @@ class BaseSubscriber
 
     /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
     /// @param[in] subscriberState the event which should be detached
-    void disableEvent(const SubscriberState subscriberState) noexcept;
+    void disableState(const SubscriberState subscriberState) noexcept;
 
     void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const SubscriberEvent subscriberState) noexcept;
 

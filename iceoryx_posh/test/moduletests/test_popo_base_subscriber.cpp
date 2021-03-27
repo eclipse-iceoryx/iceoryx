@@ -47,7 +47,9 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<port_t>
     using SubscriberParent = iox::popo::BaseSubscriber<port_t>;
 
     using SubscriberParent::disableEvent;
+    using SubscriberParent::disableState;
     using SubscriberParent::enableEvent;
+    using SubscriberParent::enableState;
     using SubscriberParent::takeChunk;
 
     using SubscriberParent::port;
@@ -206,7 +208,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);
-    sut.disableEvent(iox::popo::SubscriberState::HAS_DATA);
+    sut.disableState(iox::popo::SubscriberState::HAS_DATA);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     // ===== Cleanup ===== //

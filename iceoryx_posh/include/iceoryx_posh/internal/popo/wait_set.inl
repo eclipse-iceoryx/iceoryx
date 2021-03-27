@@ -21,47 +21,6 @@ namespace iox
 {
 namespace popo
 {
-namespace internal
-{
-/// implementation of GetHasTriggeredCallbackForState
-template <typename T, typename EventType, bool IsStateEnum>
-struct GetHasTriggeredCallbackForStateImpl;
-
-template <typename T, typename EventType>
-struct GetHasTriggeredCallbackForStateImpl<T, EventType, true>
-{
-    static WaitSetHasTriggeredCallback get(T& eventOrigin, const EventType eventType) noexcept
-    {
-        return EventAttorney::getHasTriggeredCallbackForState(eventOrigin, eventType);
-    }
-};
-
-template <typename T, typename EventType>
-struct GetHasTriggeredCallbackForStateImpl<T, EventType, false>
-{
-    static WaitSetHasTriggeredCallback get(T& eventOrigin, const EventType eventType) noexcept
-    {
-        static_cast<void>(eventOrigin);
-        static_cast<void>(eventType);
-        return WaitSetHasTriggeredCallback();
-    }
-};
-
-template <typename T, typename EventType>
-using GetHasTriggeredCallbackForState = GetHasTriggeredCallbackForStateImpl<T, EventType, IS_STATE_ENUM<EventType>>;
-
-/// implementation of IsStateBased
-template <typename T, typename = void>
-struct IsStateBasedImpl : std::false_type
-{
-};
-
-template <typename T>
-struct IsStateBasedImpl<T, std::void_t<decltype(&T::getHasTriggeredCallbackForState)>> : std::true_type
-{
-};
-} // namespace internal
-
 template <uint64_t Capacity>
 inline WaitSet<Capacity>::WaitSet() noexcept
     : WaitSet(*runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
@@ -139,7 +98,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
     static_assert(IS_EVENT_ENUM<EventType>,
                   "Only enums with an underlying EventEnumIdentifier or StateEnumIdentifier are allowed.");
 
-    auto hasTriggeredCallback = internal::GetHasTriggeredCallbackForState<T, EventType>::get(eventOrigin, eventType);
+    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin, eventType);
 
     return attachImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(
@@ -189,7 +148,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin
 {
     static_assert(IS_STATE_ENUM<StateType>, "Only enums with an underlying StateEnumIdentifier are allowed.");
     return attachImpl(stateOrigin, WaitSetHasTriggeredCallback(), id, stateCallback).and_then([&](auto& uniqueId) {
-        EventAttorney::enableEvent(
+        EventAttorney::enableState(
             stateOrigin,
             TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
             stateType);
@@ -211,7 +170,7 @@ inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachState(T& stateOrigin, const uint64_t id, const EventInfo::Callback<T>& stateCallback) noexcept
 {
     return attachImpl(stateOrigin, WaitSetHasTriggeredCallback(), id, stateCallback).and_then([&](auto& uniqueId) {
-        EventAttorney::enableEvent(
+        EventAttorney::enableState(
             stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
     });
 }

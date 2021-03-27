@@ -108,7 +108,7 @@ inline void BaseSubscriber<port_t>::invalidateTrigger(const uint64_t uniqueTrigg
 }
 
 template <typename port_t>
-inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
+inline void BaseSubscriber<port_t>::enableState(iox::popo::TriggerHandle&& triggerHandle,
                                                 [[gnu::unused]] const SubscriberState subscriberState) noexcept
 
 {
@@ -135,7 +135,7 @@ BaseSubscriber<port_t>::getHasTriggeredCallbackForState(const SubscriberState su
 }
 
 template <typename port_t>
-inline void BaseSubscriber<port_t>::disableEvent(const SubscriberState subscriberState) noexcept
+inline void BaseSubscriber<port_t>::disableState(const SubscriberState subscriberState) noexcept
 {
     switch (subscriberState)
     {

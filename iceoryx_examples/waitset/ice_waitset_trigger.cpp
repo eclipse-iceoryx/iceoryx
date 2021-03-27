@@ -109,7 +109,7 @@ class MyTriggerClass
     // This method attaches an event of the class to a waitset.
     // The event is choosen by the event parameter. Additionally, you can
     // set a eventId to group multiple instances and a custom callback.
-    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassStates event) noexcept
+    void enableState(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassStates event) noexcept
     {
         switch (event)
         {
@@ -137,7 +137,7 @@ class MyTriggerClass
         }
     }
 
-    void disableEvent(const MyTriggerClassStates event) noexcept
+    void disableState(const MyTriggerClassStates event) noexcept
     {
         switch (event)
         {
