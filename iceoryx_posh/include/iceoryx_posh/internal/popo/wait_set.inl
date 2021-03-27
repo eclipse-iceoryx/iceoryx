@@ -21,6 +21,33 @@ namespace iox
 {
 namespace popo
 {
+namespace internal
+{
+template <typename T, typename EventType, bool IsStateEnum>
+struct GetHasTriggeredCallbackForState;
+
+template <typename T, typename EventType>
+struct GetHasTriggeredCallbackForState<T, EventType, true>
+{
+    static WaitSetHasTriggeredCallback get(T& eventOrigin, const EventType eventType) noexcept
+    {
+        return EventAttorney::getHasTriggeredCallbackForState(eventOrigin, eventType);
+    }
+};
+
+template <typename T, typename EventType>
+struct GetHasTriggeredCallbackForState<T, EventType, false>
+{
+    static WaitSetHasTriggeredCallback get(T& eventOrigin, const EventType eventType) noexcept
+    {
+        static_cast<void>(eventOrigin);
+        static_cast<void>(eventType);
+        return WaitSetHasTriggeredCallback();
+    }
+};
+
+} // namespace internal
+
 template <uint64_t Capacity>
 inline WaitSet<Capacity>::WaitSet() noexcept
     : WaitSet(*runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
@@ -98,7 +125,8 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
     static_assert(IS_EVENT_ENUM<EventType> || IS_STATE_ENUM<EventType>,
                   "Only enums with an underlying EventEnumIdentifier or StateEnumIdentifier are allowed.");
 
-    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(eventOrigin, eventType);
+    auto hasTriggeredCallback =
+        internal::GetHasTriggeredCallbackForState<T, EventType, IS_STATE_ENUM<EventType>>::get(eventOrigin, eventType);
 
     return attachEventImpl(eventOrigin, hasTriggeredCallback, eventId, eventCallback).and_then([&](auto& uniqueId) {
         EventAttorney::enableEvent(

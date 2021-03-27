@@ -25,6 +25,12 @@ namespace iox
 {
 namespace popo
 {
+namespace internal
+{
+template <typename, typename, bool>
+struct GetHasTriggeredCallbackForState;
+} // namespace internal
+
 /// @brief Class which allows accessing private methods to
 ///         friends of EventAttorney. Used for example by the WaitSet.
 ///         Implements the Client-Attorney Pattern.
@@ -33,6 +39,9 @@ class EventAttorney
     template <uint64_t>
     friend class WaitSet;
     friend class Listener;
+
+    template <typename, typename, bool>
+    friend struct internal::GetHasTriggeredCallbackForState;
 
   private:
     template <typename T, typename... Targs>
