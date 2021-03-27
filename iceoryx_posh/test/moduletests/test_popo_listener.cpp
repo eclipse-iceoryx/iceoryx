@@ -40,7 +40,7 @@ using namespace iox::units::duration_literals;
 
 namespace
 {
-enum SimpleEvent
+enum SimpleEvent : iox::popo::EventEnumIdentifier
 {
     StoepselBachelorParty,
     Hypnotoad

@@ -112,8 +112,13 @@ inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& trigg
                                                 [[gnu::unused]] const SubscriberState subscriberState) noexcept
 
 {
-    m_trigger = std::move(triggerHandle);
-    m_port.setConditionVariable(*m_trigger.getConditionVariableData(), m_trigger.getUniqueId());
+    switch (subscriberState)
+    {
+    case SubscriberState::HAS_DATA:
+        m_trigger = std::move(triggerHandle);
+        m_port.setConditionVariable(*m_trigger.getConditionVariableData(), m_trigger.getUniqueId());
+        break;
+    }
 }
 
 
@@ -135,6 +140,31 @@ inline void BaseSubscriber<port_t>::disableEvent(const SubscriberState subscribe
     switch (subscriberState)
     {
     case SubscriberState::HAS_DATA:
+        m_trigger.reset();
+        m_port.unsetConditionVariable();
+        break;
+    }
+}
+
+template <typename port_t>
+inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& triggerHandle,
+                                                const SubscriberEvent subscriberEvent) noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::DATA_RECEIVED:
+        m_trigger = std::move(triggerHandle);
+        m_port.setConditionVariable(*m_trigger.getConditionVariableData(), m_trigger.getUniqueId());
+        break;
+    }
+}
+
+template <typename port_t>
+inline void BaseSubscriber<port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
+{
+    switch (subscriberEvent)
+    {
+    case SubscriberEvent::DATA_RECEIVED:
         m_trigger.reset();
         m_port.unsetConditionVariable();
         break;

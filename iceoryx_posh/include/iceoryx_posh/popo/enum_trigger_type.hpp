@@ -30,11 +30,11 @@ using EventEnumIdentifier = int64_t;
 
 template <typename T>
 constexpr bool IS_EVENT_ENUM =
-    std::is_enum<T>::value&& std::is_same<std::underlying_type_t<T>, StateEnumIdentifier>::value;
+    std::is_enum<T>::value&& std::is_same<std::underlying_type_t<T>, EventEnumIdentifier>::value;
 
 template <typename T>
 constexpr bool IS_STATE_ENUM =
-    std::is_enum<T>::value&& std::is_same<std::underlying_type_t<T>, EventEnumIdentifier>::value;
+    std::is_enum<T>::value&& std::is_same<std::underlying_type_t<T>, StateEnumIdentifier>::value;
 } // namespace popo
 } // namespace iox
 

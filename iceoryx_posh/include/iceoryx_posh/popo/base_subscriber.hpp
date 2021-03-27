@@ -134,6 +134,9 @@ class BaseSubscriber
     /// @param[in] subscriberState the event which should be detached
     void disableEvent(const SubscriberState subscriberState) noexcept;
 
+    void enableEvent(iox::popo::TriggerHandle&& triggerHandle, const SubscriberEvent subscriberState) noexcept;
+
+    void disableEvent(const SubscriberEvent subscriberEvent) noexcept;
 
     ///
     /// @brief const accessor of the underlying port
