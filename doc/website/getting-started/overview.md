@@ -16,7 +16,7 @@ For further information how iceoryx can be used see the
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) provides additional 
 information about the _Shared Memory communication_ that lies at the heart of iceoryx.
 
-### icehello example
+### icehello (ice_hell_oryx???) example
 
 Before we get into more details let's start with a simple example:
 
@@ -51,7 +51,8 @@ else
 }
 ```
 Here ``result`` is an ``expected`` and hence we may get an error which we have to handle. This can happen if we try 
-to loan too many samples and exhaust memory. 
+to loan too many samples and exhaust memory. If you want to know more about ``expected``, take a look at 
+[How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 We create a corresponding subscriber.
 ```cpp
@@ -85,9 +86,7 @@ By calling ``take`` we get an ``expected`` and hence we may have to handle an er
 
 And that's it. We have created our first simple iceoryx example. 
 [Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples 
-which demonstrate how iceoryx can be used and describe our API in more detail. Many parts of the C++ API follow a 
-functional programming approach which is less error prone. This requires using the monadic types ``cxx::expected`` and 
-``cxx::optional`` which are introduced ???????[here]()????????.
+which demonstrate how iceoryx can be used and describe our API in more detail.
 
 Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
 
@@ -109,7 +108,7 @@ includes all memory chunks used for the data transmission which may still be hol
 We now briefly define the main entities of an iceoryx system before showing how they are created and used by the
 iceoryx API.
 
-### RouDi
+## RouDi
 
 RouDi is an abbreviation for **Rou**ting and **Di**scovery. RouDi takes care of the
 communication setup but does not actually participate in the communication between the publisher and the subscriber.
@@ -119,18 +118,16 @@ the shared memory and is responsible for the service discovery, i.e. enabling su
 publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use
 publishers or subscribers. To view the available command line options call `$ICEORYX_ROOT/build/iox-roudi --help`.
 
-### Runtime
+## Runtime
 
 Each application which wants to use iceoryx has to instantiate its runtime, which essentially enables communication
 with RouDi. Only one runtime object per user process is allowed.
 
 To do so, the following lines of code are required
 ```cpp
-    #include "iceoryx_posh/runtime/posh_runtime.hpp"
-
-    iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
+iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
 ```
-### Creating service descriptions for topics
+## Creating service descriptions for topics
 
 A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is uniquely identified by three string
 identifiers.
@@ -168,7 +165,7 @@ process local constructs, no dynamic allocators
 - the data structure must not internally use pointers/references
 - no virtual members
 
-### Publisher
+## Publisher
 
 A publisher is tied to a topic and needs a service description to be constructed. If it is typed one needs to
 additionally specify the data type as a template parameter. Otherwise the publisher is only aware of raw memory and 
@@ -179,7 +176,7 @@ have multiple publishers for the same topic (n:m communication). A compile-time 
 1:n communication is available. Should 1:n communication be used RouDi checks for multiple publishers on the same 
 topics and raises an error if there is more than one publisher for a topic.
 
-### Subscriber
+## Subscriber
 
 Symmetrically a subscriber also corresponds to a topic and thus needs a service description to be constructed. As for
 publishers we distinguish between typed and untyped subscribers.
@@ -191,9 +188,7 @@ data that was actually send.
 When multiple publishers have offered the same topic the subscriber will receive the data of all of them (but in
 indeterminate order between different publishers).
 
-- move following sections to advanced?
-
-### Waitset
+## Waitset
 
 The easiest way to receive data is to periodically poll whether data is available. This is sufficient for simple use
 cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
@@ -211,18 +206,17 @@ the subscriber.
 For more information on how to use the Waitset see 
 [Waitset](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/README.md).
 
-### Listener
+## Listener
+part of #350
 
 ## API
 
 The API is offered in two languages, C and C++. More information about the C API can be found in the 
 [C example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery_in_c/README.md).
 
-Many parts of the C++ API follow a functional programming approach and allow the user to specify functions which 
-handle the possible cases, e.g. what should happen when data is received.
-
-This is very flexible but requires using the monadic types ``cxx::expected`` and ``cxx::optional``, which we
-introduce in the following sections.
+Many parts of the C++ API follow a functional programming approach which is less error prone. This requires using 
+the monadic types cxx::expected and cxx::optional which are introduced 
+[here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 We distinguish between the ``typed API`` and the ``untyped API``. In the typed API the underlying data type is made
 apparent by typed pointers or references to some data type T (often a template parameter). This allows working with
@@ -233,101 +227,4 @@ is flexible and efficient but also requires that the user takes care to interpre
 a type compatible to what was actually sent. This is required for interaction with other lower level APIs and 
 integration into third party frameworks such as [ROS](https://www.ros.org/). For further information see the 
 respective header files.
-
-### Optional
-
-The type ``iox::cxx::optional<T>`` is used to indicate that there may or may not be a value of a specific type ``T``
-available. This is essentially the maybe [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)) in 
-functional programming. Assuming we have some optional (usually the result of some computation)
-
-```cpp
-optional<int> result = someComputation();
-```
-
-we can check for its value using
-```cpp
-if(result.has_value())
-{
-    auto value = result.value();
-    // do something with the value
-}
-else
-{
-    // handle the case that there is no value
-}
-```
-A shorthand to get the value is
-```cpp
-auto value = *result;
-```
-
-!!! attention
-Accessing the value if there is no value is undefined behavior, so it must be checked beforehand.
-
-We can achieve the same with the functional approach by providing a function for both cases.
-
-```cpp
-result.and_then([](int& value) { /*do something with the value*/ })
-    .or_else([]() { /*handle the case that there is no value*/ });
-```
-Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in the 
-[lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) or function we pass.
-
-The optional can be initialized from a value directly
-```cpp
-optional<int> result = 73;
-result = 37;
-```
-If it is default initialized it is automatically set to its null value of type ``iox::cxx::nullopt_t``. This can be also 
-done directly by using the constant ``iox::cxx::nullopt``
-
-```cpp
-result = iox::cxx::nullopt;
-```
-
-For a complete list of available functions see 
-[``optional.hpp``](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_utils/include/iceoryx_utils/cxx/optional.hpp).
-
-### Expected
-``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of
-no value at all, i.e. it contains either a value of type ``T`` or ``E``. In this way, ``expected`` is a special case of 
-the either monad. It is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the
-error type. For more information on how it is used for error handling see
-[error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md).
-
-Assume we have ``E`` as an error type, then we can create a value
-```cpp
-iox::cxx::expected<int, E> result(iox::cxx::success<int>(73));
-```
-
-and use the value or handle a potential error
-```cpp
-if (!result.has_error())
-{
-    auto value = result.value();
-    // do something with the value
-}
-else
-{
-    auto error = result.get_error();
-    // handle the error
-}
-```
-
-Should we need an error value we set
-```cpp
-result = iox::cxx::error<E>(errorCode);
-```
-which assumes that ``E`` can be constructed from an ``errorCode``.
-
-We again can employ a functional approach like this
-```cpp
-auto handleValue = [](int& value) { /*do something with the value*/ };
-auto handleError = [](E& value) { /*handle the error*/ };
-result.and_then(handleValue).or_else(handleError);
-```
-
-There are more convenience functions such as ``value_or`` which provides the value or an alternative specified by the
-user. These can be found in 
-[``expected.hpp``](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_utils/include/iceoryx_utils/cxx/expected.hpp).
 
