@@ -45,8 +45,8 @@ class UserTrigger
     void trigger() noexcept;
 
     /// @brief Checks if the UserTrigger was triggered
-    /// @return true if the UserTrigger is trigger, otherwise false. The hasTrigger
-    ///         state is reset when it was handled by the WaitSet/Listener
+    /// @return true if the UserTrigger is trigger, otherwise false.
+    /// @note The hasTrigger state will be reset after it was handled by a WaitSet/Listener
     bool hasTriggered() const noexcept;
 
     friend class EventAttorney;

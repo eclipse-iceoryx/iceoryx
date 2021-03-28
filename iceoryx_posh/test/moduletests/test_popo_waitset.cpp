@@ -509,7 +509,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
 
 TEST_F(WaitSet_test, DetachingAttachedEventIsSuccessful)
 {
-    m_sut->attachEvent(m_simpleEvents[0]);
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
     m_sut->detachEvent(m_simpleEvents[0]);
     EXPECT_THAT(m_sut->size(), Eq(0U));
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
@@ -518,7 +518,7 @@ TEST_F(WaitSet_test, DetachingAttachedEventIsSuccessful)
 
 TEST_F(WaitSet_test, DetachingAttachedStateIsSuccessful)
 {
-    m_sut->attachState(m_simpleEvents[0]);
+    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0]).has_error());
     m_sut->detachState(m_simpleEvents[0]);
     EXPECT_THAT(m_sut->size(), Eq(0U));
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
@@ -527,7 +527,7 @@ TEST_F(WaitSet_test, DetachingAttachedStateIsSuccessful)
 
 TEST_F(WaitSet_test, DetachingAttachedEventTwiceWorks)
 {
-    m_sut->attachEvent(m_simpleEvents[0]);
+    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0]).has_error());
     m_sut->detachEvent(m_simpleEvents[0]);
     m_sut->detachEvent(m_simpleEvents[0]);
     EXPECT_THAT(m_sut->size(), Eq(0U));
@@ -537,7 +537,7 @@ TEST_F(WaitSet_test, DetachingAttachedEventTwiceWorks)
 
 TEST_F(WaitSet_test, DetachingAttachedStateTwiceWorks)
 {
-    m_sut->attachState(m_simpleEvents[0]);
+    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0]).has_error());
     m_sut->detachState(m_simpleEvents[0]);
     m_sut->detachState(m_simpleEvents[0]);
     EXPECT_THAT(m_sut->size(), Eq(0U));
@@ -633,7 +633,7 @@ TEST_F(WaitSet_test, AttachingEventWithEnumIsSuccessful)
 
 TEST_F(WaitSet_test, AttachingSameEventWithEnumIsFails)
 {
-    m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1);
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1).has_error());
 
     auto result = m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1);
     ASSERT_TRUE(result.has_error());
@@ -681,7 +681,7 @@ TEST_F(WaitSet_test, AttachingStateWithEnumIsSuccessful)
 
 TEST_F(WaitSet_test, AttachingSameStateWithEnumIsFails)
 {
-    m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1);
+    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1).has_error());
 
     auto result = m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1);
     ASSERT_TRUE(result.has_error());
