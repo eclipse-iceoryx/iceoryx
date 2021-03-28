@@ -9,23 +9,6 @@ It provides publisher and subscriber applications. They come in two C++ API flav
 
 Create different terminals and run one command in each of them. Choose at least one publisher and one subscriber for having a data communication. You can also mix the typed and untyped versions. And if you feel like crazy today you start several publishers and subscribers from icedelivery and icedelivery_in_c (needs the default n:m communication, not possible if you build with the ONE_TO_MANY option)
 
-```sh
-# If installed and available in PATH environment variable
-iox-roudi
-# If build from scratch with script in tools
-$ICEORYX_ROOT/build/iox-roudi
-
-
-build/iceoryx_examples/icedelivery/iox-ex-publisher
-# The untyped publisher is an alternative
-build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
-
-
-build/iceoryx_examples/icedelivery/iox-ex-subscriber
-# The untyped subscriber is an alternative
-build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
-```
-
 [![asciicast](https://asciinema.org/a/382036.svg)](https://asciinema.org/a/382036)
 
 ## Code walkthrough
@@ -121,7 +104,7 @@ if (!result.has_error())
     // ...
 }
 ```
-
+<!-- todo: move to typed API -->
 One might wonder what the type of the variable `sample` is? It is `iox::popo::Sample<void>`. This class behaves
 similar to a [`std::unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) and makes sure that the ownership
 handling is done automatically and memory is freed when going out of scope on subscriber side. One slight difference
@@ -162,51 +145,32 @@ To make RouDi aware of the subscriber an runtime object is created, once again w
 iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped");
 ```
 
-For quality of service a `popo::SubscriberOptions` object is created and the `queueCapacity` is set. This parameter
-specifies how many samples the queue of the subscriber object can hold. If the queue would encounter an overflow,
-the oldest sample is released to create space for the newest one, which is then stored.
-```cpp
-iox::popo::SubscriberOptions subscriberOptions;
-subscriberOptions.queueCapacity = 10U;
-```
-
 In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the publisher
-offered. Additionally, the previously created subscriber options are passed to the constructor. If no subscriber options
-are created, a default value will be used which sets the queueCapacity to the maximum value:
+offered:
+
 ```cpp
-iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"});
 ```
 
 When using the default n:m communication philosophy, the `SubscriptionState` is immediately `SUBSCRIBED`.
 However, when restricting iceoryx to the 1:n communication philosophy before being in the state `SUBSCRIBED`, the state is change to `SUBSCRIBE_REQUESTED`.
 
-Again in a while-loop we do the following: First check for the `SubscriptionState`
+Again in a while-loop we do the following:
 ```cpp
 while (!killswitch)
 {
-    if (untypedSubscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
-    {
-
+    untypedSubscriber.take()
+        .and_then([](const void* sample)
+        {
+            // ...
+        })
+        .or_else([](iox::popo::ChunkReceiveResult result)
+        {
+            std::cout << "Error receiving chunk." << std::endl;
+        });
 ```
 
 The `killswitch` will be used to stop the programm execution.
-
-Once the publisher has sent data, we can receive the data
-```cpp
-untypedSubscriber.take()
-    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& sample)
-    {
-        // ...
-    })
-    .if_empty([]
-    {
-        // ...
-    })
-    .or_else([](iox::popo::ChunkReceiveResult error)
-    {
-        std::cout << "Error receiving chunk." << std::endl;
-    });
-```
 
 Well, that's a bit of a [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Let's
 translate it into a story again: "Take the data and then if this succeeds, work with the sample, if the sample is empty

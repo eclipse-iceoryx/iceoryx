@@ -66,9 +66,8 @@ int main()
         else
         {
             auto error = result.get_error();
-            // Ignore unused variable warning
-            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             // Do something with the error
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
         }
 
 
@@ -85,9 +84,8 @@ int main()
                 publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
-                // Ignore unused variable warning
-                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
                 // Do something with the error
+                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             });
 
         std::cout << APP_NAME << " sent two times value: " << ct << std::endl;

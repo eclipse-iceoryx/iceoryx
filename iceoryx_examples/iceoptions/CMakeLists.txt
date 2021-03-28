@@ -15,9 +15,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Build icedelivery example
+# Build iceoptions example
 cmake_minimum_required(VERSION 3.5)
-project(example_icedelivery)
+project(example_iceoptions)
 
 include(GNUInstallDirs)
 
@@ -27,32 +27,20 @@ find_package(iceoryx_utils CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-ex-publisher ./iox_publisher.cpp)
-target_link_libraries(iox-ex-publisher
+add_executable(iox-ex-publisher-with-options ./iox_publisher_with_options.cpp)
+target_link_libraries(iox-ex-publisher-with-options
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-publisher-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-publisher-untyped ./iox_publisher_untyped.cpp)
-target_link_libraries(iox-ex-publisher-untyped
+add_executable(iox-ex-subscriber-with-options ./iox_subscriber_with_options.cpp)
+target_link_libraries(iox-ex-subscriber-with-options
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-ex-subscriber-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber ./iox_subscriber.cpp)
-target_link_libraries(iox-ex-subscriber
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-ex-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-untyped ./iox_subscriber_untyped.cpp)
-target_link_libraries(iox-ex-subscriber-untyped
-    iceoryx_posh::iceoryx_posh
-)
-target_compile_options(iox-ex-subscriber-untyped PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
-
-set_target_properties(iox-ex-subscriber iox-ex-subscriber-untyped
-                      iox-ex-publisher iox-ex-publisher-untyped
+set_target_properties(iox-ex-publisher-with-options iox-ex-subscriber-with-options
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -61,6 +49,5 @@ set_target_properties(iox-ex-subscriber iox-ex-subscriber-untyped
 
 # ========================================================== //
 
-install(TARGETS iox-ex-publisher-untyped iox-ex-publisher
-                iox-ex-subscriber-untyped iox-ex-subscriber
+install(TARGETS iox-ex-publisher-with-options iox-ex-subscriber-with-options
         RUNTIME DESTINATION bin)

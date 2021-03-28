@@ -42,35 +42,26 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialized subscriber
-    iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = 10U;
-    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
-        {
-            subscriber.take()
-                .and_then([&](const void* data) {
-                    auto object = static_cast<const RadarObject*>(data);
-                    std::cout << APP_NAME << " got value: " << object->x << std::endl;
+        subscriber.take()
+            .and_then([&](const void* sample) {
+                auto object = static_cast<const RadarObject*>(sample);
+                std::cout << APP_NAME << " got value: " << object->x << std::endl;
 
-                    // note that we explicitly have to release the data
-                    // and afterwards the pointer access is undefined behavior
-                    subscriber.release(data);
-                })
-                .or_else([](auto& result) {
-                    if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-                    {
-                        std::cout << "Error receiving chunk." << std::endl;
-                    }
-                });
-        }
-        else
-        {
-            std::cout << "Not subscribed!" << std::endl;
-        }
+                // note that we explicitly have to release the sample
+                // and afterwards the pointer access is undefined behavior
+                subscriber.release(sample);
+            })
+            .or_else([](auto& result) {
+                if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                {
+                    std::cout << "Error receiving chunk." << std::endl;
+                }
+            });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
