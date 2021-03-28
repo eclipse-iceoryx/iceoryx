@@ -43,7 +43,17 @@ class iox_ws_test : public Test
   public:
     void SetUp() override
     {
-        for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+        for (uint64_t i = 0U; i <= MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+        {
+            m_portDataVector.emplace_back(TEST_SERVICE_DESCRIPTION,
+                                          "someAppName",
+                                          iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                          m_subscriberOptions);
+            m_subscriberVector.emplace_back();
+            m_subscriberVector[i].m_portData = &m_portDataVector[i];
+        }
+
+        for (uint64_t i = 0U; i <= MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
         {
             m_userTrigger.emplace_back(iox_user_trigger_init(&m_userTriggerStorage[i]));
         }
@@ -58,6 +68,11 @@ class iox_ws_test : public Test
             iox_user_trigger_deinit(m_userTrigger[i]);
         }
     }
+
+    const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
+    iox::popo::SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
+    cxx::vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_portDataVector;
+    cxx::vector<cpp2c_Subscriber, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_subscriberVector;
 
     ConditionVariableData m_condVar{"Horscht"};
     WaitSetMock* m_sut = new WaitSetMock{m_condVar};
@@ -81,27 +96,101 @@ TEST_F(iox_ws_test, SizeIsZeroWhenConstructed)
     EXPECT_EQ(iox_ws_size(m_sut), 0U);
 }
 
-TEST_F(iox_ws_test, SizeIsOneWhenOneClassIsAttached)
+TEST_F(iox_ws_test, SizeIsOneWhenOneUserTriggerIsAttached)
 {
     EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL),
               iox_WaitSetResult::WaitSetResult_SUCCESS);
     EXPECT_EQ(iox_ws_size(m_sut), 1U);
 }
 
-TEST_F(iox_ws_test, SizeEqualsCapacityWhenMaximumIsAttached)
+TEST_F(iox_ws_test, SizeIsOneWhenOneSubscriberStateIsAttached)
+{
+    constexpr uint64_t customId = 123U;
+    EXPECT_EQ(iox_ws_attach_subscriber_state(m_sut, &m_subscriberVector[0U], SubscriberState_HAS_DATA, customId, NULL),
+              iox_WaitSetResult::WaitSetResult_SUCCESS);
+    EXPECT_EQ(iox_ws_size(m_sut), 1U);
+}
+
+TEST_F(iox_ws_test, SizeIsOneWhenOneSubscriberEventIsAttached)
+{
+    constexpr uint64_t customId = 123U;
+    EXPECT_EQ(
+        iox_ws_attach_subscriber_event(m_sut, &m_subscriberVector[0U], SubscriberEvent_DATA_RECEIVED, customId, NULL),
+        iox_WaitSetResult::WaitSetResult_SUCCESS);
+    EXPECT_EQ(iox_ws_size(m_sut), 1U);
+}
+
+TEST_F(iox_ws_test, AttachingMoreUserTriggerThanCapacityAvailableFails)
 {
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL),
                   iox_WaitSetResult::WaitSetResult_SUCCESS);
+        EXPECT_EQ(iox_ws_size(m_sut), i + 1U);
     }
-    EXPECT_EQ(iox_ws_size(m_sut), iox_ws_capacity(m_sut));
+    EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET], 0U, NULL),
+              iox_WaitSetResult::WaitSetResult_WAIT_SET_FULL);
 }
 
-TEST_F(iox_ws_test, SizeDecreasesWhenAttachedObjectIsDeinitialized)
+TEST_F(iox_ws_test, AttachingMoreSubscriberStatesThanCapacityAvailableFails)
+{
+    constexpr uint64_t customId = 123U;
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+    {
+        EXPECT_EQ(
+            iox_ws_attach_subscriber_state(m_sut, &m_subscriberVector[i], SubscriberState_HAS_DATA, customId, NULL),
+            iox_WaitSetResult::WaitSetResult_SUCCESS);
+        EXPECT_EQ(iox_ws_size(m_sut), i + 1U);
+    }
+    EXPECT_EQ(iox_ws_attach_subscriber_state(m_sut,
+                                             &m_subscriberVector[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET],
+                                             SubscriberState_HAS_DATA,
+                                             customId,
+                                             NULL),
+              iox_WaitSetResult::WaitSetResult_WAIT_SET_FULL);
+}
+
+TEST_F(iox_ws_test, AttachingMoreSubscriberEventsThanCapacityAvailableFails)
+{
+    constexpr uint64_t customId = 123U;
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+    {
+        EXPECT_EQ(iox_ws_attach_subscriber_event(
+                      m_sut, &m_subscriberVector[i], SubscriberEvent_DATA_RECEIVED, customId, NULL),
+                  iox_WaitSetResult::WaitSetResult_SUCCESS);
+        EXPECT_EQ(iox_ws_size(m_sut), i + 1U);
+    }
+    EXPECT_EQ(iox_ws_attach_subscriber_event(m_sut,
+                                             &m_subscriberVector[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET],
+                                             SubscriberEvent_DATA_RECEIVED,
+                                             customId,
+                                             NULL),
+              iox_WaitSetResult::WaitSetResult_WAIT_SET_FULL);
+}
+
+TEST_F(iox_ws_test, SizeDecreasesWhenAttachedUserTriggerIsDeinitialized)
 {
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
     iox_ws_detach_user_trigger_event(m_sut, m_userTrigger[0U]);
+    EXPECT_EQ(iox_ws_size(m_sut), 0U);
+}
+
+TEST_F(iox_ws_test, SizeDecreasesWhenAttachenSubscriberStateIsDeinitialized)
+{
+    constexpr uint64_t customId = 123U;
+    EXPECT_EQ(iox_ws_attach_subscriber_state(m_sut, &m_subscriberVector[0U], SubscriberState_HAS_DATA, customId, NULL),
+              iox_WaitSetResult::WaitSetResult_SUCCESS);
+    iox_ws_detach_subscriber_state(m_sut, &m_subscriberVector[0U], SubscriberState_HAS_DATA);
+    EXPECT_EQ(iox_ws_size(m_sut), 0U);
+}
+
+TEST_F(iox_ws_test, SizeDecreasesWhenAttachedSubscriberEventIsDeinitialized)
+{
+    constexpr uint64_t customId = 123U;
+    EXPECT_EQ(
+        iox_ws_attach_subscriber_event(m_sut, &m_subscriberVector[0U], SubscriberEvent_DATA_RECEIVED, customId, NULL),
+        iox_WaitSetResult::WaitSetResult_SUCCESS);
+    iox_ws_detach_subscriber_event(m_sut, &m_subscriberVector[0U], SubscriberEvent_DATA_RECEIVED);
     EXPECT_EQ(iox_ws_size(m_sut), 0U);
 }
 

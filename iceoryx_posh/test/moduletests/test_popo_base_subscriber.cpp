@@ -157,7 +157,7 @@ TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriber
     // ===== Cleanup ===== //
 }
 
-TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, AttachStateToWaitsetForwardedToUnderlyingSubscriberPort)
 {
     iox::popo::ConditionVariableData condVar("Horscht");
     WaitSetMock waitSet(condVar);
@@ -165,6 +165,18 @@ TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     // ===== Test ===== //
     ASSERT_FALSE(waitSet.attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(BaseSubscriberTest, AttachEventToWaitsetForwardedToUnderlyingSubscriberPort)
+{
+    iox::popo::ConditionVariableData condVar("Horscht");
+    WaitSetMock waitSet(condVar);
+    // ===== Setup ===== //
+    EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    // ===== Test ===== //
+    ASSERT_FALSE(waitSet.attachEvent(sut, iox::popo::SubscriberEvent::DATA_RECEIVED).has_error());
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -182,7 +194,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
     // ===== Cleanup ===== //
 }
 
-TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFromOriginalWaitset)
+TEST_F(BaseSubscriberTest, AttachingAttachedStateSubscriberToNewWaitsetDetachesItFromOriginalWaitset)
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
@@ -199,7 +211,22 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
     // ===== Cleanup ===== //
 }
 
-TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
+TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
+{
+    // ===== Setup ===== //
+    iox::popo::ConditionVariableData condVar("Horscht");
+    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(condVar)};
+    EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
+    // ===== Test ===== //
+    EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    ASSERT_FALSE(waitSet->attachEvent(sut, iox::popo::SubscriberEvent::DATA_RECEIVED).has_error());
+    // ===== Verify ===== //
+    EXPECT_EQ(waitSet->size(), 1U);
+    // ===== Cleanup ===== //
+}
+
+TEST_F(BaseSubscriberTest, DetachingAttachedStateCleansup)
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
@@ -209,6 +236,21 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);
     sut.disableState(iox::popo::SubscriberState::HAS_DATA);
+    // ===== Verify ===== //
+    EXPECT_EQ(waitSet->size(), 0U);
+    // ===== Cleanup ===== //
+}
+
+TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
+{
+    // ===== Setup ===== //
+    iox::popo::ConditionVariableData condVar("Horscht");
+    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(condVar)};
+    EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    ASSERT_FALSE(waitSet->attachEvent(sut, iox::popo::SubscriberEvent::DATA_RECEIVED).has_error());
+    // ===== Test ===== //
+    EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);
+    sut.disableEvent(iox::popo::SubscriberEvent::DATA_RECEIVED);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     // ===== Cleanup ===== //

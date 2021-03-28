@@ -527,7 +527,7 @@ TEST_F(WaitSet_test, DetachingAttachedStateIsSuccessful)
 
 TEST_F(WaitSet_test, DetachingAttachedEventTwiceWorks)
 {
-    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0]).has_error());
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0]).has_error());
     m_sut->detachEvent(m_simpleEvents[0]);
     m_sut->detachEvent(m_simpleEvents[0]);
     EXPECT_THAT(m_sut->size(), Eq(0U));
