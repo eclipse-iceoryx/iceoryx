@@ -18,7 +18,7 @@
 #include "stubs/stub_toml_gateway_config_parser.hpp"
 
 #include "test.hpp"
-#include "test_input_path.hpp"
+#include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
 
 using namespace ::testing;
 using ::testing::_;
