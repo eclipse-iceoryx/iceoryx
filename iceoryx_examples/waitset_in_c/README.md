@@ -1,18 +1,29 @@
 # WaitSet in C
 
+## Thread Safety
+The WaitSet is **not** thread-safe!
+- It is **not** allowed to attach or detach _Triggerable_
+   classes with `iox_ws_attach_**` or `iox_ws_detach_**` when another thread is currently
+   waiting for events with `iox_ws_wait` or `iox_ws_timed_wait`.
+- Do **not** call any of the `iox_ws_` functions concurrently.
+
+The _TriggerHandle_ on the other hand is thread-safe! Therefore you are allowed to
+attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
+trigger the _TriggerHandle_.
+
 ## Introduction
 
-A detailed introduction into the WaitSet topic can be found in the 
+A detailed introduction into the WaitSet nomenclature and topic can be found in the 
 [waitset C++ example](../waitset). Here we will only introduce the C API and
 not the WaitSet in general. For that we will take a look at the same use case
 as the [waitset C++ example](../waitset). The examples are also structured 
 in the same way as the C++ ones.
 
-## Expected output
+## Expected Output
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 
-## Code walkthrough
+## Code Walkthrough
 
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced

@@ -43,7 +43,6 @@ enum class WaitSetError : uint8_t
     INVALID_STATE,
     WAIT_SET_FULL,
     EVENT_ALREADY_ATTACHED,
-    PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET,
 };
 
 using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
@@ -137,7 +136,6 @@ class WaitSet
                                                           const uint64_t eventId,
                                                           const EventInfo::Callback<T>& eventCallback) noexcept;
 
-    EventInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
     EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
     EventInfoVector createVectorWithTriggeredTriggers() noexcept;
 

@@ -65,7 +65,8 @@ class WaitSet_test : public Test
 
         iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent() const noexcept
         {
-            return {*this, &SimpleEventClass::hasTriggered};
+            return (isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
+                                  : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
         }
 
         bool hasTriggered() const
@@ -105,6 +106,7 @@ class WaitSet_test : public Test
         SimpleEventClass* m_triggerCallbackArgument1 = nullptr;
         SimpleEventClass* m_triggerCallbackArgument2 = nullptr;
         bool autoResetTrigger = true;
+        bool isEventBased = false;
     };
 
     ConditionVariableData m_condVarData{"Horscht"};
@@ -123,6 +125,7 @@ class WaitSet_test : public Test
     void SetUp()
     {
         WaitSet_test::SimpleEventClass::m_invalidateTriggerId = 0U;
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     };
 
     void TearDown(){};
@@ -432,7 +435,6 @@ void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
 
     test->m_simpleEvents[0].trigger();
 
-    test->m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(1U));
 
@@ -463,7 +465,6 @@ void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
     test->m_simpleEvents[0].trigger();
     test->m_simpleEvents[1].trigger();
 
-    test->m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(2U));
 
@@ -535,7 +536,6 @@ TEST_F(WaitSet_test, NonResetEventsAreReturnedAgain)
     m_simpleEvents[7].autoResetTrigger = false;
     m_simpleEvents[7].trigger();
 
-    m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     auto eventVector = m_sut.wait();
 
     // ACT
@@ -659,3 +659,41 @@ TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorks)
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
 }
 
+TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)
+{
+    m_simpleEvents[0].isEventBased = true;
+    m_simpleEvents[0].autoResetTrigger = false;
+
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], 3431).has_error());
+
+    m_simpleEvents[0].trigger();
+
+    auto eventVector = m_sut.wait();
+    ASSERT_THAT(eventVector.size(), Eq(1));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3431, m_simpleEvents[0]));
+
+    eventVector = m_sut.timedWait(iox::units::Duration::fromMilliseconds(1));
+    EXPECT_TRUE(eventVector.empty());
+}
+
+TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWaitCorrectly)
+{
+    m_simpleEvents[0].isEventBased = true;
+    m_simpleEvents[0].autoResetTrigger = false;
+    m_simpleEvents[1].autoResetTrigger = false;
+
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[0], 3431).has_error());
+    ASSERT_FALSE(m_sut.attachEvent(m_simpleEvents[1], 8171).has_error());
+
+    m_simpleEvents[0].trigger();
+    m_simpleEvents[1].trigger();
+
+    auto eventVector = m_sut.wait();
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3431, m_simpleEvents[0]));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
+
+    eventVector = m_sut.timedWait(iox::units::Duration::fromMilliseconds(1));
+    ASSERT_THAT(eventVector.size(), Eq(1));
+    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
+}

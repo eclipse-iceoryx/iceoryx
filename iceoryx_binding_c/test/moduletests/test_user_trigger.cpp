@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,10 +64,10 @@ TEST_F(iox_user_trigger_test, isNotTriggeredWhenCreated)
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_user_trigger_test, canBeTriggeredWhenNotAttached)
+TEST_F(iox_user_trigger_test, cannotBeTriggeredWhenNotAttached)
 {
     iox_user_trigger_trigger(m_sut);
-    EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
+    EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
 TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
@@ -74,20 +75,6 @@ TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
     iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, NULL);
     iox_user_trigger_trigger(m_sut);
     EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
-}
-
-TEST_F(iox_user_trigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
-{
-    iox_user_trigger_reset_trigger(m_sut);
-    EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
-}
-
-TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInNotTriggered)
-{
-    iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 0U, NULL);
-    iox_user_trigger_trigger(m_sut);
-    iox_user_trigger_reset_trigger(m_sut);
-    EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectEventId)
