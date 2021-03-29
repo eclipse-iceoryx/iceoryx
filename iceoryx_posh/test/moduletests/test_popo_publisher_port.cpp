@@ -46,7 +46,7 @@ class PublisherPort_test : public Test
     {
         m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
         m_mempoolconf.addMemPool({BIG_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~PublisherPort_test()
@@ -511,10 +511,13 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
     // allocate some samples
     auto maybeChunkHeader1 = m_sutWithHistoryUserSide.tryAllocateChunk(
         sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    EXPECT_FALSE(maybeChunkHeader1.has_error());
     auto maybeChunkHeader2 = m_sutWithHistoryUserSide.tryAllocateChunk(
         sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    EXPECT_FALSE(maybeChunkHeader2.has_error());
     auto maybeChunkHeader3 = m_sutWithHistoryUserSide.tryAllocateChunk(
         sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+    EXPECT_FALSE(maybeChunkHeader3.has_error());
 
     m_sutWithHistoryRouDiSide.releaseAllChunks();
 

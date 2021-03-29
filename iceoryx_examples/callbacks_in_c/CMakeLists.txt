@@ -21,11 +21,14 @@ include(GNUInstallDirs)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
+find_package(iceoryx_utils CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
-if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatform)
-endif ()
+include(IceoryxPlatform)
+
+if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
+    list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
+endif()
 
 add_executable(iox-ex-c-callbacks-publisher ./ice_c_callbacks_publisher.c)
 set_source_files_properties(./ice_c_callbacks_publisher.c PROPERTIES LANGUAGE C)

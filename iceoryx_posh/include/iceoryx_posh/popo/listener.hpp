@@ -37,6 +37,7 @@ enum class ListenerError
     INVALID_STATE,
     LISTENER_FULL,
     EVENT_ALREADY_ATTACHED,
+    EMPTY_INVALIDATION_CALLBACK
 };
 
 /// @brief The Listener is a class which reacts to registered events by
@@ -155,7 +156,7 @@ class Listener
 
         bool isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept;
         bool reset() noexcept;
-        void init(const uint64_t eventId,
+        bool init(const uint64_t eventId,
                   void* const origin,
                   const uint64_t eventType,
                   const uint64_t eventTypeHash,

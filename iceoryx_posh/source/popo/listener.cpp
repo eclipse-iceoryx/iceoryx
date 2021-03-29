@@ -67,7 +67,11 @@ Listener::addEvent(void* const origin,
         return cxx::error<ListenerError>(ListenerError::LISTENER_FULL);
     }
 
-    m_events[index]->init(index, origin, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
+    if (!m_events[index]->init(
+            index, origin, eventType, eventTypeHash, callback, translationCallback, invalidationCallback))
+    {
+        return cxx::error<ListenerError>(ListenerError::EMPTY_INVALIDATION_CALLBACK);
+    }
     return cxx::success<uint32_t>(index);
 }
 
@@ -80,7 +84,7 @@ void Listener::threadLoop() noexcept
 {
     while (m_wasDtorCalled.load(std::memory_order_relaxed) == false)
     {
-        auto activateNotificationIds = m_conditionListener.waitForNotifications();
+        auto activateNotificationIds = m_conditionListener.wait();
 
         cxx::forEach(activateNotificationIds, [this](auto id) { m_events[id]->executeCallback(); });
     }
@@ -117,7 +121,7 @@ void Listener::Event_t::executeCallback() noexcept
     m_translationCallback(m_origin, m_callback);
 }
 
-void Listener::Event_t::init(const uint64_t eventId,
+bool Listener::Event_t::init(const uint64_t eventId,
                              void* const origin,
                              const uint64_t eventType,
                              const uint64_t eventTypeHash,
@@ -125,13 +129,19 @@ void Listener::Event_t::init(const uint64_t eventId,
                              TranslationCallbackRef_t translationCallback,
                              const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
-    m_eventId = eventId;
-    m_origin = origin;
-    m_eventType = eventType;
-    m_eventTypeHash = eventTypeHash;
-    m_callback = &callback;
-    m_translationCallback = &translationCallback;
-    m_invalidationCallback = invalidationCallback;
+    if (invalidationCallback)
+    {
+        m_eventId = eventId;
+        m_origin = origin;
+        m_eventType = eventType;
+        m_eventTypeHash = eventTypeHash;
+        m_callback = &callback;
+        m_translationCallback = &translationCallback;
+        m_invalidationCallback = invalidationCallback;
+        return true;
+    }
+
+    return false;
 }
 
 bool Listener::Event_t::isEqualTo(const void* const origin,
@@ -145,7 +155,8 @@ bool Listener::Event_t::reset() noexcept
 {
     if (isInitialized())
     {
-        m_invalidationCallback(m_eventId);
+        // isInitialized == true ensures that the invalidationCallback is set
+        IOX_DISCARD_RESULT(m_invalidationCallback(m_eventId));
 
         m_eventId = INVALID_ID;
         m_origin = nullptr;

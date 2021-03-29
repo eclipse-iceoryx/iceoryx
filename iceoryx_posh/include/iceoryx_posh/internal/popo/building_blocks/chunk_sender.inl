@@ -49,19 +49,25 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
                                               const uint32_t customHeaderAlignment) noexcept
 {
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
-    const uint32_t neededChunkSize = getMembers()->m_memoryMgr->requiredChunkSize(
-        payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+    const auto chunkSettingsResult =
+        mepoo::ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+    if (chunkSettingsResult.has_error())
+    {
+        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_CHUNK);
+    }
+
+    const auto& chunkSettings = chunkSettingsResult.value();
+    const uint32_t requiredChunkSize = chunkSettings.requiredChunkSize();
 
     auto& lastChunk = getMembers()->m_lastChunk;
-    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize >= neededChunkSize))
+    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize >= requiredChunkSize))
     {
         if (getMembers()->m_chunksInUse.insert(lastChunk))
         {
             auto chunkHeader = lastChunk.getChunkHeader();
             auto chunkSize = chunkHeader->chunkSize;
             chunkHeader->~ChunkHeader();
-            new (chunkHeader)
-                mepoo::ChunkHeader(chunkSize, payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+            new (chunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
             return cxx::success<mepoo::ChunkHeader*>(lastChunk.getChunkHeader());
         }
         else
@@ -73,8 +79,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
     {
         // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
         // get a new chunk
-        mepoo::SharedChunk chunk =
-            getMembers()->m_memoryMgr->getChunk(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        mepoo::SharedChunk chunk = getMembers()->m_memoryMgr->getChunk(chunkSettings);
 
         if (chunk)
         {

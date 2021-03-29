@@ -48,7 +48,7 @@ class iox_pub_test : public Test
     iox_pub_test()
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~iox_pub_test()
@@ -198,10 +198,12 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
     while (true)
     {
         constexpr uint32_t PAYLOAD_SIZE{100U};
-        auto sharedChunk = m_memoryManager.getChunk(PAYLOAD_SIZE,
-                                                    iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                                                    iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                                    iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+
+        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        ASSERT_FALSE(chunkSettingsResult.has_error());
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        auto sharedChunk = m_memoryManager.getChunk(chunkSettings);
         if (sharedChunk)
             chunkBucket.emplace_back(sharedChunk);
         else

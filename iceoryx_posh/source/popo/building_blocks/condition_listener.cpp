@@ -64,43 +64,37 @@ bool ConditionListener::wasNotified() const noexcept
     return *result != 0;
 }
 
-void ConditionListener::wait() noexcept
+ConditionListener::NotificationVector_t ConditionListener::wait() noexcept
 {
-    if (m_toBeDestroyed.load(std::memory_order_relaxed))
-    {
-        return;
-    }
-
-    getMembers()->m_semaphore.wait().or_else([](auto) {
-        errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+    return waitImpl([this]() -> bool {
+        if (this->getMembers()->m_semaphore.wait().has_error())
+        {
+            errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
+            return false;
+        }
+        return true;
     });
 }
 
-bool ConditionListener::timedWait(units::Duration timeToWait) noexcept
+ConditionListener::NotificationVector_t ConditionListener::timedWait(const units::Duration& timeToWait) noexcept
 {
-    if (m_toBeDestroyed.load(std::memory_order_relaxed))
-    {
+    return waitImpl([this, timeToWait]() -> bool {
+        if (this->getMembers()->m_semaphore.timedWait(timeToWait, true).has_error())
+        {
+            errorHandler(
+                Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, nullptr, ErrorLevel::FATAL);
+        }
         return false;
-    }
-
-    auto continueOnInterrupt{false};
-    auto result = getMembers()->m_semaphore.timedWait(timeToWait, continueOnInterrupt);
-
-    if (result.has_error())
-    {
-        errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, nullptr, ErrorLevel::FATAL);
-        return false;
-    }
-
-    return *result != posix::SemaphoreWaitState::TIMEOUT;
+    });
 }
 
-ConditionListener::NotificationVector_t ConditionListener::waitForNotifications() noexcept
+ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::function_ref<bool()>& waitCall) noexcept
 {
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
     NotificationVector_t activeNotifications;
 
     resetSemaphore();
+    bool doReturnAfterNotificationCollection = false;
     while (!m_toBeDestroyed.load(std::memory_order_relaxed))
     {
         for (Type_t i = 0U; i < MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE; i++)
@@ -111,16 +105,12 @@ ConditionListener::NotificationVector_t ConditionListener::waitForNotifications(
                 activeNotifications.emplace_back(i);
             }
         }
-        if (!activeNotifications.empty())
+        if (!activeNotifications.empty() || doReturnAfterNotificationCollection)
         {
             return activeNotifications;
         }
 
-        if (getMembers()->m_semaphore.wait().has_error())
-        {
-            errorHandler(Error::kPOPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, nullptr, ErrorLevel::FATAL);
-            break;
-        }
+        doReturnAfterNotificationCollection = !waitCall();
     }
 
     return activeNotifications;
