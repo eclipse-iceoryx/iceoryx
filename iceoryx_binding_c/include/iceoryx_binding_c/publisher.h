@@ -86,13 +86,23 @@ void iox_pub_deinit(iox_pub_t const self);
 /// @param[in] self handle of the publisher
 /// @param[in] chunk pointer in which a pointer to the allocated chunk is stored
 /// @param[in] payloadSize user payload size of the allocated chunk
+/// @return on success it returns AllocationResult_SUCCESS otherwise a value which
+///         describes the error
+/// @note for the payload alignment `IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT` is used
+///       for a custom payload alignment please use `iox_pub_loan_aligned_chunk`
+ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize);
+
+/// @brief allocates a chunk in the shared memory with a custom alignment for the payload
+/// @param[in] self handle of the publisher
+/// @param[in] chunk pointer in which a pointer to the allocated chunk is stored
+/// @param[in] payloadSize user payload size of the allocated chunk
 /// @param[in] payloadAlignment user payload alignment of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
-                                             void** const chunk,
-                                             const uint32_t payloadSize,
-                                             const uint32_t payloadAlignment);
+ENUM iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
+                                                     void** const chunk,
+                                                     const uint32_t payloadSize,
+                                                     const uint32_t payloadAlignment);
 
 /// @brief releases ownership of a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher

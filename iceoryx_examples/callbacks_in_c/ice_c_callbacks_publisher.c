@@ -51,10 +51,7 @@ void sending()
     {
         if (counter % 3 == 0)
         {
-            if (iox_pub_loan_chunk(publisherLeft,
-                                   (void**)&chunk,
-                                   sizeof(struct CounterTopic),
-                                   IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
+            if (iox_pub_loan_chunk(publisherLeft, (void**)&chunk, sizeof(struct CounterTopic))
                 == AllocationResult_SUCCESS)
             {
                 printf("Radar.FrontLeft.Counter sending : %d\n", counter);
@@ -65,10 +62,7 @@ void sending()
         }
         else
         {
-            if (iox_pub_loan_chunk(publisherRight,
-                                   (void**)&chunk,
-                                   sizeof(struct CounterTopic),
-                                   IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
+            if (iox_pub_loan_chunk(publisherRight, (void**)&chunk, sizeof(struct CounterTopic))
                 == AllocationResult_SUCCESS)
             {
                 printf("Radar.FrontRight.Counter sending : %d\n", counter * 2);

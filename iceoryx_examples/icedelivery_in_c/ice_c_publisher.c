@@ -50,9 +50,7 @@ void sending()
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS
-            == iox_pub_loan_chunk(
-                publisher, &chunk, sizeof(struct RadarObject), IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT))
+        if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &chunk, sizeof(struct RadarObject)))
         {
             struct RadarObject* sample = (struct RadarObject*)chunk;
 

@@ -114,10 +114,15 @@ void iox_pub_deinit(iox_pub_t const self)
     self->~cpp2c_Publisher();
 }
 
-iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
-                                        void** const chunk,
-                                        const uint32_t payloadSize,
-                                        const uint32_t payloadAlignment)
+iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize)
+{
+    return iox_pub_loan_aligned_chunk(self, chunk, payloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+}
+
+iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
+                                                void** const chunk,
+                                                const uint32_t payloadSize,
+                                                const uint32_t payloadAlignment)
 {
     auto result =
         PublisherPortUser(self->m_portData)
