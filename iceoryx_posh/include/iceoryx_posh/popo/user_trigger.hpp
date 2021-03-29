@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +27,9 @@ namespace iox
 {
 namespace popo
 {
-/// @brief A trigger which can be used by the application developer directly.
-///        If you would like to trigger a WaitSet through an event of your class
+/// @brief An event based trigger which can be used by the application developer
+///        directly.
+///        If you would like to trigger a WaitSet/Listener through an event of your class
 ///        you should use the Trigger class.
 class UserTrigger
 {
@@ -39,14 +41,13 @@ class UserTrigger
     UserTrigger& operator=(UserTrigger&& rhs) = delete;
 
     /// @brief If it is attached it will trigger otherwise it will do nothing
+    /// @note a user trigger cannot be triggered when it is not attached
     void trigger() noexcept;
 
     /// @brief Checks if the UserTrigger was triggered
-    /// @return true if the UserTrigger is trigger, otherwise false
+    /// @return true if the UserTrigger is trigger, otherwise false. The hasTrigger
+    ///         state is reset when it was handled by the WaitSet/Listener
     bool hasTriggered() const noexcept;
-
-    /// @brief Resets the UserTrigger state to not triggered
-    void resetTrigger() noexcept;
 
     friend class EventAttorney;
 
@@ -67,7 +68,6 @@ class UserTrigger
 
   private:
     TriggerHandle m_trigger;
-    std::atomic_bool m_wasTriggered{false};
 };
 
 } // namespace popo

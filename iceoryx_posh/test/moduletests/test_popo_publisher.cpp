@@ -44,7 +44,7 @@ struct DummyData
 };
 } // namespace
 
-using TestPublisher = iox::popo::Publisher<DummyData, MockBasePublisher<DummyData>>;
+using TestPublisher = iox::popo::Publisher<DummyData, iox::mepoo::NoCustomHeader, MockBasePublisher<DummyData>>;
 
 class PublisherTest : public Test
 {

@@ -73,6 +73,11 @@ class ChunkMock
         return m_chunkHeader;
     }
 
+    CustomHeader* customHeader()
+    {
+        return m_chunkHeader->customHeader<CustomHeader>();
+    }
+
     Topic* sample()
     {
         return m_topic;
@@ -84,8 +89,6 @@ class ChunkMock
     ChunkMock& operator=(ChunkMock&&) = delete;
 
   private:
-    static constexpr size_t Size = sizeof(iox::mepoo::ChunkHeader) + sizeof(Topic);
-    static constexpr size_t Alignment = iox::cxx::maxAlignment<iox::mepoo::ChunkHeader, Topic>();
     uint8_t* m_rawMemory{nullptr};
     iox::mepoo::ChunkHeader* m_chunkHeader = nullptr;
     Topic* m_topic = nullptr;
