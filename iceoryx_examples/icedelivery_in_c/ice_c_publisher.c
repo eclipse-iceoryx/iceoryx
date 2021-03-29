@@ -26,6 +26,8 @@
 
 bool killswitch = false;
 
+const char APP_NAME[] = "iox-c-publisher";
+
 static void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
@@ -36,7 +38,7 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    iox_runtime_init("iox-c-publisher");
+    iox_runtime_init(APP_NAME);
 
     iox_pub_options_t options;
     iox_pub_options_init(&options);
@@ -58,7 +60,7 @@ void sending()
             sample->y = ct;
             sample->z = ct;
 
-            printf("Sent value: %.0f\n", ct);
+            printf("%s sent value: %.0f\n", APP_NAME, ct);
             fflush(stdout);
 
             iox_pub_publish_chunk(publisher, chunk);

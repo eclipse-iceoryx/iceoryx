@@ -15,7 +15,7 @@ This example demonstrates
 
 ## Run iceensemble
 
-Create seven terminals and run one command in each of them.
+The easiest way is the build all examples via `./tools/iceoryx_build_test.sh`. Then, create eight terminals and run one command in each of them.
 
 ```sh
 # If installed and available in PATH environment variable
@@ -33,7 +33,11 @@ build/iceoryx_examples/icedelivery/iox-ex-subscriber
 build/iceoryx_examples/iceoptions/iox-subscriber-with-options
 ```
 
-Alternatively you can use the provided tmux config.
+Alternatively you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmux) script.
+
+```sh
+./run_iceensemble.sh
+```
 
 ## Expected output
 
