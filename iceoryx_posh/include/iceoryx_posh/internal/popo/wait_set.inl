@@ -165,7 +165,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin
                                                                   const EventInfo::Callback<T>& stateCallback) noexcept
 {
     static_assert(IS_STATE_ENUM<StateType>, "Only enums with an underlying StateEnumIdentifier are allowed.");
-    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(stateOrigin, stateType);
+    auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin, stateType);
 
     return attachImpl(stateOrigin,
                       hasTriggeredCallback,
@@ -195,7 +195,7 @@ template <typename T>
 inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachState(T& stateOrigin, const uint64_t id, const EventInfo::Callback<T>& stateCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAttorney::getHasTriggeredCallbackForState(stateOrigin);
+    auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin);
     return attachImpl(stateOrigin,
                       hasTriggeredCallback,
                       id,
@@ -276,13 +276,15 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
         {
             auto index = m_activeNotifications[i];
             auto& trigger = m_triggerArray[index];
+            bool doRemoveNotificationId = static_cast<bool>(trigger);
 
-            if (trigger && trigger->hasTriggered())
+            if (!doRemoveNotificationId && trigger->isStateConditionSatisfied())
             {
                 cxx::Expects(triggers.push_back(&m_triggerArray[index]->getEventInfo()));
+                doRemoveNotificationId = (trigger->getTriggerType() == TriggerType::EVENT_BASED);
             }
 
-            if (!trigger || (trigger && trigger->getTriggerType() == TriggerType::EVENT_BASED))
+            if (doRemoveNotificationId)
             {
                 m_activeNotifications.erase(m_activeNotifications.begin() + i);
             }

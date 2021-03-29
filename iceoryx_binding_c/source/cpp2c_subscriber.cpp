@@ -77,7 +77,7 @@ void cpp2c_Subscriber::disableState(const SubscriberState subscriberState) noexc
 }
 
 iox::popo::WaitSetHasTriggeredCallback
-cpp2c_Subscriber::getHasTriggeredCallbackForState(const SubscriberState subscriberState) const noexcept
+cpp2c_Subscriber::getCallbackForIsStateConditionSatisfied(const SubscriberState subscriberState) const noexcept
 {
     switch (subscriberState)
     {

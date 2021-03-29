@@ -51,7 +51,8 @@ class EventAttorney
     static cxx::MethodCallback<void, uint64_t> getInvalidateTriggerMethod(T& eventOrigin) noexcept;
 
     template <typename T, typename... Targs>
-    static cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForState(T& eventOrigin, Targs&&... args) noexcept;
+    static cxx::ConstMethodCallback<bool> getCallbackForIsStateConditionSatisfied(T& eventOrigin,
+                                                                                  Targs&&... args) noexcept;
 };
 
 

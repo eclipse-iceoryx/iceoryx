@@ -131,20 +131,20 @@ class WaitSet_test : public Test
             m_eventHandle.invalidate();
         }
 
-        iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForState() const noexcept
+        iox::cxx::ConstMethodCallback<bool> getCallbackForIsStateConditionSatisfied() const noexcept
         {
             return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
                                     : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
         }
 
-        iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForState(SimpleState1 state) const noexcept
+        iox::cxx::ConstMethodCallback<bool> getCallbackForIsStateConditionSatisfied(SimpleState1 state) const noexcept
         {
             m_simpleState1TriggerCallback = state;
             return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
                                     : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
         }
 
-        iox::cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForState(SimpleState2 state) const noexcept
+        iox::cxx::ConstMethodCallback<bool> getCallbackForIsStateConditionSatisfied(SimpleState2 state) const noexcept
         {
             m_simpleState2TriggerCallback = state;
             return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()

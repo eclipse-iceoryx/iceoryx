@@ -56,9 +56,6 @@ class UserTrigger
     /// @param[in] uniqueTriggerId the id of the corresponding trigger
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
-    /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to UserTrigger::hasTriggered
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForState() const noexcept;
-
     /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.
     void enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept;

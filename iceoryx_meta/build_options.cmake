@@ -46,6 +46,12 @@ if(BUILD_ALL)
   set(DDS_GATEWAY ON)
 endif()
 
+## must be before the BUILD_TEST check 
+if(COVERAGE AND NOT BUILD_TEST)
+  set(BUILD_TEST ON)
+  set(BUILD_TEST_HINT "${BUILD_TEST_HINT} (activated since COVERAGE=ON)")
+endif()
+
 if(BUILD_TEST AND NOT ROUDI_ENVIRONMENT)
   set(ROUDI_ENV_HINT "${ROUDI_ENV_HINT} (activated since its required by BUILD_TEST)")
   set(ROUDI_ENVIRONMENT ON)
@@ -58,10 +64,6 @@ if(CCACHE)
   else()
     set(CCACHE_HINT "${CCACHE_HINT} (ccache not found)")
   endif()
-endif()
-
-if(COVERAGE AND NOT BUILD_TEST)
-  set(BUILD_TEST_HINT "${BUILD_TEST_HINT} (activated since COVERAGE=ON)")
 endif()
 
 function(show_config_options)

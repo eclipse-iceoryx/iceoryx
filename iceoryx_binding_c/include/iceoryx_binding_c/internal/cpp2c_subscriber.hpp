@@ -47,7 +47,7 @@ struct cpp2c_Subscriber
     bool hasSamples() const noexcept;
 
     iox::popo::WaitSetHasTriggeredCallback
-    getHasTriggeredCallbackForState(const iox::popo::SubscriberState subscriberState) const noexcept;
+    getCallbackForIsStateConditionSatisfied(const iox::popo::SubscriberState subscriberState) const noexcept;
 
 
     iox::popo::SubscriberPortData* m_portData{nullptr};

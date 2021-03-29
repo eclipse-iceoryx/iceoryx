@@ -27,7 +27,7 @@ Trigger::~Trigger()
     reset();
 }
 
-bool Trigger::hasTriggered() const noexcept
+bool Trigger::isStateConditionSatisfied() const noexcept
 {
     switch (getTriggerType())
     {

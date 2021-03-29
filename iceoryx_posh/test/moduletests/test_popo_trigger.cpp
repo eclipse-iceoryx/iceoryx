@@ -354,9 +354,9 @@ TEST_F(Trigger_test, TriggerCallsHasTriggeredCallback)
     Trigger sut = createValidStateBasedTrigger();
 
     m_triggerClass.m_hasTriggered = true;
-    EXPECT_TRUE(sut.hasTriggered());
+    EXPECT_TRUE(sut.isStateConditionSatisfied());
     m_triggerClass.m_hasTriggered = false;
-    EXPECT_FALSE(sut.hasTriggered());
+    EXPECT_FALSE(sut.isStateConditionSatisfied());
 }
 
 TEST_F(Trigger_test, HasTriggeredCallbackReturnsAlwaysFalseWhenInvalid)
@@ -365,7 +365,7 @@ TEST_F(Trigger_test, HasTriggeredCallbackReturnsAlwaysFalseWhenInvalid)
     m_triggerClass.m_hasTriggered = true;
     sut.reset();
 
-    EXPECT_FALSE(sut.hasTriggered());
+    EXPECT_FALSE(sut.isStateConditionSatisfied());
 }
 
 TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
@@ -376,9 +376,9 @@ TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
     sut.updateOrigin(secondTriggerClass);
 
     secondTriggerClass.m_hasTriggered = false;
-    EXPECT_FALSE(sut.hasTriggered());
+    EXPECT_FALSE(sut.isStateConditionSatisfied());
     secondTriggerClass.m_hasTriggered = true;
-    EXPECT_TRUE(sut.hasTriggered());
+    EXPECT_TRUE(sut.isStateConditionSatisfied());
 }
 
 TEST_F(Trigger_test, TriggerUpdateOriginWorksToSameOriginChangesNothing)
@@ -412,9 +412,9 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFro
     sut.updateOrigin(secondTriggerClass);
 
     thirdTriggerClass.m_hasTriggered = false;
-    EXPECT_FALSE(sut.hasTriggered());
+    EXPECT_FALSE(sut.isStateConditionSatisfied());
     thirdTriggerClass.m_hasTriggered = true;
-    EXPECT_TRUE(sut.hasTriggered());
+    EXPECT_TRUE(sut.isStateConditionSatisfied());
 }
 
 TEST_F(Trigger_test, UpdateOriginLeadsToDifferentResetCallback)
@@ -584,7 +584,7 @@ TEST_F(Trigger_test, ValidEventBasedTriggerIsValidAndAlwaysTriggered)
 {
     Trigger sut = createValidEventBasedTrigger();
     EXPECT_TRUE(sut.isValid());
-    EXPECT_TRUE(sut.hasTriggered());
+    EXPECT_TRUE(sut.isStateConditionSatisfied());
     EXPECT_THAT(sut.getUniqueId(), Ne(Trigger::INVALID_TRIGGER_ID));
     EXPECT_THAT(sut.getTriggerType(), Eq(TriggerType::EVENT_BASED));
 }
@@ -595,7 +595,7 @@ TEST_F(Trigger_test, InvalidatedEventBasedTriggerIsNotValidAndNotTriggered)
     sut.invalidate();
 
     EXPECT_FALSE(sut.isValid());
-    EXPECT_FALSE(sut.hasTriggered());
+    EXPECT_FALSE(sut.isStateConditionSatisfied());
     EXPECT_THAT(sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
     EXPECT_THAT(sut.getTriggerType(), Eq(TriggerType::INVALID));
 }
@@ -606,7 +606,7 @@ TEST_F(Trigger_test, ResetEventBasedTriggerIsNotValidAndNotTriggered)
     sut.reset();
 
     EXPECT_FALSE(sut.isValid());
-    EXPECT_FALSE(sut.hasTriggered());
+    EXPECT_FALSE(sut.isStateConditionSatisfied());
     EXPECT_THAT(sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
     EXPECT_THAT(sut.getTriggerType(), Eq(TriggerType::INVALID));
 }

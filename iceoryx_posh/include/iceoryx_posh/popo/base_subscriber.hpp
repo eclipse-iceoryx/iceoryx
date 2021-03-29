@@ -128,7 +128,8 @@ class BaseSubscriber
     /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to the event corresponding
     /// hasTriggered method callback
     /// @param[in] subscriberState the state to which the hasTriggeredCallback is required
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForState(const SubscriberState subscriberState) const noexcept;
+    WaitSetHasTriggeredCallback
+    getCallbackForIsStateConditionSatisfied(const SubscriberState subscriberState) const noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Resets the internal triggerHandle
     /// @param[in] subscriberState the state which should be detached

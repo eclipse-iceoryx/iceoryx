@@ -131,7 +131,7 @@ inline void BaseSubscriber<port_t>::enableState(iox::popo::TriggerHandle&& trigg
 
 template <typename port_t>
 inline WaitSetHasTriggeredCallback
-BaseSubscriber<port_t>::getHasTriggeredCallbackForState(const SubscriberState subscriberState) const noexcept
+BaseSubscriber<port_t>::getCallbackForIsStateConditionSatisfied(const SubscriberState subscriberState) const noexcept
 {
     switch (subscriberState)
     {

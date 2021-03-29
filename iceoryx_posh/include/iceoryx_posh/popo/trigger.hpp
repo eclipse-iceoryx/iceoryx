@@ -122,7 +122,7 @@ class Trigger
 
     /// @brief returns the result of the provided hasTriggeredCallback
     /// @note  an event based trigger returns always true when it's valid
-    bool hasTriggered() const noexcept;
+    bool isStateConditionSatisfied() const noexcept;
 
     /// @brief resets and invalidates the Trigger
     void reset() noexcept;
