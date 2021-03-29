@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +13,24 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
-#define IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#ifndef IOX_BINDING_C_LOG_H
+#define IOX_BINDING_C_LOG_H
 
-namespace iox
-{
-namespace runtime
-{
-class PoshRuntimeSingleProcess : public PoshRuntime
-{
-  public:
-    PoshRuntimeSingleProcess(const RuntimeName_t& name) noexcept;
-    ~PoshRuntimeSingleProcess();
+/// @brief available log levels of the iceoryx runtime
+enum iox_LogLevel {
+    Iceoryx_LogLevel_Off = 0,
+    Iceoryx_LogLevel_Verbose,
+    Iceoryx_LogLevel_Debug,
+    Iceoryx_LogLevel_Info,
+    Iceoryx_LogLevel_Warn,
+    Iceoryx_LogLevel_Error,
+    Iceoryx_LogLevel_Fatal
 };
-} // namespace runtime
-} // namespace iox
+
+/// @brief set the log level of the iceoryx runtime
+/// @param[in] level log level to be set
+/// @note must be called before the runtime is initialized
+void iox_set_loglevel(enum iox_LogLevel level);
 
 #endif

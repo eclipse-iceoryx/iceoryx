@@ -10,5 +10,6 @@ nav:
   - waitset_in_c.md
   - iceensemble.md
   - singleprocess.md
+  - icecubetray.md
   - iceperf.md
   - icecrystal.md

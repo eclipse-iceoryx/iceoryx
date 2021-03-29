@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +13,24 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
-#define IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#ifndef IOX_BINDING_C_API_H
+#define IOX_BINDING_C_API_H
 
-namespace iox
-{
-namespace runtime
-{
-class PoshRuntimeSingleProcess : public PoshRuntime
-{
-  public:
-    PoshRuntimeSingleProcess(const RuntimeName_t& name) noexcept;
-    ~PoshRuntimeSingleProcess();
-};
-} // namespace runtime
-} // namespace iox
+// Provides the complete iceoryx C API in one header.
+
+#include "chunk.h"
+#include "enums.h"
+#include "event_info.h"
+#include "node.h"
+#include "publisher.h"
+#include "runtime.h"
+#include "subscriber.h"
+#include "types.h"
+#include "user_trigger.h"
+#include "wait_set.h"
+#include "listener.h"
+#include "service_description.h"
+#include "log.h"
 
 #endif
