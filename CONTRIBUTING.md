@@ -124,8 +124,8 @@ All new code should follow the folder structure.
 
 ### How to add a new example
 
-1. Add the example in the ["List of all examples"](./doc/website/getting-started/list-of-examples.md)
-2. Create a new file and include the readme in `doc/website/getting-started/examples/ice-foo.md`
+1. Add the example in the ["List of all examples"](./iceoryx_examples/README.md)
+2. Create a new file in `doc/website/getting-started/examples/foobar.md`. This file shall only set the title and include the readme from `./iceoryx_examples/foobar/README.md`
 3. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
 4. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
 
