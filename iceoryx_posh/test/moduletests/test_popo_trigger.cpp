@@ -307,7 +307,7 @@ TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
     EXPECT_TRUE(sut.hasTriggered());
 }
 
-TEST_F(Trigger_test, TriggerUpdateOriginWorksToSameOriginChangesNothing)
+TEST_F(Trigger_test, TriggerUpdateOriginToSameOriginChangesNothing)
 {
     Trigger sut = createValidStateBasedTrigger();
     sut.updateOrigin(m_triggerClass);

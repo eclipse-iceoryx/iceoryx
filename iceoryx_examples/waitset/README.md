@@ -291,9 +291,9 @@ we just dismiss the received data.
     }
 ```
 !!! attention 
-The second group needs to release all queued samples otherwise
-the WaitSet would notify the user again and again that the subscriber from the second
-group has new samples.
+    The second group needs to release all queued samples otherwise
+    the WaitSet would notify the user again and again that the subscriber from the second
+    group has new samples.
 
 ### Individual
 When every _Triggerable_ requires a different reaction we need to know the
@@ -376,8 +376,8 @@ class SomeClass
 };
 ```
 !!! attention 
-The user trigger is event based and always reset after the WaitSet 
-has acquired all triggered objects.
+    The user trigger is event based and always reset after the WaitSet 
+    has acquired all triggered objects.
 
 We begin as always, by creating a _WaitSet_ with the default capacity and by
 attaching the `shutdownTrigger` to 
