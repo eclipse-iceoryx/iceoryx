@@ -21,14 +21,16 @@
 #include "example_common.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 
 class IcePerfApp {
 public:
-    IcePerfApp(const PerfSettings settings) noexcept;
+    static iox::cxx::optional<IcePerfApp> create(const PerfSettings settings) noexcept;
 
     void run() noexcept;
 
 private:
+    IcePerfApp(const PerfSettings settings) noexcept;
     void run(const iox::capro::IdString_t publisherName, const iox::capro::IdString_t subscriberName) noexcept;
     void doIt(IcePerfBase& ipcTechnology) noexcept;
     void leaderDo(IcePerfBase& ipcTechnology) noexcept;

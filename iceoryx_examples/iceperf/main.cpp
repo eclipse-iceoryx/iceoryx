@@ -17,8 +17,6 @@
 #include "example_common.hpp"
 #include "iceperf_app.hpp"
 
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -195,61 +193,13 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    auto perfSettings = settings.value();
-
-    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
-    if (perfSettings.appType == ApplicationType::LEADER)
+    auto app = IcePerfApp::create(settings.value());
+    if (!app)
     {
-        // send setting to follower application
-
-        iox::runtime::PoshRuntime::initRuntime("iceperf-app-hardy");
-
-        iox::popo::PublisherOptions options;
-        options.historyCapacity = 1U;
-        iox::popo::Publisher<PerfSettings> settingsPublisher{serviceDescription, options};
-        if (!settingsPublisher.publishCopyOf(perfSettings))
-        {
-            std::cerr << "Could not send settings to follower!" << std::endl;
-            return EXIT_FAILURE;
-        }
-    }
-    else
-    {
-        // wait for settings from leader application
-
-        iox::runtime::PoshRuntime::initRuntime("iceperf-app-laurel");
-
-        iox::popo::SubscriberOptions options;
-        options.historyRequest = 1U;
-        iox::popo::Subscriber<PerfSettings> settingsSubscriber{serviceDescription, options};
-
-        constexpr bool WAIT_FOR_SETTINGS{true};
-        while (WAIT_FOR_SETTINGS)
-        {
-            static bool waitMessagePrinted = false;
-            if (!waitMessagePrinted)
-            {
-                std::cout << "Waiting for PerfSettings from leader application!" << std::endl;
-                waitMessagePrinted = true;
-            }
-
-            auto sample = settingsSubscriber.take();
-            if (sample)
-            {
-                perfSettings = *(sample.value());
-                perfSettings.appType = ApplicationType::FOLLOWER;
-                break;
-            }
-            else
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-        }
+        return EXIT_FAILURE;
     }
 
-    IcePerfApp app(perfSettings);
-
-    app.run();
+    app.value().run();
 
     return EXIT_SUCCESS;
 }

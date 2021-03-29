@@ -18,6 +18,8 @@
 #include "iceperf_app.hpp"
 #include "iceoryx.hpp"
 #include "iceoryx_c.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "mq.hpp"
@@ -27,6 +29,63 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+
+iox::cxx::optional<IcePerfApp> IcePerfApp::create(const PerfSettings settings) noexcept
+{
+    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
+    if (settings.appType == ApplicationType::LEADER)
+    {
+        // send setting to follower application
+
+        iox::runtime::PoshRuntime::initRuntime("iceperf-app-hardy");
+
+        iox::popo::PublisherOptions options;
+        options.historyCapacity = 1U;
+        iox::popo::Publisher<PerfSettings> settingsPublisher{serviceDescription, options};
+        if (!settingsPublisher.publishCopyOf(settings))
+        {
+            std::cerr << "Could not send settings to follower!" << std::endl;
+            return iox::cxx::nullopt;
+        }
+
+        return IcePerfApp(settings);
+    }
+    else
+    {
+        // wait for settings from leader application
+
+        iox::runtime::PoshRuntime::initRuntime("iceperf-app-laurel");
+
+        iox::popo::SubscriberOptions options;
+        options.historyRequest = 1U;
+        iox::popo::Subscriber<PerfSettings> settingsSubscriber{serviceDescription, options};
+
+        constexpr bool WAIT_FOR_SETTINGS{true};
+        while (WAIT_FOR_SETTINGS)
+        {
+            static bool waitMessagePrinted = false;
+            if (!waitMessagePrinted)
+            {
+                std::cout << "Waiting for PerfSettings from leader application!" << std::endl;
+                waitMessagePrinted = true;
+            }
+
+            auto sample = settingsSubscriber.take();
+            if (sample)
+            {
+                auto settings = *(sample.value());
+                settings.appType = ApplicationType::FOLLOWER;
+                return IcePerfApp(settings);
+            }
+            else
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
+    }
+
+    return iox::cxx::nullopt;
+}
 
 IcePerfApp::IcePerfApp(const PerfSettings settings) noexcept
     : m_settings(settings)
