@@ -85,8 +85,8 @@ This should be only rarely used and only in coordination with an iceoryx maintai
 
 ## iceoryx library build
 
-The iceoryx build consists of several libraries which have dependencies to each other. The goal is to have self-encapsulated library packages available where the end-user can easily find it with the CMake command `find-package(...)`.
-In the default case, the iceoryx libraries are installed by `make install` into `/usr/lib` which requires root access. As alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
+The iceoryx build consists of several libraries which have dependencies on each other. The goal is to have self-encapsulated library packages available where the end-user can easily find it with the CMake command `find-package(...)`.
+In the default case, the iceoryx libraries are installed by `make install` into `/usr/lib` which requires root access. As an alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
 
 As a starting point for the CMake build, iceoryx_meta collects all libraries (utils, posh etc.) and extensions (binding_c, dds) together. The provided build script `iceoryx_build_test.sh` in the `tools` folder uses iceoryx_meta.
 
@@ -94,7 +94,7 @@ Per default, iceoryx is built as static lib for better usability.
 Additionally, we offer to build as shared library because it is a cleaner solution for resolving dependency issues and it reduces the linker time.
 This is done by the flag `BUILD_SHARED_LIBS` which is set to OFF per default. If you want to have shared libraries, just pass `-DBUILD_SHARED_LIBS=ON` to CMake or use `build-shared` as a flag in the build script.
 
-If iceoryx builds shared libraries you have to copy them into a custom path need to set the LD_LIBRARY_PATH to the custom path (e.g. build/install/prefix).
+If iceoryx builds shared libraries you have to copy them into a custom path and need to set the LD_LIBRARY_PATH to the custom path (e.g. build/install/prefix).
 
 ```bash
 export LD_LIBRARY_PATH=/your/path/to/iceoryx/libs
