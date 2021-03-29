@@ -121,6 +121,14 @@ class iox_sub_test : public Test
 
 iox_sub_t iox_sub_test::m_triggerCallbackLatestArgument = nullptr;
 
+TEST_F(iox_sub_test, initSubscriberWithNullptrForStorageReturnsNullptr)
+{
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+
+    EXPECT_EQ(iox_sub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
+}
+
 TEST_F(iox_sub_test, initialStateNotSubscribed)
 {
     EXPECT_EQ(iox_sub_get_subscription_state(m_sut), SubscribeState_NOT_SUBSCRIBED);

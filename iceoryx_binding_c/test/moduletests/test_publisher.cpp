@@ -118,6 +118,14 @@ class iox_pub_test : public Test
     cpp2c_Publisher m_sut;
 };
 
+TEST_F(iox_pub_test, initPublisherWithNullptrForStorageReturnsNullptr)
+{
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+
+    EXPECT_EQ(iox_pub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
+}
+
 TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)
 {
     PublisherOptions iGotOptions;
