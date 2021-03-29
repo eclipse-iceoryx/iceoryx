@@ -201,8 +201,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
     return timedSend(msg, units::Duration::fromSeconds(0ULL));
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
-                                                           const units::Duration& timeout) const noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout) const
+    noexcept
 {
     if (msg.size() >= m_maxMessageSize) // message sizes with null termination must be smaller than m_maxMessageSize
     {
@@ -276,8 +276,8 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
 }
 
 
-cxx::expected<std::string, IpcChannelError>
-UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout) const
+    noexcept
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
@@ -351,6 +351,12 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket(const IpcChanne
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_ARGUMENTS);
     }
+
+    // the mask will be applied to the permissions, we only allow users and group members to have read and write access
+    // the system call always succeeds, no need to check for errors
+    mode_t umaskSaved = umask(S_IXUSR | S_IXGRP | S_IRWXO);
+    // Reset to old umask when going out of scope
+    cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
 
     auto socketCall =
         cxx::makeSmartC(socket, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, AF_LOCAL, SOCK_DGRAM, 0);

@@ -81,6 +81,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                 LogInfo() << "Application registered payload segment "
                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
+                          /// @todo print access rights
 
                 m_payloadShmObjects.emplace_back(std::move(sharedMemoryObject));
             })
