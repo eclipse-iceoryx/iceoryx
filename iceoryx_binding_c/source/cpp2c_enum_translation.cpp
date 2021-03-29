@@ -80,8 +80,6 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
         return WaitSetResult_WAIT_SET_FULL;
     case WaitSetError::EVENT_ALREADY_ATTACHED:
         return WaitSetResult_EVENT_ALREADY_ATTACHED;
-    case WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET:
-        return WaitSetResult_PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET;
     default:
         return WaitSetResult_UNDEFINED_ERROR;
     }
