@@ -6,12 +6,12 @@ A common use case is that often we have multiple sensors sending data of the sam
 
 This example demonstrates
 
-1. how you can run multiple publisher applications and publishing on the same topic
+1. how you can run multiple publisher applications publishing on the same topic
 2. how to communicate between C and C++
 
 !!! warning
-    If you have built iceoryx with the CMake flag `ONE_TO_MANY_ONLY` publishing with many publishers
-    on one topic will break things
+    If you have built iceoryx with the CMake flag `ONE_TO_MANY_ONLY` publishing with more than one publishers
+    on one topic is not supported
 
 ## Run iceensemble
 
@@ -29,7 +29,7 @@ build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
 build/iceoryx_examples/iceoptions/iox-ex-publisher-with-options
 build/iceoryx_examples/icedelivery_in_c/iox-c-publisher
 
-build/iceoryx_examples/icedelivery/iox-subscriber
+build/iceoryx_examples/icedelivery/iox-ex-subscriber
 build/iceoryx_examples/iceoptions/iox-subscriber-with-options
 ```
 

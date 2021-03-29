@@ -58,9 +58,9 @@ int main()
             RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
             iox::cxx::Expects(chunk == data);
 
-            data->x = 1.0;
-            data->y = 2.0;
-            data->z = 3.0;
+            data->x = ct;
+            data->y = ct;
+            data->z = ct;
             publisher.publish(chunk);
         }
         else
@@ -78,9 +78,9 @@ int main()
                 RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
                 iox::cxx::Expects(chunk == data);
 
-                data->x = 1.0;
-                data->y = 2.0;
-                data->z = 3.0;
+                data->x = ct;
+                data->y = ct;
+                data->z = ct;
                 publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
