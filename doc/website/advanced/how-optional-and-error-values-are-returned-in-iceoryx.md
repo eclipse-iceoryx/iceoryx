@@ -50,8 +50,8 @@ The optional can be initialized from a value directly
 optional<int> result = 73;
 result = 37;
 ```
-If it is default initialized it is automatically set to its null value of type ``iox::cxx::nullopt_t``. This can be also 
-done directly by using the constant ``iox::cxx::nullopt``
+If the optional is default initialized, it is automatically set to its null value of type ``iox::cxx::nullopt_t``. 
+This can be also done directly by using the constant ``iox::cxx::nullopt``
 
 ```cpp
 result = iox::cxx::nullopt;
@@ -86,13 +86,13 @@ else
 }
 ```
 
-Should we need an error value we set
+If we need an error value, we set
 ```cpp
 result = iox::cxx::error<E>(errorCode);
 ```
 which assumes that ``E`` can be constructed from an ``errorCode``.
 
-We again can employ a functional approach like this
+We again can employ a functional approach like this:
 ```cpp
 auto handleValue = [](int& value) { /*do something with the value*/ };
 auto handleError = [](E& value) { /*handle the error*/ };

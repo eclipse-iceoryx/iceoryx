@@ -82,7 +82,7 @@ codebase follows these rules, things are work in progress.
 8) **Always use `iox::ErrorHandler()`**, instead of the direct STL calls
 
 See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional 
-information about logging and error handling. 
+information about logging and error handling.
 
 ### Naming conventions
 

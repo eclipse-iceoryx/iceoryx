@@ -11,7 +11,7 @@ runtime and create _publishers_ and _subscribers_. The publishers send data of a
 received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
 these offered topics, the middleware daemon, called ``RouDi``, must be running.
 
-For further information how iceoryx can be used see the 
+For further information how iceoryx can be used, see the 
 [examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md). The
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) provides additional 
 information about the _Shared Memory communication_ that lies at the heart of iceoryx.
@@ -57,7 +57,7 @@ Let's create a corresponding subscriber.
 ```cpp
 iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
 ```
-Now we can use the subscriber to receive data. For simplicity we assume that we periodically check for new data. It 
+Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It 
 is also possible to explicitly wait for data using the 
 [Waitset](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/README.md) or the 
 [Listener](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/callbacks/README.md). The code to 
@@ -74,8 +74,8 @@ while (keepRunning)
         auto& sample = result.value();
         uint32_t counter = sample->counter;
         //process the data
-    } 
-    else 
+    }
+    else
     {
         //handle the error
     }
@@ -83,7 +83,7 @@ while (keepRunning)
 ```
 By calling ``take`` we get an ``expected`` and hence we may have to handle an error.
 
-And that's it. We have created our first simple iceoryx example. 
+And that's it. We have created our first simple iceoryx example.
 [Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples 
 which demonstrate how iceoryx can be used and describe our API in more detail.
 
@@ -98,10 +98,10 @@ iox-roudi
 $ICEORYX_ROOT/build/iox-roudi
 ```
 
-Afterwards we can start the applications which immediately connect to the RouDi via their runtime.
+Afterwards, we can start the applications which immediately connect to the RouDi via their runtime.
 
 When the application terminates, the runtime cleans up all resources needed for communication with RouDi. This
-includes all memory chunks used for the data transmission which may still be hold by the application.
+includes all memory chunks used for the data transmission which may still be held by the application.
 
 
 We now briefly define the main entities of an iceoryx system which were already used in the example above.
@@ -118,7 +118,7 @@ publishers or subscribers. To view the available command line options call `$ICE
 
 ## Runtime
 
-Each application which wants to use iceoryx has to instantiate its runtime, which essentially enables communication
+Each application that wants to use iceoryx has to instantiate its runtime, which essentially enables communication
 with RouDi. Only one runtime object per user process is allowed.
 
 To do so, the following lines of code are required
@@ -166,7 +166,7 @@ process local constructs, no dynamic allocators
 ## Publisher
 
 A publisher is tied to a topic and needs a service description to be constructed. If it is typed one needs to
-additionally specify the data type as a template parameter. Otherwise the publisher is only aware of raw memory and 
+additionally specify the data type as a template parameter. Otherwise, the publisher is only aware of raw memory and 
 the user has to take care that it is interpreted correctly.
 
 Once it has offered its topic, it is able to publish (send) data of the specific type. Note that the default is to
@@ -191,9 +191,9 @@ indeterminate order between different publishers).
 The easiest way to receive data is to periodically poll whether data is available. This is sufficient for simple use
 cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
 
-The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user defined ``events``
+The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user-defined ``events``
 to occur. Here an event is associated with a condition and occurs when this condition becomes true.
-Usually these events correspond to the availability of data at specific subscribers. This way we
+Usually, these events correspond to the availability of data at specific subscribers. This way we
 can immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
 
 It manages a set of triggers which can be activated to indicate that a corresponding event occurred which wakes
@@ -215,12 +215,12 @@ The API is offered in two languages, C++ and C. Detailed information can be foun
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using 
 the monadic types ``cxx::expected`` and ``cxx::optional`` which are introduced 
-[here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
+[here](http://iceoryx.io/advanced/usage-guide/how-optional-and-error-values-are-returned-in-iceoryx/).
 
-We distinguish between the ``typed API`` and the ``untyped API``. In the typed API the underlying data type is made
+We distinguish between the ``typed API`` and the ``untyped API``. In the typed API, the underlying data type is made
 apparent by typed pointers or references to some data type T (often a template parameter). This allows working with
-the data in a C++ idiomatic and type-safe way and should be preferred whenever possible. This API is mainly used when 
-iceroryx is used stand-alone, i.e. not integrated into a third party framework.
+the data in a C++ idiomatic and type-safe way and should be preferred whenever possible. The typed API is mainly used 
+when iceroryx is used stand-alone, i.e. not integrated into a third party framework.
 
 The untyped API provides [opaque](https://en.wikipedia.org/wiki/Opaque_pointer) (i.e. void) pointers to data, which
 is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as 
