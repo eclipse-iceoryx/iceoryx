@@ -16,8 +16,6 @@
 
 #include "iceoryx_utils/log/logmanager.hpp"
 
-using namespace iox::log;
-
 extern "C" {
 #include "iceoryx_binding_c/log.h"
 }
@@ -25,6 +23,7 @@ extern "C" {
 #include "test.hpp"
 
 using namespace ::testing;
+using namespace iox::log;
 
 TEST(iox_log_test, LogLevelIsSetCorrectly)
 {

@@ -20,28 +20,30 @@ extern "C" {
 #include "iceoryx_binding_c/log.h"
 }
 
-iox::log::LogLevel toLogLevel(enum iox_LogLevel level) {
+using namespace iox::log;
+
+LogLevel toLogLevel(enum iox_LogLevel level) {
     switch (level)
     {
     case Iceoryx_LogLevel_Off:
-        return iox::log::LogLevel::kOff;
+        return LogLevel::kOff;
     case Iceoryx_LogLevel_Verbose:
-        return iox::log::LogLevel::kVerbose;
+        return LogLevel::kVerbose;
     case Iceoryx_LogLevel_Debug:
-        return iox::log::LogLevel::kDebug;
+        return LogLevel::kDebug;
     case Iceoryx_LogLevel_Info:
-        return iox::log::LogLevel::kInfo;
+        return LogLevel::kInfo;
     case Iceoryx_LogLevel_Warn:
-        return iox::log::LogLevel::kWarn;
+        return LogLevel::kWarn;
     case Iceoryx_LogLevel_Error:
-        return iox::log::LogLevel::kError;
+        return LogLevel::kError;
     case Iceoryx_LogLevel_Fatal:
-        return iox::log::LogLevel::kFatal;
+        return LogLevel::kFatal;
     default:
-        return iox::log::LogLevel::kVerbose;
+        return LogLevel::kVerbose;
     }
 }
 
 void iox_set_loglevel(enum iox_LogLevel level) {
-    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(toLogLevel(level));
+    LogManager::GetLogManager().SetDefaultLogLevel(toLogLevel(level), LogLevelOutput::kHideLogLevel);
 }
