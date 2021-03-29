@@ -17,19 +17,32 @@
 #ifndef IOX_EXAMPLES_ICEPERF_EXAMPLE_COMMON_HPP
 #define IOX_EXAMPLES_ICEPERF_EXAMPLE_COMMON_HPP
 
+enum class ApplicationType
+{
+    LEADER,
+    FOLLOWER,
+};
+
+enum class Benchmark
+{
+    ALL,
+    LATENCY,
+    TROUGHPUT,
+};
+
+enum class Technology
+{
+    ALL,
+    ICEORYX_CPP_API,
+    ICEORYX_C_API,
+    POSIX_MESSAGE_QUEUE,
+    UNIX_DOMAIN_SOCKET,
+};
+
 enum class RunFlag
 {
     STOP,
     RUN,
 };
-
-enum class Benchmarks
-{
-    ALL,
-    C_API,
-    CPP_API
-};
-
-Benchmarks getBenchmarkFromString(const char* argv) noexcept;
 
 #endif

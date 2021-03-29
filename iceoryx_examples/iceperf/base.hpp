@@ -30,11 +30,11 @@ class IcePerfBase
     virtual void initFollower() noexcept = 0;
     virtual void shutdown() noexcept = 0;
 
-    void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept;
-    void postPingPongLeader() noexcept;
+    void preLatencyPerfTestLeader(uint32_t payloadSizeInBytes) noexcept;
+    void postLatencyPerfTestLeader() noexcept;
     void releaseFollower() noexcept;
-    double pingPongLeader(uint64_t numRoundTrips) noexcept;
-    void pingPongFollower() noexcept;
+    double latencyPerfTestLeader(uint64_t numRoundTrips) noexcept;
+    void latencyPerfTestFollower() noexcept;
 
   private:
     virtual void sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept = 0;

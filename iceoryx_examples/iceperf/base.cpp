@@ -17,12 +17,12 @@
 #include "base.hpp"
 
 
-void IcePerfBase::prePingPongLeader(uint32_t payloadSizeInBytes) noexcept
+void IcePerfBase::preLatencyPerfTestLeader(uint32_t payloadSizeInBytes) noexcept
 {
     sendPerfTopic(payloadSizeInBytes, RunFlag::RUN);
 }
 
-void IcePerfBase::postPingPongLeader() noexcept
+void IcePerfBase::postLatencyPerfTestLeader() noexcept
 {
     // Wait for the last response
     receivePerfTopic();
@@ -33,7 +33,7 @@ void IcePerfBase::releaseFollower() noexcept
     sendPerfTopic(sizeof(PerfTopic), RunFlag::STOP);
 }
 
-double IcePerfBase::pingPongLeader(uint64_t numRoundTrips) noexcept
+double IcePerfBase::latencyPerfTestLeader(uint64_t numRoundTrips) noexcept
 {
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -54,7 +54,7 @@ double IcePerfBase::pingPongLeader(uint64_t numRoundTrips) noexcept
     return latencyInMicroSeconds;
 }
 
-void IcePerfBase::pingPongFollower() noexcept
+void IcePerfBase::latencyPerfTestFollower() noexcept
 {
     while (true)
     {

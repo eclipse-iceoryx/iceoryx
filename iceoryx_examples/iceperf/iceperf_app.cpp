@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "example_common.hpp"
+#include "iceperf_app.hpp"
 #include "iceoryx.hpp"
 #include "iceoryx_c.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -27,13 +28,12 @@
 #include <iomanip>
 #include <iostream>
 
-constexpr int64_t NUMBER_OF_ROUNDTRIPS{10000};
-constexpr char APP_NAME[] = "laurel";
-constexpr char PUBLISHER[] = "Laurel";
-constexpr char SUBSCRIBER[] = "Hardy";
+IcePerfApp::IcePerfApp(const PerfSettings settings) noexcept
+    : m_settings(settings)
+{
+}
 
-
-void leaderDo(IcePerfBase& ipcTechnology, uint64_t numRoundtrips)
+void IcePerfApp::leaderDo(IcePerfBase& ipcTechnology) noexcept
 {
     ipcTechnology.initLeader();
 
@@ -45,13 +45,13 @@ void leaderDo(IcePerfBase& ipcTechnology, uint64_t numRoundtrips)
         std::cout << payloadSizeInKB << " kB, " << std::flush;
         auto payloadSizeInBytes = payloadSizeInKB * IcePerfBase::ONE_KILOBYTE;
 
-        ipcTechnology.prePingPongLeader(payloadSizeInBytes);
+        ipcTechnology.preLatencyPerfTestLeader(payloadSizeInBytes);
 
-        auto latency = ipcTechnology.pingPongLeader(numRoundtrips);
+        auto latency = ipcTechnology.latencyPerfTestLeader(m_settings.numberOfSamples);
 
         latencyInMicroSeconds.push_back(latency);
 
-        ipcTechnology.postPingPongLeader();
+        ipcTechnology.postLatencyPerfTestLeader();
     }
     std::cout << std::endl;
 
@@ -61,7 +61,7 @@ void leaderDo(IcePerfBase& ipcTechnology, uint64_t numRoundtrips)
 
     std::cout << std::endl;
     std::cout << "#### Measurement Result ####" << std::endl;
-    std::cout << numRoundtrips << " round trips for each payload." << std::endl;
+    std::cout << m_settings.numberOfSamples << " round trips for each payload." << std::endl;
     std::cout << std::endl;
     std::cout << "| Payload Size [kB] | Average Latency [µs] |" << std::endl;
     std::cout << "|------------------:|---------------------:|" << std::endl;
@@ -75,51 +75,77 @@ void leaderDo(IcePerfBase& ipcTechnology, uint64_t numRoundtrips)
     std::cout << "Finished!" << std::endl;
 }
 
-int main(int argc, char* argv[])
+void IcePerfApp::followerDo(IcePerfBase& ipcTechnology) noexcept
 {
-    Benchmarks benchmark = Benchmarks::ALL;
-    uint64_t numRoundtrips = NUMBER_OF_ROUNDTRIPS;
-    if (argc > 1)
-    {
-        if (!iox::cxx::convert::fromString(argv[1], numRoundtrips))
-        {
-            std::cout << "first parameter must be the number of roundtrips" << std::endl;
-            exit(1);
-        }
-    }
-    if (argc > 2)
-    {
-        benchmark = getBenchmarkFromString(argv[2]);
-    }
+    ipcTechnology.initFollower();
 
-    if (benchmark == Benchmarks::ALL)
+    ipcTechnology.latencyPerfTestFollower();
+
+    ipcTechnology.shutdown();
+}
+
+void IcePerfApp::doIt(IcePerfBase& ipcTechnology) noexcept
+{
+    if (m_settings.appType == ApplicationType::LEADER)
+    {
+        leaderDo(ipcTechnology);
+    }
+    else
+    {
+        followerDo(ipcTechnology);
+    }
+}
+
+
+void IcePerfApp::run() noexcept
+{
+    iox::capro::IdString_t leaderName{"Hardy"};
+    iox::capro::IdString_t followerName{"Laurel"};
+
+    if (m_settings.appType == ApplicationType::LEADER)
+    {
+        run(leaderName, followerName);
+    }
+    else
+    {
+        run(followerName, leaderName);
+    }
+}
+
+void IcePerfApp::run(const iox::capro::IdString_t publisherName, const iox::capro::IdString_t subscriberName) noexcept
+{
+    if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
     {
 #ifndef __APPLE__
         std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-        MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
-        leaderDo(mq, numRoundtrips);
+        MQ mq("/" + std::string(publisherName), "/" + std::string(subscriberName));
+        doIt(mq);
+#else
+        if (m_technology == Technology::POSIX_MESSAGE_QUEUE)
+        {
+            std::cout << "The message queue is not supported on macOS and will be skipped!" << std::endl;
+        }
 #endif
-
-        std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-        UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
-        leaderDo(uds, numRoundtrips);
     }
 
-    iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon
-    if (benchmark == Benchmarks::ALL || benchmark == Benchmarks::CPP_API)
+    if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::UNIX_DOMAIN_SOCKET)
+    {
+        std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+        UDS uds("/tmp/" + std::string(publisherName), "/tmp/" + std::string(subscriberName));
+        doIt(uds);
+    }
+
+    if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_CPP_API)
     {
         std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
-        Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
-        leaderDo(iceoryx, numRoundtrips);
+        Iceoryx iceoryx(publisherName, subscriberName);
+        doIt(iceoryx);
     }
 
-    if (benchmark == Benchmarks::ALL || benchmark == Benchmarks::C_API)
+    if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_C_API)
     {
         std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
-        IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
-        leaderDo(iceoryxc, numRoundtrips);
+        IceoryxC iceoryxc(publisherName, subscriberName);
+        doIt(iceoryxc);
     }
-
-
-    return (EXIT_SUCCESS);
 }
