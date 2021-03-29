@@ -34,11 +34,11 @@ struct DummyData
 };
 } // namespace
 
-template <typename T, typename BaseSubscriber>
-class StubbedSubscriber : public iox::popo::Subscriber<T, BaseSubscriber>
+template <typename T, typename H, typename BaseSubscriber>
+class StubbedSubscriber : public iox::popo::Subscriber<T, H, BaseSubscriber>
 {
   public:
-    using SubscriberParent = iox::popo::Subscriber<T, BaseSubscriber>;
+    using SubscriberParent = iox::popo::Subscriber<T, H, BaseSubscriber>;
 
     StubbedSubscriber(const iox::capro::ServiceDescription& service,
                       const iox::popo::SubscriberOptions& subscriberOptions = iox::popo::SubscriberOptions())
@@ -49,7 +49,7 @@ class StubbedSubscriber : public iox::popo::Subscriber<T, BaseSubscriber>
     using SubscriberParent::port;
 };
 
-using TestSubscriber = StubbedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
+using TestSubscriber = StubbedSubscriber<DummyData, iox::mepoo::NoCustomHeader, MockBaseSubscriber<DummyData>>;
 
 class SubscriberTest : public Test
 {

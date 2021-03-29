@@ -22,15 +22,15 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename base_subscriber_t>
-inline Subscriber<T, base_subscriber_t>::Subscriber(const capro::ServiceDescription& service,
-                                                    const SubscriberOptions& subscriberOptions)
+template <typename T, typename H, typename base_subscriber_t>
+inline Subscriber<T, H, base_subscriber_t>::Subscriber(const capro::ServiceDescription& service,
+                                                       const SubscriberOptions& subscriberOptions)
     : base_subscriber_t(service, subscriberOptions)
 {
 }
 
-template <typename T, typename base_subscriber_t>
-inline cxx::expected<Sample<const T>, ChunkReceiveResult> Subscriber<T, base_subscriber_t>::take() noexcept
+template <typename T, typename H, typename base_subscriber_t>
+inline cxx::expected<Sample<const T, const H>, ChunkReceiveResult> Subscriber<T, H, base_subscriber_t>::take() noexcept
 {
     auto result = base_subscriber_t::takeChunk();
     if (result.has_error())
@@ -39,7 +39,7 @@ inline cxx::expected<Sample<const T>, ChunkReceiveResult> Subscriber<T, base_sub
     }
     auto payloadPtr = static_cast<T*>(result.value()->payload());
     auto samplePtr = cxx::unique_ptr<const T>(static_cast<const T*>(payloadPtr), m_sampleDeleter);
-    return cxx::success<Sample<const T>>(std::move(samplePtr));
+    return cxx::success<Sample<const T, const H>>(std::move(samplePtr));
 }
 
 } // namespace popo
