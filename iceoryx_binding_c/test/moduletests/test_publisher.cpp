@@ -164,6 +164,43 @@ TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
     EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
 }
 
+TEST_F(iox_pub_test, allocateChunkWithCustomHeaderIsSuccessful)
+{
+    m_sut.m_customHeaderSize = 4U;
+    m_sut.m_customHeaderAlignment = 2U;
+
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
+
+    auto header = iox_chunk_payload_to_header(chunk);
+    auto spaceBetweenChunkHeaderAndPaylod = reinterpret_cast<uint64_t>(chunk) - reinterpret_cast<uint64_t>(header);
+    EXPECT_GT(spaceBetweenChunkHeaderAndPaylod, sizeof(iox::mepoo::ChunkHeader));
+}
+
+TEST_F(iox_pub_test, allocateChunkWithCustomHeaderAndPayloadAlignmentIsSuccessful)
+{
+    m_sut.m_customHeaderSize = 4U;
+    m_sut.m_customHeaderAlignment = 2U;
+
+    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS,
+              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), PAYLOAD_ALIGNMENT));
+
+    EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % PAYLOAD_ALIGNMENT == 0U);
+}
+
+TEST_F(iox_pub_test, allocateChunkWithCustomHeaderAndPayloadAlignmentFails)
+{
+    m_sut.m_customHeaderSize = 4U;
+    m_sut.m_customHeaderAlignment = 3U;
+
+    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_INVALID_PARAMETER_FOR_CHUNK,
+              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), PAYLOAD_ALIGNMENT));
+}
+
 TEST_F(iox_pub_test, chunkHeaderCanBeObtainedFromChunk)
 {
     void* chunk = nullptr;
