@@ -49,8 +49,8 @@ class UntypedPublisherImpl : public base_publisher_t
     ///         an AllocationError if no chunk could be loaned.
     /// @note An AllocationError occurs if no chunk is available in the shared memory.
     ///
-    cxx::expected<void*, AllocationError> loan(const uint32_t payloadSize,
-                                               const uint32_t payloadAlignment = 8U) noexcept;
+    cxx::expected<void*, AllocationError>
+    loan(const uint32_t payloadSize, const uint32_t payloadAlignment = iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT) noexcept;
 
     ///
     /// @brief Get the previously loaned chunk if possible.

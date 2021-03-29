@@ -78,7 +78,7 @@ void iox_pub_deinit(iox_pub_t const self);
 /// @brief configures the custom header size and alignment used with each iox_pub_loan_chunk call
 /// @param[in] customHeaderSize custom header size of the allocated chunk
 /// @param[in] customHeaderAlignment custom header alignment of the allocated chunk
-/// @return true if the parameters were valid, false otherwise
+/// @return true if the parameters are valid, false otherwise
 bool iox_pub_configure_custom_header(iox_pub_t const self,
                                      const uint32_t customHeaderSize,
                                      const uint32_t customHeaderAlignment);
