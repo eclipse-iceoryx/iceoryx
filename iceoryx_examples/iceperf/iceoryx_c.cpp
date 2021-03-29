@@ -88,7 +88,7 @@ void IceoryxC::shutdown() noexcept
 void IceoryxC::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
     void* chunk = nullptr;
-    if (iox_pub_loan_chunk(m_publisher, &chunk, payloadSizeInBytes, IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT)
+    if (iox_pub_loan_chunk(m_publisher, &chunk, payloadSizeInBytes, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
         == AllocationResult_SUCCESS)
     {
         auto sendSample = static_cast<PerfTopic*>(chunk);

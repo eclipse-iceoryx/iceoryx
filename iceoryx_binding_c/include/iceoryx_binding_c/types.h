@@ -20,7 +20,9 @@
 
 #include "internal/c2cpp_binding.h"
 
-#define IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
+#define IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
+#define IOX_C_CHUNK_NO_CUSTOM_HEADER_SIZE 0
+#define IOX_C_CHUNK_NO_CUSTOM_HEADER_ALIGNMENT 1
 
 /// The issue iox-308: https://github.com/eclipse-iceoryx/iceoryx/issues/308
 /// was created to explore other options then a magic number to create

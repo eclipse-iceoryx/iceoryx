@@ -29,18 +29,25 @@ typedef struct cpp2c_Publisher* iox_pub_t;
 /// @brief options to be set for a publisher
 typedef struct
 {
-    // size of the history chunk queue
+    /// @brief Size of the history chunk queue
     uint64_t historyCapacity;
 
-    // name of the node the publisher belongs to
-    // nullptr indicates that the default node name is used
+    /// @brief Name of the node the publisher belongs to
+    /// @note nullptr indicates that the default node name is used
     const char* nodeName;
 
-    // The option whether the publisher should already be offered when creating it
+    /// @brief The option whether the publisher should already be offered when creating it
     bool offerOnCreate;
 
-    // this value will be set exclusively by iox_pub_options_init
-    // and is not supposed to be modified otherwise
+    /// @brief The size of the custom header
+    /// @note must be a multiple of the alignment and is by default is 0 to indicate that no custom header is used
+    uint32_t customHeaderSize;
+
+    /// @brief The alignment of the custom header
+    /// @note must be a power of two and the maximum allowed custom header alignment is 8
+    uint32_t customHeaderAlignment;
+
+    /// @brief this value will be set exclusively by `iox_pub_options_init` and is not supposed to be modified otherwise
     uint64_t initCheck;
 } iox_pub_options_t;
 
@@ -74,14 +81,6 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed
 void iox_pub_deinit(iox_pub_t const self);
-
-/// @brief configures the custom header size and alignment used with each iox_pub_loan_chunk call
-/// @param[in] customHeaderSize custom header size of the allocated chunk
-/// @param[in] customHeaderAlignment custom header alignment of the allocated chunk
-/// @return true if the parameters are valid, false otherwise
-bool iox_pub_configure_custom_header(iox_pub_t const self,
-                                     const uint32_t customHeaderSize,
-                                     const uint32_t customHeaderAlignment);
 
 /// @brief allocates a chunk in the shared memory
 /// @param[in] self handle of the publisher

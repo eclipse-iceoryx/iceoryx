@@ -49,7 +49,8 @@ void sending()
     {
         void* chunk = NULL;
         if (AllocationResult_SUCCESS
-            == iox_pub_loan_chunk(publisher, &chunk, sizeof(struct CounterTopic), IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT))
+            == iox_pub_loan_chunk(
+                publisher, &chunk, sizeof(struct CounterTopic), IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
             sample->counter = counter;

@@ -158,60 +158,18 @@ TEST_F(iox_pub_test, noSubscribersAfterUnsubscribe)
     EXPECT_FALSE(iox_pub_has_subscribers(&m_sut));
 }
 
-TEST_F(iox_pub_test, configureCustomHeaderIsSuccessful)
-{
-    constexpr uint32_t CUSTOM_HEADER_SIZE{4U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{2U};
-    EXPECT_TRUE(iox_pub_configure_custom_header(&m_sut, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
-}
-
-TEST_F(iox_pub_test, configureCustomHeaderWithInvalidParameterFails)
-{
-    constexpr uint32_t CUSTOM_HEADER_SIZE{5U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{2U};
-    EXPECT_FALSE(iox_pub_configure_custom_header(&m_sut, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
-}
-
 TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
 {
     void* chunk = nullptr;
     EXPECT_EQ(AllocationResult_SUCCESS,
-              iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample), IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT));
-}
-
-TEST_F(iox_pub_test, allocateChunkWithCustomHeaderIsSuccessful)
-{
-    constexpr uint32_t CUSTOM_HEADER_SIZE{4U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{2U};
-    EXPECT_TRUE(iox_pub_configure_custom_header(&m_sut, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
-
-    void* chunk = nullptr;
-    ASSERT_EQ(AllocationResult_SUCCESS,
-              iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample), IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT));
-
-    auto header = iox_chunk_payload_to_header(chunk);
-    auto spaceBetweenChunkHeaderAndPaylod = reinterpret_cast<uint64_t>(chunk) - reinterpret_cast<uint64_t>(header);
-    EXPECT_GT(spaceBetweenChunkHeaderAndPaylod, sizeof(iox::mepoo::ChunkHeader));
-}
-
-TEST_F(iox_pub_test, allocateChunkWithCustomHeaderAndPayloadAlignmentIsSuccessful)
-{
-    constexpr uint32_t CUSTOM_HEADER_SIZE{4U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{2U};
-    EXPECT_TRUE(iox_pub_configure_custom_header(&m_sut, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT));
-
-    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
-    void* chunk = nullptr;
-    ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample), PAYLOAD_ALIGNMENT));
-
-    EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % PAYLOAD_ALIGNMENT == 0U);
+              iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample), IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT));
 }
 
 TEST_F(iox_pub_test, chunkHeaderCanBeObtainedFromChunk)
 {
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS,
-              iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample), IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT));
+              iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample), IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT));
     auto header = iox_chunk_payload_to_header(chunk);
     EXPECT_NE(header, nullptr);
 }
@@ -220,7 +178,7 @@ TEST_F(iox_pub_test, chunkHeaderCanBeConvertedBackToPayload)
 {
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS,
-              iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample), IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT));
+              iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample), IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT));
     auto header = iox_chunk_payload_to_header(chunk);
     auto payload = iox_chunk_header_to_payload(header);
     EXPECT_EQ(payload, chunk);
@@ -232,11 +190,11 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
     for (uint32_t i = 0U; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; ++i)
     {
         EXPECT_EQ(AllocationResult_SUCCESS,
-                  iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT));
+                  iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT));
     }
 
     EXPECT_EQ(AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
-              iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT));
+              iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT));
 }
 
 TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
@@ -259,20 +217,20 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
 
     void* chunk = nullptr;
     EXPECT_EQ(AllocationResult_RUNNING_OUT_OF_CHUNKS,
-              iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT));
+              iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT));
 }
 
 TEST_F(iox_pub_test, allocatingChunkAcquiresMemory)
 {
     void* chunk = nullptr;
-    iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 }
 
 TEST_F(iox_pub_test, freeingAnAllocatedChunkReleasesTheMemory)
 {
     void* chunk = nullptr;
-    iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     iox_pub_release_chunk(&m_sut, chunk);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
@@ -285,7 +243,7 @@ TEST_F(iox_pub_test, noLastChunkWhenNothingSent)
 TEST_F(iox_pub_test, lastChunkAvailableAfterSend)
 {
     void* chunk = nullptr;
-    iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     iox_pub_publish_chunk(&m_sut, chunk);
 
     const void* lastChunk = iox_pub_loan_previous_chunk(&m_sut);
@@ -298,7 +256,7 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     void* chunk = nullptr;
     iox_pub_offer(&m_sut);
     this->Subscribe(&m_publisherPortData);
-    iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    iox_pub_loan_chunk(&m_sut, &chunk, 100, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     static_cast<DummySample*>(chunk)->dummy = 4711;
     iox_pub_publish_chunk(&m_sut, chunk);
 

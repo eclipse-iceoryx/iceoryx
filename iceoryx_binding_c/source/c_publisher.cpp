@@ -46,6 +46,8 @@ void iox_pub_options_init(iox_pub_options_t* options)
     options->historyCapacity = publisherOptions.historyCapacity;
     options->nodeName = nullptr;
     options->offerOnCreate = publisherOptions.offerOnCreate;
+    options->customHeaderSize = IOX_C_CHUNK_NO_CUSTOM_HEADER_SIZE;
+    options->customHeaderAlignment = IOX_C_CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
 
     options->initCheck = PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -61,8 +63,18 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const event,
                        const iox_pub_options_t* const options)
 {
+    if (self == nullptr)
+    {
+        LogWarn() << "publisher initialization skipped - null pointer provided for iox_pub_storage_t";
+        return nullptr;
+    }
+
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
+
+    me->m_customHeaderSize = IOX_C_CHUNK_NO_CUSTOM_HEADER_SIZE,
+    me->m_customHeaderAlignment = IOX_C_CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
+
     PublisherOptions publisherOptions;
 
     // use default options otherwise
@@ -81,6 +93,9 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
             publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
         publisherOptions.offerOnCreate = options->offerOnCreate;
+
+        me->m_customHeaderSize = options->customHeaderSize;
+        me->m_customHeaderAlignment = options->customHeaderAlignment;
     }
 
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
@@ -97,22 +112,6 @@ void iox_pub_deinit(iox_pub_t const self)
 {
     self->m_portData->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     self->~cpp2c_Publisher();
-}
-
-bool iox_pub_configure_custom_header(iox_pub_t const self,
-                                     const uint32_t customHeaderSize,
-                                     const uint32_t customHeaderAlignment)
-{
-    auto settingsCheck = iox::mepoo::ChunkSettings::create(0U, 1U, customHeaderSize, customHeaderAlignment);
-    if (settingsCheck.has_error())
-    {
-        return false;
-    }
-
-    self->m_customHeaderSize = customHeaderSize;
-    self->m_customHeaderAlignment = customHeaderAlignment;
-
-    return true;
 }
 
 iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,

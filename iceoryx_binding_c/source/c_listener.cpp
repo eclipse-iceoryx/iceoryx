@@ -28,8 +28,13 @@ extern "C" {
 
 iox_listener_t iox_listener_init(iox_listener_storage_t* self)
 {
-    new (self) Listener();
-    return reinterpret_cast<iox_listener_t>(self);
+    if (self == nullptr)
+    {
+        LogWarn() << "listener initialization skipped - null pointer provided for iox_listener_storage_t";
+        return nullptr;
+    }
+    auto me = new (self) Listener();
+    return reinterpret_cast<iox_listener_t>(me);
 }
 
 void iox_listener_deinit(iox_listener_t const self)
@@ -83,4 +88,3 @@ uint64_t iox_listener_capacity(iox_listener_t const self)
 {
     return self->capacity();
 }
-
