@@ -19,10 +19,29 @@ WaitSet attaches multiple subscribers, user trigger or other _Triggerables_ to i
 one or many of the attached entities signal an event. If that happens one receives
 a list of _EventInfos_ which is corresponding to all occurred events.
 
-WaitSet events can be state based, this means that the WaitSet will notify you
-till you reset the state. The `HAS_DATA` event of the subscriber for instance
-will notify you as long as there are samples. But it is also possible that one
-attaches one shot events. These are events which will trigger the WaitSet only once.
+## Events and States
+
+In this context we define the state of an object as a specified set of values 
+to which the members of that object are set. An event on the other hand 
+is defined as a state change. Usually an event changes the state of the corresponding 
+object but this is not mandatory.
+
+States and events can be attached to a WaitSet. The user will be informed only once 
+by the WaitSet for every event which occurred. If the event occurred multiple times 
+before the user has requested an event update from the WaitSet the user will still 
+be informed only once. State changes are induced by events 
+and the user will be informed about a specific state as long as the state persists.
+
+The subscriber for instance has the state `SubscriberState::HAS_DATA` and the event 
+`SubscriberEvent::DATA_RECEIVED`. If you attach the subscriber event 
+`SubscriberEvent::DATA_RECEIVED` to a WaitSet you will be notified about every new 
+incoming sample whenever you call `WaitSet::wait` or `WaitSet::timedWait`. If multiple
+samples were send before you called those methods you will still receive only one 
+notification.
+
+If you attach on the other hand the state `SubscriberState::HAS_DATA` you will 
+be notified by `WaitSet::wait` or `WaitSet::timedWait` as long as there are received 
+samples present in the subscriber.
 
 ## Expected Output
 
@@ -44,11 +63,13 @@ attaches one shot events. These are events which will trigger the WaitSet only o
      the _EventId_, call the _EventCallback_ or acquire the _EventOrigin_.
  - **EventOrigin** the pointer to the class where the _Event_ originated from, short
      pointer to the _Triggerable_.
+ - **Event** a state change of an object.
  - **Events** a _Triggerable_ will signal an event via a _TriggerHandle_ to a _Notifyable_.
      For instance one can attach the subscriber event `HAS_DATA` to _WaitSet_. This will cause the
      subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a sample was received.
  - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
+ - **State** a specified set of values to which the members of an object are set.
  - **Trigger** a class which is used by the _Notifyable_ to acquire the information which events were
      signalled. It corresponds to a _TriggerHandle_. If the _Notifyable_ goes out of scope the corresponding
      _TriggerHandle_ will be invalidated and if the _Triggerable_ goes out of scope the corresponding
@@ -86,21 +107,21 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 |attach user trigger to a WaitSet|`waitset.attachEvent(userTrigger, 456, &myUserTriggerCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
-|check if event originated from some object|`event.doesOriginateFrom(ptrToSomeObject)`|
-|get id of the event|`event.getEventId()`|
-|call eventCallback|`event()`|
-|acquire _EventOrigin_|`event.getOrigin<OriginType>();`|
+|check if event originated from some object|`event->doesOriginateFrom(ptrToSomeObject)`|
+|get id of the event|`event->getEventId()`|
+|call eventCallback|`(*event)()`|
+|acquire _EventOrigin_|`event->getOrigin<OriginType>();`|
 
 ## Use Cases
 This example consists of 5 use cases.
  
  1. `ice_waitset_gateway.cpp`: We build a gateway to forward data
-    to another network. A list of subscribers is handled in an uniform way
-    by defining a callback and which is executed for every subscriber who
+    to another network. A list of subscriber events are handled in an uniform way
+    by defining a callback which is executed for every subscriber who
     has received data.
 
  2. `ice_waitset_grouping`: We would like to group multiple subscribers into 2 distinct
-    groups and handle them according to their group membership.
+    groups and handle them whenever they have a specified state according to their group membership.
 
  3. `ice_waitset_individual`: A list of subscribers where every subscriber is
     handled differently.
@@ -109,7 +130,7 @@ This example consists of 5 use cases.
     execute an algorithm every 100ms.
 
  5. `ice_waitset_trigger`: We create our own class which can be attached to a
-    WaitSet to signal events.
+    WaitSet to signal states and events.
 
 ## Examples
 
