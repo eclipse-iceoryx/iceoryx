@@ -48,7 +48,7 @@ class LogManager
 
     LogLevel DefaultLogLevel() const noexcept;
     void SetDefaultLogLevel(const LogLevel logLevel,
-                            const LogLevelOutput logLevelOutput = LogLevelOutput::kDisplayLogLevel) noexcept;
+                            const LogLevelOutput logLevelOutput = LogLevelOutput::kHideLogLevel) noexcept;
 
     LogMode DefaultLogMode() const noexcept;
     void SetDefaultLogMode(const LogMode logMode) noexcept;
