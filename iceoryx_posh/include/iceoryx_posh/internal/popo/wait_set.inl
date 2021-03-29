@@ -276,7 +276,7 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
         {
             auto index = m_activeNotifications[i];
             auto& trigger = m_triggerArray[index];
-            bool doRemoveNotificationId = static_cast<bool>(trigger);
+            bool doRemoveNotificationId = !static_cast<bool>(trigger);
 
             if (!doRemoveNotificationId && trigger->isStateConditionSatisfied())
             {

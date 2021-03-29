@@ -120,7 +120,7 @@ inline void BaseSubscriber<port_t>::enableState(iox::popo::TriggerHandle&& trigg
             LogWarn()
                 << "The subscriber is already attached with either the SubscriberState::HAS_DATA or "
                    "SubscriberEvent::DATA_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
-                   "attaching it to new one with SubscriberState::HAS_DATA. Best practice is to call detach first.";
+                   "attaching it to the new one with SubscriberState::HAS_DATA. Best practice is to call detach first.";
         }
         m_trigger = std::move(triggerHandle);
         m_port.setConditionVariable(*m_trigger.getConditionVariableData(), m_trigger.getUniqueId());
@@ -162,10 +162,11 @@ inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& trigg
     case SubscriberEvent::DATA_RECEIVED:
         if (m_trigger)
         {
-            LogWarn() << "The subscriber is already attached with either the SubscriberState::HAS_DATA or "
-                         "SubscriberEvent::DATA_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
-                         "attaching it to new one with SubscriberEvent::DATA_RECEIVED. Best practice is to call detach "
-                         "first.";
+            LogWarn()
+                << "The subscriber is already attached with either the SubscriberState::HAS_DATA or "
+                   "SubscriberEvent::DATA_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
+                   "attaching it to the new one with SubscriberEvent::DATA_RECEIVED. Best practice is to call detach "
+                   "first.";
         }
         m_trigger = std::move(triggerHandle);
         m_port.setConditionVariable(*m_trigger.getConditionVariableData(), m_trigger.getUniqueId());
