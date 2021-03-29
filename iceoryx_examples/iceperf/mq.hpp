@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,7 +47,7 @@ class MQ : public IcePerfBase
     void open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept;
     void send(const char* buffer, uint32_t length) noexcept;
     void receive(char* buffer) noexcept;
-    void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept override;
+    void sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept override;
     PerfTopic receivePerfTopic() noexcept override;
 
     const std::string m_publisherName;

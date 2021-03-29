@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +17,7 @@
 #ifndef IOX_EXAMPLES_ICEPERF_BASE_HPP
 #define IOX_EXAMPLES_ICEPERF_BASE_HPP
 
+#include "example_common.hpp"
 #include "topic_data.hpp"
 #include <chrono>
 #include <iostream>
@@ -35,7 +37,7 @@ class IcePerfBase
     void pingPongFollower() noexcept;
 
   private:
-    virtual void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept = 0;
+    virtual void sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept = 0;
     virtual PerfTopic receivePerfTopic() noexcept = 0;
 };
 

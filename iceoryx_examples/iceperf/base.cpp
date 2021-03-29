@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@
 
 void IcePerfBase::prePingPongLeader(uint32_t payloadSizeInBytes) noexcept
 {
-    sendPerfTopic(payloadSizeInBytes, true);
+    sendPerfTopic(payloadSizeInBytes, RunFlag::RUN);
 }
 
 void IcePerfBase::postPingPongLeader() noexcept
@@ -29,7 +30,7 @@ void IcePerfBase::postPingPongLeader() noexcept
 
 void IcePerfBase::releaseFollower() noexcept
 {
-    sendPerfTopic(sizeof(PerfTopic), false);
+    sendPerfTopic(sizeof(PerfTopic), RunFlag::STOP);
 }
 
 double IcePerfBase::pingPongLeader(uint64_t numRoundTrips) noexcept
@@ -40,14 +41,15 @@ double IcePerfBase::pingPongLeader(uint64_t numRoundTrips) noexcept
     for (auto i = 0U; i < numRoundTrips; ++i)
     {
         auto perfTopic = receivePerfTopic();
-        sendPerfTopic(perfTopic.payloadSize, true);
+        sendPerfTopic(perfTopic.payloadSize, RunFlag::RUN);
     }
 
     auto finish = std::chrono::high_resolution_clock::now();
 
     constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
-    auto latencyInNanoSeconds = (static_cast<uint64_t>(duration.count()) / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
+    auto latencyInNanoSeconds =
+        (static_cast<uint64_t>(duration.count()) / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
     auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
     return latencyInMicroSeconds;
 }
@@ -59,11 +61,11 @@ void IcePerfBase::pingPongFollower() noexcept
         auto perfTopic = receivePerfTopic();
 
         // stop replying when no more run
-        if (!perfTopic.run)
+        if (perfTopic.runFlag == RunFlag::STOP)
         {
             break;
         }
 
-        sendPerfTopic(perfTopic.payloadSize, true);
+        sendPerfTopic(perfTopic.payloadSize, RunFlag::RUN);
     }
 }

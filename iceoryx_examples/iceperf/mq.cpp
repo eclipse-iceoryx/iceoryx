@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +53,7 @@ void MQ::initFollower() noexcept
 
     open(m_publisherName, iox::posix::IpcChannelSide::CLIENT);
 
-    sendPerfTopic(sizeof(PerfTopic), true);
+    sendPerfTopic(sizeof(PerfTopic), RunFlag::RUN);
 }
 
 void MQ::init() noexcept
@@ -99,14 +100,14 @@ void MQ::shutdown() noexcept
     }
 }
 
-void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
+void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept
 {
     char* buffer = new char[payloadSizeInBytes];
     auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
 
     // Specify the payload size for the measurement
     sample->payloadSize = payloadSizeInBytes;
-    sample->run = runFlag;
+    sample->runFlag = runFlag;
     if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
     {
         sample->subPackets = 1;

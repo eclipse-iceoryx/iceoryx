@@ -43,7 +43,7 @@ void UDS::initFollower() noexcept
 
     std::cout << "registering with the leader, if no leader this will crash with a socket error now" << std::endl;
 
-    sendPerfTopic(sizeof(PerfTopic), true);
+    sendPerfTopic(sizeof(PerfTopic), RunFlag::RUN);
 }
 
 void UDS::init() noexcept
@@ -143,14 +143,14 @@ void UDS::shutdown() noexcept
     }
 }
 
-void UDS::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
+void UDS::sendPerfTopic(uint32_t payloadSizeInBytes, RunFlag runFlag) noexcept
 {
     char* buffer = new char[payloadSizeInBytes];
     auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
 
     // Specify the payload size for the measurement
     sample->payloadSize = payloadSizeInBytes;
-    sample->run = runFlag;
+    sample->runFlag = runFlag;
     if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
     {
         sample->subPackets = 1;
