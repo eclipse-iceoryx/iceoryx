@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +31,8 @@ struct cpp2c_Publisher
     cpp2c_Publisher& operator=(cpp2c_Publisher&& rhs) noexcept;
 
     iox::popo::PublisherPortData* m_portData{nullptr};
+    uint32_t m_customHeaderSize{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
+    uint32_t m_customHeaderAlignment{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
 };
 
 #endif

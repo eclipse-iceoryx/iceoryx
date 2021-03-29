@@ -63,6 +63,10 @@ iox_AllocationResult AllocationResult(const iox::popo::AllocationError value)
         return AllocationResult_RUNNING_OUT_OF_CHUNKS;
     case AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL:
         return AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL;
+    case AllocationError::INVALID_CHUNK:
+        return AllocationResult_INVALID_CHUNK;
+    case AllocationError::INVALID_PARAMETER_FOR_CHUNK:
+        return AllocationResult_INVALID_PARAMETER_FOR_CHUNK;
     default:
         return AllocationResult_UNDEFINED_ERROR;
     }
@@ -76,6 +80,8 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
         return WaitSetResult_WAIT_SET_FULL;
     case WaitSetError::EVENT_ALREADY_ATTACHED:
         return WaitSetResult_EVENT_ALREADY_ATTACHED;
+    case WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET:
+        return WaitSetResult_PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET;
     default:
         return WaitSetResult_UNDEFINED_ERROR;
     }
@@ -89,6 +95,8 @@ iox_ListenerResult ListenerResult(const iox::popo::ListenerError value)
         return ListenerResult_EVENT_ALREADY_ATTACHED;
     case ListenerError::LISTENER_FULL:
         return ListenerResult_LISTENER_FULL;
+    case ListenerError::EMPTY_INVALIDATION_CALLBACK:
+        return ListenerResult_EMPTY_INVALIDATION_CALLBACK;
     default:
         return ListenerResult_UNDEFINED_ERROR;
     }

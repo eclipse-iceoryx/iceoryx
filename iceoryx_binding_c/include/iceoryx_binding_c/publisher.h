@@ -75,13 +75,25 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
 /// @param[in] self the handle which should be removed
 void iox_pub_deinit(iox_pub_t const self);
 
+/// @brief configures the custom header size and alignment used with each iox_pub_loan_chunk call
+/// @param[in] customHeaderSize custom header size of the allocated chunk
+/// @param[in] customHeaderAlignment custom header alignment of the allocated chunk
+/// @return true if the parameters were valid, false otherwise
+bool iox_pub_configure_custom_header(iox_pub_t const self,
+                                     const uint32_t customHeaderSize,
+                                     const uint32_t customHeaderAlignment);
+
 /// @brief allocates a chunk in the shared memory
 /// @param[in] self handle of the publisher
 /// @param[in] chunk pointer in which a pointer to the allocated chunk is stored
-/// @param[in] payloadSize size of the allocated chunk
+/// @param[in] payloadSize user payload size of the allocated chunk
+/// @param[in] payloadAlignment user payload alignment of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize);
+ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
+                                             void** const chunk,
+                                             const uint32_t payloadSize,
+                                             const uint32_t payloadAlignment);
 
 /// @brief releases ownership of a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher
