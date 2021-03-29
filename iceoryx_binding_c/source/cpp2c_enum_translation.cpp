@@ -37,9 +37,8 @@ iox_SubscribeState subscribeState(const iox::SubscribeState value) noexcept
         return iox_SubscribeState::SubscribeState_UNSUBSCRIBE_REQUESTED;
     case iox::SubscribeState::WAIT_FOR_OFFER:
         return iox_SubscribeState::SubscribeState_WAIT_FOR_OFFER;
-    default:
-        return iox_SubscribeState::SubscribeState_UNDEFINED_ERROR;
     }
+    return iox_SubscribeState::SubscribeState_UNDEFINED_ERROR;
 }
 
 iox_ChunkReceiveResult chunkReceiveResult(const iox::popo::ChunkReceiveResult value) noexcept
@@ -50,9 +49,10 @@ iox_ChunkReceiveResult chunkReceiveResult(const iox::popo::ChunkReceiveResult va
         return ChunkReceiveResult_NO_CHUNK_AVAILABLE;
     case iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL:
         return ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL;
-    default:
+    case iox::popo::ChunkReceiveResult::INVALID_STATE:
         return ChunkReceiveResult_UNDEFINED_ERROR;
     }
+    return ChunkReceiveResult_UNDEFINED_ERROR;
 }
 
 iox_AllocationResult allocationResult(const iox::popo::AllocationError value) noexcept
@@ -63,9 +63,12 @@ iox_AllocationResult allocationResult(const iox::popo::AllocationError value) no
         return AllocationResult_RUNNING_OUT_OF_CHUNKS;
     case AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL:
         return AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL;
-    default:
+    case AllocationError::INVALID_STATE:
         return AllocationResult_UNDEFINED_ERROR;
+    case AllocationError::INVALID_PARAMETER_FOR_CHUNK:
+        return AllocationResult_INVALID_PARAMETER_FOR_CHUNK;
     }
+    return AllocationResult_UNDEFINED_ERROR;
 }
 
 iox_WaitSetResult waitSetResult(const iox::popo::WaitSetError value) noexcept
@@ -76,9 +79,10 @@ iox_WaitSetResult waitSetResult(const iox::popo::WaitSetError value) noexcept
         return WaitSetResult_WAIT_SET_FULL;
     case WaitSetError::ALREADY_ATTACHED:
         return WaitSetResult_ALREADY_ATTACHED;
-    default:
+    case WaitSetError::INVALID_STATE:
         return WaitSetResult_UNDEFINED_ERROR;
     }
+    return WaitSetResult_UNDEFINED_ERROR;
 }
 
 iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept
@@ -89,9 +93,12 @@ iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept
         return ListenerResult_EVENT_ALREADY_ATTACHED;
     case ListenerError::LISTENER_FULL:
         return ListenerResult_LISTENER_FULL;
-    default:
+    case ListenerError::INVALID_STATE:
         return ListenerResult_UNDEFINED_ERROR;
+    case ListenerError::EMPTY_INVALIDATION_CALLBACK:
+        return ListenerResult_EMPTY_INVALIDATION_CALLBACK;
     }
+    return ListenerResult_UNDEFINED_ERROR;
 }
 
 
