@@ -326,7 +326,7 @@ void IcePerfApp::run(const iox::capro::IdString_t publisherName, const iox::capr
         MQ mq("/" + std::string(publisherName), "/" + std::string(subscriberName));
         doIt(mq);
 #else
-        if (m_technology == Technology::POSIX_MESSAGE_QUEUE)
+        if (m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
         {
             std::cout << "The message queue is not supported on macOS and will be skipped!" << std::endl;
         }
