@@ -29,7 +29,7 @@ set(PROJECT_PREFIX "posh")
 # Set path for input files in test
 SET(POSH_TEST_INPUT_FILES_PATH ${CMAKE_CURRENT_SOURCE_DIR}/input/)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_input_path.hpp.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_input_path.hpp)
+               ${CMAKE_BINARY_DIR}/generated/iceoryx/tests/posh/moduletests/test_input_path.hpp)
 
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
@@ -69,7 +69,7 @@ endif()
 
 # unittests
 add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
-target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
+target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . ${CMAKE_BINARY_DIR}/generated)
 # TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})

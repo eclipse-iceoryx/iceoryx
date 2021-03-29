@@ -16,7 +16,7 @@
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 
-#include "test_input_path.hpp"
+#include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
