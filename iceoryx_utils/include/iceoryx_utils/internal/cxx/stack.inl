@@ -45,7 +45,7 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
 }
 
 template <typename T, uint64_t Capacity>
-inline uint64_t stack<T, Capacity>::size() noexcept
+inline uint64_t stack<T, Capacity>::size() const noexcept
 {
     return m_size;
 }

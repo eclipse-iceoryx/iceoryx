@@ -76,7 +76,7 @@ class iox_listener_test : public Test
         g_subscriberCallbackArgument = nullptr;
 
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
 
         m_subscriberPortData.resize(MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U,
                                     TEST_SERVICE_DESCRIPTION,
@@ -268,9 +268,14 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 
     Subscribe(m_subscriber[0U]);
-    m_chunkPusher[0U].push(m_memoryManager.getChunk(100U));
+    constexpr uint32_t PAYLOAD_SIZE{100U};
+
+    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    m_chunkPusher[0U].push(m_memoryManager.getChunk(chunkSettings));
 
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
 });
-

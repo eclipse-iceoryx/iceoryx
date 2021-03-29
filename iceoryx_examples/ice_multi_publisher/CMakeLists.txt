@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,12 +20,11 @@ project(example_multi_publisher)
 include(GNUInstallDirs)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
+find_package(iceoryx_utils CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh
                     CXX_STANDARD)
-if(NOT ICEORYX_CXX_STANDARD)
-  include(IceoryxPlatform)
-endif()
+include(IceoryxPlatform)
 
 add_executable(iox-multi-publisher ./ice_multi_publisher.cpp)
 target_link_libraries(iox-multi-publisher iceoryx_posh::iceoryx_posh)

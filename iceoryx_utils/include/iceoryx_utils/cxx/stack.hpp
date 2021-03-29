@@ -42,7 +42,7 @@ class stack
     bool push(Targs&&... args) noexcept;
 
     /// @brief returns the stack size
-    uint64_t size() noexcept;
+    uint64_t size() const noexcept;
 
     /// @brief returns the stack capacity
     static constexpr uint64_t capacity() noexcept;

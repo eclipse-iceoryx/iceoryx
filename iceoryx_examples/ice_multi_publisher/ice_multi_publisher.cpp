@@ -46,7 +46,7 @@ void send(uint32_t id, const char* instanceName, std::chrono::milliseconds delay
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
         CounterTopic data{counter, id};
-        publisher.publishCopyOf(data);
+        publisher.publishCopyOf(data).or_else([](auto) { std::cerr << "failed to send data" << std::endl; });
 
         // prevent undesired output interleaves of independent sender threads
         std::stringstream s;

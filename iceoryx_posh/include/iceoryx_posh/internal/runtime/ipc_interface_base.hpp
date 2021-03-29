@@ -23,7 +23,7 @@
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
@@ -51,6 +51,7 @@ enum class IpcMessageType : int32_t
     NOTYPE = 0,
     REG, // register app
     REG_ACK,
+    REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED,
     CREATE_PUBLISHER,
     CREATE_PUBLISHER_ACK,
     CREATE_SUBSCRIBER,
@@ -65,6 +66,8 @@ enum class IpcMessageType : int32_t
     CREATE_NODE_ACK,
     FIND_SERVICE,
     KEEPALIVE,
+    TERMINATION,
+    TERMINATION_ACK,
     ERROR,
     APP_WAIT,
     WAKEUP_TRIGGER,
@@ -117,6 +120,7 @@ class IpcInterfaceCreator;
 /// @brief Base-Class should never be used by the end-user.
 ///     Handles the common properties and methods for the childs. The handling of
 ///     the IPC channels must be done by the children.
+/// @note This class won't uniquely identify if another object is using the same IPC channel
 class IpcInterfaceBase
 {
   public:
@@ -156,7 +160,7 @@ class IpcInterfaceBase
     /// @brief Returns the interface name, the unique char string which
     ///         explicitly identifies the IPC channel.
     /// @return name of the IPC channel
-    const ProcessName_t& getInterfaceName() const noexcept;
+    const RuntimeName_t& getRuntimeName() const noexcept;
 
     /// @brief If the IPC channel could not be opened or linked in the
     ///         constructor it will return false, otherwise true. This is
@@ -172,7 +176,7 @@ class IpcInterfaceBase
     /// @brief Since there might be an outdated IPC channel due to an unclean temination
     ///        this function closes the IPC channel if it's existing.
     /// @param[in] name of the IPC channel to clean up
-    static void cleanupOutdatedIpcChannel(const ProcessName_t& name) noexcept;
+    static void cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept;
 
     friend class IpcInterfaceUser;
     friend class IpcInterfaceCreator;
@@ -193,11 +197,8 @@ class IpcInterfaceBase
     /// @brief The default constructor is explicitly deleted since every
     ///         IPC channel needs a unique string to be identified with.
     IpcInterfaceBase() = delete;
-    // TODO: unique identifier problem, multiple IpcInterfaceBase objects with the
-    //        same InterfaceName are using the same IPC channel
-    IpcInterfaceBase(const ProcessName_t& InterfaceName,
-                     const uint64_t maxMessages,
-                     const uint64_t messageSize) noexcept;
+
+    IpcInterfaceBase(const RuntimeName_t& runtimeName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
     virtual ~IpcInterfaceBase() noexcept = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
@@ -225,7 +226,7 @@ class IpcInterfaceBase
     ///             false.
     bool closeIpcChannel() noexcept;
 
-    /// @brief If a IPC channel was moved then m_interfaceName was cleared
+    /// @brief If a IPC channel was moved then m_runtimeName was cleared
     ///         and this object gave up the control of that specific
     ///         IPC channel and therefore shouldnt unlink or close it.
     ///         Otherwise the object which it was moved to can end up with
@@ -235,7 +236,7 @@ class IpcInterfaceBase
     bool hasClosableIpcChannel() const noexcept;
 
   protected:
-    ProcessName_t m_interfaceName;
+    RuntimeName_t m_runtimeName;
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};

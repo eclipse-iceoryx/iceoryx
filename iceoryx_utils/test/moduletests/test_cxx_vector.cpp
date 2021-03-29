@@ -1212,3 +1212,78 @@ TEST_F(vector_test, ResizeWithTemplateValueChangesNothingIfSizeAlreadyFits)
     EXPECT_THAT(sut[1], Eq(9));
 }
 
+TEST_F(vector_test, EmplaceInEmptyVectorWorks)
+{
+    EXPECT_TRUE(sut.emplace(0U, 123));
+    ASSERT_THAT(sut.size(), Eq(1U));
+    EXPECT_THAT(sut[0], Eq(123));
+}
+
+TEST_F(vector_test, EmplaceAtFrontTillFullWorks)
+{
+    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    {
+        EXPECT_TRUE(sut.emplace(0U, i));
+        ASSERT_THAT(sut.size(), Eq(i + 1U));
+
+        for (uint64_t n = 0U; n < sut.size(); ++n)
+        {
+            EXPECT_THAT(sut[n], Eq(sut.size() - n - 1U));
+        }
+    }
+}
+
+TEST_F(vector_test, EmplaceInTheMiddleMovesElementsToTheRight)
+{
+    sut.emplace_back(0);
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+
+    EXPECT_TRUE(sut.emplace(1U, 3));
+
+    ASSERT_THAT(sut.size(), Eq(4));
+
+    EXPECT_THAT(sut[0], Eq(0));
+    EXPECT_THAT(sut[1], Eq(3));
+    EXPECT_THAT(sut[2], Eq(1));
+    EXPECT_THAT(sut[3], Eq(2));
+}
+
+TEST_F(vector_test, EmplaceWhenFullReturnsFalse)
+{
+    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    {
+        sut.emplace_back(i);
+    }
+
+    auto index = sut.capacity() / 2;
+    EXPECT_FALSE(sut.emplace(index, 5));
+    EXPECT_THAT(sut.size(), Eq(sut.capacity()));
+}
+
+TEST_F(vector_test, EmplaceWhenPositionExceedsCapacityReturnsFalse)
+{
+    EXPECT_FALSE(sut.emplace(sut.capacity() + 10U, 5));
+    EXPECT_THAT(sut.size(), Eq(0));
+}
+
+TEST_F(vector_test, EmplaceAtEndWorks)
+{
+    sut.emplace_back(0);
+    sut.emplace_back(1);
+
+    EXPECT_TRUE(sut.emplace(sut.size(), 3));
+    ASSERT_THAT(sut.size(), Eq(3));
+    EXPECT_THAT(sut[0], Eq(0));
+    EXPECT_THAT(sut[1], Eq(1));
+    EXPECT_THAT(sut[2], Eq(3));
+}
+
+TEST_F(vector_test, EmplaceAtPositionAfterEndBeforeCapacityExceedsFails)
+{
+    sut.emplace_back(0);
+    sut.emplace_back(1);
+
+    EXPECT_FALSE(sut.emplace(sut.size() + 1, 3));
+    ASSERT_THAT(sut.size(), Eq(2));
+}

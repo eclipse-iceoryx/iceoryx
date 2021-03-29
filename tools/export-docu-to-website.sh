@@ -23,6 +23,7 @@
 # mkdocs, v1.1.2
 # Doxygen, 1.8.17
 # doxybook2, v1.3.1
+# mike, v0.5.5
 
 set -e
 

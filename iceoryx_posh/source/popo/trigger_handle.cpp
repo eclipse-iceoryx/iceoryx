@@ -28,6 +28,10 @@ TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableData,
     , m_resetCallback(resetCallback)
     , m_uniqueTriggerId(uniqueTriggerId)
 {
+    if (!m_resetCallback)
+    {
+        errorHandler(Error::kPOPO__TRIGGER_HANDLE_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+    }
 }
 
 TriggerHandle::TriggerHandle(TriggerHandle&& rhs) noexcept
@@ -91,7 +95,8 @@ void TriggerHandle::reset() noexcept
         return;
     }
 
-    m_resetCallback(m_uniqueTriggerId);
+    // constructor ensured that resetCallback is valid
+    IOX_DISCARD_RESULT(m_resetCallback(m_uniqueTriggerId));
 
     invalidate();
 }

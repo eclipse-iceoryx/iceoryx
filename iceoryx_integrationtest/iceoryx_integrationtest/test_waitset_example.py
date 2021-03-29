@@ -62,12 +62,12 @@ def generate_test_description():
         sigterm_timeout='20')
 
     return launch.LaunchDescription([
+        roudi_process,
         process_list[0],
         process_list[1],
         process_list[2],
         process_list[3],
         process_list[4],
-        roudi_process,
         launch_testing.actions.ReadyToTest()
     ]), {'iox-ex-waitset-publisher': process_list[0], 'iox-ex-waitset-gateway': process_list[1],
          'iox-ex-waitset-grouping': process_list[2], 'iox-ex-waitset-individual': process_list[3],
