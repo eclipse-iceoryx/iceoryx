@@ -197,7 +197,7 @@ TEST_F(iox_pub_test, allocateChunkWithCustomHeaderAndPayloadAlignmentFails)
 
     constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
     void* chunk = nullptr;
-    ASSERT_EQ(AllocationResult_INVALID_PARAMETER_FOR_CHUNK,
+    ASSERT_EQ(AllocationResult_INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER,
               iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), PAYLOAD_ALIGNMENT));
 }
 
