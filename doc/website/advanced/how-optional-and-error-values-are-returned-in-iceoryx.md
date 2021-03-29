@@ -9,7 +9,7 @@ introduce in the following sections.
 ### Optional
 
 The type ``iox::cxx::optional<T>`` is used to indicate that there may or may not be a value of a specific type ``T``
-available. This is essentially the maybe [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)) in 
+available. This is essentially the 'maybe [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming))' in 
 functional programming. Assuming we have some optional (usually the result of some computation)
 
 ```cpp
@@ -63,7 +63,7 @@ For a complete list of available functions see
 ### Expected
 ``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of
 no value at all, i.e. it contains either a value of type ``T`` or ``E``. In this way, ``expected`` is a special case of 
-the either monad. It is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the
+the 'either monad'. It is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the
 error type. For more information on how it is used for error handling see
 [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md).
 

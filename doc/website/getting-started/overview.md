@@ -1,8 +1,7 @@
 # Overview
 
 This document covers the core functionality of Eclipse iceoryx and is intended to quickly get started to
-set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the
-basic concepts presented here will still apply.
+set up iceoryx applications.
 
 ## General
 
@@ -155,12 +154,14 @@ instance and topic names are the same for both of them.
 This means the group and instance identifier can be ignored to create different ``ServiceDescription``s. They will be
 needed for advanced filtering functionality in the future.
 
+### Restrictions
+
 The data type of the transmitted data can be any C++ class, struct or plain old data type as long as it satisfies the 
 following conditions:
 - no heap is used
-- the data structure is entirely contained in shared memory - no pointers to process local memory, no references to 
-process local constructs, no dynamic allocators
-- the data structure must not internally use pointers/references
+- the data structure is entirely contained in the shared memory - no pointers to process local memory, no references 
+to process local constructs, no dynamic allocators
+- the data structure has to be relocatable and therefore must not internally use pointers/references
 - no virtual members
 
 ## Publisher
@@ -198,7 +199,7 @@ can immediately wake up when data is available and will avoid unnecessary wake-u
 
 It manages a set of triggers which can be activated to indicate that a corresponding event occurred which wakes
 up a potentially waiting thread. Upon waking up it can be determined which conditions became true and caused the
-wake-up. In the case that the wake up event was the availability of new data, this data can now be collected at
+wake-up. In the case that the wake-up event was the availability of new data, this data can now be collected at
 the subscriber.
 
 For more information on how to use the Waitset see 
@@ -210,8 +211,8 @@ part of #350
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the 
-[C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery) and 
-[C example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/icedelivery_in_c/README.md).
+[C++ example](http://iceoryx.io/getting-started/examples/icedelivery.md) and 
+[C example](http://iceoryx.io/getting-started/examples/icedelivery_in_c.md).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using 
 the monadic types ``cxx::expected`` and ``cxx::optional`` which are introduced 
