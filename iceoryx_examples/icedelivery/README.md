@@ -7,10 +7,7 @@ It provides publisher and subscriber applications. They come in two C++ API flav
 
 ## Expected output
 
-Create different terminals and run one command in each of them. Choose at least one publisher and one subscriber for
-having a data communication. You can also mix the typed and untyped versions. And if you feel like crazy today you
-start several publishers and subscribers from icedelivery and icedelivery_in_c (needs the default n:m communication,
-not possible if you build with the ONE_TO_MANY option).
+Create three terminals and start RouDi, a publisher and a subscriber. You can also mix the typed and untyped versions.
 
 [![asciicast](https://asciinema.org/a/382036.svg)](https://asciinema.org/a/382036)
 
@@ -19,7 +16,8 @@ not possible if you build with the ONE_TO_MANY option).
 This example makes use of two kind of API flavours. With the untyped API you have the most flexibility. It enables you
 to put higher level APIs with different look and feel on top of iceoryx. E.g. the ara::com API of AUTOSAR Adaptive or
 the ROS2 API. It is not meant to be used by developers in daily life, the assumption is that there will always be a higher
-abstraction. A simple example how such an abstraction could look like is given in the second step with the typed example.
+abstraction. A simple example how such an abstraction could look like is given in the second step with the typed
+example. The typed API provides type safety combined with [RAII](https://en.cppreference.com/w/cpp/language/raii).
 
 ### Publisher application (untyped)
 
@@ -79,6 +77,8 @@ which fits our RadarObject struct
 auto result = publisher.loan(sizeof(RadarObject));
 ```
 
+#### #1 Loan and emplace
+
 Two different ways of handling the returned `cxx::expected` are possible. Either you save the result in a variable and
 do the error check with an if-condition (#1):
 
@@ -93,6 +93,8 @@ else
     // ...
 }
 ```
+
+#### #2 Functional approach with loaning
 
 Or try the functional way (#2) by concatenating `and_then` and `or_else`. Well, that's a bit of a
 [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Read it like a story in a book:
@@ -237,8 +239,12 @@ created and the transmitted data type is provided as template parameter:
 iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
 
+The topic type must be default- and copy-constructible when the typed API is used.
+
 A similar while-loop is used to send the data to the subscriber. In contrast to the untyped publisher the typed one
 offers three additional possibilities.
+
+#### #2 Functional approach with loaning
 
 Usage #2 constructs the data type with the values provided in loan:
 
@@ -262,6 +268,8 @@ One might wonder what the type of the variable `sample` is? It is `iox::popo::Sa
 similar to a [`std::unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) and makes sure that the ownership
 handling is done automatically and memory is freed when going out of scope on subscriber side.
 
+#### #4 Publish by copy
+
 Usage #4 does a copy-and-publish in one call. This should only be used for small data types, as otherwise copies can
 lead to a larger runtime.
 
@@ -272,7 +280,9 @@ publisher.publishCopyOf(object).or_else([](iox::popo::AllocationError) {
 });
 ```
 
-Usage #5 can be useful if you have a callable e.g. a function should be always called
+#### #5 Publish the result of a computation
+
+Usage #5 can be useful if you have a callable e.g. a function or [functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++) should be always called
 
 ```cpp
 publisher.publishResultOf(getRadarObject, ct).or_else([](iox::popo::AllocationError) {
@@ -295,7 +305,7 @@ As with the typed publisher application there is an different include compared t
 An instance of `Subscriber` is created:
 
 ```cpp
-iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 ```
 
 Everything else is nearly the same. However, there is one crucial difference which makes the `Subscriber` typed.
