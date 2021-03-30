@@ -26,6 +26,11 @@ PeriodicTimer::PeriodicTimer(const iox::units::Duration interval) noexcept
     start();
 }
 
+PeriodicTimer::~PeriodicTimer() noexcept
+{
+    m_stop.~Semaphore();
+}
+
 void PeriodicTimer::start() noexcept
 {
     stop();
@@ -36,7 +41,6 @@ void PeriodicTimer::start() noexcept
 void PeriodicTimer::start(const iox::units::Duration interval) noexcept
 {
     m_interval = interval;
-    start();
 }
 
 void PeriodicTimer::stop() noexcept
@@ -56,21 +60,27 @@ cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> PeriodicTimer::wait()
 {
     if (*(m_stop.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
     {
-        auto waitResult = m_stop.timedWait(m_interval, true);
-
-        if (waitResult.has_error())
+        auto periodicWaitDuration = m_interval;
+        auto timeBeforeSemBlocking = now();
+        auto waitResult = m_stop.timedWait(periodicWaitDuration, true);
+        auto timeAfterSemBlocking = now();
+        if (timeAfterSemBlocking - timeBeforeSemBlocking >= periodicWaitDuration)
         {
-            return cxx::error<posix::SemaphoreError>(waitResult.get_error());
+            if (waitResult.has_error())
+            {
+                return cxx::error<posix::SemaphoreError>(waitResult.get_error());
+            }
+            else
+            {
+                return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK);
+            }
         }
         else
         {
-            return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK);
+            stop();
         }
     }
-    else
-    {
-        return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::STOP);
-    }
+    return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::STOP);
 }
 
 } // namespace cxx

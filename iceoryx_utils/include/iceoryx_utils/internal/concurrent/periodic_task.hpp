@@ -17,6 +17,7 @@
 #ifndef IOX_UTILS_CONCURRENT_PERIODIC_TASK_HPP
 #define IOX_UTILS_CONCURRENT_PERIODIC_TASK_HPP
 
+#include "iceoryx_utils/cxx/periodic_timer.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
@@ -123,6 +124,7 @@ class PeriodicTask
     units::Duration m_interval{units::Duration::fromMilliseconds(0U)};
     /// @todo use a refactored posix::Timer object once available
     posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
+    iox::cxx::PeriodicTimer m_periodicTimer{units::Duration::fromMilliseconds(0U)};
     std::thread m_taskExecutor;
 };
 
