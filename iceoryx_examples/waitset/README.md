@@ -1,5 +1,16 @@
 # WaitSet
 
+## Thread Safety
+The WaitSet is **not** thread-safe!
+- It is **not** allowed to attach or detach _Triggerable_
+   classes with `attachEvent` or `detachEvent` when another thread is currently
+   waiting for events with `wait` or `timedWait`.
+- Do **not** call any of the WaitSet methods concurrently.
+
+The _TriggerHandle_ on the other hand is thread-safe! Therefore you are allowed to
+attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
+trigger the _TriggerHandle_.
+
 ## Introduction
 
 The WaitSet is a set where you can attach objects so that they can signal a wide variety
@@ -13,20 +24,10 @@ till you reset the state. The `HAS_DATA` event of the subscriber for instance
 will notify you as long as there are samples. But it is also possible that one
 attaches one shot events. These are events which will trigger the WaitSet only once.
 
-## Expected output
+## Expected Output
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 <!-- @todo multiple examples described in here, expected output should be in front of every example -->
-
-## Threadsafety
-The WaitSet is **not** threadsafe!
-- It is **not** allowed to attach or detach _Triggerable_
-   classes with `attachEvent` or `detachEvent` when another thread is currently
-   waiting for events with `wait`.
-
-The _TriggerHandle_ on the other hand is threadsafe! Therefore you are allowed to
-attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
-trigger the _TriggerHandle_.
 
 ## Glossary
 
@@ -54,7 +55,7 @@ trigger the _TriggerHandle_.
      _Trigger_ will be invalidated.
  - **Triggerable** a class which has attached a _TriggerHandle_ to itself to signal
      certain _Events_ to a _Notifyable_.
- - **TriggerHandle** a threadsafe class which can be used to trigger a _Notifyable_.
+ - **TriggerHandle** a thread-safe class which can be used to trigger a _Notifyable_.
      If a _TriggerHandle_ goes out of scope it will detach itself from the _Notifyable_. A _TriggerHandle_ is
      logical equal to another _Trigger_ if they:
      - are attached to the same _Notifyable_ (or in other words they are using the
@@ -90,7 +91,7 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 |call eventCallback|`event()`|
 |acquire _EventOrigin_|`event.getOrigin<OriginType>();`|
 
-## Use cases
+## Use Cases
 This example consists of 5 use cases.
  
  1. `ice_waitset_gateway.cpp`: We build a gateway to forward data
@@ -289,9 +290,10 @@ we just dismiss the received data.
         subscriber->releaseQueuedData();
     }
 ```
-**Important** The second group needs to release all queued samples otherwise
-the WaitSet would notify the user again and again that the subscriber from the second
-group has new samples.
+!!! attention 
+    The second group needs to release all queued samples otherwise
+    the WaitSet would notify the user again and again that the subscriber from the second
+    group has new samples.
 
 ### Individual
 When every _Triggerable_ requires a different reaction we need to know the
@@ -370,12 +372,12 @@ class SomeClass
     static void cyclicRun(iox::popo::UserTrigger*)
     {
         std::cout << "activation callback\n";
-        trigger->resetTrigger();
     }
 };
 ```
-**Important** We need to reset the user trigger otherwise the _WaitSet_ would notify
-us immediately again since the user trigger is state based.
+!!! attention 
+    The user trigger is event based and always reset after the WaitSet 
+    has acquired all triggered objects.
 
 We begin as always, by creating a _WaitSet_ with the default capacity and by
 attaching the `shutdownTrigger` to 

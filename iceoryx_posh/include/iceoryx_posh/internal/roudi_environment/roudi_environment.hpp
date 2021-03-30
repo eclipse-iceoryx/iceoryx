@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,7 +52,7 @@ class RouDiEnvironment
     void SetInterOpWaitingTime(const std::chrono::milliseconds& v);
     void InterOpWait();
 
-    void CleanupAppResources(const ProcessName_t& name);
+    void CleanupAppResources(const RuntimeName_t& name);
 
   protected:
     /// @note this is due to ambiguity of the cTor with the default parameter

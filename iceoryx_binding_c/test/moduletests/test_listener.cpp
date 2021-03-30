@@ -160,6 +160,11 @@ constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
 
 } // namespace
 
+TEST_F(iox_listener_test, InitListenerWithNullptrForStorageReturnsNullptr)
+{
+    EXPECT_EQ(iox_listener_init(nullptr), nullptr);
+}
+
 TEST_F(iox_listener_test, CapacityIsCorrect)
 {
     EXPECT_THAT(iox_listener_capacity(&m_sut), Eq(MAX_NUMBER_OF_EVENTS_PER_LISTENER));

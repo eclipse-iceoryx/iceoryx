@@ -95,7 +95,7 @@ class iox_pub_test : public Test
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
     uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
-    static constexpr uint32_t CHUNK_SIZE = 128;
+    static constexpr uint32_t CHUNK_SIZE = 256;
 
     using ChunkQueueData_t = popo::ChunkQueueData<DefaultChunkQueueConfig, popo::ThreadSafePolicy>;
     ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
@@ -117,6 +117,14 @@ class iox_pub_test : public Test
         capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_publisherOptions};
     cpp2c_Publisher m_sut;
 };
+
+TEST_F(iox_pub_test, initPublisherWithNullptrForStorageReturnsNullptr)
+{
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+
+    EXPECT_EQ(iox_pub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
+}
 
 TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)
 {
@@ -164,6 +172,43 @@ TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
     EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
 }
 
+TEST_F(iox_pub_test, allocateChunkWithCustomHeaderIsSuccessful)
+{
+    m_sut.m_customHeaderSize = 4U;
+    m_sut.m_customHeaderAlignment = 2U;
+
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
+
+    auto header = iox_chunk_payload_to_header(chunk);
+    auto spaceBetweenChunkHeaderAndPaylod = reinterpret_cast<uint64_t>(chunk) - reinterpret_cast<uint64_t>(header);
+    EXPECT_GT(spaceBetweenChunkHeaderAndPaylod, sizeof(iox::mepoo::ChunkHeader));
+}
+
+TEST_F(iox_pub_test, allocateChunkWithCustomHeaderAndPayloadAlignmentIsSuccessful)
+{
+    m_sut.m_customHeaderSize = 4U;
+    m_sut.m_customHeaderAlignment = 2U;
+
+    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS,
+              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), PAYLOAD_ALIGNMENT));
+
+    EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % PAYLOAD_ALIGNMENT == 0U);
+}
+
+TEST_F(iox_pub_test, allocateChunkWithCustomHeaderAndPayloadAlignmentFails)
+{
+    m_sut.m_customHeaderSize = 4U;
+    m_sut.m_customHeaderAlignment = 3U;
+
+    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER,
+              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), PAYLOAD_ALIGNMENT));
+}
+
 TEST_F(iox_pub_test, chunkHeaderCanBeObtainedFromChunk)
 {
     void* chunk = nullptr;
@@ -184,7 +229,7 @@ TEST_F(iox_pub_test, chunkHeaderCanBeConvertedBackToPayload)
 TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
 {
     void* chunk = nullptr;
-    for (int i = 0; i < 8 /* ///@todo actually it should be MAX_CHUNKS_HELD_PER_RECEIVER but it does not work*/; ++i)
+    for (uint32_t i = 0U; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; ++i)
     {
         EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, 100));
     }
