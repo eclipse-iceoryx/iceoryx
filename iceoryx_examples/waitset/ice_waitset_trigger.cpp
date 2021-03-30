@@ -32,7 +32,7 @@ enum class MyTriggerClassStates : iox::popo::StateEnumIdentifier
 enum class MyTriggerClassEvents : iox::popo::EventEnumIdentifier
 {
     PERFORM_ACTION_CALLED,
-    IS_ACTIVATED_CALLED
+    ACTIVATE_CALLED
 };
 
 // Triggerable class which has two events an both events can be
@@ -139,7 +139,7 @@ class MyTriggerClass
         case MyTriggerClassEvents::PERFORM_ACTION_CALLED:
             m_onActionTrigger = std::move(triggerHandle);
             break;
-        case MyTriggerClassEvents::IS_ACTIVATED_CALLED:
+        case MyTriggerClassEvents::ACTIVATE_CALLED:
             m_activateTrigger = std::move(triggerHandle);
             break;
         }
@@ -180,7 +180,7 @@ class MyTriggerClass
         case MyTriggerClassEvents::PERFORM_ACTION_CALLED:
             m_onActionTrigger.reset();
             break;
-        case MyTriggerClassEvents::IS_ACTIVATED_CALLED:
+        case MyTriggerClassEvents::ACTIVATE_CALLED:
             m_activateTrigger.reset();
             break;
         }
