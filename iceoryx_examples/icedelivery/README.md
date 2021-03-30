@@ -329,3 +329,7 @@ with
 ```
 
 In case of the typed `Subscriber` it is a `const RadarObject` instead of `const void*`.
+
+<center>
+[Check out icedelivery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery){ .md-button }
+</center>

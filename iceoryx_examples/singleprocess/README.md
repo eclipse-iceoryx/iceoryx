@@ -160,3 +160,7 @@ while (keepRunning.load())
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 ```
+
+<center>
+[Check out singleprocess on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/singleprocess){ .md-button }
+</center>

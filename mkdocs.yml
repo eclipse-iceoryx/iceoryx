@@ -7,6 +7,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.highlight
+  - attr_list
   - toc:
       permalink: 🔗
   - meta
@@ -15,6 +16,7 @@ markdown_extensions:
   - admonition
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 plugins:
   - awesome-pages
   - search

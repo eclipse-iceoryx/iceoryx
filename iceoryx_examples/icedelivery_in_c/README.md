@@ -153,3 +153,7 @@ Let's take a look at the `sending` function which comes with the
     ```c
     iox_pub_destroy(publisher);
     ```
+
+<center>
+[Check out icedelivery_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c){ .md-button }
+</center>

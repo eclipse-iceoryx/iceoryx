@@ -62,3 +62,7 @@ Again, for organising subscribers inside an application, a `nodeName` can be app
 ```cpp
 subscriberOptions.nodeName = "Sub_Node_With_Options";
 ```
+
+<center>
+[Check out iceoptions on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceoptions){ .md-button }
+</center>

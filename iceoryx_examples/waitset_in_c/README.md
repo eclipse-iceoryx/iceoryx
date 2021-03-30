@@ -401,3 +401,7 @@ The last thing we have to do is to cleanup all the used resources.
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownTrigger);
 ```
+
+<center>
+[Check out waitset_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset_in_c){ .md-button }
+</center>

@@ -663,3 +663,7 @@ lines.
         }
     });
 ```
+
+<center>
+[Check out waitset on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset){ .md-button }
+</center>

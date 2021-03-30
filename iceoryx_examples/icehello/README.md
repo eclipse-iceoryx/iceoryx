@@ -53,8 +53,7 @@ constexpr char APP_NAME[] = "iox-ex-publisher-helloworld";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
-Up next, we create a publisher instance for our charming struct, notice the topic passed as a template parameter:
-to everyone:
+Up next, we create a publisher instance for our charming struct, notice the topic type is passed as a template parameter:
 
 ```cpp
 iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
@@ -81,7 +80,7 @@ In order to send our topic we loan some some shared memory, inside the `while` l
 auto loanResult = publisher.loan();
 ```
 
-If loaning was successful, we increment all three values in `RadarObject` and `publish()` to the subscriber application:
+If loaning was successful, we assign the incremented counter to all three values in `RadarObject` and `publish()` to the subscriber application:
 
 ```cpp
 if (!loanResult.has_error())
@@ -168,3 +167,7 @@ The subscriber application runs ten times faster than the publisher and should t
 ```cpp
 std::this_thread::sleep_for(std::chrono::milliseconds(100));
 ```
+
+<center>
+[Check out icehello on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icehello){ .md-button }
+</center>

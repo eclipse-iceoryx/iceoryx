@@ -299,3 +299,7 @@ The `main()` for iceperf-hardy is similar to iceperf-laurel, only the SUBSCRIBER
         ipcTechnology.shutdown();
     }
 ```
+
+<center>
+[Check out iceperf on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceperf){ .md-button }
+</center>

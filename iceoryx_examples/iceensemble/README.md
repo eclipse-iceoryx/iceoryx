@@ -17,19 +17,16 @@ This example demonstrates
 The easiest way is the build all examples via `./tools/iceoryx_build_test.sh`. Then, create eight terminals and run one command in each of them.
 
 ```sh
-# If installed and available in PATH environment variable
-iox-roudi
-# If build from scratch with script in tools
-$ICEORYX_ROOT/build/iox-roudi
+./build/iox-roudi
 
-build/iceoryx_examples/icedelivery/iox-ex-publisher-helloworld
-build/iceoryx_examples/icedelivery/iox-ex-publisher
-build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
-build/iceoryx_examples/iceoptions/iox-ex-publisher-with-options
-build/iceoryx_examples/icedelivery_in_c/iox-c-publisher
+./build/iceoryx_examples/icedelivery/iox-ex-publisher-helloworld
+./build/iceoryx_examples/icedelivery/iox-ex-publisher
+./build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
+./build/iceoryx_examples/iceoptions/iox-ex-publisher-with-options
+./build/iceoryx_examples/icedelivery_in_c/iox-c-publisher
 
-build/iceoryx_examples/icedelivery/iox-ex-subscriber
-build/iceoryx_examples/iceoptions/iox-subscriber-with-options
+./build/iceoryx_examples/icedelivery/iox-ex-subscriber
+./build/iceoryx_examples/iceoptions/iox-subscriber-with-options
 ```
 
 Alternatively you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmux) script.
