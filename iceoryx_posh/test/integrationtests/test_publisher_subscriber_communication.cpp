@@ -297,7 +297,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenSubscriberQueue
     iox::popo::SubscriberOptions subscriberOptions;
     subscriberOptions.receiverQueueFullPolicy = QueueFullPolicy::BLOCK_PUBLISHER;
     subscriberOptions.queueCapacity = 2;
-    iox::popo::Subscriber<int64_t> subscriber(m_serviceDescription, subscriberOptions);
+    iox::popo::Subscriber<string<128>> subscriber(m_serviceDescription, subscriberOptions);
     this->InterOpWait();
 
     EXPECT_FALSE(publisher.publishCopyOf("hello world").has_error());
@@ -320,7 +320,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenSubscriberQueue
 
     auto sample = subscriber.take();
     ASSERT_FALSE(sample.has_error());
-    //    EXPECT_THAT(*sample, Eq(string<128>("hello world")));
+    EXPECT_THAT(**sample, Eq(string<128>("hello world")));
     EXPECT_TRUE(wasSampleDelivered.load());
 
     t1.join();

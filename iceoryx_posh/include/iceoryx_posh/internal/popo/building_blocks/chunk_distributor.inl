@@ -139,23 +139,25 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
         // send to all the queues
         for (auto& queue : getMembers()->m_queues)
         {
-            if (!deliverToQueue(queue.get(), chunk)
-                && getMembers()->m_subscriberTooSlowPolicy == SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER
-                && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER)
+            bool isBlockingQueue =
+                (getMembers()->m_subscriberTooSlowPolicy == SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER
+                 && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
+
+            if (!deliverToQueue(queue.get(), chunk) && isBlockingQueue)
             {
                 remainingQueues.emplace_back(queue);
-                //// TODO handle block in here
             }
         }
     }
 
+    // busy waiting until every queue is served
     while (!remainingQueues.empty())
     {
         std::this_thread::yield();
         {
             // create intersection of current queues and remainingQueues
             typename MemberType_t::LockGuard_t lock(*getMembers());
-            typename ChunkDistributorDataType::QueueContainer_t updatedRemainingQueues(remainingQueues.size());
+            typename ChunkDistributorDataType::QueueContainer_t queueIntersection(remainingQueues.size());
             std::sort(getMembers()->m_queues.begin(), getMembers()->m_queues.end());
             std::sort(remainingQueues.begin(), remainingQueues.end());
 
@@ -163,9 +165,9 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
                                               getMembers()->m_queues.end(),
                                               remainingQueues.begin(),
                                               remainingQueues.end(),
-                                              updatedRemainingQueues.begin());
-            updatedRemainingQueues.resize(iter - updatedRemainingQueues.begin());
-            remainingQueues = updatedRemainingQueues;
+                                              queueIntersection.begin());
+            queueIntersection.resize(iter - queueIntersection.begin());
+            remainingQueues = queueIntersection;
 
             // deliver to remaining queues
             for (uint64_t i = remainingQueues.size() - 1U; !remainingQueues.empty(); --i)
