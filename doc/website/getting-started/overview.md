@@ -164,6 +164,10 @@ to process local constructs, no dynamic allocators
 - the data structure has to be relocatable and therefore must not internally use pointers/references
 - no virtual members
 
+!!! note
+    Most of the STL types cannot be used, but we reimplemented some of them so that they meet the conditions above. 
+    You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_utils#cxx).
+
 ## Publisher
 
 A publisher is tied to a topic and needs a service description to be constructed. If it is typed one needs to
