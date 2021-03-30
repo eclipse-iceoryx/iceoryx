@@ -67,8 +67,15 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const event,
                        const iox_sub_options_t* const options)
 {
+    if (self == nullptr)
+    {
+        LogWarn() << "subscriber initialization skipped - null pointer provided for iox_sub_storage_t";
+        return nullptr;
+    }
+
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
+
     SubscriberOptions subscriberOptions;
 
     // use default options otherwise

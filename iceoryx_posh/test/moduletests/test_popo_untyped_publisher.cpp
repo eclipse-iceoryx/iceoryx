@@ -21,10 +21,19 @@
 
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using ::testing::_;
 
-using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<MockBasePublisher<void>>;
+struct alignas(2) TestCustomHeader
+{
+    uint16_t dummy1{1U};
+    uint16_t dummy2{2U};
+};
+
+using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<iox::mepoo::NoCustomHeader, MockBasePublisher<void>>;
+using TestUntypedPublisherWithCustomHeader = iox::popo::UntypedPublisherImpl<TestCustomHeader, MockBasePublisher<void>>;
 
 class UntypedPublisherTest : public Test
 {
@@ -47,13 +56,34 @@ class UntypedPublisherTest : public Test
     MockPublisherPortUser& portMock{sut.mockPort()};
 };
 
-TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSize)
+TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
 {
-    constexpr uint32_t ALLOCATION_SIZE = 7U;
-    EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
+    constexpr uint32_t PAYLOAD_SIZE = 7U;
+    constexpr uint32_t PAYLOAD_ALIGNMENT = 128U;
+    EXPECT_CALL(
+        portMock,
+        tryAllocateChunk(
+            PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, iox::CHUNK_NO_CUSTOM_HEADER_SIZE, iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
-    auto result = sut.loan(ALLOCATION_SIZE);
+    auto result = sut.loan(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT);
+    // ===== Verify ===== //
+    EXPECT_FALSE(result.has_error());
+    // ===== Cleanup ===== //
+}
+
+TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndCustomHeaderWorks)
+{
+    TestUntypedPublisherWithCustomHeader sutWithCustomHeader{{"", "", ""}};
+    MockPublisherPortUser& portMockWithCustomHeader{sutWithCustomHeader.mockPort()};
+
+    constexpr uint32_t PAYLOAD_SIZE = 42U;
+    constexpr uint32_t PAYLOAD_ALIGNMENT = 512U;
+    EXPECT_CALL(portMockWithCustomHeader,
+                tryAllocateChunk(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, sizeof(TestCustomHeader), alignof(TestCustomHeader)))
+        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
+    // ===== Test ===== //
+    auto result = sutWithCustomHeader.loan(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //
@@ -155,3 +185,5 @@ TEST_F(UntypedPublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPubli
     // ===== Test ===== //
     sut.getServiceDescription();
 }
+
+} // namespace

@@ -59,6 +59,11 @@ class iox_user_trigger_test : public Test
 
 bool iox_user_trigger_test::wasTriggerCallbackCalled = false;
 
+TEST_F(iox_user_trigger_test, initUserTriggerWithNullptrForStorageReturnsNullptr)
+{
+    EXPECT_EQ(iox_user_trigger_init(nullptr), nullptr);
+}
+
 TEST_F(iox_user_trigger_test, isNotTriggeredWhenCreated)
 {
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));

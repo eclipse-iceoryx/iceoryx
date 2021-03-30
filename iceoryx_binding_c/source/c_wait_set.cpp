@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,6 +56,11 @@ static uint64_t event_info_vector_to_c_array(const WaitSet<>::EventInfoVector& t
 
 iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
+    if (self == nullptr)
+    {
+        LogWarn() << "wait set initialization skipped - null pointer provided for iox_ws_storage_t";
+        return nullptr;
+    }
     new (self) cpp2c_WaitSet();
     return reinterpret_cast<iox_ws_t>(self);
 }
