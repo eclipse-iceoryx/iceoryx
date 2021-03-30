@@ -51,8 +51,8 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
-    RouDi roudi(roudiComponents.m_rouDiMemoryManager,
-                roudiComponents.m_portManager,
+    RouDi roudi(roudiComponents.rouDiMemoryManager,
+                roudiComponents.portManager,
                 RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
     const RuntimeName_t m_runtimeName{"App"};

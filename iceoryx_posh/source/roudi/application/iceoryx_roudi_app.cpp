@@ -38,14 +38,15 @@ uint8_t IceOryxRouDiApp::run() noexcept
         auto componentsScopeGuard = cxx::makeScopedStatic(m_rouDiComponents, m_config);
 
         static cxx::optional<RouDi> roudi;
-        auto roudiScopeGuard = cxx::makeScopedStatic(roudi,
-                                                     m_rouDiComponents.value().m_rouDiMemoryManager,
-                                                     m_rouDiComponents.value().m_portManager,
-                                                     RouDi::RoudiStartupParameters{m_monitoringMode,
-                                                                                   true,
-                                                                                   RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
-                                                                                   m_compatibilityCheckLevel,
-                                                                                   m_processKillDelay});
+        auto roudiScopeGuard =
+            cxx::makeScopedStatic(roudi,
+                                  m_rouDiComponents.value().rouDiMemoryManager,
+                                  m_rouDiComponents.value().portManager,
+                                  RouDi::RoudiStartupParameters{m_monitoringMode,
+                                                                true,
+                                                                RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
+                                                                m_compatibilityCheckLevel,
+                                                                m_processKillDelay});
         waitForSignal();
     }
     return EXIT_SUCCESS;

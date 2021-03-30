@@ -17,15 +17,17 @@
 #define IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
+#include "iceoryx_utils/posix_wrapper/file_lock.hpp"
+
 
 namespace iox
 {
 namespace roudi
 {
+constexpr char ROUDI_LOCK_NAME[] = "unique-roudi";
 struct IceOryxRouDiComponents
 {
   public:
@@ -33,14 +35,27 @@ struct IceOryxRouDiComponents
 
     virtual ~IceOryxRouDiComponents() = default;
 
-    /// @brief Locks the socket for preventing multiple start of RouDi
-    RouDiLock m_roudilock;
+    posix::FileLock fileLock = std::move(posix::FileLock::create(ROUDI_LOCK_NAME)
+                                             .or_else([](auto& error) {
+                                                 if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
+                                                 {
+                                                     LogFatal() << "Could not acquire lock, is RouDi still running?";
+                                                     exit(EXIT_FAILURE);
+                                                 }
+                                                 else
+                                                 {
+                                                     LogFatal() << "Error occured while acquiring file lock named "
+                                                                << ROUDI_LOCK_NAME;
+                                                     exit(EXIT_FAILURE);
+                                                 }
+                                             })
+                                             .value());
 
     /// @brief Handles MemoryProvider and MemoryBlocks
-    IceOryxRouDiMemoryManager m_rouDiMemoryManager;
+    IceOryxRouDiMemoryManager rouDiMemoryManager;
 
     /// @brief Handles the ports in shared memory
-    PortManager m_portManager;
+    PortManager portManager;
 };
 } // namespace roudi
 } // namespace iox
