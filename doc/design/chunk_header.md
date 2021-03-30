@@ -273,7 +273,8 @@ class MyChunkHeaderHook : public ChunkHeaderHook
 auto customHeaderHook = MyChunkHeaderHook<MyHeader>();
 auto pub = iox::popo::Publisher<MyPayload>(serviceDescription, customHeaderHook);
 ```
-        - it has to be decided if it's a good idea to give the user easy write access to the `ChunkHeader` or just to the `CustomHeader`
+        - alternatively, instead of the ChunkHeaderHook class, the publisher could have a method `registerDeliveryHook(std::function<void(ChunkHeader&)>)`
+        - allow the user only read access to the `ChunkHeader` and write access to the `CustomHeader`
 - untyped publisher/subscriber API proposal
 ```
 // publisher option 1

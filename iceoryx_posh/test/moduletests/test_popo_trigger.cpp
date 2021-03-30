@@ -381,7 +381,7 @@ TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
     EXPECT_TRUE(sut.isStateConditionSatisfied());
 }
 
-TEST_F(Trigger_test, TriggerUpdateOriginWorksToSameOriginChangesNothing)
+TEST_F(Trigger_test, TriggerUpdateOriginToSameOriginChangesNothing)
 {
     constexpr uint64_t id = 0U;
     constexpr uint64_t originType = 123U;

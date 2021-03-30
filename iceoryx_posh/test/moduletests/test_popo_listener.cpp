@@ -28,6 +28,7 @@
 #include "testutils/timing_test.hpp"
 #include "testutils/watch_dog.hpp"
 
+#include <array>
 #include <chrono>
 #include <memory>
 #include <thread>

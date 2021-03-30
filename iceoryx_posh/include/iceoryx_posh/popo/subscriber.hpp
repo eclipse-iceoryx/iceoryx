@@ -25,7 +25,7 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename base_subscriber_t = BaseSubscriber<>>
+template <typename T, typename H = iox::mepoo::NoCustomHeader, typename base_subscriber_t = BaseSubscriber<>>
 class Subscriber : public base_subscriber_t
 {
     using SelfType = Subscriber<T, base_subscriber_t>;
@@ -46,7 +46,7 @@ class Subscriber : public base_subscriber_t
     /// @details The sample takes care of the cleanup. Don't store the raw pointer to the content of the sample, but
     /// always the whole sample.
     ///
-    cxx::expected<Sample<const T>, ChunkReceiveResult> take() noexcept;
+    cxx::expected<Sample<const T, const H>, ChunkReceiveResult> take() noexcept;
 
     using PortType = typename base_subscriber_t::PortType;
     using SubscriberSampleDeleter = SampleDeleter<PortType>;

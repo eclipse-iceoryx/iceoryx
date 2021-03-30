@@ -86,3 +86,39 @@ TEST(TypeTraitsTest, MyTypeAsMemberIsTrue)
 
     EXPECT_TRUE(iox::cxx::test::has_mytype_as_member<Sut>::value);
 }
+
+TEST(TypeTraitsTest, AddConstConditionallyAddsConstIfConditionTypeIsConst)
+{
+    using SutType = uint8_t;
+    using ConditionType = bool;
+
+    using SutTypeResult = iox::cxx::add_const_conditionally<SutType, const ConditionType>::type;
+
+    EXPECT_TRUE(std::is_const<SutTypeResult>::value);
+    // EXPECT_TRUE macro is broken when std::is_same is used directly
+    auto typesIsNotChanged = std::is_same<SutType, std::remove_const_t<SutTypeResult>>::value;
+    EXPECT_TRUE(typesIsNotChanged);
+}
+
+TEST(TypeTraitsTest, AddConstConditionallyDoesNotAddsConstIfConditionTypeIsNotConst)
+{
+    using SutType = uint8_t;
+    using ConditionType = bool;
+
+    using SutTypeResult = iox::cxx::add_const_conditionally<SutType, ConditionType>::type;
+
+    EXPECT_FALSE(std::is_const<SutTypeResult>::value);
+    // EXPECT_TRUE macro is broken when std::is_same is used directly
+    auto typesIsNotChanged = std::is_same<SutType, SutTypeResult>::value;
+    EXPECT_TRUE(typesIsNotChanged);
+}
+
+TEST(TypeTraitsTest, AddConstConditionallyTypeAliasWorks)
+{
+    using SutType = uint8_t;
+    using ConditionType = bool;
+
+    using SutTypeResult = iox::cxx::add_const_conditionally_t<SutType, const ConditionType>;
+
+    EXPECT_TRUE(std::is_const<SutTypeResult>::value);
+}

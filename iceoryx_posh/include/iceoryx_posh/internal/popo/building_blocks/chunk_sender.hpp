@@ -36,7 +36,7 @@ enum class AllocationError
     INVALID_STATE,
     RUNNING_OUT_OF_CHUNKS,
     TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
-    INVALID_PARAMETER_FOR_CHUNK,
+    INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER,
 };
 
 /// @brief The ChunkSender is a building block of the shared memory communication infrastructure. It extends

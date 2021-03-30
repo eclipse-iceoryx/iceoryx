@@ -72,11 +72,11 @@ class PoshRuntime
     /// @param[in] name used for registering the process with the RouDi daemon
     ///
     /// @return active runtime
-    static PoshRuntime& initRuntime(const ProcessName_t& name) noexcept;
+    static PoshRuntime& initRuntime(const RuntimeName_t& name) noexcept;
 
     /// @brief get the name that was used to register with RouDi
     /// @return name of the registered application
-    ProcessName_t getInstanceName() const noexcept;
+    RuntimeName_t getInstanceName() const noexcept;
 
     /// @brief find all services that match the provided service description
     /// @param[in] serviceDescription service to search for
@@ -158,14 +158,14 @@ class PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
   protected:
-    using factory_t = PoshRuntime& (*)(cxx::optional<const ProcessName_t*>);
+    using factory_t = PoshRuntime& (*)(cxx::optional<const RuntimeName_t*>);
 
     // Protected constructor for IPC setup
-    PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread = true) noexcept;
+    PoshRuntime(cxx::optional<const RuntimeName_t*> name, const bool doMapSharedMemoryIntoThread = true) noexcept;
 
-    static PoshRuntime& defaultRuntimeFactory(cxx::optional<const ProcessName_t*> name) noexcept;
+    static PoshRuntime& defaultRuntimeFactory(cxx::optional<const RuntimeName_t*> name) noexcept;
 
-    static ProcessName_t& defaultRuntimeInstanceName() noexcept;
+    static RuntimeName_t& defaultRuntimeInstanceName() noexcept;
 
     /// @brief gets current runtime factory. If the runtime factory is not yet initialized it is set to
     /// defaultRuntimeFactory.
@@ -183,7 +183,7 @@ class PoshRuntime
     /// @param[in] name optional containing the name used for registering with the RouDi daemon
     ///
     /// @return active runtime
-    static PoshRuntime& getInstance(cxx::optional<const ProcessName_t*> name) noexcept;
+    static PoshRuntime& getInstance(cxx::optional<const RuntimeName_t*> name) noexcept;
 
   private:
     cxx::expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
@@ -196,9 +196,9 @@ class PoshRuntime
     requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
     /// @brief checks the given application name for certain constraints like length or if is empty
-    const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
+    const RuntimeName_t& verifyInstanceName(cxx::optional<const RuntimeName_t*> name) noexcept;
 
-    const ProcessName_t m_appName;
+    const RuntimeName_t m_appName;
     mutable std::mutex m_appIpcRequestMutex;
 
     // IPC channel interface for POSIX IPC from RouDi

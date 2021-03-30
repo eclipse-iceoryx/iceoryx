@@ -1,13 +1,13 @@
 # WaitSet in C
 
 ## Thread Safety
-The WaitSet is **not** threadsafe!
+The WaitSet is **not** thread-safe!
 - It is **not** allowed to attach or detach _Triggerable_
    classes with `iox_ws_attach_**` or `iox_ws_detach_**` when another thread is currently
    waiting for events with `iox_ws_wait` or `iox_ws_timed_wait`.
 - Do **not** call any of the `iox_ws_` functions concurrently.
 
-The _TriggerHandle_ on the other hand is threadsafe! Therefore you are allowed to
+The _TriggerHandle_ on the other hand is thread-safe! Therefore you are allowed to
 attach/detach a _TriggerHandle_ to a _Triggerable_ while another thread may
 trigger the _TriggerHandle_.
 

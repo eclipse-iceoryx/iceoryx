@@ -57,6 +57,7 @@ add_library(${PROJECT_NAME}
     source/c_wait_set.cpp
     source/c_chunk.cpp
     source/c2cpp_enum_translation.cpp
+    source/c_log.cpp
     source/cpp2c_enum_translation.cpp
     source/cpp2c_publisher.cpp
     source/cpp2c_subscriber.cpp

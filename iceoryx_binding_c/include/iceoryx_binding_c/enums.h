@@ -55,6 +55,8 @@ enum iox_AllocationResult
 {
     AllocationResult_RUNNING_OUT_OF_CHUNKS,
     AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
+    AllocationResult_INVALID_CHUNK,
+    AllocationResult_INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER,
     AllocationResult_UNDEFINED_ERROR,
     AllocationResult_INVALID_PARAMETER_FOR_CHUNK,
     AllocationResult_SUCCESS,
@@ -72,8 +74,8 @@ enum iox_ListenerResult
 {
     ListenerResult_LISTENER_FULL,
     ListenerResult_EVENT_ALREADY_ATTACHED,
-    ListenerResult_UNDEFINED_ERROR,
     ListenerResult_EMPTY_INVALIDATION_CALLBACK,
+    ListenerResult_UNDEFINED_ERROR,
     ListenerResult_SUCCESS
 };
 

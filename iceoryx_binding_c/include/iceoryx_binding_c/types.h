@@ -20,6 +20,10 @@
 
 #include "internal/c2cpp_binding.h"
 
+#define IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT 8
+#define IOX_C_CHUNK_NO_CUSTOM_HEADER_SIZE 0
+#define IOX_C_CHUNK_NO_CUSTOM_HEADER_ALIGNMENT 1
+
 /// The issue iox-308: https://github.com/eclipse-iceoryx/iceoryx/issues/308
 /// was created to explore other options then a magic number to create
 /// the structs of a specific size in C.
@@ -63,7 +67,7 @@ struct iox_pub_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(cpp2c_Publisher) / 8
-    uint64_t do_not_touch_me[1];
+    uint64_t do_not_touch_me[2];
 };
 typedef struct iox_pub_storage_t_ iox_pub_storage_t;
 

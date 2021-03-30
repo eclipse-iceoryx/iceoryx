@@ -33,11 +33,11 @@ Each application which wants to use iceoryx has to instantiate its runtime, whic
 with RouDi. Only one runtime object per user process is allowed.
 
 To do so, the following lines of code are required
-
+```cpp
     #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
     iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
-
+```
 ### Service description
 
 A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is uniquely identified by three string
@@ -51,7 +51,7 @@ A triple consisting of such strings is called a ``ServiceDescription``. The serv
 from AUTOSAR and is still used in the API with these names. The so called canonical protocol is implemented in the
 namespace ``capro``.
 
-The following table gives an overview over the different terminologies and the current mapping:
+The following table gives an overview of the different terminologies and the current mapping:
 
 |         | Group   | Instance         | Topic                  |
 |---------|---------|------------------|------------------------|

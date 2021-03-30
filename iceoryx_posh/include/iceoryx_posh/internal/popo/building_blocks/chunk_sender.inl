@@ -53,7 +53,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         mepoo::ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
     if (chunkSettingsResult.has_error())
     {
-        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_CHUNK);
+        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER);
     }
 
     const auto& chunkSettings = chunkSettingsResult.value();

@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +64,7 @@ void RouDiEnvironment::InterOpWait()
     std::this_thread::sleep_for(m_interOpWaitingTime);
 }
 
-void RouDiEnvironment::CleanupAppResources(const ProcessName_t& name)
+void RouDiEnvironment::CleanupAppResources(const RuntimeName_t& name)
 {
     m_runtimes.eraseRuntime(name);
 }
