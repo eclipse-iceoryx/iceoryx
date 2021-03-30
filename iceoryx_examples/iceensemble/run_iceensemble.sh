@@ -19,12 +19,12 @@ command -v tmux >/dev/null 2>&1 || { echo >&2 "tmux is not installed but require
 $tmux new-session -d -s $SESSION
 $tmux new-window -a -t $SESSION $WORKSPACE/build/iox-roudi
 
-$tmux split-window -t 0 -h $WORKSPACE/build/iceoryx_examples/icehello/iox-ex-publisher-helloworld
-$tmux split-window -t 1 -h $WORKSPACE/build/iceoryx_examples/icedelivery/iox-ex-publisher
-$tmux split-window -t 0 -h $WORKSPACE/build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
-$tmux split-window -t 0 -v $WORKSPACE/build/iceoryx_examples/iceoptions/iox-ex-publisher-with-options
+$tmux split-window -t 0 -h $WORKSPACE/build/iceoryx_examples/icehello/iox-cpp-publisher-helloworld
+$tmux split-window -t 1 -h $WORKSPACE/build/iceoryx_examples/icedelivery/iox-cpp-publisher
+$tmux split-window -t 0 -h $WORKSPACE/build/iceoryx_examples/icedelivery/iox-cpp-publisher-untyped
+$tmux split-window -t 0 -v $WORKSPACE/build/iceoryx_examples/iceoptions/iox-cpp-publisher-with-options
 $tmux split-window -t 2 -v $WORKSPACE/build/iceoryx_examples/icedelivery_in_c/iox-c-publisher
-$tmux split-window -t 4 -v $WORKSPACE/build/iceoryx_examples/icedelivery/iox-ex-subscriber
-$tmux split-window -t 6 -v $WORKSPACE/build/iceoryx_examples/iceoptions/iox-ex-subscriber-with-options
+$tmux split-window -t 4 -v $WORKSPACE/build/iceoryx_examples/icedelivery/iox-cpp-subscriber
+$tmux split-window -t 6 -v $WORKSPACE/build/iceoryx_examples/iceoptions/iox-cpp-subscriber-with-options
 
 $tmux attach -t $SESSION

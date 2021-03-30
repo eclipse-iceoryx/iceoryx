@@ -49,7 +49,7 @@ Next up, we include the publisher and the runtime:
 For the communication with the daemon RouDi, a runtime object is created. We use a unique string for identifying our application:
 
 ```cpp
-constexpr char APP_NAME[] = "iox-ex-publisher-helloworld";
+constexpr char APP_NAME[] = "iox-cpp-publisher-helloworld";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
@@ -127,7 +127,7 @@ The subscriber needs to have similar includes, but unlike the publisher `subscri
 As well as the publisher, also the subscriber needs to register with the daemon RouDi:
 
 ```cpp
-constexpr char APP_NAME[] = "iox-ex-subscriber-helloworld";
+constexpr char APP_NAME[] = "iox-cpp-subscriber-helloworld";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 

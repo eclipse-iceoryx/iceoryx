@@ -26,7 +26,7 @@ in the same way as the C++ ones.
 ## Code Walkthrough
 
 To run an example you need a running `iox-roudi` and the waitset publisher
-`iox-ex-c-waitset-publisher`. They are identical to the ones introduced
+`iox-c-waitset-publisher`. They are identical to the ones introduced
 in the [icedelivery C example](../icedelivery_in_c).
 
 ### Gateway
@@ -53,7 +53,7 @@ void subscriberCallback(iox_sub_t const subscriber)
 After we registered our runtime we create some stack storage for our WaitSet,
 initialize it and attach a `shutdownTrigger` to handle `CTRL-c`.
 ```c
-iox_runtime_init("iox-c-ex-waitset-gateway");
+iox_runtime_init("iox-c-waitset-gateway");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -73,7 +73,7 @@ iox_sub_options_t options;
 iox_sub_options_init(&options);
 options.historyRequest = 1U;
 options.queueCapacity = 256U;
-options.nodeName = "iox-c-ex-waitSet-gateway-node";
+options.nodeName = "iox-c-waitSet-gateway-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
@@ -138,7 +138,7 @@ data of the second group should be discarded.
 We start like in every example with creating the WaitSet and attaching the
 `shutdownTrigger`.
 ```c
-iox_runtime_init("iox-c-ex-waitset-grouping");
+iox_runtime_init("iox-c-waitset-grouping");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -156,7 +156,7 @@ iox_sub_options_t options;
 iox_sub_options_init(&options);
 options.historyRequest = 1U;
 options.queueCapacity = 256U;
-options.nodeName = "iox-c-ex-waitset-grouping-node";
+options.nodeName = "iox-c-waitset-grouping-node";
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
@@ -251,7 +251,7 @@ subscriber and then perform the calls on that subscriber directly.
 
 We start as usual, by creating a WaitSet and attach the `shutdownTrigger` to it.
 ```c
-iox_runtime_init("iox-c-ex-waitset-individual");
+iox_runtime_init("iox-c-waitset-individual");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -267,10 +267,10 @@ iox_sub_options_t options;
 iox_sub_options_init(&options);
 options.historyRequest = 1U;
 options.queueCapacity = 256U;
-options.nodeName = "iox-c-ex-waitset-individual-node1";
+options.nodeName = "iox-c-waitset-individual-node1";
     
 subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
-options.nodeName = "iox-c-ex-waitset-individual-node2";
+options.nodeName = "iox-c-waitset-individual-node2";
 subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
 iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
@@ -339,7 +339,7 @@ so that the event can directly call the cyclic call.
 
 We begin by creating the waitset and attach the `shutdownTrigger`.
 ```c
-iox_runtime_init("iox-c-ex-waitset-sync");
+iox_runtime_init("iox-c-waitset-sync");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);

@@ -18,9 +18,9 @@ iox-roudi
 # If build from scratch with script in tools
 $ICEORYX_ROOT/build/iox-roudi
 
-build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
+build/iceoryx_examples/icedelivery/iox-cpp-publisher
 
-build/iceoryx_examples/icedelivery/iox-ex-subscriber-untyped
+build/iceoryx_examples/icedelivery/iox-cpp-subscriber
 
 build/iox-introspection-client --all
 ```

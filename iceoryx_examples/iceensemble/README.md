@@ -19,13 +19,13 @@ The easiest way is the build all examples via `./tools/iceoryx_build_test.sh`. T
 ```sh
 ./build/iox-roudi
 
-./build/iceoryx_examples/icedelivery/iox-ex-publisher-helloworld
-./build/iceoryx_examples/icedelivery/iox-ex-publisher
-./build/iceoryx_examples/icedelivery/iox-ex-publisher-untyped
-./build/iceoryx_examples/iceoptions/iox-ex-publisher-with-options
+./build/iceoryx_examples/icedelivery/iox-cpp-publisher-helloworld
+./build/iceoryx_examples/icedelivery/iox-cpp-publisher
+./build/iceoryx_examples/icedelivery/iox-cpp-publisher-untyped
+./build/iceoryx_examples/iceoptions/iox-cpp-publisher-with-options
 ./build/iceoryx_examples/icedelivery_in_c/iox-c-publisher
 
-./build/iceoryx_examples/icedelivery/iox-ex-subscriber
+./build/iceoryx_examples/icedelivery/iox-cpp-subscriber
 ./build/iceoryx_examples/iceoptions/iox-subscriber-with-options
 ```
 

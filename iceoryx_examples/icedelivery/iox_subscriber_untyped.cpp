@@ -24,7 +24,7 @@
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-ex-subscriber-untyped";
+constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {

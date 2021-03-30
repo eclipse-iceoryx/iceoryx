@@ -34,7 +34,7 @@ static void sigHandler(int f_sig)
 
 void sending()
 {
-    iox_runtime_init("iox-ex-callbacks-publisher");
+    iox_runtime_init("iox-cpp-callbacks-publisher");
 
     iox_pub_options_t options;
     iox_pub_options_init(&options);

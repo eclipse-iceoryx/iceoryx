@@ -59,7 +59,7 @@ void subscriberCallback(iox_sub_t const subscriber)
 
 int main()
 {
-    iox_runtime_init("iox-c-ex-waitset-gateway");
+    iox_runtime_init("iox-c-waitset-gateway");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -81,7 +81,7 @@ int main()
     iox_sub_options_init(&options);
     options.historyRequest = 1U;
     options.queueCapacity = 256U;
-    options.nodeName = "iox-c-ex-waitSet-gateway-node";
+    options.nodeName = "iox-c-waitSet-gateway-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         iox_sub_t subscriber = iox_sub_init(

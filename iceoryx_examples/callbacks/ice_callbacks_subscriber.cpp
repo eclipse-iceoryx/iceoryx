@@ -31,7 +31,7 @@ iox::posix::Semaphore shutdownSemaphore =
     iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 
 std::atomic_bool keepRunning{true};
-constexpr char APP_NAME[] = "iox-ex-callbacks-subscriber";
+constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 
 iox::cxx::optional<CounterTopic> leftCache;
 iox::cxx::optional<CounterTopic> rightCache;

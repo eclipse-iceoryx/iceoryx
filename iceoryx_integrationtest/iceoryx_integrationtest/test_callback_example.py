@@ -49,7 +49,7 @@ def generate_test_description():
     callback_publisher_executable = os.path.join(
         colcon_prefix_path,
         'example_callbacks/bin/',
-        'iox-ex-callbacks-publisher'
+        'iox-cpp-callbacks-publisher'
     )
     callback_publisher_process = launch.actions.ExecuteProcess(
         cmd=[callback_publisher_executable],
@@ -58,7 +58,7 @@ def generate_test_description():
     callback_subscriber_executable = os.path.join(
         colcon_prefix_path,
         'example_callbacks/bin/',
-        'iox-ex-callbacks-subscriber'
+        'iox-cpp-callbacks-subscriber'
     )
     callback_subscriber_process = launch.actions.ExecuteProcess(
         cmd=[callback_subscriber_executable],

@@ -59,7 +59,7 @@ For the communication with RouDi a runtime object is created. The parameter of t
 unique string identifier for this publisher.
 
 ```cpp
-constexpr char APP_NAME[] = "iox-ex-publisher-untyped";
+constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
@@ -164,7 +164,7 @@ Similar to the publisher we need to include the runtime and the subscriber as we
 To make RouDi aware of the subscriber an runtime object is created, once again with a unique identifier string:
 
 ```cpp
-constexpr char APP_NAME[] = "iox-ex-subscriber-untyped";
+constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 

@@ -36,12 +36,12 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    iox_runtime_init("iox-c-ex-waitset-publisher");
+    iox_runtime_init("iox-c-waitset-publisher");
 
     iox_pub_options_t options;
     iox_pub_options_init(&options);
     options.historyCapacity = 0U;
-    options.nodeName = "iox-c-ex-waitset-publisher-node";
+    options.nodeName = "iox-c-waitset-publisher-node";
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", &options);
 

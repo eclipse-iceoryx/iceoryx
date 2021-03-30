@@ -74,7 +74,7 @@ int main()
            "which triggers the cyclicTrigger every second.\n");
 #endif
 
-    iox_runtime_init("iox-c-ex-waitset-sync");
+    iox_runtime_init("iox-c-waitset-sync");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);

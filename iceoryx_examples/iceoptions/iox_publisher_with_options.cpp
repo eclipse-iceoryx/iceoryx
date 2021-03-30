@@ -23,7 +23,7 @@
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-ex-publisher-with-options";
+constexpr char APP_NAME[] = "iox-cpp-publisher-with-options";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {

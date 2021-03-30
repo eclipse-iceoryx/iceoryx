@@ -114,7 +114,7 @@ This example consists of 5 use cases.
 ## Examples
 
 All our examples require a running `iox-roudi` and some data to receive which will be
-send by `iox-ex-waitset-publisher`. The publisher does not contain any _WaitSet_ specific
+send by `iox-cpp-waitset-publisher`. The publisher does not contain any _WaitSet_ specific
 logic and is explained in detail in the [icedelivery example](../icedelivery/).
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
