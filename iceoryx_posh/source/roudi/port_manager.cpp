@@ -586,7 +586,7 @@ cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
                                       const RuntimeName_t& runtimeName,
-                                      mepoo::MemoryManager* const payloadMemoryManager,
+                                      mepoo::MemoryManager* const dataSegmentMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
@@ -603,7 +603,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, payloadMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
+        service, dataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
         auto publisherPortData = maybePublisherPortData.value();

@@ -25,7 +25,7 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H = iox::mepoo::NoCustomHeader, typename base_subscriber_t = BaseSubscriber<>>
+template <typename T, typename H = iox::mepoo::NoUserHeader, typename base_subscriber_t = BaseSubscriber<>>
 class Subscriber : public base_subscriber_t
 {
     using SelfType = Subscriber<T, base_subscriber_t>;

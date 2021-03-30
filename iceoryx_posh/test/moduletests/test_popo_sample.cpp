@@ -42,7 +42,7 @@ struct DummyHeader
 };
 } // namespace
 
-template <typename T, typename H = iox::mepoo::NoCustomHeader>
+template <typename T, typename H = iox::mepoo::NoUserHeader>
 class MockPublisherInterface : public iox::popo::PublisherInterface<T, H>
 {
   public:
@@ -119,7 +119,7 @@ TEST_F(SampleTest, PublishingEmptySampleCallsErrorHandler)
     // ===== Cleanup ===== //
 }
 
-TEST_F(SampleTest, CallingGetCustomHeaderFromNonConstTypeReturnsCorrectAddress)
+TEST_F(SampleTest, CallingGetUserHeaderFromNonConstTypeReturnsCorrectAddress)
 {
     // ===== Setup ===== //
     ChunkMock<DummyData, DummyHeader> chunk;
@@ -133,15 +133,15 @@ TEST_F(SampleTest, CallingGetCustomHeaderFromNonConstTypeReturnsCorrectAddress)
     EXPECT_CALL(mockPublisherInterface, publishMock).Times(0);
 
     // ===== Test ===== //
-    auto& customHeader = sut.getCustomHeader();
+    auto& userHeader = sut.getUserHeader();
 
     // ===== Verify ===== //
-    ASSERT_EQ(&customHeader, chunk.customHeader());
+    ASSERT_EQ(&userHeader, chunk.userHeader());
 
     // ===== Cleanup ===== //
 }
 
-TEST_F(SampleTest, CallingGetCustomHeaderFromConstTypeReturnsCorrectAddress)
+TEST_F(SampleTest, CallingGetUserHeaderFromConstTypeReturnsCorrectAddress)
 {
     // ===== Setup ===== //
     ChunkMock<DummyData, DummyHeader> chunk;
@@ -150,10 +150,10 @@ TEST_F(SampleTest, CallingGetCustomHeaderFromConstTypeReturnsCorrectAddress)
     auto sut = iox::popo::Sample<const DummyData, const DummyHeader>(std::move(testSamplePtr));
 
     // ===== Test ===== //
-    auto& customHeader = sut.getCustomHeader();
+    auto& userHeader = sut.getUserHeader();
 
     // ===== Verify ===== //
-    ASSERT_EQ(&customHeader, chunk.customHeader());
+    ASSERT_EQ(&userHeader, chunk.userHeader());
 
     // ===== Cleanup ===== //
 }

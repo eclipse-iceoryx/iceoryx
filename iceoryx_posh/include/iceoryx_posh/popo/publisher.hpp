@@ -42,19 +42,19 @@ class PublisherInterface
   protected:
     PublisherInterface() = default;
 };
-template <typename T, typename H = mepoo::NoCustomHeader, typename base_publisher_t = BasePublisher<>>
+template <typename T, typename H = mepoo::NoUserHeader, typename base_publisher_t = BasePublisher<>>
 class Publisher : public base_publisher_t, public PublisherInterface<T, H>
 {
-    static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
-    static_assert(!std::is_void<H>::value, "Custom header must not be void.");
+    static_assert(!std::is_void<T>::value, "The type `T` must not be void. Use the UntypedPublisher for void types.");
+    static_assert(!std::is_void<H>::value, "The user-header `H` must not be void.");
 
-    static_assert(!std::is_const<T>::value, "The type must not be const.");
-    static_assert(!std::is_reference<T>::value, "The type must not be a reference.");
-    static_assert(!std::is_pointer<T>::value, "The type must not be a pointer.");
+    static_assert(!std::is_const<T>::value, "The type `T` must not be const.");
+    static_assert(!std::is_reference<T>::value, "The type `T` must not be a reference.");
+    static_assert(!std::is_pointer<T>::value, "The type `T` must not be a pointer.");
 
-    static_assert(!std::is_const<H>::value, "The custom header must not be const.");
-    static_assert(!std::is_reference<H>::value, "The custom header must not be a reference.");
-    static_assert(!std::is_pointer<H>::value, "The custom header must not be a pointer.");
+    static_assert(!std::is_const<H>::value, "The user-header `H` must not be const.");
+    static_assert(!std::is_reference<H>::value, "The user-header `H` must not be a reference.");
+    static_assert(!std::is_pointer<H>::value, "The user-header must `H` not be a pointer.");
 
   public:
     Publisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions = PublisherOptions());

@@ -46,8 +46,8 @@ void iox_pub_options_init(iox_pub_options_t* options)
     options->historyCapacity = publisherOptions.historyCapacity;
     options->nodeName = nullptr;
     options->offerOnCreate = publisherOptions.offerOnCreate;
-    options->customHeaderSize = IOX_C_CHUNK_NO_CUSTOM_HEADER_SIZE;
-    options->customHeaderAlignment = IOX_C_CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
+    options->userHeaderSize = IOX_C_CHUNK_NO_USER_HEADER_SIZE;
+    options->userHeaderAlignment = IOX_C_CHUNK_NO_USER_HEADER_ALIGNMENT;
 
     options->initCheck = PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -72,8 +72,8 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
 
-    me->m_customHeaderSize = IOX_C_CHUNK_NO_CUSTOM_HEADER_SIZE,
-    me->m_customHeaderAlignment = IOX_C_CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
+    me->m_userHeaderSize = IOX_C_CHUNK_NO_USER_HEADER_SIZE,
+    me->m_userHeaderAlignment = IOX_C_CHUNK_NO_USER_HEADER_ALIGNMENT;
 
     PublisherOptions publisherOptions;
 
@@ -94,8 +94,8 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
         }
         publisherOptions.offerOnCreate = options->offerOnCreate;
 
-        me->m_customHeaderSize = options->customHeaderSize;
-        me->m_customHeaderAlignment = options->customHeaderAlignment;
+        me->m_userHeaderSize = options->userHeaderSize;
+        me->m_userHeaderAlignment = options->userHeaderAlignment;
     }
 
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
@@ -114,20 +114,20 @@ void iox_pub_deinit(iox_pub_t const self)
     self->~cpp2c_Publisher();
 }
 
-iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize)
+iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const userPayload, const uint32_t userPayloadSize)
 {
-    return iox_pub_loan_aligned_chunk(self, chunk, payloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    return iox_pub_loan_aligned_chunk(self, userPayload, userPayloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
 }
 
 iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
-                                                void** const chunk,
-                                                const uint32_t payloadSize,
-                                                const uint32_t payloadAlignment)
+                                                void** const userPayload,
+                                                const uint32_t userPayloadSize,
+                                                const uint32_t userPayloadAlignment)
 {
-    auto result =
-        PublisherPortUser(self->m_portData)
-            .tryAllocateChunk(payloadSize, payloadAlignment, self->m_customHeaderSize, self->m_customHeaderAlignment)
-            .and_then([&chunk](ChunkHeader* h) { *chunk = h->payload(); });
+    auto result = PublisherPortUser(self->m_portData)
+                      .tryAllocateChunk(
+                          userPayloadSize, userPayloadAlignment, self->m_userHeaderSize, self->m_userHeaderAlignment)
+                      .and_then([&userPayload](ChunkHeader* h) { *userPayload = h->userPayload(); });
     if (result.has_error())
     {
         return cpp2c::AllocationResult(result.get_error());
@@ -136,21 +136,21 @@ iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
     return AllocationResult_SUCCESS;
 }
 
-void iox_pub_release_chunk(iox_pub_t const self, void* const chunk)
+void iox_pub_release_chunk(iox_pub_t const self, void* const userPayload)
 {
-    PublisherPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
+    PublisherPortUser(self->m_portData).releaseChunk(ChunkHeader::fromUserPayload(userPayload));
 }
 
-void iox_pub_publish_chunk(iox_pub_t const self, void* const chunk)
+void iox_pub_publish_chunk(iox_pub_t const self, void* const userPayload)
 {
-    PublisherPortUser(self->m_portData).sendChunk(ChunkHeader::fromPayload(chunk));
+    PublisherPortUser(self->m_portData).sendChunk(ChunkHeader::fromUserPayload(userPayload));
 }
 
 const void* iox_pub_loan_previous_chunk(iox_pub_t const self)
 {
     const void* returnValue = nullptr;
     PublisherPortUser(self->m_portData).tryGetPreviousChunk().and_then([&](const ChunkHeader* h) {
-        returnValue = h->payload();
+        returnValue = h->userPayload();
     });
     return returnValue;
 }

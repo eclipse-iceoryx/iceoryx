@@ -305,12 +305,10 @@ class Mepoo_IntegrationTest : public Test
         for (int idx = 0; idx < times; ++idx)
         {
             publisherPort
-                ->tryAllocateChunk(TOPIC_SIZE,
-                                   TOPIC_ALIGNMENT,
-                                   iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                   iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
+                ->tryAllocateChunk(
+                    TOPIC_SIZE, TOPIC_ALIGNMENT, iox::CHUNK_NO_USER_HEADER_SIZE, iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
                 .and_then([&](auto sample) {
-                    new (sample->payload()) Topic;
+                    new (sample->userPayload()) Topic;
                     publisherPort->sendChunk(sample);
                     m_roudiEnv->InterOpWait();
                 });

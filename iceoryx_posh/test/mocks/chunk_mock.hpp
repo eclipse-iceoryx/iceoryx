@@ -28,20 +28,20 @@
 #include <malloc.h>
 #endif
 
-template <typename Topic, typename CustomHeader = iox::mepoo::NoCustomHeader>
+template <typename Topic, typename UserHeader = iox::mepoo::NoUserHeader>
 class ChunkMock
 {
   public:
     ChunkMock()
     {
-        const uint32_t payloadSize = sizeof(Topic);
-        const uint32_t payloadAlignment = alignof(Topic);
-        const uint32_t customHeaderSize =
-            std::is_same<CustomHeader, iox::mepoo::NoCustomHeader>::value ? 0U : sizeof(CustomHeader);
-        const uint32_t customHeaderAlignment = alignof(CustomHeader);
+        const uint32_t userPayloadSize = sizeof(Topic);
+        const uint32_t userPayloadAlignment = alignof(Topic);
+        const uint32_t userHeaderSize =
+            std::is_same<UserHeader, iox::mepoo::NoUserHeader>::value ? 0U : sizeof(UserHeader);
+        const uint32_t userHeaderAlignment = alignof(UserHeader);
 
-        auto chunkSettingsResult =
-            iox::mepoo::ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(
+            userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
 
         iox::cxx::Ensures(!chunkSettingsResult.has_error() && "Invalid parameter for ChunkMock");
         auto& chunkSettings = chunkSettingsResult.value();
@@ -53,7 +53,7 @@ class ChunkMock
 
 
         m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader(chunkSize, chunkSettings);
-        m_topic = static_cast<Topic*>(m_chunkHeader->payload());
+        m_topic = static_cast<Topic*>(m_chunkHeader->userPayload());
     }
     ~ChunkMock()
     {
@@ -73,9 +73,9 @@ class ChunkMock
         return m_chunkHeader;
     }
 
-    CustomHeader* customHeader()
+    UserHeader* userHeader()
     {
-        return m_chunkHeader->customHeader<CustomHeader>();
+        return m_chunkHeader->userHeader<UserHeader>();
     }
 
     Topic* sample()

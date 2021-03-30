@@ -37,14 +37,14 @@ inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base
     {
         return cxx::error<ChunkReceiveResult>(result.get_error());
     }
-    return cxx::success<const void*>(result.value()->payload());
+    return cxx::success<const void*>(result.value()->userPayload());
 }
 
 template <typename base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::release(const void* chunk) noexcept
+inline void UntypedSubscriberImpl<base_subscriber_t>::release(const void* userPayload) noexcept
 {
-    auto header = mepoo::ChunkHeader::fromPayload(chunk);
-    port().releaseChunk(header);
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
+    port().releaseChunk(chunkHeader);
 }
 
 } // namespace popo

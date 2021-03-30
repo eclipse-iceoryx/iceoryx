@@ -83,7 +83,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                 this->setSegmentId(iox::rp::BaseRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
                                                                              sharedMemoryObject.getSizeInBytes()));
 
-                LogDebug() << "Roudi registered payload segment "
+                LogDebug() << "Roudi registered data segment "
                            << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
                            << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << m_segmentId;
             })

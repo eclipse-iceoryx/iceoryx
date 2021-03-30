@@ -25,81 +25,81 @@ using namespace ::testing;
 
 using iox::mepoo::ChunkHeader;
 using iox::mepoo::ChunkSettings;
-using PayloadOffset_t = iox::mepoo::ChunkHeader::PayloadOffset_t;
+using UserPayloadOffset_t = iox::mepoo::ChunkHeader::UserPayloadOffset_t;
 
 // BEGIN GETTER METHOD TESTS
 
-TEST(ChunkSettings_test, CallingPayloadSizeReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingUSerPayloadSizeReturnsCorrectValue)
 {
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{64U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{4U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{42U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_HEADER_SIZE{64U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{4U};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(sutResult.has_error());
     auto& sut = sutResult.value();
 
-    EXPECT_THAT(sut.payloadSize(), Eq(PAYLOAD_SIZE));
+    EXPECT_THAT(sut.userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
 }
 
-TEST(ChunkSettings_test, CallingPayloadAlignmentReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingUserPayloadAlignmentReturnsCorrectValue)
 {
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{64U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{4U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{42U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_HEADER_SIZE{64U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{4U};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(sutResult.has_error());
     auto& sut = sutResult.value();
 
-    EXPECT_THAT(sut.payloadAlignment(), Eq(PAYLOAD_ALIGNMENT));
+    EXPECT_THAT(sut.userPayloadAlignment(), Eq(USER_PAYLOAD_ALIGNMENT));
 }
 
-TEST(ChunkSettings_test, CallingCustomHeaderSizeReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingUserHeaderSizeReturnsCorrectValue)
 {
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{64U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{4U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{42U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_HEADER_SIZE{64U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{4U};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(sutResult.has_error());
     auto& sut = sutResult.value();
 
-    EXPECT_THAT(sut.customHeaderSize(), Eq(CUSTOM_HEADER_SIZE));
+    EXPECT_THAT(sut.userHeaderSize(), Eq(USER_HEADER_SIZE));
 }
 
-TEST(ChunkSettings_test, CallingCustomHeaderAlignmentReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingUserHeaderAlignmentReturnsCorrectValue)
 {
-    constexpr uint32_t PAYLOAD_SIZE{42U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{64U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{4U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{42U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_HEADER_SIZE{64U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{4U};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(sutResult.has_error());
     auto& sut = sutResult.value();
 
-    EXPECT_THAT(sut.customHeaderAlignment(), Eq(CUSTOM_HEADER_ALIGNMENT));
+    EXPECT_THAT(sut.userHeaderAlignment(), Eq(USER_HEADER_ALIGNMENT));
 }
 
 TEST(ChunkSettings_test, CallingRequiredChunkSizeReturnsCorrectValue)
 {
-    constexpr uint32_t PAYLOAD_SIZE{0U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
+    constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
 
     constexpr uint32_t EXPECTED_SIZE{sizeof(ChunkHeader)};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     ASSERT_FALSE(sutResult.has_error());
     auto& sut = sutResult.value();
 
@@ -110,43 +110,43 @@ TEST(ChunkSettings_test, CallingRequiredChunkSizeReturnsCorrectValue)
 
 // BEGIN EXCEEDING CHUNK SIZE TESTS
 
-TEST(ChunkSettings_test, NoCustomPayloadAlignmentAndTooLargePayload_Fails)
+TEST(ChunkSettings_test, NoCustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
 {
-    constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    constexpr uint32_t USER_PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
+    constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
     EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
 }
 
-TEST(ChunkSettings_test, CustomPayloadAlignmentAndTooLargePayload_Fails)
+TEST(ChunkSettings_test, CustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
 {
-    constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    constexpr uint32_t USER_PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
+    constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
     EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
 }
 
-TEST(ChunkSettings_test, CustomHeaderAndTooLargePayload_Fails)
+TEST(ChunkSettings_test, UserHeaderAndTooLargeUserPayload_Fails)
 {
-    constexpr uint32_t PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{8U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{8U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{std::numeric_limits<uint32_t>::max()};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
+    constexpr uint32_t USER_HEADER_SIZE{8U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
     EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
@@ -154,85 +154,84 @@ TEST(ChunkSettings_test, CustomHeaderAndTooLargePayload_Fails)
 
 // END EXCEEDING CHUNK SIZE TESTS
 
-// BEGIN INVALID CUSTOM HEADER AND PAYLOAD ALIGNMENT TESTS
+// BEGIN INVALID USER-HEADER AND USER-PAYLOAD ALIGNMENT TESTS
 
-TEST(ChunkSettings_test, PayloadAlignmentNotPowerOfTwo_Fails)
+TEST(ChunkSettings_test, UserPayloadAlignmentNotPowerOfTwo_Fails)
 {
-    constexpr uint32_t PAYLOAD_SIZE{0U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{13U};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{0U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{1U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{13U};
+    constexpr uint32_t USER_HEADER_SIZE{0U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{1U};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
     EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO));
 }
 
-TEST(ChunkSettings_test, CustomHeaderAlignmentNotPowerOfTwo_Fails)
+TEST(ChunkSettings_test, UserHeaderAlignmentNotPowerOfTwo_Fails)
 {
-    constexpr uint32_t PAYLOAD_SIZE{0U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{1U};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{0U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{42};
+    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{1U};
+    constexpr uint32_t USER_HEADER_SIZE{0U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{42};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
     EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO));
 }
 
-TEST(ChunkSettings_test, CustomHeaderAlignmentLargerThanChunkHeaderAlignment_Fails)
+TEST(ChunkSettings_test, UserHeaderAlignmentLargerThanChunkHeaderAlignment_Fails)
 {
-    constexpr uint32_t PAYLOAD_SIZE{0U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{8U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{2 * alignof(ChunkHeader)};
+    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
+    constexpr uint32_t USER_HEADER_SIZE{8U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{2 * alignof(ChunkHeader)};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(),
-                Eq(ChunkSettings::Error::CUSTOM_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT));
+    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT));
 }
 
-TEST(ChunkSettings_test, CustomHeaderSizeNotMultipleOfAlignment_Fails)
+TEST(ChunkSettings_test, UserHeaderSizeNotMultipleOfAlignment_Fails)
 {
-    constexpr uint32_t PAYLOAD_SIZE{0U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
-    constexpr uint32_t CUSTOM_HEADER_SIZE{12U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENT{8U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
+    constexpr uint32_t USER_HEADER_SIZE{12U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
 
     auto sutResult =
-        ChunkSettings::create(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::CUSTOM_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT));
+    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT));
 }
 
-// END INVALID CUSTOM HEADER AND PAYLOAD ALIGNMENT TESTS
+// END INVALID USER-HEADER AND USER-PAYLOAD ALIGNMENT TESTS
 
 // BEGIN PARAMETERIZED TESTS FOR REQUIRED CHUNK SIZE
 
 struct PayloadParams
 {
     uint32_t size{0U};
-    uint32_t alignment{iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT};
+    uint32_t alignment{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
 
     static constexpr uint32_t MAX_ALIGNMENT{1ULL << 31};
 };
 
-class ChunkSettings_AlteringPayloadWithoutCustomHeader : public ::testing::TestWithParam<PayloadParams>
+class ChunkSettings_AlteringUserPayloadWithoutUserHeader : public ::testing::TestWithParam<PayloadParams>
 {
 };
 
-// without a custom header, the payload is located right after the ChunkHeader, therefore the payload size and alignment
-// parameters are made dependant on the ChunkHeader
+// without a user-header, the user-payload is located right after the ChunkHeader, therefore the user-payload size and
+// alignment parameters are made dependant on the ChunkHeader
 INSTANTIATE_TEST_CASE_P(ChunkSettings_test,
-                        ChunkSettings_AlteringPayloadWithoutCustomHeader,
+                        ChunkSettings_AlteringUserPayloadWithoutUserHeader,
                         ::testing::Values(
                             // alignment = 0
                             PayloadParams{0U, 0U},
@@ -265,125 +264,125 @@ INSTANTIATE_TEST_CASE_P(ChunkSettings_test,
                             PayloadParams{sizeof(ChunkHeader), PayloadParams::MAX_ALIGNMENT},
                             PayloadParams{sizeof(ChunkHeader) * 42U, PayloadParams::MAX_ALIGNMENT}));
 
-TEST_P(ChunkSettings_AlteringPayloadWithoutCustomHeader, RequiredChunkSizeIsCorrect)
+TEST_P(ChunkSettings_AlteringUserPayloadWithoutUserHeader, RequiredChunkSizeIsCorrect)
 {
-    const auto payload = GetParam();
+    const auto userPayload = GetParam();
 
-    SCOPED_TRACE(std::string("Payload size = ") + std::to_string(payload.size) + std::string("; alignment = ")
-                 + std::to_string(payload.alignment));
+    SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayload.size) + std::string("; alignment = ")
+                 + std::to_string(userPayload.alignment));
 
-    const uint32_t expectedSize = [&payload] {
-        if (payload.alignment <= alignof(ChunkHeader))
+    const uint32_t expectedSize = [&userPayload] {
+        if (userPayload.alignment <= alignof(ChunkHeader))
         {
-            // payload is always adjacent
-            return static_cast<uint32_t>(sizeof(ChunkHeader)) + payload.size;
+            // user-payload is always adjacent
+            return static_cast<uint32_t>(sizeof(ChunkHeader)) + userPayload.size;
         }
         else
         {
-            // payload is not necessarily adjacent
-            auto prePayloadAlignmentOverhangOfChunkHeder = sizeof(ChunkHeader) - alignof(ChunkHeader);
-            return static_cast<uint32_t>(prePayloadAlignmentOverhangOfChunkHeder) + payload.alignment + payload.size;
+            // user-payload is not necessarily adjacent
+            auto preUserPayloadAlignmentOverhangOfChunkHeder = sizeof(ChunkHeader) - alignof(ChunkHeader);
+            return static_cast<uint32_t>(preUserPayloadAlignmentOverhangOfChunkHeder) + userPayload.alignment
+                   + userPayload.size;
         }
     }();
 
-    auto sutResult = ChunkSettings::create(payload.size, payload.alignment);
+    auto sutResult = ChunkSettings::create(userPayload.size, userPayload.alignment);
     ASSERT_FALSE(sutResult.has_error());
     auto& sut = sutResult.value();
 
     EXPECT_THAT(sut.requiredChunkSize(), Eq(expectedSize));
 }
 
-class ChunkSettings_AlteringPayloadWithCustomHeader : public ::testing::TestWithParam<PayloadParams>
+class ChunkSettings_AlteringUserPayloadWithUserHeader : public ::testing::TestWithParam<PayloadParams>
 {
 };
 
-// with a custom header, the payload is located right after the PayloadOffset_t, therefore the payload size and
-// alignment parameters are made dependant on the PayloadOffset_t
+// with a user-header, the user-payload is located right after the UserPayloadOffset_t, therefore the user-payload size
+// and alignment parameters are made dependant on the UserPayloadOffset_t
 INSTANTIATE_TEST_CASE_P(ChunkSettings_test,
-                        ChunkSettings_AlteringPayloadWithCustomHeader,
+                        ChunkSettings_AlteringUserPayloadWithUserHeader,
                         ::testing::Values(
                             // alignment = 0
                             PayloadParams{0U, 0U},
                             PayloadParams{1U, 0U},
-                            PayloadParams{sizeof(PayloadOffset_t), 0U},
-                            PayloadParams{sizeof(PayloadOffset_t) * 42U, 0U},
+                            PayloadParams{sizeof(UserPayloadOffset_t), 0U},
+                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, 0U},
                             // alignment = 1
                             PayloadParams{0U, 1U},
                             PayloadParams{1U, 1U},
-                            PayloadParams{sizeof(PayloadOffset_t), 1U},
-                            PayloadParams{sizeof(PayloadOffset_t) * 42U, 1U},
-                            // alignment = alignof(PayloadOffset_t) / 2
-                            PayloadParams{0U, alignof(PayloadOffset_t) / 2},
-                            PayloadParams{1U, alignof(PayloadOffset_t) / 2},
-                            PayloadParams{sizeof(PayloadOffset_t), alignof(PayloadOffset_t) / 2},
-                            PayloadParams{sizeof(PayloadOffset_t) * 42U, alignof(PayloadOffset_t) / 2},
-                            // alignment = alignof(PayloadOffset_t)
-                            PayloadParams{0U, alignof(PayloadOffset_t)},
-                            PayloadParams{1U, alignof(PayloadOffset_t)},
-                            PayloadParams{sizeof(PayloadOffset_t), alignof(PayloadOffset_t)},
-                            PayloadParams{sizeof(PayloadOffset_t) * 42U, alignof(PayloadOffset_t)},
-                            // alignment = alignof(PayloadOffset_t) * 2
-                            PayloadParams{0U, alignof(PayloadOffset_t) * 2},
-                            PayloadParams{1U, alignof(PayloadOffset_t) * 2},
-                            PayloadParams{sizeof(PayloadOffset_t), alignof(PayloadOffset_t) * 2},
-                            PayloadParams{sizeof(PayloadOffset_t) * 42U, alignof(PayloadOffset_t) * 2},
+                            PayloadParams{sizeof(UserPayloadOffset_t), 1U},
+                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, 1U},
+                            // alignment = alignof(UserPayloadOffset_t) / 2
+                            PayloadParams{0U, alignof(UserPayloadOffset_t) / 2},
+                            PayloadParams{1U, alignof(UserPayloadOffset_t) / 2},
+                            PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t) / 2},
+                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t) / 2},
+                            // alignment = alignof(UserPayloadOffset_t)
+                            PayloadParams{0U, alignof(UserPayloadOffset_t)},
+                            PayloadParams{1U, alignof(UserPayloadOffset_t)},
+                            PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t)},
+                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t)},
+                            // alignment = alignof(UserPayloadOffset_t) * 2
+                            PayloadParams{0U, alignof(UserPayloadOffset_t) * 2},
+                            PayloadParams{1U, alignof(UserPayloadOffset_t) * 2},
+                            PayloadParams{sizeof(UserPayloadOffset_t), alignof(UserPayloadOffset_t) * 2},
+                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, alignof(UserPayloadOffset_t) * 2},
                             // alignment = PayloadParams::MAX_ALIGNMENT
                             PayloadParams{0U, PayloadParams::MAX_ALIGNMENT},
                             PayloadParams{1U, PayloadParams::MAX_ALIGNMENT},
-                            PayloadParams{sizeof(PayloadOffset_t), PayloadParams::MAX_ALIGNMENT},
-                            PayloadParams{sizeof(PayloadOffset_t) * 42U, PayloadParams::MAX_ALIGNMENT}));
+                            PayloadParams{sizeof(UserPayloadOffset_t), PayloadParams::MAX_ALIGNMENT},
+                            PayloadParams{sizeof(UserPayloadOffset_t) * 42U, PayloadParams::MAX_ALIGNMENT}));
 
-uint32_t expectedChunkSizeWithCustomHeader(const PayloadParams& payload, uint32_t customHeaderSize)
+uint32_t expectedChunkSizeWithUserHeader(const PayloadParams& userPayload, uint32_t userHeaderSize)
 {
-    const uint32_t customHeaderSizeAndPaddingToBackOffset =
-        iox::algorithm::max(customHeaderSize, static_cast<uint32_t>(alignof(PayloadOffset_t)));
+    const uint32_t userHeaderSizeAndPaddingToBackOffset =
+        iox::algorithm::max(userHeaderSize, static_cast<uint32_t>(alignof(UserPayloadOffset_t)));
 
-    if (payload.alignment <= alignof(PayloadOffset_t))
+    if (userPayload.alignment <= alignof(UserPayloadOffset_t))
     {
-        // back-offset is always adjacent to the custom header (as much as possible with the alignment constraints)
-        constexpr uint32_t BACK_OFFSET_SIZE{sizeof(PayloadOffset_t)};
-        return static_cast<uint32_t>(sizeof(ChunkHeader)) + customHeaderSizeAndPaddingToBackOffset + BACK_OFFSET_SIZE
-               + payload.size;
+        // back-offset is always adjacent to the user-header (as much as possible with the alignment constraints)
+        constexpr uint32_t BACK_OFFSET_SIZE{sizeof(UserPayloadOffset_t)};
+        return static_cast<uint32_t>(sizeof(ChunkHeader)) + userHeaderSizeAndPaddingToBackOffset + BACK_OFFSET_SIZE
+               + userPayload.size;
     }
     else
     {
-        // back-offset is not necessarily adjacent to the custom header
-        const uint32_t paddingBytesAndBackOffsetSize = payload.alignment;
-        return static_cast<uint32_t>(sizeof(ChunkHeader)) + customHeaderSizeAndPaddingToBackOffset
-               + paddingBytesAndBackOffsetSize + payload.size;
+        // back-offset is not necessarily adjacent to the user-header
+        const uint32_t paddingBytesAndBackOffsetSize = userPayload.alignment;
+        return static_cast<uint32_t>(sizeof(ChunkHeader)) + userHeaderSizeAndPaddingToBackOffset
+               + paddingBytesAndBackOffsetSize + userPayload.size;
     }
 }
 
-TEST_P(ChunkSettings_AlteringPayloadWithCustomHeader,
-       MultipleCustomHeaderSizesAndAlignments_ResultsIn_RequiredChunkSizeIsCorrect)
+TEST_P(ChunkSettings_AlteringUserPayloadWithUserHeader,
+       MultipleUserHeaderSizesAndAlignments_ResultsIn_RequiredChunkSizeIsCorrect)
 {
-    const auto payload = GetParam();
+    const auto userPayload = GetParam();
 
-    SCOPED_TRACE(std::string("Payload size = ") + std::to_string(payload.size) + std::string("; alignment = ")
-                 + std::to_string(payload.alignment));
+    SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayload.size) + std::string("; alignment = ")
+                 + std::to_string(userPayload.alignment));
 
-    constexpr uint32_t CUSTOM_HEADER_SIZES[]{
-        1U, sizeof(ChunkHeader) / 2U, sizeof(ChunkHeader), sizeof(ChunkHeader) * 2U};
-    constexpr uint32_t CUSTOM_HEADER_ALIGNMENTS[]{0U, 1U, alignof(ChunkHeader) / 2U, alignof(ChunkHeader)};
+    constexpr uint32_t USER_HEADER_SIZES[]{1U, sizeof(ChunkHeader) / 2U, sizeof(ChunkHeader), sizeof(ChunkHeader) * 2U};
+    constexpr uint32_t USER_HEADER_ALIGNMENTS[]{0U, 1U, alignof(ChunkHeader) / 2U, alignof(ChunkHeader)};
 
-    for (const auto customHeaderAlignment : CUSTOM_HEADER_ALIGNMENTS)
+    for (const auto userHeaderAlignment : USER_HEADER_ALIGNMENTS)
     {
-        SCOPED_TRACE(std::string("Custom header alignment = ") + std::to_string(customHeaderAlignment));
+        SCOPED_TRACE(std::string("User-Header alignment = ") + std::to_string(userHeaderAlignment));
 
-        for (const auto customHeaderSize : CUSTOM_HEADER_SIZES)
+        for (const auto userHeaderSize : USER_HEADER_SIZES)
         {
-            SCOPED_TRACE(std::string("Custom header size = ") + std::to_string(customHeaderSize));
+            SCOPED_TRACE(std::string("User-Header size = ") + std::to_string(userHeaderSize));
 
-            if (customHeaderSize < customHeaderAlignment)
+            if (userHeaderSize < userHeaderAlignment)
             {
                 // the size must always be a multiple of the alignment
                 continue;
             }
 
-            const uint32_t expectedSize = expectedChunkSizeWithCustomHeader(payload, customHeaderSize);
+            const uint32_t expectedSize = expectedChunkSizeWithUserHeader(userPayload, userHeaderSize);
 
             auto sutResult =
-                ChunkSettings::create(payload.size, payload.alignment, customHeaderSize, customHeaderAlignment);
+                ChunkSettings::create(userPayload.size, userPayload.alignment, userHeaderSize, userHeaderAlignment);
             ASSERT_FALSE(sutResult.has_error());
             auto& sut = sutResult.value();
 

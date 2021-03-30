@@ -49,20 +49,21 @@ class UntypedSubscriberImpl : public base_subscriber_t
 
     ///
     /// @brief Take the chunk from the top of the receive queue.
-    /// @return The payload pointer of the chunk taken.
-    /// @details No automatic cleanup of the associated chunk is performed.
+    /// @return The user-payload pointer of the chunk taken.
+    /// @details No automatic cleanup of the associated chunk is performed
+    ///          and must be manually done by calling `release`
     ///
     cxx::expected<const void*, ChunkReceiveResult> take() noexcept;
 
     ///
-    /// @brief Releases the ownership of the chunk provided by the payload pointer.
-    /// @param chunk pointer to the payload of the chunk to be released
-    /// @details The chunk must have been previously provided by take and
+    /// @brief Releases the ownership of the chunk provided by the user-payload pointer.
+    /// @param userPayload pointer to the user-payload of the chunk to be released
+    /// @details The userPayload pointer must have been previously provided by take and
     ///          not have been already released.
     ///          The chunk must not be accessed afterwards as its memory may have
     ///          been reclaimed.
     ///
-    void release(const void* chunk) noexcept;
+    void release(const void* userPayload) noexcept;
 
   protected:
     using BaseSubscriber::port;

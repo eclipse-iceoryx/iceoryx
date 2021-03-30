@@ -70,7 +70,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                                           posix::OwnerShip::OPEN_EXISTING,
                                           posix::SharedMemoryObject::NO_ADDRESS_HINT)
             .and_then([this, &segment](auto& sharedMemoryObject) {
-                if (static_cast<uint32_t>(m_payloadShmObjects.size()) >= MAX_SHM_SEGMENTS)
+                if (static_cast<uint32_t>(m_dataShmObjects.size()) >= MAX_SHM_SEGMENTS)
                 {
                     errorHandler(Error::kPOSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
@@ -78,11 +78,11 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                 rp::BaseRelativePointer::registerPtr(
                     segment.m_segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
 
-                LogInfo() << "Application registered payload segment "
-                          << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
-                          << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
+                LogDebug() << "Application registered data segment "
+                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
+                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
 
-                m_payloadShmObjects.emplace_back(std::move(sharedMemoryObject));
+                m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })
             .or_else([](auto&) { errorHandler(Error::kPOSH__SHM_APP_SEGMENT_MAPP_ERR); });
     }

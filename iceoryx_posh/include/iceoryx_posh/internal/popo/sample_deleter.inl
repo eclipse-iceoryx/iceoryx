@@ -31,9 +31,9 @@ SampleDeleter<Port>::SampleDeleter(Port& port)
 
 template <typename Port>
 template <typename T>
-void SampleDeleter<Port>::operator()(T* const payload) const
+void SampleDeleter<Port>::operator()(T* const userPayload) const
 {
-    auto header = iox::mepoo::ChunkHeader::fromPayload(payload);
+    auto header = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
     m_port->releaseChunk(header);
 }
 

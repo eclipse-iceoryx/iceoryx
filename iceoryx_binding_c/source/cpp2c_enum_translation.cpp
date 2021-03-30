@@ -65,8 +65,8 @@ iox_AllocationResult AllocationResult(const iox::popo::AllocationError value)
         return AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL;
     case AllocationError::INVALID_CHUNK:
         return AllocationResult_INVALID_CHUNK;
-    case AllocationError::INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER:
-        return AllocationResult_INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER;
+    case AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
+        return AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER;
     default:
         return AllocationResult_UNDEFINED_ERROR;
     }

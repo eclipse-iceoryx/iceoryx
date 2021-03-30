@@ -53,29 +53,29 @@ class MemoryManager
     MemoryManager& operator=(MemoryManager&&) = delete;
     ~MemoryManager() noexcept = default;
 
-    void configureMemoryManager(const MePooConfig& f_mePooConfig,
-                                posix::Allocator& f_managementAllocator,
-                                posix::Allocator& f_payloadAllocator) noexcept;
+    void configureMemoryManager(const MePooConfig& mePooConfig,
+                                posix::Allocator& managementAllocator,
+                                posix::Allocator& chunkMemoryAllocator) noexcept;
 
     SharedChunk getChunk(const ChunkSettings& chunkSettings) noexcept;
 
     uint32_t getNumberOfMemPools() const noexcept;
 
-    MemPoolInfo getMemPoolInfo(uint32_t f_index) const noexcept;
+    MemPoolInfo getMemPoolInfo(uint32_t index) const noexcept;
 
-    static uint64_t requiredChunkMemorySize(const MePooConfig& f_mePooConfig) noexcept;
-    static uint64_t requiredManagementMemorySize(const MePooConfig& f_mePooConfig) noexcept;
-    static uint64_t requiredFullMemorySize(const MePooConfig& f_mePooConfig) noexcept;
+    static uint64_t requiredChunkMemorySize(const MePooConfig& mePooConfig) noexcept;
+    static uint64_t requiredManagementMemorySize(const MePooConfig& mePooConfig) noexcept;
+    static uint64_t requiredFullMemorySize(const MePooConfig& mePooConfig) noexcept;
 
   private:
     static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
     void printMemPoolVector(log::LogStream& log) const noexcept;
-    void addMemPool(posix::Allocator& f_managementAllocator,
-                    posix::Allocator& f_payloadAllocator,
-                    const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
-                    const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks) noexcept;
-    void generateChunkManagementPool(posix::Allocator& f_managementAllocator) noexcept;
+    void addMemPool(posix::Allocator& managementAllocator,
+                    posix::Allocator& chunkMemoryAllocator,
+                    const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> chunkPayloadSize,
+                    const cxx::greater_or_equal<uint32_t, 1> numberOfChunks) noexcept;
+    void generateChunkManagementPool(posix::Allocator& managementAllocator) noexcept;
 
   private:
     bool m_denyAddMemPool{false};

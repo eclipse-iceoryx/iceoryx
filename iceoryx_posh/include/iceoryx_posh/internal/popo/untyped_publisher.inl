@@ -30,26 +30,26 @@ inline UntypedPublisherImpl<H, base_publisher_t>::UntypedPublisherImpl(const cap
 }
 
 template <typename H, typename base_publisher_t>
-inline void UntypedPublisherImpl<H, base_publisher_t>::publish(const void* chunk) noexcept
+inline void UntypedPublisherImpl<H, base_publisher_t>::publish(const void* userPayload) noexcept
 {
-    auto header = mepoo::ChunkHeader::fromPayload(chunk);
-    port().sendChunk(header);
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
+    port().sendChunk(chunkHeader);
 }
 
 template <typename H, typename base_publisher_t>
 inline cxx::expected<void*, AllocationError>
-UntypedPublisherImpl<H, base_publisher_t>::loan(const uint32_t payloadSize, const uint32_t payloadAlignment) noexcept
+UntypedPublisherImpl<H, base_publisher_t>::loan(const uint32_t userPayloadSize, const uint32_t userPayloadAlignment) noexcept
 {
-    static constexpr uint32_t CUSTOM_HEADER_SIZE{std::is_same<H, mepoo::NoCustomHeader>::value ? 0U : sizeof(H)};
+    static constexpr uint32_t USER_HEADER_SIZE{std::is_same<H, mepoo::NoUserHeader>::value ? 0U : sizeof(H)};
 
-    auto result = port().tryAllocateChunk(payloadSize, payloadAlignment, CUSTOM_HEADER_SIZE, alignof(H));
+    auto result = port().tryAllocateChunk(userPayloadSize, userPayloadAlignment, USER_HEADER_SIZE, alignof(H));
     if (result.has_error())
     {
         return cxx::error<AllocationError>(result.get_error());
     }
     else
     {
-        return cxx::success<void*>(result.value()->payload());
+        return cxx::success<void*>(result.value()->userPayload());
     }
 }
 
@@ -59,16 +59,16 @@ cxx::optional<void*> UntypedPublisherImpl<H, base_publisher_t>::loanPreviousChun
     auto result = port().tryGetPreviousChunk();
     if (result.has_value())
     {
-        return result.value()->payload();
+        return result.value()->userPayload();
     }
     return cxx::nullopt;
 }
 
 template <typename H, typename base_publisher_t>
-inline void UntypedPublisherImpl<H, base_publisher_t>::release(const void* chunk) noexcept
+inline void UntypedPublisherImpl<H, base_publisher_t>::release(const void* userPayload) noexcept
 {
-    auto header = mepoo::ChunkHeader::fromPayload(chunk);
-    port().releaseChunk(header);
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
+    port().releaseChunk(chunkHeader);
 }
 
 } // namespace popo
