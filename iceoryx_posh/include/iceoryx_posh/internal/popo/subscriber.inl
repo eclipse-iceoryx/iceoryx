@@ -22,17 +22,17 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H, typename base_subscriber_t>
-inline Subscriber<T, H, base_subscriber_t>::Subscriber(const capro::ServiceDescription& service,
+template <typename T, typename H, typename BaseSubscriber_t>
+inline Subscriber<T, H, BaseSubscriber_t>::Subscriber(const capro::ServiceDescription& service,
                                                        const SubscriberOptions& subscriberOptions)
-    : base_subscriber_t(service, subscriberOptions)
+    : BaseSubscriber_t(service, subscriberOptions)
 {
 }
 
-template <typename T, typename H, typename base_subscriber_t>
-inline cxx::expected<Sample<const T, const H>, ChunkReceiveResult> Subscriber<T, H, base_subscriber_t>::take() noexcept
+template <typename T, typename H, typename BaseSubscriber_t>
+inline cxx::expected<Sample<const T, const H>, ChunkReceiveResult> Subscriber<T, H, BaseSubscriber_t>::take() noexcept
 {
-    auto result = base_subscriber_t::takeChunk();
+    auto result = BaseSubscriber_t::takeChunk();
     if (result.has_error())
     {
         return cxx::error<ChunkReceiveResult>(result.get_error());

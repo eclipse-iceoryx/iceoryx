@@ -42,8 +42,8 @@ class PublisherInterface
   protected:
     PublisherInterface() = default;
 };
-template <typename T, typename H = mepoo::NoUserHeader, typename base_publisher_t = BasePublisher<>>
-class Publisher : public base_publisher_t, public PublisherInterface<T, H>
+template <typename T, typename H = mepoo::NoUserHeader, typename BasePublisher_t = BasePublisher<>>
+class Publisher : public BasePublisher_t, public PublisherInterface<T, H>
 {
     static_assert(!std::is_void<T>::value, "The type `T` must not be void. Use the UntypedPublisher for void types.");
     static_assert(!std::is_void<H>::value, "The user-header `H` must not be void.");
@@ -102,14 +102,14 @@ class Publisher : public base_publisher_t, public PublisherInterface<T, H>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
   protected:
-    using base_publisher_t::port;
+    using BasePublisher_t::port;
 
   private:
     Sample<T, H> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
 
     cxx::expected<Sample<T, H>, AllocationError> loanSample() noexcept;
 
-    using PublisherSampleDeleter = SampleDeleter<typename base_publisher_t::PortType>;
+    using PublisherSampleDeleter = SampleDeleter<typename BasePublisher_t::PortType>;
     PublisherSampleDeleter m_sampleDeleter{port()};
 };
 

@@ -25,10 +25,10 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename H = iox::mepoo::NoUserHeader, typename base_subscriber_t = BaseSubscriber<>>
-class Subscriber : public base_subscriber_t
+template <typename T, typename H = iox::mepoo::NoUserHeader, typename BaseSubscriber_t = BaseSubscriber<>>
+class Subscriber : public BaseSubscriber_t
 {
-    using SelfType = Subscriber<T, base_subscriber_t>;
+    using SelfType = Subscriber<T, BaseSubscriber_t>;
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
   public:
@@ -48,11 +48,11 @@ class Subscriber : public base_subscriber_t
     ///
     cxx::expected<Sample<const T, const H>, ChunkReceiveResult> take() noexcept;
 
-    using PortType = typename base_subscriber_t::PortType;
+    using PortType = typename BaseSubscriber_t::PortType;
     using SubscriberSampleDeleter = SampleDeleter<PortType>;
 
   protected:
-    using base_subscriber_t::port;
+    using BaseSubscriber_t::port;
 
   private:
     SubscriberSampleDeleter m_sampleDeleter{port()};

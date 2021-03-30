@@ -32,12 +32,12 @@ class Void
 {
 };
 
-template <typename base_subscriber_t = BaseSubscriber<>>
-class UntypedSubscriberImpl : public base_subscriber_t
+template <typename BaseSubscriber_t = BaseSubscriber<>>
+class UntypedSubscriberImpl : public BaseSubscriber_t
 {
   public:
-    using BaseSubscriber = base_subscriber_t;
-    using SelfType = UntypedSubscriberImpl<base_subscriber_t>;
+    using BaseSubscriber = BaseSubscriber_t;
+    using SelfType = UntypedSubscriberImpl<BaseSubscriber_t>;
 
     UntypedSubscriberImpl(const capro::ServiceDescription& service,
                           const SubscriberOptions& subscriberOptions = SubscriberOptions());

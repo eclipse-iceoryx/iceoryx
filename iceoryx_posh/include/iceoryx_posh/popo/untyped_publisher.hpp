@@ -25,8 +25,8 @@ namespace iox
 {
 namespace popo
 {
-template <typename H = mepoo::NoUserHeader, typename base_publisher_t = BasePublisher<>>
-class UntypedPublisherImpl : public base_publisher_t
+template <typename H = mepoo::NoUserHeader, typename BasePublisher_t = BasePublisher<>>
+class UntypedPublisherImpl : public BasePublisher_t
 {
     static_assert(!std::is_const<H>::value, "The user-header must not be const.");
     static_assert(!std::is_reference<H>::value, "The user-header must not be a reference.");
@@ -77,7 +77,7 @@ class UntypedPublisherImpl : public base_publisher_t
     void release(const void* userPayload) noexcept;
 
   protected:
-    using base_publisher_t::port;
+    using BasePublisher_t::port;
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;
