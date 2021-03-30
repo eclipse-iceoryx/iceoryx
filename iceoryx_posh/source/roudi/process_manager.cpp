@@ -201,6 +201,7 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 
             if (process.isMonitored()) // is it the same process or a duplicate?
             {
+                /// @todo Process death not yet detected, combine monitoring and !monitoring case
                 // process exists and is monitored - we rely on monitoring for removal
                 LogWarn() << "Received REG from " << name
                           << ", but another application with this name is already registered";
@@ -209,9 +210,10 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(
                     runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
+                // writes to old app aka zombie here
                 process.sendViaIpcChannel(sendBuffer);
                 returnValue = false;
-            }
+            } 
             else
             {
                 // process exists and is not monitored, we expect that the existing process crashed
