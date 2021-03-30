@@ -47,7 +47,9 @@ void iox_pub_options_init(iox_pub_options_t* options)
     options->historyCapacity = publisherOptions.historyCapacity;
     options->nodeName = nullptr;
     options->offerOnCreate = publisherOptions.offerOnCreate;
-    options->deliveryQueueFullPolicy = cpp2c::SubscriberTooSlowPolicy(publisherOptions.deliveryQueueFullPolicy);
+    options->deliveryQueueFullPolicy = cpp2c::subscriberTooSlowPolicy(publisherOptions.deliveryQueueFullPolicy);
+    options->customHeaderSize = IOX_C_CHUNK_NO_CUSTOM_HEADER_SIZE;
+    options->customHeaderAlignment = IOX_C_CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
 
     options->initCheck = PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -63,8 +65,18 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
                        const char* const event,
                        const iox_pub_options_t* const options)
 {
+    if (self == nullptr)
+    {
+        LogWarn() << "publisher initialization skipped - null pointer provided for iox_pub_storage_t";
+        return nullptr;
+    }
+
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
+
+    me->m_customHeaderSize = IOX_C_CHUNK_NO_CUSTOM_HEADER_SIZE,
+    me->m_customHeaderAlignment = IOX_C_CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
+
     PublisherOptions publisherOptions;
 
     // use default options otherwise
@@ -83,7 +95,10 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
             publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
         publisherOptions.offerOnCreate = options->offerOnCreate;
-        publisherOptions.deliveryQueueFullPolicy = c2cpp::SubscriberTooSlowPolicy(options->deliveryQueueFullPolicy);
+        publisherOptions.deliveryQueueFullPolicy = c2cpp::subscriberTooSlowPolicy(options->deliveryQueueFullPolicy);
+
+        me->m_customHeaderSize = options->customHeaderSize;
+        me->m_customHeaderAlignment = options->customHeaderAlignment;
     }
 
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
@@ -104,9 +119,18 @@ void iox_pub_deinit(iox_pub_t const self)
 
 iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize)
 {
-    auto result = PublisherPortUser(self->m_portData)
-                      .tryAllocateChunk(payloadSize, CHUNK_DEFAULT_PAYLOAD_ALIGNMENT)
-                      .and_then([&chunk](ChunkHeader* h) { *chunk = h->payload(); });
+    return iox_pub_loan_aligned_chunk(self, chunk, payloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+}
+
+iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
+                                                void** const chunk,
+                                                const uint32_t payloadSize,
+                                                const uint32_t payloadAlignment)
+{
+    auto result =
+        PublisherPortUser(self->m_portData)
+            .tryAllocateChunk(payloadSize, payloadAlignment, self->m_customHeaderSize, self->m_customHeaderAlignment)
+            .and_then([&chunk](ChunkHeader* h) { *chunk = h->payload(); });
     if (result.has_error())
     {
         return cpp2c::AllocationResult(result.get_error());

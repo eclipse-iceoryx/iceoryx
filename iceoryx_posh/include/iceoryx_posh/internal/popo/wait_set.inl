@@ -53,11 +53,6 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
                                    const uint64_t eventId,
                                    const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    if (!hasTriggeredCallback)
-    {
-        return cxx::error<WaitSetError>(WaitSetError::PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET);
-    }
-
     for (auto& currentTrigger : m_triggerArray)
     {
         if (currentTrigger && currentTrigger->isLogicalEqualTo(&eventOrigin, hasTriggeredCallback))
@@ -74,8 +69,21 @@ WaitSet<Capacity>::attachEventImpl(T& eventOrigin,
     }
 
 
-    m_triggerArray[*index].emplace(
-        &eventOrigin, hasTriggeredCallback, invalidationCallback, eventId, eventCallback, *index);
+    if (hasTriggeredCallback)
+    {
+        m_triggerArray[*index].emplace(StateBasedTrigger,
+                                       &eventOrigin,
+                                       hasTriggeredCallback,
+                                       invalidationCallback,
+                                       eventId,
+                                       eventCallback,
+                                       *index);
+    }
+    else
+    {
+        m_triggerArray[*index].emplace(
+            EventBasedTrigger, &eventOrigin, invalidationCallback, eventId, eventCallback, *index);
+    }
 
     return cxx::success<uint64_t>(*index);
 }
@@ -186,7 +194,8 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
             {
                 cxx::Expects(triggers.push_back(&m_triggerArray[index]->getEventInfo()));
             }
-            else
+
+            if (!trigger || (trigger && trigger->getTriggerType() == TriggerType::EVENT_BASED))
             {
                 m_activeNotifications.erase(m_activeNotifications.begin() + i);
             }

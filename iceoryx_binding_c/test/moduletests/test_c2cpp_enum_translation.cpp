@@ -23,27 +23,27 @@ using namespace ::testing;
 
 TEST(c2cpp_enum_translation_test, QueueFullPolicy)
 {
-    EXPECT_EQ(c2cpp::QueueFullPolicy(QueueFullPolicy_BLOCK_PUBLISHER), iox::popo::QueueFullPolicy::BLOCK_PUBLISHER);
-    EXPECT_EQ(c2cpp::QueueFullPolicy(QueueFullPolicy_DISCARD_OLDEST_DATA),
+    EXPECT_EQ(c2cpp::queueFullPolicy(QueueFullPolicy_BLOCK_PUBLISHER), iox::popo::QueueFullPolicy::BLOCK_PUBLISHER);
+    EXPECT_EQ(c2cpp::queueFullPolicy(QueueFullPolicy_DISCARD_OLDEST_DATA),
               iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA);
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(c2cpp::QueueFullPolicy(static_cast<iox_QueueFullPolicy>(-1)),
+    EXPECT_EQ(c2cpp::queueFullPolicy(static_cast<iox_QueueFullPolicy>(-1)),
               iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA);
 #pragma GCC diagnostic pop
 }
 
 TEST(c2cpp_enum_translation_test, SubscriberTooSlowPolicy)
 {
-    EXPECT_EQ(c2cpp::SubscriberTooSlowPolicy(SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER),
+    EXPECT_EQ(c2cpp::subscriberTooSlowPolicy(SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER),
               iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
-    EXPECT_EQ(c2cpp::SubscriberTooSlowPolicy(SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA),
+    EXPECT_EQ(c2cpp::subscriberTooSlowPolicy(SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA),
               iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(c2cpp::SubscriberTooSlowPolicy(static_cast<iox_SubscriberTooSlowPolicy>(-1)),
+    EXPECT_EQ(c2cpp::subscriberTooSlowPolicy(static_cast<iox_SubscriberTooSlowPolicy>(-1)),
               iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA);
 #pragma GCC diagnostic pop
 }

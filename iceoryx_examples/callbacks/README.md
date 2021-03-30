@@ -1,11 +1,18 @@
 # Listener (or how to use callbacks with iceoryx)
 
+## Thread Safety
+The Listener is thread-safe and can be used without restrictions.
+But be aware that all provided callbacks are executed concurrently 
+in the background thread of the Listener. If you access structures
+inside this callback you have to either ensure that you are the only
+one accessing it or that it is accessed with a guard like a `std::mutex`.
+
 ## Introduction
 
 For an introduction into the terminology please read the Glossary in the
 [WaitSet C++ example](../waitset).
 
-The Listener is a completely threadsafe construct which reacts to events by 
+The Listener is a completely thread-safe construct which reacts to events by 
 executing registered callbacks in a background thread. Events can be emitted by 
 _EventOrigins_ like a subscriber or a user trigger. Some of the _EventOrigins_ 
 like the subscriber can hereby emit more than one event type.
@@ -14,11 +21,11 @@ The interface of a listener consists of two methods: `attachEvent` to attach a
 new event with a callback and `detachEvent`. These two methods can be called 
 concurrently, even from inside a callback which was triggered by an event!
 
-## Expected output
+## Expected Output
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 
-## Code walkthrough
+## Code Walkthrough
 
 Let's say we have an application which offers us two distinct services:
 `Radar.FrontLeft.Counter` and `Rader.FrontRight.Counter`. Every time we have 

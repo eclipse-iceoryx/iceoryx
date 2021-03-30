@@ -19,7 +19,7 @@
 
 namespace c2cpp
 {
-iox::popo::SubscriberTooSlowPolicy SubscriberTooSlowPolicy(const ENUM iox_SubscriberTooSlowPolicy policy)
+iox::popo::SubscriberTooSlowPolicy subscriberTooSlowPolicy(const ENUM iox_SubscriberTooSlowPolicy policy)
 {
     switch (policy)
     {
@@ -30,7 +30,7 @@ iox::popo::SubscriberTooSlowPolicy SubscriberTooSlowPolicy(const ENUM iox_Subscr
     }
 }
 
-iox::popo::QueueFullPolicy QueueFullPolicy(const ENUM iox_QueueFullPolicy policy)
+iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy)
 {
     switch (policy)
     {

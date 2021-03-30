@@ -34,12 +34,12 @@ class PoshRuntimeTestAccess : public PoshRuntime
     /// @attention do not use the setRuntimeFactory in a test with a running RouDiEnvironment
     using PoshRuntime::setRuntimeFactory;
 
-    PoshRuntimeTestAccess(iox::cxx::optional<const iox::ProcessName_t*> s)
+    PoshRuntimeTestAccess(iox::cxx::optional<const iox::RuntimeName_t*> s)
         : PoshRuntime(s)
     {
     }
 
-    static PoshRuntime& getDefaultRuntime(iox::cxx::optional<const iox::ProcessName_t*> name)
+    static PoshRuntime& getDefaultRuntime(iox::cxx::optional<const iox::RuntimeName_t*> name)
     {
         return PoshRuntime::defaultRuntimeFactory(name);
     }
@@ -53,7 +53,7 @@ class PoshRuntimeTestAccess : public PoshRuntime
 namespace
 {
 bool callbackWasCalled = false;
-PoshRuntime& testFactory(iox::cxx::optional<const iox::ProcessName_t*> name)
+PoshRuntime& testFactory(iox::cxx::optional<const iox::RuntimeName_t*> name)
 {
     callbackWasCalled = true;
     return PoshRuntimeTestAccess::getDefaultRuntime(name);
@@ -91,7 +91,7 @@ class PoshRuntime_test : public Test
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    const iox::ProcessName_t m_runtimeName{"publisher"};
+    const iox::RuntimeName_t m_runtimeName{"publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
     IpcMessage m_sendBuffer;
@@ -106,23 +106,23 @@ bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
-    iox::ProcessName_t appName("valid_name");
+    iox::RuntimeName_t appName("valid_name");
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntime::initRuntime(appName); });
 }
 
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
-    std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH, 's');
+    std::string maxValidName(iox::MAX_RUNTIME_NAME_LENGTH, 's');
 
-    auto& runtime = PoshRuntime::initRuntime(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
+    auto& runtime = PoshRuntime::initRuntime(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, maxValidName));
 
     EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
 
 TEST_F(PoshRuntime_test, NoAppName)
 {
-    const iox::ProcessName_t invalidAppName("");
+    const iox::RuntimeName_t invalidAppName("");
 
     EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
                  "Cannot initialize runtime. Application name must not be empty!");
@@ -130,7 +130,7 @@ TEST_F(PoshRuntime_test, NoAppName)
 
 TEST_F(PoshRuntime_test, LeadingSlashAppName)
 {
-    const iox::ProcessName_t invalidAppName = "/miau";
+    const iox::RuntimeName_t invalidAppName = "/miau";
 
     EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
                  "Cannot initialize runtime. Please remove leading slash from Application name /miau");
@@ -148,7 +148,7 @@ TEST(PoshRuntime, AppNameEmpty)
 
 TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 {
-    const iox::ProcessName_t appname = "app";
+    const iox::RuntimeName_t appname = "app";
 
     auto& sut = PoshRuntime::initRuntime(appname);
 
@@ -161,7 +161,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
     const auto applicationPortData = m_runtime->getMiddlewareApplication();
 
     ASSERT_NE(nullptr, applicationPortData);
-    EXPECT_EQ(m_runtimeName, applicationPortData->m_processName);
+    EXPECT_EQ(m_runtimeName, applicationPortData->m_runtimeName);
     EXPECT_EQ(iox::capro::ServiceDescription(0U, 0U, 0U), applicationPortData->m_serviceDescription);
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
 }
@@ -211,7 +211,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
     const auto interfacePortData = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_nodeName);
 
     ASSERT_NE(nullptr, interfacePortData);
-    EXPECT_EQ(m_runtimeName, interfacePortData->m_processName);
+    EXPECT_EQ(m_runtimeName, interfacePortData->m_runtimeName);
     EXPECT_EQ(iox::capro::ServiceDescription(0U, 0U, 0U), interfacePortData->m_serviceDescription);
     EXPECT_EQ(false, interfacePortData->m_toBeDestroyed);
     EXPECT_EQ(true, interfacePortData->m_doInitialOfferForward);
@@ -594,8 +594,8 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
 
     auto nodeData = m_runtime->createNode(nodeProperty);
 
-    EXPECT_EQ(m_runtimeName, nodeData->m_process);
-    EXPECT_EQ(m_nodeName, nodeData->m_node);
+    EXPECT_EQ(m_runtimeName, nodeData->m_runtimeName);
+    EXPECT_EQ(m_nodeName, nodeData->m_nodeName);
 
     /// @todo I am passing nodeDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);

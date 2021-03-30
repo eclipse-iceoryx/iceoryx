@@ -160,9 +160,9 @@ void RouDi::processRuntimeMessages()
         if (roudiIpcInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
-            std::string processName = message.getElementAtIndex(1);
+            std::string runtimeName = message.getElementAtIndex(1);
 
-            processMessage(message, cmd, ProcessName_t(cxx::TruncateToCapacity, processName));
+            processMessage(message, cmd, RuntimeName_t(cxx::TruncateToCapacity, runtimeName));
         }
     }
 }
@@ -181,20 +181,20 @@ version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& mess
 
 void RouDi::processMessage(const runtime::IpcMessage& message,
                            const iox::runtime::IpcMessageType& cmd,
-                           const ProcessName_t& processName)
+                           const RuntimeName_t& runtimeName)
 {
     switch (cmd)
     {
     case runtime::IpcMessageType::SERVICE_REGISTRY_CHANGE_COUNTER:
     {
-        m_prcMgr->sendServiceRegistryChangeCounterToProcess(processName);
+        m_prcMgr->sendServiceRegistryChangeCounterToProcess(runtimeName);
         break;
     }
     case runtime::IpcMessageType::REG:
     {
         if (message.getNumberOfElements() != 6)
         {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::REG\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"IpcMessageType::REG\" from \"" << runtimeName
                        << "\"received!";
         }
         else
@@ -205,7 +205,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             version::VersionInfo versionInfo = parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 
             registerProcess(
-                processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess(), versionInfo);
+                runtimeName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess(), versionInfo);
         }
         break;
     }
@@ -213,7 +213,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         if (message.getNumberOfElements() != 8)
         {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_PUBLISHER\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_PUBLISHER\" from \"" << runtimeName
                        << "\"received!";
         }
         else
@@ -229,7 +229,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
                 static_cast<popo::SubscriberTooSlowPolicy>(std::stoul(message.getElementAtIndex(6)));
 
             m_prcMgr->addPublisherForProcess(
-                processName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+                runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }
@@ -237,7 +237,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         if (message.getNumberOfElements() != 9)
         {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_SUBSCRIBER\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_SUBSCRIBER\" from \"" << runtimeName
                        << "\"received!";
         }
         else
@@ -255,7 +255,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
                 static_cast<popo::QueueFullPolicy>(std::stoul(message.getElementAtIndex(7)));
             
             m_prcMgr->addSubscriberForProcess(
-                processName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+                runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }
@@ -264,11 +264,11 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         if (message.getNumberOfElements() != 2)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_CONDITION_VARIABLE\" from \""
-                       << processName << "\"received!";
+                       << runtimeName << "\"received!";
         }
         else
         {
-            m_prcMgr->addConditionVariableForProcess(processName);
+            m_prcMgr->addConditionVariableForProcess(runtimeName);
         }
         break;
     }
@@ -276,7 +276,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         if (message.getNumberOfElements() != 4)
         {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_INTERFACE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_INTERFACE\" from \"" << runtimeName
                        << "\"received!";
         }
         else
@@ -285,7 +285,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
                 StringToCaProInterface(capro::IdString_t(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
 
             m_prcMgr->addInterfaceForProcess(
-                processName, interface, NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
+                runtimeName, interface, NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
         }
         break;
     }
@@ -293,12 +293,12 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         if (message.getNumberOfElements() != 2)
         {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_APPLICATION\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_APPLICATION\" from \"" << runtimeName
                        << "\"received!";
         }
         else
         {
-            m_prcMgr->addApplicationForProcess(processName);
+            m_prcMgr->addApplicationForProcess(runtimeName);
         }
         break;
     }
@@ -306,13 +306,13 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         if (message.getNumberOfElements() != 3)
         {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_NODE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_NODE\" from \"" << runtimeName
                        << "\"received!";
         }
         else
         {
             runtime::NodeProperty nodeProperty(cxx::Serialization(message.getElementAtIndex(2)));
-            m_prcMgr->addNodeForProcess(processName, nodeProperty.m_name);
+            m_prcMgr->addNodeForProcess(runtimeName, nodeProperty.m_name);
         }
         break;
     }
@@ -320,32 +320,32 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         if (message.getNumberOfElements() != 3)
         {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::FIND_SERVICE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"IpcMessageType::FIND_SERVICE\" from \"" << runtimeName
                        << "\"received!";
         }
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
 
-            m_prcMgr->findServiceForProcess(processName, service);
+            m_prcMgr->findServiceForProcess(runtimeName, service);
         }
         break;
     }
     case runtime::IpcMessageType::KEEPALIVE:
     {
-        m_prcMgr->updateLivelinessOfProcess(processName);
+        m_prcMgr->updateLivelinessOfProcess(runtimeName);
         break;
     }
     case runtime::IpcMessageType::TERMINATION:
     {
         if (message.getNumberOfElements() != 2)
         {
-            LogError() << "Wrong number of parameters for \"IpcMessageType::TERMINATION\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"IpcMessageType::TERMINATION\" from \"" << runtimeName
                        << "\"received!";
         }
         else
         {
-            IOX_DISCARD_RESULT(m_prcMgr->unregisterProcess(processName));
+            IOX_DISCARD_RESULT(m_prcMgr->unregisterProcess(runtimeName));
         }
         break;
     }
@@ -353,13 +353,13 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
         LogError() << "Unknown IPC message command [" << runtime::IpcMessageTypeToString(cmd) << "]";
 
-        m_prcMgr->sendMessageNotSupportedToRuntime(processName);
+        m_prcMgr->sendMessageNotSupportedToRuntime(runtimeName);
         break;
     }
     }
 }
 
-void RouDi::registerProcess(const ProcessName_t& name,
+void RouDi::registerProcess(const RuntimeName_t& name,
                             const uint32_t pid,
                             const posix::PosixUser user,
                             const int64_t transmissionTimestamp,

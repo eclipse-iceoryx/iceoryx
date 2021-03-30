@@ -122,6 +122,14 @@ class iox_sub_test : public Test
 
 iox_sub_t iox_sub_test::m_triggerCallbackLatestArgument = nullptr;
 
+TEST_F(iox_sub_test, initSubscriberWithNullptrForStorageReturnsNullptr)
+{
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+
+    EXPECT_EQ(iox_sub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
+}
+
 TEST_F(iox_sub_test, initialStateNotSubscribed)
 {
     EXPECT_EQ(iox_sub_get_subscription_state(m_sut), SubscribeState_NOT_SUBSCRIBED);
@@ -386,7 +394,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.subscribeOnCreate, options.subscribeOnCreate);
-    EXPECT_EQ(sut.receiverQueueFullPolicy, cpp2c::QueueFullPolicy(options.receiverQueueFullPolicy));
+    EXPECT_EQ(sut.receiverQueueFullPolicy, cpp2c::queueFullPolicy(options.receiverQueueFullPolicy));
     EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
 }
 

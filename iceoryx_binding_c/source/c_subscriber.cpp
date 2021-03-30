@@ -53,7 +53,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
     options->historyRequest = subscriberOptions.historyRequest;
     options->nodeName = nullptr;
     options->subscribeOnCreate = subscriberOptions.subscribeOnCreate;
-    options->receiverQueueFullPolicy = cpp2c::QueueFullPolicy(subscriberOptions.receiverQueueFullPolicy);
+    options->receiverQueueFullPolicy = cpp2c::queueFullPolicy(subscriberOptions.receiverQueueFullPolicy);
 
     options->initCheck = SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -69,8 +69,15 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const event,
                        const iox_sub_options_t* const options)
 {
+    if (self == nullptr)
+    {
+        LogWarn() << "subscriber initialization skipped - null pointer provided for iox_sub_storage_t";
+        return nullptr;
+    }
+
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
+
     SubscriberOptions subscriberOptions;
 
     // use default options otherwise
@@ -90,7 +97,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
             subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
         subscriberOptions.subscribeOnCreate = options->subscribeOnCreate;
-        subscriberOptions.receiverQueueFullPolicy = c2cpp::QueueFullPolicy(options->receiverQueueFullPolicy);
+        subscriberOptions.receiverQueueFullPolicy = c2cpp::queueFullPolicy(options->receiverQueueFullPolicy);
     }
 
     me->m_portData =

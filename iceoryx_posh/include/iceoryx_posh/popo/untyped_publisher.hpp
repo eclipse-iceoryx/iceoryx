@@ -25,9 +25,13 @@ namespace iox
 {
 namespace popo
 {
-template <typename base_publisher_t = BasePublisher<>>
+template <typename H = mepoo::NoCustomHeader, typename base_publisher_t = BasePublisher<>>
 class UntypedPublisherImpl : public base_publisher_t
 {
+    static_assert(!std::is_const<H>::value, "The custom header must not be const.");
+    static_assert(!std::is_reference<H>::value, "The custom header must not be a reference.");
+    static_assert(!std::is_pointer<H>::value, "The custom header must not be a pointer.");
+
   public:
     UntypedPublisherImpl(const capro::ServiceDescription& service,
                          const PublisherOptions& publisherOptions = PublisherOptions());
@@ -38,22 +42,24 @@ class UntypedPublisherImpl : public base_publisher_t
     virtual ~UntypedPublisherImpl() = default;
 
     ///
-    /// @brief loan Get a chunk from loaned shared memory.
-    /// @param size The expected size of the chunk.
+    /// @brief Get a chunk from loaned shared memory.
+    /// @param payloadSize The expected user payload size of the chunk.
+    /// @param payloadAlignment The expected user payload alignment of the chunk.
     /// @return A pointer to a chunk of memory with the requested size or
     ///         an AllocationError if no chunk could be loaned.
     /// @note An AllocationError occurs if no chunk is available in the shared memory.
     ///
-    cxx::expected<void*, AllocationError> loan(const uint32_t size) noexcept;
+    cxx::expected<void*, AllocationError>
+    loan(const uint32_t payloadSize, const uint32_t payloadAlignment = iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT) noexcept;
 
     ///
-    /// @brief loanPreviousChunk Get the previously loaned chunk if possible.
+    /// @brief Get the previously loaned chunk if possible.
     /// @return A pointer to the previous chunk if available, nullopt otherwise.
     ///
     cxx::optional<void*> loanPreviousChunk() noexcept;
 
     ///
-    /// @brief publish Publish the provided memory chunk.
+    /// @brief Publish the provided memory chunk.
     /// @param chunk Pointer to the allocated shared memory chunk.
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
@@ -74,6 +80,9 @@ class UntypedPublisherImpl : public base_publisher_t
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;
+
+template <typename H>
+using UntypedPublisherWithCustomHeader = UntypedPublisherImpl<H>;
 
 } // namespace popo
 } // namespace iox

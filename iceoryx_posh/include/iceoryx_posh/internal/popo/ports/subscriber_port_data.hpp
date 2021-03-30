@@ -36,7 +36,7 @@ struct SubscriberOptions;
 struct SubscriberPortData : public BasePortData
 {
     SubscriberPortData(const capro::ServiceDescription& serviceDescription,
-                       const ProcessName_t& processName,
+                       const RuntimeName_t& runtimeName,
                        cxx::VariantQueueTypes queueType,
                        const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
