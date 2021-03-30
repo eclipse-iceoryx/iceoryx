@@ -246,7 +246,6 @@ add_library(iceoryx_posh_roudi
     source/roudi/port_manager.cpp
     source/roudi/port_pool.cpp
     source/roudi/roudi.cpp
-    source/roudi/roudi_lock.cpp
     source/roudi/process.cpp
     source/roudi/process_manager.cpp
     source/roudi/service_registry.cpp
