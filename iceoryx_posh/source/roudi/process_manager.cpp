@@ -199,48 +199,33 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             // if it is monitored, we reject the registration and wait for automatic cleanup
             // otherwise we remove the process ourselves and register it again
 
-            if (process.isMonitored()) // is it the same process or a duplicate?
+            if (process.isMonitored())
             {
-                /// @todo Process death not yet detected, combine monitoring and !monitoring case
-                // process exists and is monitored - we rely on monitoring for removal
-                LogWarn() << "Received REG from " << name
-                          << ", but another application with this name is already registered";
+                LogWarn() << "Received register request, but termination of " << name << " not detected yet";
+            }
 
-                // Notify new application that it shall shutdown and try later
-                runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(
-                    runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
-                // writes to old app aka zombie here
-                process.sendViaIpcChannel(sendBuffer);
-                returnValue = false;
-            } 
+            // process exists, we expect that the existing process crashed
+            LogWarn() << "Application " << name << " crashed. Re-registering application";
+
+            // remove the existing process and add the new process afterwards, we do not send ack to new process
+            constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
+            if (!searchForProcessAndRemoveIt(name, terminationFeedback))
+            {
+                LogWarn() << "Application " << name << " could not be removed";
+                return;
+            }
             else
             {
-                // process exists and is not monitored, we expect that the existing process crashed
-                LogDebug() << "Registering already existing application " << name;
-
-                // remove the existing process and add the new process afterwards, we do not send ack to new process
-                constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
-                if (!searchForProcessAndRemoveIt(name, terminationFeedback))
-                {
-                    LogWarn()
-                        << "Received REG from " << name
-                        << ", but another application with this name is already registered and could not be removed";
-                    return;
-                }
-                else
-                {
-                    LogDebug() << "Removed existing application " << name;
-                    // try registration again, should succeed since removal was successful
-                    returnValue = addProcess(name,
-                                             pid,
-                                             segmentInfo.m_memoryManager,
-                                             isMonitored,
-                                             transmissionTimestamp,
-                                             segmentInfo.m_segmentID,
-                                             sessionId,
-                                             versionInfo);
-                }
+                LogDebug() << "Removed existing application " << name;
+                // try registration again, should succeed since removal was successful
+                returnValue = addProcess(name,
+                                         pid,
+                                         segmentInfo.m_memoryManager,
+                                         isMonitored,
+                                         transmissionTimestamp,
+                                         segmentInfo.m_segmentID,
+                                         sessionId,
+                                         versionInfo);
             }
         },
         [&]() {
