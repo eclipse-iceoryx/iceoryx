@@ -19,6 +19,10 @@ Glossary of the [WaitSet C++ example](../waitset).
 
 ## Code Walkthrough
 
+!!! attention 
+    Please be aware about the thread-safety restrictions of the _Listener_ and 
+    read the Thread Safety chapter carefully.
+
 The C version of the callbacks example performs the identical tasks as the 
 C++ version. We have again an application which offers two services called 
 `Radar.FrontLeft.Counter` and `Radar.FrontRight.Counter`. Every time we have 

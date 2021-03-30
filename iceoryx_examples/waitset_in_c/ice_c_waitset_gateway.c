@@ -48,12 +48,15 @@ static void sigHandler(int signalValue)
 void subscriberCallback(iox_sub_t const subscriber)
 {
     const void* chunk;
-    if (iox_sub_take_chunk(subscriber, &chunk))
+    while (iox_sub_has_chunks(subscriber))
     {
-        printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
-        fflush(stdout);
+        if (iox_sub_take_chunk(subscriber, &chunk))
+        {
+            printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
+            fflush(stdout);
 
-        iox_sub_release_chunk(subscriber, chunk);
+            iox_sub_release_chunk(subscriber, chunk);
+        }
     }
 }
 
@@ -122,6 +125,9 @@ int main()
     // cleanup all resources
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
+        // not mandatory since iox_sub_deinit will detach the subscriber automatically
+        // only added to present the full API
+        iox_ws_detach_subscriber_event(waitSet, (iox_sub_t) & (subscriberStorage[i]), SubscriberEvent_DATA_RECEIVED);
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
     }
 

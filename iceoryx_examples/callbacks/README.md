@@ -27,6 +27,10 @@ concurrently, even from inside a callback which was triggered by an event!
 
 ## Code Walkthrough
 
+!!! attention 
+    Please be aware about the thread-safety restrictions of the _Listener_ and 
+    read the Thread Safety chapter carefully.
+
 Let's say we have an application which offers us two distinct services:
 `Radar.FrontLeft.Counter` and `Rader.FrontRight.Counter`. Every time we have 
 received a sample from left and right we would like to calculate the sum with 

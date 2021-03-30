@@ -99,6 +99,10 @@ about the occurrence of an **Event**. When returning from `WaitSet::wait()` the 
 associated with **Events** which had occurred. The **EventOrigin**, **EventId** and **EventCallback**
 are stored inside of the **EventInfo** and can be acquired by the user.
 
+!!! attention 
+    Please be aware about the thread-safety restrictions of the _WaitSet_ and 
+    read the Thread Safety chapter carefully.
+
 ## Reference
 
 | task | call |

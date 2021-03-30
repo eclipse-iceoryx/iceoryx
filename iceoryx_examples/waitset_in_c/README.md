@@ -25,6 +25,10 @@ in the same way as the C++ ones.
 
 ## Code Walkthrough
 
+!!! attention 
+    Please be aware about the thread-safety restrictions of the _WaitSet_ and 
+    read the Thread Safety chapter carefully.
+
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced
 in the [icedelivery C example](../icedelivery_in_c).
@@ -41,14 +45,21 @@ prints out the subscriber pointer and the content of the received sample.
 void subscriberCallback(iox_sub_t const subscriber)
 {
     const void* chunk;
-    if (iox_sub_take_chunk(subscriber, &chunk))
+    while (iox_sub_has_chunks(subscriber))
     {
-        printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
+        if (iox_sub_take_chunk(subscriber, &chunk))
+        {
+            printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
 
-        iox_sub_release_chunk(subscriber, chunk);
+            iox_sub_release_chunk(subscriber, chunk);
+        }
     }
 }
 ```
+Since we attach the `SubscriberEvent_DATA_RECEIVED` event to the _WaitSet_ which 
+notifies us just once when data was received we have to gather and process all chunks.
+One will never miss chunks since the event notification is reset after a call to 
+`iox_ws_wait` or `iox_ws_timed_wait`.
 
 After we registered our runtime we create some stack storage for our WaitSet,
 initialize it and attach a `shutdownTrigger` to handle `CTRL-c`.
@@ -64,7 +75,7 @@ iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 
 In the next steps we create 4 subscribers with `iox_sub_init`, 
 subscribe them to our topic
-and attach the event `SubscriberEvent_HAS_DATA` to the WaitSet with
+and attach the event `SubscriberEvent_DATA_RECEIVED` to the WaitSet with
 the `subscriberCallback` and an event id `1U`.
 ```c
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
@@ -78,7 +89,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
+    iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback);
 }
 ```
 
@@ -123,6 +134,7 @@ Before we can close the program we cleanup all resources.
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
+    iox_ws_detach_subscriber_event(waitSet, (iox_sub_t) & (subscriberStorage[i]), SubscriberEvent_DATA_RECEIVED);
     iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
 }
 
@@ -166,7 +178,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 
 To distinct our two groups we set the eventId of the first group to
 `123` and of the second group to `456`. The first two subscribers are attached with
-the `SubscriberEvent_HAS_DATA` event and the event id of the first group to our waitset.
+the `SubscriberState_HAS_DATA` state and the event id of the first group to our waitset.
 The third and forth subscriber is attached to the same
 waitset under the second group id.
 ```c
@@ -175,12 +187,12 @@ const uint64_t SECOND_GROUP_ID = 456;
 
 for (uint64_t i = 0U; i < 2U; ++i)
 {
-    iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, FIRST_GROUP_ID, NULL);
+    iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, FIRST_GROUP_ID, NULL);
 }
 
 for (uint64_t i = 2U; i < 4U; ++i)
 {
-    iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, SECOND_GROUP_ID, NULL);
+    iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, SECOND_GROUP_ID, NULL);
 }
 ```
 
@@ -230,6 +242,9 @@ for (uint64_t i = 0U; i < numberOfEvents; ++i)
     }
 }
 ```
+In the case of the `SECOND_GROUP_ID` we have to release all queued chunks otherwise 
+the _WaitSet_ would notify us right away since the `SubscriberState_HAS_DATA` still
+persists.
 
 The last thing we have to do is to cleanup all the acquired resources.
 ```c
@@ -273,8 +288,8 @@ subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Cou
 options.nodeName = "iox-c-ex-waitset-individual-node2";
 subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
-iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
-iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
+iox_ws_attach_subscriber_state(waitSet, subscriber[0U], SubscriberState_HAS_DATA, 0U, NULL);
+iox_ws_attach_subscriber_state(waitSet, subscriber[1U], SubscriberState_HAS_DATA, 0U, NULL);
 ```
 
 We are ready to start the event loop. We begin by acquiring the array of all
