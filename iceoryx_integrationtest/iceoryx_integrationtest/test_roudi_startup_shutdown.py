@@ -70,7 +70,7 @@ class TestRouDiProcessOutput(unittest.TestCase):
             cm.assertInStdout('[ Reserving shared memory successful ]')
             cm.assertInStdout('Registered memory segment')
             cm.assertInStdout('[ Reserving shared memory successful ]')
-            cm.assertInStdout('Roudi registered payload segment')
+            cm.assertInStdout('Roudi registered data segment')
             cm.assertInStdout('RouDi is ready for clients')
 
             if os.name != 'nt':
@@ -85,5 +85,5 @@ class TestRouDiProcessOutput(unittest.TestCase):
             cm.assertInStdout('[ Reserving shared memory successful ]')
             cm.assertInStdout('Registered memory segment')
             cm.assertInStdout('[ Reserving shared memory successful ]')
-            cm.assertInStdout('Roudi registered payload segment')
+            cm.assertInStdout('Roudi registered data segment')
             cm.assertInStdout('RouDi is ready for clients')
