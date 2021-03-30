@@ -24,6 +24,7 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/variant.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "testutils/roudi_gtest.hpp"
 
 #include "test.hpp"
@@ -290,7 +291,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenSubscriberQueue
 {
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.deliveryQueueFullPolicy = SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
-    iox::popo::Publisher<int64_t> publisher(m_serviceDescription, publisherOptions);
+    iox::popo::Publisher<string<128>> publisher(m_serviceDescription, publisherOptions);
     this->InterOpWait();
 
     iox::popo::SubscriberOptions subscriberOptions;
@@ -299,9 +300,28 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenSubscriberQueue
     iox::popo::Subscriber<int64_t> subscriber(m_serviceDescription, subscriberOptions);
     this->InterOpWait();
 
-    EXPECT_FALSE(publisher.publishCopyOf(0).has_error());
-    EXPECT_FALSE(publisher.publishCopyOf(0).has_error());
+    EXPECT_FALSE(publisher.publishCopyOf("hello world").has_error());
+    EXPECT_FALSE(publisher.publishCopyOf("hello world").has_error());
 
-    // now the publisher blocks
-    EXPECT_FALSE(publisher.publishCopyOf(0).has_error());
+    auto threadSyncSemaphore = posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U);
+
+    std::atomic_bool wasSampleDelivered{false};
+    std::thread t1([&] {
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        EXPECT_FALSE(publisher.publishCopyOf("hello world").has_error());
+        wasSampleDelivered.store(true);
+    });
+
+    constexpr int64_t TIMEOUT_IN_MS = 100;
+
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
+    EXPECT_FALSE(wasSampleDelivered.load());
+
+    auto sample = subscriber.take();
+    ASSERT_FALSE(sample.has_error());
+    //    EXPECT_THAT(*sample, Eq(string<128>("hello world")));
+    EXPECT_TRUE(wasSampleDelivered.load());
+
+    t1.join();
 }
