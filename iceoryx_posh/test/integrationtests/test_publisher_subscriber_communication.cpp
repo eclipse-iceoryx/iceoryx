@@ -285,3 +285,23 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_variant)
                      .has_error());
 }
 
+
+TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenSubscriberQueueIsFull)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.deliveryQueueFullPolicy = SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+    iox::popo::Publisher<int64_t> publisher(m_serviceDescription, publisherOptions);
+    this->InterOpWait();
+
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.receiverQueueFullPolicy = QueueFullPolicy::BLOCK_PUBLISHER;
+    subscriberOptions.queueCapacity = 2;
+    iox::popo::Subscriber<int64_t> subscriber(m_serviceDescription, subscriberOptions);
+    this->InterOpWait();
+
+    EXPECT_FALSE(publisher.publishCopyOf(0).has_error());
+    EXPECT_FALSE(publisher.publishCopyOf(0).has_error());
+
+    // now the publisher blocks
+    EXPECT_FALSE(publisher.publishCopyOf(0).has_error());
+}

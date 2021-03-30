@@ -99,7 +99,8 @@ class iox_pub_test : public Test
     static constexpr uint32_t CHUNK_SIZE = 256;
 
     using ChunkQueueData_t = popo::ChunkQueueData<DefaultChunkQueueConfig, popo::ThreadSafePolicy>;
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
     GenericRAII m_uniqueRouDiId{[] { popo::internal::setUniqueRouDiId(0); },
                                 [] { popo::internal::unsetUniqueRouDiId(); }};

@@ -31,6 +31,7 @@ template <uint32_t MaxChunksHeldSimultaneously, typename ChunkQueueDataType>
 struct ChunkReceiverData : public ChunkQueueDataType
 {
     explicit ChunkReceiverData(const cxx::VariantQueueTypes queueType,
+                               const QueueFullPolicy queueFullPolicy,
                                const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     using ChunkQueueData_t = ChunkQueueDataType;

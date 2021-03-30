@@ -86,7 +86,8 @@ class ChunkReceiver_test : public Test
         iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
     using ChunkQueuePopper_t = iox::popo::ChunkQueuePopper<ChunkQueueData_t>;
 
-    ChunkReceiverData_t m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkReceiverData_t m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                            iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA};
     iox::popo::ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
 
     iox::popo::ChunkQueuePusher<ChunkReceiverData_t> m_chunkQueuePusher{&m_chunkReceiverData};

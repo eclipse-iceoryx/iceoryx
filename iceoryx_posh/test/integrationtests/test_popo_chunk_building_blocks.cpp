@@ -210,19 +210,20 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData_t m_chunkSenderData{&m_memoryManager};
+    ChunkSenderData_t m_chunkSenderData{&m_memoryManager, SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     ChunkSender<ChunkSenderData_t> m_chunkSender{&m_chunkSenderData};
 
     // Objects used by forwarding thread
-    ChunkDistributorData_t m_chunkDistributorData;
+    ChunkDistributorData_t m_chunkDistributorData{SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
     ChunkQueueData_t m_chunkQueueData{
+        QueueFullPolicy::DISCARD_OLDEST_DATA,
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
     ChunkQueuePopper_t m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData_t m_chunkReceiverData{
-        iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
+    ChunkReceiverData_t m_chunkReceiverData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
+                                            QueueFullPolicy::DISCARD_OLDEST_DATA}; // SoFi intentionally not used
     ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
 };
 

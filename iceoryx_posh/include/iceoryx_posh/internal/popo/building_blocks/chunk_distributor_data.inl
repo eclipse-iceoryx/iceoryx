@@ -31,9 +31,10 @@ constexpr T min(const T left, const T right)
 
 template <typename ChunkDistributorDataProperties, typename LockingPolicy, typename ChunkQueuePusherType>
 inline ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
-    const uint64_t historyCapacity) noexcept
+    const SubscriberTooSlowPolicy policy, const uint64_t historyCapacity) noexcept
     : LockingPolicy()
     , m_historyCapacity(min(historyCapacity, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY))
+    , m_subscriberTooSlowPolicy(policy)
 {
     if (m_historyCapacity != historyCapacity)
     {

@@ -48,7 +48,8 @@ class ChunkQueuePusher
 
     /// @brief push a new chunk to the chunk queue
     /// @param[in] shared chunk object
-    void push(mepoo::SharedChunk chunk) noexcept;
+    /// @return false if a queue overflow occurred, otherwise true
+    bool push(mepoo::SharedChunk chunk) noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

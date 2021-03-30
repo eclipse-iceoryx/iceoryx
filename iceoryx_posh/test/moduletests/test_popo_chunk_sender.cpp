@@ -100,9 +100,12 @@ class ChunkSender_test : public Test
     using ChunkSenderData_t =
         iox::popo::ChunkSenderData<iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
 
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    ChunkSenderData_t m_chunkSenderData{&m_memoryManager, 0}; // must be 0 for test
-    ChunkSenderData_t m_chunkSenderDataWithHistory{&m_memoryManager, HISTORY_CAPACITY};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkSenderData_t m_chunkSenderData{
+        &m_memoryManager, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA, 0}; // must be 0 for test
+    ChunkSenderData_t m_chunkSenderDataWithHistory{
+        &m_memoryManager, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA, HISTORY_CAPACITY};
 
     iox::popo::ChunkSender<ChunkSenderData_t> m_chunkSender{&m_chunkSenderData};
     iox::popo::ChunkSender<ChunkSenderData_t> m_chunkSenderWithHistory{&m_chunkSenderDataWithHistory};

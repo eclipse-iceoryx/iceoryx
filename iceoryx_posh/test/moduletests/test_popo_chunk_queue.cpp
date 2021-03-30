@@ -61,8 +61,7 @@ class ChunkQueue_testBase
     static constexpr size_t MEMORY_SIZE = 4U * MEGABYTE;
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
-    MemPool mempool{
-        sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
+    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
     MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5U};
@@ -97,7 +96,7 @@ class ChunkQueue_test : public Test, public ChunkQueue_testBase
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, typename TestTypes::PolicyType_t>;
 
     iox::cxx::VariantQueueTypes m_variantQueueType{TestTypes::variantQueueType};
-    ChunkQueueData_t m_chunkData{m_variantQueueType};
+    ChunkQueueData_t m_chunkData{QueueFullPolicy::DISCARD_OLDEST_DATA, m_variantQueueType};
     ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
@@ -231,7 +230,8 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
 
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, PolicyType>;
 
-    ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkData{QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                 iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
     ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
@@ -295,7 +295,8 @@ class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase
 
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, PolicyType>;
 
-    ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkData{QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                 iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };

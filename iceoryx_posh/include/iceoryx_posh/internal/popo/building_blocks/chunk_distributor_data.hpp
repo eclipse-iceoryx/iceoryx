@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
+#include "iceoryx_posh/popo/port_queue_policies.hpp"
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -42,7 +43,7 @@ struct ChunkDistributorData : public LockingPolicy
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
     using ChunkDistributorDataProperties_t = ChunkDistributorDataProperties;
 
-    explicit ChunkDistributorData(const uint64_t historyCapacity = 0u) noexcept;
+    explicit ChunkDistributorData(const SubscriberTooSlowPolicy policy, const uint64_t historyCapacity = 0u) noexcept;
 
     const uint64_t m_historyCapacity;
 
@@ -56,6 +57,7 @@ struct ChunkDistributorData : public LockingPolicy
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
     using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY>;
     HistoryContainer_t m_history;
+    SubscriberTooSlowPolicy m_subscriberTooSlowPolicy;
 };
 
 } // namespace popo

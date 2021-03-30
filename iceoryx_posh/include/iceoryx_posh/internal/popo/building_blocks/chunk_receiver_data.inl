@@ -22,8 +22,10 @@ namespace popo
 {
 template <uint32_t MaxChunksHeldSimultaneously, typename ChunkQueueDataType>
 inline ChunkReceiverData<MaxChunksHeldSimultaneously, ChunkQueueDataType>::ChunkReceiverData(
-    const cxx::VariantQueueTypes queueType, const mepoo::MemoryInfo& memoryInfo) noexcept
-    : ChunkQueueDataType(queueType)
+    const cxx::VariantQueueTypes queueType,
+    const QueueFullPolicy queueFullPolicy,
+    const mepoo::MemoryInfo& memoryInfo) noexcept
+    : ChunkQueueDataType(queueFullPolicy, queueType)
     , m_memoryInfo(memoryInfo)
 {
 }

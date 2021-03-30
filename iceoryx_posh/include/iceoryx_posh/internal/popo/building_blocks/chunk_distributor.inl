@@ -137,18 +137,22 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
     // send to all the queues
     for (auto& queue : getMembers()->m_queues)
     {
-        deliverToQueue(queue.get(), chunk);
+        if (!deliverToQueue(queue.get(), chunk)
+            && getMembers()->m_subscriberTooSlowPolicy == SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER
+            && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER)
+        {
+            //// TODO handle block in here
+        }
     }
 
-    // update the history
     addToHistoryWithoutDelivery(chunk);
 }
 
 template <typename ChunkDistributorDataType>
-inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
+inline bool ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
-    ChunkQueuePusher_t(queue).push(chunk);
+    return ChunkQueuePusher_t(queue).push(chunk);
 }
 
 template <typename ChunkDistributorDataType>

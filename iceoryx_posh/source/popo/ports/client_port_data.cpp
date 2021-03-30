@@ -27,8 +27,8 @@ ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescripti
                                mepoo::MemoryManager* const memoryManager,
                                const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, runtimeName, nodeName)
-    , m_chunkSenderData(memoryManager, 0, memoryInfo)
-    , m_chunkReceiverData(cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
+    , m_chunkSenderData(memoryManager, CLIENT_SUBSCRIBER_POLICY, 0, memoryInfo)
+    , m_chunkReceiverData(cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer, CLIENT_PUBLISHER_POLICY)
 {
 }
 
