@@ -26,7 +26,7 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
-# @brief Test goal: "Integrationtest for the multi publisher example of iceoryx"
+# @brief Test goal: "Integrationtest for the iceoptions example of iceoryx"
 # @pre setup ROS2 launch executables for RouDi (debug mode) and the example processes
 # @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
@@ -45,54 +45,50 @@ def generate_test_description():
         env=proc_env, output='screen',
         sigterm_timeout='20')
 
-    multi_publisher_executable = os.path.join(
+    iceoptions_publisher_executable = os.path.join(
         colcon_prefix_path,
-        'example_multi_publisher/bin/',
-        'iox-multi-publisher'
+        'example_iceoptions/bin/',
+        'iox-cpp-publisher-with-options'
     )
-    multi_publisher_process = launch.actions.ExecuteProcess(
-        cmd=[multi_publisher_executable],
+    iceoptions_publisher_process = launch.actions.ExecuteProcess(
+        cmd=[iceoptions_publisher_executable],
         env=proc_env, output='screen')
 
-    multi_subscriber_executable = os.path.join(
+    iceoptions_subscriber_executable = os.path.join(
         colcon_prefix_path,
-        'example_multi_publisher/bin/',
-        'iox-multi-subscriber'
+        'example_iceoptions/bin/',
+        'iox-cpp-subscriber-with-options'
     )
-    multi_subscriber_process = launch.actions.ExecuteProcess(
-        cmd=[multi_subscriber_executable],
+    iceoptions_subscriber_process = launch.actions.ExecuteProcess(
+        cmd=[iceoptions_subscriber_executable],
         env=proc_env, output='screen')
 
     return launch.LaunchDescription([
         roudi_process,
-        multi_publisher_process,
-        multi_subscriber_process,
+        iceoptions_publisher_process,
+        iceoptions_subscriber_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'roudi_process': roudi_process, 'multi_publisher_process': multi_publisher_process, 'multi_subscriber_process': multi_subscriber_process}
+    ]), {'roudi_process': roudi_process, 'iceoptions_publisher_process': iceoptions_publisher_process, 'iceoptions_subscriber_process': iceoptions_subscriber_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
 
 
-class TestMultiPublisherExample(unittest.TestCase):
+class TestIceOptionsExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_multi_publisher_data_exchange(self, proc_output):
+    def test_icehello_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'Counter Instance sending: id 1 counter 5', timeout=45, stream='stdout')
+            'iox-cpp-publisher-with-options sent value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Counter Instance sending: id 2 counter 5', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'Received: id 1 counter 5', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'Received: id 2 counter 5', timeout=45, stream='stdout')
+            'iox-cpp-subscriber-with-options got value: 15', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
 
 @launch_testing.post_shutdown_test()
-class TestMultiPublisherExampleExitCodes(unittest.TestCase):
+class TestIcehelloExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

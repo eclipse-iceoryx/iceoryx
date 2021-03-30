@@ -26,7 +26,7 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
-# @brief Test goal: "Integrationtest for the icedelivery in C example of iceoryx"
+# @brief Test goal: "Integrationtest for the icehelloexample of iceoryx"
 # @pre setup ROS2 launch executables for RouDi (debug mode) and the example processes
 # @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
@@ -45,50 +45,50 @@ def generate_test_description():
         env=proc_env, output='screen',
         sigterm_timeout='20')
 
-    publisher_c_executable = os.path.join(
+    icehello_publisher_executable = os.path.join(
         colcon_prefix_path,
-        'example_icedelivery_in_c/bin/',
-        'iox-c-publisher'
+        'example_icehello/bin/',
+        'iox-cpp-publisher-helloworld'
     )
-    publisher_c_process = launch.actions.ExecuteProcess(
-        cmd=[publisher_c_executable],
+    icehello_publisher_process = launch.actions.ExecuteProcess(
+        cmd=[icehello_publisher_executable],
         env=proc_env, output='screen')
 
-    subscriber_c_executable = os.path.join(
+    icehello_subscriber_executable = os.path.join(
         colcon_prefix_path,
-        'example_icedelivery_in_c/bin/',
-        'iox-c-subscriber'
+        'example_icehello/bin/',
+        'iox-cpp-subscriber-helloworld'
     )
-    subscriber_c_process = launch.actions.ExecuteProcess(
-        cmd=[subscriber_c_executable],
+    icehello_subscriber_process = launch.actions.ExecuteProcess(
+        cmd=[icehello_subscriber_executable],
         env=proc_env, output='screen')
 
     return launch.LaunchDescription([
-        publisher_c_process,
-        subscriber_c_process,
         roudi_process,
+        icehello_publisher_process,
+        icehello_subscriber_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'roudi_process': roudi_process, 'publisher_c_process': publisher_c_process, 'subscriber_c_process': subscriber_c_process}
+    ]), {'roudi_process': roudi_process, 'icehello_publisher_process': icehello_publisher_process, 'icehello_subscriber_process': icehello_subscriber_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
 
 
-class TestIcedeliveryInCExample(unittest.TestCase):
+class TestIcehelloExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_icedelivery_in_c_data_exchange(self, proc_output):
+    def test_icehello_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'iox-c-publisher sent value: 15', timeout=45, stream='stdout')
+            'iox-cpp-publisher-helloworld sent value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-c-subscriber got value: 15', timeout=45, stream='stdout')
+            'iox-cpp-subscriber-helloworld got value: 15', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
 
 @launch_testing.post_shutdown_test()
-class TestIcedeliveryInCExampleExitCodes(unittest.TestCase):
+class TestIcehelloExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)
