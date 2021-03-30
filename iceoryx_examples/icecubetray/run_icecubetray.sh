@@ -15,7 +15,7 @@ sudo useradd -M roudi
 # Assign users to group and disable login
 sudo usermod -L perception -a -G privileged -G iceoryx
 sudo usermod -L infotainment -a -G unprivileged -G iceoryx
-sudo usermod -L roudi -a -G unprivileged -G iceoryx
+sudo usermod -L roudi -a -G iceoryx
 
 # If you're using e.g Yocto or QNX refer to the manual on how to set up groups and users
 
