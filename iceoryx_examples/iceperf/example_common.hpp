@@ -17,12 +17,6 @@
 #ifndef IOX_EXAMPLES_ICEPERF_EXAMPLE_COMMON_HPP
 #define IOX_EXAMPLES_ICEPERF_EXAMPLE_COMMON_HPP
 
-enum class ApplicationType
-{
-    LEADER,
-    FOLLOWER,
-};
-
 enum class Benchmark
 {
     ALL,

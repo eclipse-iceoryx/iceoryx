@@ -14,30 +14,26 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_EXAMPLES_ICEPERF_HPP
-#define IOX_EXAMPLES_ICEPERF_HPP
+#ifndef IOX_EXAMPLES_ICEPERF_LEADER_HPP
+#define IOX_EXAMPLES_ICEPERF_LEADER_HPP
 
 #include "base.hpp"
 #include "example_common.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
-class IcePerfApp {
-public:
-    static iox::cxx::optional<IcePerfApp> create(const PerfSettings settings) noexcept;
+class IcePerfLeader
+{
+  public:
+    IcePerfLeader(const PerfSettings settings) noexcept;
 
-    void run() noexcept;
+    int run() noexcept;
 
-private:
-    IcePerfApp(const PerfSettings settings) noexcept;
-    void run(const iox::capro::IdString_t publisherName, const iox::capro::IdString_t subscriberName) noexcept;
-    void doIt(IcePerfBase& ipcTechnology) noexcept;
-    void leaderDo(IcePerfBase& ipcTechnology) noexcept;
-    void followerDo(IcePerfBase& ipcTechnology) noexcept;
+  private:
+    void doTest(IcePerfBase& ipcTechnology) noexcept;
 
-private:
+  private:
     const PerfSettings m_settings;
 };
 
-#endif // IOX_EXAMPLES_ICEPERF_HPP
+#endif // IOX_EXAMPLES_ICEPERF_LEADER_HPP

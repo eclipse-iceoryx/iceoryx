@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "example_common.hpp"
-#include "iceperf_app.hpp"
+#include "iceperf_leader.hpp"
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
@@ -27,18 +27,16 @@
 
 int main(int argc, char* argv[])
 {
-    iox::cxx::optional<PerfSettings> settings;
+    PerfSettings settings;
 
     constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
-                                      {"leader", no_argument, nullptr, 'l'},
-                                      {"folower", no_argument, nullptr, 'f'},
                                       {"benchmark", required_argument, nullptr, 'b'},
                                       {"technology", required_argument, nullptr, 't'},
                                       {"number-of-samples", required_argument, nullptr, 't'},
                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "hlfb:t:n:";
+    constexpr const char* shortOptions = "hb:t:n:";
     int32_t index{0};
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
@@ -49,8 +47,6 @@ int main(int argc, char* argv[])
             std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
             std::cout << "Options:" << std::endl;
             std::cout << "-h, --help                        Display help" << std::endl;
-            std::cout << "-l, --leader                      Set the app as benchmark leader" << std::endl;
-            std::cout << "-f, --follower                    Set the app as benchmark follower" << std::endl;
             std::cout << "-b, --benchmark <TYPE>            Selects the type of benchmark to run" << std::endl;
             std::cout << "                                  <TYPE> {all, latency, throughput}" << std::endl;
             std::cout << "                                  default = 'all'" << std::endl;
@@ -64,53 +60,20 @@ int main(int argc, char* argv[])
             std::cout << "-n, --number-of-samples <N>       Set the number of samples sent in a benchmark round"
                       << std::endl;
             std::cout << "                                  default = '10000'" << std::endl;
-            std::cout << "" << std::endl;
-            std::cout << "Example usage:" << std::endl;
-            std::cout << "./iceperf-bench -f & ./iceperf-bench -l" << std::endl;
+
             return EXIT_SUCCESS;
-        case 'l':
-            if (settings.has_value())
-            {
-                std::cerr << "The 'leader' or 'follower' option was already set!" << std::endl;
-                return EXIT_FAILURE;
-            }
-            settings = PerfSettings();
-            settings.value().appType = ApplicationType::LEADER;
-            break;
-        case 'f':
-            if (settings.has_value())
-            {
-                std::cerr << "The 'leader' or 'follower' option was already set!" << std::endl;
-                return EXIT_FAILURE;
-            }
-            settings = PerfSettings();
-            settings.value().appType = ApplicationType::FOLLOWER;
-            break;
         case 'b':
-            if (!settings.has_value())
-            {
-                std::cerr << "The first cmd line parameter must be either 'leader' or 'follower'!" << std::endl;
-                return EXIT_FAILURE;
-            }
-
-            if (settings.value().appType != ApplicationType::LEADER)
-            {
-                std::cerr << "The 'benchmark' option is only applicable in combination with the 'leader' option and "
-                             "will be ignored!"
-                          << std::endl;
-            }
-
             if (strcmp(optarg, "all") == 0)
             {
-                settings.value().benchmark = Benchmark::ALL;
+                settings.benchmark = Benchmark::ALL;
             }
             else if (strcmp(optarg, "latency") == 0)
             {
-                settings.value().benchmark = Benchmark::LATENCY;
+                settings.benchmark = Benchmark::LATENCY;
             }
             else if (strcmp(optarg, "throughput") == 0)
             {
-                settings.value().benchmark = Benchmark::TROUGHPUT;
+                settings.benchmark = Benchmark::TROUGHPUT;
             }
             else
             {
@@ -119,38 +82,25 @@ int main(int argc, char* argv[])
             }
             break;
         case 't':
-            if (!settings.has_value())
-            {
-                std::cerr << "The first cmd line parameter must be either 'leader' or 'follower'!" << std::endl;
-                return EXIT_FAILURE;
-            }
-
-            if (settings.value().appType != ApplicationType::LEADER)
-            {
-                std::cerr << "The 'technology' option is only applicable in combination with the 'leader' option and "
-                             "will be ignored!"
-                          << std::endl;
-            }
-
             if (strcmp(optarg, "all") == 0)
             {
-                settings.value().technology = Technology::ALL;
+                settings.technology = Technology::ALL;
             }
             else if (strcmp(optarg, "iceoryx-cpp-api") == 0)
             {
-                settings.value().technology = Technology::ICEORYX_CPP_API;
+                settings.technology = Technology::ICEORYX_CPP_API;
             }
             else if (strcmp(optarg, "iceoryx-c-api") == 0)
             {
-                settings.value().technology = Technology::ICEORYX_C_API;
+                settings.technology = Technology::ICEORYX_C_API;
             }
             else if (strcmp(optarg, "posix-message-queue") == 0)
             {
-                settings.value().technology = Technology::POSIX_MESSAGE_QUEUE;
+                settings.technology = Technology::POSIX_MESSAGE_QUEUE;
             }
             else if (strcmp(optarg, "unix-domain-sockets") == 0)
             {
-                settings.value().technology = Technology::UNIX_DOMAIN_SOCKET;
+                settings.technology = Technology::UNIX_DOMAIN_SOCKET;
             }
             else
             {
@@ -161,45 +111,17 @@ int main(int argc, char* argv[])
             }
             break;
         case 'n':
-            if (!settings.has_value())
-            {
-                std::cerr << "The first cmd line parameter must be either 'leader' or 'follower'!" << std::endl;
-                return EXIT_FAILURE;
-            }
-
-            if (settings.value().appType != ApplicationType::LEADER)
-            {
-                std::cerr << "The 'number-of-samples' option is only applicable in combination with the 'leader' "
-                             "option and will be ignored!"
-                          << std::endl;
-            }
-
-            if (!iox::cxx::convert::fromString(optarg, settings.value().numberOfSamples))
+            if (!iox::cxx::convert::fromString(optarg, settings.numberOfSamples))
             {
                 std::cerr << "Could not parse 'number-of-samples' paramater!" << std::endl;
                 return EXIT_FAILURE;
             }
             break;
         default:
-        {
             return EXIT_FAILURE;
-        }
         };
     }
 
-    if (!settings.has_value())
-    {
-        std::cerr << "The 'leader' or `folower` option was not set!" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    auto app = IcePerfApp::create(settings.value());
-    if (!app)
-    {
-        return EXIT_FAILURE;
-    }
-
-    app.value().run();
-
-    return EXIT_SUCCESS;
+    IcePerfLeader app(settings);
+    return app.run();
 }
