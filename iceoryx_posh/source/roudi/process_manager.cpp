@@ -216,7 +216,6 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             }
             else
             {
-                LogDebug() << "Removed existing application " << name;
                 // try registration again, should succeed since removal was successful
                 returnValue = addProcess(name,
                                          pid,
