@@ -39,7 +39,7 @@ class GatewayBase_test : public TestWithParam<iox::capro::Interfaces>
 
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     iox::runtime::PoshRuntime* m_senderRuntime{&iox::runtime::PoshRuntime::initRuntime("sender")};
-    iox::gw::GatewayBase m_base{iox::capro::Interfaces::INTERNAL};
+    iox::gw::GatewayBase m_base{GetParam()};
 
     void InterOpWait() const
     {
@@ -54,11 +54,6 @@ class GatewayBase_test : public TestWithParam<iox::capro::Interfaces>
         {
         }
 
-        GatewayBaseTestDestructor() noexcept
-            : GatewayBase()
-        {
-        }
-
         iox::popo::InterfacePort* getInterfaceImpl()
         {
             return &m_interfaceImpl;
@@ -70,13 +65,21 @@ class GatewayBase_test : public TestWithParam<iox::capro::Interfaces>
     };
 };
 
+/// we require INSTANTIATE_TEST_CASE_P since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+INSTANTIATE_TEST_CASE_P(GatewayBasetests,
+                        GatewayBase_test,
+                        Values(iox::capro::Interfaces::SOMEIP, iox::capro::Interfaces::INTERNAL));
+
+#pragma GCC diagnostic pop
 
 TEST_P(GatewayBase_test, InterfacePortWillBeDestroyedWhenGatewayGoesOutOfScope)
 {
     iox::popo::InterfacePort* interfaceImpl;
 
     {
-        GatewayBaseTestDestructor base{iox::capro::Interfaces::INTERNAL};
+        GatewayBaseTestDestructor base{GetParam()};
 
         interfaceImpl = base.getInterfaceImpl();
     }
@@ -100,7 +103,6 @@ TEST_P(GatewayBase_test, InterfacePortWillNotBeDestroyedWhenInterfaceImplIsNullp
 TEST_P(GatewayBase_test, GetCaProMessageMethodWithInvalidMessageReturnFalse)
 {
     iox::capro::CaproMessage notValidCaproMessage;
-
     EXPECT_FALSE(m_base.getCaProMessage(notValidCaproMessage));
 }
 
@@ -109,8 +111,7 @@ TEST_P(GatewayBase_test, GetCaProMessageMethodWithValidMessageReturnTrue)
     m_senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
-    iox::popo::InterfacePort interfaceImpl{
-        iox::runtime::PoshRuntime::getInstance().getMiddlewareInterface(iox::capro::Interfaces::SOMEIP)};
+    iox::popo::InterfacePort interfaceImpl{iox::runtime::PoshRuntime::getInstance().getMiddlewareInterface(GetParam())};
     this->InterOpWait();
 
     auto maybeCaproMessage = interfaceImpl.tryGetCaProMessage();
