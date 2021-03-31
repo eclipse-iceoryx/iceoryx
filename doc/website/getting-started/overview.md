@@ -51,7 +51,7 @@ else
 }
 ```
 Here ``result`` is an ``expected`` and hence we may get an error. This can happen if we try to loan too many samples 
-and exhaust memory. We have to handle this possible error since the expected class has the ``nodiscard`` keyword 
+and exhaust memory. We have to handle this potential error since the expected class has the ``nodiscard`` keyword 
 attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could also 
 explicitly discrad it with ``IOX_DISCARD_RESULT`` which is discouraged. If you want to know more about ``expected``, 
 take a look at 
@@ -85,7 +85,7 @@ while (keepRunning)
     }
 }
 ```
-By calling ``take`` we get an ``expected`` and hence we have to handle a possible error.
+By calling ``take`` we get an ``expected`` and hence we have to handle the potential error.
 
 And that's it. We have created our first simple iceoryx example.
 [Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples 

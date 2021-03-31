@@ -34,7 +34,7 @@ auto value = *result;
 ```
 
 !!! attention
-Accessing the value if there is no value is undefined behavior, so it must be checked beforehand.
+    Accessing the value if there is no value terminates the application, so it must be checked beforehand.
 
 We can achieve the same with the functional approach by providing a function for both cases.
 
@@ -59,12 +59,17 @@ result = iox::cxx::nullopt;
 
 For a complete list of available functions see 
 [``optional.hpp``](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_utils/include/iceoryx_utils/cxx/optional.hpp).
+The ``iox::cxx::optional`` behaves like the [``std::optional``](https://en.cppreference.com/w/cpp/utility/optional)
+except that it does not throw exceptions and has no undefined behavior.
 
 ### Expected
 ``iox::cxx::expected<T, E>`` generalizes ``iox::cxx::optional`` by admitting a value of another type ``E`` instead of
 no value at all, i.e. it contains either a value of type ``T`` or ``E``. In this way, ``expected`` is a special case of 
 the 'either monad'. It is usually used to pass a value of type ``T`` or an error that may have occurred, i.e. ``E`` is the
-error type. For more information on how it is used for error handling see
+error type. ``E`` must contain a static member or an enum value called ``INVALID_STATE``. Alternatively an 
+``ErrorTypeAdapter`` can be implemented.
+
+For more information on how it is used for error handling see
 [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md).
 
 Assume we have ``E`` as an error type, then we can create a value
@@ -102,3 +107,16 @@ result.and_then(handleValue).or_else(handleError);
 There are more convenience functions such as ``value_or`` which provides the value or an alternative specified by the
 user. These can be found in 
 [``expected.hpp``](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_utils/include/iceoryx_utils/cxx/expected.hpp).
+
+Note that when we move an ``expected``, the origin is set to the error value ``E::INVALID_STATE`` and will always return true 
+in ``has_error()``:
+```cpp
+cxx::expected<int, E> result(iox::cxx::success<int>(1421));
+cxx::expected<int, E> anotherResult = std::move(result);
+
+if (result.has_error()) // is now true since it was moved
+{
+   result.get_error(); // returns E::INVALID_STATE
+}
+```
+
