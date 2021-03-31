@@ -27,7 +27,7 @@ namespace iox
 {
 namespace roudi
 {
-constexpr char ROUDI_LOCK_NAME[] = "unique-roudi";
+constexpr char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
 struct IceOryxRouDiComponents
 {
   public:
@@ -35,21 +35,22 @@ struct IceOryxRouDiComponents
 
     virtual ~IceOryxRouDiComponents() = default;
 
-    posix::FileLock fileLock = std::move(posix::FileLock::create(ROUDI_LOCK_NAME)
-                                             .or_else([](auto& error) {
-                                                 if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
-                                                 {
-                                                     LogFatal() << "Could not acquire lock, is RouDi still running?";
-                                                     exit(EXIT_FAILURE);
-                                                 }
-                                                 else
-                                                 {
-                                                     LogFatal() << "Error occured while acquiring file lock named "
-                                                                << ROUDI_LOCK_NAME;
-                                                     exit(EXIT_FAILURE);
-                                                 }
-                                             })
-                                             .value());
+    posix::FileLock fileLock = std::move(
+        posix::FileLock::create(ROUDI_LOCK_NAME)
+            .or_else([](auto& error) {
+                if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
+                {
+                    LogFatal() << "Could not acquire lock, is RouDi still running?";
+                    errorHandler(Error::kROUDI_COMPONENTS__ROUDI_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
+                }
+                else
+                {
+                    LogFatal() << "Error occured while acquiring file lock named " << ROUDI_LOCK_NAME;
+                    errorHandler(
+                        Error::kROUDI_COMPONENTS__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
+                }
+            })
+            .value());
 
     /// @brief Handles MemoryProvider and MemoryBlocks
     IceOryxRouDiMemoryManager rouDiMemoryManager;
