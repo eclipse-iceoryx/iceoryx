@@ -24,7 +24,7 @@ namespace popo
 {
 template <typename BaseSubscriber_t>
 inline UntypedSubscriberImpl<BaseSubscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service,
-                                                                       const SubscriberOptions& subscriberOptions)
+                                                                      const SubscriberOptions& subscriberOptions)
     : BaseSubscriber(service, subscriberOptions)
 {
 }
@@ -41,9 +41,9 @@ inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<Base
 }
 
 template <typename BaseSubscriber_t>
-inline void UntypedSubscriberImpl<BaseSubscriber_t>::release(const void*const userPayload) noexcept
+inline void UntypedSubscriberImpl<BaseSubscriber_t>::release(const void* const userPayloadOfChunk) noexcept
 {
-    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
     port().releaseChunk(chunkHeader);
 }
 

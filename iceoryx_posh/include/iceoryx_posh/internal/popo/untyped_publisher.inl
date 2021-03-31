@@ -24,13 +24,13 @@ namespace popo
 {
 template <typename H, typename BasePublisher_t>
 inline UntypedPublisherImpl<H, BasePublisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service,
-                                                                       const PublisherOptions& publisherOptions)
+                                                                      const PublisherOptions& publisherOptions)
     : BasePublisher_t(service, publisherOptions)
 {
 }
 
 template <typename H, typename BasePublisher_t>
-inline void UntypedPublisherImpl<H, BasePublisher_t>::publish(const void*const userPayloadOfChunk) noexcept
+inline void UntypedPublisherImpl<H, BasePublisher_t>::publish(const void* const userPayloadOfChunk) noexcept
 {
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
     port().sendChunk(chunkHeader);
@@ -38,7 +38,8 @@ inline void UntypedPublisherImpl<H, BasePublisher_t>::publish(const void*const u
 
 template <typename H, typename BasePublisher_t>
 inline cxx::expected<void*, AllocationError>
-UntypedPublisherImpl<H, BasePublisher_t>::loan(const uint32_t userPayloadSize, const uint32_t userPayloadAlignment) noexcept
+UntypedPublisherImpl<H, BasePublisher_t>::loan(const uint32_t userPayloadSize,
+                                               const uint32_t userPayloadAlignment) noexcept
 {
     static constexpr uint32_t USER_HEADER_SIZE{std::is_same<H, mepoo::NoUserHeader>::value ? 0U : sizeof(H)};
 
