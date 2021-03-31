@@ -97,11 +97,11 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
             m_chunkSender
                 .tryAllocate(iox::UniquePortId(),
                              sizeof(DummySample),
-                             iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT,
-                             iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                             iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
+                             iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
+                             iox::CHUNK_NO_USER_HEADER_SIZE,
+                             iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
                 .and_then([&](auto chunkHeader) {
-                    auto sample = chunkHeader->payload();
+                    auto sample = chunkHeader->userPayload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
                     m_chunkSender.send(chunkHeader);
@@ -130,7 +130,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             m_popper.tryPop()
                 .and_then([&](auto& chunk) {
-                    auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
+                    auto dummySample = *reinterpret_cast<DummySample*>(chunk.getUserPayload());
                     // Check if monotonically increasing
                     EXPECT_THAT(dummySample.m_dummy, Eq(forwardCounter));
                     m_chunkDistributor.deliverToAllStoredQueues(chunk);
@@ -166,7 +166,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             m_chunkReceiver.tryGet()
                 .and_then([&](auto& chunkHeader) {
-                    auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
+                    auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->userPayload());
                     // Check if monotonically increasing
                     EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
                     m_receiveCounter++;

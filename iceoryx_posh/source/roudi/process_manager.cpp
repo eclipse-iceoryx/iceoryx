@@ -244,10 +244,10 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 
 bool ProcessManager::addProcess(const RuntimeName_t& name,
                                 const uint32_t pid,
-                                cxx::not_null<mepoo::MemoryManager* const> payloadMemoryManager,
+                                cxx::not_null<mepoo::MemoryManager* const> payloadDataSegmentMemoryManager,
                                 const bool isMonitored,
                                 const int64_t transmissionTimestamp,
-                                const uint64_t payloadSegmentId,
+                                const uint64_t dataSegmentId,
                                 const uint64_t sessionId,
                                 const version::VersionInfo& versionInfo) noexcept
 {
@@ -266,7 +266,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
         LogError() << "Could not register process '" << name << "' - too many processes";
         return false;
     }
-    m_processList.emplace_back(name, pid, *payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    m_processList.emplace_back(name, pid, *payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
@@ -514,7 +514,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
         name,
         [&](Process& process) { // create a PublisherPort
             auto maybePublisher = m_portManager.acquirePublisherPortData(
-                service, publisherOptions, name, &process.getPayloadMemoryManager(), portConfigInfo);
+                service, publisherOptions, name, &process.getpayloadDataSegmentMemoryManager(), portConfigInfo);
 
             if (!maybePublisher.has_error())
             {
