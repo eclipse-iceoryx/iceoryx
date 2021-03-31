@@ -15,11 +15,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
-file (STRINGS "../VERSION" iceoryx_posh_VERSION)
-project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
+file (STRINGS "../VERSION" IOX_VERSION_STRING)
+find_package(iceoryx_utils REQUIRED)
+
+include(IceoryxVersion)
+parse_version(${IOX_VERSION_STRING})
+project(iceoryx_posh VERSION ${IOX_VERSION_MAIN})
+adjust_version()
 
 find_package(Threads REQUIRED)
-find_package(iceoryx_utils REQUIRED)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)

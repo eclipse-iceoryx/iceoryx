@@ -36,9 +36,9 @@ struct SampleDeleter
     SampleDeleter(Port& port);
 
     /// @brief Handles deletion of the sample.
-    /// @param[in] payload The pointer to the payload of the sample.
+    /// @param[in] userPayload The pointer to the user-payload of the sample.
     template <typename T>
-    void operator()(T* const payload) const;
+    void operator()(T* const userPayload) const;
 
   private:
     Port* m_port;

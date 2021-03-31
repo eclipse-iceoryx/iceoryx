@@ -45,9 +45,9 @@ template <typename T>
 class TypedMemPool
 {
   public:
-    TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
-                 posix::Allocator& f_managementAllocator,
-                 posix::Allocator& f_payloadAllocator) noexcept;
+    TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+                 posix::Allocator& managementAllocator,
+                 posix::Allocator& chunkMemoryAllocator) noexcept;
 
     TypedMemPool(const TypedMemPool&) = delete;
     TypedMemPool(TypedMemPool&&) = delete;

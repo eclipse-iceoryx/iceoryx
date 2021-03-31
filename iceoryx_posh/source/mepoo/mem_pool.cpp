@@ -41,7 +41,7 @@ MemPoolInfo::MemPoolInfo(const uint32_t usedChunks,
 MemPool::MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> chunkSize,
                  const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
                  posix::Allocator& managementAllocator,
-                 posix::Allocator& payloadAllocator) noexcept
+                 posix::Allocator& chunkMemoryAllocator) noexcept
     : m_chunkSize(chunkSize)
     , m_numberOfChunks(numberOfChunks)
     , m_minFree(numberOfChunks)
@@ -49,7 +49,7 @@ MemPool::MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> chunkSi
     if (isMultipleOfAlignment(chunkSize))
     {
         m_rawMemory =
-            static_cast<uint8_t*>(payloadAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize));
+            static_cast<uint8_t*>(chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize));
         auto memoryLoFFLi =
             static_cast<uint32_t*>(managementAllocator.allocate(freeList_t::requiredMemorySize(m_numberOfChunks)));
         m_freeIndices.init(memoryLoFFLi, m_numberOfChunks);

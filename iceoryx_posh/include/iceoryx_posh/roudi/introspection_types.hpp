@@ -41,7 +41,7 @@ struct MemPoolInfo
     uint32_t m_minFreeChunks{0};
     uint32_t m_numChunks{0};
     uint32_t m_chunkSize{0};
-    uint32_t m_payloadSize{0};
+    uint32_t m_chunkPayloadSize{0};
 };
 
 /// @brief container for MemPoolInfo structs of all available mempools.

@@ -27,8 +27,8 @@ namespace iox
 {
 namespace mepoo
 {
-/// @brief Helper struct to use as default template parameter when no custom header is used
-struct NoCustomHeader
+/// @brief Helper struct to use as default template parameter when no user-header is used
+struct NoUserHeader
 {
 };
 
@@ -36,14 +36,14 @@ struct NoCustomHeader
 ///         32 byte aligned otherwise we get alignment problems!
 struct alignas(32) ChunkHeader
 {
-    using PayloadOffset_t = uint32_t;
+    using UserPayloadOffset_t = uint32_t;
 
     /// @brief constructs and initializes a ChunkHeader
     /// @param[in] chunkSize is the size of the chunk the ChunkHeader is constructed
-    /// @param[in] chunkSettings are the settings like payload size and custom header alignment
+    /// @param[in] chunkSettings are the settings like user-payload size and user-header alignment
     ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept;
 
-    // copy/move ctors/assignment operators are deleted since the calculations for the custom header and payload
+    // copy/move ctors/assignment operators are deleted since the calculations for the user-header and user-payload
     // alignment are dependent on the address of the this pointer
     ChunkHeader(const ChunkHeader&) = delete;
     ChunkHeader(ChunkHeader&&) = delete;
@@ -76,31 +76,31 @@ struct alignas(32) ChunkHeader
     /// @brief a serial number for the sent chunks
     uint64_t sequenceNumber{0U};
 
-    /// @brief The size of the chunk occupied by the payload
-    uint32_t payloadSize{0U};
+    /// @brief The size of the chunk occupied by the user-payload
+    uint32_t userPayloadSize{0U};
 
-    /// @brief The offset of the payload relative to the begin of the chunk
-    PayloadOffset_t payloadOffset{sizeof(ChunkHeader)};
+    /// @brief The offset of the user-payload relative to the begin of the chunk
+    UserPayloadOffset_t userPayloadOffset{sizeof(ChunkHeader)};
 
     // END members
 
     // BEGIN methods
 
-    /// @brief Get a pointer to the payload carried by the chunk
-    /// @return the pointer to the payload
-    void* payload() const noexcept;
+    /// @brief Get a pointer to the user-payload carried by the chunk
+    /// @return the pointer to the user-payload
+    void* userPayload() const noexcept;
 
-    /// @brief Get the pointer to the custom header
-    /// @return the pointer to the custom header
+    /// @brief Get the pointer to the user-header
+    /// @return the pointer to the user-header
     template <typename T>
-    T* customHeader() const noexcept;
+    T* userHeader() const noexcept;
 
-    /// @brief Get a pointer to the `ChunkHeader` associated to the payload of the chunk
-    /// @param[in] payload is the pointer to the payload of the chunk
-    /// @return the pointer to the `ChunkHeader` or a `nullptr` if `payload` is a `nullptr`
-    static ChunkHeader* fromPayload(const void* const payload) noexcept;
+    /// @brief Get a pointer to the `ChunkHeader` associated to the user-payload of the chunk
+    /// @param[in] userPayload is the pointer to the user-payload of the chunk
+    /// @return the pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
+    static ChunkHeader* fromUserPayload(const void* const userPayload) noexcept;
 
-    /// @brief Calculates the used size of the chunk with the ChunkHeader, custom heander and payload
+    /// @brief Calculates the used size of the chunk with the ChunkHeader, user-heander and user-payload
     /// @return the used size of the chunk
     uint32_t usedSizeOfChunk() const noexcept;
 
