@@ -30,7 +30,7 @@ inline UntypedPublisherImpl<H, BasePublisher_t>::UntypedPublisherImpl(const capr
 }
 
 template <typename H, typename BasePublisher_t>
-inline void UntypedPublisherImpl<H, BasePublisher_t>::publish(const void* const userPayloadOfChunk) noexcept
+inline void UntypedPublisherImpl<H, BasePublisher_t>::publish(void* const userPayloadOfChunk) noexcept
 {
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
     port().sendChunk(chunkHeader);
@@ -66,7 +66,7 @@ cxx::optional<void*> UntypedPublisherImpl<H, BasePublisher_t>::loanPreviousChunk
 }
 
 template <typename H, typename BasePublisher_t>
-inline void UntypedPublisherImpl<H, BasePublisher_t>::release(const void* const userPayloadOfChunk) noexcept
+inline void UntypedPublisherImpl<H, BasePublisher_t>::release(void* const userPayloadOfChunk) noexcept
 {
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
     port().releaseChunk(chunkHeader);

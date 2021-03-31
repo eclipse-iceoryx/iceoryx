@@ -21,15 +21,26 @@
 
 /// @brief handle of the chunk header
 typedef void* iox_chunk_header_t;
+typedef const void* iox_chunk_header_const_t;
 
 /// @brief gets the user-payload from the chunk-header
 /// @param[in] chunkHeader pointer to the chunk-header
 /// @return pointer to the user-payload
-void* iox_chunk_header_to_user_payload(iox_chunk_header_t const chunkHeader);
+void* iox_chunk_header_to_user_payload(const iox_chunk_header_t chunkHeader);
+
+/// @brief gets the const user-payload from the const chunk-header
+/// @param[in] chunkHeader const pointer to the chunk-header
+/// @return const pointer to the user-payload
+const void* iox_chunk_header_to_user_payload_const(const iox_chunk_header_const_t chunkHeader);
 
 /// @brief gets the chunk-header from the user-payload
 /// @param[in] userPayload pointer to the user-payload
 /// @return pointer to the chunk-header
-iox_chunk_header_t iox_chunk_header_from_user_payload(const void* const userPayload);
+iox_chunk_header_t iox_chunk_header_from_user_payload(void* const userPayload);
+
+/// @brief gets the const chunk-header from the const user-payload
+/// @param[in] userPayload const pointer to the user-payload
+/// @return const pointer to the chunk-header
+iox_chunk_header_const_t iox_chunk_header_from_user_payload_const(const void* const userPayload);
 
 #endif

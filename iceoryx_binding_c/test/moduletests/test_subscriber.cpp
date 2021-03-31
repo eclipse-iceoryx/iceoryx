@@ -213,7 +213,7 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
     EXPECT_THAT(static_cast<const data_t*>(chunk)->value, Eq(1234));
 }
 
-TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
+TEST_F(iox_sub_test, constChunkHeaderCanBeObtainedFromChunkAfterTake)
 {
     this->Subscribe(&m_portPtr);
     auto sharedChunk = getChunkFromMemoryManager();
@@ -222,9 +222,9 @@ TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
     const void* chunk = nullptr;
 
     ASSERT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
-    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    auto chunkHeader = iox_chunk_header_from_user_payload_const(chunk);
     ASSERT_NE(chunkHeader, nullptr);
-    auto userPayloadFromRoundTrip = iox_chunk_header_to_user_payload(chunkHeader);
+    auto userPayloadFromRoundTrip = iox_chunk_header_to_user_payload_const(chunkHeader);
     EXPECT_EQ(userPayloadFromRoundTrip, chunk);
 }
 

@@ -113,7 +113,26 @@ TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderReturnsConst
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNullptrReturnsNullptr)
 {
-    EXPECT_THAT(ChunkHeader::fromUserPayload(nullptr), Eq(nullptr));
+    constexpr void* USER_PAYLOAD{nullptr};
+    auto chunkHeader = ChunkHeader::fromUserPayload(USER_PAYLOAD);
+    EXPECT_THAT(chunkHeader, Eq(nullptr));
+}
+
+TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstNullptrReturnsNullptr)
+{
+    constexpr const void* USER_PAYLOAD{nullptr};
+    auto chunkHeader = ChunkHeader::fromUserPayload(USER_PAYLOAD);
+    EXPECT_THAT(chunkHeader, Eq(nullptr));
+}
+
+TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNonConstParamReturnsNonConstType)
+{
+    EXPECT_FALSE(std::is_const<decltype(ChunkHeader::fromUserPayload(std::declval<void* const>()))>::value);
+}
+
+TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstParamReturnsConstType)
+{
+    EXPECT_TRUE(std::is_const<decltype(ChunkHeader::fromUserPayload(std::declval<const void* const>()))>::value);
 }
 
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)

@@ -23,12 +23,22 @@ extern "C" {
 
 using namespace iox::mepoo;
 
-void* iox_chunk_header_to_user_payload(iox_chunk_header_t const chunkHeader)
+void* iox_chunk_header_to_user_payload(const iox_chunk_header_t chunkHeader)
 {
     return reinterpret_cast<ChunkHeader*>(chunkHeader)->userPayload();
 }
 
-iox_chunk_header_t iox_chunk_header_from_user_payload(const void* const userPayload)
+const void* iox_chunk_header_to_user_payload_const(const iox_chunk_header_const_t chunkHeader)
+{
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userPayload();
+}
+
+iox_chunk_header_t iox_chunk_header_from_user_payload(void* const userPayload)
+{
+    return ChunkHeader::fromUserPayload(userPayload);
+}
+
+iox_chunk_header_const_t iox_chunk_header_from_user_payload_const(const void* const userPayload)
 {
     return ChunkHeader::fromUserPayload(userPayload);
 }

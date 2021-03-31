@@ -113,7 +113,7 @@ const void* ChunkHeader::userPayload() const noexcept
     return const_cast<ChunkHeader*>(this)->userPayload();
 }
 
-ChunkHeader* ChunkHeader::fromUserPayload(const void* const userPayload) noexcept
+ChunkHeader* ChunkHeader::fromUserPayload(void* const userPayload) noexcept
 {
     if (userPayload == nullptr)
     {
@@ -124,6 +124,11 @@ ChunkHeader* ChunkHeader::fromUserPayload(const void* const userPayload) noexcep
     // the user-payload has a custom alignment
     auto backOffset = reinterpret_cast<UserPayloadOffset_t*>(userPayloadAddress - sizeof(UserPayloadOffset_t));
     return reinterpret_cast<ChunkHeader*>(userPayloadAddress - *backOffset);
+}
+
+const ChunkHeader* ChunkHeader::fromUserPayload(const void* const userPayload) noexcept
+{
+    return ChunkHeader::fromUserPayload(const_cast<void* const>(userPayload));
 }
 
 uint32_t ChunkHeader::usedSizeOfChunk() const noexcept
