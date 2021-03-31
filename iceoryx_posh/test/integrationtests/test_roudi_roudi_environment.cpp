@@ -33,5 +33,5 @@ class RouDiEnvironment_test : public Test
 TEST_F(RouDiEnvironment_test, StartingRouDiTwiceLeadsToError)
 {
     RouDiEnvironment m_sut{iox::RouDiConfig_t().setDefaults()};
-    EXPECT_DEATH({ RouDiEnvironment m_sut2; }, ".*");
+    EXPECT_DEATH({ RouDiEnvironment m_sut2{iox::RouDiConfig_t().setDefaults()}; }, ".*");
 }
