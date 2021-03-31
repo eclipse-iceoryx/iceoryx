@@ -23,7 +23,6 @@ install(
         ${CMAKE_CURRENT_SOURCE_DIR}/../NOTICE.md
         ${CMAKE_CURRENT_SOURCE_DIR}/../README.md
         ${CMAKE_CURRENT_SOURCE_DIR}/../CHANGELOG.md
-        ${CMAKE_CURRENT_SOURCE_DIR}/../limitations.md
   DESTINATION share/doc/iceoryx
   COMPONENT dev)
 
