@@ -67,27 +67,32 @@ struct alignas(32) ChunkHeader
     /// @return the ChunkHeader version
     uint8_t chunkHeaderVersion() const noexcept;
 
+    /// @brief Get the pointer to the user-header
+    /// @return the pointer to the user-header
+    template <typename T>
+    T* userHeader() noexcept;
+
+    /// @brief Get the const pointer to the user-header
+    /// @return the const pointer to the user-header
+    template <typename T>
+    const T* userHeader() const noexcept;
+
     /// @brief Get a pointer to the user-payload carried by the chunk
     /// @return the pointer to the user-payload
     void* userPayload() noexcept;
 
-    /// @brief Get a pointer to the user-payload carried by the chunk
-    /// @return the pointer to the user-payload
+    /// @brief Get a const pointer to the user-payload carried by the chunk
+    /// @return the const pointer to the user-payload
     const void* userPayload() const noexcept;
-
-    /// @brief Get the pointer to the user-header
-    /// @return the pointer to the user-header
-    template <typename T>
-    T* userHeader() const noexcept;
 
     /// @brief Get a pointer to the `ChunkHeader` associated to the user-payload of the chunk
     /// @param[in] userPayload is the pointer to the user-payload of the chunk
     /// @return the pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
     static ChunkHeader* fromUserPayload(void* const userPayload) noexcept;
 
-    /// @brief Get a pointer to the `ChunkHeader` associated to the user-payload of the chunk
-    /// @param[in] userPayload is the pointer to the user-payload of the chunk
-    /// @return the pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
+    /// @brief Get a const pointer to the `ChunkHeader` associated to the user-payload of the chunk
+    /// @param[in] userPayload is the const pointer to the user-payload of the chunk
+    /// @return the const pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
     static const ChunkHeader* fromUserPayload(const void* const userPayload) noexcept;
 
     /// @brief Calculates the used size of the chunk with the ChunkHeader, user-heander and user-payload

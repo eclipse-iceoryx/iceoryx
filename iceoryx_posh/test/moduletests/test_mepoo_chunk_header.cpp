@@ -103,12 +103,67 @@ TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderWorks)
 
 TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
 {
-    EXPECT_FALSE(std::is_const<decltype(std::declval<ChunkHeader>().userPayloadSize())>::value);
+    auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userPayload()), void*>::value;
+    EXPECT_TRUE(isNonConstReturn);
 }
 
 TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderReturnsConstType)
 {
-    EXPECT_TRUE(std::is_const<decltype(std::declval<ChunkHeader>().userPayloadSize())>::value);
+    auto isConstReturn = std::is_same<decltype(std::declval<const ChunkHeader>().userPayload()), const void*>::value;
+    EXPECT_TRUE(isConstReturn);
+}
+
+TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderWorks)
+{
+    constexpr uint32_t CHUNK_SIZE{753U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint32_t USER_HEADER_SIZE{16U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
+
+    auto chunkSettingsResult = ChunkSettings::create(
+        USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    ChunkHeader sut{CHUNK_SIZE, chunkSettings};
+
+    // the user-header is always adjacent to the ChunkHeader
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut.userHeader<uint8_t>())};
+    EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
+{
+    constexpr uint32_t CHUNK_SIZE{753U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint32_t USER_HEADER_SIZE{16U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
+
+    auto chunkSettingsResult = ChunkSettings::create(
+        USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    const ChunkHeader sut{CHUNK_SIZE, chunkSettings};
+
+    // the user-header is always adjacent to the ChunkHeader
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut.userHeader<uint8_t>())};
+    EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
+{
+    auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userHeader<uint8_t>()), uint8_t*>::value;
+    EXPECT_TRUE(isNonConstReturn);
+}
+
+TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderReturnsConstType)
+{
+    auto isConstReturn =
+        std::is_same<decltype(std::declval<const ChunkHeader>().userHeader<uint8_t>()), const uint8_t*>::value;
+    EXPECT_TRUE(isConstReturn);
 }
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNullptrReturnsNullptr)
@@ -127,12 +182,16 @@ TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstNullptrReturnsNullp
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNonConstParamReturnsNonConstType)
 {
-    EXPECT_FALSE(std::is_const<decltype(ChunkHeader::fromUserPayload(std::declval<void* const>()))>::value);
+    auto isNonConstReturn =
+        std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<void* const>())), ChunkHeader*>::value;
+    EXPECT_TRUE(isNonConstReturn);
 }
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstParamReturnsConstType)
 {
-    EXPECT_TRUE(std::is_const<decltype(ChunkHeader::fromUserPayload(std::declval<const void* const>()))>::value);
+    auto isConstReturn = std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<const void* const>())),
+                                      const ChunkHeader*>::value;
+    EXPECT_TRUE(isConstReturn);
 }
 
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)
