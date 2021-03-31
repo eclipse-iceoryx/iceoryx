@@ -166,7 +166,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
                                               remainingQueues.begin(),
                                               remainingQueues.end(),
                                               queueIntersection.begin());
-            queueIntersection.resize(iter - queueIntersection.begin());
+            queueIntersection.resize(static_cast<uint64_t>(iter - queueIntersection.begin()));
             remainingQueues = queueIntersection;
 
             // deliver to remaining queues
