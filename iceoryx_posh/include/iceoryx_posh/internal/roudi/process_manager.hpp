@@ -146,7 +146,8 @@ class ProcessManager : public ProcessManagerInterface
 
     /// @param [in] name of the process; this is equal to the IPC channel name, which is used for communication
     /// @param [in] pid is the host system process id
-    /// @param [in] dataSegmentMemoryManager is a pointer to the memory manager of the data segment for this process
+    /// @param [in] payloadDataSegmentMemoryManager is a pointer to the memory manager of the payload data segment for
+    /// this process
     /// @param [in] isMonitored indicates if the process should be monitored for being alive
     /// @param [in] transmissionTimestamp is an ID for the application to check for the expected response
     /// @param [in] dataSegmentId is an identifier for the shm data segment
@@ -155,7 +156,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @return Returns if the process could be added successfully.
     bool addProcess(const RuntimeName_t& name,
                     const uint32_t pid,
-                    cxx::not_null<mepoo::MemoryManager* const> dataSegmentMemoryManager,
+                    cxx::not_null<mepoo::MemoryManager* const> payloadDataSegmentMemoryManager,
                     const bool isMonitored,
                     const int64_t transmissionTimestamp,
                     const uint64_t dataSegmentId,

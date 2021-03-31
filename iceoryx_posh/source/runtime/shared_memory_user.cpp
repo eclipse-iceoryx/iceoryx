@@ -78,7 +78,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                 rp::BaseRelativePointer::registerPtr(
                     segment.m_segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
 
-                LogDebug() << "Application registered data segment "
+                LogDebug() << "Application registered payload data segment "
                            << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
                            << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
 

@@ -27,14 +27,14 @@ namespace roudi
 {
 Process::Process(const RuntimeName_t& name,
                  const uint32_t pid,
-                 mepoo::MemoryManager& dataSegmentMemoryManager,
+                 mepoo::MemoryManager& payloadDataSegmentMemoryManager,
                  const bool isMonitored,
                  const uint64_t dataSegmentId,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
     , m_ipcChannel(name)
     , m_timestamp(mepoo::BaseClock_t::now())
-    , m_dataSegmentMemoryManager(dataSegmentMemoryManager)
+    , m_payloadDataSegmentMemoryManager(payloadDataSegmentMemoryManager)
     , m_isMonitored(isMonitored)
     , m_dataSegmentId(dataSegmentId)
     , m_sessionId(sessionId)
@@ -76,9 +76,9 @@ mepoo::TimePointNs_t Process::getTimestamp() noexcept
     return m_timestamp;
 }
 
-mepoo::MemoryManager& Process::getDataSegmentMemoryManager() const noexcept
+mepoo::MemoryManager& Process::getpayloadDataSegmentMemoryManager() const noexcept
 {
-    return m_dataSegmentMemoryManager;
+    return m_payloadDataSegmentMemoryManager;
 }
 
 uint64_t Process::getDataSegmentId() const noexcept
