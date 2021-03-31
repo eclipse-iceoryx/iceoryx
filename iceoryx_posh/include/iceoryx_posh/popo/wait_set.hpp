@@ -48,7 +48,6 @@ enum class WaitSetError : uint8_t
     ALREADY_ATTACHED,
 };
 
-using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
 
 /// @brief Logical disjunction of a certain number of Triggers
 ///
@@ -184,7 +183,7 @@ class WaitSet
     using WaitFunction = cxx::function_ref<ConditionListener::NotificationVector_t()>;
     template <typename T>
     cxx::expected<uint64_t, WaitSetError> attachImpl(T& eventOrigin,
-                                                     const WaitSetHasTriggeredCallback& hasTriggeredCallback,
+                                                     const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,
                                                      const uint64_t eventId,
                                                      const EventInfo::Callback<T>& eventCallback,
                                                      const uint64_t originType,

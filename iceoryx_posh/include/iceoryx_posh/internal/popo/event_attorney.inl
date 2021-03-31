@@ -46,8 +46,8 @@ inline void EventAttorney::disableState(T& eventOrigin, Targs&&... args) noexcep
 }
 
 template <typename T, typename... Targs>
-inline cxx::ConstMethodCallback<bool> EventAttorney::getCallbackForIsStateConditionSatisfied(T& eventOrigin,
-                                                                                             Targs&&... args) noexcept
+inline WaitSetIsConditionSatisfiedCallback
+EventAttorney::getCallbackForIsStateConditionSatisfied(T& eventOrigin, Targs&&... args) noexcept
 {
     return eventOrigin.getCallbackForIsStateConditionSatisfied(std::forward<Targs>(args)...);
 }

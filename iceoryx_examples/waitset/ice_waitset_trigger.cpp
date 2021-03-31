@@ -188,7 +188,7 @@ class MyTriggerClass
 
 
     /// @brief Only usable by the WaitSet, not for public use
-    iox::popo::WaitSetHasTriggeredCallback
+    iox::popo::WaitSetIsConditionSatisfiedCallback
     getCallbackForIsStateConditionSatisfied(const MyTriggerClassStates event) const noexcept
     {
         switch (event)

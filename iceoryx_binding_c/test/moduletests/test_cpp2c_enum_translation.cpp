@@ -60,7 +60,7 @@ TEST(cpp2c_enum_translation_test, SubscribeStateCorrectAndFullTranslation)
             EXPECT_EQ(cpp2c::subscribeState(subscribeState.cpp), subscribeState.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
-            // too extend the test
+            // to extend the test
         }
     }
 
@@ -93,7 +93,7 @@ TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
             EXPECT_EQ(cpp2c::chunkReceiveResult(chunkReceiveResult.cpp), chunkReceiveResult.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
-            // too extend the test
+            // to extend the test
         }
     }
 
@@ -133,7 +133,7 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
             break;
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
-            // too extend the test
+            // to extend the test
         }
     }
 
@@ -165,7 +165,7 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
             EXPECT_EQ(cpp2c::waitSetResult(waitSetError.cpp), waitSetError.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
-            // too extend the test
+            // to extend the test
         }
     }
 
@@ -201,7 +201,7 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
             EXPECT_EQ(cpp2c::listenerResult(listenerError.cpp), listenerError.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
-            // too extend the test
+            // to extend the test
         }
     }
 

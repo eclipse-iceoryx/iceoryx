@@ -49,7 +49,7 @@ template <uint64_t Capacity>
 template <typename T>
 inline cxx::expected<uint64_t, WaitSetError>
 WaitSet<Capacity>::attachImpl(T& eventOrigin,
-                              const WaitSetHasTriggeredCallback& hasTriggeredCallback,
+                              const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,
                               const uint64_t eventId,
                               const EventInfo::Callback<T>& eventCallback,
                               const uint64_t originType,
@@ -109,7 +109,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                   "Only enums with an underlying EventEnumIdentifier or StateEnumIdentifier are allowed.");
 
     return attachImpl(eventOrigin,
-                      WaitSetHasTriggeredCallback(),
+                      WaitSetIsConditionSatisfiedCallback(),
                       eventId,
                       eventCallback,
                       static_cast<uint64_t>(eventType),
@@ -138,7 +138,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
     return attachImpl(eventOrigin,
-                      WaitSetHasTriggeredCallback(),
+                      WaitSetIsConditionSatisfiedCallback(),
                       eventId,
                       eventCallback,
                       static_cast<uint64_t>(NoEventEnumUsed::PLACEHOLDER),

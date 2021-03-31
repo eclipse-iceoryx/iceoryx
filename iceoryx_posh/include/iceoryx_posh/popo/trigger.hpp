@@ -75,6 +75,7 @@ class Trigger
     /// trigger.
     /// @param[in] uniqueId a context wide unique id to identify the trigger
     /// @param[in] stateType the uint64_t value of the  state origins state enum
+    /// @param[in] stateTypeHash the uint64_t type hash of the state enum
     template <typename T>
     Trigger(StateBasedTrigger_t,
             T* const stateOrigin,
@@ -95,6 +96,8 @@ class Trigger
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
     /// @param[in] uniqueId a context wide unique id to identify the trigger
+    /// @param[in] eventType the uint64_t value of the events origins event enum
+    /// @param[in] eventTypeHash the uint64_t type hash of the event enum
     template <typename T>
     Trigger(EventBasedTrigger_t,
             T* const eventOrigin,

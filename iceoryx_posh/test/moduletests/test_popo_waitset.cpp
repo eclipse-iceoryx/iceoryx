@@ -21,7 +21,6 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-#include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 #include "testutils/watch_dog.hpp"
@@ -38,6 +37,15 @@ using namespace iox::units::duration_literals;
 
 namespace
 {
+class WaitSetTest : public iox::popo::WaitSet<>
+{
+  public:
+    WaitSetTest(iox::popo::ConditionVariableData& condVarData) noexcept
+        : WaitSet(condVarData)
+    {
+    }
+};
+
 enum class SimpleEvent1 : iox::popo::EventEnumIdentifier
 {
     EVENT1 = 0,
@@ -131,20 +139,22 @@ class WaitSet_test : public Test
             m_eventHandle.invalidate();
         }
 
-        iox::cxx::ConstMethodCallback<bool> getCallbackForIsStateConditionSatisfied() const noexcept
+        iox::popo::WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied() const noexcept
         {
             return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
                                     : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
         }
 
-        iox::cxx::ConstMethodCallback<bool> getCallbackForIsStateConditionSatisfied(SimpleState1 state) const noexcept
+        iox::popo::WaitSetIsConditionSatisfiedCallback
+        getCallbackForIsStateConditionSatisfied(SimpleState1 state) const noexcept
         {
             m_simpleState1TriggerCallback = state;
             return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
                                     : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
         }
 
-        iox::cxx::ConstMethodCallback<bool> getCallbackForIsStateConditionSatisfied(SimpleState2 state) const noexcept
+        iox::popo::WaitSetIsConditionSatisfiedCallback
+        getCallbackForIsStateConditionSatisfied(SimpleState2 state) const noexcept
         {
             m_simpleState2TriggerCallback = state;
             return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
@@ -211,7 +221,7 @@ class WaitSet_test : public Test
     };
 
     ConditionVariableData m_condVarData{"Horscht"};
-    optional<WaitSetMock> m_sut;
+    optional<WaitSetTest> m_sut;
 
     static void triggerCallback1(WaitSet_test::SimpleEventClass* const waitset)
     {
@@ -500,8 +510,8 @@ TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 2101U;
     constexpr uint64_t ANOTHER_USER_DEFINED_EVENT_ID = 9121U;
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
-    auto result2 = m_sut->attachEvent(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
+    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID).has_error());
+    auto result2 = m_sut->attachState(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
     EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
@@ -825,6 +835,7 @@ TEST_F(WaitSet_test, AttachmentsGoingOutOfScopeReducesSize)
         SimpleEventClass simpleEvent1, simpleEvent2;
         ASSERT_FALSE(m_sut->attachEvent(simpleEvent1).has_error());
         ASSERT_FALSE(m_sut->attachEvent(simpleEvent2).has_error());
+        EXPECT_EQ(m_sut->size(), 5U);
     }
 
     EXPECT_EQ(m_sut->size(), 3U);
@@ -1029,149 +1040,232 @@ TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallbacks)
     WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
-TEST_F(WaitSet_test, NonResetStatesAreReturnedAgain)
+void NonResetStatesAreReturnedAgain(WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    attachAllStates();
+    test->attachAllStates();
 
-    m_simpleEvents[2].m_autoResetTrigger = false;
-    m_simpleEvents[2].trigger();
+    test->m_simpleEvents[2].m_autoResetTrigger = false;
+    test->m_simpleEvents[2].trigger();
 
-    m_simpleEvents[7].m_autoResetTrigger = false;
-    m_simpleEvents[7].trigger();
+    test->m_simpleEvents[7].m_autoResetTrigger = false;
+    test->m_simpleEvents[7].trigger();
 
-    auto eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
+    auto eventVector = waitCall();
 
     // ACT
-    eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
+    eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(2U));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 7U, test->m_simpleEvents[7]));
 }
 
-TEST_F(WaitSet_test, TriggeredEventsAreNotReturnedTwice)
+TEST_F(WaitSet_test, NonResetStatesAreReturnedAgainInTimedWait)
 {
-    attachAllEvents();
+    NonResetStatesAreReturnedAgain(this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
+}
 
-    m_simpleEvents[2].trigger();
-    m_simpleEvents[7].trigger();
+TEST_F(WaitSet_test, NonResetStatesAreReturnedAgainInWait)
+{
+    NonResetStatesAreReturnedAgain(this, [&] { return m_sut->wait(); });
+}
 
-    auto eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
+void TriggeredEventsAreNotReturnedTwice(WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    test->attachAllEvents();
+
+    test->m_simpleEvents[2].trigger();
+    test->m_simpleEvents[7].trigger();
+
+    auto eventVector = waitCall();
 
     // ACT
-    eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
+    test->m_simpleEvents[3].trigger();
+    eventVector = waitCall();
 
-    ASSERT_THAT(eventVector.size(), Eq(0U));
+    ASSERT_THAT(eventVector.size(), Eq(1U));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
 }
 
-TEST_F(WaitSet_test, InMixSetupOnlyStateTriggerAreReturnedTwice)
+TEST_F(WaitSet_test, TriggeredEventsAreNotReturnedTwiceInTimedWait)
 {
-    attachAllWithEventStateMix();
+    TriggeredEventsAreNotReturnedTwice(this,
+                                       [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
+}
 
-    for (auto& event : m_simpleEvents)
+TEST_F(WaitSet_test, TriggeredEventsAreNotReturnedTwiceInWait)
+{
+    TriggeredEventsAreNotReturnedTwice(this, [&] { return m_sut->wait(); });
+}
+
+void InMixSetupOnlyStateTriggerAreReturnedTwice(WaitSet_test* test,
+                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    test->attachAllWithEventStateMix();
+
+    for (auto& event : test->m_simpleEvents)
     {
         event.m_autoResetTrigger = false;
         event.trigger();
     }
 
-    auto eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
+    auto eventVector = waitCall();
 
     // ACT
-    eventVector = m_sut->timedWait(iox::units::Duration::fromSeconds(0U));
+    eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET / 2U));
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; i += 2)
     {
-        EXPECT_TRUE(doesEventInfoVectorContain(eventVector, i, m_simpleEvents[i]));
+        EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, i, test->m_simpleEvents[i]));
     }
 }
 
-TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain)
+TEST_F(WaitSet_test, InMixSetupOnlyStateTriggerAreReturnedTwiceInTimedWait)
 {
-    attachAllWithEventStateMix();
-
-    m_simpleEvents[2].m_autoResetTrigger = false;
-    m_simpleEvents[2].trigger();
-
-    auto eventVector = m_sut->wait();
-
-    m_simpleEvents[1].trigger();
-
-    // ACT
-    eventVector = m_sut->wait();
-
-    ASSERT_THAT(eventVector.size(), Eq(2));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 1U, m_simpleEvents[1]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
+    InMixSetupOnlyStateTriggerAreReturnedTwice(
+        this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
 }
 
-TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain)
+TEST_F(WaitSet_test, InMixSetupOnlyStateTriggerAreReturnedTwiceInWait)
 {
-    attachAllWithEventStateMix();
-
-    m_simpleEvents[2].m_autoResetTrigger = false;
-    m_simpleEvents[2].trigger();
-
-    auto eventVector = m_sut->wait();
-
-    m_simpleEvents[3].trigger();
-
-    // ACT
-    eventVector = m_sut->wait();
-
-    ASSERT_THAT(eventVector.size(), Eq(2));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
+    InMixSetupOnlyStateTriggerAreReturnedTwice(this, [&] { return m_sut->wait(); });
 }
 
-TEST_F(WaitSet_test, WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain)
+void WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain(
+    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    attachAllWithEventStateMix();
+    test->attachAllWithEventStateMix();
 
-    m_simpleEvents[2].m_autoResetTrigger = false;
-    m_simpleEvents[2].trigger();
+    test->m_simpleEvents[2].m_autoResetTrigger = false;
+    test->m_simpleEvents[2].trigger();
 
-    m_simpleEvents[7].trigger();
+    auto eventVector = waitCall();
 
-    m_simpleEvents[12].m_autoResetTrigger = false;
-    m_simpleEvents[12].trigger();
-
-    auto eventVector = m_sut->wait();
-
-    m_simpleEvents[1].trigger();
-    m_simpleEvents[3].trigger();
-    m_simpleEvents[6].trigger();
-    m_simpleEvents[13].trigger();
+    test->m_simpleEvents[1].trigger();
 
     // ACT
-    eventVector = m_sut->wait();
+    eventVector = waitCall();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 1U, test->m_simpleEvents[1]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+}
+
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgainInTimedWait)
+{
+    WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain(
+        this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
+}
+
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgainInWait)
+{
+    WhenStateIsNotResetAndEventIsTriggeredBeforeItIsReturnedAgain(this, [&] { return m_sut->wait(); });
+}
+
+void WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain(
+    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    test->attachAllWithEventStateMix();
+
+    test->m_simpleEvents[2].m_autoResetTrigger = false;
+    test->m_simpleEvents[2].trigger();
+
+    auto eventVector = waitCall();
+
+    test->m_simpleEvents[3].trigger();
+
+    // ACT
+    eventVector = waitCall();
+
+    ASSERT_THAT(eventVector.size(), Eq(2));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
+}
+
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgainInTimedWait)
+{
+    WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain(
+        this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
+}
+
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgainInWait)
+{
+    WhenStateIsNotResetAndEventIsTriggeredAfterItIsReturnedAgain(this, [&] { return m_sut->wait(); });
+}
+
+void WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain(
+    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    test->attachAllWithEventStateMix();
+
+    test->m_simpleEvents[2].m_autoResetTrigger = false;
+    test->m_simpleEvents[2].trigger();
+
+    test->m_simpleEvents[7].trigger();
+
+    test->m_simpleEvents[12].m_autoResetTrigger = false;
+    test->m_simpleEvents[12].trigger();
+
+    auto eventVector = waitCall();
+
+    test->m_simpleEvents[1].trigger();
+    test->m_simpleEvents[3].trigger();
+    test->m_simpleEvents[6].trigger();
+    test->m_simpleEvents[13].trigger();
+
+    // ACT
+    eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(6));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 1U, m_simpleEvents[1]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 3U, m_simpleEvents[3]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 6U, m_simpleEvents[6]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 12U, m_simpleEvents[12]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 13U, m_simpleEvents[13]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 1U, test->m_simpleEvents[1]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 3U, test->m_simpleEvents[3]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 6U, test->m_simpleEvents[6]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 12U, test->m_simpleEvents[12]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 13U, test->m_simpleEvents[13]));
 }
 
-TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorks)
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgainInTimedWait)
 {
-    attachAllEvents();
+    WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain(
+        this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
+}
 
-    m_simpleEvents[2].trigger();
-    m_simpleEvents[7].trigger();
+TEST_F(WaitSet_test, WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgainInWait)
+{
+    WhenStateIsNotResetAndEventsAreTriggeredItIsReturnedAgain(this, [&] { return m_sut->wait(); });
+}
 
-    auto eventVector = m_sut->wait();
+void NotifyingWaitSetTwiceWithSameTriggersWorks(WaitSet_test* test,
+                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    test->attachAllEvents();
 
-    m_simpleEvents[2].trigger();
-    m_simpleEvents[7].trigger();
+    test->m_simpleEvents[2].trigger();
+    test->m_simpleEvents[7].trigger();
 
-    eventVector = m_sut->wait();
+    auto eventVector = waitCall();
+
+    test->m_simpleEvents[2].trigger();
+    test->m_simpleEvents[7].trigger();
+
+    eventVector = waitCall();
 
     ASSERT_THAT(eventVector.size(), Eq(2));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 2U, m_simpleEvents[2]));
-    EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 7U, m_simpleEvents[7]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 2U, test->m_simpleEvents[2]));
+    EXPECT_TRUE(test->doesEventInfoVectorContain(eventVector, 7U, test->m_simpleEvents[7]));
+}
+
+TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorksInTimedWait)
+{
+    NotifyingWaitSetTwiceWithSameTriggersWorks(
+        this, [&] { return m_sut->timedWait(iox::units::Duration::fromMilliseconds(100)); });
+}
+
+TEST_F(WaitSet_test, NotifyingWaitSetTwiceWithSameTriggersWorksInWait)
+{
+    NotifyingWaitSetTwiceWithSameTriggersWorks(this, [&] { return m_sut->wait(); });
 }
 
 TEST_F(WaitSet_test, EventBasedTriggerIsReturnedOnlyOnceWhenItsTriggered)

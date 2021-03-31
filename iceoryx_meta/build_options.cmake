@@ -49,11 +49,11 @@ endif()
 ## must be before the BUILD_TEST check 
 if(COVERAGE AND NOT BUILD_TEST)
   set(BUILD_TEST ON)
-  set(BUILD_TEST_HINT "${BUILD_TEST_HINT} (activated since COVERAGE=ON)")
+  set(BUILD_TEST_HINT "${BUILD_TEST_HINT} (activated by COVERAGE=ON)")
 endif()
 
 if(BUILD_TEST AND NOT ROUDI_ENVIRONMENT)
-  set(ROUDI_ENV_HINT "${ROUDI_ENV_HINT} (activated since its required by BUILD_TEST)")
+  set(ROUDI_ENV_HINT "${ROUDI_ENV_HINT} (activated by BUILD_TEST=ON)")
   set(ROUDI_ENVIRONMENT ON)
 endif()
 

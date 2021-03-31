@@ -25,7 +25,6 @@
 
 #include "mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
-#include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -39,6 +38,16 @@ struct DummyData
 {
     uint64_t val = 42;
 };
+
+class WaitSetTest : public iox::popo::WaitSet<>
+{
+  public:
+    WaitSetTest(iox::popo::ConditionVariableData& condVarData) noexcept
+        : WaitSet(condVarData)
+    {
+    }
+};
+
 
 template <typename port_t>
 class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<port_t>
@@ -160,7 +169,7 @@ TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriber
 TEST_F(BaseSubscriberTest, AttachStateToWaitsetForwardedToUnderlyingSubscriberPort)
 {
     iox::popo::ConditionVariableData condVar("Horscht");
-    WaitSetMock waitSet(condVar);
+    WaitSetTest waitSet(condVar);
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     // ===== Test ===== //
@@ -172,7 +181,7 @@ TEST_F(BaseSubscriberTest, AttachStateToWaitsetForwardedToUnderlyingSubscriberPo
 TEST_F(BaseSubscriberTest, AttachEventToWaitsetForwardedToUnderlyingSubscriberPort)
 {
     iox::popo::ConditionVariableData condVar("Horscht");
-    WaitSetMock waitSet(condVar);
+    WaitSetTest waitSet(condVar);
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     // ===== Test ===== //
@@ -185,7 +194,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
@@ -198,8 +207,8 @@ TEST_F(BaseSubscriberTest, AttachingAttachedStateSubscriberToNewWaitsetDetachesI
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(condVar)};
-    std::unique_ptr<WaitSetMock> waitSet2{new WaitSetMock(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet2{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
@@ -215,7 +224,7 @@ TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
@@ -230,7 +239,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedStateCleansup)
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
@@ -245,7 +254,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     ASSERT_FALSE(waitSet->attachEvent(sut, iox::popo::SubscriberEvent::DATA_RECEIVED).has_error());
     // ===== Test ===== //

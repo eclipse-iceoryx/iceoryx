@@ -21,9 +21,29 @@
 
 using namespace ::testing;
 
+template <typename CPP, typename C>
+struct EnumMapping
+{
+    CPP cpp;
+    C c;
+};
+
 TEST(c2cpp_enum_translation_test, SubscriberState)
 {
-    EXPECT_EQ(c2cpp::subscriberState(SubscriberState_HAS_DATA), iox::popo::SubscriberState::HAS_DATA);
+    constexpr EnumMapping<iox::popo::SubscriberState, iox_SubscriberState> SUBSCRIBER_STATES[]{
+        {iox::popo::SubscriberState::HAS_DATA, SubscriberState_HAS_DATA}};
+
+    for (const auto subscriberState : SUBSCRIBER_STATES)
+    {
+        switch (subscriberState.cpp)
+        {
+        case iox::popo::SubscriberState::HAS_DATA:
+            EXPECT_EQ(c2cpp::subscriberState(subscriberState.c), subscriberState.cpp);
+            break;
+            // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
+            // to extend the test
+        }
+    }
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
@@ -50,7 +70,20 @@ TEST(c2cpp_enum_translation_test, SubscriberState)
 
 TEST(c2cpp_enum_translation_test, SubscriberEvent)
 {
-    EXPECT_EQ(c2cpp::subscriberEvent(SubscriberEvent_DATA_RECEIVED), iox::popo::SubscriberEvent::DATA_RECEIVED);
+    constexpr EnumMapping<iox::popo::SubscriberEvent, iox_SubscriberEvent> SUBSCRIBER_EVENTS[]{
+        {iox::popo::SubscriberEvent::DATA_RECEIVED, SubscriberEvent_DATA_RECEIVED}};
+
+    for (const auto subscriberEvent : SUBSCRIBER_EVENTS)
+    {
+        switch (subscriberEvent.cpp)
+        {
+        case iox::popo::SubscriberEvent::DATA_RECEIVED:
+            EXPECT_EQ(c2cpp::subscriberEvent(subscriberEvent.c), subscriberEvent.cpp);
+            break;
+            // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
+            // to extend the test
+        }
+    }
 
     // ignore the warning since we would like to test the behavior of an invalid enum value
 #pragma GCC diagnostic push
