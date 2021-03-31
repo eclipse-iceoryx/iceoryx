@@ -148,51 +148,8 @@ TEST_F(Trigger_test, MovedAssignedValidTriggerIsValid)
     Trigger trigger = createValidStateBasedTrigger(id, anotherOriginType, anotherOriginTypeHash);
     sut = std::move(trigger);
 
-    EXPECT_TRUE(sut.isValid());
-    EXPECT_TRUE(static_cast<bool>(sut));
-    EXPECT_THAT(sut.getTriggerType(), Eq(TriggerType::STATE_BASED));
-    EXPECT_TRUE(sut.isLogicalEqualTo(&m_triggerClass, anotherOriginType, anotherOriginTypeHash));
-
-    EXPECT_FALSE(trigger.isValid());
-    EXPECT_FALSE(static_cast<bool>(trigger));
-    EXPECT_THAT(trigger.getTriggerType(), Eq(TriggerType::INVALID));
-    EXPECT_FALSE(trigger.isLogicalEqualTo(&m_triggerClass, anotherOriginType, anotherOriginTypeHash));
-}
-
-TEST_F(Trigger_test, MovedConstructedOriginIsInvalidTriggerAfterMove)
-{
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 1931U;
-    constexpr uint64_t originTypeHash = 14301U;
-
-    Trigger trigger = createValidStateBasedTrigger(id, originType, originTypeHash);
-    Trigger sut{std::move(trigger)};
-
     EXPECT_FALSE(trigger.isValid());
     EXPECT_THAT(trigger.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
-
-    EXPECT_TRUE(sut.isValid());
-    EXPECT_TRUE(static_cast<bool>(sut));
-    EXPECT_THAT(sut.getTriggerType(), Eq(TriggerType::STATE_BASED));
-    EXPECT_TRUE(sut.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
-
-    EXPECT_FALSE(trigger.isValid());
-    EXPECT_FALSE(static_cast<bool>(trigger));
-    EXPECT_THAT(trigger.getTriggerType(), Eq(TriggerType::INVALID));
-    EXPECT_FALSE(trigger.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
-}
-
-TEST_F(Trigger_test, MovedAssignedOriginIsInvalidTriggerAfterMove)
-{
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 1900031U;
-    constexpr uint64_t originTypeHash = 1430001U;
-    constexpr uint64_t anotherOriginType = 2930001U;
-    constexpr uint64_t anotherOriginTypeHash = 2430001U;
-
-    Trigger sut = createValidStateBasedTrigger(id, originType, originTypeHash);
-    Trigger trigger = createValidStateBasedTrigger(id, anotherOriginType, anotherOriginTypeHash);
-    sut = std::move(trigger);
 
     EXPECT_TRUE(sut.isValid());
     EXPECT_TRUE(static_cast<bool>(sut));
@@ -295,6 +252,7 @@ TEST_F(Trigger_test, ResetInvalidatesTrigger)
 
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
+    EXPECT_THAT(sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
 }
 
 TEST_F(Trigger_test, InvalidateInvalidatesTrigger)
@@ -304,6 +262,7 @@ TEST_F(Trigger_test, InvalidateInvalidatesTrigger)
 
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
+    EXPECT_THAT(sut.getUniqueId(), Eq(Trigger::INVALID_TRIGGER_ID));
 }
 
 TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
@@ -621,7 +580,7 @@ TEST_F(Trigger_test, ValidEventBasedTriggerIsLogicalEqualToSameEventOriginAndEmp
     EXPECT_TRUE(sut.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
 }
 
-TEST_F(Trigger_test, ValidEventBasedTriggerIsNotLogicalEqualToDifferentEventOriginAndEmptyHasTriggeredCallback)
+TEST_F(Trigger_test, ValidEventBasedTriggerIsNotLogicalEqualToDifferentEventOrigin)
 {
     constexpr uint64_t id = 0U;
     constexpr uint64_t originType = 458U;
@@ -632,18 +591,7 @@ TEST_F(Trigger_test, ValidEventBasedTriggerIsNotLogicalEqualToDifferentEventOrig
     EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, originType, originTypeHash));
 }
 
-TEST_F(Trigger_test, ValidEventBasedTriggerIsNotLogicalEqualToDifferentEventOriginAndNonEmptyHasTriggeredCallback)
-{
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 45998U;
-    constexpr uint64_t originTypeHash = 41883U;
-    Trigger sut = createValidEventBasedTrigger(id, originType, originTypeHash);
-    TriggerClass anotherTriggerClass;
-
-    EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, originType, originTypeHash));
-}
-
-TEST_F(Trigger_test, InvalidEventBasedTriggerIsLogicalEqualToSameEventOriginAndEmptyHasTriggeredCallback)
+TEST_F(Trigger_test, InvalidEventBasedTriggerIsLogicalEqualToSameEventOrigin)
 {
     constexpr uint64_t id = 0U;
     constexpr uint64_t originType = 4598U;
@@ -654,34 +602,11 @@ TEST_F(Trigger_test, InvalidEventBasedTriggerIsLogicalEqualToSameEventOriginAndE
     EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
 }
 
-TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToSameEventOriginAndNonEmptyHasTriggeredCallback)
-{
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 459U;
-    constexpr uint64_t originTypeHash = 883U;
-    Trigger sut = createValidEventBasedTrigger(id, originType, originTypeHash);
-    sut.invalidate();
-
-    EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
-}
-
-TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToDifferentEventOriginAndEmptyHasTriggeredCallback)
+TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToDifferentEventOrigin)
 {
     constexpr uint64_t id = 0U;
     constexpr uint64_t originType = 48U;
     constexpr uint64_t originTypeHash = 83U;
-    Trigger sut = createValidEventBasedTrigger(id, originType, originTypeHash);
-    sut.invalidate();
-    TriggerClass anotherTriggerClass;
-
-    EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, originType, originTypeHash));
-}
-
-TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToDifferentEventOriginAndNonEmptyHasTriggeredCallback)
-{
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 14598U;
-    constexpr uint64_t originTypeHash = 14883U;
     Trigger sut = createValidEventBasedTrigger(id, originType, originTypeHash);
     sut.invalidate();
     TriggerClass anotherTriggerClass;

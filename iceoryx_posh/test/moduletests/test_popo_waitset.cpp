@@ -641,7 +641,7 @@ TEST_F(WaitSet_test, AttachingEventWithEnumIsSuccessful)
     EXPECT_TRUE(m_simpleEvents[0].hasEventSet());
 }
 
-TEST_F(WaitSet_test, AttachingSameEventWithEnumIsFails)
+TEST_F(WaitSet_test, AttachingSameEventWithEnumFails)
 {
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1).has_error());
 
@@ -689,7 +689,7 @@ TEST_F(WaitSet_test, AttachingStateWithEnumIsSuccessful)
     EXPECT_FALSE(m_simpleEvents[0].hasEventSet());
 }
 
-TEST_F(WaitSet_test, AttachingSameStateWithEnumIsFails)
+TEST_F(WaitSet_test, AttachingSameStateWithEnumFails)
 {
     ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1).has_error());
 

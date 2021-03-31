@@ -105,8 +105,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin
                                                                   const uint64_t eventId,
                                                                   const EventInfo::Callback<T>& eventCallback) noexcept
 {
-    static_assert(IS_EVENT_ENUM<EventType>,
-                  "Only enums with an underlying EventEnumIdentifier or StateEnumIdentifier are allowed.");
+    static_assert(IS_EVENT_ENUM<EventType>, "Only enums with an underlying EventEnumIdentifier are allowed.");
 
     return attachImpl(eventOrigin,
                       WaitSetIsConditionSatisfiedCallback(),
