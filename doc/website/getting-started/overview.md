@@ -10,6 +10,8 @@ runtime and create _publishers_ and _subscribers_. The publishers send data of a
 received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
 these offered topics, the middleware daemon, called ``RouDi``, must be running.
 
+<!-- @todo add overview graphic -->
+
 For further information how iceoryx can be used, see the 
 [examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md). The
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) provides additional 
@@ -48,8 +50,11 @@ else
     // handle the error
 }
 ```
-Here ``result`` is an ``expected`` and hence we may get an error which we have to handle. This can happen if we try 
-to loan too many samples and exhaust memory. If you want to know more about ``expected``, take a look at 
+Here ``result`` is an ``expected`` and hence we may get an error. This can happen if we try to loan too many samples 
+and exhaust memory. We have to handle this possible error since the expected class has the ``nodiscard`` keyword 
+attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could also 
+explicitly discrad it with ``IOX_DISCARD_RESULT`` which is discouraged. If you want to know more about ``expected``, 
+take a look at 
 [How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 Let's create a corresponding subscriber.
@@ -80,7 +85,7 @@ while (keepRunning)
     }
 }
 ```
-By calling ``take`` we get an ``expected`` and hence we may have to handle an error.
+By calling ``take`` we get an ``expected`` and hence we have to handle a possible error.
 
 And that's it. We have created our first simple iceoryx example.
 [Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples 
@@ -109,7 +114,7 @@ We now briefly define the main entities of an iceoryx system which were already 
 
 RouDi is an abbreviation for **Rou**ting and **Di**scovery. RouDi takes care of the
 communication setup but does not actually participate in the communication between the publisher and the subscriber.
-RouDi can be thought of as the switchboard operator of iceoryx. One of his other major tasks is the setup of the
+RouDi can be thought of as the switchboard operator of iceoryx. One of its other major tasks is the setup of the
 shared memory, which the applications use for exchanging payload data. Sometimes referred to as daemon, RouDi manages
 the shared memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by 
 publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use
@@ -126,16 +131,20 @@ iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
 ```
 ## Creating service descriptions for topics
 
-A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is uniquely identified by three string
-identifiers.
+A ``ServiceDescription`` in iceoryx represents a topic under which publisher and subscribers can exchange data and is 
+uniquely identified by three string identifiers.
 
 1. ``Group`` name
 2. ``Instance`` name
 3. ``Topic`` name
 
-A triple consisting of such strings is called a ``ServiceDescription``. The service model of iceoryx is derived
-from AUTOSAR and is still used in the API with these names. The so called canonical protocol is implemented in the
-namespace ``capro``.
+A triple consisting of such strings is called a ``ServiceDescription``. Two ``ServiceDescription``s are considered 
+matching if all these three strings are element-wise equal, i.e. group, instance and topic names are the same for both 
+of them. This means the group and instance identifier can be ignored to create different ``ServiceDescription``s. They 
+will be needed for advanced filtering functionality in the future.
+
+The service model of iceoryx is derived from AUTOSAR and is still used in the API with these names. The so called 
+canonical protocol is implemented in the namespace ``capro``.
 
 The following table gives an overview of the different terminologies and the current mapping:
 
@@ -145,14 +154,24 @@ The following table gives an overview of the different terminologies and the cur
 | AUTOSAR | Service | Instance         | Event                  |
 | DDS     | -       | -                | /Group/Instance/Topic  |
 
-Service and instance are like classes and objects in C++. So you always have a specific instance of a service during
-runtime. The mapping will be reworked with release v2.0.
+Service is related to instance like classes are related to objects in C++. Service describes an abstract topic and an 
+instance is one instantiation of that abstraction. Like an object is an instantiated class. Events are in this context 
+like members of a class.
 
-Two ``ServiceDescription``s are considered matching if all these three strings are element-wise equal, i.e. group,
-instance and topic names are the same for both of them.
+Example:
+```cpp
+class MyRadarService {
+   public:
+      bool hasObstacleDetected;
+      float distanceToObstacle;
+};
 
-This means the group and instance identifier can be ignored to create different ``ServiceDescription``s. They will be
-needed for advanced filtering functionality in the future.
+MyRadarService frontLeftRadarInstance;
+std::cout << frontLeftRadarInstance.hasObstacleDetected << std::endl;
+```
+In the iceoryx world we would subscribe to the service ``("MyRadarService", "frontLeftRadarInstance", "hasObstacleDetected")`` 
+and would receive a sample whenever an obstacle was detected. Or we would subscribe to ``distanceToObstacle`` and would 
+receive a constant stream of data which presents the distance to the obstacle.
 
 ### Restrictions
 
@@ -170,9 +189,9 @@ to process local constructs, no dynamic allocators
 
 ## Publisher
 
-A publisher is tied to a topic and needs a service description to be constructed. If it is typed one needs to
+A publisher is tied to a topic and needs a service description to be constructed. If it is typed, one needs to
 additionally specify the data type as a template parameter. Otherwise, the publisher is only aware of raw memory and 
-the user has to take care that it is interpreted correctly.
+the user has to ensure that it is interpreted correctly.
 
 Once it has offered its topic, it is able to publish (send) data of the specific type. Note that the default is to
 have multiple publishers for the same topic (n:m communication). A compile-time option to restrict iceoryx to
@@ -197,14 +216,11 @@ The easiest way to receive data is to periodically poll whether data is availabl
 cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
 
 The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user-defined ``events``
-to occur. Here an event is associated with a condition and occurs when this condition becomes true.
-Usually, these events correspond to the availability of data at specific subscribers. This way we
-can immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
+to occur. Usually, these events correspond to the availability of data at specific subscribers. This way we can 
+immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
 
-It manages a set of triggers which can be activated to indicate that a corresponding event occurred which wakes
-up a potentially waiting thread. Upon waking up it can be determined which conditions became true and caused the
-wake-up. In the case that the wake-up event was the availability of new data, this data can now be collected at
-the subscriber.
+The Waitset is an implementation of the reactor pattern and is informed with a push strategy that one of the 
+attached events occured at which it informs the user.
 
 For more information on how to use the Waitset see 
 [Waitset](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/README.md).
