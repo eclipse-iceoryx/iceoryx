@@ -61,7 +61,7 @@ class MemoryManager
 
     uint32_t getNumberOfMemPools() const noexcept;
 
-    MemPoolInfo getMemPoolInfo(uint32_t index) const noexcept;
+    MemPoolInfo getMemPoolInfo(const uint32_t index) const noexcept;
 
     static uint64_t requiredChunkMemorySize(const MePooConfig& mePooConfig) noexcept;
     static uint64_t requiredManagementMemorySize(const MePooConfig& mePooConfig) noexcept;

@@ -63,7 +63,7 @@ class UntypedSubscriberImpl : public BaseSubscriber_t
     ///          The chunk must not be accessed afterwards as its memory may have
     ///          been reclaimed.
     ///
-    void release(const void* userPayload) noexcept;
+    void release(const void* const userPayload) noexcept;
 
   protected:
     using BaseSubscriber::port;

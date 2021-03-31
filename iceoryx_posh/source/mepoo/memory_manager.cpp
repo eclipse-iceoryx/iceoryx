@@ -82,7 +82,7 @@ uint32_t MemoryManager::getNumberOfMemPools() const noexcept
     return static_cast<uint32_t>(m_memPoolVector.size());
 }
 
-MemPoolInfo MemoryManager::getMemPoolInfo(uint32_t index) const noexcept
+MemPoolInfo MemoryManager::getMemPoolInfo(const uint32_t index) const noexcept
 {
     if (index >= m_memPoolVector.size())
     {
