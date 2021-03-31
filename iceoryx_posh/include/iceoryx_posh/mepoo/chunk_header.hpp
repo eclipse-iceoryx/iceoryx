@@ -69,7 +69,11 @@ struct alignas(32) ChunkHeader
 
     /// @brief Get a pointer to the user-payload carried by the chunk
     /// @return the pointer to the user-payload
-    void* userPayload() const noexcept;
+    void* userPayload() noexcept;
+
+    /// @brief Get a pointer to the user-payload carried by the chunk
+    /// @return the pointer to the user-payload
+    const void* userPayload() const noexcept;
 
     /// @brief Get the pointer to the user-header
     /// @return the pointer to the user-header

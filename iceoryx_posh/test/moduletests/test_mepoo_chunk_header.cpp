@@ -67,6 +67,50 @@ TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChun
     EXPECT_THAT(maxOfUserPayloadSizeType, Ge(maxOfChunkSizeType));
 }
 
+TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderWorks)
+{
+    constexpr uint32_t CHUNK_SIZE{753U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    ChunkHeader sut{CHUNK_SIZE, chunkSettings};
+
+    // a default created ChunkHeader has always an adjacent user-payload
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
+    const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(sut.userPayload())};
+    EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderWorks)
+{
+    constexpr uint32_t CHUNK_SIZE{753U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    const ChunkHeader sut{CHUNK_SIZE, chunkSettings};
+
+    // a default created ChunkHeader has always an adjacent user-payload
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
+    const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(sut.userPayload())};
+    EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
+{
+    EXPECT_FALSE(std::is_const<decltype(std::declval<ChunkHeader>().userPayloadSize())>::value);
+}
+
+TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderReturnsConstType)
+{
+    EXPECT_TRUE(std::is_const<decltype(std::declval<ChunkHeader>().userPayloadSize())>::value);
+}
+
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNullptrReturnsNullptr)
 {
     EXPECT_THAT(ChunkHeader::fromUserPayload(nullptr), Eq(nullptr));

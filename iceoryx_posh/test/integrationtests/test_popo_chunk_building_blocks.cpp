@@ -166,7 +166,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             m_chunkReceiver.tryGet()
                 .and_then([&](auto& chunkHeader) {
-                    auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->userPayload());
+                    auto dummySample = *reinterpret_cast<const DummySample*>(chunkHeader->userPayload());
                     // Check if monotonically increasing
                     EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
                     m_receiveCounter++;

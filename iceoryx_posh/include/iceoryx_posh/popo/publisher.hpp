@@ -105,7 +105,7 @@ class Publisher : public BasePublisher_t, public PublisherInterface<T, H>
     using BasePublisher_t::port;
 
   private:
-    Sample<T, H> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
+    Sample<T, H> convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept;
 
     cxx::expected<Sample<T, H>, AllocationError> loanSample() noexcept;
 
