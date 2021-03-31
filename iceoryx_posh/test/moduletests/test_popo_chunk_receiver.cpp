@@ -111,7 +111,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
         ASSERT_FALSE(maybeChunkHeader.has_error());
 
-        EXPECT_TRUE(sharedChunk.getPayload() == (*maybeChunkHeader)->payload());
+        EXPECT_TRUE(sharedChunk.getUserPayload() == (*maybeChunkHeader)->userPayload());
         m_chunkReceiver.release(*maybeChunkHeader);
     }
 
@@ -126,7 +126,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
     {
         auto sharedChunk = getChunkFromMemoryManager();
         EXPECT_TRUE(sharedChunk);
-        auto sample = sharedChunk.getPayload();
+        auto sample = sharedChunk.getUserPayload();
         new (sample) DummySample();
         static_cast<DummySample*>(sample)->dummy = i;
 
@@ -143,7 +143,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
     {
         const auto chunk = chunks.back();
         chunks.pop_back();
-        auto dummySample = *reinterpret_cast<DummySample*>(chunk->payload());
+        auto dummySample = *reinterpret_cast<DummySample*>(chunk->userPayload());
         EXPECT_THAT(dummySample.dummy, Eq(iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY - 1 - i));
         m_chunkReceiver.release(chunk);
     }
@@ -188,7 +188,7 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
 
         auto maybeChunkHeader = m_chunkReceiver.tryGet();
         ASSERT_FALSE(maybeChunkHeader.has_error());
-        EXPECT_TRUE(sharedChunk.getPayload() == (*maybeChunkHeader)->payload());
+        EXPECT_TRUE(sharedChunk.getUserPayload() == (*maybeChunkHeader)->userPayload());
     }
 
     auto errorHandlerCalled{false};
@@ -198,9 +198,10 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
         });
 
     constexpr uint32_t CHUNK_SIZE{32U};
-    constexpr uint32_t PAYLOAD_SIZE{0U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
 
-    auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    auto chunkSettingsResult =
+        iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 

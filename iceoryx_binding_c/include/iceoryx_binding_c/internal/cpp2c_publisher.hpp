@@ -31,8 +31,8 @@ struct cpp2c_Publisher
     cpp2c_Publisher& operator=(cpp2c_Publisher&& rhs) noexcept;
 
     iox::popo::PublisherPortData* m_portData{nullptr};
-    uint32_t m_customHeaderSize{iox::CHUNK_NO_CUSTOM_HEADER_SIZE};
-    uint32_t m_customHeaderAlignment{iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT};
+    uint32_t m_userHeaderSize{iox::CHUNK_NO_USER_HEADER_SIZE};
+    uint32_t m_userHeaderAlignment{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
 };
 
 #endif

@@ -22,90 +22,91 @@ namespace iox
 {
 namespace mepoo
 {
-ChunkSettings::ChunkSettings(const uint32_t payloadSize,
-                             const uint32_t payloadAlignment,
-                             const uint32_t customHeaderSize,
-                             const uint32_t customHeaderAlignment,
+ChunkSettings::ChunkSettings(const uint32_t userPayloadSize,
+                             const uint32_t userPayloadAlignment,
+                             const uint32_t userHeaderSize,
+                             const uint32_t userHeaderAlignment,
                              const uint32_t requiredChunkSize) noexcept
-    : m_payloadSize(payloadSize)
-    , m_payloadAlignment(payloadAlignment)
-    , m_customHeaderSize(customHeaderSize)
-    , m_customHeaderAlignment(customHeaderAlignment)
+    : m_userPayloadSize(userPayloadSize)
+    , m_userPayloadAlignment(userPayloadAlignment)
+    , m_userHeaderSize(userHeaderSize)
+    , m_userHeaderAlignment(userHeaderAlignment)
     , m_requiredChunkSize(requiredChunkSize)
 {
 }
 
-cxx::expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32_t payloadSize,
-                                                                         const uint32_t payloadAlignment,
-                                                                         const uint32_t customHeaderSize,
-                                                                         const uint32_t customHeaderAlignment) noexcept
+cxx::expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32_t userPayloadSize,
+                                                                         const uint32_t userPayloadAlignment,
+                                                                         const uint32_t userHeaderSize,
+                                                                         const uint32_t userHeaderAlignment) noexcept
 {
     // since alignas accepts 0, we also do but we adjust it to 1 in case there are some division or modulo operations
     // with the alignment later on
-    uint32_t adjustedPayloadAlignment = payloadAlignment == 0U ? 1U : payloadAlignment;
-    uint32_t adjustedCustomHeaderAlignment = customHeaderAlignment == 0U ? 1U : customHeaderAlignment;
+    uint32_t adjustedUserPayloadAlignment = userPayloadAlignment == 0U ? 1U : userPayloadAlignment;
+    uint32_t adjustedUserHeaderAlignment = userHeaderAlignment == 0U ? 1U : userHeaderAlignment;
 
-    if (!cxx::isPowerOfTwo(adjustedPayloadAlignment) || !cxx::isPowerOfTwo(adjustedCustomHeaderAlignment))
+    if (!cxx::isPowerOfTwo(adjustedUserPayloadAlignment) || !cxx::isPowerOfTwo(adjustedUserHeaderAlignment))
     {
         return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO);
     }
 
-    if (adjustedCustomHeaderAlignment > alignof(ChunkHeader))
+    if (adjustedUserHeaderAlignment > alignof(ChunkHeader))
     {
-        // for ease of calculation, the alignment of the custom header is restricted to not exceed the alignment of the
+        // for ease of calculation, the alignment of the user-header is restricted to not exceed the alignment of the
         // ChunkHeader
         return cxx::error<ChunkSettings::Error>(
-            ChunkSettings::Error::CUSTOM_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT);
+            ChunkSettings::Error::USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT);
     }
 
-    if (customHeaderSize % adjustedCustomHeaderAlignment != 0U)
+    if (userHeaderSize % adjustedUserHeaderAlignment != 0U)
     {
-        return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::CUSTOM_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
+        return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
     }
 
-    uint64_t requiredChunkSize = calculateRequiredChunkSize(payloadSize, adjustedPayloadAlignment, customHeaderSize);
+    uint64_t requiredChunkSize =
+        calculateRequiredChunkSize(userPayloadSize, adjustedUserPayloadAlignment, userHeaderSize);
 
     if (requiredChunkSize > std::numeric_limits<uint32_t>::max())
     {
         return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
     }
 
-    return cxx::success<ChunkSettings>(ChunkSettings{payloadSize,
-                                                     adjustedPayloadAlignment,
-                                                     customHeaderSize,
-                                                     adjustedCustomHeaderAlignment,
+    return cxx::success<ChunkSettings>(ChunkSettings{userPayloadSize,
+                                                     adjustedUserPayloadAlignment,
+                                                     userHeaderSize,
+                                                     adjustedUserHeaderAlignment,
                                                      static_cast<uint32_t>(requiredChunkSize)});
 }
-uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t payloadSize,
-                                                   const uint32_t payloadAlignment,
-                                                   const uint32_t customHeaderSize) noexcept
+uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t userPayloadSize,
+                                                   const uint32_t userPayloadAlignment,
+                                                   const uint32_t userHeaderSize) noexcept
 {
     // have a look at »Required Chunk Size Calculation« in chunk_header.md for more details regarding the calculation
-    if (customHeaderSize == 0)
+    if (userHeaderSize == 0)
     {
-        // the most simple case with no custom header and the payload adjacent to the ChunkHeader
-        if (payloadAlignment <= alignof(mepoo::ChunkHeader))
+        // the most simple case with no user-header and the user-payload adjacent to the ChunkHeader
+        if (userPayloadAlignment <= alignof(mepoo::ChunkHeader))
         {
-            uint64_t requiredChunkSize = static_cast<uint64_t>(sizeof(ChunkHeader)) + payloadSize;
+            uint64_t requiredChunkSize = static_cast<uint64_t>(sizeof(ChunkHeader)) + userPayloadSize;
 
             return requiredChunkSize;
         }
 
-        // the second most simple case with no custom header but the payload alignment
+        // the second most simple case with no user-header but the user-payload alignment
         // exceeds the ChunkHeader alignment and is therefore not necessarily adjacent
-        uint64_t prePayloadAlignmentOverhang = static_cast<uint64_t>(sizeof(ChunkHeader) - alignof(ChunkHeader));
-        uint64_t requiredChunkSize = prePayloadAlignmentOverhang + payloadAlignment + payloadSize;
+        uint64_t preUserPayloadAlignmentOverhang = static_cast<uint64_t>(sizeof(ChunkHeader) - alignof(ChunkHeader));
+        uint64_t requiredChunkSize = preUserPayloadAlignmentOverhang + userPayloadAlignment + userPayloadSize;
 
         return requiredChunkSize;
     }
 
-    // the most complex case with a custom header
-    constexpr uint64_t SIZE_OF_PAYLOAD_OFFSET_T{sizeof(ChunkHeader::PayloadOffset_t)};
-    constexpr uint64_t ALIGNMENT_OF_PAYLOAD_OFFSET_T{alignof(ChunkHeader::PayloadOffset_t)};
-    uint64_t headerSize = static_cast<uint64_t>(sizeof(ChunkHeader) + customHeaderSize);
-    uint64_t prePayloadAlignmentOverhang = cxx::align(headerSize, ALIGNMENT_OF_PAYLOAD_OFFSET_T);
-    uint64_t maxPadding = algorithm::max(SIZE_OF_PAYLOAD_OFFSET_T, static_cast<uint64_t>(payloadAlignment));
-    uint64_t requiredChunkSize = prePayloadAlignmentOverhang + maxPadding + payloadSize;
+    // the most complex case with a user-header
+    constexpr uint64_t SIZE_OF_USER_PAYLOAD_OFFSET_T{sizeof(ChunkHeader::UserPayloadOffset_t)};
+    constexpr uint64_t ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T{alignof(ChunkHeader::UserPayloadOffset_t)};
+    uint64_t headerSize = static_cast<uint64_t>(sizeof(ChunkHeader) + userHeaderSize);
+    uint64_t preUserPayloadAlignmentOverhang = cxx::align(headerSize, ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T);
+    uint64_t maxPadding = algorithm::max(SIZE_OF_USER_PAYLOAD_OFFSET_T, static_cast<uint64_t>(userPayloadAlignment));
+    uint64_t requiredChunkSize = preUserPayloadAlignmentOverhang + maxPadding + userPayloadSize;
 
     return requiredChunkSize;
 }
@@ -115,24 +116,24 @@ uint32_t ChunkSettings::requiredChunkSize() const noexcept
     return m_requiredChunkSize;
 }
 
-uint32_t ChunkSettings::payloadSize() const noexcept
+uint32_t ChunkSettings::userPayloadSize() const noexcept
 {
-    return m_payloadSize;
+    return m_userPayloadSize;
 }
 
-uint32_t ChunkSettings::payloadAlignment() const noexcept
+uint32_t ChunkSettings::userPayloadAlignment() const noexcept
 {
-    return m_payloadAlignment;
+    return m_userPayloadAlignment;
 }
 
-uint32_t ChunkSettings::customHeaderSize() const noexcept
+uint32_t ChunkSettings::userHeaderSize() const noexcept
 {
-    return m_customHeaderSize;
+    return m_userHeaderSize;
 }
 
-uint32_t ChunkSettings::customHeaderAlignment() const noexcept
+uint32_t ChunkSettings::userHeaderAlignment() const noexcept
 {
-    return m_customHeaderAlignment;
+    return m_userHeaderAlignment;
 }
 
 } // namespace mepoo

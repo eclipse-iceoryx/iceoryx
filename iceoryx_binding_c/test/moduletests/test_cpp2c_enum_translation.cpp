@@ -111,8 +111,8 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
         {iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, AllocationResult_RUNNING_OUT_OF_CHUNKS},
         {iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
          AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL},
-        {iox::popo::AllocationError::INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER,
-         AllocationResult_INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER},
+        {iox::popo::AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
+         AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER},
         {iox::popo::AllocationError::INVALID_STATE, AllocationResult_UNDEFINED_ERROR}};
 
     for (const auto allocationError : ALLOCATION_ERRORS)
@@ -125,7 +125,7 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
         case iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL:
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
             break;
-        case iox::popo::AllocationError::INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER:
+        case iox::popo::AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER:
             EXPECT_EQ(cpp2c::allocationResult(allocationError.cpp), allocationError.c);
             break;
         case iox::popo::AllocationError::INVALID_STATE:

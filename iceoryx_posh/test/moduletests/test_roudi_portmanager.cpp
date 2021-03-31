@@ -59,7 +59,7 @@ class PortManagerTester : public PortManager
 class PortManager_test : public Test
 {
   public:
-    iox::mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
+    iox::mepoo::MemoryManager* m_payloadDataSegmentMemoryManager{nullptr};
     IceOryxRouDiMemoryManager* m_roudiMemoryManager{nullptr};
     PortManagerTester* m_portManager{nullptr};
 
@@ -80,7 +80,7 @@ class PortManager_test : public Test
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
         auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
-        m_payloadMemoryManager =
+        m_payloadDataSegmentMemoryManager =
             m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user).m_memoryManager;
 
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
@@ -215,7 +215,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -246,7 +246,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -271,7 +271,7 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -297,7 +297,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -321,7 +321,7 @@ TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPubl
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     publisher.offer();
     m_portManager->doDiscovery();
@@ -345,7 +345,7 @@ TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscrib
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -362,7 +362,7 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -376,7 +376,7 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadMemoryManager, PortConfigInfo())
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     SubscriberPortUser subscriber(
@@ -396,7 +396,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
-            getUniqueSD(), publisherOptions, runtimeName, m_payloadMemoryManager, PortConfigInfo());
+            getUniqueSD(), publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
 
         ASSERT_FALSE(publisherPortDataResult.has_error());
     }
@@ -410,7 +410,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
 
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
-            getUniqueSD(), publisherOptions, runtimeName, m_payloadMemoryManager, PortConfigInfo());
+            getUniqueSD(), publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
         EXPECT_TRUE(errorHandlerCalled);
         ASSERT_TRUE(publisherPortDataResult.has_error());
         EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::PUBLISHER_PORT_LIST_FULL));
@@ -703,14 +703,16 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
     // two applications app1 and app2 each with a publisher and subscriber that match to the other applications
     auto publisherData1 =
         m_portManager
-            ->acquirePublisherPortData(cap1, publisherOptions, runtimeName1, m_payloadMemoryManager, PortConfigInfo())
+            ->acquirePublisherPortData(
+                cap1, publisherOptions, runtimeName1, m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value();
     auto subscriberData1 =
         m_portManager->acquireSubscriberPortData(cap2, subscriberOptions, runtimeName1, PortConfigInfo()).value();
 
     auto publisherData2 =
         m_portManager
-            ->acquirePublisherPortData(cap2, publisherOptions, runtimeName2, m_payloadMemoryManager, PortConfigInfo())
+            ->acquirePublisherPortData(
+                cap2, publisherOptions, runtimeName2, m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value();
     auto subscriberData2 =
         m_portManager->acquireSubscriberPortData(cap1, subscriberOptions, runtimeName2, PortConfigInfo()).value();
@@ -763,10 +765,10 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
     }
 
     // re-create the ports of process runtimeName2
-    publisherData2 =
-        m_portManager
-            ->acquirePublisherPortData(cap2, publisherOptions, runtimeName2, m_payloadMemoryManager, PortConfigInfo())
-            .value();
+    publisherData2 = m_portManager
+                         ->acquirePublisherPortData(
+                             cap2, publisherOptions, runtimeName2, m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                         .value();
     subscriberData2 =
         m_portManager->acquireSubscriberPortData(cap1, subscriberOptions, runtimeName2, PortConfigInfo()).value();
 
@@ -817,7 +819,7 @@ TEST_F(PortManager_test, OfferPublisherServiceUpdatesServiceRegistryChangeCounte
     PublisherOptions publisherOptions{1};
 
     auto publisherPortData = m_portManager->acquirePublisherPortData(
-        {1U, 1U, 1U}, publisherOptions, m_runtimeName, m_payloadMemoryManager, PortConfigInfo());
+        {1U, 1U, 1U}, publisherOptions, m_runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
     ASSERT_FALSE(publisherPortData.has_error());
 
     PublisherPortUser publisher(publisherPortData.value());

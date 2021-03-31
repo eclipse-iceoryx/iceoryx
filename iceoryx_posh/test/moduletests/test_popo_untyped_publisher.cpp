@@ -26,14 +26,14 @@ namespace
 using namespace ::testing;
 using ::testing::_;
 
-struct alignas(2) TestCustomHeader
+struct alignas(2) TestUserHeader
 {
     uint16_t dummy1{1U};
     uint16_t dummy2{2U};
 };
 
-using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<iox::mepoo::NoCustomHeader, MockBasePublisher<void>>;
-using TestUntypedPublisherWithCustomHeader = iox::popo::UntypedPublisherImpl<TestCustomHeader, MockBasePublisher<void>>;
+using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<iox::mepoo::NoUserHeader, MockBasePublisher<void>>;
+using TestUntypedPublisherWithUserHeader = iox::popo::UntypedPublisherImpl<TestUserHeader, MockBasePublisher<void>>;
 
 class UntypedPublisherTest : public Test
 {
@@ -58,32 +58,34 @@ class UntypedPublisherTest : public Test
 
 TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
 {
-    constexpr uint32_t PAYLOAD_SIZE = 7U;
-    constexpr uint32_t PAYLOAD_ALIGNMENT = 128U;
-    EXPECT_CALL(
-        portMock,
-        tryAllocateChunk(
-            PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, iox::CHUNK_NO_CUSTOM_HEADER_SIZE, iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT))
+    constexpr uint32_t USER_PAYLOAD_SIZE = 7U;
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT = 128U;
+    EXPECT_CALL(portMock,
+                tryAllocateChunk(USER_PAYLOAD_SIZE,
+                                 USER_PAYLOAD_ALIGNMENT,
+                                 iox::CHUNK_NO_USER_HEADER_SIZE,
+                                 iox::CHUNK_NO_USER_HEADER_ALIGNMENT))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
-    auto result = sut.loan(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT);
+    auto result = sut.loan(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndCustomHeaderWorks)
+TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndUserHeaderWorks)
 {
-    TestUntypedPublisherWithCustomHeader sutWithCustomHeader{{"", "", ""}};
-    MockPublisherPortUser& portMockWithCustomHeader{sutWithCustomHeader.mockPort()};
+    TestUntypedPublisherWithUserHeader sutWithUserHeader{{"", "", ""}};
+    MockPublisherPortUser& portMockWithUserHeader{sutWithUserHeader.mockPort()};
 
-    constexpr uint32_t PAYLOAD_SIZE = 42U;
-    constexpr uint32_t PAYLOAD_ALIGNMENT = 512U;
-    EXPECT_CALL(portMockWithCustomHeader,
-                tryAllocateChunk(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, sizeof(TestCustomHeader), alignof(TestCustomHeader)))
+    constexpr uint32_t USER_PAYLOAD_SIZE = 42U;
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT = 512U;
+    EXPECT_CALL(
+        portMockWithUserHeader,
+        tryAllocateChunk(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, sizeof(TestUserHeader), alignof(TestUserHeader)))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
-    auto result = sutWithCustomHeader.loan(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT);
+    auto result = sutWithUserHeader.loan(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //
@@ -141,12 +143,12 @@ TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedPublisherTest, PublishesPayloadViaUnderlyingPort)
+TEST_F(UntypedPublisherTest, PublishesUserPayloadViaUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(portMock, sendChunk).Times(1);
     // ===== Test ===== //
-    sut.publish(chunkMock.chunkHeader()->payload());
+    sut.publish(chunkMock.chunkHeader()->userPayload());
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

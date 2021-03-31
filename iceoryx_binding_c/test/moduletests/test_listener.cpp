@@ -274,9 +274,9 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 
     Subscribe(m_subscriber[0U]);
-    constexpr uint32_t PAYLOAD_SIZE{100U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{100U};
 
-    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 

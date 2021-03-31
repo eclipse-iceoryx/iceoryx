@@ -297,10 +297,10 @@ class PortUser_IntegrationTest : public Test
             publisherPortUser
                 .tryAllocateChunk(sizeof(DummySample),
                                   alignof(DummySample),
-                                  iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                  iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
+                                  iox::CHUNK_NO_USER_HEADER_SIZE,
+                                  iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
                 .and_then([&](auto chunkHeader) {
-                    auto sample = chunkHeader->payload();
+                    auto sample = chunkHeader->userPayload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
                     publisherPortUser.sendChunk(chunkHeader);
