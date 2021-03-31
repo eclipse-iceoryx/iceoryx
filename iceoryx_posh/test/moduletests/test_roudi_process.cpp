@@ -104,7 +104,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
         [&sendViaIpcChannelStatusFail](
             const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             sendViaIpcChannelStatusFail.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
 
     Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
