@@ -12,16 +12,16 @@ these offered topics, the middleware daemon, called ``RouDi``, must be running.
 
 <!-- @todo add overview graphic -->
 
-For further information how iceoryx can be used, see the 
-[examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md). The
+For further information how iceoryx can be used, see the [examples](../examples/). The
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) provides additional 
 information about the _Shared Memory communication_ that lies at the heart of iceoryx.
 
-### icehello example
+### A first example
 
 Before we get into more details let's start with a simple example:
 
-We need to create a runtime with a unique name along all applications for each application.
+We need to create a runtime with a unique name along all applications for each application to enable communication with 
+RouDi.
 ```cpp
 iox::runtime::PoshRuntime::initRuntime("some_unique_name");
 ```
@@ -53,7 +53,7 @@ else
 Here ``result`` is an ``expected`` and hence we may get an error. This can happen if we try to loan too many samples 
 and exhaust memory. We have to handle this potential error since the expected class has the ``nodiscard`` keyword 
 attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could also 
-explicitly discrad it with ``IOX_DISCARD_RESULT`` which is discouraged. If you want to know more about ``expected``, 
+explicitly discard it with ``IOX_DISCARD_RESULT`` which is discouraged. If you want to know more about ``expected``, 
 take a look at 
 [How optional and error values are returned in iceoryx](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
@@ -62,10 +62,9 @@ Let's create a corresponding subscriber.
 iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
 ```
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It 
-is also possible to explicitly wait for data using the 
-[Waitset](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/README.md) or the 
-[Listener](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/callbacks/README.md). The code to 
-receive the data is the same, the only difference is the way we wake up before checking for data.
+is also possible to explicitly wait for data using the [Waitset](../examples/waitset/) or the 
+[Listener](../examples/listener/). The code to receive the data is the same, the only difference is the way we wake 
+up before checking for data.
 ```cpp
 while (keepRunning)
 {
@@ -93,6 +92,9 @@ which demonstrate how iceoryx can be used and describe our API in more detail.
 
 Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
 
+!!! note
+    RouDi and all Apps have to be built with the same compiler and the same compiler flags.
+
 First we need to start RouDi.
 
 ```
@@ -108,7 +110,7 @@ When the application terminates, the runtime cleans up all resources needed for 
 includes all memory chunks used for the data transmission which may still be held by the application.
 
 
-We now briefly define the main entities of an iceoryx system which were already used in the example above.
+We now briefly define the main entities of an iceoryx system which were partially already used in the example above.
 
 ## RouDi
 
@@ -231,8 +233,8 @@ part of #350
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the 
-[C++ example](http://iceoryx.io/getting-started/examples/icedelivery.md) and 
-[C example](http://iceoryx.io/getting-started/examples/icedelivery_in_c.md).
+[C++ example](../examples/icedelivery/) and 
+[C example](../examples/icedelivery_in_c/).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using 
 the monadic types ``cxx::expected`` and ``cxx::optional`` which are introduced 
