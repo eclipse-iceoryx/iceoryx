@@ -29,7 +29,7 @@ using UserPayloadOffset_t = iox::mepoo::ChunkHeader::UserPayloadOffset_t;
 
 // BEGIN GETTER METHOD TESTS
 
-TEST(ChunkSettings_test, CallingUSerPayloadSizeReturnsCorrectValue)
+TEST(ChunkSettings_test, CallingUserPayloadSizeReturnsCorrectValue)
 {
     constexpr uint32_t USER_PAYLOAD_SIZE{42U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};

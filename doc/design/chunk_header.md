@@ -103,7 +103,7 @@ For back calculation from the user-payload pointer to the `ChunkHeader` pointer,
 |---------------------------------------------------------------------------->|
 ```
 
-Depending on the address of the chunk there is the chance that `ChunkHeader` is the still adjacent to the user-payload. In this case, the framing looks exactly like it case 1.
+Depending on the address of the chunk there is the chance that `ChunkHeader` is the still adjacent to the user-payload. In this case, the framing looks exactly like in case 1.
 
 3. User-Header is used
 
@@ -250,10 +250,10 @@ Furthermore, the `Publisher` and `Subscriber` have access to the `ChunkHeader` a
 - publisher/subscriber API proposal
 ```
 // publisher
-auto pub = iox::popo::Publisher<MyPayload, MyHeader>(serviceDescription);
+auto pub = iox::popo::Publisher<MyPayload, MyUserHeader>(serviceDescription);
 pub.loan()
     .and_then([&](auto& sample) {
-        sample.getHeader()->userHeader<MyHeader>()->data = 42;
+        sample.getHeader()->userHeader<MyUserHeader>()->data = 42;
         sample->a = 42;
         sample->b = 13;
         sample.publish();
@@ -263,10 +263,10 @@ pub.loan()
     });
 
 // subscriber
-auto sub = iox::popo::Subscriber<MyPayload, MyHeader>(serviceDescription);
+auto sub = iox::popo::Subscriber<MyPayload, MyUserHeader>(serviceDescription);
 sub->take()
     .and_then([](auto& sample){
-        std::cout << "User-Header data: " << sample.getHeader()->userHeader<MyHeader>()->data << std::endl;
+        std::cout << "User-Header data: " << sample.getHeader()->userHeader<MyUserHeader>()->data << std::endl;
         std::cout << "User-Payload data: " << static_cast<const MyPayload*>(sample->get())->data << std::endl;
     });
 ```
@@ -284,7 +284,7 @@ class MyChunkHeaderHook : public ChunkHeaderHook
     }
 };
 
-auto userHeaderHook = MyChunkHeaderHook<MyHeader>();
+auto userHeaderHook = MyChunkHeaderHook<MyUserHeader>();
 auto pub = iox::popo::Publisher<MyPayload>(serviceDescription, userHeaderHook);
 ```
         - alternatively, instead of the ChunkHeaderHook class, the publisher could have a method `registerDeliveryHook(std::function<void(ChunkHeader&)>)`
@@ -292,17 +292,17 @@ auto pub = iox::popo::Publisher<MyPayload>(serviceDescription, userHeaderHook);
 - untyped publisher/subscriber API proposal
 ```
 // publisher option 1
-auto pub = iox::popo::UntypedPublisher<MyHeader>(serviceDescription);
+auto pub = iox::popo::UntypedPublisher<MyUserHeader>(serviceDescription);
 
 // publisher option 2
-auto userHeaderSize = sizeOf(MyHeader);
+auto userHeaderSize = sizeOf(MyUserHeader);
 auto pub = iox::popo::UntypedPublisher(serviceDescription, userHeaderSize);
 
 auto payloadSize = sizeof(MyPayload);
 auto payloadAlignment = alignof(MyPayload);
 pub.loan(payloadSize, payloadAlignment)
     .and_then([&](auto& sample) {
-        sample.getHeader()->userHeader<MyHeader>()->data = 42;
+        sample.getHeader()->userHeader<MyUserHeader>()->data = 42;
         auto payload = new (sample.get()) MyPayload();
         payload->data = 73;
         sample.publish();
@@ -312,14 +312,14 @@ pub.loan(payloadSize, payloadAlignment)
     });
 
 // subscriber option 1
-auto pub = iox::popo::UntypedPublisher<MyHeader>(serviceDescription);
+auto pub = iox::popo::UntypedPublisher<MyUserHeader>(serviceDescription);
 
 // subscriber option 2
-auto userHeaderSize = sizeOf(MyHeader);
+auto userHeaderSize = sizeOf(MyUserHeader);
 auto pub = iox::popo::UntypedSubscriber(serviceDescription, userHeaderSize);
 sub->take()
     .and_then([](auto& sample){
-        std::cout << "User-Header data: " << sample.getHeader()->userHeader<MyHeader>()->data << std::endl;
+        std::cout << "User-Header data: " << sample.getHeader()->userHeader<MyUserHeader>()->data << std::endl;
         std::cout << "User-Payload data: " << static_cast<const MyPayload*>(sample->get())->data << std::endl;
     });
 ```
