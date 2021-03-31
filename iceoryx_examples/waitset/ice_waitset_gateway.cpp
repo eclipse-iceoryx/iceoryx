@@ -39,9 +39,9 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
     while (subscriber->hasData())
     {
         subscriber->take().and_then([&](auto& userPayloadOfChunk) {
-            auto header = iox::mepoo::ChunkHeader::fromPayload(userPayloadOfChunk);
-            std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec << header->payloadSize
-                      << " ptr: " << std::hex << header->payload() << std::endl;
+            auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
+            std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
+                      << chunkHeader->userPayload() << " ptr: " << std::hex << chunkHeader->userPayload() << std::endl;
         });
     }
 }
