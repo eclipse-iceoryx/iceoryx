@@ -271,7 +271,7 @@ TEST_F(PublisherTest, LoanedSamplesContainPointerToChunkHeader)
     auto result = sut.loan();
     // ===== Verify ===== //
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(chunkMock.chunkHeader(), result.value().getHeader());
+    EXPECT_EQ(chunkMock.chunkHeader(), result.value().getChunkHeader());
     EXPECT_CALL(portMock, releaseChunk(chunkMock.chunkHeader()));
     // ===== Cleanup ===== //
 }

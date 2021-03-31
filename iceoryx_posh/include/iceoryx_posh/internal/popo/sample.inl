@@ -96,13 +96,13 @@ inline const T* Sample<T, H>::get() const noexcept
 }
 
 template <typename T, typename H>
-inline typename Sample<T, H>::ConditionalConstChunkHeader_t* Sample<T, H>::getHeader() noexcept
+inline typename Sample<T, H>::ConditionalConstChunkHeader_t* Sample<T, H>::getChunkHeader() noexcept
 {
     return mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get());
 }
 
 template <typename T, typename H>
-inline const mepoo::ChunkHeader* Sample<T, H>::getHeader() const noexcept
+inline const mepoo::ChunkHeader* Sample<T, H>::getChunkHeader() const noexcept
 {
     return mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get());
 }

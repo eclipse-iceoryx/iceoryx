@@ -155,16 +155,16 @@ class Sample
     /// sample data
     using ConditionalConstChunkHeader_t = cxx::add_const_conditionally_t<mepoo::ChunkHeader, T>;
     ///
-    /// @brief header Retrieve the header of the underlying memory chunk loaned to the sample.
+    /// @brief Retrieve the ChunkHeader of the underlying memory chunk loaned to the sample.
     /// @return The ChunkHeader of the underlying memory chunk.
     ///
-    ConditionalConstChunkHeader_t* getHeader() noexcept;
+    ConditionalConstChunkHeader_t* getChunkHeader() noexcept;
 
     ///
     /// @brief Retrieve the ChunkHeader of the underlying memory chunk loaned to the sample.
     /// @return The const ChunkHeader of the underlying memory chunk.
     ///
-    const mepoo::ChunkHeader* getHeader() const noexcept;
+    const mepoo::ChunkHeader* getChunkHeader() const noexcept;
 
     ///
     /// @brief Retrieve the user-header of the underlying memory chunk loaned to the sample.
