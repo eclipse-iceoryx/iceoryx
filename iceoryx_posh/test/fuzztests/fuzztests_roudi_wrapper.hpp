@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef FUZZTESTSROUDIWRAPPER_HPP
 #define FUZZTESTSROUDIWRAPPER_HPP
 /// @brief     fuzztests_roudi_wrapper contains the main method for the RouDi Wrappers which can be used to fuzz several
