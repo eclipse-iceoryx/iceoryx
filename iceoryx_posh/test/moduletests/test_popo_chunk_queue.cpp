@@ -237,13 +237,13 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
 };
 
 /// @note API currently not supported
-TYPED_TEST(ChunkQueueFiFo_test, DISABLED_InitialSize)
+TYPED_TEST(ChunkQueueFiFo_test, InitialSize)
 {
     EXPECT_THAT(this->m_popper.size(), Eq(0U));
 }
 
 /// @note API currently not supported
-TYPED_TEST(ChunkQueueFiFo_test, DISABLED_Capacity)
+TYPED_TEST(ChunkQueueFiFo_test, Capacity)
 {
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY));
 }
@@ -260,12 +260,12 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
     for (auto i = 0U; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
     {
         auto chunk = this->allocateChunk();
-        this->m_pusher.push(chunk);
+        EXPECT_TRUE(this->m_pusher.push(chunk));
     }
 
     {
         auto chunk = this->allocateChunk();
-        this->m_pusher.push(chunk);
+        EXPECT_FALSE(this->m_pusher.push(chunk));
         EXPECT_TRUE(this->m_popper.hasOverflown());
     }
 
@@ -320,10 +320,16 @@ TYPED_TEST(ChunkQueueSoFi_test, SetCapacity)
 
 TYPED_TEST(ChunkQueueSoFi_test, PushFull)
 {
-    for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY * 2; ++i)
+    for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
     {
         auto chunk = this->allocateChunk();
-        this->m_pusher.push(chunk);
+        EXPECT_TRUE(this->m_pusher.push(chunk));
+    }
+
+    for (auto i = 0U; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
+    {
+        auto chunk = this->allocateChunk();
+        EXPECT_FALSE(this->m_pusher.push(chunk));
     }
 
     // this led to an overflow
