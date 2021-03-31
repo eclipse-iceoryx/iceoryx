@@ -126,7 +126,7 @@ iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self)
     return cpp2c::SubscribeState(SubscriberPortUser(self->m_portData).getSubscriptionState());
 }
 
-iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayload)
+iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayloadOfChunk)
 {
     auto result = SubscriberPortUser(self->m_portData).tryGetChunk();
     if (result.has_error())
@@ -134,13 +134,13 @@ iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** con
         return cpp2c::ChunkReceiveResult(result.get_error());
     }
 
-    *userPayload = result.value()->userPayload();
+    *userPayloadOfChunk = result.value()->userPayload();
     return ChunkReceiveResult_SUCCESS;
 }
 
-void iox_sub_release_chunk(iox_sub_t const self, const void* const userPayload)
+void iox_sub_release_chunk(iox_sub_t const self, const void* const userPayloadOfChunk)
 {
-    SubscriberPortUser(self->m_portData).releaseChunk(ChunkHeader::fromUserPayload(userPayload));
+    SubscriberPortUser(self->m_portData).releaseChunk(ChunkHeader::fromUserPayload(userPayloadOfChunk));
 }
 
 void iox_sub_release_queued_chunks(iox_sub_t const self)

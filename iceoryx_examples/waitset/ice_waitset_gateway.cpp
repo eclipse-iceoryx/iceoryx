@@ -36,10 +36,10 @@ static void sigHandler(int f_sig [[gnu::unused]])
 // the untyped subscriber.
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
-    subscriber->take().and_then([&](auto& userPayload) {
-        auto header = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
-        std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec << header->userPayloadSize
-                  << " ptr: " << std::hex << header->userPayload() << std::endl;
+    subscriber->take().and_then([&](auto& userPayloadOfChunk) {
+        auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
+        std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec << chunkHeader->userPayloadSize
+                  << " ptr: " << std::hex << chunkHeader->userPayload() << std::endl;
     });
 }
 

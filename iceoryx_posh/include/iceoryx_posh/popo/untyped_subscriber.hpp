@@ -57,13 +57,13 @@ class UntypedSubscriberImpl : public BaseSubscriber_t
 
     ///
     /// @brief Releases the ownership of the chunk provided by the user-payload pointer.
-    /// @param userPayload pointer to the user-payload of the chunk to be released
-    /// @details The userPayload pointer must have been previously provided by take and
+    /// @param userPayloadOfChunk pointer to the user-payload of the chunk to be released
+    /// @details The userPayloadOfChunk pointer must have been previously provided by take and
     ///          not have been already released.
     ///          The chunk must not be accessed afterwards as its memory may have
     ///          been reclaimed.
     ///
-    void release(const void* const userPayload) noexcept;
+    void release(const void* const userPayloadOfChunk) noexcept;
 
   protected:
     using BaseSubscriber::port;

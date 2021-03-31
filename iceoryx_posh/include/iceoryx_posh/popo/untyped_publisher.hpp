@@ -61,20 +61,20 @@ class UntypedPublisherImpl : public BasePublisher_t
 
     ///
     /// @brief Publish the provided memory chunk.
-    /// @param userPayload Pointer to the user-payload of the allocated shared memory chunk.
+    /// @param userPayloadOfChunk Pointer to the user-payload of the allocated shared memory chunk.
     /// @return Error if provided pointer is not a user-payload of a valid memory chunk.
     ///
-    void publish(const void* const userPayload) noexcept;
+    void publish(const void* const userPayloadOfChunk) noexcept;
 
     ///
     /// @brief Releases the ownership of the chunk provided by the user-payload pointer.
-    /// @param userPayload pointer to the user-payload of the chunk to be released
-    /// @details The userPayload pointer must have been previously provided by loan or
+    /// @param userPayloadOfChunk pointer to the user-payload of the chunk to be released
+    /// @details The userPayloadOfChunk pointer must have been previously provided by loan or
     ///          loanPreviousChunk and not have been already released.
     ///          The chunk must not be accessed afterwards as its memory may have
     ///          been reclaimed.
     ///
-    void release(const void* const userPayload) noexcept;
+    void release(const void* const userPayloadOfChunk) noexcept;
 
   protected:
     using BasePublisher_t::port;
