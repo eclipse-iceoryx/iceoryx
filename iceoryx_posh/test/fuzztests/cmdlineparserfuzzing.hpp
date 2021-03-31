@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +42,7 @@ class CmdLineParserFuzzing
 {
   public:
     CmdLineParserFuzzing();
-    
+
     /// @brief	Parses the command line parameters whiich are entered by starting the fuzz wrappers
     /// @param[in] 	amount of arguments given to the method
     ///	@param[in]	containing the command line parameters

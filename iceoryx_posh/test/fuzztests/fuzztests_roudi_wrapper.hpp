@@ -13,22 +13,16 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
 #ifndef FUZZTESTSROUDIWRAPPER_HPP
 #define FUZZTESTSROUDIWRAPPER_HPP
-
-/// @brief     fuzztests_roudi_wrapper contains the main method for the RouDi Wrappers which can be used to fuzz several interfaces
+/// @brief     fuzztests_roudi_wrapper contains the main method for the RouDi Wrappers which can be used to fuzz several
+/// interfaces
 
 /// @brief	Main function of the Fuzz Wrapper
 /// @param[in] 	amount of arguments given to the method
 ///	@param[in]	containing the command line parameters
-///	@param[out]	int containing the status if the fuzzing was successfull. If the return value is -1 something went wrong.
-int main (int argc, char* argv[]);
+///	@param[out]	int containing the status if the fuzzing was successfull. If the return value is -1 something went
+/// wrong.
+int main(int argc, char* argv[]);
 
 #endif /*FUZZTESTSROUDIWRAPPE*/
-
-
-
-
-
-
