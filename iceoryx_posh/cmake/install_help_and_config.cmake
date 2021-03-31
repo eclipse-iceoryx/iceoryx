@@ -1,4 +1,5 @@
-# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +22,12 @@ install(
         ${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE
         ${CMAKE_CURRENT_SOURCE_DIR}/../NOTICE.md
         ${CMAKE_CURRENT_SOURCE_DIR}/../README.md
+        ${CMAKE_CURRENT_SOURCE_DIR}/../CHANGELOG.md
+  DESTINATION share/doc/iceoryx
+  COMPONENT dev)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../doc/3rd_party_licenses
   DESTINATION share/doc/iceoryx
   COMPONENT dev)
 
