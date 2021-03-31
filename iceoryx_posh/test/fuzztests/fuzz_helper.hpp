@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.ved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef FUZZHELPER_HPP
+#define FUZZHELPER_HPP
+
 #include "roudi_fuzz.hpp"
 #include <memory>
+
 /// @brief Class to implement some help methods for the fuzz wrapper
 class FuzzHelper
 {
- public:
+  public:
     /// @brief	Reads messages from stdin and writes them into a std::vector
     /// @param[in]	message via stdin
     /// @param[out]	std::vector containing std::strings of the messages from stdin. Each std::string in the vector
@@ -44,3 +48,5 @@ class FuzzHelper
     /// @param[out]	Boolean value indicating if RouDi is available
     bool checkIsRouDiRunning();
 };
+
+#endif /*FUZZHELPER_HPP*/
