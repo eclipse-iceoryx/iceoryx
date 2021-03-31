@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,44 +21,45 @@
 
 std::vector<std::string> FuzzHelper::getStdInMessages()
 {
-   std::vector<std::string> stdInMessages;
-   for (std::string line; std::getline(std::cin, line);)
-   {
-	  stdInMessages.push_back(line);
-   }
-   return stdInMessages;
+    std::vector<std::string> stdInMessages;
+    for (std::string line; std::getline(std::cin, line);)
+    {
+        stdInMessages.push_back(line);
+    }
+    return stdInMessages;
 }
 
 std::shared_ptr<RouDiFuzz> FuzzHelper::startRouDiThread()
 {
-	static iox::roudi::IceOryxRouDiComponents m_rouDiComponents(iox::RouDiConfig_t().setDefaults());
-	static iox::RouDiConfig_t m_config = iox::RouDiConfig_t().setDefaults();
-	std::shared_ptr<RouDiFuzz> aRouDi(new RouDiFuzz(m_rouDiComponents.m_rouDiMemoryManager, m_rouDiComponents.m_portManager));
-	return aRouDi;
+    static iox::roudi::IceOryxRouDiComponents m_rouDiComponents(iox::RouDiConfig_t().setDefaults());
+    static iox::RouDiConfig_t m_config = iox::RouDiConfig_t().setDefaults();
+    std::shared_ptr<RouDiFuzz> aRouDi(
+        new RouDiFuzz(m_rouDiComponents.m_rouDiMemoryManager, m_rouDiComponents.m_portManager));
+    return aRouDi;
 }
 
 bool FuzzHelper::checkIsRouDiRunning()
 {
-	Fuzzing aFuzzer;
-	int udsStatus = aFuzzer.fuzzingRouDiUDS("Hello Roudi!");
-	if (udsStatus == -1)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+    Fuzzing aFuzzer;
+    int udsStatus = aFuzzer.fuzzingRouDiUDS("Hello Roudi!");
+    if (udsStatus == -1)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 std::vector<std::string> FuzzHelper::combineString(std::vector<std::string> allMessages)
 {
-	std::string tempString = "";
-	for(std::string aMessage: allMessages)
-	{
-		tempString += aMessage + "\n";
-	}
-	allMessages.clear();
-	allMessages.emplace_back(tempString);
-	return allMessages;
+    std::string tempString = "";
+    for (std::string aMessage : allMessages)
+    {
+        tempString += aMessage + "\n";
+    }
+    allMessages.clear();
+    allMessages.emplace_back(tempString);
+    return allMessages;
 }

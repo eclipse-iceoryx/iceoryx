@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef FUZZTESTSROUDIWRAPPER_HPP
+#define FUZZTESTSROUDIWRAPPER_HPP
+
 /// @brief     fuzztests_roudi_wrapper contains the main method for the RouDi Wrappers which can be used to fuzz several interfaces
 
 /// @brief	Main function of the Fuzz Wrapper
@@ -23,6 +25,7 @@
 ///	@param[out]	int containing the status if the fuzzing was successfull. If the return value is -1 something went wrong.
 int main (int argc, char* argv[]);
 
+#endif /*FUZZTESTSROUDIWRAPPE*/
 
 
 

@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +16,18 @@
 
 #include "roudi_fuzz.hpp"
 #include "string_to_ipc_message.hpp"
-RouDiFuzz::RouDiFuzz(iox::roudi::RouDiMemoryInterface& roudiMemoryInterface, iox::roudi::PortManager& portManager, iox::roudi::RouDi::RoudiStartupParameters aStartupParameter) : iox::roudi::RouDi(roudiMemoryInterface, portManager, aStartupParameter)
+RouDiFuzz::RouDiFuzz(iox::roudi::RouDiMemoryInterface& roudiMemoryInterface,
+                     iox::roudi::PortManager& portManager,
+                     iox::roudi::RouDi::RoudiStartupParameters aStartupParameter)
+    : iox::roudi::RouDi(roudiMemoryInterface, portManager, aStartupParameter)
 {
 }
 
 void RouDiFuzz::processMessageFuzz(std::string aMessage)
 {
-  iox::runtime::IpcMessage ipcMessage;
-  StringToIPCMessage::setMessageFromString(aMessage.c_str(), ipcMessage);
-  iox::runtime::IpcMessageType cmd = iox::runtime::stringToIpcMessageType(ipcMessage.getElementAtIndex(0).c_str());
-  std::string processName = ipcMessage.getElementAtIndex(1);
-  iox::roudi::RouDi::processMessage(ipcMessage, cmd, iox::ProcessName_t(iox::cxx::TruncateToCapacity, processName));
+    iox::runtime::IpcMessage ipcMessage;
+    StringToIPCMessage::setMessageFromString(aMessage.c_str(), ipcMessage);
+    iox::runtime::IpcMessageType cmd = iox::runtime::stringToIpcMessageType(ipcMessage.getElementAtIndex(0).c_str());
+    std::string processName = ipcMessage.getElementAtIndex(1);
+    iox::roudi::RouDi::processMessage(ipcMessage, cmd, iox::ProcessName_t(iox::cxx::TruncateToCapacity, processName));
 }

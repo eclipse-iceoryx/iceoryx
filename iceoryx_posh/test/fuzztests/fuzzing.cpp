@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +18,7 @@
 #include <fstream>
 #include "cpptoml.h"
 #include <sys/socket.h>
+#include <thread>
 
 std::string const UDS_NAME = "/tmp/";
 
@@ -50,7 +50,7 @@ int Fuzzing::fuzzingRouDiUDS(std::string aMessage)
 	 if (connectfd != -1)
 	 {
 		 sendto(sockfd, aMessage.c_str(), aMessage.length()+1, static_cast<int>(0), nullptr, static_cast<socklen_t>(0));
-		 usleep(500000); //0.5  second We need to wait otherwise it can happen that RouDi did not process the message
+		 std::this_thread::sleep_for(std::chrono::milliseconds(500));; //0.5  second We need to wait otherwise it can happen that RouDi did not process the message
 	 }
 	 else
 	 {

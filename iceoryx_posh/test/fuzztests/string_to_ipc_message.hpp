@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,16 +14,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-/// @brief 	The StringToIPCMessage is a class which inherits from iox::runtime::IpcInterfaceBase to make the protected method 
-///			iox::runtime::IpcInterfaceBase::setMessageFromString public and accessible for the fuzz test. 
+#ifndef STRINGTOIPCMESSAGE_HPP
+#define STRINGTOIPCMESSAGE_HPP
+
+/// @brief 	The StringToIPCMessage is a class which inherits from iox::runtime::IpcInterfaceBase to make the protected
+/// method
+///			iox::runtime::IpcInterfaceBase::setMessageFromString public and accessible for the fuzz test.
 class StringToIPCMessage : public iox::runtime::IpcInterfaceBase
 {
-	public:
-    	StringToIPCMessage(const iox::ProcessName_t& name, const int64_t maxMessages, const int64_t messageSize);
-    	
-	/// @brief Set the content of answer from buffer.
-	/// @param[in] buffer Raw message as char pointer
-	/// @param[out] answer Raw message is setting this IpcMessage
-    /// @return answer.isValid()   
-	using iox::runtime::IpcInterfaceBase::setMessageFromString;
+  public:
+    StringToIPCMessage(const iox::ProcessName_t& name, const int64_t maxMessages, const int64_t messageSize);
+
+    /// @brief Set the content of answer from buffer.
+    /// @param[in] buffer Raw message as char pointer
+    /// @param[out] answer Raw message is setting this IpcMessage
+    /// @return answer.isValid()
+    using iox::runtime::IpcInterfaceBase::setMessageFromString;
 };
+
+#endif /*STRINGTOIPCMESSAGE*/
