@@ -36,7 +36,7 @@ The subscriber for instance has the state `SubscriberState::HAS_DATA` and the ev
 `SubscriberEvent::DATA_RECEIVED`. If you attach the subscriber event 
 `SubscriberEvent::DATA_RECEIVED` to a WaitSet you will be notified about every new 
 incoming sample whenever you call `WaitSet::wait` or `WaitSet::timedWait`. If multiple
-samples were send before you called those methods you will still receive only one 
+samples were sent before you called those methods you will still receive only one 
 notification.
 
 If you attach on the other hand the state `SubscriberState::HAS_DATA` you will 
@@ -65,7 +65,7 @@ samples present in the subscriber.
      pointer to the _Triggerable_.
  - **Event** a state change of an object.
  - **Events** a _Triggerable_ will signal an event via a _TriggerHandle_ to a _Notifyable_.
-     For instance one can attach the subscriber event `HAS_DATA` to _WaitSet_. This will cause the
+     For instance one can attach the subscriber event `DATA_RECEIVED` to _WaitSet_. This will cause the
      subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a sample was received.
  - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
@@ -92,22 +92,23 @@ samples present in the subscriber.
      invalidated.
 
 ## Quick Overview
-To a **Notifyable** like the **WaitSet** **Events** can be attached or detached.
+**Events** or **States** can be attached to a **Notifyable** like the **WaitSet**.
 The **WaitSet** will listen on **Triggers** for a signal that an **Event** has occurred and it hands out
 **TriggerHandles** to **Triggerable** objects. The **TriggerHandle** is used to inform the **WaitSet**
 about the occurrence of an **Event**. When returning from `WaitSet::wait()` the user is provided with a vector of **EventInfos**
-associated with **Events** which had occurred. The **EventOrigin**, **EventId** and **EventCallback**
+associated with **Events** which had occurred and **States** which persists. The **EventOrigin**, **EventId** and **EventCallback**
 are stored inside of the **EventInfo** and can be acquired by the user.
 
 !!! attention 
     Please be aware about the thread-safety restrictions of the _WaitSet_ and 
-    read the Thread Safety chapter carefully.
+    read the [Thread Safety](#thread-safety) chapter carefully.
 
 ## Reference
 
 | task | call |
 |:-----|:-----|
-|attach subscriber to a WaitSet|`waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 123, &mySubscriberCallback)`|
+|attach subscriber event to a WaitSet|`waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 123, &mySubscriberCallback)`|
+|attach subscriber state to a WaitSet|`waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA, 123, &mySubscriberCallback)`|
 |attach user trigger to a WaitSet|`waitset.attachEvent(userTrigger, 456, &myUserTriggerCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
@@ -326,7 +327,7 @@ we just dismiss the received data.
     }
 ```
 !!! attention 
-    If the second group we would not dismiss the data we would be 
+    In the second group we would not dismiss the data because we would be 
     notified by the WaitSet immediately again since the subscriber has still the state `HAS_DATA`.
 
 ### Individual
@@ -453,7 +454,7 @@ std::thread cyclicTriggerThread([&] {
 Everything is set up and we can implement the event loop. As usual we handle
 `CTRL-c` which is indicated by the `shutdownTrigger`.
 ```cpp
-while (true)
+while (keepRunning.load())
 {
     auto eventVector = waitset.wait();
     
@@ -477,8 +478,8 @@ The `cyclicTrigger` callback is called in the else part.
 In this example we describe how you would implement a _Triggerable_ class which
 can be attached to a _WaitSet_ or a [Listener](../callbacks). Our class in this example will be called
 `MyTriggerClass` and it can signal the _WaitSet_ the two states `HAS_PERFORMED_ACTION` and 
-`IS_ACTIVATED`. Furthermore, we can also attach the two corresponding events 
-`PERFORM_ACTION_CALLED` and `ACTIVATE_CALLED`
+`IS_ACTIVATED`. Furthermore, we can also attach the two corresponding events
+`PERFORM_ACTION_CALLED` and `ACTIVATE_CALLED`.
 The `PERFORMED_ACTION_CALLED` event is triggered whenever the method `performAction`
 is called and the state `HAS_PERFORMED_ACTION` persists until someone resets the state
 with the method `reset()`. The same goes for the event `ACTIVATE_CALLED` which is 
@@ -539,7 +540,7 @@ the class has to implement the following methods.
 
  3. `void invalidateTrigger(const uint64_t uniqueTriggerId)`
 
-    Used to cleanup all loan trigger handle when the _WaitSet_ or _Listener_ goes 
+    Used to cleanup all loan trigger handles when the _WaitSet_ or _Listener_ goes 
     out of scope.
 
 Like with the state enum the event enum can be also any arbitrary enum class which 
@@ -553,7 +554,7 @@ enum class MyTriggerClassEvents : iox::popo::EventEnumIdentifier
 };
 ```
 
-##### Further Requirements Move and Copy are Forbidden
+##### Further Requirements
 
  1. `friend iox::popo::EventAttorney`
 
@@ -586,7 +587,7 @@ event and causing a state change look like the following.
 class MyTriggerClass
 {
   public:
-    void activate(const int activationCode) noexcept
+    void activate(const uint64_t activationCode) noexcept
     {
         m_activationCode = activationCode;
         m_isActivated = true;
@@ -703,10 +704,10 @@ find the to the event corresponding trigger.
     {
         switch (event)
         {
-        case MyTriggerClassEvents::PERFORMED_ACTION:
+        case MyTriggerClassEvents::PERFORM_ACTION_CALLED:
             m_onActionTrigger.reset();
             break;
-        case MyTriggerClassEvents::ACTIVATE:
+        case MyTriggerClassEvents::ACTIVATE_CALLED:
             m_activateTrigger.reset();
             break;
         }
@@ -815,7 +816,7 @@ A thread which will trigger an event every second is started with the following
 lines.
 ```cpp
     std::thread triggerThread([&] {
-        int activationCode = 1;
+        uint64_t activationCode = 1U;
         for (auto i = 0; i < 10; ++i)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -1,4 +1,5 @@
-// Copyright (c) 2020, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,12 +36,12 @@ struct cpp2c_Subscriber
     void enableEvent(iox::popo::TriggerHandle&& triggerHandle,
                      const iox::popo::SubscriberEvent subscriberEvent) noexcept;
 
-    void disableEvent(const iox::popo::SubscriberEvent event) noexcept;
+    void disableEvent(const iox::popo::SubscriberEvent subscriberEvent) noexcept;
 
     void enableState(iox::popo::TriggerHandle&& triggerHandle,
-                     const iox::popo::SubscriberState subscriberEvent) noexcept;
+                     const iox::popo::SubscriberState subscriberState) noexcept;
 
-    void disableState(const iox::popo::SubscriberState event) noexcept;
+    void disableState(const iox::popo::SubscriberState subscriberState) noexcept;
 
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 

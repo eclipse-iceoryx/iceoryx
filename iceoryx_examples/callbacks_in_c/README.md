@@ -21,7 +21,7 @@ Glossary of the [WaitSet C++ example](../waitset).
 
 !!! attention 
     Please be aware about the thread-safety restrictions of the _Listener_ and 
-    read the Thread Safety chapter carefully.
+    read the [Thread Safety](#thread-safety) chapter carefully.
 
 The C version of the callbacks example performs the identical tasks as the 
 C++ version. We have again an application which offers two services called 
@@ -81,9 +81,9 @@ Attaching the subscribers and the heartbeat allows the Listener to call the call
 whenever the event is signaled by the _EventOrigin_.
 ```c 
 iox_listener_attach_user_trigger_event(listener, heartbeat, &heartbeatCallback);
-iox_listener_attach_subscriber_event(listener, subscriberLeft, SubscriberEvent_HAS_DATA, &onSampleReceivedCallback);
+iox_listener_attach_subscriber_event(listener, subscriberLeft, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback);
 iox_listener_attach_subscriber_event(
-    listener, subscriberRight, SubscriberEvent_HAS_DATA, &onSampleReceivedCallback);
+    listener, subscriberRight, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback);
 ```
 A user trigger can emit only one event therefore we do not provide the event type as 
 an argument in the user trigger attach call.
@@ -105,8 +105,8 @@ if you for instance deinitialize an attached subscriber it will automatically de
 itself from the Listener.
 ```c 
 iox_listener_detach_user_trigger_event(listener, heartbeat);
-iox_listener_detach_subscriber_event(listener, subscriberLeft, SubscriberEvent_HAS_DATA);
-iox_listener_detach_subscriber_event(listener, subscriberRight, SubscriberEvent_HAS_DATA);
+iox_listener_detach_subscriber_event(listener, subscriberLeft, SubscriberEvent_DATA_RECEIVED);
+iox_listener_detach_subscriber_event(listener, subscriberRight, SubscriberEvent_DATA_RECEIVED);
 ```
 
 In a last step we have to release all acquired resources 

@@ -27,7 +27,7 @@ in the same way as the C++ ones.
 
 !!! attention 
     Please be aware about the thread-safety restrictions of the _WaitSet_ and 
-    read the Thread Safety chapter carefully.
+    read the [Thread Safety](#thread-safety) chapter carefully.
 
 To run an example you need a running `iox-roudi` and the waitset publisher
 `iox-ex-c-waitset-publisher`. They are identical to the ones introduced
@@ -35,8 +35,8 @@ in the [icedelivery C example](../icedelivery_in_c).
 
 ### Gateway
 Let's say we would like to write a gateway and would like to forward every 
-incoming message from a subscriber in the same manner. Like performing a 
-memcopy of the received data into a specific struct.
+incoming message from a subscriber with the same callback. For instance we could perform
+a memcopy of the received data into a specific struct.
 
 This could be performed by a function which we attach to an event as a
 callback. In our case we have the function `subscriberCallback` which 
@@ -49,7 +49,7 @@ void subscriberCallback(iox_sub_t const subscriber)
     {
         if (iox_sub_take_chunk(subscriber, &chunk))
         {
-            printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
+            printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
 
             iox_sub_release_chunk(subscriber, chunk);
         }
@@ -59,7 +59,7 @@ void subscriberCallback(iox_sub_t const subscriber)
 Since we attach the `SubscriberEvent_DATA_RECEIVED` event to the _WaitSet_ which 
 notifies us just once when data was received we have to gather and process all chunks.
 One will never miss chunks since the event notification is reset after a call to 
-`iox_ws_wait` or `iox_ws_timed_wait`.
+`iox_ws_wait` or `iox_ws_timed_wait` which we introduce below.
 
 After we registered our runtime we create some stack storage for our WaitSet,
 initialize it and attach a `shutdownTrigger` to handle `CTRL-c`.
@@ -112,7 +112,7 @@ while (keepRunning)
 ```
 
 The events which have occurred are stored in the `eventArray`. We iterate through
-it, if the `shutdownTrigger` was evented we terminate the program otherwise
+it, if the `shutdownTrigger` was triggered we terminate the program otherwise
 we call the callback with `iox_event_info_call(event)`.
 ```c
 for (uint64_t i = 0U; i < numberOfEvents; ++i)
@@ -179,7 +179,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 To distinct our two groups we set the eventId of the first group to
 `123` and of the second group to `456`. The first two subscribers are attached with
 the `SubscriberState_HAS_DATA` state and the event id of the first group to our waitset.
-The third and forth subscriber is attached to the same
+The third and forth subscriber are attached to the same
 waitset under the second group id.
 ```c
 const uint64_t FIRST_GROUP_ID = 123;
@@ -258,7 +258,7 @@ iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 ### Individual
-We also can handle every event individualy. For instance if you would like
+We also can handle every event individually, for instance when you would like
 to have a different reaction for every subscriber which has received a sample.
 One way would be to assign every subscriber a different callback, here we look
 at a different approach. We check if the event originated from a specific 
@@ -275,7 +275,7 @@ shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 ```
 
-Now we create two subscriber, subscribe them to our topic and attach them to
+Now we create two subscribers, subscribe them to our topic and attach them to
 the waitset without a callback and with the same trigger id.
 ```c
 iox_sub_options_t options;
@@ -348,7 +348,7 @@ iox_user_trigger_deinit(shutdownTrigger);
 ### Sync
 In this example we demonstrate how you can use the WaitSet to trigger a cyclic
 call every second. We use a user trigger which will be triggered in a separate
-thread every second to signal the WaitSet that its time for the next run.
+thread every second to signal the WaitSet that it's time for the next run.
 Additionally, we attach a callback (`cyclicRun`) to this user trigger
 so that the event can directly call the cyclic call.
 
@@ -363,7 +363,7 @@ shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
 ```
 
-Now we create our cyclic trigger and attach it to our waitset with a eventId
+Now we create our cyclic trigger and attach it to our waitset with an eventId
 of `0` and the callback `cyclicRun`.
 ```c
 cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);

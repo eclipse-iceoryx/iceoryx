@@ -181,7 +181,7 @@ TEST_F(iox_ws_test, SizeDecreasesWhenAttachedUserTriggerIsDeinitialized)
     EXPECT_EQ(iox_ws_size(m_sut), 0U);
 }
 
-TEST_F(iox_ws_test, SizeDecreasesWhenAttachenSubscriberStateIsDeinitialized)
+TEST_F(iox_ws_test, SizeDecreasesWhenAttachedSubscriberStateIsDeinitialized)
 {
     constexpr uint64_t customId = 123U;
     EXPECT_EQ(iox_ws_attach_subscriber_state(m_sut, &m_subscriberVector[0U], SubscriberState_HAS_DATA, customId, NULL),

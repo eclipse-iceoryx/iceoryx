@@ -173,7 +173,7 @@ class MyTriggerClass
         }
     }
 
-    void disableEvents(const MyTriggerClassEvents event) noexcept
+    void disableEvent(const MyTriggerClassEvents event) noexcept
     {
         switch (event)
         {
@@ -239,8 +239,7 @@ void eventLoop()
             }
             else if (event->getEventId() == ACTION_ID)
             {
-                // reset is not required since we attached here an event about which will be notified once
-                // call the callback attached to the trigger
+                // reset is not required since we attached an event here. we will be notified once
                 (*event)();
             }
         }
@@ -252,7 +251,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-trigger");
 
     // we create a waitset and a triggerClass instance inside of the two
-    // global optional's
+    // global optionals
     waitset.emplace();
     triggerClass.emplace();
 
