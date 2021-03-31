@@ -22,7 +22,7 @@ Framing with terminology
 +===================+=========================================================+
 |                   |                    Chunk-Payload                        |
 |   Chunk-Header    +===============+=======+====================+============+
-|                   |  User-Header  |   ¦ 🢑 |    User-Payload    |  Padding   |
+|                   |  User-Header  |   ¦ ᶺ |    User-Payload    |  Padding   |
 +===================+===============+=====|=+====================+============+
                                           └ Back-Offset
 ```
@@ -165,7 +165,7 @@ Worst case scenario is when a part of the `ChunkHeader` crosses the user-payload
 ```
                                ┌ back-offset
     +===============+==========|+===============================+
-    |  ChunkHeader  |         ¦🢓|        User-Payload           |
+    |  ChunkHeader  |         ¦ᵛ|        User-Payload           |
     +===============+===========+===============================+
 
 ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥ <- ChunkHeader alignment boundaries
@@ -192,7 +192,7 @@ Similar to case 2, but in this case it is the `back-offset` which might cross th
                                                ┌ back-offset with same alignment
                                                | as userPayloadOffset
     +===============+===========+==============|+===============================+
-    |  ChunkHeader  | UserHeader|             ¦🢓|         User-Payload          |
+    |  ChunkHeader  | UserHeader|             ¦ᵛ|         User-Payload          |
     +===============+===========+===============+===============================+
 
                             ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ <- userPayloadOffset alignment boundaries
