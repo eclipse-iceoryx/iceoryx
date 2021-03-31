@@ -49,7 +49,7 @@ class StubbedSubscriber : public iox::popo::Subscriber<T, H, BaseSubscriber>
     using SubscriberParent::port;
 };
 
-using TestSubscriber = StubbedSubscriber<DummyData, iox::mepoo::NoCustomHeader, MockBaseSubscriber<DummyData>>;
+using TestSubscriber = StubbedSubscriber<DummyData, iox::mepoo::NoUserHeader, MockBaseSubscriber<DummyData>>;
 
 class SubscriberTest : public Test
 {
@@ -152,7 +152,7 @@ TEST_F(SubscriberTest, TakeReturnsAllocatedMemoryChunksWrappedInSample)
     auto maybeSample = sut.take();
     // ===== Verify ===== //
     ASSERT_FALSE(maybeSample.has_error());
-    EXPECT_EQ(maybeSample.value().get(), chunkMock.chunkHeader()->payload());
+    EXPECT_EQ(maybeSample.value().get(), chunkMock.chunkHeader()->userPayload());
     // ===== Cleanup ===== //
 }
 

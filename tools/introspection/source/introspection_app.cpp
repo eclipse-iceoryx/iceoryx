@@ -273,15 +273,15 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
     constexpr int32_t numchunksWidth{9};
     constexpr int32_t minFreechunksWidth{9};
     constexpr int32_t chunkSizeWidth{11};
-    constexpr int32_t payloadSizeWidth{13};
+    constexpr int32_t chunkPayloadSizeWidth{13};
 
     wprintw(pad, "%*s |", memPoolWidth, "MemPool");
     wprintw(pad, "%*s |", usedchunksWidth, "Chunks In Use");
     wprintw(pad, "%*s |", numchunksWidth, "Total");
     wprintw(pad, "%*s |", minFreechunksWidth, "Min Free");
     wprintw(pad, "%*s |", chunkSizeWidth, "Chunk Size");
-    wprintw(pad, "%*s\n", payloadSizeWidth, "Payload Size");
-    wprintw(pad, "--------------------------------------------------------------------------\n");
+    wprintw(pad, "%*s\n", chunkPayloadSizeWidth, "Chunk Payload Size");
+    wprintw(pad, "--------------------------------------------------------------------------------\n");
 
     for (size_t i = 0u; i < introspectionInfo.m_mempoolInfo.size(); ++i)
     {
@@ -293,7 +293,7 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
             wprintw(pad, "%*d |", numchunksWidth, info.m_numChunks);
             wprintw(pad, "%*d |", minFreechunksWidth, info.m_minFreeChunks);
             wprintw(pad, "%*d |", chunkSizeWidth, info.m_chunkSize);
-            wprintw(pad, "%*d\n", payloadSizeWidth, info.m_payloadSize);
+            wprintw(pad, "%*d\n", chunkPayloadSizeWidth, info.m_chunkPayloadSize);
         }
     }
     wprintw(pad, "\n");

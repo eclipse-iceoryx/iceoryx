@@ -98,10 +98,10 @@ int main()
             else if (event->getEventId() == FIRST_GROUP_ID)
             {
                 auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
-                subscriber->take().and_then([&](auto& payload) {
-                    const CounterTopic* data = static_cast<const CounterTopic*>(payload);
+                subscriber->take().and_then([&](auto& userPayloadOfChunk) {
+                    const CounterTopic* data = static_cast<const CounterTopic*>(userPayloadOfChunk);
                     std::cout << "received: " << std::dec << data->counter << std::endl;
-                    subscriber->release(payload);
+                    subscriber->release(userPayloadOfChunk);
                 });
             }
             // dismiss the received data for the second group

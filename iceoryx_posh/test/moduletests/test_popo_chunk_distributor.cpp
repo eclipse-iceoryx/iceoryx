@@ -50,7 +50,7 @@ class ChunkDistributor_test : public Test
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
 
-        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         EXPECT_FALSE(chunkSettingsResult.has_error());
         if (chunkSettingsResult.has_error())
         {
@@ -60,22 +60,22 @@ class ChunkDistributor_test : public Test
 
         ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
         new (chunkMgmt) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
-        *static_cast<uint32_t*>(chunkHeader->payload()) = value;
+        *static_cast<uint32_t*>(chunkHeader->userPayload()) = value;
         return SharedChunk(chunkMgmt);
     }
     uint32_t getSharedChunkValue(const SharedChunk& chunk)
     {
-        return *static_cast<uint32_t*>(chunk.getPayload());
+        return *static_cast<uint32_t*>(chunk.getUserPayload());
     }
 
-    static constexpr uint32_t PAYLOAD_SIZE{128U};
+    static constexpr uint32_t USER_PAYLOAD_SIZE{128U};
     static constexpr size_t MEGABYTE = 1U << 20U;
     static constexpr size_t MEMORY_SIZE = 1U * MEGABYTE;
     const uint64_t HISTORY_SIZE = 16U;
     static constexpr uint32_t MAX_NUMBER_QUEUES = 128U;
     char memory[MEMORY_SIZE];
     iox::posix::Allocator allocator{memory, MEMORY_SIZE};
-    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 20U, allocator, allocator};
+    MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, 20U, allocator, allocator};
     MemPool chunkMgmtPool{128U, 20U, allocator, allocator};
 
     struct ChunkDistributorConfig

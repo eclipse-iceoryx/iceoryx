@@ -81,9 +81,9 @@ class iox_sub_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
-        constexpr uint32_t PAYLOAD_SIZE{100U};
+        constexpr uint32_t USER_PAYLOAD_SIZE{100U};
 
-        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         EXPECT_FALSE(chunkSettingsResult.has_error());
         if (chunkSettingsResult.has_error())
         {
@@ -204,7 +204,7 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
     };
 
     auto sharedChunk = getChunkFromMemoryManager();
-    static_cast<data_t*>(sharedChunk.getPayload())->value = 1234;
+    static_cast<data_t*>(sharedChunk.getUserPayload())->value = 1234;
     m_chunkPusher.push(sharedChunk);
 
     const void* chunk = nullptr;
@@ -222,10 +222,10 @@ TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
     const void* chunk = nullptr;
 
     ASSERT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
-    auto header = iox_chunk_payload_to_header(chunk);
-    ASSERT_NE(header, nullptr);
-    auto payload = iox_chunk_header_to_payload(header);
-    EXPECT_EQ(payload, chunk);
+    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    ASSERT_NE(chunkHeader, nullptr);
+    auto userPayloadFromRoundTrip = iox_chunk_header_to_user_payload(chunkHeader);
+    EXPECT_EQ(userPayloadFromRoundTrip, chunk);
 }
 
 TEST_F(iox_sub_test, receiveChunkWhenToManyChunksAreHold)

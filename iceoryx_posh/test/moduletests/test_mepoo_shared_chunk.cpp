@@ -38,7 +38,7 @@ class SharedChunk_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         EXPECT_FALSE(chunkSettingsResult.has_error());
         if (chunkSettingsResult.has_error())
         {
@@ -51,11 +51,11 @@ class SharedChunk_Test : public Test
         return v;
     }
 
-    static constexpr uint32_t PAYLOAD_SIZE{64U};
+    static constexpr uint32_t USER_PAYLOAD_SIZE{64U};
 
     char memory[4096U];
     iox::posix::Allocator allocator{memory, 4096U};
-    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 10U, allocator, allocator};
+    MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, 10U, allocator, allocator};
     MemPool chunkMgmtPool{64U, 10U, allocator, allocator};
     void* memoryChunk{mempool.getChunk()};
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);
@@ -148,12 +148,12 @@ TEST_F(SharedChunk_Test, CompareWithAnotherSharedChunk)
     EXPECT_THAT(sut2 == sut, Eq(false));
 }
 
-TEST_F(SharedChunk_Test, CompareWithSameMemoryChunkComparesPayload)
+TEST_F(SharedChunk_Test, CompareWithSameMemoryChunkComparesToUserPayload)
 {
-    EXPECT_THAT(sut == sut.getPayload(), Eq(true));
+    EXPECT_THAT(sut == sut.getUserPayload(), Eq(true));
 }
 
-TEST_F(SharedChunk_Test, CompareWithAnotherMemoryChunk)
+TEST_F(SharedChunk_Test, CompareWithAnotherMemoryChunkFails)
 {
     EXPECT_THAT(sut == memoryChunk, Eq(false));
 }
@@ -191,26 +191,27 @@ TEST_F(SharedChunk_Test, hasNoOtherOwnersForMultipleOwner)
     EXPECT_THAT(sut.hasNoOtherOwners(), Eq(false));
 }
 
-TEST_F(SharedChunk_Test, getPayloadWhenInvalid)
+TEST_F(SharedChunk_Test, getUserPayloadWhenInvalidResultsInNullptr)
 {
     SharedChunk sut2(nullptr);
-    EXPECT_THAT(sut2.getPayload(), Eq(nullptr));
+    EXPECT_THAT(sut2.getUserPayload(), Eq(nullptr));
 }
 
-TEST_F(SharedChunk_Test, getPayloadWhenValid)
+TEST_F(SharedChunk_Test, getUserPayloadWhenValidWorks)
 {
-    constexpr uint32_t PAYLOAD{1337U};
+    using DATA_TYPE = uint32_t;
+    constexpr DATA_TYPE USER_DATA{7337U};
     ChunkHeader* newChunk = static_cast<ChunkHeader*>(mempool.getChunk());
 
-    auto chunkSettingsResult = ChunkSettings::create(sizeof(PAYLOAD), alignof(uint32_t));
+    auto chunkSettingsResult = ChunkSettings::create(sizeof(DATA_TYPE), alignof(DATA_TYPE));
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
     new (newChunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
-    new (static_cast<uint32_t*>(newChunk->payload())) uint32_t{PAYLOAD};
+    new (static_cast<DATA_TYPE*>(newChunk->userPayload())) DATA_TYPE{USER_DATA};
 
     iox::mepoo::SharedChunk sut2(GetChunkManagement(newChunk));
-    EXPECT_THAT(*static_cast<uint32_t*>(sut2.getPayload()), Eq(PAYLOAD));
+    EXPECT_THAT(*static_cast<DATA_TYPE*>(sut2.getUserPayload()), Eq(USER_DATA));
 }
 
 TEST_F(SharedChunk_Test, MultipleSharedChunksCleanup)

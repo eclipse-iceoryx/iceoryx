@@ -43,17 +43,20 @@ inline typename ChunkSender<ChunkSenderDataType>::MemberType_t* ChunkSender<Chun
 template <typename ChunkSenderDataType>
 inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
 ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
-                                              const uint32_t payloadSize,
-                                              const uint32_t payloadAlignment,
-                                              const uint32_t customHeaderSize,
-                                              const uint32_t customHeaderAlignment) noexcept
+                                              const uint32_t userPayloadSize,
+                                              const uint32_t userPayloadAlignment,
+                                              const uint32_t userHeaderSize,
+                                              const uint32_t userHeaderAlignment) noexcept
 {
-    // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
+    // use the chunk stored in m_lastChunk if:
+    //   - there is a valid chunk
+    //   - there is no other owner
+    //   - the new user-payload still fits in it
     const auto chunkSettingsResult =
-        mepoo::ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        mepoo::ChunkSettings::create(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (chunkSettingsResult.has_error())
     {
-        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER);
+        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
     }
 
     const auto& chunkSettings = chunkSettingsResult.value();
