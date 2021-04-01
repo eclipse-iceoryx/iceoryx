@@ -25,13 +25,9 @@ namespace iox
 {
 namespace popo
 {
-template <typename H = mepoo::NoUserHeader, typename BasePublisher_t = BasePublisher<>>
+template <typename BasePublisher_t = BasePublisher<>>
 class UntypedPublisherImpl : public BasePublisher_t
 {
-    static_assert(!std::is_const<H>::value, "The user-header must not be const.");
-    static_assert(!std::is_reference<H>::value, "The user-header must not be a reference.");
-    static_assert(!std::is_pointer<H>::value, "The user-header must not be a pointer.");
-
   public:
     UntypedPublisherImpl(const capro::ServiceDescription& service,
                          const PublisherOptions& publisherOptions = PublisherOptions());
@@ -51,7 +47,9 @@ class UntypedPublisherImpl : public BasePublisher_t
     ///
     cxx::expected<void*, AllocationError>
     loan(const uint32_t userPayloadSize,
-         const uint32_t userPayloadAlignment = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT) noexcept;
+         const uint32_t userPayloadAlignment = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
+         const uint32_t userHeaderSize = iox::CHUNK_NO_USER_HEADER_SIZE,
+         const uint32_t userHeaderAlignment = iox::CHUNK_NO_USER_HEADER_ALIGNMENT) noexcept;
 
     ///
     /// @brief Get the previously loaned chunk if possible.
@@ -81,9 +79,6 @@ class UntypedPublisherImpl : public BasePublisher_t
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;
-
-template <typename H>
-using UntypedPublisherWithUserHeader = UntypedPublisherImpl<H>;
 
 } // namespace popo
 } // namespace iox
