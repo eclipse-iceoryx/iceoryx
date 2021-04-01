@@ -17,6 +17,7 @@
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "test.hpp"
 
@@ -115,6 +116,8 @@ TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderReturnsConst
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderWorks)
 {
+    alignas(ChunkHeader) static uint8_t storage[1024 * 1024];
+
     constexpr uint32_t CHUNK_SIZE{753U};
     constexpr uint32_t USER_PAYLOAD_SIZE{8U};
     constexpr uint32_t USER_HEADER_SIZE{16U};
@@ -125,16 +128,18 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderWorks)
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    ChunkHeader sut{CHUNK_SIZE, chunkSettings};
+    iox::cxx::unique_ptr<ChunkHeader> sut{new (storage) ChunkHeader(CHUNK_SIZE, chunkSettings), [](ChunkHeader*) {}};
 
     // the user-header is always adjacent to the ChunkHeader
-    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
-    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut.userHeader<uint8_t>())};
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(sut.get())};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut->userHeader<uint8_t>())};
     EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
 {
+    alignas(ChunkHeader) static uint8_t storage[1024 * 1024];
+
     constexpr uint32_t CHUNK_SIZE{753U};
     constexpr uint32_t USER_PAYLOAD_SIZE{8U};
     constexpr uint32_t USER_HEADER_SIZE{16U};
@@ -145,11 +150,12 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    const ChunkHeader sut{CHUNK_SIZE, chunkSettings};
+    iox::cxx::unique_ptr<const ChunkHeader> sut{new (storage) ChunkHeader(CHUNK_SIZE, chunkSettings),
+                                                [](const ChunkHeader*) {}};
 
     // the user-header is always adjacent to the ChunkHeader
-    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
-    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut.userHeader<uint8_t>())};
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(sut.get())};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut->userHeader<uint8_t>())};
     EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
