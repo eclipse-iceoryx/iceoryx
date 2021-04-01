@@ -132,7 +132,7 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderWorks)
 
     // the user-header is always adjacent to the ChunkHeader
     const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(sut.get())};
-    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut->userHeader<uint8_t>())};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut->userHeader())};
     EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
@@ -155,20 +155,19 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
 
     // the user-header is always adjacent to the ChunkHeader
     const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(sut.get())};
-    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut->userHeader<uint8_t>())};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut->userHeader())};
     EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
 {
-    auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userHeader<uint8_t>()), uint8_t*>::value;
+    auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userHeader()), void*>::value;
     EXPECT_TRUE(isNonConstReturn);
 }
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderReturnsConstType)
 {
-    auto isConstReturn =
-        std::is_same<decltype(std::declval<const ChunkHeader>().userHeader<uint8_t>()), const uint8_t*>::value;
+    auto isConstReturn = std::is_same<decltype(std::declval<const ChunkHeader>().userHeader()), const void*>::value;
     EXPECT_TRUE(isConstReturn);
 }
 
@@ -315,7 +314,7 @@ void checkUserHeaderIsAdjacentToChunkHeader(const ChunkHeader& sut)
 {
     SCOPED_TRACE(std::string("Check user-header is adjacent to ChunkHeader"));
     const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
-    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut.userHeader<void>())};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut.userHeader())};
 
     EXPECT_EQ(userHeaderStartAddress - chunkStartAddress, sizeof(ChunkHeader));
 }

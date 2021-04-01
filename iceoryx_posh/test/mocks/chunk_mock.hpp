@@ -80,12 +80,12 @@ class ChunkMock
 
     UserHeader* userHeader()
     {
-        return m_chunkHeader->userHeader<UserHeader>();
+        return static_cast<UserHeader*>(m_chunkHeader->userHeader());
     }
 
     const UserHeader* userHeader() const
     {
-        return m_chunkHeader->userHeader<UserHeader>();
+        return const_cast<ChunkMock*>(this)->userHeader();
     }
 
     Topic* sample()

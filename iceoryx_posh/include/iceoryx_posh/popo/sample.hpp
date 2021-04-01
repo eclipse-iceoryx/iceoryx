@@ -190,7 +190,7 @@ class Sample
 
   private:
     template <typename, typename, typename>
-    friend class Publisher;
+    friend class PublisherImpl;
 
     /// @note used by the publisher to release the chunk ownership from the `Sample` after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter

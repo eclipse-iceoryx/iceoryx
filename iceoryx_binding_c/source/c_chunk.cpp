@@ -35,12 +35,12 @@ const void* iox_chunk_header_to_user_payload_const(const iox_chunk_header_t* con
 
 void* iox_chunk_header_to_user_header(iox_chunk_header_t* const chunkHeader)
 {
-    return reinterpret_cast<ChunkHeader*>(chunkHeader)->userHeader<void>();
+    return reinterpret_cast<ChunkHeader*>(chunkHeader)->userHeader();
 }
 
 const void* iox_chunk_header_to_user_header_const(const iox_chunk_header_t* const chunkHeader)
 {
-    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userHeader<void>();
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userHeader();
 }
 
 iox_chunk_header_t* iox_chunk_header_from_user_payload(void* const userPayload)

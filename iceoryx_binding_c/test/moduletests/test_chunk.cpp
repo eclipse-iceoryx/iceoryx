@@ -104,15 +104,18 @@ TEST_F(Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForConst)
 
 TEST_F(Chunk_test, GettingUserHeaderFromNonConstChunkHeaderWorks)
 {
-    iox_pub_options_t options;
-    iox_pub_options_init(&options);
-    options.userHeaderSize = 64U;
-    options.userHeaderAlignment = 8U;
-    iox_pub_t publisherWithUserHeader = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
-
     constexpr uint32_t USER_PAYLOAD_SIZE(42U);
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT(64U);
+    constexpr uint32_t USER_HEADER_SIZE = 16U;
+    constexpr uint32_t USER_HEADER_ALIGNMENT = 8U;
     void* userPayload{nullptr};
-    ASSERT_EQ(iox_pub_loan_chunk(publisherWithUserHeader, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
+    ASSERT_EQ(iox_pub_loan_aligned_chunk_with_user_header(publisher,
+                                                          &userPayload,
+                                                          USER_PAYLOAD_SIZE,
+                                                          USER_PAYLOAD_ALIGNMENT,
+                                                          USER_HEADER_SIZE,
+                                                          USER_HEADER_ALIGNMENT),
+              AllocationResult_SUCCESS);
 
     auto chunkHeader = iox_chunk_header_from_user_payload(userPayload);
 
@@ -126,15 +129,18 @@ TEST_F(Chunk_test, GettingUserHeaderFromNonConstChunkHeaderWorks)
 
 TEST_F(Chunk_test, GettingUserHeaderFromConstChunkHeaderWorks)
 {
-    iox_pub_options_t options;
-    iox_pub_options_init(&options);
-    options.userHeaderSize = 64U;
-    options.userHeaderAlignment = 8U;
-    iox_pub_t publisherWithUserHeader = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
-
     constexpr uint32_t USER_PAYLOAD_SIZE(42U);
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT(64U);
+    constexpr uint32_t USER_HEADER_SIZE = 16U;
+    constexpr uint32_t USER_HEADER_ALIGNMENT = 8U;
     void* userPayload{nullptr};
-    ASSERT_EQ(iox_pub_loan_chunk(publisherWithUserHeader, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
+    ASSERT_EQ(iox_pub_loan_aligned_chunk_with_user_header(publisher,
+                                                          &userPayload,
+                                                          USER_PAYLOAD_SIZE,
+                                                          USER_PAYLOAD_ALIGNMENT,
+                                                          USER_HEADER_SIZE,
+                                                          USER_HEADER_ALIGNMENT),
+              AllocationResult_SUCCESS);
 
     const iox_chunk_header_t* chunkHeader = iox_chunk_header_from_user_payload(userPayload);
 
