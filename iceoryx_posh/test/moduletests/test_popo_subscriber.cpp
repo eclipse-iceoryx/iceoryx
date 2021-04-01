@@ -35,10 +35,10 @@ struct DummyData
 } // namespace
 
 template <typename T, typename H, typename BaseSubscriber>
-class StubbedSubscriber : public iox::popo::Subscriber<T, H, BaseSubscriber>
+class StubbedSubscriber : public iox::popo::SubscriberImpl<T, H, BaseSubscriber>
 {
   public:
-    using SubscriberParent = iox::popo::Subscriber<T, H, BaseSubscriber>;
+    using SubscriberParent = iox::popo::SubscriberImpl<T, H, BaseSubscriber>;
 
     StubbedSubscriber(const iox::capro::ServiceDescription& service,
                       const iox::popo::SubscriberOptions& subscriberOptions = iox::popo::SubscriberOptions())
