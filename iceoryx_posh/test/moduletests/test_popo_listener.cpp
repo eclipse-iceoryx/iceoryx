@@ -23,7 +23,6 @@
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-#include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 #include "testutils/watch_dog.hpp"
@@ -41,7 +40,7 @@ using namespace iox::units::duration_literals;
 
 namespace
 {
-enum SimpleEvent
+enum SimpleEvent : iox::popo::EventEnumIdentifier
 {
     StoepselBachelorParty,
     Hypnotoad

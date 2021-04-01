@@ -69,8 +69,7 @@ int main()
     options.nodeName = "iox-c-ex-waitset-grouping-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        subscriber[i] = iox_sub_init(
-            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
+        subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
     }
 
     const uint64_t FIRST_GROUP_ID = 123U;
@@ -79,13 +78,13 @@ int main()
     // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
     for (uint64_t i = 0U; i < 2U; ++i)
     {
-        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, FIRST_GROUP_ID, NULL);
+        iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, FIRST_GROUP_ID, NULL);
     }
 
     // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
     for (uint64_t i = 2U; i < 4U; ++i)
     {
-        iox_ws_attach_subscriber_event(waitSet, subscriber[i], SubscriberEvent_HAS_DATA, SECOND_GROUP_ID, NULL);
+        iox_ws_attach_subscriber_state(waitSet, subscriber[i], SubscriberState_HAS_DATA, SECOND_GROUP_ID, NULL);
     }
 
 

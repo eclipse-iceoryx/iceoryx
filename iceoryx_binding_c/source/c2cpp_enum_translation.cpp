@@ -48,5 +48,30 @@ iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy
     errorHandler(iox::Error::kBINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY, nullptr, iox::ErrorLevel::MODERATE);
     return iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
 }
-} // namespace c2cpp
 
+iox::popo::SubscriberEvent subscriberEvent(const iox_SubscriberEvent value) noexcept
+{
+    switch (value)
+    {
+    case SubscriberEvent_DATA_RECEIVED:
+        return iox::popo::SubscriberEvent::DATA_RECEIVED;
+    }
+
+    iox::LogFatal() << "invalid iox_SubscriberEvent value";
+    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_EVENT_VALUE);
+    return iox::popo::SubscriberEvent::DATA_RECEIVED;
+}
+
+iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noexcept
+{
+    switch (value)
+    {
+    case SubscriberState_HAS_DATA:
+        return iox::popo::SubscriberState::HAS_DATA;
+    }
+
+    iox::LogFatal() << "invalid iox_SubscriberState value";
+    errorHandler(iox::Error::kBINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_STATE_VALUE);
+    return iox::popo::SubscriberState::HAS_DATA;
+}
+} // namespace c2cpp

@@ -41,6 +41,7 @@ void iox_user_trigger_trigger(iox_user_trigger_t const self);
 
 /// @brief was the user trigger triggered
 /// @param[in] self handle to user trigger
+/// @note The hasTrigger state will be reset after it was handled by a WaitSet/Listener
 /// @return returns true if the user trigger was triggered, otherwise false
 bool iox_user_trigger_has_triggered(iox_user_trigger_t const self);
 

@@ -44,7 +44,17 @@ class iox_ws_test : public Test
   public:
     void SetUp() override
     {
-        for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+        for (uint64_t i = 0U; i <= MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+        {
+            m_portDataVector.emplace_back(TEST_SERVICE_DESCRIPTION,
+                                          "someAppName",
+                                          iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                          m_subscriberOptions);
+            m_subscriberVector.emplace_back();
+            m_subscriberVector[i].m_portData = &m_portDataVector[i];
+        }
+
+        for (uint64_t i = 0U; i <= MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
         {
             m_userTrigger.emplace_back(iox_user_trigger_init(&m_userTriggerStorage[i]));
         }
@@ -54,19 +64,24 @@ class iox_ws_test : public Test
     {
         delete m_sut;
 
-        for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+        for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
         {
             iox_user_trigger_deinit(m_userTrigger[i]);
         }
     }
 
+    const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
+    iox::popo::SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
+    cxx::vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_portDataVector;
+    cxx::vector<cpp2c_Subscriber, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_subscriberVector;
+
     ConditionVariableData m_condVar{"Horscht"};
     WaitSetMock* m_sut = new WaitSetMock{m_condVar};
 
-    iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1];
-    cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_WAITSET + 1> m_userTrigger;
+    iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1];
+    cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1> m_userTrigger;
 
-    iox_event_info_t m_eventInfoStorage[MAX_NUMBER_OF_EVENTS_PER_WAITSET];
+    iox_event_info_t m_eventInfoStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET];
     uint64_t m_missedElements = 0U;
     uint64_t m_numberOfTriggeredConditions = 0U;
     timespec m_timeout{0, 0};
@@ -79,7 +94,7 @@ TEST_F(iox_ws_test, InitWaitSetWithNullptrForStorageReturnsNullptr)
 
 TEST_F(iox_ws_test, CapacityIsCorrect)
 {
-    EXPECT_EQ(iox_ws_capacity(m_sut), MAX_NUMBER_OF_EVENTS_PER_WAITSET);
+    EXPECT_EQ(iox_ws_capacity(m_sut), MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET);
 }
 
 TEST_F(iox_ws_test, SizeIsZeroWhenConstructed)
@@ -87,27 +102,101 @@ TEST_F(iox_ws_test, SizeIsZeroWhenConstructed)
     EXPECT_EQ(iox_ws_size(m_sut), 0U);
 }
 
-TEST_F(iox_ws_test, SizeIsOneWhenOneClassIsAttached)
+TEST_F(iox_ws_test, SizeIsOneWhenOneUserTriggerIsAttached)
 {
     EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL),
               iox_WaitSetResult::WaitSetResult_SUCCESS);
     EXPECT_EQ(iox_ws_size(m_sut), 1U);
 }
 
-TEST_F(iox_ws_test, SizeEqualsCapacityWhenMaximumIsAttached)
+TEST_F(iox_ws_test, SizeIsOneWhenOneSubscriberStateIsAttached)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    constexpr uint64_t customId = 123U;
+    EXPECT_EQ(iox_ws_attach_subscriber_state(m_sut, &m_subscriberVector[0U], SubscriberState_HAS_DATA, customId, NULL),
+              iox_WaitSetResult::WaitSetResult_SUCCESS);
+    EXPECT_EQ(iox_ws_size(m_sut), 1U);
+}
+
+TEST_F(iox_ws_test, SizeIsOneWhenOneSubscriberEventIsAttached)
+{
+    constexpr uint64_t customId = 123U;
+    EXPECT_EQ(
+        iox_ws_attach_subscriber_event(m_sut, &m_subscriberVector[0U], SubscriberEvent_DATA_RECEIVED, customId, NULL),
+        iox_WaitSetResult::WaitSetResult_SUCCESS);
+    EXPECT_EQ(iox_ws_size(m_sut), 1U);
+}
+
+TEST_F(iox_ws_test, AttachingMoreUserTriggerThanCapacityAvailableFails)
+{
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL),
                   iox_WaitSetResult::WaitSetResult_SUCCESS);
+        EXPECT_EQ(iox_ws_size(m_sut), i + 1U);
     }
-    EXPECT_EQ(iox_ws_size(m_sut), iox_ws_capacity(m_sut));
+    EXPECT_EQ(iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET], 0U, NULL),
+              iox_WaitSetResult::WaitSetResult_WAIT_SET_FULL);
 }
 
-TEST_F(iox_ws_test, SizeDecreasesWhenAttachedObjectIsDeinitialized)
+TEST_F(iox_ws_test, AttachingMoreSubscriberStatesThanCapacityAvailableFails)
+{
+    constexpr uint64_t customId = 123U;
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+    {
+        EXPECT_EQ(
+            iox_ws_attach_subscriber_state(m_sut, &m_subscriberVector[i], SubscriberState_HAS_DATA, customId, NULL),
+            iox_WaitSetResult::WaitSetResult_SUCCESS);
+        EXPECT_EQ(iox_ws_size(m_sut), i + 1U);
+    }
+    EXPECT_EQ(iox_ws_attach_subscriber_state(m_sut,
+                                             &m_subscriberVector[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET],
+                                             SubscriberState_HAS_DATA,
+                                             customId,
+                                             NULL),
+              iox_WaitSetResult::WaitSetResult_WAIT_SET_FULL);
+}
+
+TEST_F(iox_ws_test, AttachingMoreSubscriberEventsThanCapacityAvailableFails)
+{
+    constexpr uint64_t customId = 123U;
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
+    {
+        EXPECT_EQ(iox_ws_attach_subscriber_event(
+                      m_sut, &m_subscriberVector[i], SubscriberEvent_DATA_RECEIVED, customId, NULL),
+                  iox_WaitSetResult::WaitSetResult_SUCCESS);
+        EXPECT_EQ(iox_ws_size(m_sut), i + 1U);
+    }
+    EXPECT_EQ(iox_ws_attach_subscriber_event(m_sut,
+                                             &m_subscriberVector[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET],
+                                             SubscriberEvent_DATA_RECEIVED,
+                                             customId,
+                                             NULL),
+              iox_WaitSetResult::WaitSetResult_WAIT_SET_FULL);
+}
+
+TEST_F(iox_ws_test, SizeDecreasesWhenAttachedUserTriggerIsDeinitialized)
 {
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
     iox_ws_detach_user_trigger_event(m_sut, m_userTrigger[0U]);
+    EXPECT_EQ(iox_ws_size(m_sut), 0U);
+}
+
+TEST_F(iox_ws_test, SizeDecreasesWhenAttachedSubscriberStateIsDeinitialized)
+{
+    constexpr uint64_t customId = 123U;
+    EXPECT_EQ(iox_ws_attach_subscriber_state(m_sut, &m_subscriberVector[0U], SubscriberState_HAS_DATA, customId, NULL),
+              iox_WaitSetResult::WaitSetResult_SUCCESS);
+    iox_ws_detach_subscriber_state(m_sut, &m_subscriberVector[0U], SubscriberState_HAS_DATA);
+    EXPECT_EQ(iox_ws_size(m_sut), 0U);
+}
+
+TEST_F(iox_ws_test, SizeDecreasesWhenAttachedSubscriberEventIsDeinitialized)
+{
+    constexpr uint64_t customId = 123U;
+    EXPECT_EQ(
+        iox_ws_attach_subscriber_event(m_sut, &m_subscriberVector[0U], SubscriberEvent_DATA_RECEIVED, customId, NULL),
+        iox_WaitSetResult::WaitSetResult_SUCCESS);
+    iox_ws_detach_subscriber_event(m_sut, &m_subscriberVector[0U], SubscriberEvent_DATA_RECEIVED);
     EXPECT_EQ(iox_ws_size(m_sut), 0U);
 }
 
@@ -116,7 +205,7 @@ TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsOneWhenOneWasTriggered)
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
     iox_user_trigger_trigger(m_userTrigger[0U]);
 
-    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements), 1U);
+    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements), 1U);
 }
 
 TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsCorrectWhenMultipleWereTriggered)
@@ -127,19 +216,19 @@ TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsCorrectWhenMultipleWereTriggere
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements), 10U);
+    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements), 10U);
 }
 
 TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsCorrectWhenAllWereTriggered)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements),
-              MAX_NUMBER_OF_EVENTS_PER_WAITSET);
+    EXPECT_EQ(iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+              MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET);
 }
 
 TEST_F(iox_ws_test, SingleTriggerCaseWaitReturnsCorrectTrigger)
@@ -147,7 +236,7 @@ TEST_F(iox_ws_test, SingleTriggerCaseWaitReturnsCorrectTrigger)
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 5678U, NULL);
     iox_user_trigger_trigger(m_userTrigger[0U]);
 
-    iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements);
+    iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
     iox_event_info_t eventInfo = m_eventInfoStorage[0U];
 
@@ -163,7 +252,7 @@ TEST_F(iox_ws_test, MultiTriggerCaseWaitReturnsCorrectTrigger)
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements);
+    iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
     for (uint64_t i = 0U; i < 8; ++i)
     {
@@ -175,15 +264,15 @@ TEST_F(iox_ws_test, MultiTriggerCaseWaitReturnsCorrectTrigger)
 
 TEST_F(iox_ws_test, MaxTriggerCaseWaitReturnsCorrectTrigger)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 42U * i + 1U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements);
+    iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         iox_event_info_t eventInfo = m_eventInfoStorage[i];
         EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 42U * i + 1U);
@@ -196,9 +285,9 @@ TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsOneWhenOneWasTriggered
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
     iox_user_trigger_trigger(m_userTrigger[0U]);
 
-    EXPECT_EQ(
-        iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements),
-        1U);
+    EXPECT_EQ(iox_ws_timed_wait(
+                  m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+              1U);
 }
 
 TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsCorrectWhenMultipleWereTriggered)
@@ -209,22 +298,22 @@ TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsCorrectWhenMultipleWer
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    EXPECT_EQ(
-        iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements),
-        10U);
+    EXPECT_EQ(iox_ws_timed_wait(
+                  m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+              10U);
 }
 
 TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsCorrectWhenAllWereTriggered)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    EXPECT_EQ(
-        iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements),
-        MAX_NUMBER_OF_EVENTS_PER_WAITSET);
+    EXPECT_EQ(iox_ws_timed_wait(
+                  m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements),
+              MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET);
 }
 
 TEST_F(iox_ws_test, SingleTriggerCaseTimedWaitReturnsCorrectTrigger)
@@ -232,7 +321,7 @@ TEST_F(iox_ws_test, SingleTriggerCaseTimedWaitReturnsCorrectTrigger)
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 5678U, NULL);
     iox_user_trigger_trigger(m_userTrigger[0U]);
 
-    iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements);
+    iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
     iox_event_info_t eventInfo = m_eventInfoStorage[0U];
 
@@ -248,7 +337,7 @@ TEST_F(iox_ws_test, MultiTriggerCaseTimedWaitReturnsCorrectTrigger)
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements);
+    iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
     for (uint64_t i = 0U; i < 8U; ++i)
     {
@@ -260,15 +349,15 @@ TEST_F(iox_ws_test, MultiTriggerCaseTimedWaitReturnsCorrectTrigger)
 
 TEST_F(iox_ws_test, MaxTriggerCaseTimedWaitReturnsCorrectTrigger)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 42U * i + 1U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements);
+    iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         iox_event_info_t eventInfo = m_eventInfoStorage[i];
         EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 42U * i + 1U);
@@ -284,7 +373,7 @@ TEST_F(iox_ws_test, MissedElementsIsZeroWhenNothingWasMissed)
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_EVENTS_PER_WAITSET, &m_missedElements);
+    iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
     EXPECT_EQ(m_missedElements, 0U);
 }
@@ -304,7 +393,7 @@ TEST_F(iox_ws_test, MissedElementsIsCorrectWhenSomethingWasMissed)
 
 TEST_F(iox_ws_test, MissedElementsIsCorrectWhenAllWereMissed)
 {
-    for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_WAITSET; ++i)
+    for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[i], 0U, NULL);
         iox_user_trigger_trigger(m_userTrigger[i]);
@@ -312,7 +401,7 @@ TEST_F(iox_ws_test, MissedElementsIsCorrectWhenAllWereMissed)
 
     iox_ws_wait(m_sut, m_eventInfoStorage, 0U, &m_missedElements);
 
-    EXPECT_EQ(m_missedElements, MAX_NUMBER_OF_EVENTS_PER_WAITSET);
+    EXPECT_EQ(m_missedElements, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET);
 }
 
 TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {

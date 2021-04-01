@@ -45,8 +45,8 @@ class UserTrigger
     void trigger() noexcept;
 
     /// @brief Checks if the UserTrigger was triggered
-    /// @return true if the UserTrigger is trigger, otherwise false. The hasTrigger
-    ///         state is reset when it was handled by the WaitSet/Listener
+    /// @return true if the UserTrigger is trigger, otherwise false.
+    /// @note The hasTrigger state will be reset after it was handled by a WaitSet/Listener
     bool hasTriggered() const noexcept;
 
     friend class EventAttorney;
@@ -55,9 +55,6 @@ class UserTrigger
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
     /// @param[in] uniqueTriggerId the id of the corresponding trigger
     void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
-
-    /// @brief Only usable by the WaitSet, not for public use. Returns method pointer to UserTrigger::hasTriggered
-    WaitSetHasTriggeredCallback getHasTriggeredCallbackForEvent() const noexcept;
 
     /// @brief Only usable by the WaitSet, not for public use. Attaches the triggerHandle to the internal trigger.
     /// @param[in] triggerHandle rvalue reference to the triggerHandle. This class takes the ownership of that handle.

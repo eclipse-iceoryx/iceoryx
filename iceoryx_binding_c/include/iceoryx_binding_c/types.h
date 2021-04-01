@@ -35,7 +35,7 @@ struct iox_ws_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
-    uint64_t do_not_touch_me[2709];
+    uint64_t do_not_touch_me[2965];
 };
 typedef struct iox_ws_storage_t_ iox_ws_storage_t;
 

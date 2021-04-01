@@ -36,11 +36,14 @@ static void sigHandler(int f_sig [[gnu::unused]])
 // the untyped subscriber.
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
-    subscriber->take().and_then([&](auto& userPayloadOfChunk) {
-        auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
-        std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec << chunkHeader->userPayloadSize
-                  << " ptr: " << std::hex << chunkHeader->userPayload() << std::endl;
-    });
+    while (subscriber->hasData())
+    {
+        subscriber->take().and_then([&](auto& userPayloadOfChunk) {
+            auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
+            std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
+                      << chunkHeader->userPayload() << " ptr: " << std::hex << chunkHeader->userPayload() << std::endl;
+        });
+    }
 }
 
 int main()
@@ -69,7 +72,7 @@ int main()
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
 
-        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 0, &subscriberCallback)
+        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
                 std::terminate();
