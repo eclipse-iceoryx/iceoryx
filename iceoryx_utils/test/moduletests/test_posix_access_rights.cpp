@@ -22,6 +22,8 @@
 #include <fstream>
 #include <string>
 
+namespace
+{
 using namespace ::testing;
 
 const std::string TestFileName = "/tmp/PosixAccessRights_test.tmp";
@@ -81,3 +83,4 @@ TEST_F(PosixAccessRights_test, DISABLED_testGroups)
     std::getline(fileStream, bla, ' ');
     EXPECT_TRUE(false);
 }
+} // namespace

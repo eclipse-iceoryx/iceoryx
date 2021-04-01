@@ -20,6 +20,8 @@
 #include <atomic>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
@@ -92,3 +94,4 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
     EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }
 #endif
+} // namespace

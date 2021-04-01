@@ -18,6 +18,8 @@
 #include "test.hpp"
 #include "testutils/compile_test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::cxx;
@@ -144,3 +146,4 @@ TEST(NewType, AssignByValueMoveDoesCompile)
 
     EXPECT_TRUE(a == b);
 }
+} // namespace

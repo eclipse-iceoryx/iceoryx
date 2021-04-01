@@ -17,6 +17,8 @@
 #include "iceoryx_utils/internal/concurrent/trigger_queue.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 template <typename QueueType>
@@ -138,3 +140,5 @@ TYPED_TEST(TriggerQueue_test, Capacity)
 {
     EXPECT_THAT(this->m_sut->capacity(), helper::GetCapacity(this->m_sut.value()));
 }
+
+} // namespace

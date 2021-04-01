@@ -17,10 +17,10 @@
 #include "test.hpp"
 
 #include "iceoryx_utils/internal/concurrent/lockfree_queue/cyclic_index.hpp"
-using namespace ::testing;
-
 namespace
 {
+using namespace ::testing;
+
 using iox::concurrent::CyclicIndex;
 
 template <typename T>

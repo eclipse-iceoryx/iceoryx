@@ -19,6 +19,8 @@
 
 #include <iostream>
 
+namespace
+{
 using namespace ::testing;
 
 struct TestData
@@ -260,3 +262,4 @@ TEST_F(TACO_test, DoubleExchange)
     ASSERT_THAT(retVal_2.has_value(), Eq(true));
     EXPECT_THAT(*retVal_2, Eq(ExpectedData_2));
 }
+} // namespace

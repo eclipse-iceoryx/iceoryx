@@ -21,8 +21,9 @@
 #include <random>
 #include <vector>
 
+namespace
+{
 using namespace ::testing;
-
 
 constexpr uint32_t Size{4};
 using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
@@ -196,3 +197,4 @@ TYPED_TEST(LoFFLi_test, PushToUninitializedLoFFLi)
     decltype(this->m_loffli) loFFLi;
     EXPECT_THAT(loFFLi.push(0), Eq(false));
 }
+} // namespace

@@ -18,6 +18,28 @@
 #include "iceoryx_utils/cxx/type_traits.hpp"
 #include "test.hpp"
 
+
+namespace iox
+{
+namespace cxx
+{
+namespace test
+{
+template <typename, typename = void>
+struct has_mytype_as_member : std::false_type
+{
+};
+
+template <typename T>
+struct has_mytype_as_member<T, void_t<typename T::myType>> : std::true_type
+{
+};
+} // namespace test
+} // namespace cxx
+} // namespace iox
+
+namespace
+{
 using namespace ::testing;
 using namespace iox::cxx;
 
@@ -48,25 +70,6 @@ TEST(TypeTraitsTest, HasSignatureResolvesToFalse)
     auto sut = has_signature<decltype(lambda), void(void)>::value;
     EXPECT_FALSE(sut);
 }
-
-namespace iox
-{
-namespace cxx
-{
-namespace test
-{
-template <typename, typename = void>
-struct has_mytype_as_member : std::false_type
-{
-};
-
-template <typename T>
-struct has_mytype_as_member<T, void_t<typename T::myType>> : std::true_type
-{
-};
-} // namespace test
-} // namespace cxx
-} // namespace iox
 
 TEST(TypeTraitsTest, NoTypeAsMemberIsFalse)
 {
@@ -122,3 +125,4 @@ TEST(TypeTraitsTest, AddConstConditionallyTypeAliasWorks)
 
     EXPECT_TRUE(std::is_const<SutTypeResult>::value);
 }
+} // namespace

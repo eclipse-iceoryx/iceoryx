@@ -17,6 +17,8 @@
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::cxx;
 
@@ -313,3 +315,4 @@ TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfIntInt)
     auto value = SameSignature([](int value1, int value2 [[gnu::unused]]) -> int { return value1; });
     EXPECT_THAT(value, Eq(sameSignatureIntIntTestValue));
 }
+} // namespace

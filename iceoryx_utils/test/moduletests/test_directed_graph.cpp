@@ -18,6 +18,8 @@
 #include "iceoryx_utils/internal/graphs/directed_graph.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 constexpr size_t MAX_VERTICES = 4;
@@ -285,3 +287,4 @@ TEST_F(DirectedAcyclicGraph_test, addEdges)
     EXPECT_FALSE(m_graph.addEdge(&node5, &node5)); // selfloop
     EXPECT_FALSE(m_graph.addEdge(&node3, &node2)); // cycle
 }
+} // namespace

@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <limits>
 
+namespace
+{
 using namespace ::testing;
 
 class IoxLogStream_test : public Test
@@ -353,3 +355,4 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMax)
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
     EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->ConstexprLogValueMax)));
 }
+} // namespace

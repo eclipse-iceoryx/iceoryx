@@ -20,6 +20,8 @@
 #include <gtest/gtest.h>
 #include <stdlib.h>
 
+namespace
+{
 using namespace testing;
 using namespace iox::concurrent;
 
@@ -108,3 +110,4 @@ TEST_F(FiFo_Test, OverflowFromFullToEmptyRepetition)
         EXPECT_THAT(sut.empty(), Eq(true));
     }
 }
+} // namespace

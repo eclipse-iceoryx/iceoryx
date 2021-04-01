@@ -20,10 +20,10 @@
 
 #include <cstring>
 
-using namespace ::testing;
-
 namespace
 {
+using namespace ::testing;
+
 using byte_t = std::uint8_t;
 
 template <size_t n, size_t alignment>

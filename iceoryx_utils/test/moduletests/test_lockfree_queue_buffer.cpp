@@ -17,10 +17,11 @@
 #include "test.hpp"
 
 #include "iceoryx_utils/internal/concurrent/lockfree_queue/buffer.hpp"
-using namespace ::testing;
 
 namespace
 {
+using namespace ::testing;
+
 using iox::concurrent::Buffer;
 
 template <typename T>

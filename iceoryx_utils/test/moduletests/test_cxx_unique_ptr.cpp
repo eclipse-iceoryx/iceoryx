@@ -19,6 +19,8 @@
 
 #include <iostream>
 
+namespace
+{
 using namespace ::testing;
 
 static constexpr double_t X_POS = 0.0;
@@ -387,3 +389,4 @@ TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrSetsUnderlyingObjectToNullptr)
     sut = nullptr;
     EXPECT_EQ(nullptr, sut.get());
 }
+} // namespace

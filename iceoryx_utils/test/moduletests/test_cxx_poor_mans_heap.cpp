@@ -18,11 +18,10 @@
 #include "iceoryx_utils/cxx/poor_mans_heap.hpp"
 #include "test.hpp"
 
-
-using namespace ::testing;
-
 namespace
 {
+using namespace ::testing;
+
 enum class Identity : uint32_t
 {
     None,
@@ -97,8 +96,6 @@ class Foo : public Interface
   protected:
     alignas(32) uint8_t m_dummy[73];
 };
-
-} // namespace
 
 class PoorMansHeap_test : public Test
 {
@@ -205,3 +202,4 @@ TEST_F(PoorMansHeap_test, instanceAccess)
     EXPECT_THAT(m_sut->identity(), Eq(Identity::Bar));
     EXPECT_THAT((*m_sut).identity(), Eq(Identity::Bar));
 }
+} // namespace

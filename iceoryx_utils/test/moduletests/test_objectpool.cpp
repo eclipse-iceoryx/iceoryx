@@ -14,18 +14,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test.hpp"
-using namespace ::testing;
-
 #define private public
 #include "iceoryx_utils/internal/objectpool/objectpool.hpp"
 #undef private
 
+#include <vector>
+
+#include "test.hpp"
+
+namespace
+{
 using namespace ::testing;
 
 constexpr int INVALID = -1;
 
-#include <vector>
 
 // non primitive type for pool
 class Foo
@@ -915,3 +917,4 @@ TEST_F(ObjectPool_test, iterator)
     // empty pool, begin equals end
     EXPECT_THAT(pool.begin(), Eq(pool.end()));
 }
+} // namespace

@@ -17,6 +17,8 @@
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::units;
 
@@ -1938,3 +1940,4 @@ TEST(Duration_test, StreamingOperator)
 }
 
 // END ARITHMETIC TESTS
+} // namespace

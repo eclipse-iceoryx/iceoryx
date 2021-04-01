@@ -24,11 +24,10 @@
 #include <regex>
 #include <sstream>
 
-
-using namespace ::testing;
-
 namespace
 {
+using namespace ::testing;
+
 class LoggerSUT : public iox::log::Logger
 {
   public:
@@ -67,7 +66,6 @@ class OutputBuffer
     std::stringstream m_capture;
     std::streambuf* m_oldBuffer{nullptr};
 };
-} // namespace
 
 class IoxLogger_testBase
 {
@@ -195,3 +193,4 @@ TEST_P(IoxLoggerLogLevel_test, LogLevel)
         }
     }
 }
+} // namespace

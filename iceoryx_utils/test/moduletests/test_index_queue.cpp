@@ -17,10 +17,10 @@
 #include "test.hpp"
 
 #include "iceoryx_utils/internal/concurrent/lockfree_queue/index_queue.hpp"
-using namespace ::testing;
 
 namespace
 {
+using namespace ::testing;
 using iox::concurrent::IndexQueue;
 
 template <typename T>

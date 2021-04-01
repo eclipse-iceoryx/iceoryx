@@ -22,6 +22,8 @@
 #include <chrono>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::units;
@@ -140,3 +142,4 @@ TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&]
 
     TIMING_TEST_EXPECT_TRUE(remainingTime >= EXPECTED_REMAINING_TIME && remainingTime <= PASSED_TIMER_TIME);
 });
+} // namespace

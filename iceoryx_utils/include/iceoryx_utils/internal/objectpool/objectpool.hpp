@@ -17,6 +17,7 @@
 #define IOX_UTILS_OBJECTPOOL_OBJECTPOOL_HPP
 
 #include <cstddef> //for size_t
+#include <cstdint>
 #include <utility> //for std::forward
 
 namespace iox

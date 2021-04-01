@@ -19,7 +19,8 @@
 
 
 #include <cstdint>
-
+namespace
+{
 using namespace ::testing;
 
 using NumberType = iox::cxx::convert::NumberType;
@@ -351,3 +352,4 @@ TEST_F(convert_test, fromString_MinMaxUNSIGNED_Int)
     source = "-1";
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
+} // namespace

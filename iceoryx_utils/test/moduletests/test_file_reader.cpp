@@ -23,7 +23,8 @@
 #include <fstream>
 #include <string>
 
-
+namespace
+{
 using namespace ::testing;
 
 const std::string TestFile = "FileReader_test.tmp";
@@ -154,3 +155,4 @@ TEST_F(FileReader_test, errorTerminateMode)
         },
         ".*");
 }
+} // namespace

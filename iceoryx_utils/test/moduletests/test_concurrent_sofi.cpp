@@ -19,8 +19,7 @@
 #include <gtest/gtest.h>
 #include <stdlib.h>
 
-
-namespace gtest_daddy_container_sofi_unittest
+namespace
 {
 class CUnitTestContainerSoFi : public ::testing::Test
 {
@@ -465,4 +464,4 @@ TEST_F(CUnitTestContainerSoFi, PopIfInvalidNotEmptyAfter)
 }
 
 /// @todo popif empty test
-} // namespace gtest_daddy_container_sofi_unittest
+} // namespace

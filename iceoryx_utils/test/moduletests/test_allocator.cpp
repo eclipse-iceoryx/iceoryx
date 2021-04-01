@@ -17,7 +17,8 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
-
+namespace
+{
 using namespace testing;
 
 class Allocator_Test : public Test
@@ -116,3 +117,4 @@ TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
     std::set_terminate([]() { std::cout << "", std::abort(); });
     EXPECT_DEATH({ sut.allocate(5); }, ".*");
 }
+} // namespace

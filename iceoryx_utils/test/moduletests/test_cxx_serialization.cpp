@@ -17,7 +17,8 @@
 #include "iceoryx_utils/cxx/serialization.hpp"
 #include "test.hpp"
 
-
+namespace
+{
 using namespace ::testing;
 
 class Serialization_test : public Test
@@ -148,3 +149,4 @@ TEST_F(Serialization_test, SerializeSerializableClass)
     auto serial = iox::cxx::Serialization::create(obj, "asd");
     EXPECT_THAT(serial.toString(), Eq("7:5:asdgg3:asd"));
 }
+} // namespace
