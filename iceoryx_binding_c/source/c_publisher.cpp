@@ -90,13 +90,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
             publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
         publisherOptions.offerOnCreate = options->offerOnCreate;
-<<<<<<< HEAD
         publisherOptions.deliveryQueueFullPolicy = c2cpp::subscriberTooSlowPolicy(options->deliveryQueueFullPolicy);
-
-        me->m_userHeaderSize = options->userHeaderSize;
-        me->m_userHeaderAlignment = options->userHeaderAlignment;
-=======
->>>>>>> 79db27b7a98c2a50e7638256d84dc25c2dae4c01
     }
 
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
