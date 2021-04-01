@@ -237,13 +237,11 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
-/// @note API currently not supported
 TYPED_TEST(ChunkQueueFiFo_test, InitialSize)
 {
     EXPECT_THAT(this->m_popper.size(), Eq(0U));
 }
 
-/// @note API currently not supported
 TYPED_TEST(ChunkQueueFiFo_test, Capacity)
 {
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY));

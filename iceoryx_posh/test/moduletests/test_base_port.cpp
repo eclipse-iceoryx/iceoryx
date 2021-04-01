@@ -170,7 +170,7 @@ TYPED_TEST(BasePort_test, CallingGetCaProServiceDescriptionWorks)
     EXPECT_THAT(this->sut.getCaProServiceDescription(), Eq(expectedServiceDescription<PortData_t>()));
 }
 
-TYPED_TEST(BasePort_test, CallingGetProcessNameWorks)
+TYPED_TEST(BasePort_test, CallingGetRuntimeNameWorks)
 {
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getRuntimeName(), Eq(expectedProcessName<PortData_t>()));
