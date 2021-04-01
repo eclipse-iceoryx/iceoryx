@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#if !defined(_WIN32)
+
 #define private public
 #include "iceoryx_utils/internal/objectpool/objectpool.hpp"
 #undef private
@@ -918,3 +920,5 @@ TEST_F(ObjectPool_test, iterator)
     EXPECT_THAT(pool.begin(), Eq(pool.end()));
 }
 } // namespace
+
+#endif
