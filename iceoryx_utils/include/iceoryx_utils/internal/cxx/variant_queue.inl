@@ -56,10 +56,6 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
         m_fifo.template emplace<concurrent::TriggerQueue<ValueType, Capacity, concurrent::ResizeableLockFreeQueue>>();
         break;
     }
-    default:
-    {
-        errorHandler(Error::kVARIANT_QUEUE__UNSUPPORTED_QUEUE_TYPE);
-    }
     }
 }
 
@@ -119,10 +115,6 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
 
         return (pushFailedSinceFiFoShouldBeDestroyed) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
     }
-    default:
-    {
-        errorHandler(Error::kVARIANT_QUEUE__UNSUPPORTED_QUEUE_TYPE);
-    }
     }
 
     return cxx::nullopt;
@@ -168,10 +160,6 @@ inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
             ->pop();
     }
-    default:
-    {
-        errorHandler(Error::kVARIANT_QUEUE__UNSUPPORTED_QUEUE_TYPE);
-    }
     }
 
     return cxx::nullopt;
@@ -213,10 +201,6 @@ inline bool VariantQueue<ValueType, Capacity>::empty() const noexcept
         return m_fifo
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
             ->empty();
-    }
-    default:
-    {
-        errorHandler(Error::kVARIANT_QUEUE__UNSUPPORTED_QUEUE_TYPE);
     }
     }
 
@@ -265,10 +249,6 @@ inline uint64_t VariantQueue<ValueType, Capacity>::size() noexcept
             ->size();
         break;
     }
-    default:
-    {
-        errorHandler(Error::kVARIANT_QUEUE__UNSUPPORTED_QUEUE_TYPE);
-    }
     }
 
     return 0U;
@@ -312,10 +292,6 @@ inline bool VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCap
         return m_fifo
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
             ->setCapacity(newCapacity);
-    }
-    default:
-    {
-        errorHandler(Error::kVARIANT_QUEUE__UNSUPPORTED_QUEUE_TYPE);
     }
     }
     return false;
@@ -362,10 +338,6 @@ inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
             ->capacity();
         break;
-    }
-    default:
-    {
-        errorHandler(Error::kVARIANT_QUEUE__UNSUPPORTED_QUEUE_TYPE);
     }
     }
 
