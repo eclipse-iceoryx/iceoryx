@@ -196,25 +196,25 @@ TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
     EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
 }
 
+TEST_F(iox_pub_test, allocateChunkUserPayloadAlignmentIsSuccessful)
+{
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS,
+              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
+
+    EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % USER_PAYLOAD_ALIGNMENT == 0U);
+}
+
 TEST_F(iox_pub_test, allocateChunkWithUserHeaderIsSuccessful)
 {
-    // the user header options are stored in the publisher itself with iox_pub_init and therefore the the
-    // RouDiEnvironment is needed
-
-    iox::roudi::RouDiEnvironment roudiEnv;
-
-    iox_runtime_init("hypnotoad");
-
-    iox_pub_options_t options;
-    iox_pub_options_init(&options);
-    options.userHeaderSize = 4U;
-    options.userHeaderAlignment = 2U;
-    iox_pub_storage_t storage;
-
-    auto sut = iox_pub_init(&storage, "a", "b", "c", &options);
+    constexpr uint32_t USER_HEADER_SIZE = 4U;
+    constexpr uint32_t USER_HEADER_ALIGNMENT = 2U;
 
     void* chunk = nullptr;
-    ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(sut, &chunk, sizeof(DummySample)));
+    ASSERT_EQ(AllocationResult_SUCCESS,
+              iox_pub_loan_aligned_chunk_with_user_header(
+                  &m_sut, &chunk, sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT));
 
     auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
     auto spaceBetweenChunkHeaderAndUserPaylod =
@@ -222,40 +222,17 @@ TEST_F(iox_pub_test, allocateChunkWithUserHeaderIsSuccessful)
     EXPECT_GT(spaceBetweenChunkHeaderAndUserPaylod, sizeof(iox::mepoo::ChunkHeader));
 }
 
-TEST_F(iox_pub_test, allocateChunkWithUserHeaderAndUserPayloadAlignmentIsSuccessful)
-{
-    // the user header options are stored in the publisher itself with iox_pub_init and therefore the the
-    // RouDiEnvironment is needed
-
-    iox::roudi::RouDiEnvironment roudiEnv;
-
-    iox_runtime_init("hypnotoad");
-
-    iox_pub_options_t options;
-    iox_pub_options_init(&options);
-    options.userHeaderSize = 4U;
-    options.userHeaderAlignment = 2U;
-    iox_pub_storage_t storage;
-
-    auto sut = iox_pub_init(&storage, "a", "b", "c", &options);
-
-    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
-    void* chunk = nullptr;
-    ASSERT_EQ(AllocationResult_SUCCESS,
-              iox_pub_loan_aligned_chunk(sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
-
-    EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % USER_PAYLOAD_ALIGNMENT == 0U);
-}
-
 TEST_F(iox_pub_test, allocateChunkWithUserHeaderAndUserPayloadAlignmentFails)
 {
-    m_sut.m_userHeaderSize = 4U;
-    m_sut.m_userHeaderAlignment = 3U;
-
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_HEADER_SIZE = 4U;
+    constexpr uint32_t USER_HEADER_ALIGNMENT = 3U;
+
     void* chunk = nullptr;
-    ASSERT_EQ(AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
-              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
+    ASSERT_EQ(
+        AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
+        iox_pub_loan_aligned_chunk_with_user_header(
+            &m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT));
 }
 
 TEST_F(iox_pub_test, chunkHeaderCanBeObtainedFromChunk)
