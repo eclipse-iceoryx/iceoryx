@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
 using namespace iox;
@@ -31,6 +32,7 @@ using namespace iox::posix;
 extern "C" {
 #include "iceoryx_binding_c/chunk.h"
 #include "iceoryx_binding_c/publisher.h"
+#include "iceoryx_binding_c/runtime.h"
 }
 
 #include "test.hpp"
@@ -126,6 +128,28 @@ TEST_F(iox_pub_test, initPublisherWithNullptrForStorageReturnsNullptr)
     EXPECT_EQ(iox_pub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
 }
 
+// this crashes if the fixture is used, therefore a test without a fixture
+TEST(iox_pub_test_DeathTest, initPublisherWithNotInitializedPublisherOptionsTerminates)
+{
+    iox_pub_options_t options;
+    iox_pub_storage_t storage;
+
+    EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
+}
+
+TEST_F(iox_pub_test, initPublisherWithDefaultOptionsWorks)
+{
+    iox::roudi::RouDiEnvironment roudiEnv;
+
+    iox_runtime_init("hypnotoad");
+
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+    iox_pub_storage_t storage;
+
+    EXPECT_NE(iox_pub_init(&storage, "a", "b", "c", &options), nullptr);
+}
+
 TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)
 {
     PublisherOptions iGotOptions;
@@ -174,11 +198,23 @@ TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
 
 TEST_F(iox_pub_test, allocateChunkWithUserHeaderIsSuccessful)
 {
-    m_sut.m_userHeaderSize = 4U;
-    m_sut.m_userHeaderAlignment = 2U;
+    // the user header options are stored in the publisher itself with iox_pub_init and therefore the the
+    // RouDiEnvironment is needed
+
+    iox::roudi::RouDiEnvironment roudiEnv;
+
+    iox_runtime_init("hypnotoad");
+
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+    options.userHeaderSize = 4U;
+    options.userHeaderAlignment = 2U;
+    iox_pub_storage_t storage;
+
+    auto sut = iox_pub_init(&storage, "a", "b", "c", &options);
 
     void* chunk = nullptr;
-    ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
+    ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(sut, &chunk, sizeof(DummySample)));
 
     auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
     auto spaceBetweenChunkHeaderAndUserPaylod =
@@ -188,13 +224,25 @@ TEST_F(iox_pub_test, allocateChunkWithUserHeaderIsSuccessful)
 
 TEST_F(iox_pub_test, allocateChunkWithUserHeaderAndUserPayloadAlignmentIsSuccessful)
 {
-    m_sut.m_userHeaderSize = 4U;
-    m_sut.m_userHeaderAlignment = 2U;
+    // the user header options are stored in the publisher itself with iox_pub_init and therefore the the
+    // RouDiEnvironment is needed
+
+    iox::roudi::RouDiEnvironment roudiEnv;
+
+    iox_runtime_init("hypnotoad");
+
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+    options.userHeaderSize = 4U;
+    options.userHeaderAlignment = 2U;
+    iox_pub_storage_t storage;
+
+    auto sut = iox_pub_init(&storage, "a", "b", "c", &options);
 
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS,
-              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
+              iox_pub_loan_aligned_chunk(sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
 
     EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % USER_PAYLOAD_ALIGNMENT == 0U);
 }
@@ -360,12 +408,4 @@ TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
         },
         ::testing::ExitedWithCode(0),
         ".*");
-}
-
-TEST(iox_pub_options_test, publisherInitializationTerminatesIfOptionsAreNotInitialized)
-{
-    iox_pub_options_t options;
-    iox_pub_storage_t storage;
-
-    EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
 }

@@ -203,5 +203,5 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     auto& chunkSettings = chunkSettingsResult.value();
 
     auto chunk = sut.getMemoryManager().getChunk(chunkSettings);
-    EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize, Eq(USER_PAYLOAD_SIZE));
+    EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
 }

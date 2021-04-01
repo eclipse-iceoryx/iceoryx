@@ -21,10 +21,15 @@ namespace iox
 namespace mepoo
 {
 template <typename T>
-T* ChunkHeader::userHeader() const noexcept
+T* ChunkHeader::userHeader() noexcept
 {
     // the UserHeader is always located relative to "this" in this way
     return reinterpret_cast<T*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
+}
+template <typename T>
+const T* ChunkHeader::userHeader() const noexcept
+{
+    return const_cast<ChunkHeader*>(this)->userHeader<T>();
 }
 } // namespace mepoo
 } // namespace iox

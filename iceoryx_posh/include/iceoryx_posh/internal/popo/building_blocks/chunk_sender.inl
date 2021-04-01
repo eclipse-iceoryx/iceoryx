@@ -63,12 +63,12 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
     const uint32_t requiredChunkSize = chunkSettings.requiredChunkSize();
 
     auto& lastChunk = getMembers()->m_lastChunk;
-    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize >= requiredChunkSize))
+    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize() >= requiredChunkSize))
     {
         if (getMembers()->m_chunksInUse.insert(lastChunk))
         {
             auto chunkHeader = lastChunk.getChunkHeader();
-            auto chunkSize = chunkHeader->chunkSize;
+            auto chunkSize = chunkHeader->chunkSize();
             chunkHeader->~ChunkHeader();
             new (chunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
             return cxx::success<mepoo::ChunkHeader*>(lastChunk.getChunkHeader());
@@ -90,7 +90,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             if (getMembers()->m_chunksInUse.insert(chunk))
             {
                 // END of critical section, chunk will be lost if process gets hard terminated in between
-                chunk.getChunkHeader()->originId = originId;
+                chunk.getChunkHeader()->setOriginId(originId);
                 return cxx::success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
             }
             else
@@ -171,7 +171,7 @@ inline bool ChunkSender<ChunkSenderDataType>::getChunkReadyForSend(const mepoo::
 {
     if (getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
     {
-        chunk.getChunkHeader()->sequenceNumber = getMembers()->m_sequenceNumber++;
+        chunk.getChunkHeader()->setSequenceNumber(getMembers()->m_sequenceNumber++);
         return true;
     }
     else
