@@ -91,7 +91,7 @@ SharedChunk& SharedChunk::operator=(SharedChunk&& rhs) noexcept
     return *this;
 }
 
-void* SharedChunk::getPayload() const noexcept
+void* SharedChunk::getUserPayload() const noexcept
 {
     if (m_chunkManagement == nullptr)
     {
@@ -99,7 +99,7 @@ void* SharedChunk::getPayload() const noexcept
     }
     else
     {
-        return m_chunkManagement->m_chunkHeader->payload();
+        return m_chunkManagement->m_chunkHeader->userPayload();
     }
 }
 
@@ -110,7 +110,7 @@ bool SharedChunk::operator==(const SharedChunk& rhs) const noexcept
 
 bool SharedChunk::operator==(const void* const rhs) const noexcept
 {
-    return getPayload() == rhs;
+    return getUserPayload() == rhs;
 }
 
 bool SharedChunk::operator!=(const SharedChunk& rhs) const noexcept

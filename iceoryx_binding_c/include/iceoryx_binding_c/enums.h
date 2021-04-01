@@ -64,7 +64,7 @@ enum iox_AllocationResult
     AllocationResult_RUNNING_OUT_OF_CHUNKS,
     AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
     AllocationResult_INVALID_CHUNK,
-    AllocationResult_INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER,
+    AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
     AllocationResult_UNDEFINED_ERROR,
     AllocationResult_SUCCESS,
 };

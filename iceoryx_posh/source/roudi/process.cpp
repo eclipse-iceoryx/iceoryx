@@ -27,16 +27,16 @@ namespace roudi
 {
 Process::Process(const RuntimeName_t& name,
                  const uint32_t pid,
-                 mepoo::MemoryManager& payloadMemoryManager,
+                 mepoo::MemoryManager& payloadDataSegmentMemoryManager,
                  const bool isMonitored,
-                 const uint64_t payloadSegmentId,
+                 const uint64_t dataSegmentId,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
     , m_ipcChannel(name)
     , m_timestamp(mepoo::BaseClock_t::now())
-    , m_payloadMemoryManager(payloadMemoryManager)
+    , m_payloadDataSegmentMemoryManager(payloadDataSegmentMemoryManager)
     , m_isMonitored(isMonitored)
-    , m_payloadSegmentId(payloadSegmentId)
+    , m_dataSegmentId(dataSegmentId)
     , m_sessionId(sessionId)
 {
 }
@@ -57,7 +57,7 @@ void Process::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
     if (!sendSuccess)
     {
         LogWarn() << "Process cannot send message over communication channel";
-        errorHandler(Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, nullptr, ErrorLevel::SEVERE);
+        errorHandler(Error::kPOSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, nullptr, ErrorLevel::MODERATE);
     }
 }
 
@@ -76,14 +76,14 @@ mepoo::TimePointNs_t Process::getTimestamp() noexcept
     return m_timestamp;
 }
 
-mepoo::MemoryManager& Process::getPayloadMemoryManager() const noexcept
+mepoo::MemoryManager& Process::getpayloadDataSegmentMemoryManager() const noexcept
 {
-    return m_payloadMemoryManager;
+    return m_payloadDataSegmentMemoryManager;
 }
 
-uint64_t Process::getPayloadSegmentId() const noexcept
+uint64_t Process::getDataSegmentId() const noexcept
 {
-    return m_payloadSegmentId;
+    return m_dataSegmentId;
 }
 
 bool Process::isMonitored() const noexcept

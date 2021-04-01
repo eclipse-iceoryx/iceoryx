@@ -52,7 +52,7 @@ int main()
         auto result = publisher.loan(sizeof(RadarObject));
         if (!result.has_error())
         {
-            // In the untyped API we get a void pointer to the payload, therefore the data must be constructed
+            // In the untyped API we get a void pointer to the user-payload, therefore the data must be constructed
             // in place
             void* chunk = result.value();
             RadarObject* data = new (chunk) RadarObject(ct, ct, ct);

@@ -174,58 +174,59 @@ TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
     EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
 }
 
-TEST_F(iox_pub_test, allocateChunkWithCustomHeaderIsSuccessful)
+TEST_F(iox_pub_test, allocateChunkWithUserHeaderIsSuccessful)
 {
-    m_sut.m_customHeaderSize = 4U;
-    m_sut.m_customHeaderAlignment = 2U;
+    m_sut.m_userHeaderSize = 4U;
+    m_sut.m_userHeaderAlignment = 2U;
 
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
 
-    auto header = iox_chunk_payload_to_header(chunk);
-    auto spaceBetweenChunkHeaderAndPaylod = reinterpret_cast<uint64_t>(chunk) - reinterpret_cast<uint64_t>(header);
-    EXPECT_GT(spaceBetweenChunkHeaderAndPaylod, sizeof(iox::mepoo::ChunkHeader));
+    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    auto spaceBetweenChunkHeaderAndUserPaylod =
+        reinterpret_cast<uint64_t>(chunk) - reinterpret_cast<uint64_t>(chunkHeader);
+    EXPECT_GT(spaceBetweenChunkHeaderAndUserPaylod, sizeof(iox::mepoo::ChunkHeader));
 }
 
-TEST_F(iox_pub_test, allocateChunkWithCustomHeaderAndPayloadAlignmentIsSuccessful)
+TEST_F(iox_pub_test, allocateChunkWithUserHeaderAndUserPayloadAlignmentIsSuccessful)
 {
-    m_sut.m_customHeaderSize = 4U;
-    m_sut.m_customHeaderAlignment = 2U;
+    m_sut.m_userHeaderSize = 4U;
+    m_sut.m_userHeaderAlignment = 2U;
 
-    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS,
-              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), PAYLOAD_ALIGNMENT));
+              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
 
-    EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % PAYLOAD_ALIGNMENT == 0U);
+    EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % USER_PAYLOAD_ALIGNMENT == 0U);
 }
 
-TEST_F(iox_pub_test, allocateChunkWithCustomHeaderAndPayloadAlignmentFails)
+TEST_F(iox_pub_test, allocateChunkWithUserHeaderAndUserPayloadAlignmentFails)
 {
-    m_sut.m_customHeaderSize = 4U;
-    m_sut.m_customHeaderAlignment = 3U;
+    m_sut.m_userHeaderSize = 4U;
+    m_sut.m_userHeaderAlignment = 3U;
 
-    constexpr uint32_t PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
     void* chunk = nullptr;
-    ASSERT_EQ(AllocationResult_INVALID_PARAMETER_FOR_PAYLOAD_OR_CUSTOM_HEADER,
-              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), PAYLOAD_ALIGNMENT));
+    ASSERT_EQ(AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
+              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
 }
 
 TEST_F(iox_pub_test, chunkHeaderCanBeObtainedFromChunk)
 {
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
-    auto header = iox_chunk_payload_to_header(chunk);
-    EXPECT_NE(header, nullptr);
+    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    EXPECT_NE(chunkHeader, nullptr);
 }
 
-TEST_F(iox_pub_test, chunkHeaderCanBeConvertedBackToPayload)
+TEST_F(iox_pub_test, chunkHeaderCanBeConvertedBackToUserPayload)
 {
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
-    auto header = iox_chunk_payload_to_header(chunk);
-    auto payload = iox_chunk_header_to_payload(header);
-    EXPECT_EQ(payload, chunk);
+    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    auto userPayloadFromRoundtrip = iox_chunk_header_to_user_payload(chunkHeader);
+    EXPECT_EQ(userPayloadFromRoundtrip, chunk);
 }
 
 TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
@@ -244,9 +245,9 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
     std::vector<SharedChunk> chunkBucket;
     while (true)
     {
-        constexpr uint32_t PAYLOAD_SIZE{100U};
+        constexpr uint32_t USER_PAYLOAD_SIZE{100U};
 
-        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         ASSERT_FALSE(chunkSettingsResult.has_error());
         auto& chunkSettings = chunkSettingsResult.value();
 
@@ -306,7 +307,7 @@ TEST_F(iox_pub_test, sendDeliversChunk)
 
     ASSERT_TRUE(maybeSharedChunk.has_value());
     EXPECT_TRUE(*maybeSharedChunk == chunk);
-    EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
+    EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getUserPayload())->dummy == 4711);
 }
 
 TEST_F(iox_pub_test, correctServiceDescriptionReturned)

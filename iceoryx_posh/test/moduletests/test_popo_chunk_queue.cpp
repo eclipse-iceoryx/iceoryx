@@ -43,7 +43,7 @@ class ChunkQueue_testBase
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
 
-        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         EXPECT_FALSE(chunkSettingsResult.has_error());
         if (chunkSettingsResult.has_error())
         {
@@ -56,12 +56,13 @@ class ChunkQueue_testBase
         return SharedChunk(chunkMgmt);
     }
 
-    static constexpr uint32_t PAYLOAD_SIZE{128U};
+    static constexpr uint32_t USER_PAYLOAD_SIZE{128U};
     static constexpr size_t MEGABYTE = 1U << 20U;
     static constexpr size_t MEMORY_SIZE = 4U * MEGABYTE;
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
-    MemPool mempool{sizeof(ChunkHeader) + PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
+    MemPool mempool{
+        sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
     MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5U};
@@ -143,7 +144,7 @@ TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
     {
         auto chunk = this->allocateChunk();
-        *reinterpret_cast<int32_t*>(chunk.getPayload()) = i;
+        *reinterpret_cast<int32_t*>(chunk.getUserPayload()) = i;
         this->m_pusher.push(chunk);
     }
 
@@ -151,7 +152,7 @@ TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
     {
         auto maybeSharedChunk = this->m_popper.tryPop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
-        auto data = *reinterpret_cast<int32_t*>((*maybeSharedChunk).getPayload());
+        auto data = *reinterpret_cast<int32_t*>((*maybeSharedChunk).getUserPayload());
         EXPECT_THAT(data, Eq(i));
     }
 }

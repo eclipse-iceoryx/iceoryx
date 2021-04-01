@@ -42,15 +42,13 @@ typedef struct
     /// @brief describes whether a publisher blocks when subscriber queue is full
     ENUM iox_SubscriberTooSlowPolicy deliveryQueueFullPolicy;
 
-    // this value will be set exclusively by iox_pub_options_init
-    // and is not supposed to be modified otherwise
-    /// @brief The size of the custom header
-    /// @note must be a multiple of the alignment and is by default is 0 to indicate that no custom header is used
-    uint32_t customHeaderSize;
+    /// @brief The size of the user-header
+    /// @note must be a multiple of the alignment and is by default is 0 to indicate that no user-header is used
+    uint32_t userHeaderSize;
 
-    /// @brief The alignment of the custom header
-    /// @note must be a power of two and the maximum allowed custom header alignment is 8
-    uint32_t customHeaderAlignment;
+    /// @brief The alignment of the user-header
+    /// @note must be a power of two and the maximum allowed user-header alignment is 8
+    uint32_t userHeaderAlignment;
 
     /// @brief this value will be set exclusively by `iox_pub_options_init` and is not supposed to be modified otherwise
     uint64_t initCheck;
@@ -89,35 +87,37 @@ void iox_pub_deinit(iox_pub_t const self);
 
 /// @brief allocates a chunk in the shared memory
 /// @param[in] self handle of the publisher
-/// @param[in] chunk pointer in which a pointer to the allocated chunk is stored
-/// @param[in] payloadSize user payload size of the allocated chunk
+/// @param[in] userPayloadOfChunk pointer in which a pointer to the user-payload of the allocated chunk is stored
+/// @param[in] userPayloadSize user-payload size of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-/// @note for the payload alignment `IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT` is used
-///       for a custom payload alignment please use `iox_pub_loan_aligned_chunk`
-ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize);
+/// @note for the user-payload alignment `IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT` is used
+///       for a custom user-payload alignment please use `iox_pub_loan_aligned_chunk`
+ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
+                                             void** const userPayloadOfChunk,
+                                             const uint32_t userPayloadSize);
 
-/// @brief allocates a chunk in the shared memory with a custom alignment for the payload
+/// @brief allocates a chunk in the shared memory with a custom alignment for the user-payload
 /// @param[in] self handle of the publisher
-/// @param[in] chunk pointer in which a pointer to the allocated chunk is stored
-/// @param[in] payloadSize user payload size of the allocated chunk
-/// @param[in] payloadAlignment user payload alignment of the allocated chunk
+/// @param[in] userPayloadOfChunk pointer in which a pointer to the user-payload of the allocated chunk is stored
+/// @param[in] userPayloadSize user-payload size of the allocated chunk
+/// @param[in] userPayloadAlignment user-payload alignment of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
 ENUM iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
-                                                     void** const chunk,
-                                                     const uint32_t payloadSize,
-                                                     const uint32_t payloadAlignment);
+                                                     void** const userPayloadOfChunk,
+                                                     const uint32_t userPayloadSize,
+                                                     const uint32_t userPayloadAlignment);
 
 /// @brief releases ownership of a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher
-/// @param[in] chunk chunk which should be free'd
-void iox_pub_release_chunk(iox_pub_t const self, void* const chunk);
+/// @param[in] userPayloadOfChunk pointer to the user-payload of the chunk which should be free'd
+void iox_pub_release_chunk(iox_pub_t const self, void* const userPayloadOfChunk);
 
 /// @brief sends a previously allocated chunk
 /// @param[in] self handle of the publisher
-/// @param[in] chunk chunk which should be send
-void iox_pub_publish_chunk(iox_pub_t const self, void* const chunk);
+/// @param[in] userPayloadOfChunk pointer to the user-payload of the chunk which should be send
+void iox_pub_publish_chunk(iox_pub_t const self, void* const userPayloadOfChunk);
 
 /// @brief returns the previously sended chunk
 /// @param[in] self handle of the publisher

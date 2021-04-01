@@ -137,7 +137,7 @@ TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
     auto maybeChunk = sut.take();
     // ===== Verify ===== //
     ASSERT_FALSE(maybeChunk.has_error());
-    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->payload());
+    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->userPayload());
     // ===== Cleanup ===== //
     sut.release(maybeChunk.value());
 }
