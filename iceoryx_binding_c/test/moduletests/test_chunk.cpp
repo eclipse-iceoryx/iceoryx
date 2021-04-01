@@ -28,27 +28,28 @@ using namespace iox;
 using namespace iox::mepoo;
 
 
-class BindingC_Chunk_test : public RouDi_GTest
+class Chunk_test : public RouDi_GTest
 {
   public:
     void SetUp() override
     {
+        iox_runtime_init("hypnotoad");
+        publisher = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
+        ASSERT_NE(publisher, nullptr);
     }
 
     void TearDown() override
     {
     }
-};
-
-TEST_F(BindingC_Chunk_test, GettingChunkHeaderFromNonConstUserPayloadWorks)
-{
-    iox_runtime_init("hypnotoad");
 
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
+    iox_pub_t publisher{nullptr};
+};
 
+TEST_F(Chunk_test, GettingChunkHeaderFromNonConstUserPayloadWorks)
+{
     constexpr uint32_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload;
+    void* userPayload{nullptr};
     ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
 
     auto chunkHeader = iox_chunk_header_from_user_payload(userPayload);
@@ -60,15 +61,10 @@ TEST_F(BindingC_Chunk_test, GettingChunkHeaderFromNonConstUserPayloadWorks)
     EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
-TEST_F(BindingC_Chunk_test, GettingChunkHeaderFromConstUserPayloadWorks)
+TEST_F(Chunk_test, GettingChunkHeaderFromConstUserPayloadWorks)
 {
-    iox_runtime_init("hypnotoad");
-
-    iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
-
     constexpr uint32_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload;
+    void* userPayload{nullptr};
     ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
     const void* constUserPayload = userPayload;
 
@@ -81,15 +77,10 @@ TEST_F(BindingC_Chunk_test, GettingChunkHeaderFromConstUserPayloadWorks)
     EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
-TEST_F(BindingC_Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForNonConst)
+TEST_F(Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForNonConst)
 {
-    iox_runtime_init("hypnotoad");
-
-    iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
-
     constexpr uint32_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload;
+    void* userPayload{nullptr};
     ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
     const void* constUserPayload = userPayload;
 
@@ -99,15 +90,10 @@ TEST_F(BindingC_Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForNo
     EXPECT_EQ(userPayloadRoundtrip, userPayload);
 }
 
-TEST_F(BindingC_Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForConst)
+TEST_F(Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForConst)
 {
-    iox_runtime_init("hypnotoad");
-
-    iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
-
     constexpr uint32_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload;
+    void* userPayload{nullptr};
     ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
 
     auto chunkHeader = iox_chunk_header_from_user_payload(userPayload);
@@ -116,20 +102,17 @@ TEST_F(BindingC_Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForCo
     EXPECT_EQ(userPayloadRoundtrip, userPayload);
 }
 
-TEST_F(BindingC_Chunk_test, GettingUserHeaderFromNonConstChunkHeaderWorks)
+TEST_F(Chunk_test, GettingUserHeaderFromNonConstChunkHeaderWorks)
 {
-    iox_runtime_init("hypnotoad");
-
     iox_pub_options_t options;
     iox_pub_options_init(&options);
     options.userHeaderSize = 64U;
     options.userHeaderAlignment = 8U;
-    iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
+    iox_pub_t publisherWithUserHeader = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
 
     constexpr uint32_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload;
-    ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
+    void* userPayload{nullptr};
+    ASSERT_EQ(iox_pub_loan_chunk(publisherWithUserHeader, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
 
     auto chunkHeader = iox_chunk_header_from_user_payload(userPayload);
 
@@ -141,20 +124,17 @@ TEST_F(BindingC_Chunk_test, GettingUserHeaderFromNonConstChunkHeaderWorks)
     EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
-TEST_F(BindingC_Chunk_test, GettingUserHeaderFromConstChunkHeaderWorks)
+TEST_F(Chunk_test, GettingUserHeaderFromConstChunkHeaderWorks)
 {
-    iox_runtime_init("hypnotoad");
-
     iox_pub_options_t options;
     iox_pub_options_init(&options);
     options.userHeaderSize = 64U;
     options.userHeaderAlignment = 8U;
-    iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
+    iox_pub_t publisherWithUserHeader = iox_pub_init(&publisherStorage, "All", "Glory", "Hypnotoad", nullptr);
 
     constexpr uint32_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload;
-    ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
+    void* userPayload{nullptr};
+    ASSERT_EQ(iox_pub_loan_chunk(publisherWithUserHeader, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
 
     const iox_chunk_header_t* chunkHeader = iox_chunk_header_from_user_payload(userPayload);
 
