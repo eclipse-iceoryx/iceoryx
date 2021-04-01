@@ -106,9 +106,10 @@ iox_SubscriberTooSlowPolicy subscriberTooSlowPolicy(const iox::popo::SubscriberT
     {
     case SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER:
         return SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
-    default:
+    case SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA:
         return SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA;
     }
+    return SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA;
 }
 iox_QueueFullPolicy queueFullPolicy(const iox::popo::QueueFullPolicy policy)
 {
@@ -116,9 +117,10 @@ iox_QueueFullPolicy queueFullPolicy(const iox::popo::QueueFullPolicy policy)
     {
     case QueueFullPolicy::BLOCK_PUBLISHER:
         return QueueFullPolicy_BLOCK_PUBLISHER;
-    default:
+    case QueueFullPolicy::DISCARD_OLDEST_DATA:
         return QueueFullPolicy_DISCARD_OLDEST_DATA;
     }
+    return QueueFullPolicy_DISCARD_OLDEST_DATA;
 }
 
 } // namespace cpp2c

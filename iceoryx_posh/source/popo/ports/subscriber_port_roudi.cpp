@@ -28,7 +28,7 @@ SubscriberPortRouDi::SubscriberPortRouDi(cxx::not_null<MemberType_t* const> subs
 
 QueueFullPolicy SubscriberPortRouDi::getQueueFullPolicy() const noexcept
 {
-    return getMembers()->m_deliveryQueueFullPolicy;
+    return getMembers()->m_chunkReceiverData.m_queueFullPolicy;
 }
 
 const SubscriberPortRouDi::MemberType_t* SubscriberPortRouDi::getMembers() const noexcept

@@ -29,7 +29,7 @@ PublisherPortRouDi::PublisherPortRouDi(cxx::not_null<MemberType_t* const> publis
 
 SubscriberTooSlowPolicy PublisherPortRouDi::getSubscriberTooSlowPolicy() const noexcept
 {
-    return getMembers()->m_subscriberTooSlowPolicy;
+    return getMembers()->m_chunkSenderData.m_subscriberTooSlowPolicy;
 }
 
 const PublisherPortRouDi::MemberType_t* PublisherPortRouDi::getMembers() const noexcept

@@ -52,7 +52,6 @@ struct PublisherPortData : public BasePortData
     ChunkSenderData_t m_chunkSenderData;
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};
-    const SubscriberTooSlowPolicy m_subscriberTooSlowPolicy{SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
 };
 
 } // namespace popo

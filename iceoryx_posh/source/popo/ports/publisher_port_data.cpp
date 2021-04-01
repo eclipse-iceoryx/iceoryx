@@ -30,7 +30,6 @@ PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDes
     , m_chunkSenderData(
           memoryManager, publisherOptions.deliveryQueueFullPolicy, publisherOptions.historyCapacity, memoryInfo)
     , m_offeringRequested(publisherOptions.offerOnCreate)
-    , m_subscriberTooSlowPolicy(publisherOptions.deliveryQueueFullPolicy)
 {
 }
 

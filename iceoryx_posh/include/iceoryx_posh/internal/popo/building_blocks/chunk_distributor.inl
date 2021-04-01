@@ -156,6 +156,8 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
         std::this_thread::yield();
         {
             // create intersection of current queues and remainingQueues
+            // reason: it is possible that since the last iteration some subscriber have already unsubscribed
+            //          and without this intersection we would deliver to dead queues
             typename MemberType_t::LockGuard_t lock(*getMembers());
             typename ChunkDistributorDataType::QueueContainer_t queueIntersection(remainingQueues.size());
             std::sort(getMembers()->m_queues.begin(), getMembers()->m_queues.end());

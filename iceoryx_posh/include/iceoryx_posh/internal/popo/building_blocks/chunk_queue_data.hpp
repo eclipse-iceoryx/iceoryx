@@ -46,7 +46,7 @@ struct ChunkQueueData : public LockingPolicy
 
     rp::RelativePointer<ConditionVariableData> m_conditionVariableDataPtr;
     cxx::optional<uint64_t> m_conditionVariableNotificationIndex;
-    QueueFullPolicy m_queueFullPolicy;
+    const QueueFullPolicy m_queueFullPolicy;
 };
 
 } // namespace popo

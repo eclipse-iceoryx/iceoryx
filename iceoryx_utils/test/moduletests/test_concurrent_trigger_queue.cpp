@@ -115,7 +115,7 @@ TYPED_TEST(TriggerQueue_test, PushBlocksUntilPopWhenFull)
     constexpr int64_t TIMEOUT_IN_MS = 100;
     this->fillQueue();
 
-    std::atomic_uint64_t counter{0U};
+    std::atomic<uint64_t> counter{0U};
 
     std::thread t([&] {
         this->m_sut.push(0U);
