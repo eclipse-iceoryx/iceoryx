@@ -65,7 +65,7 @@ int main()
     // attach the first two subscribers to waitset with a eventid of FIRST_GROUP_ID
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
-        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, FIRST_GROUP_ID)
+        waitset.attachState(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, FIRST_GROUP_ID)
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
                 std::terminate();
@@ -75,7 +75,7 @@ int main()
     // attach the remaining subscribers to waitset with a eventid of SECOND_GROUP_ID
     for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, SECOND_GROUP_ID)
+        waitset.attachState(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, SECOND_GROUP_ID)
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
                 std::terminate();

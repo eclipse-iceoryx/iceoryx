@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,19 +13,17 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_MOCKS_WAITSET_MOCK_HPP
-#define IOX_POSH_MOCKS_WAITSET_MOCK_HPP
 
-#include "iceoryx_posh/popo/wait_set.hpp"
+#ifndef IOX_BINDING_C_C2CPP_ENUM_TRANSLATION_H
+#define IOX_BINDING_C_C2CPP_ENUM_TRANSLATION_H
 
-class WaitSetMock : public iox::popo::WaitSet<>
+#include "iceoryx_binding_c/enums.h"
+#include "iceoryx_posh/popo/base_subscriber.hpp"
+
+namespace c2cpp
 {
-  public:
-    WaitSetMock(iox::popo::ConditionVariableData& condVarData) noexcept
-        : WaitSet(condVarData)
-    {
-    }
-};
-
+iox::popo::SubscriberEvent subscriberEvent(const iox_SubscriberEvent value) noexcept;
+iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noexcept;
+} // namespace c2cpp
 
 #endif

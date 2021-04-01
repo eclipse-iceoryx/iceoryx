@@ -50,11 +50,6 @@ bool UserTrigger::hasTriggered() const noexcept
     return m_trigger.wasTriggered();
 }
 
-WaitSetHasTriggeredCallback UserTrigger::getHasTriggeredCallbackForEvent() const noexcept
-{
-    return WaitSetHasTriggeredCallback();
-}
-
 void UserTrigger::enableEvent(iox::popo::TriggerHandle&& triggerHandle) noexcept
 {
     m_trigger = std::move(triggerHandle);

@@ -19,10 +19,29 @@ WaitSet attaches multiple subscribers, user trigger or other _Triggerables_ to i
 one or many of the attached entities signal an event. If that happens one receives
 a list of _EventInfos_ which is corresponding to all occurred events.
 
-WaitSet events can be state based, this means that the WaitSet will notify you
-till you reset the state. The `HAS_DATA` event of the subscriber for instance
-will notify you as long as there are samples. But it is also possible that one
-attaches one shot events. These are events which will trigger the WaitSet only once.
+## Events and States
+
+In this context we define the state of an object as a specified set of values 
+to which the members of that object are set. An event on the other hand 
+is defined as a state change. Usually an event changes the state of the corresponding 
+object but this is not mandatory.
+
+States and events can be attached to a WaitSet. The user will be informed only once 
+by the WaitSet for every event which occurred. If the event occurred multiple times 
+before the user has requested an event update from the WaitSet the user will still 
+be informed only once. State changes are induced by events 
+and the user will be informed about a specific state as long as the state persists.
+
+The subscriber for instance has the state `SubscriberState::HAS_DATA` and the event 
+`SubscriberEvent::DATA_RECEIVED`. If you attach the subscriber event 
+`SubscriberEvent::DATA_RECEIVED` to a WaitSet you will be notified about every new 
+incoming sample whenever you call `WaitSet::wait` or `WaitSet::timedWait`. If multiple
+samples were sent before you called those methods you will still receive only one 
+notification.
+
+If you attach on the other hand the state `SubscriberState::HAS_DATA` you will 
+be notified by `WaitSet::wait` or `WaitSet::timedWait` as long as there are received 
+samples present in the subscriber.
 
 ## Expected Output
 
@@ -44,11 +63,13 @@ attaches one shot events. These are events which will trigger the WaitSet only o
      the _EventId_, call the _EventCallback_ or acquire the _EventOrigin_.
  - **EventOrigin** the pointer to the class where the _Event_ originated from, short
      pointer to the _Triggerable_.
+ - **Event** a state change of an object.
  - **Events** a _Triggerable_ will signal an event via a _TriggerHandle_ to a _Notifyable_.
-     For instance one can attach the subscriber event `HAS_DATA` to _WaitSet_. This will cause the
+     For instance one can attach the subscriber event `DATA_RECEIVED` to _WaitSet_. This will cause the
      subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a sample was received.
  - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
+ - **State** a specified set of values to which the members of an object are set.
  - **Trigger** a class which is used by the _Notifyable_ to acquire the information which events were
      signalled. It corresponds to a _TriggerHandle_. If the _Notifyable_ goes out of scope the corresponding
      _TriggerHandle_ will be invalidated and if the _Triggerable_ goes out of scope the corresponding
@@ -71,36 +92,41 @@ attaches one shot events. These are events which will trigger the WaitSet only o
      invalidated.
 
 ## Quick Overview
-To a **Notifyable** like the **WaitSet** **Events** can be attached or detached.
+**Events** or **States** can be attached to a **Notifyable** like the **WaitSet**.
 The **WaitSet** will listen on **Triggers** for a signal that an **Event** has occurred and it hands out
 **TriggerHandles** to **Triggerable** objects. The **TriggerHandle** is used to inform the **WaitSet**
 about the occurrence of an **Event**. When returning from `WaitSet::wait()` the user is provided with a vector of **EventInfos**
-associated with **Events** which had occurred. The **EventOrigin**, **EventId** and **EventCallback**
+associated with **Events** which had occurred and **States** which persists. The **EventOrigin**, **EventId** and **EventCallback**
 are stored inside of the **EventInfo** and can be acquired by the user.
+
+!!! attention 
+    Please be aware about the thread-safety restrictions of the _WaitSet_ and 
+    read the [Thread Safety](#thread-safety) chapter carefully.
 
 ## Reference
 
 | task | call |
 |:-----|:-----|
-|attach subscriber to a WaitSet|`waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 123, &mySubscriberCallback)`|
+|attach subscriber event to a WaitSet|`waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 123, &mySubscriberCallback)`|
+|attach subscriber state to a WaitSet|`waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA, 123, &mySubscriberCallback)`|
 |attach user trigger to a WaitSet|`waitset.attachEvent(userTrigger, 456, &myUserTriggerCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
-|check if event originated from some object|`event.doesOriginateFrom(ptrToSomeObject)`|
-|get id of the event|`event.getEventId()`|
-|call eventCallback|`event()`|
-|acquire _EventOrigin_|`event.getOrigin<OriginType>();`|
+|check if event originated from some object|`event->doesOriginateFrom(ptrToSomeObject)`|
+|get id of the event|`event->getEventId()`|
+|call eventCallback|`(*event)()`|
+|acquire _EventOrigin_|`event->getOrigin<OriginType>();`|
 
 ## Use Cases
 This example consists of 5 use cases.
  
  1. `ice_waitset_gateway.cpp`: We build a gateway to forward data
-    to another network. A list of subscribers is handled in an uniform way
-    by defining a callback and which is executed for every subscriber who
+    to another network. A list of subscriber events are handled in an uniform way
+    by defining a callback which is executed for every subscriber who
     has received data.
 
  2. `ice_waitset_grouping`: We would like to group multiple subscribers into 2 distinct
-    groups and handle them according to their group membership.
+    groups and handle them whenever they have a specified state according to their group membership.
 
  3. `ice_waitset_individual`: A list of subscribers where every subscriber is
     handled differently.
@@ -109,7 +135,7 @@ This example consists of 5 use cases.
     execute an algorithm every 100ms.
 
  5. `ice_waitset_trigger`: We create our own class which can be attached to a
-    WaitSet to signal events.
+    WaitSet to signal states and events.
 
 ## Examples
 
@@ -124,18 +150,27 @@ logic and is explained in detail in the [icedelivery example](../icedelivery/).
 We have a list of subscribers which can be subscribed to any arbitrary topic
 and everytime we received a sample we would like to send the bytestream to a socket,
 write it into a file or print it to the console. But whatever we choose to do
-we perform the same task for all the subscribers.
+we perform the same task for all the subscribers. And since we process all incoming 
+data right away we attach the `SubscriberEvent::DATA_RECEIVED` which notifies us 
+only once.
 
 Let's start by implementing our callback which prints the subscriber pointer, the
-payload size and the payload pointer to the console.
+payload size and the payload pointer to the console. We have to process all samples
+as long as there are samples in the subscriber since we attached an event which notifies
+us only once. But it is impossible to miss samples since the notification is reset 
+right after `wait` or `timedWait` is returned - this means if a sample arrives after 
+those calls we will be notified again.
 ```cpp
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
-    subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
-        std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
-                  << sample.getHeader()->payloadSize << " ptr: " << std::hex << sample.getHeader()->payload()
-                  << std::endl;
-    });
+    while (subscriber->hasData())
+    {
+        subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
+            std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
+                      << sample.getHeader()->payloadSize << " ptr: " << std::hex << sample.getHeader()->payload()
+                      << std::endl;
+        });
+    }
 }
 ```
 An _Event_ always requires a callback which has the following signature
@@ -157,7 +192,7 @@ waitset.attachEvent(shutdownTrigger).or_else([](auto) {
 ```
 
 After that we create a vector to hold our subscribers, we create and then
-attach them to a _WaitSet_ with the `HAS_DATA` event and the `subscriberCallback`.
+attach them to our _WaitSet_ with the `SubscriberEvent::DATA_RECEIVED` event and the `subscriberCallback`.
 Everytime one 
 of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 ```cpp
@@ -167,7 +202,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
 
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 0, &subscriberCallback)
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
             std::terminate();
@@ -176,7 +211,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 ```
 `attachEvent` is returning a `cxx::expected` which informs us if attaching the event
 succeeded. In the `.or_else([&](auto){/*...*/})` part we perform the error handling 
-if `attachEvent` failed.
+whenever `attachEvent` failed.
 
 Now our system is prepared and ready to work. We enter the event loop which
 starts with a call to our _WaitSet_ (`waitset.wait()`). This call will block until
@@ -209,7 +244,8 @@ while (true)
 ### Grouping
 In our next use case we would like to divide the subscribers into two groups
 and we do not want to attach a callback to them. Instead we perform the calls on the
-subscribers directly.
+subscribers directly. Additionally, we would like to be notified as long as there 
+are samples in the subscriber queue therefore we have to attach the `SubscriberState::HAS_DATA`.
 
 We again start by creating a _WaitSet_ with a capacity of 5 (4 subscribers and 1 shutdownTrigger),
 and attach the `shutdownTrigger` to handle `CTRL+c`.
@@ -233,12 +269,12 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 ```
 
 After that we define our two groups with the ids `FIRST_GROUP_ID` and `SECOND_GROUP_ID`
-and attach the first two subscribers to the first group and the remaining subscribers
+and attach the first two subscribers with the state `SubscriberState::HAS_DATA` to the first group and the remaining subscribers
 to the second group.
 ```cpp
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
 {
-    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, FIRST_GROUP_ID)
+    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, FIRST_GROUP_ID)
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
             std::terminate();
@@ -247,7 +283,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
 
 for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, SECOND_GROUP_ID)
+    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, SECOND_GROUP_ID)
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
             std::terminate();
@@ -273,7 +309,7 @@ while (true)
 
 The remaining part of the loop is handling the subscribers. In the first group
 we would like to print the received data to the console and in the second group
-we just dismiss the received data.
+we just dismiss the received data. 
 ```cpp
     else if (event->getEventId() == FIRST_GROUP_ID)
     {
@@ -291,9 +327,8 @@ we just dismiss the received data.
     }
 ```
 !!! attention 
-    The second group needs to release all queued samples otherwise
-    the WaitSet would notify the user again and again that the subscriber from the second
-    group has new samples.
+    In the second group we would not dismiss the data because we would be 
+    notified by the WaitSet immediately again since the subscriber has still the state `HAS_DATA`.
 
 ### Individual
 When every _Triggerable_ requires a different reaction we need to know the
@@ -312,17 +347,17 @@ waitset.attachEvent(shutdownTrigger).or_else([](auto) {
     });
 ```
 
-Additionally, we create two subscribers and attach
-them to the waitset to let them inform us whenever they receive a new sample.
+Additionally, we create two subscribers and attach them with the state `SubscriberState::HAS_DATA`
+to the waitset to let them inform us whenever they have samples in their queue.
 ```cpp
 iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
 iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
 
-waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_DATA).or_else([](auto) {
+waitset.attachEvent(subscriber1, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber1" << std::endl;
     std::terminate();
 });
-waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_DATA).or_else([](auto) {
+waitset.attachEvent(subscriber2, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber2" << std::endl;
     std::terminate();
 });
@@ -419,7 +454,7 @@ std::thread cyclicTriggerThread([&] {
 Everything is set up and we can implement the event loop. As usual we handle
 `CTRL-c` which is indicated by the `shutdownTrigger`.
 ```cpp
-while (true)
+while (keepRunning.load())
 {
     auto eventVector = waitset.wait();
     
@@ -441,16 +476,98 @@ The `cyclicTrigger` callback is called in the else part.
 
 ### Trigger
 In this example we describe how you would implement a _Triggerable_ class which
-can be attached to a _WaitSet_. Our class in this example will be called
-`MyTriggerClass` and it signals the _WaitSet_ two events.
-The `PERFORMED_ACTION` event which is triggered whenever the method `performAction`
-is called and the
-`ACTIVATE` event which is triggered when `activate` is called with an `activationCode`.
+can be attached to a _WaitSet_ or a [Listener](../callbacks). Our class in this example will be called
+`MyTriggerClass` and it can signal the _WaitSet_ the two states `HAS_PERFORMED_ACTION` and 
+`IS_ACTIVATED`. Furthermore, we can also attach the two corresponding events
+`PERFORM_ACTION_CALLED` and `ACTIVATE_CALLED`.
+The `PERFORMED_ACTION_CALLED` event is triggered whenever the method `performAction`
+is called and the state `HAS_PERFORMED_ACTION` persists until someone resets the state
+with the method `reset()`. The same goes for the event `ACTIVATE_CALLED` which is 
+triggered by an `activate()` call and the corresponding state `IS_ACTIVATED` which
+stays until someone resets it with `reset()`.
 
 #### MyTriggerClass
 
+##### Attaching States
+
+A class which would like to attach states to a _WaitSet_ has to implement the 
+following methods.
+ 
+ 1. `void enableState(iox::popo::TriggerHandle&&, const UserDefinedStateEnum )`
+
+    Used by the _WaitSet_ to attach a trigger handle to the object so that the 
+    object can notify the _WaitSet_ that it entered a certain state.
+
+ 2. `void disableState(const UserDefinedStateEnum)`
+
+    Called whenever the user detaches the state from the _WaitSet_.
+
+ 3. `void invalidateTrigger(const uint64_t uniqueTriggerId)`
+
+    If the _WaitSet_ goes out of scope it calls this method to invalidate the loan 
+    trigger.
+
+ 4. `iox::popo::WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied(const UserDefinedStateEnum)`
+
+    With every iteration the _WaitSet_ has to ask the object if the attached state 
+    still persists. This is done with the `isStateConditionSatisfied` callback which 
+    will be returned here.
+
+The `UserDefinedStateEnum` can be some arbitrary enum class which requires 
+`iox::popo::StateEnumIdentifier` as underlying type so that it can be identified as 
+an enum which describes certain states. In our example it is called `MyTriggerClassStates`.
+```cpp
+enum class MyTriggerClassStates : iox::popo::StateEnumIdentifier
+{
+    HAS_PERFORMED_ACTION,
+    IS_ACTIVATED
+};
+```
+
+##### Attaching Events
+
+Events can be attached to _WaitSets_ and [Listeners](../callbacks). For this to work 
+the class has to implement the following methods.
+
+ 1. `void enableEvent(iox::popo::TriggerHandle&&, const UserDefinedEvenEnum)`
+
+    Used by the _WaitSet_ or the _Listener_ to attach a trigger handle which signals 
+    certain events to them.
+
+ 2. `void disableEvent(const UserDefinedStateEnum)`
+
+    Called whenever the user detaches the event from the _WaitSet_ or the _Listener_.
+
+ 3. `void invalidateTrigger(const uint64_t uniqueTriggerId)`
+
+    Used to cleanup all loan trigger handles when the _WaitSet_ or _Listener_ goes 
+    out of scope.
+
+Like with the state enum the event enum can be also any arbitrary enum class which 
+has `iox::popo::EventEnumIdentifier` as an underlying type. In our example it is called 
+`MyTriggerClassEvents`
+```cpp
+enum class MyTriggerClassEvents : iox::popo::EventEnumIdentifier
+{
+    PERFORM_ACTION_CALLED,
+    ACTIVATE_CALLED
+};
+```
+
+##### Further Requirements
+
+ 1. `friend iox::popo::EventAttorney`
+
+    Methods like `enableEvent`, `disableEvent` etc. should never be accessible 
+    via the public API and should be therefore private. To avoid that every class 
+    has to befriend the _WaitSet_, _Listener_ and other internal structures we 
+    implemented the client attorney pattern and the class has only to befriend 
+    the `iox::popo::EventAttorney`.
+
+ 2. Deleted move and copy operations
+
 At the moment the _WaitSet_ does not support _Triggerable_ classes which are movable
-or copyable. This is caused by the `resetCallback` and the `hasEventCallback`
+or copyable. This is caused by the `resetCallback` and the `isStateConditionSatisfied` callback
 which are pointing to the _Triggerable_. After a move the callbacks inside of the _WaitSet_
 would point to the wrong memory location and a copy could lead to an unattached object
 if there is no more space left in the _WaitSet_. Therefore we have to delete the move
@@ -462,12 +579,15 @@ and copy operations for now.
     MyTriggerClass& operator=(MyTriggerClass&&) = delete;
 ```
 
-The class implementation of these two methods could look like the following.
+##### Implementation
+
+The method implementation of the two actions `activate` and `performAction` which trigger an 
+event and causing a state change look like the following.
 ```cpp
 class MyTriggerClass
 {
   public:
-    void activate(const int activationCode) noexcept
+    void activate(const uint64_t activationCode) noexcept
     {
         m_activationCode = activationCode;
         m_isActivated = true;
@@ -485,8 +605,8 @@ As you can see we perform some internal action and when they are finished we
 signal the corresponding _Trigger_ via our stored _TriggerHandle_ that we performed the task. Internally we
 just set a boolean to signal that the method was called.
 
-Every _Trigger_ requires a corresponding class method which returns a boolean
-stating if the _Trigger_ was actually triggered or not. In our case these are
+Every state based _Trigger_ requires a corresponding class method which returns a boolean
+stating if the state which led to the trigger still persists. In our case these are
 the two const methods `hasPerformedAction` and `isActivated`.
 ```cpp
     bool hasPerformedAction() const noexcept
@@ -504,14 +624,14 @@ Since the following methods should not be accessible by the public but must be
 accessible by any _Notifyable_ like the _WaitSet_ and to avoid that 
 we have to befriend every possible _Notifyable_ we created the `EventAttorney`.
 Every _Triggerable_ has to befriend the `EventAttorney` which provides access 
-to the private methods `enableEvent`, `disableEvent`, `invalidateTrigger` and 
-`getHasTriggeredCallbackForEvent` to all _Notifyables_.
+to the private methods `enableEvent`/`enableState`, `disableEvent`/`disableState`, `invalidateTrigger` and 
+`getCallbackForIsStateConditionSatisfied` to all _Notifyables_.
 
 ```cpp
     friend iox::popo::EventAttorney;
 ```
 
-The method `enableEvent` is called by the _WaitSet_ when `MyTriggerClass`
+The method `enableEvent` is called by the _WaitSet_ when a `MyTriggerClass` event
 is being attached to it. During that process the _WaitSet_ creates a `triggerHandle`
 and forwards the `event` to which this handle belongs. 
 
@@ -524,15 +644,38 @@ internal trigger handle.
     {
         switch (event)
         {
-        case MyTriggerClassEvents::PERFORMED_ACTION:
+        case MyTriggerClassEvents::PERFORM_ACTION_CALLED:
             m_onActionTrigger = std::move(triggerHandle);
             break;
-        case MyTriggerClassEvents::ACTIVATE:
+        case MyTriggerClassEvents::ACTIVATE_CALLED:
             m_activateTrigger = std::move(triggerHandle);
             break;
         }
     }
 ```
+
+Attaching a state works in a similar fashion.
+```cpp
+    void enableState(iox::popo::TriggerHandle&& triggerHandle, const MyTriggerClassStates state) noexcept
+    {
+        switch (state)
+        {
+        case MyTriggerClassStates::HAS_PERFORMED_ACTION:
+            m_onActionTrigger = std::move(triggerHandle);
+            break;
+        case MyTriggerClassStates::IS_ACTIVATED:
+            m_activateTrigger = std::move(triggerHandle);
+            break;
+        }
+    }
+```
+
+It is possible to use the same trigger for either a state or an event attachment 
+but then we loose the ability to attach the state and the corresponding event 
+at the same time to a _WaitSet_. In most cases it is not a problem and when you 
+attach an event when the corresponding state is already attached you will get 
+a warning message on the terminal and the already attached event is detached so that 
+the state can be attached. This is realized via the RAII idiom.
 
 The next thing on our checklist is the `invalidateTrigger` method used by the WaitSet
 to reset the _Trigger_ when it goes out of scope. Therefore we look up the
@@ -561,31 +704,47 @@ find the to the event corresponding trigger.
     {
         switch (event)
         {
-        case MyTriggerClassEvents::PERFORMED_ACTION:
+        case MyTriggerClassEvents::PERFORM_ACTION_CALLED:
             m_onActionTrigger.reset();
             break;
-        case MyTriggerClassEvents::ACTIVATE:
+        case MyTriggerClassEvents::ACTIVATE_CALLED:
             m_activateTrigger.reset();
             break;
         }
     }
 ```
 
-The last method we have to implement is `getHasTriggeredCallbackForEvent`. The
-_WaitSet_ is state based and therefore it requires, beside the condition variable
-which only states that something has happened, a callback to find the object 
-where it happened. This is the `hasTriggerCallback`. In our case we either return 
-the method pointer to `hasPerformedAction` or `isActivated` depending on which 
-event was requested.
+The same idea is used when detaching a state.
 ```cpp
-    iox::popo::WaitSetHasTriggeredCallback 
-    getHasTriggeredCallbackForEvent(const MyTriggerClassEvents event) const noexcept
+    void disableState(const MyTriggerClassStates state) noexcept
+    {
+        switch (state)
+        {
+        case MyTriggerClassStates::HAS_PERFORMED_ACTION:
+            m_onActionTrigger.reset();
+            break;
+        case MyTriggerClassStates::IS_ACTIVATED:
+            m_activateTrigger.reset();
+            break;
+        }
+    }
+```
+
+The last method we have to implement is `getCallbackForIsStateConditionSatisfied`. The
+_WaitSet_ can handle state based attachments and therefore it requires, beside the condition variable
+which only states that something has happened, a callback to find the object 
+where it happened. This is the `isStateConditionSatisfied` callback. In our case we either return 
+the method pointer to `hasPerformedAction` or `isActivated` depending on which 
+state was requested.
+```cpp
+    iox::popo::WaitSetIsConditionSatisfiedCallback
+    getCallbackForIsStateConditionSatisfied(const MyTriggerClassStates event) const noexcept
     {
         switch (event)
         {
-        case MyTriggerClassEvents::PERFORMED_ACTION:
+        case MyTriggerClassStates::HAS_PERFORMED_ACTION:
             return {*this, &MyTriggerClass::hasPerformedAction};
-        case MyTriggerClassEvents::ACTIVATE:
+        case MyTriggerClassStates::IS_ACTIVATED:
             return {*this, &MyTriggerClass::isActivated};
         }
         return {};
@@ -595,26 +754,28 @@ event was requested.
 #### Using MyTriggerClass
 
 The next thing we define is a free function, our `eventLoop`, which will handle
-all events of our waitset. The action is for every trigger the same, resetting
-the `MyTriggerClass` event and then call the callback which is attached to the
-trigger.
+all events of our _WaitSet_. Since we would like to attach the `IS_ACTIVATED` state
+we have to reset the state whenever it occurs otherwise the _WaitSet_ will 
+notify us right away since the state still persists. The second attachment will 
+be an event attachment and the _WaitSet_ informs us just once that the event 
+has occurred which makes the `reset` call obsolete.
+
 ```cpp
 void eventLoop()
 {
     while (true)
     {
-        auto triggerStateVector = waitset->wait();
-        for (auto& triggerState : triggerStateVector)
+        auto eventVector = waitset->wait();
+        for (auto& event : eventVector)
         {
-            if (triggerState->getEventId() == ACTIVATE_ID)
+            if (event->getEventId() == ACTIVATE_ID)
             {
-                triggerState->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
-                (*triggerState)();
+                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassStates::IS_ACTIVATED);
+                (*event)();
             }
-            else if (triggerState->getEventId() == ACTION_ID)
+            else if (event->getEventId() == ACTION_ID)
             {
-                triggerState->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
-                (*triggerState)();
+                (*event)();
             }
         }
     }
@@ -629,17 +790,19 @@ waitset.emplace();
 triggerClass.emplace();
 ```
 
-After that we can attach both `triggerClass` events to the waitset and provide
-also a callback for them.
+After that we can attach the `IS_ACTIVATED` state and `PERFORM_ACTION_CALLED` event
+to the waitset and provide a callback for them.
 ```cpp
-    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, &callOnActivate).or_else([](auto) {
-        std::cerr << "failed to attach MyTriggerClass::ACTIVATE event " << std::endl;
-        std::terminate();
-    });
-    waitset
-        ->attachEvent(*triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction)
+    waitset->attachState(*triggerClass, MyTriggerClassStates::IS_ACTIVATED, ACTIVATE_ID, &callOnActivate)
         .or_else([](auto) {
-            std::cerr << "failed to attach MyTriggerClass::PERFORMED_ACTION event " << std::endl;
+            std::cerr << "failed to attach MyTriggerClassStates::IS_ACTIVATED state " << std::endl;
+            std::terminate();
+        });
+    waitset
+        ->attachEvent(
+            *triggerClass, MyTriggerClassEvents::PERFORM_ACTION_CALLED, ACTION_ID, &MyTriggerClass::callOnAction)
+        .or_else([](auto) {
+            std::cerr << "failed to attach MyTriggerClassEvents::PERFORM_ACTION_CALLED event " << std::endl;
             std::terminate();
         });
 ```
@@ -653,7 +816,7 @@ A thread which will trigger an event every second is started with the following
 lines.
 ```cpp
     std::thread triggerThread([&] {
-        int activationCode = 1;
+        uint64_t activationCode = 1U;
         for (auto i = 0; i < 10; ++i)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));

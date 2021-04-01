@@ -18,6 +18,7 @@
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -100,10 +101,14 @@ constexpr uint32_t MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY = 4U;
 constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY;
 constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
+namespace popo
+{
+using WaitSetIsConditionSatisfiedCallback = cxx::ConstMethodCallback<bool>;
+}
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE = 128U;
-constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
-static_assert(MAX_NUMBER_OF_EVENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
+constexpr uint32_t MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET = 128U;
+static_assert(MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
               "The WaitSet capacity is restricted by the maximum amount of notifiers per condition variable.");
 // Listener
 constexpr uint8_t MAX_NUMBER_OF_EVENT_VARIABLES = 128U;

@@ -74,6 +74,8 @@ endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/package/package.cmake)
 
+show_config_options()
+
 message("")
 message("       Build Properties")
 message("          project name..............: " ${CMAKE_PROJECT_NAME})

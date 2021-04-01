@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_EVENT_ATTORNEY_HPP
 #define IOX_POSH_POPO_EVENT_ATTORNEY_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
 #include <cstdint>
@@ -41,11 +42,18 @@ class EventAttorney
     template <typename T, typename... Targs>
     static void disableEvent(T& eventOrigin, Targs&&... args) noexcept;
 
+    template <typename T, typename... Targs>
+    static void enableState(T& stateOrigin, Targs&&... args) noexcept;
+
+    template <typename T, typename... Targs>
+    static void disableState(T& stateOrigin, Targs&&... args) noexcept;
+
     template <typename T>
     static cxx::MethodCallback<void, uint64_t> getInvalidateTriggerMethod(T& eventOrigin) noexcept;
 
     template <typename T, typename... Targs>
-    static cxx::ConstMethodCallback<bool> getHasTriggeredCallbackForEvent(T& eventOrigin, Targs&&... args) noexcept;
+    static WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied(T& eventOrigin,
+                                                                                       Targs&&... args) noexcept;
 };
 
 
