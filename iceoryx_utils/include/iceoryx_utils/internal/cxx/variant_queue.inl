@@ -283,8 +283,7 @@ inline bool VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCap
     case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
     {
         /// @todo must be implemented for FiFo
-        /// @note cxx::Expects might crash the sanitize build
-        assert(false);
+        cxx::Expects(false);
         return false;
     }
     case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
