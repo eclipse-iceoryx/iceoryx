@@ -70,8 +70,7 @@ class GatewayBase_test : public TestWithParam<iox::capro::Interfaces>
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(GatewayBasetests,
                         GatewayBase_test,
-                        Values(iox::capro::Interfaces::SOMEIP,
-                               iox::capro::Interfaces::INTERNAL));
+                        Values(iox::capro::Interfaces::SOMEIP, iox::capro::Interfaces::INTERNAL));
 
 #pragma GCC diagnostic pop
 
@@ -99,8 +98,7 @@ TEST_P(GatewayBase_test, GetCaProMessageMethodWithValidMessageReturnTrue)
     m_senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
-    iox::popo::InterfacePort interfaceImpl{
-        iox::runtime::PoshRuntime::getInstance().getMiddlewareInterface(GetParam())};
+    iox::popo::InterfacePort interfaceImpl{iox::runtime::PoshRuntime::getInstance().getMiddlewareInterface(GetParam())};
     this->InterOpWait();
 
     auto maybeCaproMessage = interfaceImpl.tryGetCaProMessage();
