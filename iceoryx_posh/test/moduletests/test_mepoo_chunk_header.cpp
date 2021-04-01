@@ -183,14 +183,14 @@ TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstNullptrReturnsNullp
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNonConstParamReturnsNonConstType)
 {
     auto isNonConstReturn =
-        std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<void* const>())), ChunkHeader*>::value;
+        std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<void*>())), ChunkHeader*>::value;
     EXPECT_TRUE(isNonConstReturn);
 }
 
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstParamReturnsConstType)
 {
-    auto isConstReturn = std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<const void* const>())),
-                                      const ChunkHeader*>::value;
+    auto isConstReturn =
+        std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<const void*>())), const ChunkHeader*>::value;
     EXPECT_TRUE(isConstReturn);
 }
 

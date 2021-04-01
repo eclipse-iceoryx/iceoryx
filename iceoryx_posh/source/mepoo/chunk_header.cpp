@@ -128,7 +128,7 @@ ChunkHeader* ChunkHeader::fromUserPayload(void* const userPayload) noexcept
 
 const ChunkHeader* ChunkHeader::fromUserPayload(const void* const userPayload) noexcept
 {
-    return ChunkHeader::fromUserPayload(const_cast<void* const>(userPayload));
+    return ChunkHeader::fromUserPayload(const_cast<void*>(userPayload));
 }
 
 uint32_t ChunkHeader::usedSizeOfChunk() const noexcept
