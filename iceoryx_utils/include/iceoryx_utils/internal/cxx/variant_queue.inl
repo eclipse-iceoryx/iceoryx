@@ -101,21 +101,23 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
     }
     case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
     {
-        auto fifoShouldBeDestroyed = m_fifo
-                                         .template get_at_index<static_cast<uint64_t>(
-                                             VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer)>()
-                                         ->push(value);
+        auto pushFailedSinceFiFoShouldBeDestroyed =
+            m_fifo
+                .template get_at_index<static_cast<uint64_t>(
+                    VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer)>()
+                ->push(value);
 
-        return (fifoShouldBeDestroyed) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
+        return (pushFailedSinceFiFoShouldBeDestroyed) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
     }
     case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
     {
-        auto fifoShouldBeDestroyed = m_fifo
-                                         .template get_at_index<static_cast<uint64_t>(
-                                             VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
-                                         ->push(value);
+        auto pushFailedSinceFiFoShouldBeDestroyed =
+            m_fifo
+                .template get_at_index<static_cast<uint64_t>(
+                    VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
+                ->push(value);
 
-        return (fifoShouldBeDestroyed) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
+        return (pushFailedSinceFiFoShouldBeDestroyed) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
     }
     default:
     {
@@ -301,7 +303,7 @@ inline bool VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCap
     case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
     {
         /// @todo must be implemented for FiFo
-        assert(false);
+        cxx::Expects(false);
         return false;
     }
     case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:

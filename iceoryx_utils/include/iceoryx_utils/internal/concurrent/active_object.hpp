@@ -30,11 +30,11 @@ namespace concurrent
 class ActiveObject
 {
   protected:
-    ActiveObject();
-    virtual ~ActiveObject();
-    void addTask(const std::function<void()> f);
-    void mainLoop();
-    void stopRunning();
+    ActiveObject() noexcept;
+    virtual ~ActiveObject() noexcept;
+    void addTask(const std::function<void()> f) noexcept;
+    void mainLoop() noexcept;
+    void stopRunning() noexcept;
 
     friend class cxx::optional<ActiveObject>;
 

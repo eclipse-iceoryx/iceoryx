@@ -21,22 +21,22 @@ namespace iox
 {
 namespace concurrent
 {
-ActiveObject::ActiveObject()
+ActiveObject::ActiveObject() noexcept
     : m_mainLoopThread(&ActiveObject::mainLoop, this)
 {
 }
 
-ActiveObject::~ActiveObject()
+ActiveObject::~ActiveObject() noexcept
 {
     stopRunning();
 }
 
-void ActiveObject::addTask(const std::function<void()> f)
+void ActiveObject::addTask(const std::function<void()> f) noexcept
 {
     m_tasks.push(f);
 }
 
-void ActiveObject::mainLoop()
+void ActiveObject::mainLoop() noexcept
 {
     while (m_keepRunning)
     {
@@ -48,7 +48,7 @@ void ActiveObject::mainLoop()
     }
 }
 
-void ActiveObject::stopRunning()
+void ActiveObject::stopRunning() noexcept
 {
     if (m_mainLoopThread.joinable())
     {

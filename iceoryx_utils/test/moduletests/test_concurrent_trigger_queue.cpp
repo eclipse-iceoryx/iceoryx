@@ -137,3 +137,35 @@ TYPED_TEST(TriggerQueue_test, PushBlocksUntilPopWhenFull)
     EXPECT_THAT(counter.load(), Eq(1));
     t.join();
 }
+
+TYPED_TEST(TriggerQueue_test, PushBlocksUntilDestroyWasCalled)
+{
+    constexpr int64_t TIMEOUT_IN_MS = 100;
+    this->fillQueue();
+
+    std::atomic<uint64_t> counter{0U};
+
+    std::thread t([&] {
+        this->m_sut.push(1U);
+        this->m_sut.push(2U);
+        this->m_sut.push(3U);
+        this->m_sut.push(4U);
+        ++counter;
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
+    EXPECT_THAT(counter.load(), Eq(0));
+
+    this->m_sut.destroy();
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
+    EXPECT_THAT(counter.load(), Eq(1));
+    t.join();
+}
+
+TYPED_TEST(TriggerQueue_test, AfterDestroyPushAddsNoElements)
+{
+    this->m_sut.destroy();
+    this->m_sut.push(123U);
+
+    EXPECT_THAT(this->m_sut.size(), Eq(0U));
+}
