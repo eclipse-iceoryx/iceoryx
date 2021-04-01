@@ -161,13 +161,13 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
 {
-    auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userHeader()), uint8_t*>::value;
+    auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userHeader()), void*>::value;
     EXPECT_TRUE(isNonConstReturn);
 }
 
 TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderReturnsConstType)
 {
-    auto isConstReturn = std::is_same<decltype(std::declval<const ChunkHeader>().userHeader()), const uint8_t*>::value;
+    auto isConstReturn = std::is_same<decltype(std::declval<const ChunkHeader>().userHeader()), const void*>::value;
     EXPECT_TRUE(isConstReturn);
 }
 
