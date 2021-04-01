@@ -135,9 +135,7 @@ struct alignas(32) ChunkHeader
     uint32_t m_chunkSize{0U};
     uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
     // reserved for future functionality and used to indicate the padding bytes; currently not used and set to `0`
-    uint8_t m_reserved1{0U};
-    uint8_t m_reserved2{0U};
-    uint8_t m_reserved3{0U};
+    uint8_t m_reserved[3]{};
     UniquePortId m_originId{popo::InvalidId};
     uint64_t m_sequenceNumber{0U};
     uint32_t m_userPayloadSize{0U};
