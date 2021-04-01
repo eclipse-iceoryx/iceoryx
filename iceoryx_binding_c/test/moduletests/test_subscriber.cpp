@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
+#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "mocks/wait_set_mock.hpp"
 
@@ -127,6 +128,28 @@ TEST_F(iox_sub_test, initSubscriberWithNullptrForStorageReturnsNullptr)
     iox_sub_options_init(&options);
 
     EXPECT_EQ(iox_sub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
+}
+
+// this crashes if the fixture is used, therefore a test without a fixture
+TEST(iox_sub_test_DeathTest, initSubscriberWithNotInitializedPublisherOptionsTerminates)
+{
+    iox_sub_options_t options;
+    iox_sub_storage_t storage;
+
+    EXPECT_DEATH({ iox_sub_init(&storage, "a", "b", "c", &options); }, ".*");
+}
+
+TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)
+{
+    iox::roudi::RouDiEnvironment roudiEnv;
+
+    iox_runtime_init("hypnotoad");
+
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+    iox_sub_storage_t storage;
+
+    EXPECT_NE(iox_sub_init(&storage, "a", "b", "c", &options), nullptr);
 }
 
 TEST_F(iox_sub_test, initialStateNotSubscribed)
@@ -417,12 +440,4 @@ TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash
         },
         ::testing::ExitedWithCode(0),
         ".*");
-}
-
-TEST(iox_sub_options_test, subscriberInitializationTerminatesIfOptionsAreNotInitialized)
-{
-    iox_sub_options_t options;
-    iox_sub_storage_t storage;
-
-    EXPECT_DEATH({ iox_sub_init(&storage, "a", "b", "c", &options); }, ".*");
 }
