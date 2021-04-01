@@ -147,7 +147,7 @@ TEST_F(VariantQueue_test, blocksOnOverflow)
             sut.push(24123 + i);
         }
 
-        std::atomic_uint64_t counter{0U};
+        std::atomic<uint64_t> counter{0U};
         std::thread t([&] {
             sut.push(1231);
             ++counter;
