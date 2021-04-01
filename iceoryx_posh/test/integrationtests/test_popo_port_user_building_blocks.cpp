@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
@@ -43,8 +46,8 @@ struct DummySample
 };
 
 static const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
-static const iox::ProcessName_t TEST_SUBSCRIBER_APP_NAME("mySubscriberApp");
-static const iox::ProcessName_t TEST_PUBLISHER_APP_NAME("myPublisherApp");
+static const iox::RuntimeName_t TEST_SUBSCRIBER_RUNTIME_NAME("mySubscriberApp");
+static const iox::RuntimeName_t TEST_PUBLISHER_RUNTIME_NAME("myPublisherApp");
 
 static constexpr uint32_t NUMBER_OF_PUBLISHERS = 17U;
 static constexpr uint32_t ITERATIONS = 1000U;
@@ -61,7 +64,7 @@ class PortUser_IntegrationTest : public Test
     PortUser_IntegrationTest()
     {
         m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolConfig, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolConfig, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~PortUser_IntegrationTest()
@@ -72,13 +75,13 @@ class PortUser_IntegrationTest : public Test
     {
         for (uint32_t i = 0U; i < NUMBER_OF_PUBLISHERS; i++)
         {
-            std::stringstream publisherAppName;
-            publisherAppName << TEST_PUBLISHER_APP_NAME << i;
+            std::stringstream publisherRuntimeName;
+            publisherRuntimeName << TEST_PUBLISHER_RUNTIME_NAME << i;
 
-            iox::ProcessName_t processName(TruncateToCapacity, publisherAppName.str().c_str());
+            iox::RuntimeName_t runtimeName(TruncateToCapacity, publisherRuntimeName.str().c_str());
 
             m_publisherPortDataVector.emplace_back(
-                TEST_SERVICE_DESCRIPTION, processName, &m_memoryManager, PublisherOptions());
+                TEST_SERVICE_DESCRIPTION, runtimeName, &m_memoryManager, PublisherOptions());
             m_publisherPortUserVector.emplace_back(&m_publisherPortDataVector.back());
             m_publisherPortRouDiVector.emplace_back(&m_publisherPortDataVector.back());
         }
@@ -117,7 +120,7 @@ class PortUser_IntegrationTest : public Test
 
     // subscriber port for single producer
     SubscriberPortData m_subscriberPortDataSingleProducer{TEST_SERVICE_DESCRIPTION,
-                                                          TEST_SUBSCRIBER_APP_NAME,
+                                                          TEST_SUBSCRIBER_RUNTIME_NAME,
                                                           VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                                           SubscriberOptions()};
     SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
@@ -125,7 +128,7 @@ class PortUser_IntegrationTest : public Test
 
     // subscriber port for multi producer
     SubscriberPortData m_subscriberPortDataMultiProducer{TEST_SERVICE_DESCRIPTION,
-                                                         TEST_SUBSCRIBER_APP_NAME,
+                                                         TEST_SUBSCRIBER_RUNTIME_NAME,
                                                          VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
                                                          SubscriberOptions()};
     SubscriberPortUser m_subscriberPortUserMultiProducer{&m_subscriberPortDataMultiProducer};
@@ -203,14 +206,12 @@ class PortUser_IntegrationTest : public Test
         {
             // Try to receive chunk
             subscriberPortUser.tryGetChunk()
-                .and_then([&](optional<const ChunkHeader*>& maybeChunkHeader) {
-                    if (maybeChunkHeader.has_value())
-                    {
-                        auto chunkHeader = maybeChunkHeader.value();
-                        m_receiveCounter++;
-                        subscriberPortUser.releaseChunk(chunkHeader);
-                    }
-                    else
+                .and_then([&](auto& chunkHeader) {
+                    m_receiveCounter++;
+                    subscriberPortUser.releaseChunk(chunkHeader);
+                })
+                .or_else([&](auto& result) {
+                    if (result == ChunkReceiveResult::NO_CHUNK_AVAILABLE)
                     {
                         // Nothing received -> check if publisher(s) still running
                         if (m_publisherRunFinished.load(std::memory_order_relaxed) == numberOfPublishers)
@@ -218,10 +219,11 @@ class PortUser_IntegrationTest : public Test
                             finished = true;
                         }
                     }
-                })
-                .or_else([](auto error) {
-                    // Errors shall never occur
-                    FAIL() << "Error in tryGetChunk(): " << static_cast<uint32_t>(error);
+                    else
+                    {
+                        // Errors shall never occur
+                        FAIL() << "Error in tryGetChunk(): " << static_cast<uint32_t>(result);
+                    }
                 });
         }
     }
@@ -292,9 +294,13 @@ class PortUser_IntegrationTest : public Test
         // Subscriber is ready to receive -> start sending samples
         for (size_t i = 0U; i < ITERATIONS; i++)
         {
-            publisherPortUser.tryAllocateChunk(sizeof(DummySample))
+            publisherPortUser
+                .tryAllocateChunk(sizeof(DummySample),
+                                  alignof(DummySample),
+                                  iox::CHUNK_NO_USER_HEADER_SIZE,
+                                  iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
                 .and_then([&](auto chunkHeader) {
-                    auto sample = chunkHeader->payload();
+                    auto sample = chunkHeader->userPayload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
                     publisherPortUser.sendChunk(chunkHeader);

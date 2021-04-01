@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +12,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
 
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 namespace iox
 {
@@ -24,10 +27,10 @@ namespace popo
 struct ChunkTuple
 {
     ChunkTuple() = default;
-    explicit ChunkTuple(relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept;
+    explicit ChunkTuple(const rp::RelativePointer<mepoo::ChunkManagement> chunk) noexcept;
 
-    RelativePointer::id_t m_segmentId{RelativePointer::NULL_POINTER_ID};
-    RelativePointer::offset_t m_chunkOffset{RelativePointer::NULL_POINTER_OFFSET};
+    rp::BaseRelativePointer::id_t m_segmentId{rp::BaseRelativePointer::NULL_POINTER_ID};
+    rp::BaseRelativePointer::offset_t m_chunkOffset{rp::BaseRelativePointer::NULL_POINTER_OFFSET};
 };
 
 } // namespace popo

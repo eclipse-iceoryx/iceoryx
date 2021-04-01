@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
@@ -19,7 +21,7 @@
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "test.hpp"
 #include "testutils/test_definitions.hpp"
 
@@ -53,7 +55,7 @@ class SegmentManager_test : public Test
     void SetUp(){};
     void TearDown()
     {
-        iox::RelativePointer::unregisterAll();
+        iox::rp::BaseRelativePointer::unregisterAll();
     };
 
     MePooConfig getMempoolConfig()
@@ -67,8 +69,8 @@ class SegmentManager_test : public Test
     SegmentConfig getSegmentConfig()
     {
         SegmentConfig config;
-        segmentConfig.m_sharedMemorySegments.push_back({"roudi_test1", "roudi_test2", mepooConfig});
-        segmentConfig.m_sharedMemorySegments.push_back({"roudi_test2", "roudi_test3", mepooConfig});
+        segmentConfig.m_sharedMemorySegments.push_back({"iox_roudi_test1", "iox_roudi_test2", mepooConfig});
+        segmentConfig.m_sharedMemorySegments.push_back({"iox_roudi_test2", "iox_roudi_test3", mepooConfig});
         return config;
     }
 
@@ -92,14 +94,14 @@ class SegmentManager_test : public Test
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsForReadUser))
 {
-    auto mapping = sut.getSegmentMappings({"roudi_test1"});
+    auto mapping = sut.getSegmentMappings({"iox_roudi_test1"});
     ASSERT_THAT(mapping.size(), Eq(1u));
     EXPECT_THAT(mapping[0].m_isWritable, Eq(false));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsForWriteUser))
 {
-    auto mapping = sut.getSegmentMappings({"roudi_test2"});
+    auto mapping = sut.getSegmentMappings({"iox_roudi_test2"});
     ASSERT_THAT(mapping.size(), Eq(2u));
     EXPECT_THAT(mapping[0].m_isWritable == mapping[1].m_isWritable, Eq(false));
 }
@@ -118,7 +120,7 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmpt
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserWithWriteUser))
 {
-    auto memoryManager = sut.getSegmentInformationForUser({"roudi_test2"}).m_memoryManager;
+    auto memoryManager = sut.getSegmentInformationForUser({"iox_roudi_test2"}).m_memoryManager;
     ASSERT_THAT(memoryManager, Ne(nullptr));
     ASSERT_THAT(memoryManager->getNumberOfMemPools(), Eq(2u));
 
@@ -130,7 +132,7 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUse
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithReadOnlyUser))
 {
-    EXPECT_THAT(sut.getSegmentInformationForUser({"roudi_test1"}).m_memoryManager, Eq(nullptr));
+    EXPECT_THAT(sut.getSegmentInformationForUser({"iox_roudi_test1"}).m_memoryManager, Eq(nullptr));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithNonExistingUser))

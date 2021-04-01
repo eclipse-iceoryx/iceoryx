@@ -1,4 +1,5 @@
 // Copyright (c) 2020, 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 
@@ -21,12 +24,16 @@ namespace roudi
 IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiConfig) noexcept
     : m_defaultMemory(roudiConfig)
 {
-    m_defaultMemory.m_managementShm.addMemoryBlock(&m_portPoolBlock);
-    if (m_memoryManager.addMemoryProvider(&m_defaultMemory.m_managementShm).has_error())
-    {
-        LogFatal() << "Could not add Management PosixShmMemoryProvider";
-        std::terminate();
-    }
+    m_defaultMemory.m_managementShm.addMemoryBlock(&m_portPoolBlock).or_else([](auto) {
+        errorHandler(Error::kROUDI__ICEORYX_ROUDI_MEMORY_MANAGER_FAILED_TO_ADD_PORTPOOL_MEMORY_BLOCK,
+                     nullptr,
+                     ErrorLevel::FATAL);
+    });
+    m_memoryManager.addMemoryProvider(&m_defaultMemory.m_managementShm).or_else([](auto) {
+        errorHandler(Error::kROUDI__ICEORYX_ROUDI_MEMORY_MANAGER_FAILED_TO_ADD_MANAGEMENT_MEMORY_BLOCK,
+                     nullptr,
+                     ErrorLevel::FATAL);
+    });
 }
 
 cxx::expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnounceMemory() noexcept

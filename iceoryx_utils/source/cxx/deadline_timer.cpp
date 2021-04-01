@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 
@@ -52,8 +54,7 @@ const iox::units::Duration DeadlineTimer::remainingTime() const noexcept
 
 iox::units::Duration DeadlineTimer::getCurrentMonotonicTime() const noexcept
 {
-    auto chronoCurrentTime = std::chrono::steady_clock::now().time_since_epoch();
-    iox::units::Duration currentTime(chronoCurrentTime);
+    iox::units::Duration currentTime(std::chrono::steady_clock::now().time_since_epoch());
     return currentTime;
 }
 

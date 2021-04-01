@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_UTILS_CXX_HELPLETS_HPP
 #define IOX_UTILS_CXX_HELPLETS_HPP
 
@@ -18,7 +21,9 @@
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <assert.h>
+#include <cstdint>
 #include <iostream>
+#include <limits>
 #include <type_traits>
 
 namespace iox
@@ -37,6 +42,31 @@ Require(const bool condition, const char* file, const int line, const char* func
         std::terminate();
     }
 }
+
+/// @brief struct to find the best fitting unsigned integer type
+template <bool GreaterUint8, bool GreaterUint16, bool GreaterUint32>
+struct BestFittingTypeImpl
+{
+    using Type_t = uint64_t;
+};
+
+template <>
+struct BestFittingTypeImpl<false, false, false>
+{
+    using Type_t = uint8_t;
+};
+
+template <>
+struct BestFittingTypeImpl<true, false, false>
+{
+    using Type_t = uint16_t;
+};
+
+template <>
+struct BestFittingTypeImpl<true, true, false>
+{
+    using Type_t = uint32_t;
+};
 } // namespace internal
 
 // implementing C++ Core Guideline, I.6. Prefer Expects
@@ -178,6 +208,20 @@ auto enumTypeAsUnderlyingType(enum_type const value) -> typename std::underlying
     return static_cast<typename std::underlying_type<enum_type>::type>(value);
 }
 
+/// calls a given functor for every element in a given container
+/// @tparam[in] Container type which must be iteratable
+/// @tparam[in] Functor which has one argument, the element type of the container
+/// @param[in] c container which should be iterated
+/// @param[in] f functor which should be applied to every element
+template <typename Container, typename Functor>
+void forEach(Container& c, const Functor& f) noexcept
+{
+    for (auto& element : c)
+    {
+        f(element);
+    }
+}
+
 /// @brief Get the size of a string represented by a char array at compile time.
 /// @tparam The size of the char array filled out by the compiler.
 /// @param[in] The actual content of the char array is not of interest. Its just the size of the array that matters.
@@ -188,18 +232,63 @@ static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
     return SizeValue - 1;
 }
 
+/// @brief get the best fitting unsigned integer type for a given value at compile time
+template <uint64_t Value>
+struct BestFittingType
+{
+/// ignore the warnings because we need the comparisons to find the best fitting type
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+    using Type_t = typename internal::BestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
+                                                          (Value > std::numeric_limits<uint16_t>::max()),
+                                                          (Value > std::numeric_limits<uint32_t>::max())>::Type_t;
+#pragma GCC diagnostic pop
+};
+
+template <uint64_t Value>
+using BestFittingType_t = typename BestFittingType<Value>::Type_t;
+
 /// @brief if a function has a return value which you do not want to use then you can wrap the function with that macro.
 /// Purpose is to suppress the unused compiler warning by adding an attribute to the return value
-/// @param[in] name name of the function where the return value is not used.
+/// @param[in] expr name of the function where the return value is not used.
 /// @code
 ///     uint32_t foo();
-///     DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
+///     IOX_DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
 /// @endcode
-// clang-format off
-#define DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix) name ## _ ## suffix
-#define DISCARD_RESULT_VARIABLE(name, suffix) DISCARD_RESULT_VARIABLE_GENERATOR(name, suffix)
-#define DISCARD_RESULT(expr) auto DISCARD_RESULT_VARIABLE(unusedOnLine, __LINE__) [[gnu::unused]] = expr
-// clang-format on
+#define IOX_DISCARD_RESULT(expr) static_cast<void>(expr) // NOLINT
+
+/// @brief IOX_NO_DISCARD adds the [[nodiscard]] keyword if it is available for the current compiler.
+///        If additionally the keyword [[gnu::warn_unused]] is present it will be added as well.
+/// @note
+//    [[nodiscard]], [[gnu::warn_unused]] supported since gcc 4.8 (https://gcc.gnu.org/projects/cxx-status.html)
+///   [[nodiscard]], [[gnu::warn_unused]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
+///   activate keywords for gcc>=5 or clang>=4
+#if (defined(__GNUC__) && __GNUC__ >= 5) || (defined(__clang__) && __clang_major >= 4)
+#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]] // NOLINT
+#else
+// On WIN32 we are using C++17 which makes the keyword [[nodiscard]] available
+#if defined(_WIN32)
+#define IOX_NO_DISCARD [[nodiscard]] // NOLINT
+// on an unknown platform we use for now nothing since we do not know what is supported there
+#else
+#define IOX_NO_DISCARD
+#endif
+#endif
+/// @brief Returns info whether called on a 32-bit system
+/// @return True if called on 32-bit, false if not 32-bit system
+constexpr bool isCompiledOn32BitSystem()
+{
+    return INTPTR_MAX == INT32_MAX;
+}
+
+/// @brief Checks if an unsigned integer is a power of two
+/// @return true if power of two, otherwise false
+template <typename T>
+constexpr bool isPowerOfTwo(const T n)
+{
+    static_assert(std::is_unsigned<T>::value && !std::is_same<T, bool>::value, "Only unsigned integer are allowed!");
+    return n && ((n & (n - 1U)) == 0U);
+}
 
 } // namespace cxx
 } // namespace iox

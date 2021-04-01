@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_WAIT_SET_INL
 #define IOX_POSH_POPO_WAIT_SET_INL
@@ -21,15 +23,19 @@ namespace popo
 {
 template <uint64_t Capacity>
 inline WaitSet<Capacity>::WaitSet() noexcept
-    : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
+    : WaitSet(*runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
 {
 }
 
 template <uint64_t Capacity>
-inline WaitSet<Capacity>::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
-    : m_conditionVariableDataPtr(condVarDataPtr)
-    , m_conditionVariableWaiter(m_conditionVariableDataPtr)
+inline WaitSet<Capacity>::WaitSet(ConditionVariableData& condVarData) noexcept
+    : m_conditionVariableDataPtr(&condVarData)
+    , m_conditionListener(condVarData)
 {
+    for (uint64_t i = 0U; i < Capacity; ++i)
+    {
+        m_indexRepository.push(i);
+    }
 }
 
 template <uint64_t Capacity>
@@ -40,28 +46,199 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 }
 
 template <uint64_t Capacity>
-template <typename T, typename... Targs>
-inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin, const Targs&... args) noexcept
+template <typename T>
+inline cxx::expected<uint64_t, WaitSetError>
+WaitSet<Capacity>::attachImpl(T& eventOrigin,
+                              const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,
+                              const uint64_t eventId,
+                              const EventInfo::Callback<T>& eventCallback,
+                              const uint64_t originType,
+                              const uint64_t originTypeHash) noexcept
 {
-    return eventOrigin.enableEvent(*this, args...);
+    for (auto& currentTrigger : m_triggerArray)
+    {
+        if (currentTrigger && currentTrigger->isLogicalEqualTo(&eventOrigin, originType, originTypeHash))
+        {
+            return cxx::error<WaitSetError>(WaitSetError::ALREADY_ATTACHED);
+        }
+    }
+
+    cxx::MethodCallback<void, uint64_t> invalidationCallback = EventAttorney::getInvalidateTriggerMethod(eventOrigin);
+    auto index = m_indexRepository.pop();
+    if (!index)
+    {
+        return cxx::error<WaitSetError>(WaitSetError::WAIT_SET_FULL);
+    }
+
+
+    if (hasTriggeredCallback)
+    {
+        m_triggerArray[*index].emplace(StateBasedTrigger,
+                                       &eventOrigin,
+                                       hasTriggeredCallback,
+                                       invalidationCallback,
+                                       eventId,
+                                       eventCallback,
+                                       *index,
+                                       originType,
+                                       originTypeHash);
+    }
+    else
+    {
+        m_triggerArray[*index].emplace(EventBasedTrigger,
+                                       &eventOrigin,
+                                       invalidationCallback,
+                                       eventId,
+                                       eventCallback,
+                                       *index,
+                                       originType,
+                                       originTypeHash);
+    }
+
+    return cxx::success<uint64_t>(*index);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename EventType, typename>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const EventType eventType,
+                                                                  const uint64_t eventId,
+                                                                  const EventInfo::Callback<T>& eventCallback) noexcept
+{
+    static_assert(IS_EVENT_ENUM<EventType>, "Only enums with an underlying EventEnumIdentifier are allowed.");
+
+    return attachImpl(eventOrigin,
+                      WaitSetIsConditionSatisfiedCallback(),
+                      eventId,
+                      eventCallback,
+                      static_cast<uint64_t>(eventType),
+                      typeid(EventType).hash_code())
+        .and_then([&](auto& uniqueId) {
+            EventAttorney::enableEvent(
+                eventOrigin,
+                TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
+                eventType);
+        });
+}
+
+template <uint64_t Capacity>
+template <typename T, typename EventType, typename>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const EventType eventType,
+                                                                  const EventInfo::Callback<T>& eventCallback) noexcept
+{
+    return attachEvent(eventOrigin, eventType, EventInfo::INVALID_ID, eventCallback);
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const uint64_t eventId,
+                                                                  const EventInfo::Callback<T>& eventCallback) noexcept
+{
+    return attachImpl(eventOrigin,
+                      WaitSetIsConditionSatisfiedCallback(),
+                      eventId,
+                      eventCallback,
+                      static_cast<uint64_t>(NoEventEnumUsed::PLACEHOLDER),
+                      typeid(NoEventEnumUsed).hash_code())
+        .and_then([&](auto& uniqueId) {
+            EventAttorney::enableEvent(
+                eventOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+        });
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(T& eventOrigin,
+                                                                  const EventInfo::Callback<T>& eventCallback) noexcept
+{
+    return attachEvent(eventOrigin, EventInfo::INVALID_ID, eventCallback);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename StateType, typename>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin,
+                                                                  const StateType stateType,
+                                                                  const uint64_t id,
+                                                                  const EventInfo::Callback<T>& stateCallback) noexcept
+{
+    static_assert(IS_STATE_ENUM<StateType>, "Only enums with an underlying StateEnumIdentifier are allowed.");
+    auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin, stateType);
+
+    return attachImpl(stateOrigin,
+                      hasTriggeredCallback,
+                      id,
+                      stateCallback,
+                      static_cast<uint64_t>(stateType),
+                      typeid(StateType).hash_code())
+        .and_then([&](auto& uniqueId) {
+            EventAttorney::enableState(
+                stateOrigin,
+                TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
+                stateType);
+        });
+}
+
+template <uint64_t Capacity>
+template <typename T, typename StateType, typename>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin,
+                                                                  const StateType stateType,
+                                                                  const EventInfo::Callback<T>& stateCallback) noexcept
+{
+    return attachState(stateOrigin, stateType, EventInfo::INVALID_ID, stateCallback);
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline cxx::expected<WaitSetError>
+WaitSet<Capacity>::attachState(T& stateOrigin, const uint64_t id, const EventInfo::Callback<T>& stateCallback) noexcept
+{
+    auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin);
+    return attachImpl(stateOrigin,
+                      hasTriggeredCallback,
+                      id,
+                      stateCallback,
+                      static_cast<uint64_t>(NoStateEnumUsed::PLACEHOLDER),
+                      typeid(NoStateEnumUsed).hash_code())
+        .and_then([&](auto& uniqueId) {
+            EventAttorney::enableState(
+                stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+        });
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(T& stateOrigin,
+                                                                  const EventInfo::Callback<T>& stateCallback) noexcept
+{
+    return attachState(stateOrigin, EventInfo::INVALID_ID, stateCallback);
 }
 
 template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
-    eventOrigin.disableEvent(args...);
+    EventAttorney::disableEvent(eventOrigin, args...);
+}
+
+template <uint64_t Capacity>
+template <typename T, typename... Targs>
+inline void WaitSet<Capacity>::detachState(T& stateOrigin, const Targs&... args) noexcept
+{
+    EventAttorney::disableState(stateOrigin, args...);
 }
 
 template <uint64_t Capacity>
 inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    for (auto currentTrigger = m_triggerList.begin(); currentTrigger != m_triggerList.end(); ++currentTrigger)
+    for (auto& trigger : m_triggerArray)
     {
-        if (currentTrigger->getUniqueId() == uniqueTriggerId)
+        if (trigger.has_value() && trigger->getUniqueId() == uniqueTriggerId)
         {
-            currentTrigger->invalidate();
-            m_triggerList.erase(currentTrigger);
+            trigger->invalidate();
+            trigger.reset();
+            cxx::Ensures(m_indexRepository.push(uniqueTriggerId));
             return;
         }
     }
@@ -70,42 +247,51 @@ inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noe
 template <uint64_t Capacity>
 inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 {
-    for (auto& trigger : m_triggerList)
+    for (auto& trigger : m_triggerArray)
     {
         trigger.reset();
     }
-
-    m_triggerList.clear();
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
+    return waitAndReturnTriggeredTriggers([this, timeout] { return this->m_conditionListener.timedWait(timeout); });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
 {
-    return waitAndReturnTriggeredTriggers([this] {
-        m_conditionVariableWaiter.wait();
-        return false;
-    });
+    return waitAndReturnTriggeredTriggers([this] { return this->m_conditionListener.wait(); });
 }
 
 template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
 {
     EventInfoVector triggers;
-    for (auto& currentTrigger : m_triggerList)
+    if (!m_activeNotifications.empty())
     {
-        if (currentTrigger.hasTriggered())
+        for (uint64_t i = m_activeNotifications.size() - 1U;; --i)
         {
-            // We do not need to verify if push_back was successful since
-            // m_conditionVector and triggers are having the same type, a
-            // vector with the same guaranteed capacity.
-            // Therefore it is guaranteed that push_back works!
-            triggers.push_back(&currentTrigger.getEventInfo());
+            auto index = m_activeNotifications[i];
+            auto& trigger = m_triggerArray[index];
+            bool doRemoveNotificationId = !static_cast<bool>(trigger);
+
+            if (!doRemoveNotificationId && trigger->isStateConditionSatisfied())
+            {
+                cxx::Expects(triggers.push_back(&m_triggerArray[index]->getEventInfo()));
+                doRemoveNotificationId = (trigger->getTriggerType() == TriggerType::EVENT_BASED);
+            }
+
+            if (doRemoveNotificationId)
+            {
+                m_activeNotifications.erase(m_activeNotifications.begin() + i);
+            }
+
+            if (i == 0U)
+            {
+                break;
+            }
         }
     }
 
@@ -113,90 +299,51 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
 }
 
 template <uint64_t Capacity>
-template <typename WaitFunction>
+inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) noexcept
+{
+    auto notificationVector = wait();
+    if (m_activeNotifications.empty())
+    {
+        m_activeNotifications = notificationVector;
+    }
+    else if (!notificationVector.empty())
+    {
+        m_activeNotifications = algorithm::uniqueMergeSortedContainers(notificationVector, m_activeNotifications);
+    }
+}
+
+template <uint64_t Capacity>
 inline typename WaitSet<Capacity>::EventInfoVector
 WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
-    WaitSet::EventInfoVector triggers;
+    if (m_conditionListener.wasNotified())
+    {
+        this->acquireNotifications(wait);
+    }
 
-    /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
-    m_conditionVariableWaiter.reset();
-    triggers = createVectorWithTriggeredTriggers();
+    EventInfoVector triggers = createVectorWithTriggeredTriggers();
 
-    // It is possible that after the reset call and before the createVectorWithTriggeredTriggers call
-    // another trigger came in. Then createVectorWithTriggeredTriggers would have already handled it.
-    // But this would lead to an empty triggers vector in the next run if no other trigger
-    // came in.
     if (!triggers.empty())
     {
         return triggers;
     }
 
-    return (wait()) ? triggers : createVectorWithTriggeredTriggers();
+    acquireNotifications(wait);
+    return createVectorWithTriggeredTriggers();
 }
 
 template <uint64_t Capacity>
 inline uint64_t WaitSet<Capacity>::size() const noexcept
 {
-    return m_triggerList.size();
+    return Capacity - m_indexRepository.size();
 }
 
 template <uint64_t Capacity>
-inline uint64_t WaitSet<Capacity>::capacity() const noexcept
+inline constexpr uint64_t WaitSet<Capacity>::capacity() noexcept
 {
-    return m_triggerList.capacity();
+    return Capacity;
 }
 
-template <uint64_t Capacity>
-template <typename T>
-inline cxx::expected<TriggerHandle, WaitSetError>
-WaitSet<Capacity>::acquireTriggerHandle(T* const origin,
-                                        const cxx::ConstMethodCallback<bool>& triggerCallback,
-                                        const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                                        const uint64_t eventId,
-                                        const EventInfo::Callback<T> callback) noexcept
-{
-    static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
-                      && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
-                  "At the moment only non copyable and non movable origin types are supported! To implement this we "
-                  "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
-                  "a callback inside of Trigger.");
-
-    Trigger possibleLogicallyEqualTrigger(
-        origin, triggerCallback, cxx::MethodCallback<void, uint64_t>(), eventId, Trigger::Callback<T>());
-
-    // it is not allowed to have to logical equal trigger in the same waitset
-    // otherwise when we call removeTrigger(Trigger) we do not know which trigger
-    // we should remove if the trigger is attached multiple times.
-    for (auto& currentTrigger : m_triggerList)
-    {
-        if (currentTrigger.isLogicalEqualTo(possibleLogicallyEqualTrigger))
-        {
-            return cxx::error<WaitSetError>(WaitSetError::EVENT_ALREADY_ATTACHED);
-        }
-    }
-
-    if (!m_triggerList.push_back(Trigger{origin, triggerCallback, invalidationCallback, eventId, callback}))
-    {
-        return cxx::error<WaitSetError>(WaitSetError::WAIT_SET_FULL);
-    }
-
-    return iox::cxx::success<TriggerHandle>(TriggerHandle(
-        m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, m_triggerList.back().getUniqueId()));
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline void WaitSet<Capacity>::moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept
-{
-    for (auto& currentTrigger : m_triggerList)
-    {
-        if (currentTrigger.isLogicalEqualTo(trigger))
-        {
-            currentTrigger.updateOrigin(newOrigin);
-        }
-    }
-}
 
 } // namespace popo
 } // namespace iox

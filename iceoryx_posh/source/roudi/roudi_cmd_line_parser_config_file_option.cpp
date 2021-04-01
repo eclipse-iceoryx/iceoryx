@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -23,9 +26,8 @@ namespace iox
 {
 namespace config
 {
-void CmdLineParserConfigFileOption::parse(int argc,
-                                          char* argv[],
-                                          const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
+cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::parse(
+    int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
     constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
                                       {"config-file", required_argument, nullptr, 'c'},
@@ -40,9 +42,14 @@ void CmdLineParserConfigFileOption::parse(int argc,
         switch (opt)
         {
         case 'h':
+        {
             // we want to parse the help option again, therefore we need to decrement the option index of getopt
             optind--;
-            CmdLineParser::parse(argc, argv);
+            auto result = CmdLineParser::parse(argc, argv);
+            if (result.has_error())
+            {
+                return cxx::error<CmdLineParserResult>(result.get_error());
+            }
             std::cout << std::endl;
             std::cout << "Config File Option:" << std::endl;
             std::cout << "-c, --config-file                 Path to the RouDi Config File." << std::endl;
@@ -54,6 +61,7 @@ void CmdLineParserConfigFileOption::parse(int argc,
             std::cout << "                                  2) hard-coded config" << std::endl;
             m_run = false;
             break;
+        }
         case 'c':
         {
             m_customConfigFilePath = roudi::ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
@@ -63,7 +71,11 @@ void CmdLineParserConfigFileOption::parse(int argc,
         {
             // we want to parse the help option again, therefore we need to decrement the option index of getopt
             optind--;
-            CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
+            auto result = CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
+            if (result.has_error())
+            {
+                return cxx::error<CmdLineParserResult>(result.get_error());
+            }
         }
         };
 
@@ -72,16 +84,13 @@ void CmdLineParserConfigFileOption::parse(int argc,
             break;
         }
     }
-}
-roudi::ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
-{
-    return m_customConfigFilePath;
-}
-
-void CmdLineParserConfigFileOption::printParameters() noexcept
-{
-    CmdLineParser::printParameters();
-    LogVerbose() << "Config file used is: " << m_customConfigFilePath;
+    return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
+                                                     m_logLevel,
+                                                     m_compatibilityCheckLevel,
+                                                     m_processKillDelay,
+                                                     m_uniqueRouDiId,
+                                                     m_run,
+                                                     m_customConfigFilePath});
 }
 
 } // namespace config

@@ -33,11 +33,11 @@ Each application which wants to use iceoryx has to instantiate its runtime, whic
 with RouDi. Only one runtime object per user process is allowed.
 
 To do so, the following lines of code are required
-
+```cpp
     #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
     iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
-
+```
 ### Service description
 
 A ``ServiceDescription`` in iceoryx represents the data to be transmitted and is uniquely identified by three string
@@ -51,7 +51,7 @@ A triple consisting of such strings is called a ``ServiceDescription``. The serv
 from AUTOSAR and is still used in the API with these names. The so called canonical protocol is implemented in the
 namespace ``capro``.
 
-The following table gives an overview over the different terminologies and the current mapping:
+The following table gives an overview of the different terminologies and the current mapping:
 
 |         | Group   | Instance         | Topic                  |
 |---------|---------|------------------|------------------------|
@@ -114,7 +114,7 @@ For more information on how to use the Waitset see [Waitset](../../../iceoryx_ex
 Now, we show how the API can be used to establish a publish-subscribe communication in an iceoryx system.
 
 The API is offered in two languages, C and C++. In the next sections the C++ API is discussed. More information about
-the C API can be found in the [C example](../../../iceoryx_examples/icedelivery_on_c/README.md).
+the C API can be found in the [C example](../../../iceoryx_examples/icedelivery_in_c/README.md).
 
 Many parts of the C++ API follow a functional programming approach and allow the user to specify functions which handle
 the possible cases, e.g. what should happen when data is received.
@@ -276,7 +276,7 @@ with [RAII](https://en.cppreference.com/w/cpp/language/raii).
 We create a publisher that offers our CounterTopic.
 
 ```cpp
-iox::popo::TypedPublisher<CounterTopic> publisher({"Group", "Instance", "CounterTopic"});
+iox::popo::Publisher<CounterTopic> publisher({"Group", "Instance", "CounterTopic"});
 publisher.offer();
 ```
 
@@ -367,7 +367,7 @@ well, were it will provide the benefit of zero-copy communication, uniform usage
 intraprocess communication) and lifetime management of the samples.
 
 ```cpp
-iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
+iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
 subscriber.subscribe();
 ```
 The template data type and the three string identifiers have to match those of the publisher, in other words the
@@ -458,7 +458,7 @@ by using an additional loop.
 ```cpp
 while (keepRunning)
 {
-    while (subscriber.hasSamples())
+    while (subscriber.hasData())
     {
         subscriber->take()
             .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
@@ -474,8 +474,7 @@ while (keepRunning)
 }
 ```
 
-Here we do not check whether we actually have data since we already know there is data available by calling
-``hasSamples``.
+Here we do not check whether we actually have data since we already know there is data available by calling `hasData`.
 
 ### Untyped API
 

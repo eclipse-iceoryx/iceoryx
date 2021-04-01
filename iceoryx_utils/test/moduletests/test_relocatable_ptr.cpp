@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,14 +12,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/internal/relocatable_pointer/relocatable_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relocatable_pointer.hpp"
 
 #include "test.hpp"
 
 #include <cstring>
 
 using namespace ::testing;
+using namespace iox::rp;
 
 namespace
 {
@@ -87,7 +91,7 @@ TEST_F(RelocatablePointer_test, relocation)
     EXPECT_EQ(*adr2, 21);
 
     // placement new at base adress (we have enough memory to do so)
-    iox::relocatable_ptr<int>* rp = new (base1) iox::relocatable_ptr<int>(adr1);
+    RelocatablePointer<int>* rp = new (base1) RelocatablePointer<int>(adr1);
     auto& rp1 = *rp;
     EXPECT_EQ(*rp1, 12);
 
@@ -98,7 +102,7 @@ TEST_F(RelocatablePointer_test, relocation)
     EXPECT_EQ(*adr2, 21);
 
     // read the relocatable pointer in block 2 at the base address
-    auto& rp2 = *(reinterpret_cast<iox::relocatable_ptr<int>*>(base2));
+    auto& rp2 = *(reinterpret_cast<RelocatablePointer<int>*>(base2));
 
     // it now points to the value in block2 (since its measured relative to this, which is now at base2 for rp2)
     EXPECT_EQ(*rp2, 21);
@@ -115,6 +119,6 @@ TEST_F(RelocatablePointer_test, relocation)
 
     // was created via placement new, need to manually call the dtor (does not really matter here since the object
     // only has primitive members and the test ends here)
-    rp->~relocatable_ptr<int>();
+    rp->~RelocatablePointer<int>();
 }
 } // namespace

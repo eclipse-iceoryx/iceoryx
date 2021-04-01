@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
@@ -63,7 +66,7 @@ TEST_F(GatewayGenericTest, AddedChannelsAreStored)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(gw.addChannel(testService, StubbedIceoryxTerminal::Options()).has_error());
 
     EXPECT_EQ(1U, gw.getNumberOfChannels());
 }
@@ -76,8 +79,8 @@ TEST_F(GatewayGenericTest, DoesNotAddDuplicateChannels)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
-    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(gw.addChannel(testService, StubbedIceoryxTerminal::Options()).has_error());
+    ASSERT_FALSE(gw.addChannel(testService, StubbedIceoryxTerminal::Options()).has_error());
 
     EXPECT_EQ(1U, gw.getNumberOfChannels());
 }
@@ -118,10 +121,10 @@ TEST_F(GatewayGenericTest, ProperlyManagesMultipleChannels)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(serviceOne, StubbedIceoryxTerminal::Options());
-    gw.addChannel(serviceTwo, StubbedIceoryxTerminal::Options());
-    gw.addChannel(serviceThree, StubbedIceoryxTerminal::Options());
-    gw.addChannel(serviceFour, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(gw.addChannel(serviceOne, StubbedIceoryxTerminal::Options()).has_error());
+    ASSERT_FALSE(gw.addChannel(serviceTwo, StubbedIceoryxTerminal::Options()).has_error());
+    ASSERT_FALSE(gw.addChannel(serviceThree, StubbedIceoryxTerminal::Options()).has_error());
+    ASSERT_FALSE(gw.addChannel(serviceFour, StubbedIceoryxTerminal::Options()).has_error());
 
 
     EXPECT_EQ(4U, gw.getNumberOfChannels());
@@ -181,8 +184,8 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testServiceA, StubbedIceoryxTerminal::Options());
-    gw.addChannel(testServiceB, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(gw.addChannel(testServiceA, StubbedIceoryxTerminal::Options()).has_error());
+    ASSERT_FALSE(gw.addChannel(testServiceB, StubbedIceoryxTerminal::Options()).has_error());
     EXPECT_EQ(2U, gw.getNumberOfChannels());
 
     auto result = gw.discardChannel(testServiceC);
@@ -198,7 +201,7 @@ TEST_F(GatewayGenericTest, DiscardedChannelsAreNotStored)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(gw.addChannel(testService, StubbedIceoryxTerminal::Options()).has_error());
     EXPECT_EQ(1U, gw.getNumberOfChannels());
     auto result = gw.discardChannel(testService);
     EXPECT_EQ(false, result.has_error());
@@ -213,7 +216,7 @@ TEST_F(GatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testService, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(gw.addChannel(testService, StubbedIceoryxTerminal::Options()).has_error());
     auto foundChannel = gw.findChannel(testService);
     EXPECT_EQ(true, foundChannel.has_value());
     if (foundChannel.has_value())
@@ -231,7 +234,7 @@ TEST_F(GatewayGenericTest, FindChannelGivesEmptyOptionalIfNoneFound)
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(storedChannelService, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(gw.addChannel(storedChannelService, StubbedIceoryxTerminal::Options()).has_error());
     auto foundChannel = gw.findChannel(notStoredChannelService);
     EXPECT_EQ(false, foundChannel.has_value());
 }
@@ -249,9 +252,9 @@ TEST_F(GatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChanne
     TestGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(testServiceA, StubbedIceoryxTerminal::Options());
-    gw.addChannel(testServiceB, StubbedIceoryxTerminal::Options());
-    gw.addChannel(testServiceC, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(gw.addChannel(testServiceA, StubbedIceoryxTerminal::Options()).has_error());
+    ASSERT_FALSE(gw.addChannel(testServiceB, StubbedIceoryxTerminal::Options()).has_error());
+    ASSERT_FALSE(gw.addChannel(testServiceC, StubbedIceoryxTerminal::Options()).has_error());
     gw.forEachChannel(f);
 
     EXPECT_EQ(3U, count);

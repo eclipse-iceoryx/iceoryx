@@ -1,4 +1,5 @@
-# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.5)
-file (STRINGS "../VERSION" iceoryx_utils_VERSION)
-project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
+file (STRINGS "../VERSION" IOX_VERSION_STRING)
+
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxVersion.cmake")
+
+parse_version(${IOX_VERSION_STRING})
+project(iceoryx_utils VERSION ${IOX_VERSION_MAIN})
+adjust_version()
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
@@ -61,7 +68,6 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
 
     add_library(iceoryx_utils_testing
         STATIC
-        testutils/mocks/mqueue_mock.cpp
         testutils/mocks/time_mock.cpp
         testutils/timing_test.cpp
         testutils/compile_test.cpp
@@ -81,9 +87,9 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
         POSITION_INDEPENDENT_CODE ON
     )
 
-    if(test_with_additional_user)
+    if(TEST_WITH_ADDITIONAL_USER)
         target_compile_definitions(iceoryx_utils_testing PUBLIC -DTEST_WITH_ADDITIONAL_USER)
-    endif(test_with_additional_user)
+    endif(TEST_WITH_ADDITIONAL_USER)
 
     target_include_directories(iceoryx_utils_testing
         PUBLIC
@@ -149,10 +155,12 @@ add_library(iceoryx_utils
     source/log/logstream.cpp
     source/posix_wrapper/access_control.cpp
     source/posix_wrapper/mutex.cpp
+    source/posix_wrapper/file_lock.cpp
     source/posix_wrapper/semaphore.cpp
     source/posix_wrapper/timer.cpp
     source/posix_wrapper/timespec.cpp
     source/posix_wrapper/shared_memory_object.cpp
+    source/posix_wrapper/signal_handler.cpp
     source/posix_wrapper/message_queue.cpp
     source/posix_wrapper/unix_domain_socket.cpp
     source/posix_wrapper/shared_memory_object/allocator.cpp
@@ -162,7 +170,8 @@ add_library(iceoryx_utils
     source/posix_wrapper/posix_access_rights.cpp
     source/posix_wrapper/thread.cpp
     source/units/duration.cpp
-    source/relocatable_pointer/relative_ptr.cpp
+    source/relocatable_pointer/base_relative_pointer.cpp
+    source/relocatable_pointer/base_relocatable_pointer.cpp
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
@@ -208,9 +217,9 @@ target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
 target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
-    target_link_libraries(iceoryx_platform 
-        PUBLIC 
-        rt 
+    target_link_libraries(iceoryx_platform
+        PUBLIC
+        rt
         pthread
     )
 endif(LINUX)
@@ -221,12 +230,20 @@ if(PERFORM_CLANG_TIDY)
     )
 endif(PERFORM_CLANG_TIDY)
 
-
-target_link_libraries(iceoryx_utils 
-    PUBLIC 
-    iceoryx_utils::iceoryx_platform 
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS})
+if(QNX)
+    target_link_libraries(iceoryx_utils
+        PUBLIC
+        iceoryx_utils::iceoryx_platform
+        PRIVATE
+        socket
+        ${ICEORYX_SANITIZER_FLAGS})
+else()
+    target_link_libraries(iceoryx_utils
+        PUBLIC
+        iceoryx_utils::iceoryx_platform
+        PRIVATE
+        ${ICEORYX_SANITIZER_FLAGS})
+endif(QNX)
 
 target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
@@ -259,6 +276,7 @@ install(
     FILES
         cmake/IceoryxPackageHelper.cmake
         cmake/IceoryxPlatform.cmake
+        cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 

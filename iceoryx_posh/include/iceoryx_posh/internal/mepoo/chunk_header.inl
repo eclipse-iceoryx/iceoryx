@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_MEPOO_CHUNK_HEADER_INL
 #define IOX_POSH_MEPOO_CHUNK_HEADER_INL
 
@@ -19,9 +21,9 @@ namespace iox
 namespace mepoo
 {
 template <typename T>
-T* ChunkHeader::customHeader() const noexcept
+T* ChunkHeader::userHeader() const noexcept
 {
-    // the CustomHeader is always located relative to "this" in this way
+    // the UserHeader is always located relative to "this" in this way
     return reinterpret_cast<T*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
 }
 } // namespace mepoo

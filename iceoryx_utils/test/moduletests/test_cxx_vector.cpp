@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,9 +12,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
+
+#include <vector>
 
 
 using namespace ::testing;
@@ -30,6 +35,8 @@ class vector_test : public Test
     static int copyAssignment;
     static int dTor;
     static int classValue;
+
+    static std::vector<int> dtorOrder;
 
     class CTorTest
     {
@@ -81,6 +88,7 @@ class vector_test : public Test
         {
             dTor++;
             classValue = value;
+            dtorOrder.emplace_back(value);
         }
 
         int value = 0;
@@ -96,6 +104,7 @@ class vector_test : public Test
         copyAssignment = 0;
         dTor = 0;
         classValue = 0;
+        dtorOrder.clear();
     }
 
     vector<int, 10> sut;
@@ -109,6 +118,7 @@ int vector_test::moveAssignment;
 int vector_test::copyAssignment;
 int vector_test::dTor;
 int vector_test::classValue;
+std::vector<int> vector_test::dtorOrder;
 
 
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
@@ -889,14 +899,14 @@ TEST_F(vector_test, ConstBackPointsToLastElement)
 TEST_F(vector_test, ConstructorWithSizeParameterSmallerThanCapacity)
 {
     vector<CTorTest, 5> sut(2);
-    EXPECT_THAT(vector_test::copyCTor, Eq(2));
+    EXPECT_THAT(vector_test::cTor, Eq(2));
     ASSERT_THAT(sut.size(), Eq(2));
 }
 
 TEST_F(vector_test, ConstructorWithSizeParameterGreaterThanCapacity)
 {
     vector<CTorTest, 5> sut(7);
-    EXPECT_THAT(vector_test::copyCTor, Eq(5));
+    EXPECT_THAT(vector_test::cTor, Eq(5));
     ASSERT_THAT(sut.size(), Eq(5));
 }
 
@@ -1033,4 +1043,247 @@ TEST_F(vector_test, PartiallyEqualVectorsWithDifferentCapacityAreNotEqual)
 
     EXPECT_FALSE(a == b);
     EXPECT_TRUE(a != b);
+}
+
+TEST_F(vector_test, FullVectorDestroysElementsInReverseOrder)
+{
+    static constexpr uint64_t VECTOR_CAPACITY = 35U;
+    static constexpr uint64_t INDEX_END = VECTOR_CAPACITY - 1U;
+    static constexpr uint64_t SOME_OFFSET = 9128U;
+
+    {
+        vector<CTorTest, VECTOR_CAPACITY> sut;
+
+        for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+        {
+            sut.emplace_back(i + SOME_OFFSET);
+        }
+    }
+
+    ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_CAPACITY));
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+    {
+        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i + SOME_OFFSET));
+    }
+}
+
+TEST_F(vector_test, PartiallyFullVectorDestroysElementsInReverseOrder)
+{
+    static constexpr uint64_t VECTOR_CAPACITY = 40U;
+    static constexpr uint64_t VECTOR_SIZE = 20U;
+    static constexpr uint64_t INDEX_END = VECTOR_SIZE - 1U;
+    static constexpr uint64_t SOME_OFFSET = 1337U;
+
+    {
+        vector<CTorTest, VECTOR_CAPACITY> sut;
+
+        for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+        {
+            sut.emplace_back(i + SOME_OFFSET);
+        }
+    }
+
+    ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_SIZE));
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_THAT(dtorOrder[i], Eq(INDEX_END - i + SOME_OFFSET));
+    }
+}
+
+TEST_F(vector_test, PopBackReturnsFalseOnEmptyVector)
+{
+    EXPECT_FALSE(sut.pop_back());
+}
+
+TEST_F(vector_test, PopBackReturnsTrueOnNonEmptyVector)
+{
+    sut.emplace_back(123);
+    EXPECT_TRUE(sut.pop_back());
+}
+
+TEST_F(vector_test, PopBackReturnsTrueTillItsEmpty)
+{
+    static constexpr uint64_t VECTOR_SIZE = 5U;
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        sut.emplace_back(i);
+    }
+
+    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_TRUE(sut.pop_back());
+    }
+
+    EXPECT_FALSE(sut.pop_back());
+}
+
+TEST_F(vector_test, ResizeFailsWhenCountIsGreaterThanCapacity)
+{
+    EXPECT_FALSE(sut.resize(sut.capacity() + 1U));
+}
+
+TEST_F(vector_test, ResizeWithTemplateValueFailsWhenCountIsGreaterThanCapacity)
+{
+    EXPECT_FALSE(sut.resize(sut.capacity() + 1U, 12));
+}
+
+TEST_F(vector_test, SizeIncreaseWithResizeAndDefaultCTorWorks)
+{
+    class DefaultCTor
+    {
+      public:
+        DefaultCTor()
+            : m_a{1231}
+        {
+        }
+        int m_a;
+    };
+    iox::cxx::vector<DefaultCTor, 10U> sut;
+
+    EXPECT_TRUE(sut.resize(5U));
+    ASSERT_THAT(sut.size(), Eq(5U));
+    for (auto& e : sut)
+    {
+        EXPECT_THAT(e.m_a, Eq(1231));
+    }
+}
+
+TEST_F(vector_test, SizeIncreaseWithResizeAndTemplateValueWorks)
+{
+    EXPECT_TRUE(sut.resize(4U, 421337));
+    ASSERT_THAT(sut.size(), Eq(4U));
+    for (auto& e : sut)
+    {
+        EXPECT_THAT(e, Eq(421337));
+    }
+}
+
+TEST_F(vector_test, SizeDecreaseWithResizeAndDefaultCTorWorks)
+{
+    iox::cxx::vector<CTorTest, 10U> sut;
+    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    {
+        sut.emplace_back(i);
+    }
+
+    EXPECT_TRUE(sut.resize(7U));
+    EXPECT_THAT(dTor, Eq(3));
+    ASSERT_THAT(dtorOrder.size(), Eq(3U));
+    EXPECT_THAT(dtorOrder[0], Eq(9));
+    EXPECT_THAT(dtorOrder[1], Eq(8));
+    EXPECT_THAT(dtorOrder[2], Eq(7));
+}
+
+TEST_F(vector_test, SizeDecreaseWithResizeAndTemplateValueWorks)
+{
+    iox::cxx::vector<CTorTest, 10U> sut;
+    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    {
+        sut.emplace_back(i + 10);
+    }
+
+    EXPECT_TRUE(sut.resize(7U, 66807));
+    EXPECT_THAT(dTor, Eq(3));
+    ASSERT_THAT(dtorOrder.size(), Eq(3U));
+    EXPECT_THAT(dtorOrder[0], Eq(19));
+    EXPECT_THAT(dtorOrder[1], Eq(18));
+    EXPECT_THAT(dtorOrder[2], Eq(17));
+}
+
+TEST_F(vector_test, ResizeWithDefaultCTorChangesNothingIfSizeAlreadyFits)
+{
+    sut.emplace_back(5);
+    sut.emplace_back(6);
+    EXPECT_TRUE(sut.resize(2U));
+
+    ASSERT_THAT(sut.size(), Eq(2U));
+    EXPECT_THAT(sut[0], Eq(5));
+    EXPECT_THAT(sut[1], Eq(6));
+}
+
+TEST_F(vector_test, ResizeWithTemplateValueChangesNothingIfSizeAlreadyFits)
+{
+    sut.emplace_back(7);
+    sut.emplace_back(9);
+    EXPECT_TRUE(sut.resize(2U, 421337));
+
+    ASSERT_THAT(sut.size(), Eq(2U));
+    EXPECT_THAT(sut[0], Eq(7));
+    EXPECT_THAT(sut[1], Eq(9));
+}
+
+TEST_F(vector_test, EmplaceInEmptyVectorWorks)
+{
+    EXPECT_TRUE(sut.emplace(0U, 123));
+    ASSERT_THAT(sut.size(), Eq(1U));
+    EXPECT_THAT(sut[0], Eq(123));
+}
+
+TEST_F(vector_test, EmplaceAtFrontTillFullWorks)
+{
+    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    {
+        EXPECT_TRUE(sut.emplace(0U, i));
+        ASSERT_THAT(sut.size(), Eq(i + 1U));
+
+        for (uint64_t n = 0U; n < sut.size(); ++n)
+        {
+            EXPECT_THAT(sut[n], Eq(sut.size() - n - 1U));
+        }
+    }
+}
+
+TEST_F(vector_test, EmplaceInTheMiddleMovesElementsToTheRight)
+{
+    sut.emplace_back(0);
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+
+    EXPECT_TRUE(sut.emplace(1U, 3));
+
+    ASSERT_THAT(sut.size(), Eq(4));
+
+    EXPECT_THAT(sut[0], Eq(0));
+    EXPECT_THAT(sut[1], Eq(3));
+    EXPECT_THAT(sut[2], Eq(1));
+    EXPECT_THAT(sut[3], Eq(2));
+}
+
+TEST_F(vector_test, EmplaceWhenFullReturnsFalse)
+{
+    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    {
+        sut.emplace_back(i);
+    }
+
+    auto index = sut.capacity() / 2;
+    EXPECT_FALSE(sut.emplace(index, 5));
+    EXPECT_THAT(sut.size(), Eq(sut.capacity()));
+}
+
+TEST_F(vector_test, EmplaceWhenPositionExceedsCapacityReturnsFalse)
+{
+    EXPECT_FALSE(sut.emplace(sut.capacity() + 10U, 5));
+    EXPECT_THAT(sut.size(), Eq(0));
+}
+
+TEST_F(vector_test, EmplaceAtEndWorks)
+{
+    sut.emplace_back(0);
+    sut.emplace_back(1);
+
+    EXPECT_TRUE(sut.emplace(sut.size(), 3));
+    ASSERT_THAT(sut.size(), Eq(3));
+    EXPECT_THAT(sut[0], Eq(0));
+    EXPECT_THAT(sut[1], Eq(1));
+    EXPECT_THAT(sut[2], Eq(3));
+}
+
+TEST_F(vector_test, EmplaceAtPositionAfterEndBeforeCapacityExceedsFails)
+{
+    sut.emplace_back(0);
+    sut.emplace_back(1);
+
+    EXPECT_FALSE(sut.emplace(sut.size() + 1, 3));
+    ASSERT_THAT(sut.size(), Eq(2));
 }

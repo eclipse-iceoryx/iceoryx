@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 
@@ -66,10 +69,10 @@ class ServerPortUser : public BasePort
 
     /// @brief Allocate a response, the ownerhip of the SharedChunk remains in the ServerPortUser for being able to
     /// cleanup if the user process disappears
-    /// @param[in] payloadSize, size of the user paylaod without additional headers
-    /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
-    /// not
-    cxx::expected<ResponseHeader*, AllocationError> allocateResponse(const uint32_t payloadSize) noexcept;
+    /// @param[in] userPayloadSize, size of the user user-paylaod without additional headers
+    /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
+    /// user-payload fields, error if not
+    cxx::expected<ResponseHeader*, AllocationError> allocateResponse(const uint32_t userPayloadSize) noexcept;
 
     /// @brief Free an allocated response without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
@@ -95,7 +98,7 @@ class ServerPortUser : public BasePort
 
     /// @brief set a condition variable (via its pointer) to the client
     /// @return true if attachment worked, otherwise false
-    void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    void setConditionVariable(ConditionVariableData& conditionVariableData, const uint64_t notificationIndex) noexcept;
 
     /// @brief unset a condition variable from the client
     void unsetConditionVariable() noexcept;

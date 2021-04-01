@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/platform/semaphore.hpp"
 #include "iceoryx_utils/platform/time.hpp"
@@ -193,13 +196,13 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         pthread_mutex_lock(&sem->m_handle.condition.mtx);
         if (sem->m_value.load(std::memory_order_relaxed) == 0)
         {
-            if (pthread_cond_timedwait(&sem->m_handle.condition.variable, &sem->m_handle.condition.mtx, abs_timeout)
-                != 0)
+            int result =
+                pthread_cond_timedwait(&sem->m_handle.condition.variable, &sem->m_handle.condition.mtx, abs_timeout);
+            if (result != 0)
             {
-                constexpr int ETIMEDOUT_PLUS_256 = ETIMEDOUT + 256;
-                if (errno == ETIMEDOUT_PLUS_256)
+                if (result == ETIMEDOUT)
                 {
-                    errno &= 0xFF;
+                    errno = ETIMEDOUT;
                 }
                 pthread_mutex_unlock(&sem->m_handle.condition.mtx);
                 return -1;

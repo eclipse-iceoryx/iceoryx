@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 project(cpptoml-build CXX)
 
@@ -30,6 +31,12 @@ if(WIN32)
     set(CREATE_PATH_COMMAND mkdir)
 else()
     set(CREATE_PATH_COMMAND mkdir -p)
+endif()
+
+if(DEFINED CMAKE_TOOLCHAIN_FILE)
+    set(TOOLCHAIN_FILE "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+    set(cpptoml_DIR ${CMAKE_BINARY_DIR}/dependencies/install/lib/cmake/cpptoml)
+    set(cpptoml_DIR ${cpptoml_DIR} CACHE PATH "" FORCE)
 endif()
 
 # set download config, source and build paths
@@ -56,7 +63,7 @@ endif()
 
 file(MAKE_DIRECTORY ${BUILD_DIR})
 
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}"
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${TOOLCHAIN_FILE}" "${SOURCE_DIR}"
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${BUILD_DIR} )
 if(result)

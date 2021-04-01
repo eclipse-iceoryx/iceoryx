@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
 #define IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
@@ -33,7 +35,7 @@ struct SubscriberOptions;
 struct SubscriberPortData : public BasePortData
 {
     SubscriberPortData(const capro::ServiceDescription& serviceDescription,
-                       const ProcessName_t& processName,
+                       const RuntimeName_t& runtimeName,
                        cxx::VariantQueueTypes queueType,
                        const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;

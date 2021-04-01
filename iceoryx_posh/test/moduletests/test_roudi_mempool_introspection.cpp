@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021  by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "mocks/chunk_mock.hpp"
 #include "mocks/mepoo_memory_manager_mock.hpp"
@@ -207,7 +210,7 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
     MemPoolInfoContainer memPoolInfoContainer;
     initMemPoolInfoContainer(memPoolInfoContainer);
 
-    EXPECT_CALL(introspectionAccess.getPublisherPort(), tryAllocateChunk(_)).Times(0);
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), tryAllocateChunk(_, _, _, _)).Times(0);
 
     introspectionAccess.send();
 }
@@ -265,9 +268,9 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     introspectionAccess.setSendInterval(snapshotInterval);
     introspectionAccess.run();
     std::this_thread::sleep_for(std::chrono::milliseconds(
-        6 * snapshotInterval.milliSeconds<uint64_t>())); // within this time, the thread should have run 6 times
+        6 * snapshotInterval.toMilliseconds())); // within this time, the thread should have run 6 times
     introspectionAccess.run();
     std::this_thread::sleep_for(std::chrono::milliseconds(
-        6 * snapshotInterval.milliSeconds<uint64_t>())); // the thread should sleep, if not, we have 12 runs
+        6 * snapshotInterval.toMilliseconds())); // the thread should sleep, if not, we have 12 runs
     introspectionAccess.stop();
 });

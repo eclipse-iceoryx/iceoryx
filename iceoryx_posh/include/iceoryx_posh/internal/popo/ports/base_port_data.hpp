@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_PORTS_BASE_PORT_DATA_HPP
 #define IOX_POSH_POPO_PORTS_BASE_PORT_DATA_HPP
 
@@ -18,7 +21,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 #include <atomic>
 
@@ -34,9 +37,11 @@ struct BasePortData
 
     /// @brief Constructor
     /// @param[in] serviceDescription creates the service service description
-    /// @param[in] portType Type of port to be created
-    /// @param[in] processName Name of the process
-    BasePortData(const capro::ServiceDescription& serviceDescription, const ProcessName_t& processName) noexcept;
+    /// @param[in] runtimeName Name of the application's runtime
+    /// @param[in] nodeName Name of the node
+    BasePortData(const capro::ServiceDescription& serviceDescription,
+                 const RuntimeName_t& runtimeName,
+                 const NodeName_t& nodeName) noexcept;
 
     BasePortData(const BasePortData&) = delete;
     BasePortData& operator=(const BasePortData&) = delete;
@@ -45,7 +50,8 @@ struct BasePortData
     ~BasePortData() = default;
 
     capro::ServiceDescription m_serviceDescription;
-    ProcessName_t m_processName;
+    RuntimeName_t m_runtimeName;
+    NodeName_t m_nodeName;
 
     UniquePortId m_uniqueId;
     std::atomic_bool m_toBeDestroyed{false};

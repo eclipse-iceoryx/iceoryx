@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +12,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
@@ -21,177 +25,157 @@
 #include "iceoryx_utils/platform/unistd.hpp"
 
 #include <assert.h>
+#include <bitset>
 #include <limits>
 
 namespace iox
 {
 namespace posix
 {
-cxx::optional<SharedMemory> SharedMemory::create(const char* f_name,
-                                                 const AccessMode f_accessMode,
-                                                 const OwnerShip f_ownerShip,
-                                                 const mode_t f_permissions,
-                                                 const uint64_t f_size)
+SharedMemory::SharedMemory(const Name_t& name,
+                           const AccessMode accessMode,
+                           const OwnerShip ownerShip,
+                           const mode_t permissions,
+                           const uint64_t size) noexcept
+    : m_ownerShip(ownerShip)
 {
-    cxx::optional<SharedMemory> l_sharedMemory;
-    l_sharedMemory.emplace(f_name, f_accessMode, f_ownerShip, f_permissions, f_size);
-
-    if (l_sharedMemory->isInitialized())
-    {
-        return l_sharedMemory;
-    }
-    else
-    {
-        return cxx::nullopt_t();
-    }
-}
-
-SharedMemory::SharedMemory(const char* f_name,
-                           const AccessMode f_accessMode,
-                           const OwnerShip f_ownerShip,
-                           const mode_t f_permissions,
-                           const uint64_t f_size)
-    : m_ownerShip(f_ownerShip)
-    , m_permissions(f_permissions)
-    , m_size(f_size)
-{
+    m_isInitialized = true;
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    if (f_name == nullptr || strlen(f_name) == 0U)
+    if (name.empty())
     {
         std::cerr << "No shared memory name specified!" << std::endl;
         m_isInitialized = false;
-        return;
+        m_errorValue = SharedMemoryError::EMPTY_NAME;
     }
-    else if (f_name[0] != '/')
+    else if (name.c_str()[0] != '/')
     {
         std::cerr << "Shared memory name must start with a leading slash!" << std::endl;
         m_isInitialized = false;
+        m_errorValue = SharedMemoryError::NAME_WITHOUT_LEADING_SLASH;
+    }
+
+    if (m_isInitialized)
+    {
+        m_name = name;
+        int oflags = 0;
+        oflags |= (accessMode == AccessMode::READ_ONLY) ? O_RDONLY : O_RDWR;
+        oflags |= (ownerShip == OwnerShip::MINE) ? O_CREAT | O_EXCL : 0;
+
+        m_isInitialized = open(oflags, permissions, size);
+    }
+
+    if (!m_isInitialized)
+    {
+        std::cerr << "Unable to create shared memory with the following properties [ name = " << name
+                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(accessMode)]
+                  << ", ownership = " << OWNERSHIP_STRING[static_cast<uint64_t>(ownerShip)]
+                  << ", mode = " << std::bitset<sizeof(mode_t)>(permissions) << ", sizeInBytes = " << size << " ]"
+                  << std::endl;
         return;
     }
-
-    if (strlen(f_name) >= NAME_SIZE)
-    {
-        std::clog << "Shared memory name is too long! '" << f_name << "' will be truncated at position "
-                  << NAME_SIZE - 1U << "!" << std::endl;
-    }
-
-    /// @note GCC drops here a warning that the destination char buffer length is equal to the max length to copy.
-    /// This can potentially lead to a char array without null-terminator. We add the null-terminator afterwards.
-    strncpy(m_name, f_name, NAME_SIZE);
-    m_name[NAME_SIZE - 1U] = '\0';
-    m_oflags |= (f_accessMode == AccessMode::readOnly) ? O_RDONLY : O_RDWR;
-    m_oflags |= (f_ownerShip == OwnerShip::mine) ? O_CREAT | O_EXCL : 0;
-
-    m_isInitialized = open();
 }
 
-SharedMemory::~SharedMemory()
+SharedMemory::~SharedMemory() noexcept
+{
+    destroy();
+}
+
+void SharedMemory::destroy() noexcept
 {
     if (m_isInitialized)
     {
         close();
         unlink();
+        reset();
     }
 }
 
-SharedMemory::SharedMemory(SharedMemory&& rhs)
+void SharedMemory::reset() noexcept
+{
+    m_isInitialized = false;
+    m_name = Name_t();
+    m_handle = -1;
+}
+
+SharedMemory::SharedMemory(SharedMemory&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-SharedMemory& SharedMemory::operator=(SharedMemory&& rhs)
+SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        m_isInitialized = std::move(rhs.m_isInitialized);
-        strncpy(m_name, rhs.m_name, NAME_SIZE);
+        destroy();
+
+        CreationPattern_t::operator=(std::move(rhs));
+
+        m_name = rhs.m_name;
         m_ownerShip = std::move(rhs.m_ownerShip);
-        m_oflags = std::move(rhs.m_oflags);
-        m_permissions = std::move(rhs.m_permissions);
         m_handle = std::move(rhs.m_handle);
 
-        rhs.m_isInitialized = false;
+        rhs.reset();
     }
     return *this;
 }
 
-bool SharedMemory::isInitialized() const
-{
-    return m_isInitialized;
-}
-
-int32_t SharedMemory::getHandle() const
+int32_t SharedMemory::getHandle() const noexcept
 {
     return m_handle;
 }
 
-bool SharedMemory::open()
+bool SharedMemory::open(const int oflags, const mode_t permissions, const uint64_t size) noexcept
 {
-    cxx::Expects(static_cast<int64_t>(m_size) <= std::numeric_limits<int64_t>::max());
+    cxx::Expects(static_cast<int64_t>(size) <= std::numeric_limits<int64_t>::max());
+
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0U);
-
-    // if we create the shm, cleanup old resources
-    if (m_oflags & O_CREAT)
     {
-        auto shmUnlinkCall =
-            cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ENOENT}, m_name);
-        if (!shmUnlinkCall.hasErrors() && shmUnlinkCall.getErrNum() != ENOENT)
+        cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
+
+        // if we create the shm, cleanup old resources
+        if (oflags & O_CREAT)
         {
-            std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
+            auto shmUnlinkCall =
+                cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ENOENT}, m_name.c_str());
+            if (!shmUnlinkCall.hasErrors() && shmUnlinkCall.getErrNum() != ENOENT)
+            {
+                std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
+            }
         }
+
+        auto shmOpenCall = cxx::makeSmartC(
+            shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str(), oflags, permissions);
+        if (shmOpenCall.hasErrors())
+        {
+            m_errorValue = errnoToEnum(shmOpenCall.getErrNum());
+            return false;
+        }
+
+        m_handle = shmOpenCall.getReturnValue();
     }
 
-    auto l_shmOpenCall =
-        cxx::makeSmartC(shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name, m_oflags, m_permissions);
-
-    umask(umaskSaved);
-
-    if (l_shmOpenCall.hasErrors())
-    {
-        std::cerr << "Unable to initialize SharedMemory (shm_open failed) : " << l_shmOpenCall.getErrorString()
-                  << std::endl;
-        return false;
-    }
-
-    m_handle = l_shmOpenCall.getReturnValue();
-
-    if (m_ownerShip == OwnerShip::mine)
+    if (m_ownerShip == OwnerShip::MINE)
     {
         auto l_truncateCall = cxx::makeSmartC(
-            ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int64_t>(m_size));
+            ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, static_cast<int64_t>(size));
         if (l_truncateCall.hasErrors())
         {
-            if (l_truncateCall.getErrNum() == ENOMEM)
-            {
-                char errormsg[] = "\033[0;1;97;41mFatal error:\033[m the available memory is insufficient. Cannot "
-                                  "allocate mempools in shared "
-                                  "memory. Please make sure that enough memory is available. For this, consider also "
-                                  "the memory which is "
-                                  "required for the [/iceoryx_mgmt] segment. Please refer to share/doc/iceoryx/FAQ.md "
-                                  "in your release delivery.";
-
-                std::cerr << errormsg << std::endl;
-                return false;
-            }
-            else
-            {
-                std::cerr << "Unable to truncate SharedMemory (ftruncate failed) : " << l_truncateCall.getErrorString()
-                          << std::endl;
-                return false;
-            }
+            m_errorValue = errnoToEnum(l_truncateCall.getErrNum());
+            return false;
         }
     }
 
     return true;
 }
 
-bool SharedMemory::unlink()
+bool SharedMemory::unlink() noexcept
 {
-    if (m_isInitialized && m_ownerShip == OwnerShip::mine)
+    if (m_isInitialized && m_ownerShip == OwnerShip::MINE)
     {
-        auto unlinkCall = cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name);
+        auto unlinkCall =
+            cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name.c_str());
         if (unlinkCall.hasErrors())
         {
             std::cerr << "Unable to unlink SharedMemory (shm_unlink failed) : " << unlinkCall.getErrorString()
@@ -202,12 +186,13 @@ bool SharedMemory::unlink()
     return true;
 }
 
-bool SharedMemory::close()
+bool SharedMemory::close() noexcept
 {
     if (m_isInitialized)
     {
         auto closeCall =
-            cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
+            cxx::makeSmartC(iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
+        m_handle = -1;
         if (closeCall.hasErrors())
         {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << closeCall.getErrorString()
@@ -217,5 +202,54 @@ bool SharedMemory::close()
     }
     return true;
 }
+
+SharedMemoryError SharedMemory::errnoToEnum(const int32_t errnum) const noexcept
+{
+    switch (errnum)
+    {
+    case EACCES:
+        std::cerr << "No permission to modify, truncate or to access the shared memory!" << std::endl;
+        return SharedMemoryError::INSUFFICIENT_PERMISSIONS;
+    case EPERM:
+        std::cerr << "Resizing a file beyond its current size is not supported by the filesystem!" << std::endl;
+        return SharedMemoryError::NO_RESIZE_SUPPORT;
+    case EFBIG:
+        std::cerr << "Requested Shared Memory is larger then the maximum file size." << std::endl;
+        return SharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
+    case EINVAL:
+        std::cerr << "Requested Shared Memory is larger then the maximum file size or the filedescriptor does not "
+                     "belong to a regular file."
+                  << std::endl;
+        return SharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
+    case EBADF:
+        std::cerr << "Provided filedescriptor is not a valid filedescriptor." << std::endl;
+        return SharedMemoryError::INVALID_FILEDESCRIPTOR;
+    case EEXIST:
+        std::cerr << "A Shared Memory with the given name already exists." << std::endl;
+        return SharedMemoryError::DOES_EXIST;
+    case EISDIR:
+        std::cerr << "The requested Shared Memory file is a directory." << std::endl;
+        return SharedMemoryError::PATH_IS_A_DIRECTORY;
+    case ELOOP:
+        std::cerr << "Too many symbolic links encountered while traversing the path." << std::endl;
+        return SharedMemoryError::TOO_MANY_SYMBOLIC_LINKS;
+    case EMFILE:
+        std::cerr << "Process limit of maximum open files reached." << std::endl;
+        return SharedMemoryError::PROCESS_LIMIT_OF_OPEN_FILES_REACHED;
+    case ENFILE:
+        std::cerr << "System limit of maximum open files reached." << std::endl;
+        return SharedMemoryError::SYSTEM_LIMIT_OF_OPEN_FILES_REACHED;
+    case ENOENT:
+        std::cerr << "Shared Memory does not exist." << std::endl;
+        return SharedMemoryError::DOES_NOT_EXIST;
+    case ENOMEM:
+        std::cerr << "Not enough memory available to create shared memory." << std::endl;
+        return SharedMemoryError::NOT_ENOUGH_MEMORY_AVAILABLE;
+    default:
+        std::cerr << "This should never happen! An unknown error occurred!" << std::endl;
+        return SharedMemoryError::UNKNOWN_ERROR;
+    }
+}
+
 } // namespace posix
 } // namespace iox

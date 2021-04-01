@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_MEPOO_SHARED_POINTER_INL
 #define IOX_POSH_MEPOO_SHARED_POINTER_INL
 
@@ -25,7 +27,7 @@ inline SharedPointer<T>::SharedPointer(const SharedChunk& chunk, Targs&&... args
 {
     if (chunk.m_chunkManagement != nullptr)
     {
-        new (chunk.m_chunkManagement->m_chunkHeader->payload()) T(std::forward<Targs>(args)...);
+        new (chunk.m_chunkManagement->m_chunkHeader->userPayload()) T(std::forward<Targs>(args)...);
         this->m_isInitialized = true;
     }
     else
@@ -47,6 +49,9 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(const SharedPointer& rhs) n
     if (this != &rhs)
     {
         deleteManagedObjectIfNecessary();
+
+        CreationPattern_t::operator=(rhs);
+
         m_chunk = rhs.m_chunk;
     }
     return *this;
@@ -58,6 +63,9 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(SharedPointer&& rhs) noexce
     if (this != &rhs)
     {
         deleteManagedObjectIfNecessary();
+
+        CreationPattern_t::operator=(std::move(rhs));
+
         m_chunk = std::move(rhs.m_chunk);
     }
     return *this;
@@ -69,14 +77,14 @@ inline void SharedPointer<T>::deleteManagedObjectIfNecessary() noexcept
     if (m_chunk.m_chunkManagement != nullptr
         && m_chunk.m_chunkManagement->m_referenceCounter.load(std::memory_order_relaxed) == 2)
     {
-        static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->payload())->~T();
+        static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->userPayload())->~T();
     }
 }
 
 template <typename T>
 inline T* SharedPointer<T>::get() noexcept
 {
-    return static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->payload());
+    return static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->userPayload());
 }
 
 template <typename T>
@@ -88,7 +96,7 @@ inline const T* SharedPointer<T>::get() const noexcept
 template <typename T>
 inline T* SharedPointer<T>::operator->() noexcept
 {
-    return static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->payload());
+    return static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->userPayload());
 }
 
 template <typename T>
@@ -100,7 +108,7 @@ inline const T* SharedPointer<T>::operator->() const noexcept
 template <typename T>
 inline T& SharedPointer<T>::operator*() noexcept
 {
-    return *static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->payload());
+    return *static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->userPayload());
 }
 
 template <typename T>

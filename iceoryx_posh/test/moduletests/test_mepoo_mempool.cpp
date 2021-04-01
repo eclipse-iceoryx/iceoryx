@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -29,7 +32,7 @@ class alignas(32) MemPool_test : public Test
 
     MemPool_test()
         : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
-        , sut(ChunkSize, NumberOfChunks, &allocator, &allocator)
+        , sut(ChunkSize, NumberOfChunks, allocator, allocator)
     {
     }
 
@@ -205,10 +208,10 @@ TEST_F(MemPool_test, getMinFreeWithSecondGetChunk)
 
 TEST_F(MemPool_test, dieWhenMempoolChunkSizeIsSmallerThan32Bytes)
 {
-    EXPECT_DEATH({ iox::mepoo::MemPool sut(12, 10, &allocator, &allocator); }, ".*");
+    EXPECT_DEATH({ iox::mepoo::MemPool sut(12, 10, allocator, allocator); }, ".*");
 }
 
 TEST_F(MemPool_test, dieWhenMempoolChunkSizeIsNotPowerOf32)
 {
-    EXPECT_DEATH({ iox::mepoo::MemPool sut(333, 10, &allocator, &allocator); }, ".*");
+    EXPECT_DEATH({ iox::mepoo::MemPool sut(333, 10, allocator, allocator); }, ".*");
 }

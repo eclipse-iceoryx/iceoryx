@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 #include "test.hpp"
@@ -47,7 +49,14 @@ class FileReader_test : public Test
         internal::CaptureStdout();
 
         std::fstream fs(TestFilePath, std::fstream::out | std::fstream::trunc);
-        fs << TestFileContent;
+        if (fs.std::fstream::is_open())
+        {
+            fs << TestFileContent;
+        }
+        else
+        {
+            ASSERT_STREQ("expected open fstream", "fstream not open");
+        }
         fs.close();
     }
     void TearDown()

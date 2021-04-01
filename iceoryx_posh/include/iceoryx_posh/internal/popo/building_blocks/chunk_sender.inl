@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL
 
@@ -39,18 +42,36 @@ inline typename ChunkSender<ChunkSenderDataType>::MemberType_t* ChunkSender<Chun
 
 template <typename ChunkSenderDataType>
 inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
-ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize, const UniquePortId originId) noexcept
+ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
+                                              const uint32_t userPayloadSize,
+                                              const uint32_t userPayloadAlignment,
+                                              const uint32_t userHeaderSize,
+                                              const uint32_t userHeaderAlignment) noexcept
 {
-    // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
-    const uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
-
-    if (getMembers()->m_lastChunk && getMembers()->m_lastChunk.hasNoOtherOwners()
-        && (getMembers()->m_lastChunk.getChunkHeader()->chunkSize >= neededChunkSize))
+    // use the chunk stored in m_lastChunk if:
+    //   - there is a valid chunk
+    //   - there is no other owner
+    //   - the new user-payload still fits in it
+    const auto chunkSettingsResult =
+        mepoo::ChunkSettings::create(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
+    if (chunkSettingsResult.has_error())
     {
-        if (getMembers()->m_chunksInUse.insert(getMembers()->m_lastChunk))
+        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
+    }
+
+    const auto& chunkSettings = chunkSettingsResult.value();
+    const uint32_t requiredChunkSize = chunkSettings.requiredChunkSize();
+
+    auto& lastChunk = getMembers()->m_lastChunk;
+    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize >= requiredChunkSize))
+    {
+        if (getMembers()->m_chunksInUse.insert(lastChunk))
         {
-            getMembers()->m_lastChunk.getChunkHeader()->payloadSize = payloadSize;
-            return cxx::success<mepoo::ChunkHeader*>(getMembers()->m_lastChunk.getChunkHeader());
+            auto chunkHeader = lastChunk.getChunkHeader();
+            auto chunkSize = chunkHeader->chunkSize;
+            chunkHeader->~ChunkHeader();
+            new (chunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
+            return cxx::success<mepoo::ChunkHeader*>(lastChunk.getChunkHeader());
         }
         else
         {
@@ -61,7 +82,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize, const 
     {
         // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
         // get a new chunk
-        mepoo::SharedChunk chunk = getMembers()->m_memoryMgr->getChunk(payloadSize);
+        mepoo::SharedChunk chunk = getMembers()->m_memoryMgr->getChunk(chunkSettings);
 
         if (chunk)
         {

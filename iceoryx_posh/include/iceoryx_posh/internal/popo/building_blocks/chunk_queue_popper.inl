@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_INL
 
@@ -51,7 +54,7 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
     {
         auto chunkTupleOut = *retVal;
         auto chunkManagement =
-            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         auto chunk = mepoo::SharedChunk(chunkManagement);
         return cxx::make_optional<mepoo::SharedChunk>(chunk);
     }
@@ -110,25 +113,28 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
         // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
         auto chunkTupleOut = maybeChunkTuple.value();
         auto chunkManagement =
-            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         auto chunk = mepoo::SharedChunk(chunkManagement);
     }
 }
 
 template <typename ChunkQueueDataType>
-inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(
-    cxx::not_null<ConditionVariableData*> conditionVariableDataPtr) noexcept
+inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(ConditionVariableData& conditionVariableDataRef,
+                                                                       const uint64_t notificationIndex) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
-    getMembers()->m_conditionVariableDataPtr = conditionVariableDataPtr;
+    getMembers()->m_conditionVariableDataPtr = &conditionVariableDataRef;
+    getMembers()->m_conditionVariableNotificationIndex.emplace(notificationIndex);
 }
 
 template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
+
     getMembers()->m_conditionVariableDataPtr = nullptr;
+    getMembers()->m_conditionVariableNotificationIndex.reset();
 }
 
 template <typename ChunkQueueDataType>

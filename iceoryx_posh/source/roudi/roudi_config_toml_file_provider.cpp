@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -28,12 +30,12 @@ namespace iox
 {
 namespace config
 {
-TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(CmdLineParserConfigFileOption& cmdLineParser)
+TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& cmdLineArgs)
 {
     /// don't print additional output if not running
-    if (cmdLineParser.getRun())
+    if (cmdLineArgs.run)
     {
-        if (cmdLineParser.getConfigFilePath().size() == 0)
+        if (cmdLineArgs.configFilePath.empty())
         {
             /// @todo Replace with C++17 std::filesystem::exists()
             cxx::FileReader configFile(defaultConfigFilePath, "", cxx::FileReader::ErrorMode::Ignore);
@@ -49,14 +51,14 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(CmdLineParserConfigFile
                           << "'. Falling back to built-in config.";
             }
         }
-        m_customConfigFilePath = cmdLineParser.getConfigFilePath();
+        m_customConfigFilePath = cmdLineArgs.configFilePath;
     }
 }
 
 iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRouDiConfigFileProvider::parse()
 {
     // Early exit in case no config file path was provided
-    if (m_customConfigFilePath.size() == 0)
+    if (m_customConfigFilePath.empty())
     {
         iox::RouDiConfig_t defaultConfig;
         defaultConfig.setDefaults();
@@ -64,7 +66,20 @@ iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> To
     }
     auto groupOfCurrentProcess = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
 
-    std::shared_ptr<cpptoml::table> parsedFile = cpptoml::parse_file(m_customConfigFilePath.c_str());
+    std::shared_ptr<cpptoml::table> parsedFile{nullptr};
+    try
+    {
+        parsedFile = cpptoml::parse_file(m_customConfigFilePath.c_str());
+    }
+    catch (const std::exception& parserException)
+    {
+        auto parserError = iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER;
+
+        LogWarn() << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS, parserError)
+                  << ": " << parserException.what();
+
+        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(parserError);
+    }
 
     auto general = parsedFile->get_table("general");
     if (!general)

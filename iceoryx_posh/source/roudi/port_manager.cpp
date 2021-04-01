@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -61,14 +64,11 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     popo::PublisherOptions options;
     options.historyCapacity = 1;
+    options.nodeName = INTROSPECTION_NODE_NAME;
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
-    auto maybePublisher = acquirePublisherPortData(IntrospectionPortService,
-                                                   options,
-                                                   MQ_ROUDI_NAME,
-                                                   introspectionMemoryManager,
-                                                   INTROSPECTION_SERVICE_ID,
-                                                   PortConfigInfo());
+    auto maybePublisher = acquirePublisherPortData(
+        IntrospectionPortService, options, IPC_CHANNEL_ROUDI_NAME, introspectionMemoryManager, PortConfigInfo());
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortService";
@@ -79,9 +79,8 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
                                               options,
-                                              MQ_ROUDI_NAME,
+                                              IPC_CHANNEL_ROUDI_NAME,
                                               introspectionMemoryManager,
-                                              INTROSPECTION_SERVICE_ID,
                                               PortConfigInfo());
     if (maybePublisher.has_error())
     {
@@ -94,9 +93,8 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
                                               options,
-                                              MQ_ROUDI_NAME,
+                                              IPC_CHANNEL_ROUDI_NAME,
                                               introspectionMemoryManager,
-                                              INTROSPECTION_SERVICE_ID,
                                               PortConfigInfo());
     if (maybePublisher.has_error())
     {
@@ -140,30 +138,7 @@ void PortManager::handlePublisherPorts() noexcept
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
 
-        publisherPort.tryGetCaProMessage().and_then([this, &publisherPort](auto caproMessage) {
-            if (capro::CaproMessageType::OFFER == caproMessage.m_type)
-            {
-                this->addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                                caproMessage.m_serviceDescription.getInstanceIDString());
-            }
-            else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
-            {
-                this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                                     caproMessage.m_serviceDescription.getInstanceIDString());
-            }
-            else
-            {
-                // protocol error
-                errorHandler(Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
-                             nullptr,
-                             iox::ErrorLevel::MODERATE);
-            }
-
-            m_portIntrospection.reportMessage(caproMessage);
-            this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
-            // forward to interfaces
-            this->sendToAllMatchingInterfacePorts(caproMessage);
-        });
+        doDiscoveryForPublisherPort(publisherPort);
 
         // check if we have to destroy this publisher port
         if (publisherPort.toBeDestroyed())
@@ -173,6 +148,33 @@ void PortManager::handlePublisherPorts() noexcept
     }
 }
 
+void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherPort) noexcept
+{
+    publisherPort.tryGetCaProMessage().and_then([this, &publisherPort](auto caproMessage) {
+        m_portIntrospection.reportMessage(caproMessage);
+        if (capro::CaproMessageType::OFFER == caproMessage.m_type)
+        {
+            this->addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                            caproMessage.m_serviceDescription.getInstanceIDString());
+        }
+        else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
+        {
+            this->removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                                 caproMessage.m_serviceDescription.getInstanceIDString());
+        }
+        else
+        {
+            // protocol error
+            errorHandler(
+                Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
+        }
+
+        this->sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
+        // forward to interfaces
+        this->sendToAllMatchingInterfacePorts(caproMessage);
+    });
+}
+
 void PortManager::handleSubscriberPorts() noexcept
 {
     // get requests for change of subscription state of subscribers
@@ -180,30 +182,7 @@ void PortManager::handleSubscriberPorts() noexcept
     {
         SubscriberPortType subscriberPort(subscriberPortData);
 
-        subscriberPort.tryGetCaProMessage().and_then([this, &subscriberPort](auto caproMessage) {
-            if ((capro::CaproMessageType::SUB == caproMessage.m_type)
-                || (capro::CaproMessageType::UNSUB == caproMessage.m_type))
-            {
-                if (!this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
-                {
-                    LogDebug() << "capro::SUB/UNSUB, no matching publisher!!";
-                    capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
-                                                    subscriberPort.getCaProServiceDescription());
-                    auto returnMessage = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
-                    // No response on NACK messages
-                    cxx::Ensures(!returnMessage.has_value());
-                }
-            }
-            else
-            {
-                // protocol error
-                errorHandler(Error::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
-                             nullptr,
-                             iox::ErrorLevel::MODERATE);
-            }
-
-            m_portIntrospection.reportMessage(caproMessage);
-        });
+        doDiscoveryForSubscriberPort(subscriberPort);
 
         // check if we have to destroy this subscriber port
         if (subscriberPort.toBeDestroyed())
@@ -212,6 +191,34 @@ void PortManager::handleSubscriberPorts() noexcept
         }
     }
 }
+
+void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPort) noexcept
+{
+    subscriberPort.tryGetCaProMessage().and_then([this, &subscriberPort](auto caproMessage) {
+        if ((capro::CaproMessageType::SUB == caproMessage.m_type)
+            || (capro::CaproMessageType::UNSUB == caproMessage.m_type))
+        {
+            m_portIntrospection.reportMessage(caproMessage, subscriberPort.getUniqueID());
+            if (!this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
+            {
+                LogDebug() << "capro::SUB/UNSUB, no matching publisher!!";
+                capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
+                                                subscriberPort.getCaProServiceDescription());
+                auto returnMessage = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
+                // No response on NACK messages
+                cxx::Ensures(!returnMessage.has_value());
+            }
+        }
+        else
+        {
+            // protocol error
+            errorHandler(Error::kPORT_MANAGER__HANDLE_SUBSCRIBER_PORTS_INVALID_CAPRO_MESSAGE,
+                         nullptr,
+                         iox::ErrorLevel::MODERATE);
+        }
+    });
+}
+
 
 void PortManager::handleInterfaces() noexcept
 {
@@ -330,7 +337,7 @@ void PortManager::handleNodes() noexcept
 {
     /// @todo we have to update the introspection but node information is in process introspection which is not
     // accessible here. So currently nodes will be removed not before a process is removed
-    // m_processIntrospection->removeNode(ProcessName_t(process.c_str()),
+    // m_processIntrospection->removeNode(RuntimeName_t(process.c_str()),
     // NodeName_t(node.c_str()));
 
     for (auto nodeData : m_portPool->getNodeDataList())
@@ -375,7 +382,7 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
                 cxx::Ensures(!returnMessage.has_value());
 
                 // inform introspection
-                m_portIntrospection.reportMessage(publisherResponse.value());
+                m_portIntrospection.reportMessage(publisherResponse.value(), subscriberSource.getUniqueID());
             }
             publisherFound = true;
         }
@@ -435,12 +442,12 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
-void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcept
+void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept
 {
     for (auto port : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType sender(port);
-        if (processName == sender.getProcessName())
+        if (runtimeName == sender.getRuntimeName())
         {
             destroyPublisherPort(port);
         }
@@ -449,7 +456,7 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
     for (auto port : m_portPool->getSubscriberPortDataList())
     {
         SubscriberPortUserType subscriber(port);
-        if (processName == subscriber.getProcessName())
+        if (runtimeName == subscriber.getRuntimeName())
         {
             destroySubscriberPort(port);
         }
@@ -458,38 +465,38 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
     for (auto port : m_portPool->getInterfacePortDataList())
     {
         popo::InterfacePort interface(port);
-        if (processName == interface.getProcessName())
+        if (runtimeName == interface.getRuntimeName())
         {
             m_portPool->removeInterfacePort(port);
-            LogDebug() << "Deleted Interface of application " << processName;
+            LogDebug() << "Deleted Interface of application " << runtimeName;
         }
     }
 
     for (auto port : m_portPool->getApplicationPortDataList())
     {
         popo::ApplicationPort application(port);
-        if (processName == application.getProcessName())
+        if (runtimeName == application.getRuntimeName())
         {
             m_portPool->removeApplicationPort(port);
-            LogDebug() << "Deleted ApplicationPort of application " << processName;
+            LogDebug() << "Deleted ApplicationPort of application " << runtimeName;
         }
     }
 
     for (auto nodeData : m_portPool->getNodeDataList())
     {
-        if (processName == nodeData->m_process)
+        if (runtimeName == nodeData->m_runtimeName)
         {
             m_portPool->removeNodeData(nodeData);
-            LogDebug() << "Deleted node of application " << processName;
+            LogDebug() << "Deleted node of application " << runtimeName;
         }
     }
 
     for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
     {
-        if (processName == conditionVariableData->m_process)
+        if (runtimeName == conditionVariableData->m_runtimeName)
         {
             m_portPool->removeConditionVariableData(conditionVariableData);
-            LogDebug() << "Deleted condition variable of application" << processName;
+            LogDebug() << "Deleted condition variable of application" << runtimeName;
         }
     }
 }
@@ -514,8 +521,7 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
         this->sendToAllMatchingInterfacePorts(caproMessage);
     });
 
-    m_portIntrospection.removePublisher(publisherPortRoudi.getProcessName(),
-                                        publisherPortRoudi.getCaProServiceDescription());
+    m_portIntrospection.removePublisher(publisherPortUser);
 
     // delete publisher port from list after STOP_OFFER was processed
     m_portPool->removePublisherPort(publisherPortData);
@@ -540,15 +546,14 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
         this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPortRoudi);
     });
 
-    m_portIntrospection.removeSubscriber(subscriberPortRoudi.getProcessName(),
-                                         subscriberPortRoudi.getCaProServiceDescription());
+    m_portIntrospection.removeSubscriber(subscriberPortUser);
     // delete subscriber port from list after UNSUB was processed
     m_portPool->removeSubscriberPort(subscriberPortData);
 
     LogDebug() << "Destroyed subscriber port";
 }
 
-runtime::MqMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
+runtime::IpcMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
 {
     // send find to all interfaces
     capro::CaproMessage caproMessage(capro::CaproMessageType::FIND, service);
@@ -560,7 +565,7 @@ runtime::MqMessage PortManager::findService(const capro::ServiceDescription& ser
     }
 
     // add all found instances to instanceString
-    runtime::MqMessage instanceMessage;
+    runtime::IpcMessage instanceMessage;
 
     ServiceRegistry::InstanceSet_t instances;
     m_serviceRegistry.find(instances, service.getServiceIDString(), service.getInstanceIDString());
@@ -580,15 +585,14 @@ const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter() noexcep
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
-                                      const ProcessName_t& processName,
-                                      mepoo::MemoryManager* payloadMemoryManager,
-                                      const NodeName_t& node,
+                                      const RuntimeName_t& runtimeName,
+                                      mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
             [&](const auto& usedByProcess) {
                 LogWarn()
-                    << "Process '" << processName
+                    << "Process '" << runtimeName
                     << "' violates the communication policy by requesting a PublisherPort which is already used by '"
                     << usedByProcess << "' with service '" << service.operator cxx::Serialization().toString() << "'.";
             }))
@@ -599,10 +603,18 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, payloadMemoryManager, processName, publisherOptions, portConfigInfo.memoryInfo);
+        service, payloadDataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
-        m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, node);
+        auto publisherPortData = maybePublisherPortData.value();
+        if (publisherPortData)
+        {
+            m_portIntrospection.addPublisher(*publisherPortData);
+
+            // we do discovery here for trying to connect the waiting subscribers if offer on create is desired
+            PublisherPortRouDiType publisherPort(publisherPortData);
+            doDiscoveryForPublisherPort(publisherPort);
+        }
     }
 
     return maybePublisherPortData;
@@ -611,15 +623,22 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const popo::SubscriberOptions& subscriberOptions,
-                                       const ProcessName_t& processName,
-                                       const NodeName_t& node,
+                                       const RuntimeName_t& runtimeName,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
-        m_portPool->addSubscriberPort(service, processName, subscriberOptions, portConfigInfo.memoryInfo);
+        m_portPool->addSubscriberPort(service, runtimeName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
-        m_portIntrospection.addSubscriber(maybeSubscriberPortData.value(), processName, service, node);
+        auto subscriberPortData = maybeSubscriberPortData.value();
+        if (subscriberPortData)
+        {
+            m_portIntrospection.addSubscriber(*subscriberPortData);
+
+            // we do discovery here for trying to connect with publishers if subscribe on create is desired
+            SubscriberPortType subscriberPort(subscriberPortData);
+            doDiscoveryForSubscriberPort(subscriberPort);
+        }
     }
 
     return maybeSubscriberPortData;
@@ -628,10 +647,10 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
 
 /// @todo return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
-                                                               const ProcessName_t& processName,
+                                                               const RuntimeName_t& runtimeName,
                                                                const NodeName_t& /*node*/) noexcept
 {
-    auto result = m_portPool->addInterfacePort(processName, interface);
+    auto result = m_portPool->addInterfacePort(runtimeName, interface);
     if (!result.has_error())
     {
         return result.value();
@@ -643,9 +662,9 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 }
 
 /// @todo return a cxx::expected
-popo::ApplicationPortData* PortManager::acquireApplicationPortData(const ProcessName_t& processName) noexcept
+popo::ApplicationPortData* PortManager::acquireApplicationPortData(const RuntimeName_t& runtimeName) noexcept
 {
-    auto result = m_portPool->addApplicationPort(processName);
+    auto result = m_portPool->addApplicationPort(runtimeName);
     if (!result.has_error())
     {
         return result.value();
@@ -670,24 +689,16 @@ void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& servic
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-/// @todo return a cxx::expected
-runtime::NodeData* PortManager::acquireNodeData(const ProcessName_t& process, const NodeName_t& node) noexcept
+cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,
+                                                                              const NodeName_t& nodeName) noexcept
 {
-    auto result = m_portPool->addNodeData(process, node, 0);
-    if (!result.has_error())
-    {
-        return result.value();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_portPool->addNodeData(runtimeName, nodeName, 0);
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortManager::acquireConditionVariableData(const ProcessName_t& process) noexcept
+PortManager::acquireConditionVariableData(const RuntimeName_t& runtimeName) noexcept
 {
-    return m_portPool->addConditionVariableData(process);
+    return m_portPool->addConditionVariableData(runtimeName);
 }
 
 } // namespace roudi

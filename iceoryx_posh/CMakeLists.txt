@@ -1,4 +1,5 @@
-# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,13 +12,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
-file (STRINGS "../VERSION" iceoryx_posh_VERSION)
-project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
+file (STRINGS "../VERSION" IOX_VERSION_STRING)
+find_package(iceoryx_utils REQUIRED)
+
+include(IceoryxVersion)
+parse_version(${IOX_VERSION_STRING})
+project(iceoryx_posh VERSION ${IOX_VERSION_MAIN})
+adjust_version()
 
 find_package(Threads REQUIRED)
-find_package(iceoryx_utils REQUIRED)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
@@ -68,6 +74,7 @@ add_library(iceoryx_posh
     source/capro/capro_message.cpp
     source/capro/service_description.cpp
     source/mepoo/chunk_header.cpp
+    source/mepoo/chunk_settings.cpp
     source/mepoo/mepoo_config.cpp
     source/mepoo/segment_config.cpp
     source/mepoo/memory_manager.cpp
@@ -97,18 +104,22 @@ add_library(iceoryx_posh
     source/popo/ports/server_port_roudi.cpp
     source/popo/ports/server_port_user.cpp
     source/popo/building_blocks/chunk_queue_types.cpp
+    source/popo/building_blocks/condition_listener.cpp
+    source/popo/building_blocks/condition_notifier.cpp
     source/popo/building_blocks/condition_variable_data.cpp    
-    source/popo/building_blocks/condition_variable_signaler.cpp
-    source/popo/building_blocks/condition_variable_waiter.cpp
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
-    source/popo/user_trigger.cpp
+    source/popo/listener.cpp
+    source/popo/event_info.cpp
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
-    source/popo/event_info.cpp
+    source/popo/user_trigger.cpp
     source/version/version_info.cpp
-    source/runtime/message_queue_interface.cpp
-    source/runtime/message_queue_message.cpp
+    source/runtime/ipc_interface_base.cpp
+    source/runtime/ipc_interface_user.cpp
+    source/runtime/ipc_interface_creator.cpp
+    source/runtime/ipc_runtime_interface.cpp
+    source/runtime/ipc_message.cpp
     source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
     source/runtime/posh_runtime_single_process.cpp
@@ -218,7 +229,8 @@ add_library(iceoryx_posh_roudi
     source/roudi/port_pool.cpp
     source/roudi/roudi.cpp
     source/roudi/roudi_lock.cpp
-    source/roudi/roudi_process.cpp
+    source/roudi/process.cpp
+    source/roudi/process_manager.cpp
     source/roudi/service_registry.cpp
     source/roudi/iceoryx_roudi_components.cpp
     source/roudi/roudi_cmd_line_parser.cpp
@@ -269,7 +281,6 @@ if(TOML_CONFIG)
         find_package(cpptoml_vendor QUIET)
         find_package(cpptoml REQUIRED)
     endif(NOT cpptoml_FOUND)
-    message("-- Build with TOML config file support.")
 
     #
     ######### posh config lib ##########

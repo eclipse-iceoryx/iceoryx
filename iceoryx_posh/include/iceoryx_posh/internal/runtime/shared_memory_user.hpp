@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_RUNTIME_SHARED_MEMORY_USER_HPP
 #define IOX_POSH_RUNTIME_SHARED_MEMORY_USER_HPP
 
@@ -18,7 +21,7 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 
 
 namespace iox
@@ -38,11 +41,15 @@ class SharedMemoryUser
     SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                      const size_t topicSize,
                      const uint64_t segmentId,
-                     RelativePointer::offset_t segmentManagerAddressOffset);
+                     const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset);
+
+  private:
+    void openDataSegments(const uint64_t segmentId,
+                          const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
-    cxx::vector<posix::SharedMemoryObject, MAX_SHM_SEGMENTS> m_payloadShmObjects;
+    cxx::vector<posix::SharedMemoryObject, MAX_SHM_SEGMENTS> m_dataShmObjects;
 };
 
 } // namespace runtime

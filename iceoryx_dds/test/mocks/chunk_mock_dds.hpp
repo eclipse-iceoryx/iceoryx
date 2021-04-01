@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_GATEWAY_MOCKS_CHUNK_MOCK_HPP
 #define IOX_DDS_GATEWAY_MOCKS_CHUNK_MOCK_HPP
@@ -47,14 +50,18 @@ class ChunkMockDDS
 
         memset(m_rawMemory, 0xFF, Size);
 
-        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader();
-        m_chunkHeader->payloadSize = sizeof(T);
+        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(T), alignof(T));
+        iox::cxx::Ensures(!chunkSettingsResult.has_error() && "Invalid parameter for ChunkMock");
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader(Size, chunkSettings);
+        m_chunkHeader->userPayloadSize = sizeof(T);
 
         // Set the value
-        auto payloadPtr = reinterpret_cast<T*>(m_rawMemory + sizeof(iox::mepoo::ChunkHeader));
-        *payloadPtr = val;
+        auto userPayloadPtr = reinterpret_cast<T*>(m_rawMemory + sizeof(iox::mepoo::ChunkHeader));
+        *userPayloadPtr = val;
 
-        m_value = static_cast<T*>(m_chunkHeader->payload());
+        m_value = static_cast<T*>(m_chunkHeader->userPayload());
     }
 
     ~ChunkMockDDS()

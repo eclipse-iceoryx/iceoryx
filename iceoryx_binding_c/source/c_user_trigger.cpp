@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
@@ -26,6 +29,11 @@ extern "C" {
 
 iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self)
 {
+    if (self == nullptr)
+    {
+        LogWarn() << "user trigger initialization skipped - null pointer provided for iox_user_trigger_storage_t";
+        return nullptr;
+    }
     new (self) UserTrigger();
     return reinterpret_cast<iox_user_trigger_t>(self);
 }
@@ -43,9 +51,4 @@ void iox_user_trigger_trigger(iox_user_trigger_t const self)
 bool iox_user_trigger_has_triggered(iox_user_trigger_t const self)
 {
     return self->hasTriggered();
-}
-
-void iox_user_trigger_reset_trigger(iox_user_trigger_t const self)
-{
-    self->resetTrigger();
 }

@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_UNTYPED_SUBSCRIBER_INL
 #define IOX_POSH_POPO_UNTYPED_SUBSCRIBER_INL
@@ -19,47 +22,29 @@ namespace iox
 {
 namespace popo
 {
-template <template <typename, typename, typename> class base_subscriber_t>
-inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service,
-                                                                       const SubscriberOptions& subscriberOptions)
+template <typename BaseSubscriber_t>
+inline UntypedSubscriberImpl<BaseSubscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service,
+                                                                      const SubscriberOptions& subscriberOptions)
     : BaseSubscriber(service, subscriberOptions)
 {
 }
 
-template <template <typename, typename, typename> class base_subscriber_t>
-inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<base_subscriber_t>::take_1_0() noexcept
+template <typename BaseSubscriber_t>
+inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<BaseSubscriber_t>::take() noexcept
 {
     auto result = BaseSubscriber::takeChunk();
     if (result.has_error())
     {
         return cxx::error<ChunkReceiveResult>(result.get_error());
     }
-    return cxx::success<const void*>(result.value()->payload());
+    return cxx::success<const void*>(result.value()->userPayload());
 }
 
-template <template <typename, typename, typename> class base_subscriber_t>
-bool UntypedSubscriberImpl<base_subscriber_t>::hasChunks() const noexcept
+template <typename BaseSubscriber_t>
+inline void UntypedSubscriberImpl<BaseSubscriber_t>::release(const void* const userPayloadOfChunk) noexcept
 {
-    return BaseSubscriber::hasSamples();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-bool UntypedSubscriberImpl<base_subscriber_t>::hasMissedChunks() noexcept
-{
-    return BaseSubscriber::hasMissedData();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedChunks() noexcept
-{
-    BaseSubscriber::releaseQueuedSamples();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-void UntypedSubscriberImpl<base_subscriber_t>::releaseChunk(const void* payload) noexcept
-{
-    auto header = mepoo::ChunkHeader::fromPayload(payload);
-    BaseSubscriber::releaseChunk(header);
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
+    port().releaseChunk(chunkHeader);
 }
 
 } // namespace popo

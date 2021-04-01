@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_DDS_IOX_TO_DDS_INL
 #define IOX_DDS_IOX_TO_DDS_INL
@@ -49,7 +52,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const co
                        << ", " << serviceDescription.getEventIDString() << "}";
             popo::SubscriberOptions options;
             options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
-            setupChannel(serviceDescription, options);
+            IOX_DISCARD_RESULT(setupChannel(serviceDescription, options));
         }
     }
 }
@@ -80,7 +83,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
         {
             popo::SubscriberOptions options;
             options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
-            setupChannel(msg.m_serviceDescription, options);
+            IOX_DISCARD_RESULT(setupChannel(msg.m_serviceDescription, options));
         }
         break;
     }
@@ -88,7 +91,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
     {
         if (this->findChannel(msg.m_serviceDescription).has_value())
         {
-            this->discardChannel(msg.m_serviceDescription);
+            IOX_DISCARD_RESULT(this->discardChannel(msg.m_serviceDescription));
         }
         break;
     }
@@ -103,11 +106,13 @@ template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto subscriber = channel.getIceoryxTerminal();
-    while (subscriber->hasSamples())
+    while (subscriber->hasData())
     {
-        subscriber->take().and_then([&channel](popo::Sample<const void>& sample) {
+        subscriber->take().and_then([&](const void* userPayload) {
             auto dataWriter = channel.getExternalTerminal();
-            dataWriter->write(static_cast<const uint8_t*>(sample.get()), sample.getHeader()->payloadSize);
+            auto header = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
+            dataWriter->write(static_cast<const uint8_t*>(userPayload), header->userPayloadSize);
+            subscriber->release(userPayload);
         });
     }
 }

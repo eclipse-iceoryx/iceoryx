@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +12,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 
 namespace iox
 {
@@ -55,7 +56,7 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
     {
         auto chunkTupleOut = pushRet.value();
         auto chunkManagement =
-            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         // this will release the chunk
         auto returnedChunk = mepoo::SharedChunk(chunkManagement);
         /// we have to set this to true to inform the higher levels that there
@@ -67,8 +68,9 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
         typename MemberType_t::LockGuard_t lock(*getMembers());
         if (getMembers()->m_conditionVariableDataPtr)
         {
-            ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
-            condVarSignaler.notifyOne();
+            ConditionNotifier(*getMembers()->m_conditionVariableDataPtr.get(),
+                              *getMembers()->m_conditionVariableNotificationIndex)
+                .notify();
         }
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,13 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
-#include <csignal>
 #include <iostream>
 
 bool killswitch = false;
@@ -30,14 +32,13 @@ static void sigHandler(int f_sig [[gnu::unused]])
 void sending()
 {
     iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-waitset");
-
-    iox::popo::TypedPublisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
-    myPublisher.offer();
+    iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
 
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
-        myPublisher.publishCopyOf(CounterTopic{counter});
-        std::cout << "Sending: " << counter << std::endl;
+        myPublisher.publishCopyOf(CounterTopic{counter})
+            .and_then([&] { std::cout << "Sending: " << counter << std::endl; })
+            .or_else([&](auto) { std::cout << "Failed sending: " << counter << std::endl; });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
@@ -47,7 +48,8 @@ void sending()
 
 int main()
 {
-    signal(SIGINT, sigHandler);
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     std::thread tx(sending);
     tx.join();

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_MEMORY_POSIX_SHM_MEMORY_PROVIDER_HPP
 #define IOX_POSH_ROUDI_MEMORY_POSIX_SHM_MEMORY_PROVIDER_HPP
 
@@ -62,8 +64,8 @@ class PosixShmMemoryProvider : public MemoryProvider
 
   private:
     ShmName_t m_shmName;
-    posix::AccessMode m_accessMode{posix::AccessMode::readOnly};
-    posix::OwnerShip m_ownership{posix::OwnerShip::openExisting};
+    posix::AccessMode m_accessMode{posix::AccessMode::READ_ONLY};
+    posix::OwnerShip m_ownership{posix::OwnerShip::OPEN_EXISTING};
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
 };
 

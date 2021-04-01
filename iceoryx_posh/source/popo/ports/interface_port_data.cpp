@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/interface_port_data.hpp"
 
@@ -18,10 +21,11 @@ namespace iox
 {
 namespace popo
 {
-InterfacePortData::InterfacePortData(const ProcessName_t& processName, const capro::Interfaces interface) noexcept
+InterfacePortData::InterfacePortData(const RuntimeName_t& runtimeName, const capro::Interfaces interface) noexcept
     : BasePortData(capro::ServiceDescription(
                        capro::InvalidIDString, capro::InvalidIDString, capro::InvalidIDString, {0, 0, 0, 0}, interface),
-                   processName)
+                   runtimeName,
+                   "")
 {
 }
 } // namespace popo

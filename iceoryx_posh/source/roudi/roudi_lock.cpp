@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
 #include "iceoryx_utils/platform/socket.hpp"
@@ -49,7 +51,7 @@ RouDiLock::~RouDiLock()
 {
     // Close socket
     auto l_socket_close =
-        cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_socket_fd);
+        cxx::makeSmartC(iox_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_socket_fd);
 
     if (l_socket_close.hasErrors())
     {

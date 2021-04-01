@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_PORT_POOL_INL
 #define IOX_POSH_ROUDI_PORT_POOL_INL
 
@@ -20,12 +23,12 @@ namespace roudi
 {
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                                    const ProcessName_t& applicationName,
+                                                                    const RuntimeName_t& runtimeName,
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
-                                                          applicationName,
+                                                          runtimeName,
                                                           cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
                                                           subscriberOptions,
                                                           memoryInfo);
@@ -33,12 +36,12 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                                    const ProcessName_t& applicationName,
+                                                                    const RuntimeName_t& runtimeName,
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
-                                                          applicationName,
+                                                          runtimeName,
                                                           cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                                           subscriberOptions,
                                                           memoryInfo);

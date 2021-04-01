@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.5)
 set(test_iceoryx_posh_VERSION 0)
@@ -24,6 +25,12 @@ if(BUILD_TEST AND NOT GTest_FOUND)
 endif(BUILD_TEST AND NOT GTest_FOUND)
 
 set(PROJECT_PREFIX "posh")
+
+# Set path for input files in test
+SET(POSH_TEST_INPUT_FILES_PATH ${CMAKE_CURRENT_SOURCE_DIR}/input/)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_input_path.hpp.in
+               ${CMAKE_BINARY_DIR}/generated/iceoryx/tests/posh/moduletests/test_input_path.hpp)
+
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
 file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
@@ -62,7 +69,7 @@ endif()
 
 # unittests
 add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
-target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
+target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . ${CMAKE_BINARY_DIR}/generated)
 # TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})

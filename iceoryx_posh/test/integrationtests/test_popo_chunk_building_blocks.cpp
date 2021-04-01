@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
@@ -72,18 +75,18 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     ChunkBuildingBlocks_IntegrationTest()
     {
         m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolConfig, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolConfig, m_memoryAllocator, m_memoryAllocator);
     }
     virtual ~ChunkBuildingBlocks_IntegrationTest()
     {
         /// @note One chunk is on hold due to the fact that chunkSender and chunkDistributor hold last chunk
-        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1));
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
     }
 
     void SetUp()
     {
-        m_chunkSender.tryAddQueue(&m_chunkQueueData);
-        m_chunkDistributor.tryAddQueue(&m_chunkReceiverData);
+        ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
+        ASSERT_FALSE(m_chunkDistributor.tryAddQueue(&m_chunkReceiverData).has_error());
     }
     void TearDown(){};
 
@@ -91,9 +94,14 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     {
         for (size_t i = 0; i < ITERATIONS; i++)
         {
-            m_chunkSender.tryAllocate(sizeof(DummySample), iox::UniquePortId())
+            m_chunkSender
+                .tryAllocate(iox::UniquePortId(),
+                             sizeof(DummySample),
+                             iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
+                             iox::CHUNK_NO_USER_HEADER_SIZE,
+                             iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
                 .and_then([&](auto chunkHeader) {
-                    auto sample = chunkHeader->payload();
+                    auto sample = chunkHeader->userPayload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
                     m_chunkSender.send(chunkHeader);
@@ -122,7 +130,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             m_popper.tryPop()
                 .and_then([&](auto& chunk) {
-                    auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
+                    auto dummySample = *reinterpret_cast<DummySample*>(chunk.getUserPayload());
                     // Check if monotonically increasing
                     EXPECT_THAT(dummySample.m_dummy, Eq(forwardCounter));
                     m_chunkDistributor.deliverToAllStoredQueues(chunk);
@@ -157,32 +165,34 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         while (!finished)
         {
             m_chunkReceiver.tryGet()
-                .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
-                    if (maybeChunkHeader.has_value())
-                    {
-                        auto chunkHeader = maybeChunkHeader.value();
-                        auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
-                        // Check if monotonically increasing
-                        EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
-                        m_receiveCounter++;
-                        m_chunkReceiver.release(chunkHeader);
-                        newChunkReceivedInLastIteration = true;
-                    }
-                    else if (!m_forwarderRun.load(std::memory_order_relaxed))
-                    {
-                        if (newChunkReceivedInLastIteration)
-                        {
-                            newChunkReceivedInLastIteration = false;
-                        }
-                        else
-                        {
-                            finished = true;
-                        }
-                    }
+                .and_then([&](auto& chunkHeader) {
+                    auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->userPayload());
+                    // Check if monotonically increasing
+                    EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
+                    m_receiveCounter++;
+                    m_chunkReceiver.release(chunkHeader);
+                    newChunkReceivedInLastIteration = true;
                 })
-                .or_else([](ChunkReceiveResult) {
-                    // Errors shall never occur
-                    FAIL();
+                .or_else([&](auto& result) {
+                    if (result == ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                    {
+                        if (!m_forwarderRun.load(std::memory_order_relaxed))
+                        {
+                            if (newChunkReceivedInLastIteration)
+                            {
+                                newChunkReceivedInLastIteration = false;
+                            }
+                            else
+                            {
+                                finished = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Errors shall never occur
+                        FAIL();
+                    }
                 });
         }
     }

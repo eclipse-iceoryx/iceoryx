@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
 
@@ -57,14 +59,13 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
         if (getMembers()->m_queues.size() < getMembers()->m_queues.capacity())
         {
             // PRQA S 3804 1 # we checked the capacity, so pushing will be fine
-            getMembers()->m_queues.push_back(relative_ptr<ChunkQueueData_t>(queueToAdd));
+            getMembers()->m_queues.push_back(rp::RelativePointer<ChunkQueueData_t>(queueToAdd));
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
 
             if (requestedHistory > getMembers()->m_historyCapacity)
             {
-                LogWarn() << "Chunk history request exceeds history capacity! Request is "
-                          << requestedHistory
+                LogWarn() << "Chunk history request exceeds history capacity! Request is " << requestedHistory
                           << ". Capacity is " << getMembers()->m_historyCapacity << ".";
             }
 

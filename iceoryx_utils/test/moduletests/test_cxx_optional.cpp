@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "test.hpp"
@@ -470,4 +473,14 @@ TEST_F(Optional_test, ReturningNulloptWithoutConstruction)
 {
     auto val = []() -> iox::cxx::optional<int> { return iox::cxx::nullopt; }();
     EXPECT_THAT(val.has_value(), Eq(false));
+}
+
+TEST_F(Optional_test, CopyConstructionWithElementWorks)
+{
+    const TestClass testClass{5, 6};
+    iox::cxx::optional<TestClass> sut(testClass);
+
+    ASSERT_TRUE(sut.has_value());
+    EXPECT_THAT(sut->value, Eq(5));
+    EXPECT_THAT(sut->secondValue, Eq(6));
 }

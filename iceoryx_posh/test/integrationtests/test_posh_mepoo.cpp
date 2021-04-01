@@ -1,4 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -161,9 +164,13 @@ class Mepoo_IntegrationTest : public Test
 
     void PrintTiming(iox::units::Duration start)
     {
-        std::cerr << "RouDi startup took " << start.milliSeconds<int>() << " milliseconds, "
-                  << "(which is " << start.seconds<int>() << " seconds)"
-                  << "(which is " << start.minutes<int>() << " minutes)" << std::endl;
+        auto totalMillisconds = start.toMilliseconds();
+        auto milliseconds = totalMillisconds % 1000U;
+        auto totalSeconds = totalMillisconds / 1000U;
+        auto seconds = totalSeconds % 60U;
+        auto minutes = totalSeconds / 60U;
+        std::cerr << "RouDi startup took " << minutes << " minutes " << seconds << " seconds and " << milliseconds
+                  << " milliseconds" << std::endl;
     }
 
     template <uint32_t size>
@@ -248,7 +255,7 @@ class Mepoo_IntegrationTest : public Test
         m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(*memoryManager, mempoolInfo);
 
         // internally, the chunks are adjusted to the additional management information;
-        // this needs to be substracted to be able to compare to the configured sizes
+        // this needs to be subtracted to be able to compare to the configured sizes
         for (auto& mempool : mempoolInfo)
         {
             if (mempool.m_chunkSize != 0)
@@ -280,7 +287,8 @@ class Mepoo_IntegrationTest : public Test
     bool sendreceivesample(const int& times)
     {
         using Topic = MemPoolTestTopic<size>;
-        constexpr auto topicSize = sizeof(Topic);
+        constexpr auto TOPIC_SIZE = sizeof(Topic);
+        constexpr auto TOPIC_ALIGNMENT = alignof(Topic);
 
         if (!(publisherPort->isOffered()))
         {
@@ -296,12 +304,14 @@ class Mepoo_IntegrationTest : public Test
 
         for (int idx = 0; idx < times; ++idx)
         {
-            publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
-                new (sample->payload()) Topic;
-                sample->payloadSize = topicSize;
-                publisherPort->sendChunk(sample);
-                m_roudiEnv->InterOpWait();
-            });
+            publisherPort
+                ->tryAllocateChunk(
+                    TOPIC_SIZE, TOPIC_ALIGNMENT, iox::CHUNK_NO_USER_HEADER_SIZE, iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
+                .and_then([&](auto sample) {
+                    new (sample->userPayload()) Topic;
+                    publisherPort->sendChunk(sample);
+                    m_roudiEnv->InterOpWait();
+                });
         }
 
         return true;

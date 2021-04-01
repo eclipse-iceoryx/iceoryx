@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP
 #define IOX_POSH_POPO_UNTYPED_PUBLISHER_HPP
@@ -22,9 +25,13 @@ namespace iox
 {
 namespace popo
 {
-template <typename base_publisher_t = BasePublisher<void>>
-class UntypedPublisherImpl : public base_publisher_t
+template <typename H = mepoo::NoUserHeader, typename BasePublisher_t = BasePublisher<>>
+class UntypedPublisherImpl : public BasePublisher_t
 {
+    static_assert(!std::is_const<H>::value, "The user-header must not be const.");
+    static_assert(!std::is_reference<H>::value, "The user-header must not be a reference.");
+    static_assert(!std::is_pointer<H>::value, "The user-header must not be a pointer.");
+
   public:
     UntypedPublisherImpl(const capro::ServiceDescription& service,
                          const PublisherOptions& publisherOptions = PublisherOptions());
@@ -34,27 +41,49 @@ class UntypedPublisherImpl : public base_publisher_t
     UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) = default;
     virtual ~UntypedPublisherImpl() = default;
 
-    using base_publisher_t::getServiceDescription;
-    using base_publisher_t::getUid;
-    using base_publisher_t::hasSubscribers;
-    using base_publisher_t::isOffered; // iox-#408 better hasOffered ?
-    using base_publisher_t::loan;      // iox-#408 replace
-    using base_publisher_t::loan_1_0;
-    using base_publisher_t::loanPreviousChunk;
-    using base_publisher_t::loanPreviousSample; // iox-#408 replace
-    using base_publisher_t::offer;
-    using base_publisher_t::publish;
-    using base_publisher_t::stopOffer;
+    ///
+    /// @brief Get a chunk from loaned shared memory.
+    /// @param usePayloadSize The expected user-payload size of the chunk.
+    /// @param userPayloadAlignment The expected user-payload alignment of the chunk.
+    /// @return A pointer to the user-payload of a chunk of memory with the requested size or
+    ///         an AllocationError if no chunk could be loaned.
+    /// @note An AllocationError occurs if no chunk is available in the shared memory.
+    ///
+    cxx::expected<void*, AllocationError>
+    loan(const uint32_t userPayloadSize,
+         const uint32_t userPayloadAlignment = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT) noexcept;
 
     ///
-    /// @brief publish Publish the provided memory chunk.
-    /// @param allocatedMemory Pointer to the allocated shared memory chunk.
-    /// @return Error if provided pointer is not a valid memory chunk.
+    /// @brief Get the previously loaned chunk if possible.
+    /// @return A pointer to the user-payload of the previous chunk if available, nullopt otherwise.
     ///
-    void publish(void* allocatedMemory) noexcept;
+    cxx::optional<void*> loanPreviousChunk() noexcept;
+
+    ///
+    /// @brief Publish the provided memory chunk.
+    /// @param userPayloadOfChunk Pointer to the user-payload of the allocated shared memory chunk.
+    /// @return Error if provided pointer is not a user-payload of a valid memory chunk.
+    ///
+    void publish(const void* const userPayloadOfChunk) noexcept;
+
+    ///
+    /// @brief Releases the ownership of the chunk provided by the user-payload pointer.
+    /// @param userPayloadOfChunk pointer to the user-payload of the chunk to be released
+    /// @details The userPayloadOfChunk pointer must have been previously provided by loan or
+    ///          loanPreviousChunk and not have been already released.
+    ///          The chunk must not be accessed afterwards as its memory may have
+    ///          been reclaimed.
+    ///
+    void release(const void* const userPayloadOfChunk) noexcept;
+
+  protected:
+    using BasePublisher_t::port;
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;
+
+template <typename H>
+using UntypedPublisherWithUserHeader = UntypedPublisherImpl<H>;
 
 } // namespace popo
 } // namespace iox

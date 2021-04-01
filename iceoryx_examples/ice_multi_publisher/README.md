@@ -106,21 +106,19 @@ We create a publisher with the following calls. The three string arguments allow
 to specify matching topics. The topic has a data type ``CounterTopic`` and a topic name 
 ``Counter``. In addition it belongs to some ``Group`` and is a specific ``instance``. For subscription purposes all three identifiers must match on subscriber side. It is possible to only specify the topic name and set the others to some default string for all topics.
 
-If some identifier is only known at runtime (e.g. it is read from some config file), you have to create an ``IdString`` first before passing it to the ``TypedPublisher`` constructor. This is done here for ``instance``, which is created from some ``instanceName``. 
+If some identifier is only known at runtime (e.g. it is read from some config file), you have to create an ``IdString`` first before passing it to the ``Publisher`` constructor. This is done here for ``instance``, which is created from some ``instanceName``.
 
 ```cpp
 iox::capro::IdString instance{iox::cxx::TruncateToCapacity, instanceName};
-iox::popo::TypedPublisher<CounterTopic> publisher({"Group", instance, "Counter"});
+iox::popo::Publisher<CounterTopic> publisher({"Group", instance, "Counter"});
 ```
 
-After construction, we immediately offer the topic and start sending data.
+After construction, we immediately start sending data.
 ```cpp
-publisher.offer();
-
 for (uint32_t counter = 0U; !killswitch; ++counter)
 {
     CounterTopic data{counter, id};
-    publisher.publishCopyOf(data);
+    publisher.publishCopyOf(data).or_else([](auto) { std::cerr << "failed to send data" << std::endl; });
     //...
 }
 ```
@@ -147,12 +145,7 @@ sender2.join();
 
 We create a subscriber via
 ```cpp
-iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
-```
-
-and immediately subscribe.
-```cpp
-subscriber.subscribe();
+iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
 ```
 
 Notice that all identifiers match the ones provided by the two publishers.
@@ -160,7 +153,7 @@ Notice that all identifiers match the ones provided by the two publishers.
 We periodically wake up
 ```cpp
 std::this_thread::sleep_for(std::chrono::seconds(1));
-while (subscriber.hasSamples())
+while (subscriber.hasData())
 ```
 
 When there are new samples we display them on the console.
@@ -184,10 +177,7 @@ and wait for some time before looking for data again.
 std::cout << "Waiting for data ... " << std::endl;
 ```
 
-When Ctrl+C is pressed we exit the loop and unsubscribe
-```cpp
-subscriber.unsubscribe();
-```
+When Ctrl+C is pressed we exit the loop
 
 before joining the receiver thread
 ```cpp

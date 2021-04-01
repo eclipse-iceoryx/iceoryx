@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -23,11 +26,17 @@ namespace roudi
 DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcept
     : m_introspectionMemPoolBlock(introspectionMemPoolConfig())
     , m_segmentManagerBlock(roudiConfig)
-    , m_managementShm(SHM_NAME, posix::AccessMode::readWrite, posix::OwnerShip::mine)
+    , m_managementShm(SHM_NAME, posix::AccessMode::READ_WRITE, posix::OwnerShip::MINE)
 
 {
-    m_managementShm.addMemoryBlock(&m_introspectionMemPoolBlock);
-    m_managementShm.addMemoryBlock(&m_segmentManagerBlock);
+    m_managementShm.addMemoryBlock(&m_introspectionMemPoolBlock).or_else([](auto) {
+        errorHandler(
+            Error::kROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_INTROSPECTION_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
+    });
+    m_managementShm.addMemoryBlock(&m_segmentManagerBlock).or_else([](auto) {
+        errorHandler(
+            Error::kROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_SEGMENT_MANAGER_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
+    });
 }
 mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const
 {

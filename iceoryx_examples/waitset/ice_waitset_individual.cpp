@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,15 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
-#include <csignal>
 #include <iostream>
 
 iox::popo::UserTrigger shutdownTrigger;
@@ -31,24 +33,32 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 int main()
 {
-    signal(SIGINT, sigHandler);
+    // register sigHandler
+    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-individual");
 
     iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger);
+    waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+        std::cerr << "failed to attach shutdown trigger" << std::endl;
+        std::terminate();
+    });
 
     // create two subscribers, subscribe to the service and attach them to the waitset
-    iox::popo::TypedSubscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
-    iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
 
-    subscriber1.subscribe();
-    subscriber2.subscribe();
-
-    waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_SAMPLES);
-    waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_SAMPLES);
+    waitset.attachState(subscriber1, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+        std::cerr << "failed to attach subscriber1" << std::endl;
+        std::terminate();
+    });
+    waitset.attachState(subscriber2, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+        std::cerr << "failed to attach subscriber2" << std::endl;
+        std::terminate();
+    });
 
     // event loop
     while (true)
@@ -65,9 +75,8 @@ int main()
             // process sample received by subscriber1
             else if (event->doesOriginateFrom(&subscriber1))
             {
-                subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
-                    std::cout << " subscriber 1 received: " << sample->counter << std::endl;
-                });
+                subscriber1.take().and_then(
+                    [&](auto& sample) { std::cout << " subscriber 1 received: " << sample->counter << std::endl; });
             }
             // dismiss sample received by subscriber2
             if (event->doesOriginateFrom(&subscriber2))
@@ -75,7 +84,7 @@ int main()
                 // We need to release the samples to reset the trigger hasSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.
-                subscriber2.releaseQueuedSamples();
+                subscriber2.releaseQueuedData();
                 std::cout << "subscriber 2 received something - dont care\n";
             }
         }

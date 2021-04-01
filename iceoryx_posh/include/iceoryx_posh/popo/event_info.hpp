@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,9 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_TRIGGER_INFO_HPP
-#define IOX_POSH_POPO_TRIGGER_INFO_HPP
+#ifndef IOX_POSH_POPO_EVENT_INFO_HPP
+#define IOX_POSH_POPO_EVENT_INFO_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"

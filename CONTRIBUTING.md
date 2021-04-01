@@ -49,12 +49,12 @@ contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
 Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
-1. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
-1. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
-1. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
-1. All commits have been signed with `git commit -s`
-1. You open your pull request towards the base branch `staging`
-1. Link the pull request to the according Github issue and set the label accordingly
+2. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
+3. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
+4. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
+5. All commits have been signed with `git commit -s`
+6. You open your pull request towards the base branch `staging`
+7. Link the pull request to the according Github issue and set the label accordingly
 
 ## Coding style
 
@@ -81,7 +81,7 @@ codebase follows these rules, things are work in progress.
 7) **Always use `iox::log::Logger`**, instead of `printf()`
 8) **Always use `iox::ErrorHandler()`**, instead of the direct STL calls
 
-See [error-handling.md](./doc/error-handling.md) for additional information about logging and error handling. 
+See [error-handling.md](./doc/error-handling.md) for additional information about logging and error handling.
 
 ### Naming conventions
 
@@ -99,11 +99,11 @@ See [error-handling.md](./doc/error-handling.md) for additional information abou
 Please use [doxygen](http://www.doxygen.nl/) to document your code.
 
 The following doxygen comments are required for public API headers:
-
+```cpp
     /// @brief short description
     /// @param[in] / [out] / [in,out] name description
     /// @return description
-
+```
 A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
 
 ## Folder structure
@@ -122,10 +122,20 @@ The folder structure boils down to:
 
 All new code should follow the folder structure.
 
+### How to add a new example
+
+1. Add the example in the ["List of all examples"](./iceoryx_examples/README.md)
+2. Create a new file in `doc/website/getting-started/examples/foobar.md`. This file shall only set the title and include the readme from `./iceoryx_examples/foobar/README.md`
+3. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
+4. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
+
 ## Testing
 
 We use [Google test](https://github.com/google/googletest) for our unit and integration tests. We require compatibility
 with the version 1.8.1.
+
+Have a look at our [best practice guidelines](./doc/website/advanced/best-practice-for-testing.md) for writing tests and
+[installation guide for contributors](./doc/website/advanced/installation-guide-for-contributors.md#build-and-run-tests) for building them.
 
 ### Unit tests (aka module tests)
 
@@ -158,28 +168,18 @@ example:
 ./tools/iceoryx_build_test.sh debug build-all -c unit
 ```
 **NOTE**
-Iceoryx needs to be build as static library for working with gcov flags. The script does it automatically.
+Iceoryx needs to be built as static library for working with gcov flags. The script does it automatically.
 
 The flag `-c unit` is for having only reports for unit-tests. In the script `tools/gcov/lcov_generate.sh` is the initial scan, filtering and report generation automatically done.
 
-All reports are stored locally in build/lcov as html report (index.html). In Github we are using for codecov for a general reporting of the code coverage. 
-Codecov gives a brief overview over the code coverage and also indicates in Pull-Requests if new added code is not covered by tests.
+All reports are stored locally in build/lcov as html report (index.html). In Github, we are using [codecov](https://about.codecov.io) for a general reporting of the code coverage.
+Codecov gives a brief overview of the code coverage and also indicates in Pull-Requests if newly added code is not covered by tests.
 If you want to download the detailed html reports from the Pull-Requests or master build you can do it by the following way:
 1. Open the "Checks" view in the PR
 2. Open the "Details" link for the check `iceoryx-coverage-doxygen-ubuntu` in `Test Coverage + Doxygen Documentation`
 3. On the right side you find a menu button `Artifacts` which shows `lcov-report` as download link
 
 ## Legal & Compliance
-
-### Dependencies
-
-* [POSIX](https://en.wikipedia.org/wiki/POSIX)
-Iceoryx aims to be fully POSIX-compliant towards the current revision POSIX.1-2017 (IEEE 1003.1-2017). Please write
-your code as portable as possible. Currently our focus is [QNX](https://blackberry.qnx.com/en) (QCC 5.4) and Linux (GCC 7.5.0).
-
-* [ACL](https://en.wikipedia.org/wiki/Access-control_list)
-
-* [ncurses](https://www.gnu.org/software/ncurses/)
 
 ### Safety & security
 
@@ -203,14 +203,14 @@ Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to g
 If one of the rules is not followed, a rationale is added in the following manner:
 
 With a comment in the same line:
-
+```cpp
     *mynullptr = foo; // PRQA S 4242 # Short description why
-
+```
 With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
-
+```cpp
     // PRQA S 4242 1 # Short description why
     *mynullptr = foo;
-
+```
 Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
 please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
 
@@ -225,8 +225,8 @@ requests. We're planning to introduce continuos integration checks in the near f
 
 Each source file needs to have this header:
 
-```
-    // Copyright (c) [DATE] by [INITIAL COPYRIGHT OWNER] [OTHER COPYRIGHT OWNERS]. All rights reserved.
+```cpp
+    // Copyright (c) [YEAR OF INITIAL CONTRIBUTION] - [YEAR LAST CONTRIBUTION] by [CONTRIBUTOR]. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -239,13 +239,16 @@ Each source file needs to have this header:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+    //
+    // SPDX-License-Identifier: Apache-2.0
 ```
-Note: `DATE` is either a year or a range of years with the first and last years of the range separated by a comma. So for example: "2004" or "2000, 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified.
+Note: The date is either a year or a range of years with the first and last years of the range separated by a dash. For example: "2004" (initial and last contribution in the same year) or "2000 - 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified. The years of contribution should be ordered in chronological order, thus the last date in the list should be the year of the most recent contribution. If there is a gap between contributions of one or more calendar years, use a comma to separate the disconnected contribution periods (e.g. "2000 - 2004, 2006").
 
 Example:
 
-```
-    // Copyright (c) 2018, 2020 by ACME Corp, Globex. All rights reserved.
+```cpp
+    // Copyright (c) 2019 - 2020, 2022 by Acme Corporation. All rights reserved.
+    // Copyright (c) 2020 - 2022 by Jane Doe <jane@example.com>. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -258,8 +261,10 @@ Example:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+    //
+    // SPDX-License-Identifier: Apache-2.0
 ```
-
+**_NOTE:_**  For scripts or CMake files you can use the respective comment syntax like `#` for the header.
 ## Quality levels
 
 CMake targets can be developed according to different quality levels. Despite developing some of our targets according

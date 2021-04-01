@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "test.hpp"
@@ -44,8 +47,19 @@ static int SetErrno(int errnoValue)
 class smart_c_test : public Test
 {
   public:
-    void SetUp(){};
-    virtual void TearDown(){};
+    void SetUp()
+    {
+        internal::CaptureStderr();
+    };
+
+    virtual void TearDown()
+    {
+        std::string output = internal::GetCapturedStderr();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
+    };
 };
 
 TEST_F(smart_c_test, SimpleFunctionWithErrorCode)
@@ -58,9 +72,7 @@ TEST_F(smart_c_test, SimpleFunctionWithErrorCode)
 
 TEST_F(smart_c_test, SimpleFunctionWithErrorCodeOneError)
 {
-    internal::CaptureStderr();
     auto call = iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {0}, {}, 1, 0, 3);
-    std::string output = internal::GetCapturedStderr();
 
     EXPECT_THAT(call.hasErrors(), Eq(true));
     EXPECT_THAT(call.getReturnValue(), Eq(0));
@@ -71,10 +83,7 @@ TEST_F(smart_c_test, SimpleFunctionWithErrorCodeOneError)
 
 TEST_F(smart_c_test, SimpleFunctionWithErrorCodeMultipleErrors)
 {
-    internal::CaptureStderr();
     auto call = iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {1, -1}, {}, 1, 1, 1);
-    std::string output = internal::GetCapturedStderr();
-    EXPECT_THAT(output.empty(), Eq(false));
 
     ASSERT_THAT(call.hasErrors(), Eq(true));
     EXPECT_THAT(call.getReturnValue(), Eq(1));
@@ -82,11 +91,8 @@ TEST_F(smart_c_test, SimpleFunctionWithErrorCodeMultipleErrors)
 
 TEST_F(smart_c_test, SimpleFunctionWithErrorCodeErrorIgnored)
 {
-    internal::CaptureStderr();
     auto call =
         iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {1, -1}, {11}, 1, 1, 1);
-    std::string output = internal::GetCapturedStderr();
-    EXPECT_THAT(output.empty(), Eq(true));
 
     ASSERT_THAT(call.hasErrors(), Eq(false));
     EXPECT_THAT(call.getReturnValue(), Eq(1));
@@ -102,10 +108,7 @@ TEST_F(smart_c_test, SimpleFunctionWithSuccessCode)
 
 TEST_F(smart_c_test, SimpleFunctionWithSuccessCodeOnError)
 {
-    internal::CaptureStderr();
     auto call = iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6}, {}, 4, 2, 3);
-    std::string output = internal::GetCapturedStderr();
-    EXPECT_THAT(output.empty(), Eq(false));
 
     EXPECT_THAT(call.hasErrors(), Eq(true));
     EXPECT_THAT(call.getReturnValue(), Eq(24));
@@ -123,12 +126,8 @@ TEST_F(smart_c_test, SimpleFunctionWithSuccessMultipleSuccessCodes)
 
 TEST_F(smart_c_test, SimpleFunctionWithSuccessCodeAndIgnoredErrorCode)
 {
-    internal::CaptureStderr();
     auto call =
         iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6, 24}, {10}, 0, 2, 3);
-    std::string output = internal::GetCapturedStderr();
-    std::cerr << output << std::endl;
-    EXPECT_THAT(output.empty(), Eq(true));
 
     EXPECT_THAT(call.hasErrors(), Eq(false));
     EXPECT_THAT(call.getReturnValue(), Eq(0));
@@ -137,29 +136,15 @@ TEST_F(smart_c_test, SimpleFunctionWithSuccessCodeAndIgnoredErrorCode)
 TEST_F(smart_c_test, SimpleFunctionWithFailedEINTRRepitition)
 {
     remainingErrnoCounter = 10;
-    internal::CaptureStderr();
     auto call = iox::cxx::makeSmartC(SetErrno, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, EINTR);
-    std::string output = internal::GetCapturedStderr();
 
     EXPECT_THAT(call.hasErrors(), Eq(true));
-
-    if (Test::HasFailure())
-    {
-        std::cout << output << std::endl;
-    }
 }
 
 TEST_F(smart_c_test, SimpleFunctionWithSuccessfulEINTRRepitition)
 {
     remainingErrnoCounter = 3;
-    internal::CaptureStderr();
     auto call = iox::cxx::makeSmartC(SetErrno, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, EINTR);
-    std::string output = internal::GetCapturedStderr();
 
     EXPECT_THAT(call.hasErrors(), Eq(false));
-
-    if (Test::HasFailure())
-    {
-        std::cout << output << std::endl;
-    }
 }

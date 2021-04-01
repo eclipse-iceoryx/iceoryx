@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
 
 if(UNIX AND NOT APPLE)
     if(CMAKE_SYSTEM_NAME MATCHES Linux)
@@ -137,8 +138,9 @@ if(SANITIZE)
 endif()
 
 if(COVERAGE)
+    set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        set(ICEORYX_SANITIZER_FLAGS -fprofile-arcs -ftest-coverage CACHE INTERNAL "")
+        set(ICEORYX_SANITIZER_FLAGS -g -O0 -fprofile-arcs -ftest-coverage CACHE INTERNAL "")
     else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         message( FATAL_ERROR "You need to run gcov with gcc compiler." )
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

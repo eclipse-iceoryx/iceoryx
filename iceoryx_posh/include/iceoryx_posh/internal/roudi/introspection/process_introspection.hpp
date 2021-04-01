@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_HPP
 
@@ -48,23 +51,23 @@ class ProcessIntrospection
 
 
     /// @brief This function is used to add a process to the process introspection
-    /// @param[in] f_pid is the PID of the process to add
-    /// @param[in] f_name is the name of the process
-    void addProcess(const int f_pid, const ProcessName_t& f_name) noexcept;
+    /// @param[in] pid is the PID of the process to add
+    /// @param[in] name is the name of the process
+    void addProcess(const int pid, const RuntimeName_t& name) noexcept;
 
-    /// @brief This function is used to remove process to the process introspection
-    /// @param[in] f_pid is the PID of the process to remove
-    void removeProcess(const int f_pid) noexcept;
+    /// @brief This function is used to remove the process from the process introspection
+    /// @param[in] pid is the PID of the process to remove
+    void removeProcess(const int pid) noexcept;
 
     /// @brief This function is used to add a node to the process introspection
-    /// @param[in] f_processName is the name of the proces
-    /// @param[in] f_nodeName is the name of the node to add
-    void addNode(const ProcessName_t& f_process, const NodeName_t& f_node) noexcept;
+    /// @param[in] runtimeName is the name of the proces
+    /// @param[in] nodeName is the name of the node to add
+    void addNode(const RuntimeName_t& runtimeName, const NodeName_t& node) noexcept;
 
-    /// @brief This function is used to remove a node to the process introspection
-    /// @param[in] f_processName is the name of the proces
-    /// @param[in] f_nodeName is the name of the node to remove
-    void removeNode(const ProcessName_t& f_process, const NodeName_t& f_node) noexcept;
+    /// @brief This function is used to remove a node from the process introspection
+    /// @param[in] runtimeName is the name of the proces
+    /// @param[in] nodeName is the name of the node to remove
+    void removeNode(const RuntimeName_t& runtimeName, const NodeName_t& node) noexcept;
 
     /// @brief This functions registers the POSH publisher port which is used
     ///        to send the data to the instrospcetion client
@@ -97,7 +100,7 @@ class ProcessIntrospection
 
     std::mutex m_mutex;
 
-    units::Duration m_sendInterval{units::Duration::seconds<unsigned long long int>(1)};
+    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
     concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
         concurrent::PeriodicTaskManualStart, "ProcessIntr", *this, &ProcessIntrospection::send};
 };
