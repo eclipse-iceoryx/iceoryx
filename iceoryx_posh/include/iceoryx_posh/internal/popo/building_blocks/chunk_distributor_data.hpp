@@ -44,7 +44,7 @@ struct ChunkDistributorData : public LockingPolicy
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
     using ChunkDistributorDataProperties_t = ChunkDistributorDataProperties;
 
-    explicit ChunkDistributorData(const SubscriberTooSlowPolicy policy, const uint64_t historyCapacity = 0u) noexcept;
+    ChunkDistributorData(const SubscriberTooSlowPolicy policy, const uint64_t historyCapacity = 0u) noexcept;
 
     const uint64_t m_historyCapacity;
 
