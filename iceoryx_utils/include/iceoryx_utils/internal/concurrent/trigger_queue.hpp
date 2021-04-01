@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,9 +52,9 @@ struct QueueAdapter<T, Capacity, ResizeableLockFreeQueue>
 
 
 /// @brief TriggerQueue is behaves exactly like a normal queue (fifo) except that
-///         this queue is threadsafe and offers a blocking pop which blocks the
-///         the caller until the queue contains at least one element which can
-///         be pop'ed.
+///         this queue is threadsafe and offers a blocking push which blocks the
+///         the caller until the queue has space for at least one element which can
+///         be pushed
 template <typename T, uint64_t Capacity, template <typename, uint64_t> class QueueType>
 class TriggerQueue
 {
@@ -70,6 +71,8 @@ class TriggerQueue
 
     /// @brief  If the queue already contains an element it writes the contents
     ///         of that element in out and returns true, otherwise false.
+    /// @return if an element could be removed the optional contains it, otherwise when the queue is empty
+    ///         the optional is empty
     cxx::optional<T> pop() noexcept;
 
     /// @brief  Returns true if the queue is empty, otherwise false.
@@ -81,6 +84,9 @@ class TriggerQueue
     /// @brief  Returns the capacity of the trigger queue.
     static constexpr uint64_t capacity() noexcept;
 
+    /// @brief when someone is waiting in push since the queue is full it
+    ///        unblocks push. after that call it is impossible to push or pop
+    ///        elements.
     void destroy() noexcept;
 
     /// @brief resizes the queue.

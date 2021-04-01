@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/concurrent/lockfree_queue.hpp"
+#include "iceoryx_utils/concurrent/resizeable_lockfree_queue.hpp"
 #include "iceoryx_utils/internal/concurrent/fifo.hpp"
 #include "iceoryx_utils/internal/concurrent/trigger_queue.hpp"
 #include "test.hpp"
@@ -58,7 +60,10 @@ using TriggerQueueTestSubjects = Types<TriggerQueue<uint64_t, 1, FiFo>,
                                        TriggerQueue<uint64_t, 100, FiFo>,
                                        TriggerQueue<uint64_t, 1, LockFreeQueue>,
                                        TriggerQueue<uint64_t, 10, LockFreeQueue>,
-                                       TriggerQueue<uint64_t, 100, LockFreeQueue>>;
+                                       TriggerQueue<uint64_t, 100, LockFreeQueue>,
+                                       TriggerQueue<uint64_t, 1, ResizeableLockFreeQueue>,
+                                       TriggerQueue<uint64_t, 10, ResizeableLockFreeQueue>,
+                                       TriggerQueue<uint64_t, 100, ResizeableLockFreeQueue>>;
 
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
