@@ -591,7 +591,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
     t1.join();
 }
 
-TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBecomesSpaceAvaiable)
+TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBecomesSpaceAvailable)
 {
     auto sutData = this->getChunkDistributorData(SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER);
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
