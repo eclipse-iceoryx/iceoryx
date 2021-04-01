@@ -45,7 +45,7 @@ prints out the subscriber pointer and the content of the received sample.
 void subscriberCallback(iox_sub_t const subscriber)
 {
     const void* chunk;
-    while (iox_sub_take_chunk(subscriber, &chunk))
+    while (iox_sub_take_chunk(subscriber, &chunk) == ChunkReceiveResult_SUCCESS)
     {
         printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
 
@@ -330,7 +330,7 @@ originated from the second subscriber we discard the data.
         }
     }
 ```
-We conclude the example as always, be cleaning up the resources.
+We conclude the example as always, by cleaning up the resources.
 
 ```c
 for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)

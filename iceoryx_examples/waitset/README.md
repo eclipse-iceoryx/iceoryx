@@ -507,7 +507,7 @@ following methods.
     If the _WaitSet_ goes out of scope it calls this method to invalidate the loan 
     trigger.
 
- 4. `iox::popo::WaitSetHasTriggeredCallback getCallbackForIsStateConditionSatisfied(const UserDefinedStateEnum)`
+ 4. `iox::popo::WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied(const UserDefinedStateEnum)`
 
     With every iteration the _WaitSet_ has to ask the object if the attached state 
     still persists. This is done with the `isStateConditionSatisfied` callback which 
@@ -737,7 +737,7 @@ where it happened. This is the `isStateConditionSatisfied` callback. In our case
 the method pointer to `hasPerformedAction` or `isActivated` depending on which 
 state was requested.
 ```cpp
-    iox::popo::WaitSetHasTriggeredCallback
+    iox::popo::WaitSetIsConditionSatisfiedCallback
     getCallbackForIsStateConditionSatisfied(const MyTriggerClassStates event) const noexcept
     {
         switch (event)
