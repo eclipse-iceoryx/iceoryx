@@ -17,6 +17,7 @@
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "test.hpp"
 
@@ -38,22 +39,21 @@ TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 
     ChunkHeader sut{CHUNK_SIZE, chunkSettings};
 
-    EXPECT_THAT(sut.chunkSize, Eq(CHUNK_SIZE));
+    EXPECT_THAT(sut.chunkSize(), Eq(CHUNK_SIZE));
 
     // deliberately used a magic number to make the test fail when CHUNK_HEADER_VERSION changes
-    EXPECT_THAT(sut.chunkHeaderVersion, Eq(1U));
+    EXPECT_THAT(sut.chunkHeaderVersion(), Eq(1U));
 
-    EXPECT_THAT(sut.reserved1, Eq(0U));
-    EXPECT_THAT(sut.reserved2, Eq(0U));
-    EXPECT_THAT(sut.reserved3, Eq(0U));
+    EXPECT_THAT(sut.originId(), Eq(iox::UniquePortId(iox::popo::InvalidId)));
 
-    EXPECT_THAT(sut.originId, Eq(iox::UniquePortId(iox::popo::InvalidId)));
+    EXPECT_THAT(sut.sequenceNumber(), Eq(0U));
 
-    EXPECT_THAT(sut.sequenceNumber, Eq(0U));
+    EXPECT_THAT(sut.userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
 
-    EXPECT_THAT(sut.userPayloadSize, Eq(USER_PAYLOAD_SIZE));
     // a default created ChunkHeader has always an adjacent user-payload
-    EXPECT_THAT(sut.userPayloadOffset, Eq(sizeof(ChunkHeader)));
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
+    const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(sut.userPayload())};
+    EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
 TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChunk)
@@ -61,21 +61,148 @@ TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChun
     using ChunkSize_t = std::result_of<decltype (&MemPool::getChunkSize)(MemPool)>::type;
 
     auto maxOfChunkSizeType = std::numeric_limits<ChunkSize_t>::max();
-    auto maxOfUserPayloadSizeType = std::numeric_limits<decltype(ChunkHeader::userPayloadSize)>::max();
+    auto maxOfUserPayloadSizeType = std::numeric_limits<decltype(std::declval<ChunkHeader>().userPayloadSize())>::max();
 
     // the user-payload will never be larger than the chunk
     // if the user-payload type can hold at least the maximum chunk size there will never be an overflow
     EXPECT_THAT(maxOfUserPayloadSizeType, Ge(maxOfChunkSizeType));
 }
 
+TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderWorks)
+{
+    constexpr uint32_t CHUNK_SIZE{753U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    ChunkHeader sut{CHUNK_SIZE, chunkSettings};
+
+    // a default created ChunkHeader has always an adjacent user-payload
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
+    const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(sut.userPayload())};
+    EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderWorks)
+{
+    constexpr uint32_t CHUNK_SIZE{753U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    const ChunkHeader sut{CHUNK_SIZE, chunkSettings};
+
+    // a default created ChunkHeader has always an adjacent user-payload
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
+    const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(sut.userPayload())};
+    EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
+{
+    auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userPayload()), void*>::value;
+    EXPECT_TRUE(isNonConstReturn);
+}
+
+TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderReturnsConstType)
+{
+    auto isConstReturn = std::is_same<decltype(std::declval<const ChunkHeader>().userPayload()), const void*>::value;
+    EXPECT_TRUE(isConstReturn);
+}
+
+TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderWorks)
+{
+    alignas(ChunkHeader) static uint8_t storage[1024 * 1024];
+
+    constexpr uint32_t CHUNK_SIZE{753U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint32_t USER_HEADER_SIZE{16U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
+
+    auto chunkSettingsResult = ChunkSettings::create(
+        USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::cxx::unique_ptr<ChunkHeader> sut{new (storage) ChunkHeader(CHUNK_SIZE, chunkSettings), [](ChunkHeader*) {}};
+
+    // the user-header is always adjacent to the ChunkHeader
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(sut.get())};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut->userHeader<uint8_t>())};
+    EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
+{
+    alignas(ChunkHeader) static uint8_t storage[1024 * 1024];
+
+    constexpr uint32_t CHUNK_SIZE{753U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint32_t USER_HEADER_SIZE{16U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
+
+    auto chunkSettingsResult = ChunkSettings::create(
+        USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+    ASSERT_FALSE(chunkSettingsResult.has_error());
+    auto& chunkSettings = chunkSettingsResult.value();
+
+    iox::cxx::unique_ptr<const ChunkHeader> sut{new (storage) ChunkHeader(CHUNK_SIZE, chunkSettings),
+                                                [](const ChunkHeader*) {}};
+
+    // the user-header is always adjacent to the ChunkHeader
+    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(sut.get())};
+    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(sut->userHeader<uint8_t>())};
+    EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
+}
+
+TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderReturnsNonConstType)
+{
+    auto isNonConstReturn = std::is_same<decltype(std::declval<ChunkHeader>().userHeader<uint8_t>()), uint8_t*>::value;
+    EXPECT_TRUE(isNonConstReturn);
+}
+
+TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderReturnsConstType)
+{
+    auto isConstReturn =
+        std::is_same<decltype(std::declval<const ChunkHeader>().userHeader<uint8_t>()), const uint8_t*>::value;
+    EXPECT_TRUE(isConstReturn);
+}
+
 TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNullptrReturnsNullptr)
 {
-    EXPECT_THAT(ChunkHeader::fromUserPayload(nullptr), Eq(nullptr));
+    constexpr void* USER_PAYLOAD{nullptr};
+    auto chunkHeader = ChunkHeader::fromUserPayload(USER_PAYLOAD);
+    EXPECT_THAT(chunkHeader, Eq(nullptr));
+}
+
+TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstNullptrReturnsNullptr)
+{
+    constexpr const void* USER_PAYLOAD{nullptr};
+    auto chunkHeader = ChunkHeader::fromUserPayload(USER_PAYLOAD);
+    EXPECT_THAT(chunkHeader, Eq(nullptr));
+}
+
+TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithNonConstParamReturnsNonConstType)
+{
+    auto isNonConstReturn =
+        std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<void*>())), ChunkHeader*>::value;
+    EXPECT_TRUE(isNonConstReturn);
+}
+
+TEST(ChunkHeader_test, FromUserPayloadFunctionCalledWithConstParamReturnsConstType)
+{
+    auto isConstReturn =
+        std::is_same<decltype(ChunkHeader::fromUserPayload(std::declval<const void*>())), const ChunkHeader*>::value;
+    EXPECT_TRUE(isConstReturn);
 }
 
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)
 {
-    constexpr uint32_t CHUNK_SIZE{32U};
+    constexpr uint32_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
     constexpr uint32_t USER_PAYLOAD_SIZE{0U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
@@ -84,13 +211,12 @@ TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)
 
     ChunkHeader sut{CHUNK_SIZE, chunkSettings};
 
-    sut.chunkSize = 2 * sizeof(ChunkHeader);
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader)));
 }
 
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderPlusOneWhenUserPayloadIsOne)
 {
-    constexpr uint32_t CHUNK_SIZE{128U};
+    constexpr uint32_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
     constexpr uint32_t USER_PAYLOAD_SIZE{1U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
@@ -99,7 +225,6 @@ TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderPlusOneWhenUserPayloadIsO
 
     ChunkHeader sut{CHUNK_SIZE, chunkSettings};
 
-    sut.chunkSize = 2 * sizeof(ChunkHeader);
     EXPECT_THAT(sut.usedSizeOfChunk(), Eq(sizeof(ChunkHeader) + USER_PAYLOAD_SIZE));
 }
 
@@ -198,7 +323,7 @@ void checkUserHeaderIsAdjacentToChunkHeader(const ChunkHeader& sut)
 void checkUserPayloadSize(const ChunkHeader& sut, const PayloadParams& userPayloadParams)
 {
     SCOPED_TRACE(std::string("Check user-payload size"));
-    EXPECT_EQ(sut.userPayloadSize, userPayloadParams.size);
+    EXPECT_EQ(sut.userPayloadSize(), userPayloadParams.size);
 }
 
 void checkUserPayloadAlignment(const ChunkHeader& sut, const PayloadParams& userPayloadParams)
@@ -217,7 +342,7 @@ void checkUsedSizeOfChunk(const ChunkHeader& sut, const PayloadParams& userPaylo
     const uint64_t expectedUsedSizeOfChunk{userPayloadStartAddress + userPayloadParams.size - chunkStartAddress};
 
     EXPECT_EQ(sut.usedSizeOfChunk(), expectedUsedSizeOfChunk);
-    EXPECT_THAT(sut.usedSizeOfChunk(), Le(sut.chunkSize));
+    EXPECT_THAT(sut.usedSizeOfChunk(), Le(sut.chunkSize()));
 }
 
 void checkConversionOfUserPayloadPointerToChunkHeader(const ChunkHeader& sut)

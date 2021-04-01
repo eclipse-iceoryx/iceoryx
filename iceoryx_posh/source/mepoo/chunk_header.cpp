@@ -23,12 +23,12 @@ namespace iox
 namespace mepoo
 {
 ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept
+    : m_chunkSize(chunkSize)
+    , m_userPayloadSize(chunkSettings.userPayloadSize())
 {
     static_assert(alignof(ChunkHeader) >= 8U,
                   "All the calculations expect the ChunkHeader alignment to be at least 8!");
 
-    this->chunkSize = chunkSize;
-    userPayloadSize = chunkSettings.userPayloadSize();
     const auto userPayloadAlignment = chunkSettings.userPayloadAlignment();
     const auto userHeaderSize = chunkSettings.userHeaderSize();
 
@@ -43,7 +43,7 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
         if (userPayloadAlignment <= alignof(mepoo::ChunkHeader))
         {
             // the most simple case with no user-header and the user-payload adjacent to the ChunkHeader
-            userPayloadOffset = sizeof(ChunkHeader);
+            m_userPayloadOffset = sizeof(ChunkHeader);
         }
         else
         {
@@ -56,7 +56,7 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
             uint64_t offsetToUserPayload = alignedUserPayloadAddress - addressOfChunkHeader;
             // the cast is safe since userPayloadOffset and userPayloadAlignment have the same type and since the
             // alignment must be a power of 2, the max alignment is about half of the max value the type can hold
-            userPayloadOffset = static_cast<UserPayloadOffset_t>(offsetToUserPayload);
+            m_userPayloadOffset = static_cast<UserPayloadOffset_t>(offsetToUserPayload);
 
             // this is safe since the alignment of the user-payload is larger than the one from the ChunkHeader
             // -> the user-payload is either adjacent and `backOffset` is at the same location as `userPayloadOffset`
@@ -64,7 +64,7 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
             //    between the ChunkHeader and the user-payload
             auto addressOfBackOffset = alignedUserPayloadAddress - sizeof(UserPayloadOffset_t);
             auto backOffset = reinterpret_cast<UserPayloadOffset_t*>(addressOfBackOffset);
-            *backOffset = userPayloadOffset;
+            *backOffset = m_userPayloadOffset;
         }
     }
     else
@@ -80,7 +80,7 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
         uint64_t offsetToUserPayload = alignedUserPayloadAddress - addressOfChunkHeader;
         // the cast is safe since userPayloadOffset and userPayloadAlignment have the same type and since the alignment
         // must be a power of 2, the max alignment is about half of the max value the type can hold
-        userPayloadOffset = static_cast<UserPayloadOffset_t>(offsetToUserPayload);
+        m_userPayloadOffset = static_cast<UserPayloadOffset_t>(offsetToUserPayload);
 
         // this always works if the alignment of UserPayloadOffset_t and userPayloadAlignment are equal,
         // if not there are two options:
@@ -90,20 +90,30 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
         //     -> the back-offset can be put adjacent to to the Topic since the smaller alignment always fits
         auto backOffsetAddress = alignedUserPayloadAddress - sizeof(UserPayloadOffset_t);
         auto backOffset = reinterpret_cast<UserPayloadOffset_t*>(backOffsetAddress);
-        *backOffset = userPayloadOffset;
+        *backOffset = m_userPayloadOffset;
     }
 
     cxx::Ensures(overflowSafeUsedSizeOfChunk() <= chunkSize
                  && "Used size of chunk would exceed the actual chunk size!");
 }
 
-void* ChunkHeader::userPayload() const noexcept
+uint8_t ChunkHeader::chunkHeaderVersion() const noexcept
 {
-    // user-payload is always located relative to "this" in this way
-    return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + userPayloadOffset);
+    return m_chunkHeaderVersion;
 }
 
-ChunkHeader* ChunkHeader::fromUserPayload(const void* const userPayload) noexcept
+void* ChunkHeader::userPayload() noexcept
+{
+    // user-payload is always located relative to "this" in this way
+    return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + m_userPayloadOffset);
+}
+
+const void* ChunkHeader::userPayload() const noexcept
+{
+    return const_cast<ChunkHeader*>(this)->userPayload();
+}
+
+ChunkHeader* ChunkHeader::fromUserPayload(void* const userPayload) noexcept
 {
     if (userPayload == nullptr)
     {
@@ -116,14 +126,50 @@ ChunkHeader* ChunkHeader::fromUserPayload(const void* const userPayload) noexcep
     return reinterpret_cast<ChunkHeader*>(userPayloadAddress - *backOffset);
 }
 
+const ChunkHeader* ChunkHeader::fromUserPayload(const void* const userPayload) noexcept
+{
+    return ChunkHeader::fromUserPayload(const_cast<void*>(userPayload));
+}
+
 uint32_t ChunkHeader::usedSizeOfChunk() const noexcept
 {
     return static_cast<uint32_t>(overflowSafeUsedSizeOfChunk());
 }
 
+uint32_t ChunkHeader::chunkSize() const noexcept
+{
+    return m_chunkSize;
+}
+
+uint32_t ChunkHeader::userPayloadSize() const noexcept
+{
+    return m_userPayloadSize;
+}
+
+
+UniquePortId ChunkHeader::originId() const
+{
+    return m_originId;
+}
+
+void ChunkHeader::setOriginId(UniquePortId originId)
+{
+    m_originId = originId;
+}
+
+uint64_t ChunkHeader::sequenceNumber() const
+{
+    return m_sequenceNumber;
+}
+
+void ChunkHeader::setSequenceNumber(uint64_t sequenceNumber)
+{
+    m_sequenceNumber = sequenceNumber;
+}
+
 uint64_t ChunkHeader::overflowSafeUsedSizeOfChunk() const noexcept
 {
-    return static_cast<uint64_t>(userPayloadOffset) + static_cast<uint64_t>(userPayloadSize);
+    return static_cast<uint64_t>(m_userPayloadOffset) + static_cast<uint64_t>(m_userPayloadSize);
 }
 
 } // namespace mepoo

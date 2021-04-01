@@ -275,7 +275,7 @@ TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
         10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
 
-    EXPECT_THAT(chunkHeader->originId, Eq(m_sutNoOfferOnCreateUserSide.getUniqueID()));
+    EXPECT_THAT(chunkHeader->originId(), Eq(m_sutNoOfferOnCreateUserSide.getUniqueID()));
     m_sutNoOfferOnCreateUserSide.releaseChunk(chunkHeader);
 }
 

@@ -55,7 +55,6 @@ class ChunkMockDDS
         auto& chunkSettings = chunkSettingsResult.value();
 
         m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader(Size, chunkSettings);
-        m_chunkHeader->userPayloadSize = sizeof(T);
 
         // Set the value
         auto userPayloadPtr = reinterpret_cast<T*>(m_rawMemory + sizeof(iox::mepoo::ChunkHeader));

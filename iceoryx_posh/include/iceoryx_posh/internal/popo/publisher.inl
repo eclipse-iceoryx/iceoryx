@@ -101,7 +101,7 @@ inline cxx::optional<Sample<T, H>> Publisher<T, H, BasePublisher_t>::loanPreviou
 
 template <typename T, typename H, typename BasePublisher_t>
 inline Sample<T, H>
-Publisher<T, H, BasePublisher_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept
+Publisher<T, H, BasePublisher_t>::convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept
 {
     return Sample<T, H>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->userPayload()), m_sampleDeleter), *this);
 }

@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
+#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "mocks/wait_set_mock.hpp"
 
@@ -130,6 +131,28 @@ TEST_F(iox_sub_test, initSubscriberWithNullptrForStorageReturnsNullptr)
     EXPECT_EQ(iox_sub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
 }
 
+// this crashes if the fixture is used, therefore a test without a fixture
+TEST(iox_sub_test_DeathTest, initSubscriberWithNotInitializedPublisherOptionsTerminates)
+{
+    iox_sub_options_t options;
+    iox_sub_storage_t storage;
+
+    EXPECT_DEATH({ iox_sub_init(&storage, "a", "b", "c", &options); }, ".*");
+}
+
+TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)
+{
+    iox::roudi::RouDiEnvironment roudiEnv;
+
+    iox_runtime_init("hypnotoad");
+
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+    iox_sub_storage_t storage;
+
+    EXPECT_NE(iox_sub_init(&storage, "a", "b", "c", &options), nullptr);
+}
+
 TEST_F(iox_sub_test, initialStateNotSubscribed)
 {
     EXPECT_EQ(iox_sub_get_subscription_state(m_sut), SubscribeState_NOT_SUBSCRIBED);
@@ -214,7 +237,7 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
     EXPECT_THAT(static_cast<const data_t*>(chunk)->value, Eq(1234));
 }
 
-TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
+TEST_F(iox_sub_test, constChunkHeaderCanBeObtainedFromChunkAfterTake)
 {
     this->Subscribe(&m_portPtr);
     auto sharedChunk = getChunkFromMemoryManager();
@@ -223,9 +246,9 @@ TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
     const void* chunk = nullptr;
 
     ASSERT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
-    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    auto chunkHeader = iox_chunk_header_from_user_payload_const(chunk);
     ASSERT_NE(chunkHeader, nullptr);
-    auto userPayloadFromRoundTrip = iox_chunk_header_to_user_payload(chunkHeader);
+    auto userPayloadFromRoundTrip = iox_chunk_header_to_user_payload_const(chunkHeader);
     EXPECT_EQ(userPayloadFromRoundTrip, chunk);
 }
 
@@ -420,12 +443,4 @@ TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash
         },
         ::testing::ExitedWithCode(0),
         ".*");
-}
-
-TEST(iox_sub_options_test, subscriberInitializationTerminatesIfOptionsAreNotInitialized)
-{
-    iox_sub_options_t options;
-    iox_sub_storage_t storage;
-
-    EXPECT_DEATH({ iox_sub_init(&storage, "a", "b", "c", &options); }, ".*");
 }

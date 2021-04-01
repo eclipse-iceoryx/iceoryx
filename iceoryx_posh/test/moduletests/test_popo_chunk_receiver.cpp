@@ -144,7 +144,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
     {
         const auto chunk = chunks.back();
         chunks.pop_back();
-        auto dummySample = *reinterpret_cast<DummySample*>(chunk->userPayload());
+        auto dummySample = *reinterpret_cast<const DummySample*>(chunk->userPayload());
         EXPECT_THAT(dummySample.dummy, Eq(iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY - 1 - i));
         m_chunkReceiver.release(chunk);
     }

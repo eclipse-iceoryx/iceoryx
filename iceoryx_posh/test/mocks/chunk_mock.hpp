@@ -73,12 +73,27 @@ class ChunkMock
         return m_chunkHeader;
     }
 
+    const iox::mepoo::ChunkHeader* chunkHeader() const
+    {
+        return m_chunkHeader;
+    }
+
     UserHeader* userHeader()
     {
         return m_chunkHeader->userHeader<UserHeader>();
     }
 
+    const UserHeader* userHeader() const
+    {
+        return m_chunkHeader->userHeader<UserHeader>();
+    }
+
     Topic* sample()
+    {
+        return m_topic;
+    }
+
+    const Topic* sample() const
     {
         return m_topic;
     }

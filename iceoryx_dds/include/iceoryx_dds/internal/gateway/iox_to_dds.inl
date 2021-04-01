@@ -111,7 +111,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
         subscriber->take().and_then([&](const void* userPayload) {
             auto dataWriter = channel.getExternalTerminal();
             auto header = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
-            dataWriter->write(static_cast<const uint8_t*>(userPayload), header->userPayloadSize);
+            dataWriter->write(static_cast<const uint8_t*>(userPayload), header->userPayloadSize());
             subscriber->release(userPayload);
         });
     }
