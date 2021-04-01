@@ -25,23 +25,23 @@ namespace iox
 namespace popo
 {
 template <typename T, typename H, typename BasePublisher_t>
-inline Publisher<T, H, BasePublisher_t>::Publisher(const capro::ServiceDescription& service,
-                                                    const PublisherOptions& publisherOptions)
+inline PublisherImpl<T, H, BasePublisher_t>::PublisherImpl(const capro::ServiceDescription& service,
+                                                           const PublisherOptions& publisherOptions)
     : BasePublisher_t(service, publisherOptions)
 {
 }
 
 template <typename T, typename H, typename BasePublisher_t>
 template <typename... Args>
-inline cxx::expected<Sample<T, H>, AllocationError> Publisher<T, H, BasePublisher_t>::loan(Args&&... args) noexcept
+inline cxx::expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisher_t>::loan(Args&&... args) noexcept
 {
     return std::move(loanSample().and_then([&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); }));
 }
 
 template <typename T, typename H, typename BasePublisher_t>
 template <typename Callable, typename... ArgTypes>
-inline cxx::expected<AllocationError> Publisher<T, H, BasePublisher_t>::publishResultOf(Callable c,
-                                                                                         ArgTypes... args) noexcept
+inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisher_t>::publishResultOf(Callable c,
+                                                                                            ArgTypes... args) noexcept
 {
     static_assert(cxx::is_invocable<Callable, T*, ArgTypes...>::value,
                   "Publisher<T>::publishResultOf expects a valid callable with a specific signature as the "
@@ -56,7 +56,7 @@ inline cxx::expected<AllocationError> Publisher<T, H, BasePublisher_t>::publishR
 }
 
 template <typename T, typename H, typename BasePublisher_t>
-inline cxx::expected<AllocationError> Publisher<T, H, BasePublisher_t>::publishCopyOf(const T& val) noexcept
+inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisher_t>::publishCopyOf(const T& val) noexcept
 {
     return loanSample().and_then([&](auto& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
@@ -65,7 +65,7 @@ inline cxx::expected<AllocationError> Publisher<T, H, BasePublisher_t>::publishC
 }
 
 template <typename T, typename H, typename BasePublisher_t>
-inline cxx::expected<Sample<T, H>, AllocationError> Publisher<T, H, BasePublisher_t>::loanSample() noexcept
+inline cxx::expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisher_t>::loanSample() noexcept
 {
     static constexpr uint32_t USER_HEADER_SIZE{std::is_same<H, mepoo::NoUserHeader>::value ? 0U : sizeof(H)};
 
@@ -81,7 +81,7 @@ inline cxx::expected<Sample<T, H>, AllocationError> Publisher<T, H, BasePublishe
 }
 
 template <typename T, typename H, typename BasePublisher_t>
-inline void Publisher<T, H, BasePublisher_t>::publish(Sample<T, H>&& sample) noexcept
+inline void PublisherImpl<T, H, BasePublisher_t>::publish(Sample<T, H>&& sample) noexcept
 {
     auto userPayload = sample.release(); // release the Samples ownership of the chunk before publishing
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
@@ -89,7 +89,7 @@ inline void Publisher<T, H, BasePublisher_t>::publish(Sample<T, H>&& sample) noe
 }
 
 template <typename T, typename H, typename BasePublisher_t>
-inline cxx::optional<Sample<T, H>> Publisher<T, H, BasePublisher_t>::loanPreviousSample() noexcept
+inline cxx::optional<Sample<T, H>> PublisherImpl<T, H, BasePublisher_t>::loanPreviousSample() noexcept
 {
     auto result = port().tryGetPreviousChunk();
     if (result.has_value())
@@ -101,7 +101,7 @@ inline cxx::optional<Sample<T, H>> Publisher<T, H, BasePublisher_t>::loanPreviou
 
 template <typename T, typename H, typename BasePublisher_t>
 inline Sample<T, H>
-Publisher<T, H, BasePublisher_t>::convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept
+PublisherImpl<T, H, BasePublisher_t>::convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept
 {
     return Sample<T, H>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->userPayload()), m_sampleDeleter), *this);
 }

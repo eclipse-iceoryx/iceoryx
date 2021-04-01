@@ -102,6 +102,17 @@ uint8_t ChunkHeader::chunkHeaderVersion() const noexcept
     return m_chunkHeaderVersion;
 }
 
+void* ChunkHeader::userHeader() noexcept
+{
+    // the UserHeader is always located relative to "this" in this way
+    return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
+}
+
+const void* ChunkHeader::userHeader() const noexcept
+{
+    return const_cast<ChunkHeader*>(this)->userHeader();
+}
+
 void* ChunkHeader::userPayload() noexcept
 {
     // user-payload is always located relative to "this" in this way

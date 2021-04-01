@@ -69,13 +69,11 @@ struct alignas(32) ChunkHeader
 
     /// @brief Get the pointer to the user-header
     /// @return the pointer to the user-header
-    template <typename T>
-    T* userHeader() noexcept;
+    void* userHeader() noexcept;
 
     /// @brief Get the const pointer to the user-header
     /// @return the const pointer to the user-header
-    template <typename T>
-    const T* userHeader() const noexcept;
+    const void* userHeader() const noexcept;
 
     /// @brief Get a pointer to the user-payload carried by the chunk
     /// @return the pointer to the user-payload
@@ -144,7 +142,5 @@ struct alignas(32) ChunkHeader
 
 } // namespace mepoo
 } // namespace iox
-
-#include "iceoryx_posh/internal/mepoo/chunk_header.inl"
 
 #endif // IOX_POSH_MEPOO_CHUNK_HEADER_HPP

@@ -39,14 +39,6 @@ typedef struct
     /// @brief The option whether the publisher should already be offered when creating it
     bool offerOnCreate;
 
-    /// @brief The size of the user-header
-    /// @note must be a multiple of the alignment and is by default is 0 to indicate that no user-header is used
-    uint32_t userHeaderSize;
-
-    /// @brief The alignment of the user-header
-    /// @note must be a power of two and the maximum allowed user-header alignment is 8
-    uint32_t userHeaderAlignment;
-
     /// @brief this value will be set exclusively by `iox_pub_options_init` and is not supposed to be modified otherwise
     uint64_t initCheck;
 } iox_pub_options_t;
@@ -105,6 +97,23 @@ ENUM iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
                                                      void** const userPayloadOfChunk,
                                                      const uint32_t userPayloadSize,
                                                      const uint32_t userPayloadAlignment);
+
+/// @brief allocates a chunk in the shared memory with a section for the user-header and a custom alignment for the
+/// user-payload
+/// @param[in] self handle of the publisher
+/// @param[in] userPayloadOfChunk pointer in which a pointer to the user-payload of the allocated chunk is stored
+/// @param[in] userPayloadSize user-payload size of the allocated chunk
+/// @param[in] userPayloadAlignment user-payload alignment of the allocated chunk
+/// @param[in] userHeaderSize user-header size of the allocated chunk
+/// @param[in] userHeaderAlignment user-header alignment of the allocated chunk
+/// @return on success it returns AllocationResult_SUCCESS otherwise a value which
+///         describes the error
+ENUM iox_AllocationResult iox_pub_loan_aligned_chunk_with_user_header(iox_pub_t const self,
+                                                                      void** const userPayloadOfChunk,
+                                                                      const uint32_t userPayloadSize,
+                                                                      const uint32_t userPayloadAlignment,
+                                                                      const uint32_t userHeaderSize,
+                                                                      const uint32_t userHeaderAlignment);
 
 /// @brief releases ownership of a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher
