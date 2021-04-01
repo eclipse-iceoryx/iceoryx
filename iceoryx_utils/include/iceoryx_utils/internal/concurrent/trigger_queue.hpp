@@ -62,11 +62,10 @@ class TriggerQueue
     using ValueType = T;
     static constexpr uint64_t CAPACITY = Capacity;
 
-    /// @brief Pushs an element into the trigger queue and notifies one thread
-    ///         which is waiting in blocking_pop().
-    ///         If the queue is full it returns false and no element is inserted
-    ///         and nothing is notified. If the push was successful, it returns
-    ///         true.
+    /// @brief Pushs an element into the trigger queue.
+    ///         If the queue is full it blocks until there is space again.
+    ///         If in the meantime destroy() was called the block is released and
+    ///         push returns false.
     bool push(const T& in) noexcept;
 
     /// @brief  If the queue already contains an element it writes the contents
@@ -85,7 +84,7 @@ class TriggerQueue
     static constexpr uint64_t capacity() noexcept;
 
     /// @brief when someone is waiting in push since the queue is full it
-    ///        unblocks push. after that call it is impossible to push or pop
+    ///        unblocks push. after that call it is impossible to push
     ///        elements.
     void destroy() noexcept;
 
