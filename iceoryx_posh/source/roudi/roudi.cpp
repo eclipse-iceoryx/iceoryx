@@ -224,11 +224,18 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
 
             popo::PublisherOptions options;
-            options.historyCapacity = std::stoull(message.getElementAtIndex(3));
+            uint64_t historyCapacity{};
+            iox::cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity);
+            options.historyCapacity = historyCapacity;
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
-            options.offerOnCreate = (0U == std::stoull(message.getElementAtIndex(5))) ? false : true;
-            options.subscriberTooSlowPolicy =
-                static_cast<popo::SubscriberTooSlowPolicy>(std::stoul(message.getElementAtIndex(6)));
+
+            uint64_t offerOnCreate{};
+            iox::cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate);
+            options.offerOnCreate = (0U == offerOnCreate) ? false : true;
+
+            uint8_t subscriberTooSlowPolicy{};
+            iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy);
+            options.subscriberTooSlowPolicy = static_cast<popo::SubscriberTooSlowPolicy>(subscriberTooSlowPolicy);
 
             m_prcMgr->addPublisherForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
@@ -249,11 +256,21 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
 
             popo::SubscriberOptions options;
-            options.historyRequest = std::stoull(message.getElementAtIndex(3));
-            options.queueCapacity = std::stoull(message.getElementAtIndex(4));
+            uint64_t historyRequest;
+            iox::cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyRequest);
+            options.historyRequest = historyRequest;
+            uint64_t queueCapacity;
+            iox::cxx::convert::fromString(message.getElementAtIndex(4).c_str(), queueCapacity);
+            options.queueCapacity = queueCapacity;
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
-            options.subscribeOnCreate = (0U == std::stoull(message.getElementAtIndex(6))) ? false : true;
-            options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(std::stoul(message.getElementAtIndex(7)));
+
+            uint32_t subscribeOnCreate;
+            iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate);
+            options.subscribeOnCreate = (0U == subscribeOnCreate ? false : true);
+
+            uint8_t queueFullPolicy{};
+            iox::cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy);
+            options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(queueFullPolicy);
 
             m_prcMgr->addSubscriberForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
