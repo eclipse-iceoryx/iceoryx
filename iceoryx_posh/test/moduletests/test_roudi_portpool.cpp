@@ -154,7 +154,7 @@ TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
 {
     for (uint32_t i = 0U; i < MAX_PUBLISHERS; ++i)
     {
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
 
         auto publisherPort = sut.addPublisherPort(
             m_serviceDescription, &m_memoryManager, applicationName, m_publisherOptions, m_memoryInfo);
@@ -172,9 +172,9 @@ TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
 TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
 {
     auto addPublisherPort = [&](const uint32_t i) -> bool {
-        std::string service = "service" + std::to_string(i);
-        std::string instance = "instance" + std::to_string(i);
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        std::string service = "service" + iox::cxx::convert::toString(i);
+        std::string instance = "instance" + iox::cxx::convert::toString(i);
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
 
         return sut
             .addPublisherPort(
@@ -228,9 +228,9 @@ TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
 {
     for (uint32_t i = 0U; i < MAX_PUBLISHERS; ++i)
     {
-        std::string service = "service" + std::to_string(i);
-        std::string instance = "instance" + std::to_string(i);
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        std::string service = "service" + iox::cxx::convert::toString(i);
+        std::string instance = "instance" + iox::cxx::convert::toString(i);
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
 
         ASSERT_FALSE(sut.addPublisherPort({IdString_t(cxx::TruncateToCapacity, service),
                                            IdString_t(cxx::TruncateToCapacity, instance)},
@@ -274,9 +274,9 @@ TEST_F(PortPool_test, AddSubscriberPortToMaxCapacityIsSuccessful)
 {
     for (uint32_t i = 0U; i < MAX_SUBSCRIBERS; ++i)
     {
-        std::string service = "service" + std::to_string(i);
-        std::string instance = "instance" + std::to_string(i);
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        std::string service = "service" + iox::cxx::convert::toString(i);
+        std::string instance = "instance" + iox::cxx::convert::toString(i);
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
 
 
         auto subscriberPort =
@@ -295,9 +295,9 @@ TEST_F(PortPool_test, AddSubscriberPortToMaxCapacityIsSuccessful)
 TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
 {
     auto addSubscriberPort = [&](const uint32_t i) -> bool {
-        std::string service = "service" + std::to_string(i);
-        std::string instance = "instance" + std::to_string(i);
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        std::string service = "service" + iox::cxx::convert::toString(i);
+        std::string instance = "instance" + iox::cxx::convert::toString(i);
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
 
 
         auto publisherPort = sut.addSubscriberPort(
@@ -345,9 +345,9 @@ TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
 {
     for (uint32_t i = 0U; i < MAX_SUBSCRIBERS; ++i)
     {
-        std::string service = "service" + std::to_string(i);
-        std::string instance = "instance" + std::to_string(i);
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        std::string service = "service" + iox::cxx::convert::toString(i);
+        std::string instance = "instance" + iox::cxx::convert::toString(i);
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
 
         auto publisherPort = sut.addSubscriberPort(
             {IdString_t(cxx::TruncateToCapacity, service), IdString_t(cxx::TruncateToCapacity, instance)},
@@ -430,7 +430,7 @@ TEST_F(PortPool_test, GetInterfacePortDataListCompletelyFilledIsSuccessful)
 {
     for (uint32_t i = 0U; i < MAX_INTERFACE_NUMBER; ++i)
     {
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
         ASSERT_FALSE(sut.addInterfacePort(applicationName, Interfaces::INTERNAL).has_error());
     }
     auto interfacePortDataList = sut.getInterfacePortDataList();
@@ -506,7 +506,7 @@ TEST_F(PortPool_test, GetApplicationPortDataListCompletelyFilledIsSuccessful)
 {
     for (uint32_t i = 0U; i < MAX_PROCESS_NUMBER; ++i)
     {
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
         ASSERT_FALSE(sut.addApplicationPort(applicationName).has_error());
     }
     auto applicationPortDataList = sut.getApplicationPortDataList();
@@ -582,7 +582,7 @@ TEST_F(PortPool_test, GetConditionVariableDataListCompletelyFilledIsSuccessful)
 {
     for (uint32_t i = 0U; i < MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
     {
-        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + std::to_string(i)};
+        RuntimeName_t applicationName = {cxx::TruncateToCapacity, "AppName" + iox::cxx::convert::toString(i)};
         ASSERT_FALSE(sut.addConditionVariableData(applicationName).has_error());
     }
     auto condtionalVariableData = sut.getConditionVariableDataList();

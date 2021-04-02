@@ -367,7 +367,7 @@ TEST_F(RoudiFindService_test, findServiceMaxInstances)
     {
         // Service & Instance string is kept short , to reduce the response size in find service request ,
         // (message queue has a limit of 512)
-        std::string instance = "i" + std::to_string(i);
+        std::string instance = "i" + iox::cxx::convert::toString(i);
         senderRuntime->offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance)});
         instanceContainerExp.push_back(IdString_t(iox::cxx::TruncateToCapacity, instance));
         this->InterOpWait();
@@ -386,7 +386,7 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
     InstanceContainer instanceContainerExp;
     for (size_t i = 0; i < noOfInstances; i++)
     {
-        std::string instance = "i" + std::to_string(i);
+        std::string instance = "i" + iox::cxx::convert::toString(i);
         senderRuntime->offerService({"s", IdString_t(iox::cxx::TruncateToCapacity, instance)});
         instanceContainerExp.push_back(IdString_t(iox::cxx::TruncateToCapacity, instance));
         this->InterOpWait();

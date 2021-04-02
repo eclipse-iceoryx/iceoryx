@@ -241,9 +241,11 @@ TEST_F(ServiceDescription_test,
 
     ServiceDescription serviceDescription1 = ServiceDescription(testServiceID, testEventID, testInstanceID);
 
-    EXPECT_THAT(std::to_string(serviceDescription1.getServiceID()), serviceDescription1.getServiceIDString());
-    EXPECT_THAT(std::to_string(serviceDescription1.getEventID()), serviceDescription1.getEventIDString());
-    EXPECT_THAT(std::to_string(serviceDescription1.getInstanceID()), serviceDescription1.getInstanceIDString());
+    EXPECT_THAT(iox::cxx::convert::toString(serviceDescription1.getServiceID()),
+                serviceDescription1.getServiceIDString());
+    EXPECT_THAT(iox::cxx::convert::toString(serviceDescription1.getEventID()), serviceDescription1.getEventIDString());
+    EXPECT_THAT(iox::cxx::convert::toString(serviceDescription1.getInstanceID()),
+                serviceDescription1.getInstanceIDString());
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheIDsAndStringsToZero)
@@ -322,12 +324,12 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithZeroAsStringValu
 
 TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorWithOutOfBoundaryIntegerStringValuesSetTheIDsToInvalid)
 {
-    IdString_t outOfBoundaryTestService(iox::cxx::TruncateToCapacity,
-                                        std::to_string(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
-    IdString_t outOfBoundaryTestInstance(iox::cxx::TruncateToCapacity,
-                                         std::to_string(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
+    IdString_t outOfBoundaryTestService(
+        iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
+    IdString_t outOfBoundaryTestInstance(
+        iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
     IdString_t outOfBoundaryTestEvent(iox::cxx::TruncateToCapacity,
-                                      std::to_string(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
+                                      iox::cxx::convert::toString(uint32_t(1) + std::numeric_limits<uint16_t>::max()));
     ServiceDescription::ClassHash testHash = {1U, 2U, 3U, 4U};
 
     ServiceDescription serviceDescription1 =

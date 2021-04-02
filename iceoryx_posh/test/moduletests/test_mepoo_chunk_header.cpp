@@ -272,7 +272,7 @@ void createChunksOnMultipleAddresses(const PayloadParams& userPayloadParams,
     for (auto alignedChunkAddress = alignof(ChunkHeader); alignedChunkAddress <= MAX_USER_PAYLOAD_ALIGNMENT_FOR_TEST;
          alignedChunkAddress += alignof(ChunkHeader))
     {
-        SCOPED_TRACE(std::string("Chunk placed on address ") + std::to_string(alignedChunkAddress));
+        SCOPED_TRACE(std::string("Chunk placed on address ") + iox::cxx::convert::toString(alignedChunkAddress));
 
         auto chunkSettingsResult = ChunkSettings::create(
             userPayloadParams.size, userPayloadParams.alignment, userHeaderSize, userHeaderAlignment);
@@ -390,8 +390,8 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithoutUserHeader, CheckIntegrityOfChunkHe
 {
     const auto userPayloadParams = GetParam();
 
-    SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayloadParams.size)
-                 + std::string("; alignment = ") + std::to_string(userPayloadParams.alignment));
+    SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayloadParams.size)
+                 + std::string("; alignment = ") + iox::cxx::convert::toString(userPayloadParams.alignment));
 
     constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
     constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
@@ -444,19 +444,19 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeade
 {
     const auto userPayloadParams = GetParam();
 
-    SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayloadParams.size)
-                 + std::string("; alignment = ") + std::to_string(userPayloadParams.alignment));
+    SCOPED_TRACE(std::string("User-Payload: size = ") + iox::cxx::convert::toString(userPayloadParams.size)
+                 + std::string("; alignment = ") + iox::cxx::convert::toString(userPayloadParams.alignment));
 
     constexpr uint32_t USER_HEADER_SIZES[]{1U, sizeof(ChunkHeader) / 2U, sizeof(ChunkHeader), sizeof(ChunkHeader) * 2U};
     constexpr uint32_t USER_HEADER_ALIGNMENTS[]{0U, 1U, alignof(ChunkHeader) / 2U, alignof(ChunkHeader)};
 
     for (const auto userHeaderAlignment : USER_HEADER_ALIGNMENTS)
     {
-        SCOPED_TRACE(std::string("User-Header alignment = ") + std::to_string(userHeaderAlignment));
+        SCOPED_TRACE(std::string("User-Header alignment = ") + iox::cxx::convert::toString(userHeaderAlignment));
 
         for (const auto userHeaderSize : USER_HEADER_SIZES)
         {
-            SCOPED_TRACE(std::string("User-Header size = ") + std::to_string(userHeaderSize));
+            SCOPED_TRACE(std::string("User-Header size = ") + iox::cxx::convert::toString(userHeaderSize));
 
             if (userHeaderSize < userHeaderAlignment)
             {

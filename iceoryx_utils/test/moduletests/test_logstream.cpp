@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/log/logging.hpp"
 #include "iceoryx_utils/log/logstream.hpp"
 #include "iceoryx_utils/testing/mocks/logger_mock.hpp"
@@ -59,7 +60,7 @@ TEST_F(IoxLogStream_test, UnnamedTemporaryLogStreamObject)
 
     iox::log::LogStream(loggerMock) << claim << answer << bang;
 
-    std::string expected = claim + std::to_string(answer) + bang;
+    std::string expected = claim + iox::cxx::convert::toString(answer) + bang;
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
     EXPECT_THAT(loggerMock.m_logs[0].message, Eq(expected));
@@ -81,7 +82,7 @@ TEST_F(IoxLogStream_test, LocalLogStreamObject)
         EXPECT_THAT(loggerMock.m_logs.size(), Eq(0u));
     }
 
-    std::string expected = claim + std::to_string(answer) + bang;
+    std::string expected = claim + iox::cxx::convert::toString(answer) + bang;
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
     EXPECT_THAT(loggerMock.m_logs[0].message, Eq(expected));
@@ -107,7 +108,7 @@ TEST_F(IoxLogStream_test, ExplicitFlush)
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(3u));
     EXPECT_THAT(loggerMock.m_logs[0].message, Eq(claim));
-    EXPECT_THAT(loggerMock.m_logs[1].message, Eq(std::to_string(answer)));
+    EXPECT_THAT(loggerMock.m_logs[1].message, Eq(iox::cxx::convert::toString(answer)));
     EXPECT_THAT(loggerMock.m_logs[2].message, Eq(bang));
 }
 
@@ -285,12 +286,21 @@ class IoxLogStreamArithmetic_test : public IoxLogStream_test
     static constexpr Arithmetic ConstexprLogValueMax = std::numeric_limits<Arithmetic>::max();
 };
 
+template <typename Arithmetic>
+constexpr Arithmetic IoxLogStreamArithmetic_test<Arithmetic>::ConstexprLogValueLow;
+
+template <typename Arithmetic>
+constexpr Arithmetic IoxLogStreamArithmetic_test<Arithmetic>::ConstexprLogValueMin;
+
+template <typename Arithmetic>
+constexpr Arithmetic IoxLogStreamArithmetic_test<Arithmetic>::ConstexprLogValueMax;
+
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueLow)
 {
     iox::log::LogStream(this->loggerMock) << this->LogValueLow;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->LogValueLow)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->LogValueLow)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMin)
@@ -298,7 +308,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMin)
     iox::log::LogStream(this->loggerMock) << this->LogValueMin;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->LogValueMin)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->LogValueMin)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMax)
@@ -306,7 +316,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMax)
     iox::log::LogStream(this->loggerMock) << this->LogValueMax;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->LogValueMax)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->LogValueMax)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueLow)
@@ -314,7 +324,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueLow)
     iox::log::LogStream(this->loggerMock) << this->ConstLogValueLow;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->ConstLogValueLow)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->ConstLogValueLow)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMin)
@@ -322,7 +332,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMin)
     iox::log::LogStream(this->loggerMock) << this->ConstLogValueMin;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->ConstLogValueMin)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->ConstLogValueMin)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMax)
@@ -330,7 +340,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMax)
     iox::log::LogStream(this->loggerMock) << this->ConstLogValueMax;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->ConstLogValueMax)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->ConstLogValueMax)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueLow)
@@ -338,7 +348,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueLow)
     iox::log::LogStream(this->loggerMock) << this->ConstexprLogValueLow;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->ConstexprLogValueLow)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->ConstexprLogValueLow)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMin)
@@ -346,7 +356,7 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMin)
     iox::log::LogStream(this->loggerMock) << this->ConstexprLogValueMin;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->ConstexprLogValueMin)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->ConstexprLogValueMin)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMax)
@@ -354,6 +364,6 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMax)
     iox::log::LogStream(this->loggerMock) << this->ConstexprLogValueMax;
 
     ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(std::to_string(this->ConstexprLogValueMax)));
+    EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->ConstexprLogValueMax)));
 }
 } // namespace

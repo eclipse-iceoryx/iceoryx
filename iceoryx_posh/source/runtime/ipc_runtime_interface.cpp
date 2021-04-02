@@ -86,9 +86,10 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
             IpcMessage sendBuffer;
             int pid = getpid();
             cxx::Expects(pid >= 0);
-            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << std::to_string(pid)
-                       << std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID())
-                       << std::to_string(transmissionTimestamp)
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName
+                       << iox::cxx::convert::toString(pid)
+                       << iox::cxx::convert::toString(posix::PosixUser::getUserOfCurrentProcess().getID())
+                       << iox::cxx::convert::toString(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
 
             bool successfullySent = m_RoudiIpcInterface.timedSend(sendBuffer, 100_ms);

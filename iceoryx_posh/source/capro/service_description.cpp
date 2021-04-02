@@ -38,15 +38,14 @@ ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& 
     }
 }
 
-uint32_t& ServiceDescription::ClassHash::operator[](
-    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
+uint32_t&
+ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
 {
     return data[index];
 }
 
-const uint32_t&
-    ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const
-    noexcept
+const uint32_t& ServiceDescription::ClassHash::operator[](
+    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept
 {
     return data[index];
 }
@@ -124,9 +123,9 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID,
     : m_serviceID(f_serviceID)
     , m_eventID(f_eventID)
     , m_instanceID(f_instanceID)
-    , m_serviceString(iox::cxx::TruncateToCapacity, std::to_string(f_serviceID))
-    , m_instanceString(iox::cxx::TruncateToCapacity, std::to_string(f_instanceID))
-    , m_eventString(iox::cxx::TruncateToCapacity, std::to_string(f_eventID))
+    , m_serviceString(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(f_serviceID))
+    , m_instanceString(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(f_instanceID))
+    , m_eventString(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(f_eventID))
 {
 }
 

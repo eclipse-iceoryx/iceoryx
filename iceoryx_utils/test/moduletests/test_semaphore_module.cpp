@@ -18,6 +18,7 @@
 #include "iceoryx_utils/testing/timing_test.hpp"
 #if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
@@ -37,8 +38,10 @@ typedef iox::posix::Semaphore* CreateSemaphore();
 iox::posix::Semaphore* createNamedSemaphore()
 {
     static int i = 10;
-    auto semaphore = iox::posix::Semaphore::create(
-        iox::posix::CreateNamedSemaphore, std::string("/fuuSem" + std::to_string(i++)).c_str(), S_IRUSR | S_IWUSR, 0);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore,
+                                                   std::string("/fuuSem" + iox::cxx::convert::toString(i++)).c_str(),
+                                                   S_IRUSR | S_IWUSR,
+                                                   0);
     return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
 }
 

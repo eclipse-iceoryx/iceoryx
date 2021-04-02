@@ -65,7 +65,7 @@ void publisher()
     {
         publisher.loan().and_then([&](auto& sample) {
             sample->counter = counter++;
-            consoleOutput(std::string("Sending   " + greenRightArrow + std::to_string(sample->counter)));
+            consoleOutput(std::string("Sending   " + greenRightArrow + iox::cxx::convert::toString(sample->counter)));
             sample.publish();
         });
 
@@ -91,7 +91,8 @@ void subscriber()
             {
                 subscriber.take()
                     .and_then([&](auto& sample) {
-                        consoleOutput(std::string("Receiving " + orangeLeftArrow + std::to_string(sample->counter)));
+                        consoleOutput(
+                            std::string("Receiving " + orangeLeftArrow + iox::cxx::convert::toString(sample->counter)));
                     })
                     .or_else([&](auto& result) {
                         hasMoreSamples = false;

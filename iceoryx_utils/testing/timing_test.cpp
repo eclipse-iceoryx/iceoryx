@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/testing/timing_test.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 
 namespace iox
 {
@@ -53,7 +54,7 @@ std::string verifyTimingTestResult(const char* file,
     if (value != expected)
     {
         errorMessage += "Timing Test failure in:\n";
-        errorMessage += std::string(file) + ":" + std::to_string(line) + "\n";
+        errorMessage += std::string(file) + ":" + iox::cxx::convert::toString(line) + "\n";
         errorMessage += "Value of: " + std::string(valueStr) + " should be true\n";
         result.store(false);
     }

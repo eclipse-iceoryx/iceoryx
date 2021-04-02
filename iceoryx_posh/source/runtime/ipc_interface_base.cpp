@@ -42,7 +42,7 @@ IpcMessageType stringToIpcMessageType(const char* str) noexcept
 
 std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 {
-    return std::to_string(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
+    return iox::cxx::convert::toString(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
 }
 
 IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
@@ -59,7 +59,7 @@ IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 
 std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
 {
-    return std::to_string(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
+    return iox::cxx::convert::toString(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
 IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& runtimeName,
