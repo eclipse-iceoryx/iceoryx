@@ -24,6 +24,7 @@
 #include <iostream>
 
 bool killswitch = false;
+constexpr char APP_NAME[] = "iox-ex-publisher";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -42,7 +43,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 
@@ -67,6 +68,8 @@ int main()
         else
         {
             auto error = result.get_error();
+            // Ignore unused variable warning
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             // Do something with error
         }
 
@@ -82,6 +85,8 @@ int main()
         else
         {
             auto error = result.get_error();
+            // Ignore unused variable warning
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             // Do something with error
         }
 
@@ -105,17 +110,25 @@ int main()
         //  * Basic copy-and-publish. Useful for smaller data types.
         //
         auto object = RadarObject(ct, ct, ct);
-        publisher.publishCopyOf(object);
+        publisher.publishCopyOf(object).or_else([](iox::popo::AllocationError) {
+            // Do something with error.
+        });
 
         // API Usage #5
         //  * Provide a callable that will be used to populate the loaned sample.
         //  * The first argument of the callable must be T* and is the location that the callable should
         //      write its result to.
         //
-        publisher.publishResultOf(getRadarObject, ct);
-        publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); });
+        publisher.publishResultOf(getRadarObject, ct).or_else([](iox::popo::AllocationError) {
+            // Do something with error.
+        });
+        publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); })
+            .or_else([](iox::popo::AllocationError) {
+                // Do something with error.
+            });
 
-        std::cout << "Sent six times value: " << ct << std::endl;
+
+        std::cout << APP_NAME << " sent six times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

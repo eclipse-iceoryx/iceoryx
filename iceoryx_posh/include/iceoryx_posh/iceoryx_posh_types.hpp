@@ -1,5 +1,5 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,10 +101,15 @@ constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESS
 constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
+constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE = 128U;
 constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_WAITSET = 128U;
-// ActiveCallSet
+static_assert(MAX_NUMBER_OF_EVENTS_PER_WAITSET <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
+              "The WaitSet capacity is restricted by the maximum amount of notifiers per condition variable.");
+// Listener
 constexpr uint8_t MAX_NUMBER_OF_EVENT_VARIABLES = 128U;
-constexpr uint8_t MAX_NUMBER_OF_EVENTS_PER_ACTIVE_CALL_SET = 128U;
+constexpr uint8_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = 128U;
+static_assert(MAX_NUMBER_OF_EVENTS_PER_LISTENER <= MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE,
+              "The Listener capacity is restricted by the maximum amount of notifiers per condition variable.");
 //--------- Communication Resources End---------------------
 
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
@@ -116,6 +121,10 @@ constexpr uint32_t MAX_SHM_SEGMENTS = 100U;
 
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8U;
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64U;
+
+constexpr uint32_t CHUNK_DEFAULT_PAYLOAD_ALIGNMENT{8U};
+constexpr uint32_t CHUNK_NO_CUSTOM_HEADER_SIZE{0U};
+constexpr uint32_t CHUNK_NO_CUSTOM_HEADER_ALIGNMENT{1U};
 
 // Message Queue
 constexpr uint32_t ROUDI_MAX_MESSAGES = 5U;
@@ -135,7 +144,7 @@ constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50U;
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;
 constexpr uint32_t MAX_NODE_PER_PROCESS = 50U;
 
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = MAX_IPC_CHANNEL_NAME_LENGTH;
+constexpr uint32_t MAX_RUNTIME_NAME_LENGTH = MAX_IPC_CHANNEL_NAME_LENGTH;
 
 
 static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
@@ -172,7 +181,7 @@ struct DefaultChunkQueueConfig
 };
 
 // alias for cxx::string
-using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
+using RuntimeName_t = cxx::string<MAX_RUNTIME_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
 using ShmName_t = cxx::string<128>;
 
@@ -186,7 +195,7 @@ namespace roudi
 {
 using ConfigFilePathString_t = cxx::string<1024>;
 
-constexpr char IPC_CHANNEL_ROUDI_NAME[] = "/roudi";
+constexpr char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memmory segment for the iceoryx managment data
 constexpr char SHM_NAME[] = "/iceoryx_mgmt";

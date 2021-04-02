@@ -36,6 +36,7 @@ iox_user_trigger_t shutdownTrigger;
 
 static void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
 
     iox_user_trigger_trigger(shutdownTrigger);
@@ -117,6 +118,7 @@ int main()
                 if (iox_sub_take_chunk(subscriber, &chunk))
                 {
                     printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                    fflush(stdout);
 
                     iox_sub_release_chunk(subscriber, chunk);
                 }

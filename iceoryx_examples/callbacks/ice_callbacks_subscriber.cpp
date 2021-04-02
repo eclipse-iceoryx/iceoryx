@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/active_call_set.hpp"
+#include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 #include "topic_data.hpp"
@@ -26,25 +27,55 @@
 #include <csignal>
 #include <iostream>
 
-iox::popo::UserTrigger shutdownTrigger;
-iox::posix::Semaphore mainLoopBlocker =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0).value();
+iox::posix::Semaphore shutdownSemaphore =
+    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 
 std::atomic_bool keepRunning{true};
+constexpr char APP_NAME[] = "iox-ex-callbacks-subscriber";
+
+iox::cxx::optional<CounterTopic> leftCache;
+iox::cxx::optional<CounterTopic> rightCache;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    shutdownTrigger.trigger();
+    shutdownSemaphore.post().or_else([](auto) {
+        std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
+        std::terminate();
+    });
+    keepRunning = false;
 }
 
-void shutdownTriggerCallback(iox::popo::UserTrigger*)
+void heartbeatCallback(iox::popo::UserTrigger*)
 {
-    keepRunning.store(false);
+    std::cout << "heartbeat received " << std::endl;
 }
 
-void onSampleReceived(iox::popo::Subscriber<CounterTopic>* subscriber)
+void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
-    subscriber->take().and_then([](auto& sample) { printf("received: %d\n", sample->counter); });
+    subscriber->take().and_then([subscriber](auto& sample) {
+        auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
+
+        // store the sample in the corresponding cache
+        if (instanceString == iox::capro::IdString_t("FrontLeft"))
+        {
+            leftCache.emplace(*sample);
+        }
+        else if (instanceString == iox::capro::IdString_t("FrontRight"))
+        {
+            rightCache.emplace(*sample);
+        }
+
+        std::cout << "received: " << sample->counter << std::endl;
+    });
+
+    // if both caches are filled we can process them
+    if (leftCache && rightCache)
+    {
+        std::cout << "Received samples from FrontLeft and FrontRight. Sum of " << leftCache->counter << " + "
+                  << rightCache->counter << " = " << leftCache->counter + rightCache->counter << std::endl;
+        leftCache.reset();
+        rightCache.reset();
+    }
 }
 
 int main()
@@ -52,26 +83,55 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-callbacks-subscriber");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::popo::ActiveCallSet callSet;
+    // the listener starts a background thread and the callbacks of the attached events
+    // will be called in this background thread when they are triggered
+    iox::popo::Listener listener;
 
-    // attach shutdownTrigger to handle CTRL+C
-    callSet.attachEvent(shutdownTrigger, shutdownTriggerCallback);
+    iox::popo::UserTrigger heartbeat;
+    iox::popo::Subscriber<CounterTopic> subscriberLeft({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriberRight({"Radar", "FrontRight", "Counter"});
 
-    iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
+    // send a heartbeat every 4 seconds
+    std::thread heartbeatThread([&] {
+        while (keepRunning)
+        {
+            heartbeat.trigger();
+            std::this_thread::sleep_for(std::chrono::seconds(4));
+        }
+    });
 
-    subscriber.subscribe();
+    // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
+    listener.attachEvent(heartbeat, heartbeatCallback).or_else([](auto) {
+        std::cerr << "unable to attach heartbeat event" << std::endl;
+        std::terminate();
+    });
+    listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+        .or_else([](auto) {
+            std::cerr << "unable to attach subscriberLeft" << std::endl;
+            std::terminate();
+        });
+    // it is possible to attach any callback here with the required signature. to simplify the
+    // example we attach the same callback onSampleReceivedCallback again
+    listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+        .or_else([](auto) {
+            std::cerr << "unable to attach subscriberRight" << std::endl;
+            std::terminate();
+        });
 
-    callSet.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceived);
+    // wait until someone presses CTRL+c
+    shutdownSemaphore.wait().or_else(
+        [](auto) { std::cerr << "unable to call wait on shutdownSemaphore - semaphore corrupt?" << std::endl; });
 
-    while (keepRunning)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
+    // optional detachEvent, but not required.
+    //   when the listener goes out of scope it will detach all events and when a
+    //   subscriber goes out of scope it will detach itself from the listener
+    listener.detachEvent(heartbeat);
+    listener.detachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA);
+    listener.detachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA);
 
-    callSet.detachEvent(shutdownTrigger);
-    callSet.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA);
+    heartbeatThread.join();
 
     return (EXIT_SUCCESS);
 }

@@ -18,15 +18,18 @@
 #define IOX_POSH_POPO_WAIT_SET_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
+#include "iceoryx_utils/cxx/stack.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 namespace iox
@@ -56,7 +59,7 @@ class WaitSet
 {
   public:
     static constexpr uint64_t CAPACITY = Capacity;
-    using TriggerList = cxx::list<Trigger, CAPACITY>;
+    using TriggerArray = cxx::optional<Trigger>[Capacity];
     using EventInfoVector = cxx::vector<const EventInfo*, CAPACITY>;
 
     WaitSet() noexcept;
@@ -121,12 +124,13 @@ class WaitSet
     uint64_t size() const noexcept;
 
     /// @brief returns the maximum amount of triggers which can be acquired from a waitset
-    uint64_t capacity() const noexcept;
+    static constexpr uint64_t capacity() noexcept;
 
   protected:
-    explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
+    explicit WaitSet(ConditionVariableData& condVarData) noexcept;
 
   private:
+    using WaitFunction = cxx::function_ref<ConditionListener::NotificationVector_t()>;
     template <typename T>
     cxx::expected<uint64_t, WaitSetError> attachEventImpl(T& eventOrigin,
                                                           const WaitSetHasTriggeredCallback& hasTriggeredCallback,
@@ -134,21 +138,21 @@ class WaitSet
                                                           const EventInfo::Callback<T>& eventCallback) noexcept;
 
     EventInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
-    template <typename WaitFunction>
     EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
     EventInfoVector createVectorWithTriggeredTriggers() noexcept;
 
-    template <typename T>
-    void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
-
     void removeTrigger(const uint64_t uniqueTriggerId) noexcept;
     void removeAllTriggers() noexcept;
+    void acquireNotifications(const WaitFunction& wait) noexcept;
 
   private:
     /// needs to be a list since we return pointer to the underlying EventInfo class with wait
-    TriggerList m_triggerList;
+    TriggerArray m_triggerArray;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
-    ConditionVariableWaiter m_conditionVariableWaiter;
+    ConditionListener m_conditionListener;
+
+    cxx::stack<uint64_t, Capacity> m_indexRepository;
+    ConditionListener::NotificationVector_t m_activeNotifications;
 };
 
 } // namespace popo

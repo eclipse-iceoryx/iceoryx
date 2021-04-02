@@ -15,28 +15,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/trigger_handle.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/event_notifier.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 
 namespace iox
 {
 namespace popo
 {
-TriggerHandle::TriggerHandle(EventVariableData& eventVariableDataRef,
+TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableData,
                              const cxx::MethodCallback<void, uint64_t> resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
-    : TriggerHandle(static_cast<ConditionVariableData&>(eventVariableDataRef), resetCallback, uniqueTriggerId)
-{
-    m_doesContainEventVariable = true;
-}
-
-TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableDataPtr,
-                             const cxx::MethodCallback<void, uint64_t> resetCallback,
-                             const uint64_t uniqueTriggerId) noexcept
-    : m_conditionVariableDataPtr(&conditionVariableDataPtr)
+    : m_conditionVariableDataPtr(&conditionVariableData)
     , m_resetCallback(resetCallback)
     , m_uniqueTriggerId(uniqueTriggerId)
 {
+    if (!m_resetCallback)
+    {
+        errorHandler(Error::kPOPO__TRIGGER_HANDLE_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+    }
 }
 
 TriggerHandle::TriggerHandle(TriggerHandle&& rhs) noexcept
@@ -54,10 +49,9 @@ TriggerHandle& TriggerHandle::operator=(TriggerHandle&& rhs) noexcept
 
         reset();
 
-        m_conditionVariableDataPtr = std::move(rhs.m_conditionVariableDataPtr);
+        m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_resetCallback = std::move(rhs.m_resetCallback);
         m_uniqueTriggerId = rhs.m_uniqueTriggerId;
-        m_doesContainEventVariable = rhs.m_doesContainEventVariable;
 
         rhs.invalidate();
     }
@@ -88,15 +82,7 @@ void TriggerHandle::trigger() noexcept
 
     if (isValid())
     {
-        if (m_doesContainEventVariable)
-        {
-            EventNotifier(*reinterpret_cast<EventVariableData*>(m_conditionVariableDataPtr), m_uniqueTriggerId)
-                .notify();
-        }
-        else
-        {
-            ConditionVariableSignaler(m_conditionVariableDataPtr).notifyOne();
-        }
+        ConditionNotifier(*m_conditionVariableDataPtr, m_uniqueTriggerId).notify();
     }
 }
 
@@ -109,7 +95,8 @@ void TriggerHandle::reset() noexcept
         return;
     }
 
-    m_resetCallback(m_uniqueTriggerId);
+    // constructor ensured that resetCallback is valid
+    IOX_DISCARD_RESULT(m_resetCallback(m_uniqueTriggerId));
 
     invalidate();
 }
@@ -136,11 +123,5 @@ uint64_t TriggerHandle::getUniqueId() const noexcept
 
     return m_uniqueTriggerId;
 }
-
-bool TriggerHandle::doesContainEventVariable() const noexcept
-{
-    return m_doesContainEventVariable;
-}
-
 } // namespace popo
 } // namespace iox

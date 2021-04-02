@@ -96,6 +96,8 @@ class MyTriggerClass
 
     static void callOnAction(MyTriggerClass* const triggerClassPtr)
     {
+        // Ignore unused variable warning
+        (void)triggerClassPtr;
         std::cout << "action performed" << std::endl;
     }
 
@@ -218,9 +220,16 @@ int main()
     triggerClass.emplace();
 
     // attach both events to a waitset and assign a callback
-    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, &callOnActivate);
-    waitset->attachEvent(
-        *triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction);
+    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, &callOnActivate).or_else([](auto) {
+        std::cerr << "failed to attach MyTriggerClass::ACTIVATE event " << std::endl;
+        std::terminate();
+    });
+    waitset
+        ->attachEvent(*triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction)
+        .or_else([](auto) {
+            std::cerr << "failed to attach MyTriggerClass::PERFORMED_ACTION event " << std::endl;
+            std::terminate();
+        });
 
     // start the event loop which is handling the events
     std::thread eventLoopThread(eventLoop);

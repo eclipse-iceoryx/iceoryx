@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +17,7 @@
 #ifndef IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 #define IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
@@ -26,17 +28,31 @@
 #include <malloc.h>
 #endif
 
-template <typename Topic>
+template <typename Topic, typename CustomHeader = iox::mepoo::NoCustomHeader>
 class ChunkMock
 {
   public:
     ChunkMock()
     {
-        m_rawMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(Alignment, Size));
-        assert(m_rawMemory != nullptr && "Could not get aligned memory");
-        memset(m_rawMemory, 0xFF, Size);
+        const uint32_t payloadSize = sizeof(Topic);
+        const uint32_t payloadAlignment = alignof(Topic);
+        const uint32_t customHeaderSize =
+            std::is_same<CustomHeader, iox::mepoo::NoCustomHeader>::value ? 0U : sizeof(CustomHeader);
+        const uint32_t customHeaderAlignment = alignof(CustomHeader);
 
-        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader();
+        auto chunkSettingsResult =
+            iox::mepoo::ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+
+        iox::cxx::Ensures(!chunkSettingsResult.has_error() && "Invalid parameter for ChunkMock");
+        auto& chunkSettings = chunkSettingsResult.value();
+        auto chunkSize = chunkSettings.requiredChunkSize();
+
+        m_rawMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignof(iox::mepoo::ChunkHeader), chunkSize));
+        assert(m_rawMemory != nullptr && "Could not get aligned memory");
+        memset(m_rawMemory, 0xFF, chunkSize);
+
+
+        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader(chunkSize, chunkSettings);
         m_topic = static_cast<Topic*>(m_chunkHeader->payload());
     }
     ~ChunkMock()

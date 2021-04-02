@@ -151,6 +151,7 @@ add_library(iceoryx_utils
     source/log/logstream.cpp
     source/posix_wrapper/access_control.cpp
     source/posix_wrapper/mutex.cpp
+    source/posix_wrapper/file_lock.cpp
     source/posix_wrapper/semaphore.cpp
     source/posix_wrapper/timer.cpp
     source/posix_wrapper/timespec.cpp
@@ -165,7 +166,8 @@ add_library(iceoryx_utils
     source/posix_wrapper/posix_access_rights.cpp
     source/posix_wrapper/thread.cpp
     source/units/duration.cpp
-    source/relocatable_pointer/relative_ptr.cpp
+    source/relocatable_pointer/base_relative_pointer.cpp
+    source/relocatable_pointer/base_relocatable_pointer.cpp
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
@@ -211,9 +213,9 @@ target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
 target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
-    target_link_libraries(iceoryx_platform 
-        PUBLIC 
-        rt 
+    target_link_libraries(iceoryx_platform
+        PUBLIC
+        rt
         pthread
     )
 endif(LINUX)
@@ -224,12 +226,20 @@ if(PERFORM_CLANG_TIDY)
     )
 endif(PERFORM_CLANG_TIDY)
 
-
-target_link_libraries(iceoryx_utils 
-    PUBLIC 
-    iceoryx_utils::iceoryx_platform 
-    PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS})
+if(QNX)
+    target_link_libraries(iceoryx_utils
+        PUBLIC
+        iceoryx_utils::iceoryx_platform
+        PRIVATE
+        socket
+        ${ICEORYX_SANITIZER_FLAGS})
+else()
+    target_link_libraries(iceoryx_utils
+        PUBLIC
+        iceoryx_utils::iceoryx_platform
+        PRIVATE
+        ${ICEORYX_SANITIZER_FLAGS})
+endif(QNX)
 
 target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 

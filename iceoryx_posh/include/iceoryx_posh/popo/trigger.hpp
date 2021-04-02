@@ -19,6 +19,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/event_info.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
 #include <type_traits>
@@ -41,9 +42,9 @@ class Trigger
     template <typename T>
     using Callback = EventInfo::Callback<T>;
 
-    /// @brief Creates an empty Trigger
-    Trigger() noexcept = default;
-    template <typename T>
+    Trigger() noexcept = delete;
+    Trigger(const Trigger&) = delete;
+    Trigger& operator=(const Trigger&) = delete;
 
     /// @brief Creates a Trigger
     /// @param[in] origin pointer to the class where the signal originates from, if its set to nullptr the Trigger is in
@@ -54,14 +55,14 @@ class Trigger
     /// @param[in] eventId id of the corresponding event
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
+    template <typename T>
     Trigger(T* const origin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t eventId,
-            const Callback<T> callback) noexcept;
+            const Callback<T> callback,
+            const uint64_t uniqueId) noexcept;
 
-    Trigger(const Trigger&) = delete;
-    Trigger& operator=(const Trigger&) = delete;
     Trigger(Trigger&& rhs) noexcept;
     Trigger& operator=(Trigger&& rhs) noexcept;
 
@@ -92,7 +93,8 @@ class Trigger
     /// @brief returns true if the Triggers are logical equal otherwise false. Two Triggers are logical equal when
     ///       - origin == rhs.origin
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
-    bool isLogicalEqualTo(const Trigger& rhs) const noexcept;
+    bool isLogicalEqualTo(const void* const eventOrigin,
+                          const cxx::ConstMethodCallback<bool>& hasTriggeredCallback) const noexcept;
 
     /// @brief sets a new origin of the trigger
     /// @param[in] newOrigin pointer to the new origin
@@ -108,8 +110,6 @@ class Trigger
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
     uint64_t m_uniqueId = INVALID_TRIGGER_ID;
-
-    static std::atomic<uint64_t> uniqueIdCounter; // = 0U;
 };
 
 

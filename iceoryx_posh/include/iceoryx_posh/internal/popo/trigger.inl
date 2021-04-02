@@ -27,12 +27,22 @@ inline Trigger::Trigger(T* const eventOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
-                        const Callback<T> callback) noexcept
+                        const Callback<T> callback,
+                        const uint64_t uniqueId) noexcept
     : m_eventInfo(eventOrigin, eventId, callback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
-    , m_uniqueId(uniqueIdCounter.fetch_add(1U))
+    , m_uniqueId(uniqueId)
 {
+    if (!resetCallback)
+    {
+        errorHandler(Error::kPOPO__TRIGGER_INVALID_RESET_CALLBACK, nullptr, ErrorLevel::FATAL);
+    }
+
+    if (!hasTriggeredCallback)
+    {
+        errorHandler(Error::kPOPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, nullptr, ErrorLevel::FATAL);
+    }
 }
 
 template <typename T>

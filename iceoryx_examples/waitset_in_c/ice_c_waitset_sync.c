@@ -42,6 +42,7 @@ bool keepRunning = true;
 
 static void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
 
     iox_user_trigger_trigger(shutdownTrigger);
@@ -50,6 +51,7 @@ static void sigHandler(int signalValue)
 void cyclicRun(iox_user_trigger_t trigger)
 {
     printf("activation callback\n");
+    fflush(stdout);
     // after every call we have to reset the trigger otherwise the waitset
     // would immediately call us again since we still signal to the waitset that
     // we have been triggered (waitset is state based)
@@ -58,6 +60,7 @@ void cyclicRun(iox_user_trigger_t trigger)
 
 void* cyclicTriggerCallback(void* dontCare)
 {
+    // Ignore unused variable warning
     (void)dontCare;
     while (keepRunning)
     {

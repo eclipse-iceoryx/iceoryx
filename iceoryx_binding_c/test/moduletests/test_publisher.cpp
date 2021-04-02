@@ -48,7 +48,7 @@ class iox_pub_test : public Test
     iox_pub_test()
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
+        m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
     ~iox_pub_test()
@@ -120,7 +120,7 @@ class iox_pub_test : public Test
 
 TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)
 {
-    PublisherOptions iGotOptions; 
+    PublisherOptions iGotOptions;
     auto expectedIsOffered = iGotOptions.offerOnCreate;
     EXPECT_EQ(expectedIsOffered, iox_pub_is_offered(&m_sut));
 }
@@ -197,7 +197,13 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
     std::vector<SharedChunk> chunkBucket;
     while (true)
     {
-        auto sharedChunk = m_memoryManager.getChunk(100);
+        constexpr uint32_t PAYLOAD_SIZE{100U};
+
+        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        ASSERT_FALSE(chunkSettingsResult.has_error());
+        auto& chunkSettings = chunkSettingsResult.value();
+
+        auto sharedChunk = m_memoryManager.getChunk(chunkSettings);
         if (sharedChunk)
             chunkBucket.emplace_back(sharedChunk);
         else
@@ -254,6 +260,18 @@ TEST_F(iox_pub_test, sendDeliversChunk)
     ASSERT_TRUE(maybeSharedChunk.has_value());
     EXPECT_TRUE(*maybeSharedChunk == chunk);
     EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
+}
+
+TEST_F(iox_pub_test, correctServiceDescriptionReturned)
+{
+    auto serviceDescription = iox_pub_get_service_description(&m_sut);
+
+    EXPECT_THAT(serviceDescription.serviceId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(serviceDescription.instanceId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(serviceDescription.eventId, Eq(iox::capro::InvalidID));
+    EXPECT_THAT(std::string(serviceDescription.serviceString), Eq("a"));
+    EXPECT_THAT(std::string(serviceDescription.instanceString), Eq("b"));
+    EXPECT_THAT(std::string(serviceDescription.eventString), Eq("c"));
 }
 
 TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)

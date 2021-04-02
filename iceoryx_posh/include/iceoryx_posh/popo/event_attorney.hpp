@@ -32,7 +32,7 @@ class EventAttorney
 {
     template <uint64_t>
     friend class WaitSet;
-    friend class ActiveCallSet;
+    friend class Listener;
 
   private:
     template <typename T, typename... Targs>

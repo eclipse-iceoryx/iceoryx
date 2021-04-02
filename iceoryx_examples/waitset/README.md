@@ -1,5 +1,7 @@
 # WaitSet
 
+## Introduction
+
 The WaitSet is a set where you can attach objects so that they can signal a wide variety
 of events to one single notifyable. The typical approach is that one creates a
 WaitSet attaches multiple subscribers, user trigger or other _Triggerables_ to it and then wait till
@@ -10,6 +12,11 @@ WaitSet events can be state based, this means that the WaitSet will notify you
 till you reset the state. The `HAS_DATA` event of the subscriber for instance
 will notify you as long as there are samples. But it is also possible that one
 attaches one shot events. These are events which will trigger the WaitSet only once.
+
+## Expected output
+
+<!-- @todo Add expected output with asciinema recording before v1.0-->
+<!-- @todo multiple examples described in here, expected output should be in front of every example -->
 
 ## Threadsafety
 The WaitSet is **not** threadsafe!
@@ -142,7 +149,10 @@ broker RouDi. Then we attach our `shutdownTrigger` to handle `CTRL+c` events.
 ```cpp
 iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER>;
 
-waitset.attachEvent(shutdownTrigger);
+waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+    std::cerr << "failed to attach shutdown trigger" << std::endl;
+    std::terminate();
+});
 ```
 
 After that we create a vector to hold our subscribers, we create and then
@@ -156,9 +166,16 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
 
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, &subscriberCallback);
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 0, &subscriberCallback)
+        .or_else([&](auto) {
+            std::cerr << "failed to attach subscriber" << i << std::endl;
+            std::terminate();
+        });
 }
 ```
+`attachEvent` is returning a `cxx::expected` which informs us if attaching the event
+succeeded. In the `.or_else([&](auto){/*...*/})` part we perform the error handling 
+if `attachEvent` failed.
 
 Now our system is prepared and ready to work. We enter the event loop which
 starts with a call to our _WaitSet_ (`waitset.wait()`). This call will block until
@@ -198,7 +215,10 @@ and attach the `shutdownTrigger` to handle `CTRL+c`.
 ```cpp
 iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
-waitset.attachEvent(shutdownTrigger);
+waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+    std::cerr << "failed to attach shutdown trigger" << std::endl;
+    std::terminate();
+});
 ```
 
 Now we create a vector of 4 subscribers.
@@ -217,12 +237,20 @@ to the second group.
 ```cpp
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
 {
-    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, FIRST_GROUP_ID);
+    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, FIRST_GROUP_ID)
+        .or_else([&](auto) {
+            std::cerr << "failed to attach subscriber" << i << std::endl;
+            std::terminate();
+        });
 }
 
 for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, SECOND_GROUP_ID);
+    waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberEvent::HAS_DATA, SECOND_GROUP_ID)
+        .or_else([&](auto) {
+            std::cerr << "failed to attach subscriber" << i << std::endl;
+            std::terminate();
+        });
 }
 ```
 
@@ -276,7 +304,10 @@ attaching the `shutdownTrigger` to handle `CTRL-c`.
 ```cpp
 iox::popo::WaitSet waitset<>;
 
-waitset.attachEvent(shutdownTrigger);
+waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+        std::cerr << "failed to attach shutdown trigger" << std::endl;
+        std::terminate();
+    });
 ```
 
 Additionally, we create two subscribers and attach
@@ -285,8 +316,14 @@ them to the waitset to let them inform us whenever they receive a new sample.
 iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
 iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
 
-waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_DATA);
-waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_DATA);
+waitset.attachEvent(subscriber1, iox::popo::SubscriberEvent::HAS_DATA).or_else([](auto) {
+    std::cerr << "failed to attach subscriber1" << std::endl;
+    std::terminate();
+});
+waitset.attachEvent(subscriber2, iox::popo::SubscriberEvent::HAS_DATA).or_else([](auto) {
+    std::cerr << "failed to attach subscriber2" << std::endl;
+    std::terminate();
+});
 ```
 
 With that set up we enter the event loop and handle the program termination
@@ -348,7 +385,10 @@ the default event id  `EventInfo::INVALID_ID` is set.
 iox::popo::WaitSet<> waitset;
 
 // attach shutdownTrigger to handle CTRL+C
-waitset.attachEvent(shutdownTrigger);
+waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+    std::cerr << "failed to attach shutdown trigger" << std::endl;
+    std::terminate();
+});
 ```
 
 After that we require a `cyclicTrigger` to trigger our
@@ -356,7 +396,10 @@ After that we require a `cyclicTrigger` to trigger our
 eventId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-waitset.attachEvent(cyclicTrigger, 0U, &SomeClass::cyclicRun);
+waitset.attachEvent(cyclicTrigger, 0U, &SomeClass::cyclicRun).or_else([](auto) {
+    std::cerr << "failed to attach cyclic trigger" << std::endl;
+    std::terminate();
+});
 ```
 
 The next thing we need is something which will trigger our `cyclicTrigger`
@@ -587,9 +630,16 @@ triggerClass.emplace();
 After that we can attach both `triggerClass` events to the waitset and provide
 also a callback for them.
 ```cpp
-    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, &callOnActivate);
-    waitset->attachEvent(
-        *triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction);
+    waitset->attachEvent(*triggerClass, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, &callOnActivate).or_else([](auto) {
+        std::cerr << "failed to attach MyTriggerClass::ACTIVATE event " << std::endl;
+        std::terminate();
+    });
+    waitset
+        ->attachEvent(*triggerClass, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, &MyTriggerClass::callOnAction)
+        .or_else([](auto) {
+            std::cerr << "failed to attach MyTriggerClass::PERFORMED_ACTION event " << std::endl;
+            std::terminate();
+        });
 ```
 
 Now that everything is set up we can start our `eventLoop` in a new thread.

@@ -129,8 +129,6 @@ void PortManager::doDiscovery() noexcept
     handleNodes();
 
     handleConditionVariables();
-
-    handleEventVariables();
 }
 
 void PortManager::handlePublisherPorts() noexcept
@@ -339,7 +337,7 @@ void PortManager::handleNodes() noexcept
 {
     /// @todo we have to update the introspection but node information is in process introspection which is not
     // accessible here. So currently nodes will be removed not before a process is removed
-    // m_processIntrospection->removeNode(ProcessName_t(process.c_str()),
+    // m_processIntrospection->removeNode(RuntimeName_t(process.c_str()),
     // NodeName_t(node.c_str()));
 
     for (auto nodeData : m_portPool->getNodeDataList())
@@ -360,18 +358,6 @@ void PortManager::handleConditionVariables() noexcept
         {
             m_portPool->removeConditionVariableData(conditionVariableData);
             LogDebug() << "Destroyed ConditionVariableData";
-        }
-    }
-}
-
-void PortManager::handleEventVariables() noexcept
-{
-    for (auto eventVariableData : m_portPool->getEventVariableDataList())
-    {
-        if (eventVariableData->m_toBeDestroyed.load(std::memory_order_relaxed))
-        {
-            m_portPool->removeEventVariableData(eventVariableData);
-            LogDebug() << "Destroyed EventVariableData";
         }
     }
 }
@@ -456,12 +442,12 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
-void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcept
+void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept
 {
     for (auto port : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType sender(port);
-        if (processName == sender.getProcessName())
+        if (runtimeName == sender.getRuntimeName())
         {
             destroyPublisherPort(port);
         }
@@ -470,7 +456,7 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
     for (auto port : m_portPool->getSubscriberPortDataList())
     {
         SubscriberPortUserType subscriber(port);
-        if (processName == subscriber.getProcessName())
+        if (runtimeName == subscriber.getRuntimeName())
         {
             destroySubscriberPort(port);
         }
@@ -479,47 +465,38 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
     for (auto port : m_portPool->getInterfacePortDataList())
     {
         popo::InterfacePort interface(port);
-        if (processName == interface.getProcessName())
+        if (runtimeName == interface.getRuntimeName())
         {
             m_portPool->removeInterfacePort(port);
-            LogDebug() << "Deleted Interface of application " << processName;
+            LogDebug() << "Deleted Interface of application " << runtimeName;
         }
     }
 
     for (auto port : m_portPool->getApplicationPortDataList())
     {
         popo::ApplicationPort application(port);
-        if (processName == application.getProcessName())
+        if (runtimeName == application.getRuntimeName())
         {
             m_portPool->removeApplicationPort(port);
-            LogDebug() << "Deleted ApplicationPort of application " << processName;
+            LogDebug() << "Deleted ApplicationPort of application " << runtimeName;
         }
     }
 
     for (auto nodeData : m_portPool->getNodeDataList())
     {
-        if (processName == nodeData->m_process)
+        if (runtimeName == nodeData->m_runtimeName)
         {
             m_portPool->removeNodeData(nodeData);
-            LogDebug() << "Deleted node of application " << processName;
+            LogDebug() << "Deleted node of application " << runtimeName;
         }
     }
 
     for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
     {
-        if (processName == conditionVariableData->m_process)
+        if (runtimeName == conditionVariableData->m_runtimeName)
         {
             m_portPool->removeConditionVariableData(conditionVariableData);
-            LogDebug() << "Deleted condition variable of application" << processName;
-        }
-    }
-
-    for (auto eventVariableData : m_portPool->getEventVariableDataList())
-    {
-        if (processName == eventVariableData->m_process)
-        {
-            m_portPool->removeEventVariableData(eventVariableData);
-            LogDebug() << "Deleted event variable of application" << processName;
+            LogDebug() << "Deleted condition variable of application" << runtimeName;
         }
     }
 }
@@ -608,14 +585,14 @@ const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter() noexcep
 cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
-                                      const ProcessName_t& processName,
-                                      mepoo::MemoryManager* payloadMemoryManager,
+                                      const RuntimeName_t& runtimeName,
+                                      mepoo::MemoryManager* const payloadMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
             [&](const auto& usedByProcess) {
                 LogWarn()
-                    << "Process '" << processName
+                    << "Process '" << runtimeName
                     << "' violates the communication policy by requesting a PublisherPort which is already used by '"
                     << usedByProcess << "' with service '" << service.operator cxx::Serialization().toString() << "'.";
             }))
@@ -626,7 +603,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, payloadMemoryManager, processName, publisherOptions, portConfigInfo.memoryInfo);
+        service, payloadMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
         auto publisherPortData = maybePublisherPortData.value();
@@ -646,11 +623,11 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const popo::SubscriberOptions& subscriberOptions,
-                                       const ProcessName_t& processName,
+                                       const RuntimeName_t& runtimeName,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
-        m_portPool->addSubscriberPort(service, processName, subscriberOptions, portConfigInfo.memoryInfo);
+        m_portPool->addSubscriberPort(service, runtimeName, subscriberOptions, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
         auto subscriberPortData = maybeSubscriberPortData.value();
@@ -670,10 +647,10 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
 
 /// @todo return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
-                                                               const ProcessName_t& processName,
+                                                               const RuntimeName_t& runtimeName,
                                                                const NodeName_t& /*node*/) noexcept
 {
-    auto result = m_portPool->addInterfacePort(processName, interface);
+    auto result = m_portPool->addInterfacePort(runtimeName, interface);
     if (!result.has_error())
     {
         return result.value();
@@ -685,9 +662,9 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 }
 
 /// @todo return a cxx::expected
-popo::ApplicationPortData* PortManager::acquireApplicationPortData(const ProcessName_t& processName) noexcept
+popo::ApplicationPortData* PortManager::acquireApplicationPortData(const RuntimeName_t& runtimeName) noexcept
 {
-    auto result = m_portPool->addApplicationPort(processName);
+    auto result = m_portPool->addApplicationPort(runtimeName);
     if (!result.has_error())
     {
         return result.value();
@@ -712,22 +689,16 @@ void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& servic
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const ProcessName_t& process,
-                                                                              const NodeName_t& node) noexcept
+cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,
+                                                                              const NodeName_t& nodeName) noexcept
 {
-    return m_portPool->addNodeData(process, node, 0);
+    return m_portPool->addNodeData(runtimeName, nodeName, 0);
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortManager::acquireConditionVariableData(const ProcessName_t& process) noexcept
+PortManager::acquireConditionVariableData(const RuntimeName_t& runtimeName) noexcept
 {
-    return m_portPool->addConditionVariableData(process);
-}
-
-cxx::expected<popo::EventVariableData*, PortPoolError>
-PortManager::acquireEventVariableData(const ProcessName_t& process) noexcept
-{
-    return m_portPool->addEventVariableData(process);
+    return m_portPool->addConditionVariableData(runtimeName);
 }
 
 } // namespace roudi

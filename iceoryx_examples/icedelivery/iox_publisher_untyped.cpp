@@ -24,6 +24,7 @@
 #include <iostream>
 
 bool killswitch = false;
+constexpr char APP_NAME[] = "iox-ex-publisher-untyped";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -37,7 +38,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-untyped");
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
 
@@ -54,16 +55,19 @@ int main()
             // In the untyped API we get a void pointer to the payload, therefore the data must be constructed
             // in place
             void* chunk = result.value();
-            auto data = new (chunk) RadarObject(ct, ct, ct);
+            RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
+            iox::cxx::Expects(chunk == data);
 
-            // data and chunk should be equal. otherwise we have a misalignment
-            // (note that we only requested as many bytes as needed for the object to be send)
-            assert(chunk == data);
+            data->x = 1.0;
+            data->y = 2.0;
+            data->z = 3.0;
             publisher.publish(chunk);
         }
         else
         {
             auto error = result.get_error();
+            // Ignore unused variable warning
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             // Do something with the error
         }
 
@@ -72,15 +76,21 @@ int main()
         // * Loan chunk and provide logic to populate it via a lambda
         publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& chunk) {
-                auto data = new (chunk) RadarObject(ct, ct, ct);
-                assert(chunk == data);
+                RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
+                iox::cxx::Expects(chunk == data);
+
+                data->x = 1.0;
+                data->y = 2.0;
+                data->z = 3.0;
                 publisher.publish(chunk);
             })
             .or_else([&](iox::popo::AllocationError error) {
+                // Ignore unused variable warning
+                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
                 // Do something with the error
             });
 
-        std::cout << "Sent two times value: " << ct << std::endl;
+        std::cout << APP_NAME << " sent two times value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

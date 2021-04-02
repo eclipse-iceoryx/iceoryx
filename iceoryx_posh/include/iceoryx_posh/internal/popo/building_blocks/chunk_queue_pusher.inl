@@ -56,7 +56,7 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
     {
         auto chunkTupleOut = pushRet.value();
         auto chunkManagement =
-            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         // this will release the chunk
         auto returnedChunk = mepoo::SharedChunk(chunkManagement);
         /// we have to set this to true to inform the higher levels that there
@@ -68,17 +68,9 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
         typename MemberType_t::LockGuard_t lock(*getMembers());
         if (getMembers()->m_conditionVariableDataPtr)
         {
-            if (getMembers()->m_eventVariableIndex)
-            {
-                EventNotifier(*reinterpret_cast<EventVariableData*>(getMembers()->m_conditionVariableDataPtr.get()),
-                              *getMembers()->m_eventVariableIndex)
-                    .notify();
-            }
-            else
-            {
-                ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
-                condVarSignaler.notifyOne();
-            }
+            ConditionNotifier(*getMembers()->m_conditionVariableDataPtr.get(),
+                              *getMembers()->m_conditionVariableNotificationIndex)
+                .notify();
         }
     }
 }

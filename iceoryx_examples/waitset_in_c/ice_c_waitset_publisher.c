@@ -28,6 +28,7 @@ bool killswitch = false;
 
 static void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
@@ -53,6 +54,7 @@ void sending()
             sample->counter = counter;
 
             printf("Sending: %u\n", counter);
+            fflush(stdout);
 
             iox_pub_publish_chunk(publisher, chunk);
 

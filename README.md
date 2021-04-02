@@ -5,7 +5,7 @@
 </p>
 
 [![Build & Test](https://github.com/eclipse-iceoryx/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
-[![Colcon build](https://github.com/eclipse-iceoryx/iceoryx/workflows/Colcon%20build/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
+[![Integrationtests](https://github.com/eclipse-iceoryx/iceoryx/workflows/Iceoryx%20Integrationtests/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
 [![Gitter](https://badges.gitter.im/eclipse-iceoryx/iceoryx.svg)](https://gitter.im/eclipse/iceoryx)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Codecov](https://codecov.io/gh/eclipse-iceoryx/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse-iceoryx/iceoryx?branch=master)

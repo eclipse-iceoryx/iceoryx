@@ -35,8 +35,7 @@ template <typename T, typename base_publisher_t>
 template <typename... Args>
 inline cxx::expected<Sample<T>, AllocationError> Publisher<T, base_publisher_t>::loan(Args&&... args) noexcept
 {
-    return std::move(
-        loanSample(sizeof(T)).and_then([&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); }));
+    return std::move(loanSample().and_then([&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); }));
 }
 
 template <typename T, typename base_publisher_t>
@@ -50,7 +49,7 @@ inline cxx::expected<AllocationError> Publisher<T, base_publisher_t>::publishRes
     static_assert(cxx::has_signature<Callable, void(T*, ArgTypes...)>::value,
                   "callable provided to Publisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
-    return loanSample(sizeof(T)).and_then([&](auto& sample) {
+    return loanSample().and_then([&](auto& sample) {
         c(sample.get(), std::forward<ArgTypes>(args)...);
         sample.publish();
     });
@@ -59,17 +58,17 @@ inline cxx::expected<AllocationError> Publisher<T, base_publisher_t>::publishRes
 template <typename T, typename base_publisher_t>
 inline cxx::expected<AllocationError> Publisher<T, base_publisher_t>::publishCopyOf(const T& val) noexcept
 {
-    return loanSample(sizeof(T)).and_then([&](auto& sample) {
+    return loanSample().and_then([&](auto& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
         sample.publish();
     });
 }
 
 template <typename T, typename base_publisher_t>
-inline cxx::expected<Sample<T>, AllocationError>
-Publisher<T, base_publisher_t>::loanSample(const uint32_t size) noexcept
+inline cxx::expected<Sample<T>, AllocationError> Publisher<T, base_publisher_t>::loanSample() noexcept
 {
-    auto result = port().tryAllocateChunk(size);
+    auto result = port().tryAllocateChunk(
+        sizeof(T), alignof(T), iox::CHUNK_NO_CUSTOM_HEADER_SIZE, iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
     if (result.has_error())
     {
         return cxx::error<AllocationError>(result.get_error());

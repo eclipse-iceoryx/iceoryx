@@ -39,7 +39,7 @@ class Watchdog
     {
         if (m_watchdog.joinable())
         {
-            m_watchdogSemaphore.post();
+            IOX_DISCARD_RESULT(m_watchdogSemaphore.post());
             m_watchdog.join();
         }
     }

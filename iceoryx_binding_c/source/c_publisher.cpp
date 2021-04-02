@@ -17,6 +17,7 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -100,9 +101,9 @@ void iox_pub_deinit(iox_pub_t const self)
 
 iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize)
 {
-    auto result = PublisherPortUser(self->m_portData).tryAllocateChunk(payloadSize).and_then([&](ChunkHeader* h) {
-        *chunk = h->payload();
-    });
+    auto result = PublisherPortUser(self->m_portData)
+                      .tryAllocateChunk(payloadSize, CHUNK_DEFAULT_PAYLOAD_ALIGNMENT)
+                      .and_then([&chunk](ChunkHeader* h) { *chunk = h->payload(); });
     if (result.has_error())
     {
         return cpp2c::AllocationResult(result.get_error());
@@ -148,4 +149,9 @@ bool iox_pub_is_offered(iox_pub_t const self)
 bool iox_pub_has_subscribers(iox_pub_t const self)
 {
     return PublisherPortUser(self->m_portData).hasSubscribers();
+}
+
+iox_service_description_t iox_pub_get_service_description(iox_pub_t const self)
+{
+    return TranslateServiceDescription(PublisherPortUser(self->m_portData).getCaProServiceDescription());
 }

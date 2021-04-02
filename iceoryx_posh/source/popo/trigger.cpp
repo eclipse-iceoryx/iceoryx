@@ -15,13 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/trigger.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 
 namespace iox
 {
 namespace popo
 {
-std::atomic<uint64_t> Trigger::uniqueIdCounter{0U};
 constexpr uint64_t Trigger::INVALID_TRIGGER_ID;
 
 Trigger::~Trigger()
@@ -41,10 +39,8 @@ void Trigger::reset() noexcept
         return;
     }
 
-    if (m_resetCallback)
-    {
-        m_resetCallback(m_uniqueId);
-    }
+    // the constructor made sure that m_resetCallback is always set
+    IOX_DISCARD_RESULT(m_resetCallback(m_uniqueId));
 
     invalidate();
 }
@@ -71,10 +67,10 @@ bool Trigger::isValid() const noexcept
     return static_cast<bool>(m_hasTriggeredCallback);
 }
 
-bool Trigger::isLogicalEqualTo(const Trigger& rhs) const noexcept
+bool Trigger::isLogicalEqualTo(const void* const eventOrigin,
+                               const cxx::ConstMethodCallback<bool>& hasTriggeredCallback) const noexcept
 {
-    return (isValid() && rhs.isValid() && m_eventInfo.m_eventOrigin == rhs.m_eventInfo.m_eventOrigin
-            && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback);
+    return isValid() && m_eventInfo.m_eventOrigin == eventOrigin && m_hasTriggeredCallback == hasTriggeredCallback;
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept

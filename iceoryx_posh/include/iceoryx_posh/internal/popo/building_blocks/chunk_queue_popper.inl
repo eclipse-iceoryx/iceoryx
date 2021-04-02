@@ -54,7 +54,7 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
     {
         auto chunkTupleOut = *retVal;
         auto chunkManagement =
-            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         auto chunk = mepoo::SharedChunk(chunkManagement);
         return cxx::make_optional<mepoo::SharedChunk>(chunk);
     }
@@ -113,34 +113,28 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
         // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
         auto chunkTupleOut = maybeChunkTuple.value();
         auto chunkManagement =
-            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         auto chunk = mepoo::SharedChunk(chunkManagement);
     }
 }
 
 template <typename ChunkQueueDataType>
-inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(
-    cxx::not_null<ConditionVariableData*> conditionVariableDataPtr) noexcept
+inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(ConditionVariableData& conditionVariableDataRef,
+                                                                       const uint64_t notificationIndex) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
-    getMembers()->m_conditionVariableDataPtr = conditionVariableDataPtr;
-}
-
-template <typename ChunkQueueDataType>
-inline void ChunkQueuePopper<ChunkQueueDataType>::setEventVariable(EventVariableData& eventVariableDataPtr,
-                                                                   const uint64_t eventId) noexcept
-{
-    getMembers()->m_conditionVariableDataPtr = &eventVariableDataPtr;
-    getMembers()->m_eventVariableIndex.emplace(eventId);
+    getMembers()->m_conditionVariableDataPtr = &conditionVariableDataRef;
+    getMembers()->m_conditionVariableNotificationIndex.emplace(notificationIndex);
 }
 
 template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
+
     getMembers()->m_conditionVariableDataPtr = nullptr;
-    getMembers()->m_eventVariableIndex.reset();
+    getMembers()->m_conditionVariableNotificationIndex.reset();
 }
 
 template <typename ChunkQueueDataType>
