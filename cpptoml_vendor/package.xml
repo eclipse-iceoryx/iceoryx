@@ -2,11 +2,11 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>cpptoml_vendor</name>
-  <version>0.99.0</version>  <!-- used cpptoml version is v0.1.1 -->
+  <version>0.99.1</version>  <!-- used cpptoml version is v0.1.1 -->
   <description>
     Wrapper around cpptoml for parsing TOML configuration files , build is done via a CMake ExternalProject.
   </description>
-  <maintainer email="iceoryx-dev@eclipse.org">Eclipse Foundation, Inc.</maintainer>
+  <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
   <license>Apache License 2.0</license>  <!-- the contents of this package are Apache 2.0 -->
   <license>MIT</license>  <!-- cpptoml is MIT -->
 
