@@ -23,9 +23,11 @@ execute_process(COMMAND
 
 string(TIMESTAMP ICEORYX_BUILDDATE UTC)
 
+set(IOX_VERSION_TWEAK "0")
 
-if(NOT DEFINED ${PROJECT_VERSION_TWEAK})
-  set(IOX_VERSION_TWEAK "0")
+
+if(DEFINED ${PROJECT_VERSION_TWEAK})
+  set(IOX_VERSION_TWEAK ${PROJECT_VERSION_TWEAK})
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_versions.hpp.in"
