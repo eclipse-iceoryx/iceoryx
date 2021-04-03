@@ -140,9 +140,6 @@ TYPED_TEST(TriggerQueue_test, PushBlocksUntilPopWhenFull)
     t.join();
 }
 
-/// @note leak sanitizer seems to find here some false positives only
-///       on the clang-sanitize CI target
-#if 0
 TYPED_TEST(TriggerQueue_test, PushBlocksUntilDestroyWasCalled)
 {
     constexpr int64_t TIMEOUT_IN_MS = 100;
@@ -174,5 +171,5 @@ TYPED_TEST(TriggerQueue_test, AfterDestroyPushAddsNoElements)
 
     EXPECT_THAT(this->m_sut.size(), Eq(0U));
 }
-#endif
+
 } // namespace
