@@ -22,6 +22,8 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
+#include <thread>
+
 namespace iox
 {
 namespace popo
