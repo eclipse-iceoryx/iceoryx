@@ -54,9 +54,9 @@ See [Eclipse iceoryx 1.0.0 (Almond)](https://projects.eclipse.org/projects/techn
 - iceoryx libs should be build as static libs [\#509](https://github.com/eclipse-iceoryx/iceoryx/issues/509)
 - Build with gcov is broken [\#497](https://github.com/eclipse-iceoryx/iceoryx/issues/497)
 
-## [v0.99.1](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.1) (2021-04-03)
+## [v0.99.2](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.2) (2021-04-03)
 
-[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.0...v0.99.1)
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.0...v0.99.2)
 
 - Prepare package release for iceoryx 1.0 [\#670](https://github.com/eclipse-iceoryx/iceoryx/issues/670)
 

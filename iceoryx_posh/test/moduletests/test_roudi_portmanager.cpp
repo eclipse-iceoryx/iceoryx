@@ -36,6 +36,7 @@ using ::testing::Return;
 
 using iox::popo::PublisherOptions;
 using iox::popo::PublisherPortUser;
+using iox::popo::QueueFullPolicy;
 using iox::popo::SubscriberOptions;
 using iox::popo::SubscriberPortUser;
 using iox::roudi::IceOryxRouDiMemoryManager;
@@ -462,6 +463,82 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
         EXPECT_EQ(interfacePort, nullptr);
         EXPECT_TRUE(errorHandlerCalled);
     }
+}
+
+TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberRequestsBlockingLeadsToConnect)
+{
+    PublisherOptions publisherOptions{
+        1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PUBLISHER};
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    ASSERT_TRUE(subscriber);
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryBothDiscardOldestPolicyLeadsToConnect)
+{
+    PublisherOptions publisherOptions{
+        1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA};
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    ASSERT_TRUE(subscriber);
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(PortManager_test, DoDiscoveryPublisherDoesNotAllowBlockingAndSubscriberRequestsBlockingLeadsToNoConnect)
+{
+    PublisherOptions publisherOptions{
+        1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PUBLISHER};
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    ASSERT_TRUE(subscriber);
+
+    ASSERT_FALSE(publisher.hasSubscribers());
+}
+
+TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberDiscardOldestLeadsToConnect)
+{
+    PublisherOptions publisherOptions{
+        1U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA};
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+            .value());
+    ASSERT_TRUE(publisher);
+
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+    ASSERT_TRUE(subscriber);
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
 TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessful)

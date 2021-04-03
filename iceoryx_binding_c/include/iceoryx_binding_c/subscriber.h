@@ -29,21 +29,23 @@ typedef struct cpp2c_Subscriber* iox_sub_t;
 /// @brief options to be set for a subscriber
 typedef struct
 {
-    // size of the history chunk queue
+    /// @brief size of the history chunk queue
     uint64_t queueCapacity;
 
-    // number of chunks received after subscription if chunks are available
-    // nullptr indicates that the default node name is used
+    /// @brief number of chunks received after subscription if chunks are available
     uint64_t historyRequest;
 
-    // name of the node the subscriber belongs to
+    /// @brief name of the node the subscriber belongs to
+    /// @note nullptr indicates that the default node name is used
     const char* nodeName;
 
-    // The option whether the subscriber shall try to subscribe when creating it
+    /// @brief The option whether the subscriber shall try to subscribe when creating it
     bool subscribeOnCreate;
 
-    // this value will be set exclusively by iox_sub_options_init
-    // and is not supposed to be modified otherwise
+    /// @brief describes whether a publisher blocks when subscriber queue is full
+    ENUM iox_QueueFullPolicy queueFullPolicy;
+
+    /// @brief this value will be set exclusively by iox_sub_options_init and is not supposed to be modified otherwise
     uint64_t initCheck;
 } iox_sub_options_t;
 

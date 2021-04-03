@@ -42,7 +42,7 @@ class VariantQueue_test : public Test
     }
 
     // if a new fifo type is added this variable has to be adjusted
-    uint64_t numberOfQueueTypes = 4;
+    uint64_t numberOfQueueTypes = 4U;
 };
 
 TEST_F(VariantQueue_test, isEmptyWhenCreated)

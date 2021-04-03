@@ -34,6 +34,7 @@ using namespace iox::popo;
 
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION_VALID("Radar", "FrontRight", "ChuckNorrisDetected");
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY(0, 0, 0);
+
 const iox::RuntimeName_t RUNTIME_NAME_EMPTY = {""};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
@@ -69,7 +70,8 @@ PublisherPortData* createPortData()
 {
     PublisherOptions options;
     options.historyCapacity = 1U;
-    return new PublisherPortData(SERVICE_DESCRIPTION_VALID, RUNTIME_NAME_FOR_PUBLISHER_PORTS, &m_memoryManager, options);
+    return new PublisherPortData(
+        SERVICE_DESCRIPTION_VALID, RUNTIME_NAME_FOR_PUBLISHER_PORTS, &m_memoryManager, options);
 }
 template <>
 SubscriberPortData* createPortData()
@@ -162,13 +164,13 @@ class BasePort_test : public Test
     BasePort sut{sutData.get()};
 };
 
-TYPED_TEST(BasePort_test, getCaProServiceDescription)
+TYPED_TEST(BasePort_test, CallingGetCaProServiceDescriptionWorks)
 {
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getCaProServiceDescription(), Eq(expectedServiceDescription<PortData_t>()));
 }
 
-TYPED_TEST(BasePort_test, getApplicationname)
+TYPED_TEST(BasePort_test, CallingGetRuntimeNameWorks)
 {
     using PortData_t = typename TestFixture::PortData_t;
     EXPECT_THAT(this->sut.getRuntimeName(), Eq(expectedProcessName<PortData_t>()));

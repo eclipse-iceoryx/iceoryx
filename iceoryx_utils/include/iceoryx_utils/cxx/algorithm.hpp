@@ -106,7 +106,6 @@ constexpr bool doesContainType() noexcept;
 /// @return sorted container which contains the elements of v1 and v2 and where every element is unique
 template <typename Container>
 Container uniqueMergeSortedContainers(const Container& v1, const Container& v2) noexcept;
-
 } // namespace algorithm
 } // namespace iox
 

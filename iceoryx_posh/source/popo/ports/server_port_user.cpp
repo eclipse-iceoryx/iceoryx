@@ -57,7 +57,7 @@ bool ServerPortUser::hasNewRequests() const noexcept
 
 bool ServerPortUser::hasLostRequestsSinceLastCall() noexcept
 {
-    return m_chunkReceiver.hasOverflown();
+    return m_chunkReceiver.hasLostChunks();
 }
 
 cxx::expected<ResponseHeader*, AllocationError>

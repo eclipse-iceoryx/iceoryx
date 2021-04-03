@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
@@ -100,7 +101,8 @@ class iox_pub_test : public Test
     static constexpr uint32_t CHUNK_SIZE = 256;
 
     using ChunkQueueData_t = popo::ChunkQueueData<DefaultChunkQueueConfig, popo::ThreadSafePolicy>;
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
     GenericRAII m_uniqueRouDiId{[] { popo::internal::setUniqueRouDiId(0); },
                                 [] { popo::internal::unsetUniqueRouDiId(); }};
@@ -351,6 +353,7 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     sut.historyCapacity = 37;
     sut.nodeName = "Dr.Gonzo";
     sut.offerOnCreate = false;
+    sut.subscriberTooSlowPolicy = SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
 
     PublisherOptions options;
     // set offerOnCreate to the opposite of the expected default to check if it gets overwritten to default
@@ -360,6 +363,7 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.offerOnCreate, options.offerOnCreate);
+    EXPECT_EQ(sut.subscriberTooSlowPolicy, cpp2c::subscriberTooSlowPolicy(options.subscriberTooSlowPolicy));
     EXPECT_TRUE(iox_pub_options_is_initialized(&sut));
 }
 

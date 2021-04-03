@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
@@ -46,6 +47,7 @@ void iox_pub_options_init(iox_pub_options_t* options)
     options->historyCapacity = publisherOptions.historyCapacity;
     options->nodeName = nullptr;
     options->offerOnCreate = publisherOptions.offerOnCreate;
+    options->subscriberTooSlowPolicy = cpp2c::subscriberTooSlowPolicy(publisherOptions.subscriberTooSlowPolicy);
 
     options->initCheck = PUBLISHER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -88,6 +90,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
             publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
         publisherOptions.offerOnCreate = options->offerOnCreate;
+        publisherOptions.subscriberTooSlowPolicy = c2cpp::subscriberTooSlowPolicy(options->subscriberTooSlowPolicy);
     }
 
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(

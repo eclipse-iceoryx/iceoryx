@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
@@ -309,13 +310,15 @@ TEST_F(iox_sub_test, initialStateHasNoLostChunks)
     EXPECT_FALSE(iox_sub_has_lost_chunks(m_sut));
 }
 
-TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
+TEST_F(iox_sub_test, sendingTooMuchLeadsToOverflow)
 {
     this->Subscribe(&m_portPtr);
-    for (uint64_t i = 0U; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY + 1U; ++i)
+    for (uint64_t i = 0U; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY; ++i)
     {
-        m_chunkPusher.push(getChunkFromMemoryManager());
+        EXPECT_TRUE(m_chunkPusher.push(getChunkFromMemoryManager()));
     }
+    EXPECT_FALSE(m_chunkPusher.push(getChunkFromMemoryManager()));
+    m_chunkPusher.lostAChunk();
 
     EXPECT_TRUE(iox_sub_has_lost_chunks(m_sut));
 }
@@ -405,6 +408,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     sut.historyRequest = 73;
     sut.nodeName = "Dr.Gonzo";
     sut.subscribeOnCreate = false;
+    sut.queueFullPolicy = QueueFullPolicy_BLOCK_PUBLISHER;
 
     SubscriberOptions options;
     // set subscribeOnCreate to the opposite of the expected default to check if it gets overwritten to default
@@ -415,6 +419,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.subscribeOnCreate, options.subscribeOnCreate);
+    EXPECT_EQ(sut.queueFullPolicy, cpp2c::queueFullPolicy(options.queueFullPolicy));
     EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
 }
 

@@ -87,13 +87,18 @@ TEST_F(AccessController_test, writeStandardPermissions)
     acl_t fileACL = acl_get_fd(m_fileDescriptor);
     acl_t localACL = acl_from_text("u::rw,g::-,o::r");
 
-    std::string fileACLText(acl_to_text(fileACL, nullptr));
-    std::string localACLText(acl_to_text(localACL, nullptr));
+    auto* fileACLCStr = acl_to_text(fileACL, nullptr);
+    std::string fileACLText(fileACLCStr);
+    acl_free(fileACLCStr);
+
+    auto* localACLCStr = acl_to_text(localACL, nullptr);
+    std::string localACLText(localACLCStr);
+    acl_free(localACLCStr);
 
     EXPECT_EQ(fileACLText, localACLText);
 
-    acl_free(fileACL);
     acl_free(localACL);
+    acl_free(fileACL);
 }
 
 TEST_F(AccessController_test, writeSpecialUserPermissions)
@@ -125,8 +130,13 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     std::string localACLShortText = "u:" + currentUserName + ":rw,u::rw,g::r,o::-,m::rw";
     acl_t localACL = acl_from_text(localACLShortText.c_str());
 
-    std::string fileACLText(acl_to_text(fileACL, nullptr));
-    std::string localACLText(acl_to_text(localACL, nullptr));
+    auto* fileACLCStr = acl_to_text(fileACL, nullptr);
+    std::string fileACLText(fileACLCStr);
+    acl_free(fileACLCStr);
+
+    auto* localACLCStr = acl_to_text(localACL, nullptr);
+    std::string localACLText(localACLCStr);
+    acl_free(localACLCStr);
 
     EXPECT_EQ(fileACLText, localACLText);
 
@@ -162,8 +172,13 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
     acl_t fileACL = acl_get_fd(m_fileDescriptor);
     acl_t localACL = acl_from_text("g:root:rw,u::rw,g::r,o::-,m::rw");
 
-    std::string fileACLText(acl_to_text(fileACL, nullptr));
-    std::string localACLText(acl_to_text(localACL, nullptr));
+    auto* fileACLCStr = acl_to_text(fileACL, nullptr);
+    std::string fileACLText(fileACLCStr);
+    acl_free(fileACLCStr);
+
+    auto* localACLCStr = acl_to_text(localACL, nullptr);
+    std::string localACLText(localACLCStr);
+    acl_free(localACLCStr);
 
     EXPECT_EQ(fileACLText, localACLText);
 
@@ -199,8 +214,13 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
     std::string localACLShortText = "u:" + currentUserName + ":rw,u::rw,g:root:rw,g::r,o::-,m::rw";
     acl_t localACL = acl_from_text(localACLShortText.c_str());
 
-    std::string fileACLText(acl_to_text(fileACL, nullptr));
-    std::string localACLText(acl_to_text(localACL, nullptr));
+    auto* fileACLCStr = acl_to_text(fileACL, nullptr);
+    std::string fileACLText(fileACLCStr);
+    acl_free(fileACLCStr);
+
+    auto* localACLCStr = acl_to_text(localACL, nullptr);
+    std::string localACLText(localACLCStr);
+    acl_free(localACLCStr);
 
     EXPECT_EQ(fileACLText, localACLText);
 

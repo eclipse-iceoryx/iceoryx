@@ -17,6 +17,7 @@
 
 
 #include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
@@ -52,6 +53,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
     options->historyRequest = subscriberOptions.historyRequest;
     options->nodeName = nullptr;
     options->subscribeOnCreate = subscriberOptions.subscribeOnCreate;
+    options->queueFullPolicy = cpp2c::queueFullPolicy(subscriberOptions.queueFullPolicy);
 
     options->initCheck = SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -95,6 +97,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
             subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
         subscriberOptions.subscribeOnCreate = options->subscribeOnCreate;
+        subscriberOptions.queueFullPolicy = c2cpp::queueFullPolicy(options->queueFullPolicy);
     }
 
     me->m_portData =

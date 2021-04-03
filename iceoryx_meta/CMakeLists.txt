@@ -23,12 +23,8 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/install_help_and_config.cmake)
 
-
-# ===== Dependencies
-if(TOML_CONFIG)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/cpptoml/prebuild)
-endif()
 
 # ===== Core
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
