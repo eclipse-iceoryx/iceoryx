@@ -17,7 +17,6 @@
 
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "test.hpp"
-#include "testutils/watch_dog.hpp"
 
 namespace
 {
@@ -31,7 +30,6 @@ class VariantQueue_test : public Test
   public:
     void SetUp()
     {
-        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     }
     void TearDown()
     {
@@ -44,8 +42,7 @@ class VariantQueue_test : public Test
     }
 
     // if a new fifo type is added this variable has to be adjusted
-    uint64_t numberOfQueueTypes = 6U;
-    Watchdog m_watchdog{units::Duration::fromSeconds(2U)};
+    uint64_t numberOfQueueTypes = 4U;
 };
 
 TEST_F(VariantQueue_test, isEmptyWhenCreated)
@@ -115,14 +112,7 @@ TEST_F(VariantQueue_test, pushTwoElementsAfterSecondPopIsInvalid)
 TEST_F(VariantQueue_test, handlesOverflow)
 {
     PerformTestForQueueTypes([](uint64_t typeID) {
-        VariantQueueTypes type = static_cast<VariantQueueTypes>(typeID);
-        if (type == VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer
-            || type == VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer)
-        {
-            return;
-        }
-
-        VariantQueue<int, 2> sut(type);
+        VariantQueue<int, 2> sut(static_cast<VariantQueueTypes>(typeID));
         // current SOFI can hold capacity +1 values, so push some more to ensure overflow
         sut.push(14123);
         sut.push(24123);
@@ -130,41 +120,6 @@ TEST_F(VariantQueue_test, handlesOverflow)
         sut.push(33333);
         auto maybeOverflowValue = sut.push(667);
         EXPECT_THAT(maybeOverflowValue.has_value(), Eq(true));
-    });
-}
-
-TEST_F(VariantQueue_test, blocksOnOverflow)
-{
-    PerformTestForQueueTypes([](uint64_t typeID) {
-        VariantQueueTypes type = static_cast<VariantQueueTypes>(typeID);
-        if (!(type == VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer
-              || type == VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer))
-        {
-            return;
-        }
-
-        VariantQueue<int, 2> sut(type);
-
-        for (uint64_t i = 0U; i < sut.capacity(); ++i)
-        {
-            sut.push(24123 + i);
-        }
-
-        std::atomic<uint64_t> counter{0U};
-        std::thread t([&] {
-            sut.push(1231);
-            ++counter;
-        });
-
-        constexpr int64_t TIMEOUT_IN_MS = 100;
-        std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
-        EXPECT_THAT(counter.load(), Eq(0U));
-        auto result = sut.pop();
-        ASSERT_THAT(result.has_value(), Eq(true));
-        EXPECT_THAT(*result, Eq(24123));
-        std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
-        EXPECT_THAT(counter.load(), Eq(1U));
-        t.join();
     });
 }
 

@@ -43,8 +43,6 @@ enum class VariantQueueTypes : uint64_t
     SoFi_SingleProducerSingleConsumer = 1,
     FiFo_MultiProducerSingleConsumer = 2,
     SoFi_MultiProducerSingleConsumer = 3,
-    BlockingFiFo_SingleProducerSingleConsumer = 4,
-    BlockingFiFo_MultiProducerSingleConsumer = 5,
 };
 
 // remark: we need to consider to support the non-resizable queue as well

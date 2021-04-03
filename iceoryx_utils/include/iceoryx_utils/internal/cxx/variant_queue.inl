@@ -46,16 +46,6 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
         m_fifo.template emplace<concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>();
         break;
     }
-    case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
-    {
-        m_fifo.template emplace<concurrent::TriggerQueue<ValueType, Capacity, concurrent::FiFo>>();
-        break;
-    }
-    case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
-    {
-        m_fifo.template emplace<concurrent::TriggerQueue<ValueType, Capacity, concurrent::ResizeableLockFreeQueue>>();
-        break;
-    }
     }
 }
 
@@ -95,26 +85,6 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
             ->push(value);
     }
-    case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
-    {
-        auto pushFailedSinceFiFoShouldBeDestroyed =
-            m_fifo
-                .template get_at_index<static_cast<uint64_t>(
-                    VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer)>()
-                ->push(value);
-
-        return (pushFailedSinceFiFoShouldBeDestroyed) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
-    }
-    case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
-    {
-        auto pushFailedSinceFiFoShouldBeDestroyed =
-            m_fifo
-                .template get_at_index<static_cast<uint64_t>(
-                    VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
-                ->push(value);
-
-        return (pushFailedSinceFiFoShouldBeDestroyed) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
-    }
     }
 
     return cxx::nullopt;
@@ -147,19 +117,6 @@ inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
             ->pop();
     }
-    case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
-    {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(
-                VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer)>()
-            ->pop();
-    }
-    case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
-    {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
-            ->pop();
-    }
     }
 
     return cxx::nullopt;
@@ -187,19 +144,6 @@ inline bool VariantQueue<ValueType, Capacity>::empty() const noexcept
     {
         return m_fifo
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-            ->empty();
-    }
-    case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
-    {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(
-                VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer)>()
-            ->empty();
-    }
-    case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
-    {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
             ->empty();
     }
     }
@@ -234,21 +178,6 @@ inline uint64_t VariantQueue<ValueType, Capacity>::size() noexcept
             ->size();
         break;
     }
-    case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
-    {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(
-                VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer)>()
-            ->size();
-        break;
-    }
-    case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
-    {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
-            ->size();
-        break;
-    }
     }
 
     return 0U;
@@ -280,19 +209,6 @@ inline bool VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCap
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
             ->setCapacity(newCapacity);
     }
-    case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
-    {
-        /// @todo must be implemented for FiFo
-        cxx::Expects(false);
-        return false;
-    }
-    case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
-    {
-        // we may discard elements in the queue if the size is reduced and the fifo contains too many elements
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
-            ->setCapacity(newCapacity);
-    }
     }
     return false;
 }
@@ -321,21 +237,6 @@ inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
     {
         return m_fifo
             .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-            ->capacity();
-        break;
-    }
-    case VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer:
-    {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(
-                VariantQueueTypes::BlockingFiFo_SingleProducerSingleConsumer)>()
-            ->capacity();
-        break;
-    }
-    case VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer:
-    {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::BlockingFiFo_MultiProducerSingleConsumer)>()
             ->capacity();
         break;
     }
