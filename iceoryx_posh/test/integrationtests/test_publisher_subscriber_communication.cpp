@@ -61,7 +61,7 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
     createPublisher(const SubscriberTooSlowPolicy policy = SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA)
     {
         iox::popo::PublisherOptions options;
-        options.deliveryQueueFullPolicy = policy;
+        options.subscriberTooSlowPolicy = policy;
         return std::make_unique<iox::popo::Publisher<T>>(m_serviceDescription, options);
     }
 
@@ -71,7 +71,7 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
                      const uint64_t queueCapacity = SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY)
     {
         iox::popo::SubscriberOptions options;
-        options.receiverQueueFullPolicy = policy;
+        options.queueFullPolicy = policy;
         options.queueCapacity = queueCapacity;
         return std::make_unique<iox::popo::Subscriber<T>>(m_serviceDescription, options);
     }

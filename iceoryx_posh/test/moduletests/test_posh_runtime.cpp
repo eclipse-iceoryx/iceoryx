@@ -392,7 +392,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutExplicitlySetQueueFullPoli
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToDiscardOldestDataLeadsToDiscardOldestData)
 {
     iox::popo::PublisherOptions publisherOptions;
-    publisherOptions.deliveryQueueFullPolicy = iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
 
     const auto publisherPortData = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(90U, 130U, 1550U),
                                                                      publisherOptions,
@@ -405,7 +405,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToDiscardOl
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToWaitForSubscriberLeadsToWaitForSubscriber)
 {
     iox::popo::PublisherOptions publisherOptions;
-    publisherOptions.deliveryQueueFullPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
 
     const auto publisherPortData = m_runtime->getMiddlewarePublisher(
         iox::capro::ServiceDescription(18U, 31U, 400U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
@@ -521,7 +521,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithoutExplicitlySetQueueFullPol
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToDiscardOldestDataLeadsToDiscardOldestData)
 {
     iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.receiverQueueFullPolicy = iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
 
     const auto subscriberPortData = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(90U, 130U, 1550U),
                                                                        subscriberOptions,
@@ -534,7 +534,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToDiscardO
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPublisherLeadsToBlockPublisher)
 {
     iox::popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.receiverQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
 
     const auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
         iox::capro::ServiceDescription(18U, 31U, 400U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));

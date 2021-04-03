@@ -53,7 +53,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
     options->historyRequest = subscriberOptions.historyRequest;
     options->nodeName = nullptr;
     options->subscribeOnCreate = subscriberOptions.subscribeOnCreate;
-    options->receiverQueueFullPolicy = cpp2c::queueFullPolicy(subscriberOptions.receiverQueueFullPolicy);
+    options->queueFullPolicy = cpp2c::queueFullPolicy(subscriberOptions.queueFullPolicy);
 
     options->initCheck = SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -97,7 +97,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
             subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
         subscriberOptions.subscribeOnCreate = options->subscribeOnCreate;
-        subscriberOptions.receiverQueueFullPolicy = c2cpp::queueFullPolicy(options->receiverQueueFullPolicy);
+        subscriberOptions.queueFullPolicy = c2cpp::queueFullPolicy(options->queueFullPolicy);
     }
 
     me->m_portData =

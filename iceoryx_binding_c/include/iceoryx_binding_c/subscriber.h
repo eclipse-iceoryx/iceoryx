@@ -43,7 +43,7 @@ typedef struct
     bool subscribeOnCreate;
 
     /// @brief describes whether a publisher blocks when subscriber queue is full
-    ENUM iox_QueueFullPolicy receiverQueueFullPolicy;
+    ENUM iox_QueueFullPolicy queueFullPolicy;
 
     /// @brief this value will be set exclusively by iox_sub_options_init and is not supposed to be modified otherwise
     uint64_t initCheck;

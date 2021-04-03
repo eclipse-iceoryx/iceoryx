@@ -408,7 +408,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     sut.historyRequest = 73;
     sut.nodeName = "Dr.Gonzo";
     sut.subscribeOnCreate = false;
-    sut.receiverQueueFullPolicy = QueueFullPolicy_BLOCK_PUBLISHER;
+    sut.queueFullPolicy = QueueFullPolicy_BLOCK_PUBLISHER;
 
     SubscriberOptions options;
     // set subscribeOnCreate to the opposite of the expected default to check if it gets overwritten to default
@@ -419,7 +419,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.subscribeOnCreate, options.subscribeOnCreate);
-    EXPECT_EQ(sut.receiverQueueFullPolicy, cpp2c::queueFullPolicy(options.receiverQueueFullPolicy));
+    EXPECT_EQ(sut.queueFullPolicy, cpp2c::queueFullPolicy(options.queueFullPolicy));
     EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
 }
 

@@ -43,7 +43,7 @@ struct SubscriberOptions
     bool subscribeOnCreate{true};
 
     /// @brief The option whether the publisher should block when the subscriber queue is full
-    QueueFullPolicy receiverQueueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
+    QueueFullPolicy queueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
 };
 
 } // namespace popo
