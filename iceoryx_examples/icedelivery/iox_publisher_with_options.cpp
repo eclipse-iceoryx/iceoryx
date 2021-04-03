@@ -51,6 +51,9 @@ int main()
     // grouping of publishers and subscribers within a process
     publisherOptions.nodeName = "Pub_Node_With_Options";
 
+    //  we allow the subscribers to block the publisher if they want to ensure that no samples are lost
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
 
     // we have to explicitely offer the publisher for making it visible to subscribers

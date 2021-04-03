@@ -38,7 +38,7 @@ struct PublisherOptions
     bool offerOnCreate{true};
 
     /// @brief The option whether the publisher should block when the subscriber queue is full
-    SubscriberTooSlowPolicy deliveryQueueFullPolicy{SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+    SubscriberTooSlowPolicy subscriberTooSlowPolicy{SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
 };
 
 } // namespace popo

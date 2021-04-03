@@ -225,7 +225,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             options.historyCapacity = std::stoull(message.getElementAtIndex(3));
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
             options.offerOnCreate = (0U == std::stoull(message.getElementAtIndex(5))) ? false : true;
-            options.deliveryQueueFullPolicy =
+            options.subscriberTooSlowPolicy =
                 static_cast<popo::SubscriberTooSlowPolicy>(std::stoul(message.getElementAtIndex(6)));
 
             m_prcMgr->addPublisherForProcess(
@@ -251,7 +251,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             options.queueCapacity = std::stoull(message.getElementAtIndex(4));
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
             options.subscribeOnCreate = (0U == std::stoull(message.getElementAtIndex(6))) ? false : true;
-            options.receiverQueueFullPolicy =
+            options.queueFullPolicy =
                 static_cast<popo::QueueFullPolicy>(std::stoul(message.getElementAtIndex(7)));
             
             m_prcMgr->addSubscriberForProcess(
