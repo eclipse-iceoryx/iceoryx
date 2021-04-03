@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,22 +13,28 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_INL
-#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_INL
+
+#ifndef IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
+#define IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
+
+#include <cstdint>
 
 namespace iox
 {
 namespace popo
 {
-template <typename ChunkQueueProperties, typename LockingPolicy>
-inline ChunkQueueData<ChunkQueueProperties, LockingPolicy>::ChunkQueueData(
-    const QueueFullPolicy policy, const cxx::VariantQueueTypes queueType) noexcept
-    : m_queue(queueType)
-    , m_queueFullPolicy(policy)
+/// @brief Used by publisher
+enum class SubscriberTooSlowPolicy : uint8_t
 {
-}
-
+    WAIT_FOR_SUBSCRIBER,
+    DISCARD_OLDEST_DATA
+};
+/// @brief Used by subscriber
+enum class QueueFullPolicy : uint8_t
+{
+    BLOCK_PUBLISHER,
+    DISCARD_OLDEST_DATA
+};
 } // namespace popo
 } // namespace iox
-
-#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_INL
+#endif // IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP

@@ -101,5 +101,27 @@ iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept
     return ListenerResult_UNDEFINED_ERROR;
 }
 
+iox_SubscriberTooSlowPolicy subscriberTooSlowPolicy(const iox::popo::SubscriberTooSlowPolicy policy)
+{
+    switch (policy)
+    {
+    case SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER:
+        return SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
+    case SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA:
+        return SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA;
+    }
+    return SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA;
+}
+iox_QueueFullPolicy queueFullPolicy(const iox::popo::QueueFullPolicy policy)
+{
+    switch (policy)
+    {
+    case QueueFullPolicy::BLOCK_PUBLISHER:
+        return QueueFullPolicy_BLOCK_PUBLISHER;
+    case QueueFullPolicy::DISCARD_OLDEST_DATA:
+        return QueueFullPolicy_DISCARD_OLDEST_DATA;
+    }
+    return QueueFullPolicy_DISCARD_OLDEST_DATA;
+}
 
 } // namespace cpp2c

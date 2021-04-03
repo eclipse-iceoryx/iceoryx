@@ -44,12 +44,12 @@ ChunkQueuePusher<ChunkQueueDataType>::getMembers() noexcept
 }
 
 template <typename ChunkQueueDataType>
-inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk) noexcept
+inline bool ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk) noexcept
 {
     ChunkTuple chunkTupleIn(chunk.releaseWithRelativePtr());
 
     auto pushRet = getMembers()->m_queue.push(chunkTupleIn);
-
+    bool hasQueueOverflow = false;
 
     // drop the chunk if one is returned by an overflow
     if (pushRet.has_value())
@@ -59,9 +59,8 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
             rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         // this will release the chunk
         auto returnedChunk = mepoo::SharedChunk(chunkManagement);
-        /// we have to set this to true to inform the higher levels that there
-        /// was a chunk lost
-        getMembers()->m_queueHasOverflown.store(true, std::memory_order_relaxed);
+        /// tell the ChunkDistributor that we had an overflow and dropped a sample 
+        hasQueueOverflow = true;
     }
 
     {
@@ -73,6 +72,14 @@ inline void ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
                 .notify();
         }
     }
+
+    return !hasQueueOverflow;
+}
+
+template <typename ChunkQueueDataType>
+inline void ChunkQueuePusher<ChunkQueueDataType>::lostAChunk() noexcept
+{
+    getMembers()->m_queueHasLostChunks.store(true, std::memory_order_relaxed); 
 }
 
 } // namespace popo
