@@ -327,6 +327,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     auto sample = subscriber->take();
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("start your day with a smile")));
+    t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the read
     EXPECT_TRUE(wasSampleDelivered.load());
 
     sample = subscriber->take();
@@ -336,8 +337,6 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     sample = subscriber->take();
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("oh no hypnotoad is staring at me")));
-
-    t1.join();
 }
 
 TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSamplesWhenNonBlockingActivated)
