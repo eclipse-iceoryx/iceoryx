@@ -285,3 +285,8 @@ install(
 if(BUILD_TEST)
     add_subdirectory(test)
 endif(BUILD_TEST)
+
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+  DESTINATION share/doc/iceoryx_utils
+  COMPONENT dev)

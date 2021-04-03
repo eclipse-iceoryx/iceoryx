@@ -23,6 +23,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/install_help_and_config.cmake)
 
 
 # ===== Core

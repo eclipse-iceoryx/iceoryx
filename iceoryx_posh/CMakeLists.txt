@@ -37,7 +37,6 @@ if(TOML_CONFIG)
 endif()
 
 include(cmake/iceoryxversions.cmake)
-include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
@@ -165,7 +164,7 @@ target_include_directories(iceoryx_posh
     source/version
     source/runtime
 )
-target_link_libraries(iceoryx_posh 
+target_link_libraries(iceoryx_posh
     PUBLIC
     iceoryx_utils::iceoryx_utils
     PRIVATE
@@ -183,6 +182,17 @@ elseif(WIN32)
 else()
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()
+
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+  DESTINATION share/doc/iceoryx_posh
+  COMPONENT dev)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/3rd_party_licenses
+  DESTINATION share/doc/iceoryx_posh
+  COMPONENT dev)
+
 
 #
 ########## posh lib for gateway support ##########
@@ -207,12 +217,12 @@ target_include_directories(iceoryx_posh_gateway
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
-target_link_libraries(iceoryx_posh_gateway 
+target_link_libraries(iceoryx_posh_gateway
     PUBLIC
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
     PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}    
+    ${ICEORYX_SANITIZER_FLAGS}
 )
 
 target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
@@ -320,6 +330,10 @@ if(TOML_CONFIG)
 
     target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
+    install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/etc/iceoryx/roudi_config_example.toml
+        DESTINATION etc/
+        COMPONENT dev)
 #
 ######### posh roudi daemon ##########
 #
