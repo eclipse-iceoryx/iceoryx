@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.7)
 
-set(IOX_VERSION_STRING "0.99.1")
+set(IOX_VERSION_STRING "0.99.2")
 
 find_package(iceoryx_utils REQUIRED)
 
@@ -115,4 +115,9 @@ setup_install_directories_and_export_package(
     TARGETS ${PROJECT_NAME}
     INCLUDE_DIRECTORY include/
 )
+
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+  DESTINATION share/doc/iceoryx_binding_c
+  COMPONENT dev)
 

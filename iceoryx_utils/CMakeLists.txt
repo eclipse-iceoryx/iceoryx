@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.1")
+set(IOX_VERSION_STRING "0.99.2")
 
 
 #include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxVersion.cmake")
@@ -285,3 +285,8 @@ install(
 if(BUILD_TEST)
     add_subdirectory(test)
 endif(BUILD_TEST)
+
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+  DESTINATION share/doc/iceoryx_utils
+  COMPONENT dev)

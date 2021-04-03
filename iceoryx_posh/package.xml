@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
     <name>iceoryx_posh</name>
-    <version>0.99.1</version>
+    <version>0.99.2</version>
     <description>Eclipse iceoryx inter-process-communication (IPC) middleware Posix Shared Memory Library and middleware daemon (RouDi)</description>
     <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
@@ -12,7 +12,6 @@
 
     <buildtool_depend>cmake</buildtool_depend>
 
-    <build_depend>cpptoml_vendor</build_depend>
     <build_depend>iceoryx_utils</build_depend>
 
     <doc_depend>doxygen</doc_depend>

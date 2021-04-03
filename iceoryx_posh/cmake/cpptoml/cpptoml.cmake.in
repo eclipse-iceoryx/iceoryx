@@ -14,6 +14,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# include cpptoml config file to make find_package(cpptoml REQUIRED) work
+cmake_minimum_required(VERSION 3.5)
 
-include(${CMAKE_CURRENT_LIST_DIR}/../../cpptoml_install/lib/cmake/cpptoml/cpptomlConfig.cmake)
+project(cpptoml-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(ext_cpptoml
+  GIT_REPOSITORY    https://github.com/skystrife/cpptoml.git
+  GIT_TAG           v0.1.1
+  SOURCE_DIR        "${CMAKE_BINARY_DIR}/dependencies/cpptoml/src"
+  BINARY_DIR        "${CMAKE_BINARY_DIR}/dependencies/cpptoml/build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)

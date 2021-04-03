@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.1")
+set(IOX_VERSION_STRING "0.99.2")
 
 find_package(iceoryx_utils REQUIRED)
 
@@ -30,8 +30,13 @@ find_package(Threads REQUIRED)
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 
+if(TOML_CONFIG)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/posh/cpptoml/prebuild)
+
+    find_package(cpptoml REQUIRED)
+endif()
+
 include(cmake/iceoryxversions.cmake)
-include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
@@ -159,7 +164,7 @@ target_include_directories(iceoryx_posh
     source/version
     source/runtime
 )
-target_link_libraries(iceoryx_posh 
+target_link_libraries(iceoryx_posh
     PUBLIC
     iceoryx_utils::iceoryx_utils
     PRIVATE
@@ -177,6 +182,17 @@ elseif(WIN32)
 else()
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()
+
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+  DESTINATION share/doc/iceoryx_posh
+  COMPONENT dev)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/3rd_party_licenses
+  DESTINATION share/doc/iceoryx_posh
+  COMPONENT dev)
+
 
 #
 ########## posh lib for gateway support ##########
@@ -201,12 +217,12 @@ target_include_directories(iceoryx_posh_gateway
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
-target_link_libraries(iceoryx_posh_gateway 
+target_link_libraries(iceoryx_posh_gateway
     PUBLIC
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
     PRIVATE
-    ${ICEORYX_SANITIZER_FLAGS}    
+    ${ICEORYX_SANITIZER_FLAGS}
 )
 
 target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
@@ -279,11 +295,6 @@ target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_
 
 
 if(TOML_CONFIG)
-    if ( NOT cpptoml_FOUND )
-        find_package(cpptoml_vendor QUIET)
-        find_package(cpptoml REQUIRED)
-    endif(NOT cpptoml_FOUND)
-
     #
     ######### posh config lib ##########
     #
@@ -319,6 +330,10 @@ if(TOML_CONFIG)
 
     target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
+    install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/etc/iceoryx/roudi_config_example.toml
+        DESTINATION etc/
+        COMPONENT dev)
 #
 ######### posh roudi daemon ##########
 #
