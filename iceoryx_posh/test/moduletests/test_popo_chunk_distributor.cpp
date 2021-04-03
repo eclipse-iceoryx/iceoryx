@@ -563,13 +563,13 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
     queue.setCapacity(1U);
 
     ASSERT_FALSE(sut.tryAddQueue(queueData.get(), 0U).has_error());
-    sut.deliverToAllStoredQueues(this->allocateChunk(155));
+    sut.deliverToAllStoredQueues(this->allocateChunk(155U));
 
     auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
     std::atomic_bool wasChunkDelivered{false};
     std::thread t1([&] {
         ASSERT_FALSE(threadSyncSemaphore->post().has_error());
-        sut.deliverToAllStoredQueues(this->allocateChunk(152));
+        sut.deliverToAllStoredQueues(this->allocateChunk(152U));
         wasChunkDelivered = true;
     });
 
@@ -579,16 +579,14 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
 
     auto maybeSharedChunk = queue.tryPop();
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(155));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(155U));
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(this->TIMEOUT_IN_MS));
+    t1.join(); // join needs to be before the load to ensure the wasChunkDelivered store happens before the read
     EXPECT_THAT(wasChunkDelivered.load(), Eq(true));
 
     maybeSharedChunk = queue.tryPop();
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(152));
-
-    t1.join();
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(152U));
 }
 
 TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBecomesSpaceAvailable)
@@ -610,13 +608,13 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
         ASSERT_FALSE(sut.tryAddQueue(queueDatas.back().get(), 0U).has_error());
     }
 
-    sut.deliverToAllStoredQueues(this->allocateChunk(425));
+    sut.deliverToAllStoredQueues(this->allocateChunk(425U));
 
     auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
     std::atomic_bool wasChunkDelivered{false};
     std::thread t1([&] {
         ASSERT_FALSE(threadSyncSemaphore->post().has_error());
-        sut.deliverToAllStoredQueues(this->allocateChunk(1152));
+        sut.deliverToAllStoredQueues(this->allocateChunk(1152U));
         wasChunkDelivered = true;
     });
 
@@ -628,23 +626,22 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
     {
         auto maybeSharedChunk = queues[i].tryPop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
-        EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(425));
+        EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(425U));
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(this->TIMEOUT_IN_MS));
         if (i + 1U == NUMBER_OF_QUEUES)
         {
+            // join needs to be before the load to ensure the wasChunkDelivered store happens before the read
+            t1.join();
             EXPECT_THAT(wasChunkDelivered.load(), Eq(true));
         }
         else
         {
+            std::this_thread::sleep_for(std::chrono::milliseconds(this->TIMEOUT_IN_MS));
             EXPECT_THAT(wasChunkDelivered.load(), Eq(false));
         }
 
         maybeSharedChunk = queues[i].tryPop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
-        EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(1152));
+        EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(1152U));
     }
-
-    t1.join();
 }
-

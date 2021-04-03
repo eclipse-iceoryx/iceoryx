@@ -137,12 +137,13 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
     {
         typename MemberType_t::LockGuard_t lock(*getMembers());
 
+        bool willWaitForSubscriber =
+            getMembers()->m_subscriberTooSlowPolicy == SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
         // send to all the queues
         for (auto& queue : getMembers()->m_queues)
         {
             bool isBlockingQueue =
-                (getMembers()->m_subscriberTooSlowPolicy == SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER
-                 && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
+                (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
 
             if (!deliverToQueue(queue.get(), chunk) && isBlockingQueue)
             {
@@ -180,6 +181,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
                     remainingQueues.erase(remainingQueues.begin() + i);
                 }
 
+                // don't move this up since the for loop counts downwards and the algorithm would break
                 if (i == 0U)
                 {
                     break;
