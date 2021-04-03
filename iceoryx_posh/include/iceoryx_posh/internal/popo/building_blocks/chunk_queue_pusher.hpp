@@ -51,6 +51,9 @@ class ChunkQueuePusher
     /// @return false if a queue overflow occurred, otherwise true
     bool push(mepoo::SharedChunk chunk) noexcept;
 
+    /// @brief tell the queue that it lost a chunk (e.g. because push failed and there will be no retry)
+    void lostAChunk() noexcept;
+
   protected:
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;

@@ -61,12 +61,6 @@ inline bool ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
         auto returnedChunk = mepoo::SharedChunk(chunkManagement);
         /// tell the ChunkDistributor that we had an overflow and dropped a sample 
         hasQueueOverflow = true;
-        /// only report that we have lost chunks when the policy is DISCARD_OLDEST_DATA
-        /// if the policy is BLOCK_PUBLISHER we have an overflow but the ChunkDistributor will block and retry
-        if (getMembers()->m_queueFullPolicy == QueueFullPolicy::DISCARD_OLDEST_DATA)
-        {
-            getMembers()->m_queueHasLostChunks.store(hasQueueOverflow, std::memory_order_relaxed);
-        }
     }
 
     {
@@ -80,6 +74,12 @@ inline bool ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
     }
 
     return !hasQueueOverflow;
+}
+
+template <typename ChunkQueueDataType>
+inline void ChunkQueuePusher<ChunkQueueDataType>::lostAChunk() noexcept
+{
+    getMembers()->m_queueHasLostChunks.store(true, std::memory_order_relaxed); 
 }
 
 } // namespace popo

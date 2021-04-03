@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
 
+#include <thread> 
+
 namespace iox
 {
 namespace popo
@@ -145,9 +147,16 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
             bool isBlockingQueue =
                 (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
 
-            if (!deliverToQueue(queue.get(), chunk) && isBlockingQueue)
+            if (!deliverToQueue(queue.get(), chunk))
             {
-                remainingQueues.emplace_back(queue);
+                if (isBlockingQueue)
+                {
+                    remainingQueues.emplace_back(queue);
+                }
+                else
+                {
+                    ChunkQueuePusher_t(queue.get()).lostAChunk();
+                }
             }
         }
     }

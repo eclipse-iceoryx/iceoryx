@@ -265,7 +265,6 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
     {
         auto chunk = this->allocateChunk();
         EXPECT_FALSE(this->m_pusher.push(chunk));
-        EXPECT_TRUE(this->m_popper.hasLostChunks());
     }
 
     // get all the chunks in the queue
@@ -331,9 +330,6 @@ TYPED_TEST(ChunkQueueSoFi_test, PushFull)
         EXPECT_FALSE(this->m_pusher.push(chunk));
     }
 
-    // this led to lost chunks
-    EXPECT_TRUE(this->m_popper.hasLostChunks());
-
     // get all the chunks in the queue
     while (this->m_popper.tryPop().has_value())
     {
@@ -341,4 +337,25 @@ TYPED_TEST(ChunkQueueSoFi_test, PushFull)
 
     // all chunks must be released
     EXPECT_THAT(this->mempool.getUsedChunks(), Eq(0U));
+}
+
+
+TYPED_TEST(ChunkQueueSoFi_test, InitialNoLostChunks)
+{
+    EXPECT_FALSE(this->m_popper.hasLostChunks());
+}
+
+TYPED_TEST(ChunkQueueSoFi_test, IndicateALostChunk)
+{
+    this->m_pusher.lostAChunk();    
+
+    EXPECT_TRUE(this->m_popper.hasLostChunks());
+}
+
+TYPED_TEST(ChunkQueueSoFi_test, LostChunkInfoIsResetAfterRead)
+{
+    this->m_pusher.lostAChunk();    
+    this->m_popper.hasLostChunks();
+
+    EXPECT_FALSE(this->m_popper.hasLostChunks());
 }

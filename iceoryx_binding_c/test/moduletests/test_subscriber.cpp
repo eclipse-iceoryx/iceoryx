@@ -310,13 +310,15 @@ TEST_F(iox_sub_test, initialStateHasNoLostChunks)
     EXPECT_FALSE(iox_sub_has_lost_chunks(m_sut));
 }
 
-TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
+TEST_F(iox_sub_test, sendingTooMuchLeadsToOverflow)
 {
     this->Subscribe(&m_portPtr);
-    for (uint64_t i = 0U; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY + 1U; ++i)
+    for (uint64_t i = 0U; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY; ++i)
     {
-        m_chunkPusher.push(getChunkFromMemoryManager());
+        EXPECT_TRUE(m_chunkPusher.push(getChunkFromMemoryManager()));
     }
+    EXPECT_FALSE(m_chunkPusher.push(getChunkFromMemoryManager()));
+    m_chunkPusher.lostAChunk();
 
     EXPECT_TRUE(iox_sub_has_lost_chunks(m_sut));
 }
