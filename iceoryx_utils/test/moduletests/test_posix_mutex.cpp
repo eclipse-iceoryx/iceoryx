@@ -23,6 +23,8 @@
 #include <atomic>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 
@@ -132,3 +134,4 @@ TEST_F(Mutex_test, TryLockWithRecursiveMutexReturnsFalseWhenMutexLockedInOtherTh
     sutRecursive.unlock();
     lockThread.join();
 }
+} // namespace

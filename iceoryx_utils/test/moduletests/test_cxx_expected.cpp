@@ -19,8 +19,10 @@
 #include "test.hpp"
 
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace ::iox::cxx;
 
+namespace
+{
 class MockCallables
 {
   public:
@@ -30,47 +32,46 @@ class MockCallables
     MOCK_METHOD0(onError, void());
 };
 
-class expected_test : public Test
+
+struct TestClass
 {
-  public:
-    struct TestClass
+    TestClass(int a, int b)
+        : m_a(a)
+        , m_b(b)
     {
-        TestClass(int a, int b)
-            : m_a(a)
-            , m_b(b)
-        {
-        }
+    }
 
-        int gimme()
-        {
-            return m_a + m_b;
-        }
+    int gimme()
+    {
+        return m_a + m_b;
+    }
 
-        int constGimme() const
-        {
-            return m_a + m_b;
-        }
+    int constGimme() const
+    {
+        return m_a + m_b;
+    }
 
-        bool operator==(const TestClass& rhs) const
-        {
-            return (m_a == rhs.m_a) && (m_b == rhs.m_b);
-        }
+    bool operator==(const TestClass& rhs) const
+    {
+        return (m_a == rhs.m_a) && (m_b == rhs.m_b);
+    }
 
-        int m_a;
-        int m_b;
-    };
+    int m_a;
+    int m_b;
 };
+
+} // namespace
 
 namespace iox
 {
 namespace cxx
 {
 template <>
-struct ErrorTypeAdapter<expected_test::TestClass>
+struct ErrorTypeAdapter<TestClass>
 {
-    static expected_test::TestClass getInvalidState()
+    static TestClass getInvalidState()
     {
-        return expected_test::TestClass(-1, -1);
+        return TestClass(-1, -1);
     }
 };
 
@@ -85,8 +86,13 @@ struct ErrorTypeAdapter<std::string>
 } // namespace cxx
 } // namespace iox
 
+namespace
+{
+class expected_test : public Test
+{
+};
 
-using TestClassAdapter = iox::cxx::ErrorTypeAdapter<expected_test::TestClass>;
+using TestClassAdapter = iox::cxx::ErrorTypeAdapter<TestClass>;
 
 enum class TestError : uint8_t
 {
@@ -597,4 +603,4 @@ TEST_F(expected_test, OrElseInErrorExpectedWithEmptyCallableDoesNotDie)
     sut1.or_else(iox::cxx::function_ref<void(TestError&)>());
     sut2.or_else(iox::cxx::function_ref<void(TestError&)>());
 }
-
+} // namespace

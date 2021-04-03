@@ -24,6 +24,8 @@
 #include <cstdint>
 #include <functional>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::concurrent;
@@ -246,3 +248,4 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlocki
 
     EXPECT_THAT(elapsedTime, Ge(SLEEP_TIME));
 });
+} // namespace
