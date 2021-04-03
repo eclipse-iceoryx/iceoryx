@@ -17,15 +17,15 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.1")
+set(IOX_VERSION_STRING "0.99.1.0")
 
 find_package(iceoryx_utils REQUIRED)
 
-include(IceoryxVersion)
-parse_version(${IOX_VERSION_STRING})
-adjust_version()
+#include(IceoryxVersion)
+#parse_version(${IOX_VERSION_STRING})
+#adjust_version()
 
-project(iceoryx_introspection VERSION ${IOX_VERSION_MAIN})
+project(iceoryx_introspection VERSION ${IOX_VERSION_STRING})
 
 find_package(iceoryx_posh REQUIRED)
 
