@@ -265,7 +265,7 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
     {
         auto chunk = this->allocateChunk();
         EXPECT_FALSE(this->m_pusher.push(chunk));
-        EXPECT_TRUE(this->m_popper.hasOverflown());
+        EXPECT_TRUE(this->m_popper.hasLostChunks());
     }
 
     // get all the chunks in the queue
@@ -331,10 +331,10 @@ TYPED_TEST(ChunkQueueSoFi_test, PushFull)
         EXPECT_FALSE(this->m_pusher.push(chunk));
     }
 
-    // this led to an overflow
-    EXPECT_TRUE(this->m_popper.hasOverflown());
+    // this led to lost chunks
+    EXPECT_TRUE(this->m_popper.hasLostChunks());
 
-    // get al the chunks in the queue
+    // get all the chunks in the queue
     while (this->m_popper.tryPop().has_value())
     {
     }

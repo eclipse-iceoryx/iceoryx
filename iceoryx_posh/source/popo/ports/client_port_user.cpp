@@ -88,7 +88,7 @@ bool ClientPortUser::hasNewResponses() const noexcept
 
 bool ClientPortUser::hasLostResponsesSinceLastCall() noexcept
 {
-    return m_chunkReceiver.hasOverflown();
+    return m_chunkReceiver.hasLostChunks();
 }
 
 void ClientPortUser::setConditionVariable(ConditionVariableData& conditionVariableData,

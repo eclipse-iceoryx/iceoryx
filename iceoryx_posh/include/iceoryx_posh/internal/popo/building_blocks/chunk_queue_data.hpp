@@ -42,7 +42,7 @@ struct ChunkQueueData : public LockingPolicy
 
     static constexpr uint64_t MAX_CAPACITY = ChunkQueueDataProperties_t::MAX_QUEUE_CAPACITY;
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
-    std::atomic_bool m_queueHasOverflown{false};
+    std::atomic_bool m_queueHasLostChunks{false};
 
     rp::RelativePointer<ConditionVariableData> m_conditionVariableDataPtr;
     cxx::optional<uint64_t> m_conditionVariableNotificationIndex;

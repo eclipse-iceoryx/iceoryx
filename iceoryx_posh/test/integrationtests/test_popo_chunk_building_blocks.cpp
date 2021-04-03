@@ -248,7 +248,7 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
         subscribingThread.join();
     }
 
-    ASSERT_FALSE(m_popper.hasOverflown());
-    ASSERT_FALSE(m_chunkReceiver.hasOverflown());
+    ASSERT_FALSE(m_popper.hasLostChunks());
+    ASSERT_FALSE(m_chunkReceiver.hasLostChunks());
     EXPECT_EQ(m_sendCounter, m_receiveCounter);
 }

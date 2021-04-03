@@ -330,6 +330,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the read
     EXPECT_TRUE(wasSampleDelivered.load());
 
+    EXPECT_FALSE(subscriber->hasMissedData());    
     sample = subscriber->take();
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("and hypnotoad will smile back")));
@@ -359,12 +360,11 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
         wasSampleDelivered.store(true);
     });
 
-    constexpr int64_t TIMEOUT_IN_MS = 100;
-
     ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
+    t1.join();
     EXPECT_TRUE(wasSampleDelivered.load());
 
+    EXPECT_TRUE(subscriber->hasMissedData());   
     auto sample = subscriber->take();
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("second hypnotoad ate it")));
@@ -373,7 +373,6 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
     ASSERT_FALSE(sample.has_error());
     EXPECT_THAT(**sample, Eq(string<128>("third a tiny black hole smells like butter")));
 
-    t1.join();
 }
 
 TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsBlockingAndPublisherDoesNotOfferBlocking)
@@ -440,9 +439,10 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     auto sample = subscriberBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
     EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoads real name is Salsabarh Slimekirkdingle")));
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
+    t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the read
     EXPECT_TRUE(wasSampleDelivered.load());
 
+    EXPECT_FALSE(subscriberBlocking->hasMissedData());  // we don't loose samples here
     sample = subscriberBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
     EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad wants a cookie")));
@@ -453,6 +453,7 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_THAT(subscriberBlocking->take().has_error(), Eq(true));
 
     // verify non blocking subscriber
+    EXPECT_TRUE(subscriberNonBlocking->hasMissedData()); // we do loose samples here
     sample = subscriberNonBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
     EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad has a sister named hypnoodle")));
@@ -462,5 +463,4 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
     EXPECT_THAT(subscriberNonBlocking->take().has_error(), Eq(true));
 
-    t1.join();
 }

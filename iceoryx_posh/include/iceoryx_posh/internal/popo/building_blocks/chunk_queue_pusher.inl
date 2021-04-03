@@ -59,10 +59,14 @@ inline bool ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk)
             rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         // this will release the chunk
         auto returnedChunk = mepoo::SharedChunk(chunkManagement);
-        /// we have to set this to true to inform the higher levels that there
-        /// was a chunk lost
+        /// tell the ChunkDistributor that we had an overflow and dropped a sample 
         hasQueueOverflow = true;
-        getMembers()->m_queueHasOverflown.store(hasQueueOverflow, std::memory_order_relaxed);
+        /// only report that we have lost chunks when the policy is DISCARD_OLDEST_DATA
+        /// if the policy is BLOCK_PUBLISHER we have an overflow but the ChunkDistributor will block and retry
+        if (getMembers()->m_queueFullPolicy == QueueFullPolicy::DISCARD_OLDEST_DATA)
+        {
+            getMembers()->m_queueHasLostChunks.store(hasQueueOverflow, std::memory_order_relaxed);
+        }
     }
 
     {
