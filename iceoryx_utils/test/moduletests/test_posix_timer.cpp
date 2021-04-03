@@ -26,6 +26,8 @@
 #include <chrono>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox::units;
@@ -504,3 +506,4 @@ TEST_F(Timer_test, DISABLED_SelfTriggeringTimerWorksAndDoesNotCauseSegFault)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
+} // namespace

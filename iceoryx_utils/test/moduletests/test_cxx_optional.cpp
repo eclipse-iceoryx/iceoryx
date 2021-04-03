@@ -18,7 +18,8 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "test.hpp"
 
-
+namespace
+{
 using namespace ::testing;
 
 /// @todo create a typed test with to check if our optional has the same behaviour as the std::optional
@@ -484,3 +485,4 @@ TEST_F(Optional_test, CopyConstructionWithElementWorks)
     EXPECT_THAT(sut->value, Eq(5));
     EXPECT_THAT(sut->secondValue, Eq(6));
 }
+} // namespace

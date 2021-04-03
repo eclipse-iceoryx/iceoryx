@@ -16,11 +16,12 @@
 
 #include "iceoryx_utils/cxx/stack.hpp"
 #include "test.hpp"
-using namespace iox;
-using namespace ::testing;
 
 namespace
 {
+using namespace iox;
+using namespace ::testing;
+
 class TestClass
 {
   public:
@@ -55,7 +56,6 @@ class stack_test : public Test
         }
     }
 };
-} // namespace
 
 TEST_F(stack_test, isEmptyOnCreation)
 {
@@ -112,3 +112,4 @@ TEST_F(stack_test, popCreatesSpaceForAnotherElement)
     EXPECT_TRUE(m_sut.push());
 }
 
+} // namespace
