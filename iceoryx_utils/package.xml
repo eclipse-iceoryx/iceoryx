@@ -4,7 +4,7 @@
     <name>iceoryx_utils</name>
     <version>0.99.1</version>
     <description>Eclipse iceoryx inter-process-communication (IPC) middleware basic building blocks</description>
-    <maintainer email="iceoryx-dev@eclipse.org">Eclipse Foundation, Inc.</maintainer>
+    <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
     <url type="website">https://iceoryx.io</url>
     <url type="bugtracker">https://github.com/eclipse-iceoryx/iceoryx/issues</url>
@@ -12,7 +12,7 @@
 
     <buildtool_depend>cmake</buildtool_depend>
 
-    <build_depend>libacl1-dev</build_depend>
+    <depend>acl</depend>
 
     <doc_depend>doxygen</doc_depend>
 

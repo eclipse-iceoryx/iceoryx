@@ -6,7 +6,7 @@
   <description>
     Wrapper around cpptoml for parsing TOML configuration files , build is done via a CMake ExternalProject.
   </description>
-  <maintainer email="iceoryx-dev@eclipse.org">Eclipse Foundation, Inc.</maintainer>
+  <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
   <license>Apache License 2.0</license>  <!-- the contents of this package are Apache 2.0 -->
   <license>MIT</license>  <!-- cpptoml is MIT -->
 
