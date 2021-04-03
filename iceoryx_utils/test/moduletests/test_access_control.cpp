@@ -23,6 +23,8 @@
 
 #include <stdlib.h>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::posix;
 
@@ -279,4 +281,5 @@ TEST_F(AccessController_test, addStrangeNames)
     // non-existing group name specified
     EXPECT_FALSE(entryAdded);
 }
+} // namespace
 #endif

@@ -22,6 +22,8 @@
 #include "test.hpp"
 #include "testutils/watch_dog.hpp"
 
+namespace
+{
 using namespace ::testing;
 
 using namespace iox;
@@ -173,3 +175,4 @@ TYPED_TEST(TriggerQueue_test, AfterDestroyPushAddsNoElements)
     EXPECT_THAT(this->m_sut.size(), Eq(0U));
 }
 #endif
+} // namespace

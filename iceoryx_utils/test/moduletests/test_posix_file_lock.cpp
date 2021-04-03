@@ -19,7 +19,8 @@
 #include "iceoryx_utils/posix_wrapper/file_lock.hpp"
 #include "test.hpp"
 
-
+namespace
+{
 using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
@@ -126,4 +127,5 @@ TEST_F(FileLock_test, MoveAssignTransfersLock)
     ASSERT_TRUE(anotherLock.has_error());
     EXPECT_THAT(anotherLock.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }
+} // namespace
 #endif
