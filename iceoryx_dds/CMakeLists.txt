@@ -25,7 +25,12 @@ find_package(iceoryx_utils REQUIRED)
 project(iceoryx_dds VERSION ${IOX_VERSION_STRING})
 #adjust_version()
 
-find_package(cpptoml REQUIRED)
+if(NOT cpptoml_FOUND)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/dds_gateway/cpptoml/prebuild)
+
+    find_package(cpptoml REQUIRED)
+endif()
+
 find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)

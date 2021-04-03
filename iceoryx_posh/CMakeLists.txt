@@ -30,6 +30,12 @@ find_package(Threads REQUIRED)
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 
+if(TOML_CONFIG)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/posh/cpptoml/prebuild)
+
+    find_package(cpptoml REQUIRED)
+endif()
+
 include(cmake/iceoryxversions.cmake)
 include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
@@ -279,11 +285,6 @@ target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_
 
 
 if(TOML_CONFIG)
-    if ( NOT cpptoml_FOUND )
-        find_package(cpptoml_vendor QUIET)
-        find_package(cpptoml REQUIRED)
-    endif(NOT cpptoml_FOUND)
-
     #
     ######### posh config lib ##########
     #
