@@ -45,7 +45,7 @@ elseif(QNX)
 elseif(APPLE)
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 elseif(WIN32)
-    set(TEST_CXX_FLAGS PRIVATE /bigobj)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} /bigobj)
 endif()
 
 
