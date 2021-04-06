@@ -71,19 +71,7 @@ iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
 ```
 
 Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a memory chunk
-which fits our RadarObject struct
-
-```cpp
-auto result = publisher.loan(sizeof(RadarObject));
-```
-
-#### Functional loan and publish
-
-Two different ways of handling the returned `cxx::expected` are possible. The functional way (#1) by concatenating
-`and_then` and `or_else` is recommended. In general this approach is less error-prone as branches are implicitly taken.
-Well, that's a bit of a[lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Read it
-like a story in a book: "Loan memory and then if it succeeds, fill it with some data or else if it fails, handle the
-error".
+which fits our RadarObject struct.
 
 ```cpp
 publisher.loan(sizeof(RadarObject))
@@ -97,33 +85,12 @@ publisher.loan(sizeof(RadarObject))
     });
 ```
 
-If choosing #1, please mind the additional step to unwrap the `cxx::expected` with `value()`
+The call to `loan()` returns a `cxx::expected`. By concatenating `and_then` and `or_else` branches are implicitly taken
+and your code becomes less error-prone compared to using `if() { .. } else { .. }`. Well, it's a bit of a
+[lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Read it like a story in a book:
+"Loan memory and then if it succeeds, fill it with some data or else if it fails, handle the error".
 
-```cpp
-if (!result.has_error())
-{
-    void* chunk = result.value();
-    // ...
-}
-```
-
-#### Alternative loan and publish
-
-You can also save the result in a variable and do the error check with an if-condition (#1):
-
-```cpp
-auto result = publisher.loan(sizeof(RadarObject));
-if (!result.has_error())
-{
-    // ...
-}
-else
-{
-    // ...
-}
-```
-
-Whichever way you choose, the untyped API will be bare-metal!
+Remember, the untyped API will always be bare-metal!
 
 Hence, the `RadarObject` needs to be constructed with a placement new:
 
@@ -275,29 +242,32 @@ One might wonder what the type of the variable `sample` is? It is `iox::popo::Sa
 similar to a [`std::unique_ptr`](https://en.cppreference.com/w/cpp/memory/unique_ptr) and makes sure that the ownership
 handling is done automatically and memory is freed when going out of scope on subscriber side.
 
-#### #4 Publish by copy
+#### #3 Publish by copy
 
 Usage #4 does a copy-and-publish in one call. This should only be used for small data types, as otherwise copies can
 lead to a larger runtime.
 
 ```cpp
 auto object = RadarObject(ct, ct, ct);
-publisher.publishCopyOf(object).or_else([](iox::popo::AllocationError) {
+publisher.publishCopyOf(object).or_else([](auto& error) {
     // Do something with error.
+    std::cerr << "Unable to publishCopyOf, error code: " << static_cast<uint64_t>(error) << std::endl;
 });
 ```
 
-#### #5 Publish the result of a computation
+#### #4 Publish the result of a computation
 
 Usage #5 can be useful if you have a callable e.g. a function or [functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++) should be always called
 
 ```cpp
-publisher.publishResultOf(getRadarObject, ct).or_else([](iox::popo::AllocationError) {
+publisher.publishResultOf(getRadarObject, ct).or_else([](auto& error) {
     // Do something with error.
+    std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
 });
 publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct, ct, ct); })
-    .or_else([](iox::popo::AllocationError) {
+    .or_else([](auto& error) {
         // Do something with error.
+        std::cerr << "Unable to publishResultOf, error code: " << static_cast<uint64_t>(error) << std::endl;
     });
 ```
 

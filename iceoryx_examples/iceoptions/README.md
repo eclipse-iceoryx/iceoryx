@@ -33,6 +33,12 @@ To organize publishers inside an application, they can be associated and grouped
 publisherOptions.nodeName = "Pub_Node_With_Options";
 ```
 
+To ensure that samples are never lost, you have the possibility to busy-wait for the subscriber when publishing. Both publisher and subscriber have to request compatible settings.
+
+```cpp
+publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+```
+
 ### Subscriber
 
 To configure a subscriber, we have to supply a struct of the type `iox::popo::SubscriberOptions` as a second parameter.
@@ -61,6 +67,12 @@ Again, for organising subscribers inside an application, a `nodeName` can be app
 
 ```cpp
 subscriberOptions.nodeName = "Sub_Node_With_Options";
+```
+
+Again, to ensure that samples are never lost, we request the publisher to busy-wait, in case of a full queue:
+
+```cpp
+subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
 ```
 
 <center>

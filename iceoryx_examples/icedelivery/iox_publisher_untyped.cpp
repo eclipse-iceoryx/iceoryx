@@ -47,33 +47,7 @@ int main()
     {
         ++ct;
 
-        /// @todo remove this an just introduce and_then / or_else
-        // API Usage #1
-        //  * Loaned chunk can be held until ready to publish
-        auto result = publisher.loan(sizeof(RadarObject));
-        if (!result.has_error())
-        {
-            // In the untyped API we get a void pointer to the user-payload, therefore the data must be constructed
-            // in place
-            void* chunk = result.value();
-            RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
-            iox::cxx::Expects(chunk == data);
-
-            data->x = ct;
-            data->y = ct;
-            data->z = ct;
-            publisher.publish(chunk);
-        }
-        else
-        {
-            auto error = result.get_error();
-            // Do something with the error
-            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-        }
-
-
-        // API Usage #2
-        // * Loan chunk and provide logic to populate it via a lambda
+        // Loan chunk and provide logic to populate it via a lambda
         publisher.loan(sizeof(RadarObject))
             .and_then([&](auto& chunk) {
                 RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
@@ -84,7 +58,7 @@ int main()
                 data->z = ct;
                 publisher.publish(chunk);
             })
-            .or_else([&](iox::popo::AllocationError error) {
+            .or_else([&](auto& error) {
                 // Do something with the error
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             });

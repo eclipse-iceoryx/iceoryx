@@ -70,7 +70,7 @@ int main()
     while (!killswitch)
     {
         subscriber.take().and_then(
-            [](auto& object) { std::cout << APP_NAME << " got value: " << object->x << std::endl; });
+            [](auto& sample) { std::cout << APP_NAME << " got value: " << sample->x << std::endl; });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
