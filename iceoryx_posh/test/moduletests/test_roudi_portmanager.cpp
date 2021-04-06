@@ -770,7 +770,7 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
     acquireMaxNumberOfNodes(nodeName, runtimeName);
 }
 
-TEST_F(PortManager_test, UnblockShutdownMakesAllPublisherStopOfferAndUnsubscribesSubscriber)
+TEST_F(PortManager_test, UnblockShutdownMakesAllPublisherStopOffer)
 {
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
     SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
@@ -806,11 +806,6 @@ TEST_F(PortManager_test, UnblockShutdownMakesAllPublisherStopOfferAndUnsubscribe
     for (const auto& pub : publisher)
     {
         EXPECT_FALSE(pub.isOffered());
-    }
-
-    for (const auto& sub : subscriber)
-    {
-        EXPECT_EQ(sub.getSubscriptionState(), iox::SubscribeState::SUBSCRIBED);
     }
 }
 
