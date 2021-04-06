@@ -99,8 +99,8 @@ transmit and receive data.
 
 ### Implementation of Publisher and Subscriber
 Since there are no differences to inter process ports you can take a look at the
-[icedelivery example](../icedelivery) for a detailed documentation. We only provide
-you here with a short overview.
+[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery) 
+for a detailed documentation. We only provide you here with a short overview.
 
 #### Publisher
 We create a typed publisher with the following service description

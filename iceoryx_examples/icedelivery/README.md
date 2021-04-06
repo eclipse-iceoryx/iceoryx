@@ -172,7 +172,7 @@ In the next step a subscriber object is created, matching exactly the `capro::Se
 offered:
 
 ```cpp
-iox::popo::UntypedSubscriber untypedSubscriber({"Radar", "FrontLeft", "Object"});
+iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
 ```
 
 When using the default n:m communication philosophy, the `SubscriptionState` is immediately `SUBSCRIBED`.
@@ -183,7 +183,7 @@ Again in a while-loop we do the following:
 ```cpp
 while (!killswitch)
 {
-    untypedSubscriber.take()
+    subscriber.take()
         .and_then([](const void* chunk)
         {
             // ...
@@ -252,11 +252,7 @@ Usage #2 constructs the data type with the values provided in loan:
 auto result = publisher.loan(ct, ct, ct);
 if (!result.has_error())
 {
-    auto& sample = result.value();
-    sample->x = ct;
-    sample->y = ct;
-    sample->z = ct;
-    sample.publish();
+    result.value().publish();
 }
 else
 {

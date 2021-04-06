@@ -141,7 +141,8 @@ This example consists of 5 use cases.
 
 All our examples require a running `iox-roudi` and some data to receive which will be
 send by `iox-cpp-waitset-publisher`. The publisher does not contain any _WaitSet_ specific
-logic and is explained in detail in the [icedelivery example](../icedelivery/).
+logic and is explained in detail in the 
+[icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 
@@ -476,15 +477,16 @@ The `cyclicTrigger` callback is called in the else part.
 
 ### Trigger
 In this example we describe how you would implement a _Triggerable_ class which
-can be attached to a _WaitSet_ or a [Listener](../callbacks). Our class in this example will be called
-`MyTriggerClass` and it can signal the _WaitSet_ the two states `HAS_PERFORMED_ACTION` and 
-`IS_ACTIVATED`. Furthermore, we can also attach the two corresponding events
-`PERFORM_ACTION_CALLED` and `ACTIVATE_CALLED`.
-The `PERFORMED_ACTION_CALLED` event is triggered whenever the method `performAction`
-is called and the state `HAS_PERFORMED_ACTION` persists until someone resets the state
-with the method `reset()`. The same goes for the event `ACTIVATE_CALLED` which is 
-triggered by an `activate()` call and the corresponding state `IS_ACTIVATED` which
-stays until someone resets it with `reset()`.
+can be attached to a _WaitSet_ or a 
+[Listener](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks). 
+Our class in this example will be called `MyTriggerClass` and it can signal the _WaitSet_ 
+the two states `HAS_PERFORMED_ACTION` and `IS_ACTIVATED`. Furthermore, we can also attach the 
+two corresponding events `PERFORM_ACTION_CALLED` and `ACTIVATE_CALLED`. The 
+`PERFORMED_ACTION_CALLED` event is triggered whenever the method `performAction` is called and 
+the state `HAS_PERFORMED_ACTION` persists until someone resets the state with the method 
+`reset()`. The same goes for the event `ACTIVATE_CALLED` which is triggered by an `activate()` 
+call and the corresponding state `IS_ACTIVATED` which stays until someone resets it with 
+`reset()`.
 
 #### MyTriggerClass
 
@@ -526,8 +528,9 @@ enum class MyTriggerClassStates : iox::popo::StateEnumIdentifier
 
 ##### Attaching Events
 
-Events can be attached to _WaitSets_ and [Listeners](../callbacks). For this to work 
-the class has to implement the following methods.
+Events can be attached to _WaitSets_ and 
+[Listeners](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks). 
+For this to work the class has to implement the following methods.
 
  1. `void enableEvent(iox::popo::TriggerHandle&&, const UserDefinedEvenEnum)`
 

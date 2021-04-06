@@ -11,7 +11,9 @@ memory.
 
 ## Run icecrystal
 
-We reuse the binaries from [icedelivery](../icedelivery/). Create four terminals and run one command in each of them.
+We reuse the binaries from 
+[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery). 
+Create four terminals and run one command in each of them.
 ```sh
 # If installed and available in PATH environment variable
 iox-roudi

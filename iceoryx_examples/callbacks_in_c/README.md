@@ -10,8 +10,10 @@ one accessing it or that it is accessed with a guard like a `mutex`.
 ## Introduction
 
 For a general introduction into the Listener concept please take a look at
-the first part of the [Listener C++ example](../callbacks) and at the 
-Glossary of the [WaitSet C++ example](../waitset).
+the first part of the 
+[Listener C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks) 
+and at the Glossary of the 
+[WaitSet C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset).
 
 ## Expected Output
 
@@ -31,7 +33,8 @@ received a sample from each service we calculate the sum of it.
 ### ice_c_callbacks_publisher.c 
 
 The publisher contains only already known iceoryx features. If some of them 
-are not known to you please take a look at the [icedelivery in c example](../icedelivery_in_c).
+are not known to you please take a look at the 
+[icedelivery in c example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
 
 ### ice_c_callbacks_subscriber.c
 #### int main()

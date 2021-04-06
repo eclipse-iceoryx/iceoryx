@@ -14,10 +14,11 @@ trigger the _TriggerHandle_.
 ## Introduction
 
 A detailed introduction into the WaitSet nomenclature and topic can be found in the 
-[waitset C++ example](../waitset). Here we will only introduce the C API and
-not the WaitSet in general. For that we will take a look at the same use case
-as the [waitset C++ example](../waitset). The examples are also structured 
-in the same way as the C++ ones.
+[waitset C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset). 
+Here we will only introduce the C API and not the WaitSet in general. For that we will 
+take a look at the same use case as the 
+[waitset C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset). 
+The examples are also structured in the same way as the C++ ones.
 
 ## Expected Output
 
@@ -30,8 +31,8 @@ in the same way as the C++ ones.
     read the [Thread Safety](#thread-safety) chapter carefully.
 
 To run an example you need a running `iox-roudi` and the waitset publisher
-`iox-c-waitset-publisher`. They are identical to the ones introduced
-in the [icedelivery C example](../icedelivery_in_c).
+`iox-c-waitset-publisher`. They are identical to the ones introduced in the 
+[icedelivery C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
 
 ### Gateway
 Let's say we would like to write a gateway and would like to forward every 
