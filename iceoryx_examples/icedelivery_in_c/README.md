@@ -1,12 +1,13 @@
 # icedelivery in C
 
-You can find a more detailled description of the C API in the [iceoryx_binding_c README.md](../../iceoryx_binding_c)
+You can find a more detailed description of the C API in the 
+[iceoryx_binding_c README.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_binding_c/README.md).
 
 ## Introduction
 
-The behavior and structure is identical to the [icedelivery C++ example](../icedelivery/)
-so that we explain here only the C API differences and not the
-underlying mechanisms.
+The behavior and structure is identical to the 
+[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery)
+so that we explain here only the C API differences and not the underlying mechanisms.
 
 ## Expected output
 
@@ -17,15 +18,13 @@ underlying mechanisms.
 ### Subscriber
 
 Like in the
-[icedelivery C++ example](../icedelivery/)
+[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery)
 we again follow the steps like:
 
  1. Create runtime instance.
- 2. Create subscriber port.
- 3. Subscribe to the offered service
- 4. Receive data
- 5. Unsubscribe.
- 6. **C API: Additionally, we have to remove the previously allocated Subscriber
+ 2. Create subscriber port and subscribe to the offered service.
+ 3. Receive data.
+ 4. **C API: Additionally, we have to remove the previously allocated Subscriber
         port!**
 
 Let's take a look at the `receiving` function which comes with the
@@ -33,15 +32,16 @@ Let's take a look at the `receiving` function which comes with the
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    iox_runtime_init("iox-c-subscriber");
+    const char APP_NAME[] = "iox-c-subscriber";
+    iox_runtime_init("APP_NAME");
     ```
   
- 2. We create a subscriber port and are subscribing to the service
+ 2. We create a subscriber port and subscribe to the service
     {"Radar", "FrontLeft", "Counter" }. Hereby the `historyRequest`
-    tells the subscriber how many previously send samples it should receive
+    tells the subscriber how many previously sent samples it should receive
     right after the connection is established and the `queueCapacity` how many
     samples the subscriber can hold. These are samples which the publisher has
-    send before the subscriber was connected. The `nodeName` is the name of the
+    sent before the subscriber was connected. The `nodeName` is the name of the
     node the subscriber belongs to.
     The `subscriberStorage` is the place where the subscriber is stored in
     memory and `subscriber` is actually a pointer to that location.
@@ -68,7 +68,7 @@ Let's take a look at the `receiving` function which comes with the
              while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &chunk))
              {
                  const struct RadarObject* sample = (const struct RadarObject*)(chunk);
-                 printf("Got value: %.0f\n", sample->x);
+                 printf("%s got value: %.0f\n", APP_NAME, sample->x);
                  iox_sub_release_chunk(subscriber, chunk);
              }
          }
@@ -89,14 +89,12 @@ Let's take a look at the `receiving` function which comes with the
 
 ### Publisher
 The publisher is implemented in a way like in the
-[icedelivery C++ example](../icedelivery/).
+[icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery):
 
  1. Create runtime instance.
- 2. Create publisher port.
- 3. Offer the service
- 4. Send data
- 5. Stop offering the service
- 6. **C API: Additionally, we have to remove the previously allocated Publisher
+ 2. Create publisher port and offer the service.
+ 3. Send data.
+ 4. **C API: Additionally, we have to remove the previously allocated Publisher
         port!**
 
 Let's take a look at the `sending` function which comes with the
@@ -104,7 +102,8 @@ Let's take a look at the `sending` function which comes with the
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    iox_runtime_init("iox-c-publisher");
+    const char APP_NAME[] = "iox-c-publisher";
+    iox_runtime_init("APP_NAME");
     ```
  2. We create a publisher with the service
     {"Radar", "FrontLeft", "Counter"}
@@ -118,7 +117,7 @@ Let's take a look at the `sending` function which comes with the
     ```
 
  3. Till an external signal sets `killswitch` to `true` we will send an
-    incrementing number to all subscribers every send and print the
+    incrementing number to all subscribers in every iteration and print the
     value of this number to the console.
     ```c
     double ct = 0.0;
@@ -134,7 +133,7 @@ Let's take a look at the `sending` function which comes with the
             sample->y = ct;
             sample->z = ct;
 
-            printf("Sent value: %.0f\n", ct);
+            printf("%s sent value: %.0f\n", APP_NAME, ct);
 
             iox_pub_publish_chunk(publisher, chunk);
 
