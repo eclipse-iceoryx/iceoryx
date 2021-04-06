@@ -60,6 +60,12 @@ target_link_libraries(iox-cpp-waitset-trigger
 )
 target_compile_options(iox-cpp-waitset-trigger PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
+add_executable(iox-ex-waitset-basic ./ice_waitset_basic.cpp)
+target_link_libraries(iox-ex-waitset-basic
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-ex-waitset-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
 set_target_properties(
     iox-cpp-waitset-trigger
     iox-cpp-waitset-sync
