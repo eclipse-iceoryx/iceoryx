@@ -131,8 +131,8 @@ class RouDi
 
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { rp::BaseRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
-    std::atomic_bool m_runDiscoveryThread;
-    std::atomic_bool m_runIpcChannelThread;
+    std::atomic_bool m_runMonitoringAndDiscoveryThread;
+    std::atomic_bool m_runHandleRuntimeMessageThread;
 
     const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 
@@ -152,8 +152,8 @@ class RouDi
     concurrent::smart_lock<ProcessManager> m_prcMgr;
 
   private:
-    std::thread m_processManagementThread;
-    std::thread m_processRuntimeMessagesThread;
+    std::thread m_monitoringAndDiscoveryThread;
+    std::thread m_handleRuntimeMessageThread;
 
   protected:
     ProcessIntrospectionType m_processIntrospection;
