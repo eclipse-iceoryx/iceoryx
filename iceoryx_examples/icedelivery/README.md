@@ -77,28 +77,13 @@ which fits our RadarObject struct
 auto result = publisher.loan(sizeof(RadarObject));
 ```
 
-#### #1 Loan and emplace
+#### Functional loan and publish
 
-Two different ways of handling the returned `cxx::expected` are possible. Either you save the result in a variable and
-do the error check with an if-condition (#1):
-
-```cpp
-auto result = publisher.loan(sizeof(RadarObject));
-if (!result.has_error())
-{
-    // ...
-}
-else
-{
-    // ...
-}
-```
-
-#### #2 Functional approach with loaning
-
-Or try the functional way (#2) by concatenating `and_then` and `or_else`. Well, that's a bit of a
-[lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Read it like a story in a book:
-"Loan memory and then if it succeeds, fill it with some data or else if it fails, handle the error"
+Two different ways of handling the returned `cxx::expected` are possible. The functional way (#1) by concatenating
+`and_then` and `or_else` is recommended. In general this approach is less error-prone as branches are implicitly taken.
+Well, that's a bit of a[lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Read it
+like a story in a book: "Loan memory and then if it succeeds, fill it with some data or else if it fails, handle the
+error".
 
 ```cpp
 publisher.loan(sizeof(RadarObject))
@@ -118,6 +103,22 @@ If choosing #1, please mind the additional step to unwrap the `cxx::expected` wi
 if (!result.has_error())
 {
     void* chunk = result.value();
+    // ...
+}
+```
+
+#### Alternative loan and publish
+
+You can also save the result in a variable and do the error check with an if-condition (#1):
+
+```cpp
+auto result = publisher.loan(sizeof(RadarObject));
+if (!result.has_error())
+{
+    // ...
+}
+else
+{
     // ...
 }
 ```
@@ -200,8 +201,8 @@ while (!killswitch)
 The `killswitch` will be used to stop the programm execution.
 
 Let's translate it into a story again: "Take the data and then if this succeeds, work with the sample, or else if an
-error occured, print the string 'Error receiving chunk.'" Of course you don't need to take care about all cases, but
-it is advised to do so.
+error other than `NO_CHUNK_AVAILABLE` occured, print the string 'Error receiving chunk.'" Of course you don't need to
+take care about all cases, but it is advised to do so.
 
 In the `and_then` case the content of the sample is printed to the command line:
 
@@ -239,25 +240,35 @@ created and the transmitted data type is provided as template parameter:
 iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
 
-The topic type must be default- and copy-constructible when the typed API is used.
-
 A similar while-loop is used to send the data to the subscriber. In contrast to the untyped publisher the typed one
 offers three additional possibilities.
 
-#### #2 Functional approach with loaning
+#### #1 Loan and publish
+
+```cpp
+publisher.loan()
+        .and_then([&](auto& sample) {
+            sample->x = ct;
+            sample->y = ct;
+            sample->z = ct;
+            sample.publish();
+        })
+        .or_else([](auto& error) {
+            // Do something with error
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error)
+                    << std::endl;
+        });
+```
+
+#### #2 Loan, construct in-place and publish
 
 Usage #2 constructs the data type with the values provided in loan:
 
 ```cpp
-auto result = publisher.loan(ct, ct, ct);
-if (!result.has_error())
-{
-    result.value().publish();
-}
-else
-{
-    // ..
-}
+publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); }).or_else([](auto& error) {
+    // Do something with error
+    std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+});
 ```
 
 One might wonder what the type of the variable `sample` is? It is `iox::popo::Sample<RadarObject>`. This class behaves

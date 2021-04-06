@@ -47,6 +47,7 @@ int main()
     {
         ++ct;
 
+        /// @todo remove this an just introduce and_then / or_else
         // API Usage #1
         //  * Loaned chunk can be held until ready to publish
         auto result = publisher.loan(sizeof(RadarObject));

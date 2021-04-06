@@ -56,37 +56,27 @@ int main()
         //  * Retrieve a typed sample from shared memory.
         //  * Sample can be held until ready to publish.
         //  * Data is default constructed during loan
-        auto result = publisher.loan();
-        if (!result.has_error())
-        {
-            auto& sample = result.value();
-            sample->x = ct;
-            sample->y = ct;
-            sample->z = ct;
-            sample.publish();
-        }
-        else
-        {
-            auto error = result.get_error();
-            // Do something with error
-            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-        }
+        publisher.loan()
+            .and_then([&](auto& sample) {
+                sample->x = ct;
+                sample->y = ct;
+                sample->z = ct;
+                sample.publish();
+            })
+            .or_else([](auto& error) {
+                // Do something with error
+                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+            });
+
 
         // API Usage #2
         //  * Retrieve a typed sample from shared memory and construct data in-place
         //  * Sample can be held until ready to publish.
         //  * Data is constructed with the aruments provided.
-        result = publisher.loan(ct, ct, ct);
-        if (!result.has_error())
-        {
-            result.value().publish();
-        }
-        else
-        {
-            auto error = result.get_error();
+        publisher.loan(ct, ct, ct).and_then([](auto& sample) { sample.publish(); }).or_else([](auto& error) {
             // Do something with error
             std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-        }
+        });
 
         // API Usage #3
         //  * Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
