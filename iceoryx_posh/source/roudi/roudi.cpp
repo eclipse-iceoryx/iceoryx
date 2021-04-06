@@ -86,7 +86,16 @@ void RouDi::shutdown()
 {
     m_processIntrospection.stop();
     m_portManager->stopPortIntrospection();
+
+    // stop the process management thread in order to prevent application to register while shutting down
     m_runDiscoveryThread = false;
+    if (m_processManagementThread.joinable())
+    {
+        LogDebug() << "Joining 'ProcessMgmt' thread...";
+        m_processManagementThread.join();
+        LogDebug() << "...'ProcessMgmt' thread joined.";
+    }
+
     if (m_killProcessesInDestructor)
     {
         cxx::DeadlineTimer finalKillTimer(m_processKillDelay);
@@ -111,16 +120,10 @@ void RouDi::shutdown()
             m_prcMgr->printWarningForRegisteredProcessesAndClearProcessList();
         }
     }
+
     // Postpone the IpcChannelThread in order to receive TERMINATION
     m_runIpcChannelThread = false;
 
-
-    if (m_processManagementThread.joinable())
-    {
-        LogDebug() << "Joining 'ProcessMgmt' thread...";
-        m_processManagementThread.join();
-        LogDebug() << "...'ProcessMgmt' thread joined.";
-    }
     if (m_processRuntimeMessagesThread.joinable())
     {
         LogDebug() << "Joining 'IPC-msg-process' thread...";
@@ -251,9 +254,8 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             options.queueCapacity = std::stoull(message.getElementAtIndex(4));
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
             options.subscribeOnCreate = (0U == std::stoull(message.getElementAtIndex(6))) ? false : true;
-            options.queueFullPolicy =
-                static_cast<popo::QueueFullPolicy>(std::stoul(message.getElementAtIndex(7)));
-            
+            options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(std::stoul(message.getElementAtIndex(7)));
+
             m_prcMgr->addSubscriberForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }

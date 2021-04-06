@@ -446,6 +446,22 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
+void PortManager::unblockShutdown() noexcept
+{
+    makeAllPublisherPortsToStopOffer();
+}
+
+void PortManager::makeAllPublisherPortsToStopOffer() noexcept
+{
+    for (auto port : m_portPool->getPublisherPortDataList())
+    {
+        port->m_offeringRequested.store(false, std::memory_order_relaxed);
+
+        PublisherPortRouDiType publisherPort(port);
+        doDiscoveryForPublisherPort(publisherPort);
+    }
+}
+
 void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcept
 {
     for (auto port : m_portPool->getPublisherPortDataList())
