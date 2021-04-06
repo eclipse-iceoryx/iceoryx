@@ -35,8 +35,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
              RoudiStartupParameters roudiStartupParameters)
     : m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
-    , m_runDiscoveryThread(true)
-    , m_runIpcChannelThread(true)
+    , m_runMonitoringAndDiscoveryThread(true)
+    , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
     , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
@@ -62,8 +62,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // run the threads
-    m_processManagementThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
-    posix::setThreadName(m_processManagementThread.native_handle(), "ProcessMgmt");
+    m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
+    posix::setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -78,8 +78,8 @@ RouDi::~RouDi()
 
 void RouDi::startProcessRuntimeMessagesThread()
 {
-    m_processRuntimeMessagesThread = std::thread(&RouDi::processRuntimeMessages, this);
-    posix::setThreadName(m_processRuntimeMessagesThread.native_handle(), "IPC-msg-process");
+    m_handleRuntimeMessageThread = std::thread(&RouDi::processRuntimeMessages, this);
+    posix::setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown()
@@ -88,12 +88,12 @@ void RouDi::shutdown()
     m_portManager->stopPortIntrospection();
 
     // stop the process management thread in order to prevent application to register while shutting down
-    m_runDiscoveryThread = false;
-    if (m_processManagementThread.joinable())
+    m_runMonitoringAndDiscoveryThread = false;
+    if (m_monitoringAndDiscoveryThread.joinable())
     {
-        LogDebug() << "Joining 'ProcessMgmt' thread...";
-        m_processManagementThread.join();
-        LogDebug() << "...'ProcessMgmt' thread joined.";
+        LogDebug() << "Joining 'Mon+Discover' thread...";
+        m_monitoringAndDiscoveryThread.join();
+        LogDebug() << "...'Mon+Discover' thread joined.";
     }
 
     if (m_killProcessesInDestructor)
@@ -122,12 +122,12 @@ void RouDi::shutdown()
     }
 
     // Postpone the IpcChannelThread in order to receive TERMINATION
-    m_runIpcChannelThread = false;
+    m_runHandleRuntimeMessageThread = false;
 
-    if (m_processRuntimeMessagesThread.joinable())
+    if (m_handleRuntimeMessageThread.joinable())
     {
         LogDebug() << "Joining 'IPC-msg-process' thread...";
-        m_processRuntimeMessagesThread.join();
+        m_handleRuntimeMessageThread.join();
         LogDebug() << "...'IPC-msg-process' thread joined.";
     }
 }
@@ -139,7 +139,7 @@ void RouDi::cyclicUpdateHook()
 
 void RouDi::monitorAndDiscoveryUpdate()
 {
-    while (m_runDiscoveryThread)
+    while (m_runMonitoringAndDiscoveryThread)
     {
         m_prcMgr->run();
 
@@ -156,7 +156,7 @@ void RouDi::processRuntimeMessages()
     // the logger is intentionally not used, to ensure that this message is always printed
     std::cout << "RouDi is ready for clients" << std::endl;
 
-    while (m_runIpcChannelThread)
+    while (m_runHandleRuntimeMessageThread)
     {
         // read RouDi's IPC channel
         runtime::IpcMessage message;
