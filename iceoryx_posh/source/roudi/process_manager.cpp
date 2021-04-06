@@ -80,6 +80,9 @@ void ProcessManager::requestShutdownOfAllProcesses() noexcept
     {
         requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
     }
+
+    // this unblocks the RouDi shutdown if a publisher port is blocked by a full subscriber queue
+    m_portManager.unblockShutdown();
 }
 
 bool ProcessManager::isAnyRegisteredProcessStillRunning() noexcept
