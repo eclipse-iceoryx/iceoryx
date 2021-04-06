@@ -5,7 +5,7 @@
 This example demonstrates what kind of quality of service options can be configured on the publisher and subscriber
 side. The options can be used for both, typed and untyped API flavours.
 
-## Expected output
+## Expected Output
 
 <!-- Add asciinema link here -->
 
@@ -15,7 +15,7 @@ side. The options can be used for both, typed and untyped API flavours.
 
 In order to configure a publisher, we have to supply a struct of the type `iox::popo::PublisherOptions` as a second parameter.
 
-`historyCapacity` will enable subscribers to read the last n topics e.g. in case they are started later than the publisher:
+`historyCapacity` will enable subscribers to read the last n samples e.g. in case they are started later than the publisher:
 
 ```cpp
 publisherOptions.historyCapacity = 10U;
@@ -25,6 +25,12 @@ Topics are automatically offered on creation of a publisher, if you want to disa
 
 ```cpp
 publisherOptions.offerOnCreate = false;
+```
+
+Due to disabled `offerOnCreate` feature, don't forget to offer our topic:
+
+```cpp
+publisher.offer();
 ```
 
 To organize publishers inside an application, they can be associated and grouped by providing a node name. Some frameworks call nodes _runnables_.
@@ -44,13 +50,13 @@ publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::W
 To configure a subscriber, we have to supply a struct of the type `iox::popo::SubscriberOptions` as a second parameter.
 
 The `queueCapacity` parameter specifies how many samples the queue of the subscriber object can hold. If the queue
-would encounter an overflow, the oldest sample is released to create space for the newest one, which is then stored.
+would encounter an overflow, the oldest sample is released to create space for the newest one, which is then stored. The queue behaves like a circular buffer.
 
 ```cpp
 subscriberOptions.queueCapacity = 10U;
 ```
 
-`historyRequest` will enable a subscriber to receive the last n topics on subscription e.g. in case it was started later than the publisher. The publisher needs to have its `historyCapacity` enabled, too.
+`historyRequest` will enable a subscriber to receive the last n samples on subscription e.g. in case it was started later than the publisher. The publisher needs to have its `historyCapacity` enabled, too.
 
 ```cpp
 subscriberOptions.historyRequest = 5U;
@@ -61,6 +67,12 @@ yourself, set `subscribeOnCreate` appropriately:
 
 ```cpp
 subscriberOptions.subscribeOnCreate = false;
+```
+
+Due to disabled `subscribeOnCreate` feature, don't forget to subscribe to our topic:
+
+```cpp
+subscriber.subscribe();
 ```
 
 Again, for organising subscribers inside an application, a `nodeName` can be applied:

@@ -9,7 +9,7 @@ The behavior and structure is identical to the
 [icedelivery C++ example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery)
 so that we explain here only the C API differences and not the underlying mechanisms.
 
-## Expected output
+## Expected Output
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
 

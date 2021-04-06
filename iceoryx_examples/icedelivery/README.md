@@ -5,7 +5,7 @@
 This example showcases a data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
 It provides publisher and subscriber applications. They come in two C++ API flavours (untyped and typed).
 
-## Expected output
+## Expected Output
 
 Create three terminals and start RouDi, a publisher and a subscriber. You can also mix the typed and untyped versions.
 
@@ -212,6 +212,8 @@ offers three additional possibilities.
 
 #### #1 Loan and publish
 
+Usage #1 default constructs the data type in-place:
+
 ```cpp
 publisher.loan()
         .and_then([&](auto& sample) {
@@ -244,7 +246,7 @@ handling is done automatically and memory is freed when going out of scope on su
 
 #### #3 Publish by copy
 
-Usage #4 does a copy-and-publish in one call. This should only be used for small data types, as otherwise copies can
+Usage #3 does a copy-and-publish in one call. This should only be used for small data types, as otherwise copies can
 lead to a larger runtime.
 
 ```cpp
@@ -257,7 +259,11 @@ publisher.publishCopyOf(object).or_else([](auto& error) {
 
 #### #4 Publish the result of a computation
 
-Usage #5 can be useful if you have a callable e.g. a function or [functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++) should be always called
+Usage #4 can be useful if you have a callable e.g. a function or
+[functor](https://en.wikipedia.org/wiki/Function_object#In_C_and_C++) should be always called. The callable needs
+to have the signature `void(SampleType*)`.  What then happens, is the following: The publisher loans a sample from
+shared memory and if loaning was successful the callable is called with a pointer to the `SampleType` as first
+argument. If loaning was unsuccessful, the callable is not called, but instead the `or_else` branch is taken.
 
 ```cpp
 publisher.publishResultOf(getRadarObject, ct).or_else([](auto& error) {

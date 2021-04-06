@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A common use case is that often we have multiple sensors sending data of the same type, e.g. LIDAR data, and a subscriber is interested in the data of all those sensors.
+A common use case is that multiple sensors are sending data of the same type, e.g. LIDAR data, and a subscriber is interested in the data of all those sensors.
 
 This example demonstrates
 
@@ -10,11 +10,11 @@ This example demonstrates
 2. how to communicate between C and C++
 
 !!! warning
-    If you have built iceoryx with the CMake flag `ONE_TO_MANY_ONLY` this example will not run
+    The default communication policy is many to many. If you have built iceoryx with the CMake flag `-DONE_TO_MANY_ONLY` this example will not run.
 
 ## Run iceensemble
 
-The easiest way is the build all examples via `./tools/iceoryx_build_test.sh`. Then, create eight terminals and run one command in each of them.
+The easiest way is to build all examples via `./tools/iceoryx_build_test.sh`. Then, create eight terminals and run one command in each of them.
 
 ```sh
 ./build/iox-roudi
@@ -35,6 +35,6 @@ Alternatively you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmux
 ./run_iceensemble.sh
 ```
 
-## Expected output
+## Expected Output
 
 <!-- add asciiema link here -->

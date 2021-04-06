@@ -39,7 +39,7 @@ iceperf-hardy with the parameter `cpp-api` or `c-api`.
     build/iceoryx_examples/iceperf/iceperf-hardy cpp-api
 ```
 
-## Expected output
+## Expected Output
 
 The numbers will differ depending on parameters and the performance of the hardware.
 Which technologies are measured depends on the operating system (e.g. no message queue on MacOS).
