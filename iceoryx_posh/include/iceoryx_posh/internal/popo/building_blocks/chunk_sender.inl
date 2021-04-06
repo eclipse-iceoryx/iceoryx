@@ -43,29 +43,32 @@ inline typename ChunkSender<ChunkSenderDataType>::MemberType_t* ChunkSender<Chun
 template <typename ChunkSenderDataType>
 inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
 ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
-                                              const uint32_t payloadSize,
-                                              const uint32_t payloadAlignment,
-                                              const uint32_t customHeaderSize,
-                                              const uint32_t customHeaderAlignment) noexcept
+                                              const uint32_t userPayloadSize,
+                                              const uint32_t userPayloadAlignment,
+                                              const uint32_t userHeaderSize,
+                                              const uint32_t userHeaderAlignment) noexcept
 {
-    // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
+    // use the chunk stored in m_lastChunk if:
+    //   - there is a valid chunk
+    //   - there is no other owner
+    //   - the new user-payload still fits in it
     const auto chunkSettingsResult =
-        mepoo::ChunkSettings::create(payloadSize, payloadAlignment, customHeaderSize, customHeaderAlignment);
+        mepoo::ChunkSettings::create(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (chunkSettingsResult.has_error())
     {
-        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_CHUNK);
+        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
     }
 
     const auto& chunkSettings = chunkSettingsResult.value();
     const uint32_t requiredChunkSize = chunkSettings.requiredChunkSize();
 
     auto& lastChunk = getMembers()->m_lastChunk;
-    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize >= requiredChunkSize))
+    if (lastChunk && lastChunk.hasNoOtherOwners() && (lastChunk.getChunkHeader()->chunkSize() >= requiredChunkSize))
     {
         if (getMembers()->m_chunksInUse.insert(lastChunk))
         {
             auto chunkHeader = lastChunk.getChunkHeader();
-            auto chunkSize = chunkHeader->chunkSize;
+            auto chunkSize = chunkHeader->chunkSize();
             chunkHeader->~ChunkHeader();
             new (chunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
             return cxx::success<mepoo::ChunkHeader*>(lastChunk.getChunkHeader());
@@ -87,7 +90,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             if (getMembers()->m_chunksInUse.insert(chunk))
             {
                 // END of critical section, chunk will be lost if process gets hard terminated in between
-                chunk.getChunkHeader()->originId = originId;
+                chunk.getChunkHeader()->setOriginId(originId);
                 return cxx::success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
             }
             else
@@ -168,7 +171,7 @@ inline bool ChunkSender<ChunkSenderDataType>::getChunkReadyForSend(const mepoo::
 {
     if (getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
     {
-        chunk.getChunkHeader()->sequenceNumber = getMembers()->m_sequenceNumber++;
+        chunk.getChunkHeader()->setSequenceNumber(getMembers()->m_sequenceNumber++);
         return true;
     }
     else

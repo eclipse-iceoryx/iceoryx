@@ -211,7 +211,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::CREATE_PUBLISHER:
     {
-        if (message.getNumberOfElements() != 7)
+        if (message.getNumberOfElements() != 8)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_PUBLISHER\" from \"" << runtimeName
                        << "\"received!";
@@ -219,12 +219,14 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(6));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
 
             popo::PublisherOptions options;
             options.historyCapacity = std::stoull(message.getElementAtIndex(3));
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
             options.offerOnCreate = (0U == std::stoull(message.getElementAtIndex(5))) ? false : true;
+            options.subscriberTooSlowPolicy =
+                static_cast<popo::SubscriberTooSlowPolicy>(std::stoul(message.getElementAtIndex(6)));
 
             m_prcMgr->addPublisherForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
@@ -233,7 +235,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::CREATE_SUBSCRIBER:
     {
-        if (message.getNumberOfElements() != 8)
+        if (message.getNumberOfElements() != 9)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_SUBSCRIBER\" from \"" << runtimeName
                        << "\"received!";
@@ -241,7 +243,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(8));
 
 
             popo::SubscriberOptions options;
@@ -249,8 +251,9 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             options.queueCapacity = std::stoull(message.getElementAtIndex(4));
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
             options.subscribeOnCreate = (0U == std::stoull(message.getElementAtIndex(6))) ? false : true;
-
-
+            options.queueFullPolicy =
+                static_cast<popo::QueueFullPolicy>(std::stoul(message.getElementAtIndex(7)));
+            
             m_prcMgr->addSubscriberForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }

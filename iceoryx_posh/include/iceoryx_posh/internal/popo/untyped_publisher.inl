@@ -22,51 +22,54 @@ namespace iox
 {
 namespace popo
 {
-template <typename base_publisher_t>
-inline UntypedPublisherImpl<base_publisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service,
-                                                                    const PublisherOptions& publisherOptions)
-    : base_publisher_t(service, publisherOptions)
+template <typename BasePublisher_t>
+inline UntypedPublisherImpl<BasePublisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service,
+                                                                   const PublisherOptions& publisherOptions)
+    : BasePublisher_t(service, publisherOptions)
 {
 }
 
-template <typename base_publisher_t>
-inline void UntypedPublisherImpl<base_publisher_t>::publish(const void* chunk) noexcept
+template <typename BasePublisher_t>
+inline void UntypedPublisherImpl<BasePublisher_t>::publish(void* const userPayloadOfChunk) noexcept
 {
-    auto header = mepoo::ChunkHeader::fromPayload(chunk);
-    port().sendChunk(header);
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
+    port().sendChunk(chunkHeader);
 }
 
-template <typename base_publisher_t>
-inline cxx::expected<void*, AllocationError> UntypedPublisherImpl<base_publisher_t>::loan(const uint32_t size) noexcept
+template <typename BasePublisher_t>
+inline cxx::expected<void*, AllocationError>
+UntypedPublisherImpl<BasePublisher_t>::loan(const uint32_t userPayloadSize,
+                                            const uint32_t userPayloadAlignment,
+                                            const uint32_t userHeaderSize,
+                                            const uint32_t userHeaderAlignment) noexcept
 {
-    auto result = port().tryAllocateChunk(
-        size, CHUNK_DEFAULT_PAYLOAD_ALIGNMENT, CHUNK_NO_CUSTOM_HEADER_SIZE, CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+    auto result = port().tryAllocateChunk(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (result.has_error())
     {
         return cxx::error<AllocationError>(result.get_error());
     }
     else
     {
-        return cxx::success<void*>(result.value()->payload());
+        return cxx::success<void*>(result.value()->userPayload());
     }
 }
 
-template <typename base_publisher_t>
-cxx::optional<void*> UntypedPublisherImpl<base_publisher_t>::loanPreviousChunk() noexcept
+template <typename BasePublisher_t>
+cxx::optional<void*> UntypedPublisherImpl<BasePublisher_t>::loanPreviousChunk() noexcept
 {
     auto result = port().tryGetPreviousChunk();
     if (result.has_value())
     {
-        return result.value()->payload();
+        return result.value()->userPayload();
     }
     return cxx::nullopt;
 }
 
-template <typename base_publisher_t>
-inline void UntypedPublisherImpl<base_publisher_t>::release(const void* chunk) noexcept
+template <typename BasePublisher_t>
+inline void UntypedPublisherImpl<BasePublisher_t>::release(void* const userPayloadOfChunk) noexcept
 {
-    auto header = mepoo::ChunkHeader::fromPayload(chunk);
-    port().releaseChunk(header);
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
+    port().releaseChunk(chunkHeader);
 }
 
 } // namespace popo

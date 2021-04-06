@@ -29,6 +29,11 @@ extern "C" {
 
 iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self)
 {
+    if (self == nullptr)
+    {
+        LogWarn() << "user trigger initialization skipped - null pointer provided for iox_user_trigger_storage_t";
+        return nullptr;
+    }
     new (self) UserTrigger();
     return reinterpret_cast<iox_user_trigger_t>(self);
 }

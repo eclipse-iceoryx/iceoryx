@@ -29,12 +29,16 @@ inline Trigger::Trigger(T* const eventOrigin,
                         const uint64_t eventId,
                         const Callback<T> callback,
                         const uint64_t uniqueId,
-                        const TriggerType triggerType) noexcept
+                        const TriggerType triggerType,
+                        const uint64_t originTriggerType,
+                        const uint64_t originTriggerTypeHash) noexcept
     : m_eventInfo(eventOrigin, eventId, callback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
     , m_uniqueId(uniqueId)
     , m_triggerType(triggerType)
+    , m_originTriggerType(originTriggerType)
+    , m_originTriggerTypeHash(originTriggerTypeHash)
 {
     if (!resetCallback)
     {
@@ -45,13 +49,23 @@ inline Trigger::Trigger(T* const eventOrigin,
 
 template <typename T>
 inline Trigger::Trigger(StateBasedTrigger_t,
-                        T* const eventOrigin,
+                        T* const stateOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
                         const Callback<T> callback,
-                        const uint64_t uniqueId) noexcept
-    : Trigger(eventOrigin, hasTriggeredCallback, resetCallback, eventId, callback, uniqueId, TriggerType::STATE_BASED)
+                        const uint64_t uniqueId,
+                        const uint64_t stateType,
+                        const uint64_t stateTypeHash) noexcept
+    : Trigger(stateOrigin,
+              hasTriggeredCallback,
+              resetCallback,
+              eventId,
+              callback,
+              uniqueId,
+              TriggerType::STATE_BASED,
+              stateType,
+              stateTypeHash)
 {
     if (!hasTriggeredCallback)
     {
@@ -66,14 +80,18 @@ inline Trigger::Trigger(EventBasedTrigger_t,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
                         const Callback<T> callback,
-                        const uint64_t uniqueId) noexcept
+                        const uint64_t uniqueId,
+                        const uint64_t eventType,
+                        const uint64_t eventTypeHash) noexcept
     : Trigger(eventOrigin,
               cxx::ConstMethodCallback<bool>(),
               resetCallback,
               eventId,
               callback,
               uniqueId,
-              TriggerType::EVENT_BASED)
+              TriggerType::EVENT_BASED,
+              eventType,
+              eventTypeHash)
 {
 }
 

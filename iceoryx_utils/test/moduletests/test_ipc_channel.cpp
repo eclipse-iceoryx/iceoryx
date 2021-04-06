@@ -23,6 +23,8 @@
 
 #include <chrono>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
@@ -406,4 +408,5 @@ TYPED_TEST(IpcChannel_test, TimedReceiveWorks)
     // Check if timedReceive has blocked for ~timeout and has not returned immediately
     EXPECT_GT(timeDiff, timeout - minTimeoutTolerance);
 }
+} // namespace
 #endif

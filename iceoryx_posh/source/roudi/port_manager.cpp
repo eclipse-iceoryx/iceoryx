@@ -369,7 +369,9 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
     for (auto publisherPortData : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
-        if (subscriberSource.getCaProServiceDescription() == publisherPort.getCaProServiceDescription())
+        if (subscriberSource.getCaProServiceDescription() == publisherPort.getCaProServiceDescription()
+            && !(publisherPort.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
+                 && subscriberSource.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
         {
             auto publisherResponse = publisherPort.dispatchCaProMessageAndGetPossibleResponse(message);
             if (publisherResponse.has_value())
@@ -396,7 +398,9 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
     for (auto subscriberPortData : m_portPool->getSubscriberPortDataList())
     {
         SubscriberPortType subscriberPort(subscriberPortData);
-        if (subscriberPort.getCaProServiceDescription() == publisherSource.getCaProServiceDescription())
+        if (subscriberPort.getCaProServiceDescription() == publisherSource.getCaProServiceDescription()
+            && !(publisherSource.getSubscriberTooSlowPolicy() == popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA
+                 && subscriberPort.getQueueFullPolicy() == popo::QueueFullPolicy::BLOCK_PUBLISHER))
         {
             auto subscriberResponse = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(message);
 
@@ -586,7 +590,7 @@ cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
                                       const RuntimeName_t& runtimeName,
-                                      mepoo::MemoryManager* const payloadMemoryManager,
+                                      mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
@@ -603,7 +607,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, payloadMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
+        service, payloadDataSegmentMemoryManager, runtimeName, publisherOptions, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
         auto publisherPortData = maybePublisherPortData.value();

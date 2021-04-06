@@ -27,6 +27,10 @@ concurrently, even from inside a callback which was triggered by an event!
 
 ## Code Walkthrough
 
+!!! attention 
+    Please be aware about the thread-safety restrictions of the _Listener_ and 
+    read the [Thread Safety](#thread-safety) chapter carefully.
+
 Let's say we have an application which offers us two distinct services:
 `Radar.FrontLeft.Counter` and `Rader.FrontRight.Counter`. Every time we have 
 received a sample from left and right we would like to calculate the sum with 
@@ -69,7 +73,7 @@ std::thread heartbeatThread([&] {
 ```
 
 Now that everything is setup we can attach the subscribers to the listener so that
-everytime a new sample (`iox::popo::SubscriberEvent::HAS_DATA`) is received our callback 
+everytime a new sample (`iox::popo::SubscriberEvent::DATA_RECEIVED`) is received our callback 
 (`onSampleReceivedCallback`) will be called. We also attach 
 our `heartbeat` user trigger to print the hearbeat message to the console via another
 callback (`heartbeatCallback`).
@@ -78,14 +82,14 @@ listener.attachEvent(heartbeat, heartbeatCallback).or_else([](auto) {
     std::cerr << "unable to attach heartbeat event" << std::endl;
     std::terminate();
 });
-listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberLeft" << std::endl;
         std::terminate();
     });
 // it is possible to attach any callback here with the required signature. to simplify the
 // example we attach the same callback onSampleReceivedCallback again
-listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberRight" << std::endl;
         std::terminate();
@@ -111,8 +115,8 @@ When the `shutdownSemaphore` unblocks we clean up all resources and terminate th
 gracefully.
 ```cpp
 listener.detachEvent(heartbeat);
-listener.detachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA);
-listener.detachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA);
+listener.detachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED);
+listener.detachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED);
 
 heartbeatThread.join();
 ```

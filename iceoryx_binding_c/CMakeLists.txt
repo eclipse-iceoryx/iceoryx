@@ -16,11 +16,16 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.7)
 
-file (STRINGS "../VERSION" iceoryx_binding_c_VERSION)
-project(iceoryx_binding_c VERSION ${iceoryx_binding_c_VERSION})
+set(IOX_VERSION_STRING "0.99.3")
+
+find_package(iceoryx_utils REQUIRED)
+
+#include(IceoryxVersion)
+#parse_version(${IOX_VERSION_STRING})
+project(iceoryx_binding_c VERSION ${IOX_VERSION_STRING})
+#adjust_version()
 
 find_package(iceoryx_posh REQUIRED)
-find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
@@ -56,6 +61,7 @@ add_library(${PROJECT_NAME}
     source/c_user_trigger.cpp
     source/c_wait_set.cpp
     source/c_chunk.cpp
+    source/c2cpp_enum_translation.cpp
     source/c_log.cpp
     source/cpp2c_enum_translation.cpp
     source/cpp2c_publisher.cpp
@@ -109,4 +115,9 @@ setup_install_directories_and_export_package(
     TARGETS ${PROJECT_NAME}
     INCLUDE_DIRECTORY include/
 )
+
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+  DESTINATION share/doc/iceoryx_binding_c
+  COMPONENT dev)
 

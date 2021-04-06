@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +22,9 @@
 #include <random>
 #include <vector>
 
+namespace
+{
 using namespace ::testing;
-
 
 constexpr uint32_t Size{4};
 using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
@@ -196,3 +198,4 @@ TYPED_TEST(LoFFLi_test, PushToUninitializedLoFFLi)
     decltype(this->m_loffli) loFFLi;
     EXPECT_THAT(loFFLi.push(0), Eq(false));
 }
+} // namespace

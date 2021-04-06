@@ -199,46 +199,32 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             // if it is monitored, we reject the registration and wait for automatic cleanup
             // otherwise we remove the process ourselves and register it again
 
-            if (process.isMonitored()) // is it the same process or a duplicate?
+            if (process.isMonitored())
             {
-                // process exists and is monitored - we rely on monitoring for removal
-                LogWarn() << "Received REG from " << name
-                          << ", but another application with this name is already registered";
+                LogWarn() << "Received register request, but termination of " << name << " not detected yet";
+            }
 
-                // Notify new application that it shall shutdown and try later
-                runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(
-                    runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
-                process.sendViaIpcChannel(sendBuffer);
-                returnValue = false;
+            // process exists, we expect that the existing process crashed
+            LogWarn() << "Application " << name << " crashed. Re-registering application";
+
+            // remove the existing process and add the new process afterwards, we do not send ack to new process
+            constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
+            if (!searchForProcessAndRemoveIt(name, terminationFeedback))
+            {
+                LogWarn() << "Application " << name << " could not be removed";
+                return;
             }
             else
             {
-                // process exists and is not monitored, we expect that the existing process crashed
-                LogDebug() << "Registering already existing application " << name;
-
-                // remove the existing process and add the new process afterwards, we do not send ack to new process
-                constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
-                if (!searchForProcessAndRemoveIt(name, terminationFeedback))
-                {
-                    LogWarn()
-                        << "Received REG from " << name
-                        << ", but another application with this name is already registered and could not be removed";
-                    return;
-                }
-                else
-                {
-                    LogDebug() << "Removed existing application " << name;
-                    // try registration again, should succeed since removal was successful
-                    returnValue = addProcess(name,
-                                             pid,
-                                             segmentInfo.m_memoryManager,
-                                             isMonitored,
-                                             transmissionTimestamp,
-                                             segmentInfo.m_segmentID,
-                                             sessionId,
-                                             versionInfo);
-                }
+                // try registration again, should succeed since removal was successful
+                returnValue = addProcess(name,
+                                         pid,
+                                         segmentInfo.m_memoryManager,
+                                         isMonitored,
+                                         transmissionTimestamp,
+                                         segmentInfo.m_segmentID,
+                                         sessionId,
+                                         versionInfo);
             }
         },
         [&]() {
@@ -258,10 +244,10 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 
 bool ProcessManager::addProcess(const RuntimeName_t& name,
                                 const uint32_t pid,
-                                cxx::not_null<mepoo::MemoryManager* const> payloadMemoryManager,
+                                cxx::not_null<mepoo::MemoryManager* const> payloadDataSegmentMemoryManager,
                                 const bool isMonitored,
                                 const int64_t transmissionTimestamp,
-                                const uint64_t payloadSegmentId,
+                                const uint64_t dataSegmentId,
                                 const uint64_t sessionId,
                                 const version::VersionInfo& versionInfo) noexcept
 {
@@ -280,7 +266,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
         LogError() << "Could not register process '" << name << "' - too many processes";
         return false;
     }
-    m_processList.emplace_back(name, pid, *payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    m_processList.emplace_back(name, pid, *payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
@@ -528,7 +514,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
         name,
         [&](Process& process) { // create a PublisherPort
             auto maybePublisher = m_portManager.acquirePublisherPortData(
-                service, publisherOptions, name, &process.getPayloadMemoryManager(), portConfigInfo);
+                service, publisherOptions, name, &process.getpayloadDataSegmentMemoryManager(), portConfigInfo);
 
             if (!maybePublisher.has_error())
             {

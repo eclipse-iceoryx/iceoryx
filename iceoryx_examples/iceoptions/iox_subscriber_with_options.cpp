@@ -58,6 +58,9 @@ int main()
     // grouping of publishers and subscribers within a process
     subscriberOptions.nodeName = "Sub_Node_With_Options";
 
+    // we request the publisher to wait for space in the queue if it is full. The publisher will be blocked then
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
 
     // We have to explicitly call subscribe() otherwise the subscriber will not try to connect to publishers
@@ -66,19 +69,8 @@ int main()
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        if (subscriber.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
-        {
-            bool hasMoreSamples = true;
-            // Since we are checking only every second but the publisher is sending every
-            // 400ms a new sample we will receive here more then one sample.
-            do
-            {
-                subscriber.take()
-                    .and_then([](auto& object) { std::cout << APP_NAME << " got value: " << object->x << std::endl; })
-                    .or_else([&](auto&) { hasMoreSamples = false; });
-            } while (hasMoreSamples);
-        }
-        std::cout << std::endl;
+        subscriber.take().and_then(
+            [](auto& object) { std::cout << APP_NAME << " got value: " << object->x << std::endl; });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

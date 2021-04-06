@@ -96,29 +96,29 @@ inline const T* Sample<T, H>::get() const noexcept
 }
 
 template <typename T, typename H>
-inline typename Sample<T, H>::ConditionalConstChunkHeader_t* Sample<T, H>::getHeader() noexcept
+inline typename Sample<T, H>::ConditionalConstChunkHeader_t* Sample<T, H>::getChunkHeader() noexcept
 {
-    return mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get());
+    return mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get());
 }
 
 template <typename T, typename H>
-inline const mepoo::ChunkHeader* Sample<T, H>::getHeader() const noexcept
+inline const mepoo::ChunkHeader* Sample<T, H>::getChunkHeader() const noexcept
 {
-    return mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get());
-}
-
-template <typename T, typename H>
-template <typename R, typename>
-inline R& Sample<T, H>::getCustomHeader() noexcept
-{
-    return *mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get())->template customHeader<R>();
+    return mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get());
 }
 
 template <typename T, typename H>
 template <typename R, typename>
-inline const R& Sample<T, H>::getCustomHeader() const noexcept
+inline R& Sample<T, H>::getUserHeader() noexcept
 {
-    return *mepoo::ChunkHeader::fromPayload(m_members.sampleUniquePtr.get())->template customHeader<R>();
+    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get())->userHeader());
+}
+
+template <typename T, typename H>
+template <typename R, typename>
+inline const R& Sample<T, H>::getUserHeader() const noexcept
+{
+    return const_cast<Sample<T, H>*>(this)->getUserHeader();
 }
 
 template <typename T, typename H>

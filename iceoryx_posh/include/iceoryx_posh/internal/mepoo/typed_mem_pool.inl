@@ -27,11 +27,11 @@ namespace iox
 namespace mepoo
 {
 template <typename T>
-inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks,
-                                     posix::Allocator& f_managementAllocator,
-                                     posix::Allocator& f_payloadAllocator) noexcept
-    : m_memPool(static_cast<uint32_t>(requiredChunkSize()), f_numberOfChunks, f_managementAllocator, f_payloadAllocator)
-    , m_chunkManagementPool(sizeof(ChunkManagement), f_numberOfChunks, f_managementAllocator, f_managementAllocator)
+inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+                                     posix::Allocator& managementAllocator,
+                                     posix::Allocator& chunkMemoryAllocator) noexcept
+    : m_memPool(static_cast<uint32_t>(requiredChunkSize()), numberOfChunks, managementAllocator, chunkMemoryAllocator)
+    , m_chunkManagementPool(sizeof(ChunkManagement), numberOfChunks, managementAllocator, managementAllocator)
 {
 }
 

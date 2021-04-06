@@ -48,7 +48,7 @@ static void sigHandler(int signalValue)
 void subscriberCallback(iox_sub_t const subscriber)
 {
     const void* chunk;
-    if (iox_sub_take_chunk(subscriber, &chunk))
+    while (iox_sub_take_chunk(subscriber, &chunk) == ChunkReceiveResult_SUCCESS)
     {
         printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
         fflush(stdout);
@@ -84,10 +84,9 @@ int main()
     options.nodeName = "iox-c-waitSet-gateway-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_t subscriber = iox_sub_init(
-            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
+        iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
+        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback);
     }
 
 
@@ -123,6 +122,9 @@ int main()
     // cleanup all resources
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
+        // not mandatory since iox_sub_deinit will detach the subscriber automatically
+        // only added to present the full API
+        iox_ws_detach_subscriber_event(waitSet, (iox_sub_t) & (subscriberStorage[i]), SubscriberEvent_DATA_RECEIVED);
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
     }
 

@@ -27,7 +27,8 @@
 #include <chrono>
 #include <thread>
 
-
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 
@@ -362,5 +363,5 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
 
     t.join();
 });
-
+} // namespace
 #endif // not defined QNX

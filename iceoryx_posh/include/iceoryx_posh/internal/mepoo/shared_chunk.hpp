@@ -46,7 +46,7 @@ class SharedChunk
     SharedChunk& operator=(SharedChunk&& rhs) noexcept;
 
     ChunkHeader* getChunkHeader() const noexcept;
-    void* getPayload() const noexcept;
+    void* getUserPayload() const noexcept;
 
     ChunkManagement* release() noexcept;
     iox::rp::RelativePointer<ChunkManagement> releaseWithRelativePtr() noexcept;

@@ -15,10 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
 using namespace iox;
@@ -31,6 +33,7 @@ using namespace iox::posix;
 extern "C" {
 #include "iceoryx_binding_c/chunk.h"
 #include "iceoryx_binding_c/publisher.h"
+#include "iceoryx_binding_c/runtime.h"
 }
 
 #include "test.hpp"
@@ -95,10 +98,11 @@ class iox_pub_test : public Test
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
     uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
-    static constexpr uint32_t CHUNK_SIZE = 128;
+    static constexpr uint32_t CHUNK_SIZE = 256;
 
     using ChunkQueueData_t = popo::ChunkQueueData<DefaultChunkQueueConfig, popo::ThreadSafePolicy>;
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
     GenericRAII m_uniqueRouDiId{[] { popo::internal::setUniqueRouDiId(0); },
                                 [] { popo::internal::unsetUniqueRouDiId(); }};
@@ -117,6 +121,36 @@ class iox_pub_test : public Test
         capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_publisherOptions};
     cpp2c_Publisher m_sut;
 };
+
+TEST_F(iox_pub_test, initPublisherWithNullptrForStorageReturnsNullptr)
+{
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+
+    EXPECT_EQ(iox_pub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
+}
+
+// this crashes if the fixture is used, therefore a test without a fixture
+TEST(iox_pub_test_DeathTest, initPublisherWithNotInitializedPublisherOptionsTerminates)
+{
+    iox_pub_options_t options;
+    iox_pub_storage_t storage;
+
+    EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
+}
+
+TEST_F(iox_pub_test, initPublisherWithDefaultOptionsWorks)
+{
+    iox::roudi::RouDiEnvironment roudiEnv;
+
+    iox_runtime_init("hypnotoad");
+
+    iox_pub_options_t options;
+    iox_pub_options_init(&options);
+    iox_pub_storage_t storage;
+
+    EXPECT_NE(iox_pub_init(&storage, "a", "b", "c", &options), nullptr);
+}
 
 TEST_F(iox_pub_test, initialStateOfIsOfferedIsAsExpected)
 {
@@ -164,27 +198,66 @@ TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
     EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
 }
 
+TEST_F(iox_pub_test, allocateChunkUserPayloadAlignmentIsSuccessful)
+{
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS,
+              iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
+
+    EXPECT_TRUE(reinterpret_cast<uint64_t>(chunk) % USER_PAYLOAD_ALIGNMENT == 0U);
+}
+
+TEST_F(iox_pub_test, allocateChunkWithUserHeaderIsSuccessful)
+{
+    constexpr uint32_t USER_HEADER_SIZE = 4U;
+    constexpr uint32_t USER_HEADER_ALIGNMENT = 2U;
+
+    void* chunk = nullptr;
+    ASSERT_EQ(AllocationResult_SUCCESS,
+              iox_pub_loan_aligned_chunk_with_user_header(
+                  &m_sut, &chunk, sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT));
+
+    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    auto spaceBetweenChunkHeaderAndUserPaylod =
+        reinterpret_cast<uint64_t>(chunk) - reinterpret_cast<uint64_t>(chunkHeader);
+    EXPECT_GT(spaceBetweenChunkHeaderAndUserPaylod, sizeof(iox::mepoo::ChunkHeader));
+}
+
+TEST_F(iox_pub_test, allocateChunkWithUserHeaderAndUserPayloadAlignmentFails)
+{
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_HEADER_SIZE = 4U;
+    constexpr uint32_t USER_HEADER_ALIGNMENT = 3U;
+
+    void* chunk = nullptr;
+    ASSERT_EQ(
+        AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
+        iox_pub_loan_aligned_chunk_with_user_header(
+            &m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT));
+}
+
 TEST_F(iox_pub_test, chunkHeaderCanBeObtainedFromChunk)
 {
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
-    auto header = iox_chunk_payload_to_header(chunk);
-    EXPECT_NE(header, nullptr);
+    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    EXPECT_NE(chunkHeader, nullptr);
 }
 
-TEST_F(iox_pub_test, chunkHeaderCanBeConvertedBackToPayload)
+TEST_F(iox_pub_test, chunkHeaderCanBeConvertedBackToUserPayload)
 {
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, sizeof(DummySample)));
-    auto header = iox_chunk_payload_to_header(chunk);
-    auto payload = iox_chunk_header_to_payload(header);
-    EXPECT_EQ(payload, chunk);
+    auto chunkHeader = iox_chunk_header_from_user_payload(chunk);
+    auto userPayloadFromRoundtrip = iox_chunk_header_to_user_payload(chunkHeader);
+    EXPECT_EQ(userPayloadFromRoundtrip, chunk);
 }
 
 TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
 {
     void* chunk = nullptr;
-    for (int i = 0; i < 8 /* ///@todo actually it should be MAX_CHUNKS_HELD_PER_RECEIVER but it does not work*/; ++i)
+    for (uint32_t i = 0U; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; ++i)
     {
         EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_loan_chunk(&m_sut, &chunk, 100));
     }
@@ -197,9 +270,9 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
     std::vector<SharedChunk> chunkBucket;
     while (true)
     {
-        constexpr uint32_t PAYLOAD_SIZE{100U};
+        constexpr uint32_t USER_PAYLOAD_SIZE{100U};
 
-        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         ASSERT_FALSE(chunkSettingsResult.has_error());
         auto& chunkSettings = chunkSettingsResult.value();
 
@@ -259,7 +332,7 @@ TEST_F(iox_pub_test, sendDeliversChunk)
 
     ASSERT_TRUE(maybeSharedChunk.has_value());
     EXPECT_TRUE(*maybeSharedChunk == chunk);
-    EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getPayload())->dummy == 4711);
+    EXPECT_TRUE(static_cast<DummySample*>(maybeSharedChunk->getUserPayload())->dummy == 4711);
 }
 
 TEST_F(iox_pub_test, correctServiceDescriptionReturned)
@@ -280,6 +353,7 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     sut.historyCapacity = 37;
     sut.nodeName = "Dr.Gonzo";
     sut.offerOnCreate = false;
+    sut.subscriberTooSlowPolicy = SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER;
 
     PublisherOptions options;
     // set offerOnCreate to the opposite of the expected default to check if it gets overwritten to default
@@ -289,6 +363,7 @@ TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyCapacity, options.historyCapacity);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.offerOnCreate, options.offerOnCreate);
+    EXPECT_EQ(sut.subscriberTooSlowPolicy, cpp2c::subscriberTooSlowPolicy(options.subscriberTooSlowPolicy));
     EXPECT_TRUE(iox_pub_options_is_initialized(&sut));
 }
 
@@ -314,12 +389,4 @@ TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
         },
         ::testing::ExitedWithCode(0),
         ".*");
-}
-
-TEST(iox_pub_options_test, publisherInitializationTerminatesIfOptionsAreNotInitialized)
-{
-    iox_pub_options_t options;
-    iox_pub_storage_t storage;
-
-    EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
 }

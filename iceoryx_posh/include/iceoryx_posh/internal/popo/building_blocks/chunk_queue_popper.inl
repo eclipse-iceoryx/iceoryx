@@ -65,11 +65,11 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
 }
 
 template <typename ChunkQueueDataType>
-inline bool ChunkQueuePopper<ChunkQueueDataType>::hasOverflown() noexcept
+inline bool ChunkQueuePopper<ChunkQueueDataType>::hasLostChunks() noexcept
 {
-    if (getMembers()->m_queueHasOverflown.load(std::memory_order_relaxed))
+    if (getMembers()->m_queueHasLostChunks.load(std::memory_order_relaxed))
     {
-        getMembers()->m_queueHasOverflown.store(false, std::memory_order_relaxed);
+        getMembers()->m_queueHasLostChunks.store(false, std::memory_order_relaxed);
         return true;
     }
     return false;
