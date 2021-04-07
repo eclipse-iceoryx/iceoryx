@@ -113,13 +113,13 @@ int main()
             else if (iox_event_info_get_event_id(event) == FIRST_GROUP_ID)
             {
                 iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
-                const void* chunk;
-                if (iox_sub_take_chunk(subscriber, &chunk))
+                const void* userPayload;
+                if (iox_sub_take_chunk(subscriber, &userPayload))
                 {
-                    printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                    printf("received: %u\n", ((struct CounterTopic*)userPayload)->counter);
                     fflush(stdout);
 
-                    iox_sub_release_chunk(subscriber, chunk);
+                    iox_sub_release_chunk(subscriber, userPayload);
                 }
             }
             // dismiss the received data for the second group

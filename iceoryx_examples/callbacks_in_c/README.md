@@ -2,7 +2,7 @@
 
 ## Thread Safety
 The Listener is thread-safe and can be used without restrictions.
-But be aware that all provided callbacks are executed concurrently 
+But be aware that all provided callbacks are executed concurrently
 in the background thread of the Listener. If you access structures
 inside this callback you have to either ensure that you are the only
 one accessing it or that it is accessed with a guard like a `mutex`.
@@ -22,32 +22,32 @@ and at the Glossary of the
 ## Code Walkthrough
 
 !!! attention 
-    Please be aware about the thread-safety restrictions of the _Listener_ and 
+    Please be aware about the thread-safety restrictions of the _Listener_ and
     read the [Thread Safety](#thread-safety) chapter carefully.
 
-The C version of the callbacks example performs the identical tasks as the 
-C++ version. We have again an application which offers two services called 
-`Radar.FrontLeft.Counter` and `Radar.FrontRight.Counter`. Every time we have 
+The C version of the callbacks example performs the identical tasks as the
+C++ version. We have again an application which offers two services called
+`Radar.FrontLeft.Counter` and `Radar.FrontRight.Counter`. Every time we have
 received a sample from each service we calculate the sum of it.
 
 ### ice_c_callbacks_publisher.c 
 
-The publisher contains only already known iceoryx features. If some of them 
+The publisher contains only already known iceoryx features. If some of them
 are not known to you please take a look at the 
 [icedelivery in c example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
 
 ### ice_c_callbacks_subscriber.c
 #### int main()
 The subscriber starts as usual by registering the process at the runtime.
-In the next step we setup some `listenerStorage` on the stack where the listener 
-will be constructed in and initialize the listener which will start a background 
+In the next step we setup some `listenerStorage` on the stack where the listener
+will be constructed in and initialize the listener which will start a background
 thread for the upcoming event triggered callbacks.
 ```c
 iox_listener_storage_t listenerStorage;
 iox_listener_t listener = iox_listener_init(&listenerStorage);
 ```
 
-Besides the subscribers we also would like to have an event which will be triggered 
+Besides the subscribers we also would like to have an event which will be triggered
 by ourselfs - the `heartbeat`.
 ```c
 iox_user_trigger_storage_t heartbeatStorage;
@@ -69,7 +69,7 @@ iox_sub_t subscriberLeft = iox_sub_init(&subscriberLeftStorage, "Radar", "FrontL
 iox_sub_t subscriberRight = iox_sub_init(&subscriberRightStorage, "Radar", "FrontRight", "Counter", &options);
 ```
 
-Now that everything is initialized we start our `heartbeatTriggerThread` which 
+Now that everything is initialized we start our `heartbeatTriggerThread` which
 triggers our `heartbeat` every 4 seconds.
 ```c 
 pthread_t heartbeatTriggerThread;
@@ -80,7 +80,7 @@ if (pthread_create(&heartbeatTriggerThread, NULL, cyclicHeartbeatTrigger, NULL))
 }
 ```
 
-Attaching the subscribers and the heartbeat allows the Listener to call the callbacks 
+Attaching the subscribers and the heartbeat allows the Listener to call the callbacks
 whenever the event is signaled by the _EventOrigin_.
 ```c 
 iox_listener_attach_user_trigger_event(listener, heartbeat, &heartbeatCallback);
@@ -88,11 +88,11 @@ iox_listener_attach_subscriber_event(listener, subscriberLeft, SubscriberEvent_D
 iox_listener_attach_subscriber_event(
     listener, subscriberRight, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback);
 ```
-A user trigger can emit only one event therefore we do not provide the event type as 
+A user trigger can emit only one event therefore we do not provide the event type as
 an argument in the user trigger attach call.
 
-Since we are following a push based approach - without an event loop which is pulling 
-the events and processing them, we require a blocker which waits until a signal 
+Since we are following a push based approach - without an event loop which is pulling
+the events and processing them, we require a blocker which waits until a signal
 signals the process to terminate.
 ```c 
 while (keepRunning)
@@ -102,9 +102,9 @@ while (keepRunning)
 ```
 
 When `keepRunning` is set to false we cleanup all the resources. First we detach
-the events from the Listener. This is an optional step since the Listener detaches 
+the events from the Listener. This is an optional step since the Listener detaches
 all events by itself when it is deinitialized. This goes also for all the _EventOrigins_,
-if you for instance deinitialize an attached subscriber it will automatically detach 
+if you for instance deinitialize an attached subscriber it will automatically detach
 itself from the Listener.
 ```c 
 iox_listener_detach_user_trigger_event(listener, heartbeat);
@@ -123,7 +123,7 @@ iox_listener_deinit(listener);
 ```
 
 #### The callbacks
-Every callback must have a signature like `void (iox_event_origin_t)`. Our 
+Every callback must have a signature like `void (iox_event_origin_t)`. Our
 `heartbeatCallback` just prints the message `heartbeat received` onto the console.
 ```c 
 void heartbeatCallback(iox_user_trigger_t userTrigger)
@@ -133,31 +133,31 @@ void heartbeatCallback(iox_user_trigger_t userTrigger)
 }
 ```
 
-The `onSampleReceivedCallback` is a little bit more complex. First we acquire 
-the chunk and then we have to find out which subscriber received the chunk. For that 
-we acquire the service description of the subscriber and if its instance equals 
+The `onSampleReceivedCallback` is a little bit more complex. First we acquire
+the chunk and then we have to find out which subscriber received the chunk. For that
+we acquire the service description of the subscriber and if its instance equals
 `FrontLeft` we store the chunk value in the `leftCache` otherwise in the `rightCache`.
 ```c 
 void onSampleReceivedCallback(iox_sub_t subscriber)
 {
-    const struct CounterTopic* chunk;
-    if (iox_sub_take_chunk(subscriber, (const void**)&chunk) == ChunkReceiveResult_SUCCESS)
+    const struct CounterTopic* userPayload;
+    if (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
     {
         iox_service_description_t serviceDescription = iox_sub_get_service_description(subscriber);
         if (strcmp(serviceDescription.instanceString, "FrontLeft") == 0)
         {
-            leftCache.value = *chunk;
+            leftCache.value = *userPayload;
             leftCache.isSet = true;
         }
         else if (strcmp(serviceDescription.instanceString, "FrontRight") == 0)
         {
-            rightCache.value = *chunk;
+            rightCache.value = *userPayload;
             rightCache.isSet = true;
         }
 ```
 
 If both caches are set we can calculate the sum of both chunks and print them to
-the console. To start fresh in the next cycle we reset the `leftCache` and 
+the console. To start fresh in the next cycle we reset the `leftCache` and
 the `rightCache` afterwards.
 ```c 
     if (leftCache.isSet && rightCache.isSet)

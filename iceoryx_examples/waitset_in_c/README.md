@@ -31,32 +31,32 @@ The examples are also structured in the same way as the C++ ones.
     read the [Thread Safety](#thread-safety) chapter carefully.
 
 To run an example you need a running `iox-roudi` and the waitset publisher
-`iox-c-waitset-publisher`. They are identical to the ones introduced in the 
+`iox-c-waitset-publisher`. They are identical to the ones introduced in the
 [icedelivery C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
 
 ### Gateway
-Let's say we would like to write a gateway and would like to forward every 
+Let's say we would like to write a gateway and would like to forward every
 incoming message from a subscriber with the same callback. For instance we could perform
 a memcopy of the received data into a specific struct.
 
 This could be performed by a function which we attach to an event as a
-callback. In our case we have the function `subscriberCallback` which 
+callback. In our case we have the function `subscriberCallback` which
 prints out the subscriber pointer and the content of the received sample.
 ```c
 void subscriberCallback(iox_sub_t const subscriber)
 {
-    const void* chunk;
-    while (iox_sub_take_chunk(subscriber, &chunk) == ChunkReceiveResult_SUCCESS)
+    const void* userPayload;
+    while (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)
     {
-        printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
+        printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)userPayload)->counter);
 
-        iox_sub_release_chunk(subscriber, chunk);
+        iox_sub_release_chunk(subscriber, userPayload);
     }
 }
 ```
-Since we attach the `SubscriberEvent_DATA_RECEIVED` event to the _WaitSet_ which 
+Since we attach the `SubscriberEvent_DATA_RECEIVED` event to the _WaitSet_ which
 notifies us just once when data was received we have to gather and process all chunks.
-One will never miss chunks since the event notification is reset after a call to 
+One will never miss chunks since the event notification is reset after a call to
 `iox_ws_wait` or `iox_ws_timed_wait` which we introduce below.
 
 After we registered our runtime we create some stack storage for our WaitSet,
@@ -71,7 +71,7 @@ shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
 ```
 
-In the next steps we create 4 subscribers with `iox_sub_init`, 
+In the next steps we create 4 subscribers with `iox_sub_init`,
 subscribe them to our topic
 and attach the event `SubscriberEvent_DATA_RECEIVED` to the WaitSet with
 the `subscriberCallback` and an event id `1U`.
@@ -224,12 +224,12 @@ for (uint64_t i = 0U; i < numberOfEvents; ++i)
     else if (iox_event_info_get_event_id(event) == FIRST_GROUP_ID)
     {
         iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
-        const void* chunk;
-        if (iox_sub_take_chunk(subscriber, &chunk))
+        const void* userPayload;
+        if (iox_sub_take_chunk(subscriber, &userPayload))
         {
-            printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
+            printf("received: %u\n", ((struct CounterTopic*)userPayload)->counter);
 
-            iox_sub_release_chunk(subscriber, chunk);
+            iox_sub_release_chunk(subscriber, userPayload);
         }
     }
     else if (iox_event_info_get_event_id(event) == SECOND_GROUP_ID)
@@ -316,12 +316,12 @@ originated from the second subscriber we discard the data.
         }
         else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0]))
         {
-            const void* chunk;
-            if (iox_sub_take_chunk(subscriber[0], &chunk))
+            const void* userPayload;
+            if (iox_sub_take_chunk(subscriber[0], &userPayload))
             {
-                printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                printf("subscriber 1 received: %u\n", ((struct CounterTopic*)userPayload)->counter);
 
-                iox_sub_release_chunk(subscriber[0], chunk);
+                iox_sub_release_chunk(subscriber[0], userPayload);
             }
         }
         else if (iox_event_info_does_originate_from_subscriber(event, subscriber[1]))

@@ -49,14 +49,14 @@ int main()
 
         // Loan chunk and provide logic to populate it via a lambda
         publisher.loan(sizeof(RadarObject))
-            .and_then([&](auto& chunk) {
-                RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
-                iox::cxx::Expects(chunk == data);
+            .and_then([&](auto& userPayload) {
+                RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
+                iox::cxx::Expects(userPayload == data);
 
                 data->x = ct;
                 data->y = ct;
                 data->z = ct;
-                publisher.publish(chunk);
+                publisher.publish(userPayload);
             })
             .or_else([&](auto& error) {
                 // Do something with the error

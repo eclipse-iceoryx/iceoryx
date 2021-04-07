@@ -47,13 +47,13 @@ static void sigHandler(int signalValue)
 // an iox_sub_t.
 void subscriberCallback(iox_sub_t const subscriber)
 {
-    const void* chunk;
-    while (iox_sub_take_chunk(subscriber, &chunk) == ChunkReceiveResult_SUCCESS)
+    const void* userPayload;
+    while (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)
     {
-        printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
+        printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)userPayload)->counter);
         fflush(stdout);
 
-        iox_sub_release_chunk(subscriber, chunk);
+        iox_sub_release_chunk(subscriber, userPayload);
     }
 }
 

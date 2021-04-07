@@ -51,10 +51,10 @@ void sending()
 
     while (!killswitch)
     {
-        void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &chunk, sizeof(struct RadarObject)))
+        void* userPayload = NULL;
+        if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &userPayload, sizeof(struct RadarObject)))
         {
-            struct RadarObject* sample = (struct RadarObject*)chunk;
+            struct RadarObject* sample = (struct RadarObject*)userPayload;
 
             sample->x = ct;
             sample->y = ct;
@@ -63,7 +63,7 @@ void sending()
             printf("%s sent value: %.0f\n", APP_NAME, ct);
             fflush(stdout);
 
-            iox_pub_publish_chunk(publisher, chunk);
+            iox_pub_publish_chunk(publisher, userPayload);
 
             ++ct;
 

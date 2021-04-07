@@ -64,12 +64,12 @@ Let's take a look at the `receiving` function which comes with the
      {
          if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
          {
-             const void* chunk = NULL;
-             while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &chunk))
+             const void* userPayload = NULL;
+             while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &userPayload))
              {
-                 const struct RadarObject* sample = (const struct RadarObject*)(chunk);
+                 const struct RadarObject* sample = (const struct RadarObject*)(userPayload);
                  printf("%s got value: %.0f\n", APP_NAME, sample->x);
-                 iox_sub_release_chunk(subscriber, chunk);
+                 iox_sub_release_chunk(subscriber, userPayload);
              }
          }
          else
@@ -124,10 +124,10 @@ Let's take a look at the `sending` function which comes with the
 
     while (!killswitch)
     {
-        void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &chunk, sizeof(struct RadarObject)))
+        void* userPayload = NULL;
+        if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &userPayload, sizeof(struct RadarObject)))
         {
-            struct RadarObject* sample = (struct RadarObject*)chunk;
+            struct RadarObject* sample = (struct RadarObject*)userPayload;
 
             sample->x = ct;
             sample->y = ct;
@@ -135,7 +135,7 @@ Let's take a look at the `sending` function which comes with the
 
             printf("%s sent value: %.0f\n", APP_NAME, ct);
 
-            iox_pub_publish_chunk(publisher, chunk);
+            iox_pub_publish_chunk(publisher, userPayload);
 
             ++ct;
 

@@ -48,13 +48,13 @@ int main()
     while (!killswitch)
     {
         subscriber.take()
-            .and_then([&](const void* chunk) {
-                auto object = static_cast<const RadarObject*>(chunk);
+            .and_then([&](const void* userPayload) {
+                auto object = static_cast<const RadarObject*>(userPayload);
                 std::cout << APP_NAME << " got value: " << object->x << std::endl;
 
                 // note that we explicitly have to release the sample
                 // and afterwards the pointer access is undefined behavior
-                subscriber.release(chunk);
+                subscriber.release(userPayload);
             })
             .or_else([](auto& result) {
                 if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)

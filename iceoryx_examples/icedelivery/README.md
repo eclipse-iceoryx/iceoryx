@@ -75,7 +75,7 @@ which fits our RadarObject struct.
 
 ```cpp
 publisher.loan(sizeof(RadarObject))
-    .and_then([&](auto& chunk)
+    .and_then([&](auto& userPayload)
     {
         // ...
     })
@@ -95,7 +95,7 @@ Remember, the untyped API will always be bare-metal!
 Hence, the `RadarObject` needs to be constructed with a placement new:
 
 ```cpp
-RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
+RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
 ```
 
 Then, we can write some values:
@@ -109,7 +109,7 @@ data->z = 3.0;
 And finanlly, in both ways, the value is made available to other subscribers with
 
 ```cpp
-publisher.publish(chunk);
+publisher.publish(userPayload);
 ```
 
 The incrementation and sending of the data is done in a loop every second till the user pressed `Ctrl-C`. It is
@@ -152,7 +152,7 @@ Again in a while-loop we do the following:
 while (!killswitch)
 {
     subscriber.take()
-        .and_then([](const void* chunk)
+        .and_then([](const void* userPayload)
         {
             // ...
         })
@@ -174,7 +174,7 @@ take care about all cases, but it is advised to do so.
 In the `and_then` case the content of the sample is printed to the command line:
 
 ```cpp
-auto object = static_cast<const RadarObject*>(chunk);
+auto object = static_cast<const RadarObject*>(userPayload);
 std::cout << APP_NAME << " got value: " << object->x << std::endl;
 ```
 
@@ -184,7 +184,7 @@ of the type of the transmitted data.
 After accessing the value, the chunk of memory needs to be explicitly released by calling:
 
 ```cpp
-subscriber.release(chunk);
+subscriber.release(userPayload);
 ```
 
 The subscriber runs 10x times faster than the publisher, to make sure that all data samples are received.
