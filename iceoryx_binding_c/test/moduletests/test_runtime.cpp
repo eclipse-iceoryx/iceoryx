@@ -19,7 +19,7 @@ extern "C" {
 }
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/testing/roudi_gtest.hpp"
+#include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 using namespace iox;
 using namespace iox::runtime;

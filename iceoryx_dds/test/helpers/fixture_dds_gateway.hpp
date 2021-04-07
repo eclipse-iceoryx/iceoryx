@@ -19,7 +19,6 @@
 #define TEST_HELPERS_FIXTURE_DDS_GATEWAY_H
 
 #include "iceoryx_posh/gateway/channel.hpp"
-#include "iceoryx_utils/testing/roudi_gtest.hpp"
 
 #include "mocks/google_mocks.hpp"
 #include "test.hpp"

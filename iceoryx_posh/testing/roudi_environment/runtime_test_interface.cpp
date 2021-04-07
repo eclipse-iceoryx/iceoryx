@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/roudi_environment/runtime_test_interface.hpp"
+#include "iceoryx_posh/testing/roudi_environment/runtime_test_interface.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 

@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #include "test.hpp"
 

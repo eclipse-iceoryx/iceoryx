@@ -20,6 +20,7 @@ set(test_iceoryx_posh_VERSION 0)
 project(test_iceoryx_posh VERSION ${test_iceoryx_posh_VERSION})
 
 find_package(iceoryx_utils_testing REQUIRED)
+find_package(iceoryx_posh_testing REQUIRED)
 
 if(BUILD_TEST AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
@@ -52,7 +53,7 @@ set(TEST_LINK_LIBS
     iceoryx_posh::iceoryx_posh_config
     iceoryx_posh::iceoryx_posh_gateway
     iceoryx_posh::iceoryx_posh_roudi
-    iceoryx_posh::iceoryx_posh_roudi_environment
+    iceoryx_posh_testing::iceoryx_posh_testing
 )
 
 if(LINUX)
