@@ -23,8 +23,8 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/testing/test_definitions.hpp"
 #include "test.hpp"
-#include "testutils/test_definitions.hpp"
 
 
 #include <functional>

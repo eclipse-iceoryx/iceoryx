@@ -17,8 +17,8 @@
 
 #include "iceoryx_utils/log/logging.hpp"
 #include "iceoryx_utils/log/logstream.hpp"
-#include "mocks/logger_mock.hpp"
-#include "test.hpp"
+#include "iceoryx_utils/testing/mocks/logger_mock.hpp"
+#include "iceoryx_utils/testing/test.hpp"
 
 #include <cstdint>
 #include <limits>

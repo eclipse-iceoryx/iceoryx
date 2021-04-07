@@ -28,7 +28,7 @@
 #include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
-#include "testutils/watch_dog.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 
 #include <cstdint>
 #include <limits> // std::numeric_limits

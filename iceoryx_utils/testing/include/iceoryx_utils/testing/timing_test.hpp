@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,7 +70,7 @@
     {                                                                                                                  \
         std::atomic_bool timingTestResult{true};                                                                       \
         std::string errorMessages;                                                                                     \
-        bool testResult = iox::testutils::performingTimingTest(Test, Repetitions, timingTestResult);                   \
+        bool testResult = iox::utils::testing::performingTimingTest(Test, Repetitions, timingTestResult);              \
         EXPECT_TRUE(testResult);                                                                                       \
         if (!testResult)                                                                                               \
         {                                                                                                              \
@@ -83,9 +84,11 @@
 #define TIMING_TEST_EXPECT_ALWAYS_TRUE(value) EXPECT_TRUE(value)
 #define TIMING_TEST_EXPECT_ALWAYS_FALSE(value) EXPECT_FALSE(value)
 #define TIMING_TEST_EXPECT_TRUE(value)                                                                                 \
-    errorMessages += iox::testutils::verifyTimingTestResult(__FILE__, __LINE__, #value, value, true, timingTestResult)
+    errorMessages +=                                                                                                   \
+        iox::utils::testing::verifyTimingTestResult(__FILE__, __LINE__, #value, value, true, timingTestResult)
 #define TIMING_TEST_EXPECT_FALSE(value)                                                                                \
-    errorMessages += iox::testutils::verifyTimingTestResult(__FILE__, __LINE__, #value, value, false, timingTestResult)
+    errorMessages +=                                                                                                   \
+        iox::utils::testing::verifyTimingTestResult(__FILE__, __LINE__, #value, value, false, timingTestResult)
 #define TIMING_TEST_ASSERT_TRUE(value)                                                                                 \
     TIMING_TEST_EXPECT_TRUE(value);                                                                                    \
     if (!timingTestResult.load())                                                                                      \
@@ -103,7 +106,9 @@
 
 namespace iox
 {
-namespace testutils
+namespace utils
+{
+namespace testing
 {
 bool performingTimingTest(const std::function<void()>& testCallback,
                           const uint64_t repetitions,
@@ -117,7 +122,8 @@ std::string verifyTimingTestResult(const char* file,
                                    const bool expected,
                                    std::atomic_bool& result) noexcept;
 
-} // namespace testutils
+} // namespace testing
+} // namespace utils
 } // namespace iox
 
 #endif // IOX_UTILS_TESTUTILS_TIMING_TEST_HPP

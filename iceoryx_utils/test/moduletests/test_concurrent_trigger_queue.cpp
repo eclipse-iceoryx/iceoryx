@@ -19,8 +19,8 @@
 #include "iceoryx_utils/concurrent/resizeable_lockfree_queue.hpp"
 #include "iceoryx_utils/internal/concurrent/fifo.hpp"
 #include "iceoryx_utils/internal/concurrent/trigger_queue.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
-#include "testutils/watch_dog.hpp"
 
 namespace
 {

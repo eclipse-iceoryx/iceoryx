@@ -20,7 +20,7 @@ extern "C" {
 #include "iceoryx_binding_c/runtime.h"
 }
 
-#include "testutils/roudi_gtest.hpp"
+#include "iceoryx_utils/testing/roudi_gtest.hpp"
 
 namespace
 {

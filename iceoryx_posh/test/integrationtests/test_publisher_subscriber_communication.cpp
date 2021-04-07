@@ -25,8 +25,8 @@
 #include "iceoryx_utils/cxx/variant.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-#include "testutils/roudi_gtest.hpp"
-#include "testutils/watch_dog.hpp"
+#include "iceoryx_utils/testing/roudi_gtest.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 
 #include "test.hpp"
 
