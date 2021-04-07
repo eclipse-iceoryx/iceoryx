@@ -21,37 +21,17 @@
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/posix_wrapper/file_lock.hpp"
-
 
 namespace iox
 {
 namespace roudi
 {
-constexpr char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
 struct IceOryxRouDiComponents
 {
   public:
     IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig) noexcept;
 
     virtual ~IceOryxRouDiComponents() = default;
-
-    posix::FileLock fileLock = std::move(
-        posix::FileLock::create(ROUDI_LOCK_NAME)
-            .or_else([](auto& error) {
-                if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
-                {
-                    LogFatal() << "Could not acquire lock, is RouDi still running?";
-                    errorHandler(Error::kROUDI_COMPONENTS__ROUDI_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
-                }
-                else
-                {
-                    LogFatal() << "Error occured while acquiring file lock named " << ROUDI_LOCK_NAME;
-                    errorHandler(
-                        Error::kROUDI_COMPONENTS__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
-                }
-            })
-            .value());
 
     /// @brief Handles MemoryProvider and MemoryBlocks
     IceOryxRouDiMemoryManager rouDiMemoryManager;
