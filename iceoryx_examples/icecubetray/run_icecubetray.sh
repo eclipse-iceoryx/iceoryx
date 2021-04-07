@@ -21,6 +21,8 @@ sudo usermod -L roudi -a -G iceoryx
 
 # If you're using e.g Yocto or QNX refer to the manual on how to set up groups, users and permissions
 
+
+# Allow RouDi to send SIGKILL to other apps
 sudo setcap cap_kill=ep ./build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments
 
 # Start custom RouDi in 'iceoryx' group
