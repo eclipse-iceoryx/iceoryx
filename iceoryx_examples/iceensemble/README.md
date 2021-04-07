@@ -19,7 +19,7 @@ The easiest way is to build all examples via `./tools/iceoryx_build_test.sh`. Th
 ```sh
 ./build/iox-roudi
 
-./build/iceoryx_examples/icedelivery/iox-cpp-publisher-helloworld
+./build/iceoryx_examples/icehello/iox-cpp-publisher-helloworld
 ./build/iceoryx_examples/icedelivery/iox-cpp-publisher
 ./build/iceoryx_examples/icedelivery/iox-cpp-publisher-untyped
 ./build/iceoryx_examples/iceoptions/iox-cpp-publisher-with-options
@@ -32,7 +32,7 @@ The easiest way is to build all examples via `./tools/iceoryx_build_test.sh`. Th
 Alternatively you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmux) script.
 
 ```sh
-./run_iceensemble.sh
+./iceoryx_examples/iceensemble/run_iceensemble.sh
 ```
 
 ## Expected Output

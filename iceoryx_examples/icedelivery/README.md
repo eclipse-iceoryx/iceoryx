@@ -63,8 +63,8 @@ constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 ```
 
-Now that RouDi knows our publisher application is existing, let's create a publisher instance for our charming struct
-to everyone:
+Now that RouDi knows our publisher application is existing, let's create a publisher instance for sending our charming
+struct to everyone:
 
 ```cpp
 iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
@@ -119,7 +119,7 @@ captured with the signal handler and stops the loop.
 
 How can the subscriber application receive the data the publisher application just transmitted?
 
-Similar to the publisher we need to include the runtime and the subscriber as well as the topic data header:
+Similar to the publisher we include the topic data, the subscriber, the runtime as well as the signal handler header:
 
 ```cpp
 #include "topic_data.hpp"
@@ -191,8 +191,8 @@ The subscriber runs 10x times faster than the publisher, to make sure that all d
 
 ### Publisher application (typed)
 
-The typed publisher application is an example for a high-level user API and does the same thing as the publisher
-described before. In this summary, just the differences to the prior publisher application are described.
+The typed publisher application is an example for a high-level user API and does the same thing as the untyped
+publisher described before. In this summary, just the differences to the prior publisher application are described.
 
 Starting again with the includes, there is now a different one:
 
@@ -279,7 +279,7 @@ publisher.publishResultOf([&ct](RadarObject* object) { *object = RadarObject(ct,
 
 ### Subscriber application (typed)
 
-As with the typed publisher application there is an different include compared to the untyped subscriber:
+As with the typed publisher application there is a different include compared to the untyped subscriber:
 
 ```cpp
 #include "iceoryx_posh/popo/subscriber.hpp"

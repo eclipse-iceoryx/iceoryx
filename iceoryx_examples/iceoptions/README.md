@@ -3,7 +3,7 @@
 ## Introduction
 
 This example demonstrates what kind of quality of service options can be configured on the publisher and subscriber
-side. The options can be used for both, typed and untyped API flavours.
+side. The options can be used for the typed and untyped C++ API flavours as well as the C API.
 
 ## Expected Output
 
@@ -39,7 +39,9 @@ To organize publishers inside an application, they can be associated and grouped
 publisherOptions.nodeName = "Pub_Node_With_Options";
 ```
 
-To ensure that samples are never lost, you have the possibility to busy-wait for the subscriber when publishing. Both publisher and subscriber have to request compatible settings.
+To ensure that samples are never lost, you have the possibility to busy-wait for the subscriber when publishing.
+Both publisher and subscriber have to request compatible policies (`SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER` and
+`QueueFullPolicy::BLOCK_PUBLISHER`).
 
 ```cpp
 publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
