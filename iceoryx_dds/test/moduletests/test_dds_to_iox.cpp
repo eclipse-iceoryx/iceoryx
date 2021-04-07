@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +19,11 @@
 
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
+#include "iceoryx_utils/testing/roudi_gtest.hpp"
 
 #include "mocks/chunk_mock_dds.hpp"
 #include "mocks/google_mocks.hpp"
 #include "test.hpp"
-#include "testutils/roudi_gtest.hpp"
 
 using namespace ::testing;
 using ::testing::_;

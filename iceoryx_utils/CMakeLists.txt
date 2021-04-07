@@ -65,14 +65,14 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     setup_package_name_and_create_files(
         NAME ${PROJECT_NAME}_testing
         NAMESPACE iceoryx_utils_testing
-        PROJECT_PREFIX testutils
+        PROJECT_PREFIX ${PREFIX}
     )
 
     add_library(iceoryx_utils_testing
         STATIC
-        testutils/mocks/time_mock.cpp
-        testutils/timing_test.cpp
-        testutils/compile_test.cpp
+        testing/mocks/time_mock.cpp
+        testing/timing_test.cpp
+        testing/compile_test.cpp
     )
 
     add_library(iceoryx_utils_testing::iceoryx_utils_testing ALIAS iceoryx_utils_testing)
@@ -95,9 +95,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
 
     target_include_directories(iceoryx_utils_testing
         PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/testutils>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/testutils/mocks>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/testing/include>
         $<INSTALL_INTERFACE:include/${PREFIX}>
     )
 
@@ -116,8 +114,8 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     endif()
 
     setup_install_directories_and_export_package(
-    TARGETS iceoryx_utils_testing
-    INCLUDE_DIRECTORY testutils/
+        TARGETS iceoryx_utils_testing
+        INCLUDE_DIRECTORY testing/include/
     )
 
     #
