@@ -10,8 +10,6 @@ runtime and create _publishers_ and _subscribers_. The publishers send data of a
 received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
 these offered topics, the middleware daemon, called ``RouDi``, must be running.
 
-<!-- @todo add overview graphic -->
-
 For further information how iceoryx can be used, see the [examples](../examples/). The
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md) provides additional 
 information about the _Shared Memory communication_ that lies at the heart of iceoryx.
@@ -110,6 +108,8 @@ When the application terminates, the runtime cleans up all resources needed for 
 includes all memory chunks used for the data transmission which may still be held by the application.
 
 
+<!-- @todo add overview graphic -->
+
 We now briefly define the main entities of an iceoryx system which were partially already used in the example above.
 
 ## RouDi
@@ -122,10 +122,21 @@ the shared memory and is responsible for the service discovery, i.e. enabling su
 publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use
 publishers or subscribers. To view the available command line options call `$ICEORYX_ROOT/build/iox-roudi --help`.
 
+## Shared memory
+
+At the heart of iceoryx lies the Shared memory communication. Shared memory is physical memory that is made accessible
+to multiple processes via a mapping to a memory area in their virtual address spaces.
+
+??? clarify failure cases ???
+
+For further information have a look at our 
+[conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md).
+
 ## Runtime
 
 Each application that wants to use iceoryx has to instantiate its runtime, which essentially enables communication
-with RouDi. Only one runtime object per user process is allowed.
+with RouDi. The runtime is an object inside the user application that maps the shared memory into the user 
+application's address space. Only one runtime object per user application is allowed.
 
 To do so, the following lines of code are required
 ```cpp
@@ -183,7 +194,7 @@ following conditions:
 - the data structure is entirely contained in the shared memory - no pointers to process local memory, no references 
 to process local constructs, no dynamic allocators
 - the data structure has to be relocatable and therefore must not internally use pointers/references
-- no virtual members
+- no virtual member functions
 
 !!! note
     Most of the STL types cannot be used, but we reimplemented some of them so that they meet the conditions above. 
