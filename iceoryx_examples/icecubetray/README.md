@@ -11,7 +11,8 @@ It provides a custom RouDi, a radar and a display application.
 
 ## Code walkthrough
 
-
+The user _roudi_ does not need root access rights. However, it needs _CAP\_KILL_ capability or similar to send a
+_SIGKILL_ signal to the apps in case RouDi is shutdown.
 
 | Users        | privileged group | unprivileged group | infotainment group |   iceoryx group    |
 |--------------|:----------------:|:------------------:|:------------------:|:------------------:|
@@ -24,6 +25,7 @@ It provides a custom RouDi, a radar and a display application.
 The segments are configured as depicted below:
 
 #### Positive Scenario
+
 ```
                                  +-----------------------+
 +--------------------+           |                       |           +---------------------+
