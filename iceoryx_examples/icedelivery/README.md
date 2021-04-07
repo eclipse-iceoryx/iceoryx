@@ -129,7 +129,7 @@ Similar to the publisher we include the topic data, the subscriber, the runtime 
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 ```
 
-To make RouDi aware of the subscriber an runtime object is created, once again with a unique identifier string:
+To make RouDi aware of the subscriber a runtime object is created, once again with a unique identifier string:
 
 ```cpp
 constexpr char APP_NAME[] = "iox-cpp-subscriber-untyped";
@@ -144,7 +144,7 @@ iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
 ```
 
 When using the default n:m communication philosophy, the `SubscriptionState` is immediately `SUBSCRIBED`.
-However, when restricting iceoryx to the 1:n communication philosophy before being in the state `SUBSCRIBED`, the state is change to `SUBSCRIBE_REQUESTED`.
+However, when restricting iceoryx to the 1:n communication philosophy before being in the state `SUBSCRIBED`, the state is changed to `SUBSCRIBE_REQUESTED`.
 
 Again in a while-loop we do the following:
 
@@ -296,7 +296,7 @@ Everything else is nearly the same. However, there is one crucial difference whi
 Compare this line from the `UntypedSubscriber`
 
 ```cpp
-.and_then([](iox::popo::Sample<const RadarObject>& object)
+.and_then([](const void* userPayload)
 {
     // ...
 })
@@ -305,13 +305,13 @@ Compare this line from the `UntypedSubscriber`
 with
 
 ```cpp
-.and_then([](const void* sample)
+.and_then([](auto& sample)
 {
     // ...
 })
 ```
 
-In case of the typed `Subscriber` it is a `const RadarObject` instead of `const void*`.
+In case of the typed `Subscriber`, `auto` is deduced to `iox::popo::Sample<const RadarObject>`. With the `UntypedSubscriber` the parameter is `const void*` as no type information is available.
 
 <center>
 [Check out icedelivery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery){ .md-button }
