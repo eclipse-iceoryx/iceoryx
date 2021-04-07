@@ -27,7 +27,7 @@ Topics are automatically offered on creation of a publisher, if you want to disa
 publisherOptions.offerOnCreate = false;
 ```
 
-Due to disabled `offerOnCreate` feature, don't forget to offer our topic:
+Due to the disabled `offerOnCreate` feature, don't forget to offer our topic:
 
 ```cpp
 publisher.offer();
@@ -71,7 +71,7 @@ yourself, set `subscribeOnCreate` appropriately:
 subscriberOptions.subscribeOnCreate = false;
 ```
 
-Due to disabled `subscribeOnCreate` feature, don't forget to subscribe to our topic:
+Due to the disabled `subscribeOnCreate` feature, don't forget to subscribe to our topic:
 
 ```cpp
 subscriber.subscribe();

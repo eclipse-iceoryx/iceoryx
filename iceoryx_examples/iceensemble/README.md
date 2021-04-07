@@ -9,7 +9,7 @@ This example demonstrates
 1. how you can run multiple publisher applications publishing on the same topic (n:m communication)
 2. how to communicate between C and C++
 
-!!! warning
+!!! info
     The default communication policy is many to many. If you have built iceoryx with the CMake flag `-DONE_TO_MANY_ONLY` this example will not run.
 
 ## Run iceensemble
