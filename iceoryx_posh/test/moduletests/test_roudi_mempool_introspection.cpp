@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/mepoo_memory_manager_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 #include "iceoryx_utils/testing/timing_test.hpp"

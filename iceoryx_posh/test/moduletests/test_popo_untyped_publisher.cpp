@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"

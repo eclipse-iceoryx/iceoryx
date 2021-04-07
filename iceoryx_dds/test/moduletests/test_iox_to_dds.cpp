@@ -26,7 +26,7 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
-#include "mocks/chunk_mock_dds.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/google_mocks.hpp"
 #include "test.hpp"
 
@@ -194,7 +194,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
     // Prepare a mock mempool chunk
-    ChunkMockDDS<int> mockChunk{42};
+    ChunkMock<int> mockChunk{42};
 
     // Set up subscriber to provide the chunk
     auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
@@ -222,7 +222,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
     // Prepare a mock mempool chunk
-    ChunkMockDDS<int> mockChunk{0};
+    ChunkMock<int> mockChunk{0};
     mockChunk.chunkHeader()->m_info.m_payloadSize = 0;
 
     // Set up subscriber to provide the chunk
@@ -249,7 +249,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
     // Prepare a mock mempool chunk
-    ChunkMockDDS<int> mockChunk{42};
+    ChunkMock<int> mockChunk{42};
 
     // Set up expect sequence of interactions with subscriber and data writer
     auto mockSubscriber = createMockIceoryxTerminal(testService, iox::popo::SubscriberOptions());
