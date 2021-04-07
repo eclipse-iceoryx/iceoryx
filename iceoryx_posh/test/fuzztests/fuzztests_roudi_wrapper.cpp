@@ -26,20 +26,18 @@
 #include <iostream>
 #include <thread>
 
-unsigned const char TIMEOUT = 50; // 5s for a Timeout
-#define INTERFACE_NAME "/test"
-
 int main(int argc, char* argv[])
 {
+    constexpr unsigned char TIMEOUT = 50; // 5s for a Timeout
     CmdLineParserFuzzing cmd;
     std::vector<std::string> allMessages = cmd.parseCmd(argc, argv);
 
-    if (cmd.getHelpFlag() == true)
+    if (cmd.getHelpFlag())
     {
         return 1;
     }
 
-    if (cmd.getErrorFlag() == true)
+    if (cmd.getErrorFlag())
     {
         std::cout << "No or wrong command lines were specified. Please use --help!" << std::endl;
         return -1;

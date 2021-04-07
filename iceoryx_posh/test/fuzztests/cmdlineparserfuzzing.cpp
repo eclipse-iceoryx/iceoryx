@@ -81,7 +81,7 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
                                        {nullptr, 0, nullptr, 0}};
     constexpr const char* SHORT_OPTIONS = "hf:m:i:l:c:t:";
     int32_t index;
-    int32_t opt{-1};
+    int opt{-1};
     while ((opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS, &index), opt != -1))
     {
         m_errorFlag = false;

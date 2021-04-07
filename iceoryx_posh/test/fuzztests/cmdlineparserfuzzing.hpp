@@ -35,9 +35,8 @@ enum class InputMode
     CL
 };
 
-/// @brief      CmdLineParserFuzzing is a class which parses the command lines to configure the Fuzz Wrappers for
-/// example to tell
-///				which interface shall be fuzzed.
+/// @brief CmdLineParserFuzzing is a class which parses the command lines to configure the Fuzz Wrappers for
+/// example to tell	which interface shall be fuzzed.
 class CmdLineParserFuzzing
 {
   public:
@@ -75,7 +74,7 @@ class CmdLineParserFuzzing
 
     /// @brief	Getter to return m_tomlFile
     ///	@param[out]	Containing an std::string to a file which can be used to temporarily write a TOML configuration to
-    ///the file.
+    /// the file.
     std::string getTomlFile();
 
   private:

@@ -20,8 +20,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 
 /// @brief 	RouDiFuzz is a class which inherits from iox::roudi::RouDi to make some protected methods avaialble for
-/// Fuzzing. This is necessary, to directly injects messages
-///			in these messages to test the robustness of the interfaces
+/// Fuzzing. This is necessary, to directly injects messages in these messages to test the robustness of the interfaces
 
 class RouDiFuzz : iox::roudi::RouDi
 {
@@ -33,8 +32,8 @@ class RouDiFuzz : iox::roudi::RouDi
                                                            iox::roudi::RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
                                                            iox::version::CompatibilityCheckLevel::OFF});
 
-    /// @brief [in] Send a message to the processMessage method of RouDi
-    /// @param [in] Message which should be sent to the processMessage method of RouDi
+    /// @brief Send a message to the processMessage method of RouDi
+    /// @param[in] Message which should be sent to the processMessage method of RouDi
     void processMessageFuzz(std::string aMessage);
 };
 #endif /*ROUDIFUZZ_HPP*/

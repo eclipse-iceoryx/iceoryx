@@ -21,35 +21,31 @@
 #include <memory>
 #include <string>
 
-/// @brief      Fuzzing is a class which is used to send a message to different interfaces which shall be fuzzed.
+/// @brief Fuzzing is a class which is used to send a message to different interfaces which shall be fuzzed.
 class Fuzzing
 {
   public:
     Fuzzing();
 
-    /// @brief 	 	fuzzingRouDiCom is a method to test the processMessage method of RouDI. It shall be independent from
-    /// the underlying protocol
-    ///				such as uds. It should also be slightly faster since some functions are not invoked compared to uds
-    /// fuzzing. 				However, a RouDi thread is also started with this approach because otherwise it was not
-    /// be possible to
-    /// invoke 				the processMessage method within RouDi without directly modifying the code in RouDi.
-    /// @param [in] 	shared_ptr to RouDiFuzz such that processMessage can be invoked
-    /// @param [in] 	std::string containing a message which shall be sent to the interface
+    /// @brief fuzzingRouDiCom is a method to test the processMessage method of RouDI. It shall be independent from
+    /// the underlying protocol such as uds. It should also be slightly faster since some functions are not invoked
+    /// compared to uds fuzzing. However, a RouDi thread is also started with this approach because otherwise it was not
+    /// be possible to invoke the processMessage method within RouDi without directly modifying the code in RouDi.
+    /// @param[in] shared_ptr to RouDiFuzz such that processMessage can be invoked
+    /// @param[in] std::string containing a message which shall be sent to the interface
     void fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage);
 
-    /// @brief 		fuzzingRouDiUDS is a method to test the Unix Domain Socket interface of RouDI. It connects to
-    /// RouDi's uds and sends the message
-    ///				given as input to RouDi
-    /// @param [in] 	std::string containing a message which shall be sent to the interface
-    /// @param [out] 	int as result of connect(). If the int = -1 it means that it was not possible to connect to the
+    /// @brief fuzzingRouDiUDS is a method to test the Unix Domain Socket interface of RouDI. It connects to
+    /// RouDi's uds and sends the message given as input to RouDi
+    /// @param[in] std::string containing a message which shall be sent to the interface
+    /// @param[out] int as result of connect(). If the int = -1 it means that it was not possible to connect to the
     /// socket
     int fuzzingRouDiUDS(std::string aMessage);
 
-    /// @brief 		fuzzingTOMLParser is a method to send a message to the TOML parser.
-    /// @param [in] 	std::string containing a message which shall be sent to the interface
-    /// @param [in] 	std::string containing a valid path to an empty file which will be used to write the tomlFile
-    /// into. This is necessary
-    ///				because the TOML parser expects a path to a file as input
+    /// @brief fuzzingTOMLParser is a method to send a message to the TOML parser.
+    /// @param[in] std::string containing a message which shall be sent to the interface
+    /// @param[in] std::string containing a valid path to an empty file which will be used to write the tomlFile into.
+    /// This is necessary because the TOML parser expects a path to a file as input
     void fuzzingTOMLParser(std::string tomlFile, std::string tempFile);
 };
 #endif /* FUZZING_HPP */
