@@ -37,7 +37,7 @@ class SharedMemoryUserTest : public Test
     void TearDown(){}
 };
 
-TEST_F(SharedMemoryUserTest, ConstructorShmObjecterror)
+TEST_F(SharedMemoryUserTest, ConstructorShmObjectWithZeroTopicSizeAndDoMapSharedMemoryIntoThreadBoolSetToTrueReturnError)
 {
     iox::cxx::optional<iox::Error> detectedError;
     const bool doMapSharedMemoryIntoThread{"TRUE"};
@@ -54,10 +54,10 @@ TEST_F(SharedMemoryUserTest, ConstructorShmObjecterror)
     EXPECT_EQ(detectedError.value(), iox::Error::kPOSH__SHM_APP_MAPP_ERR);
 }
 
-TEST_F(SharedMemoryUserTest, falseConstructorShmObjecterror)
+TEST_F(SharedMemoryUserTest, ConstructorShmObjectWithZeroTopicSizeAndDoMapSharedMemoryIntoThreadBoolSetToFalseReturnError)
 {
     iox::cxx::optional<iox::Error> detectedError;
-    const bool doMapSharedMemoryIntoThread{"False"};
+    const bool doMapSharedMemoryIntoThread{"FALSE"};
     const size_t topicSize{0U};
 
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
@@ -71,7 +71,7 @@ TEST_F(SharedMemoryUserTest, falseConstructorShmObjecterror)
     EXPECT_EQ(detectedError.value(), iox::Error::kPOSH__SHM_APP_MAPP_ERR);
 }
 
-TEST_F(SharedMemoryUserTest, ConstructorShmObjecterroroverflow)
+TEST_F(SharedMemoryUserTest, ConstructorShmObjectWithValidTopicSizeAndDoMapSharedMemoryIntoThreadBoolSetToFalseReturnNoError)
 {
     iox::cxx::optional<iox::Error> detectedError;
     const bool doMapSharedMemoryIntoThread{"FALSE"};
@@ -87,7 +87,7 @@ TEST_F(SharedMemoryUserTest, ConstructorShmObjecterroroverflow)
     ASSERT_FALSE(detectedError.has_value());
 }
 
-TEST_F(SharedMemoryUserTest, ConstructorShmObjectnoerror)
+TEST_F(SharedMemoryUserTest, ConstructorShmObjectWithValidTopicSizeAndDoMapSharedMemoryIntoThreadBoolSetToTrueReturnNoError)
 {
     iox::cxx::optional<iox::Error> detectedError;
     const bool doMapSharedMemoryIntoThread{"TRUE"};
