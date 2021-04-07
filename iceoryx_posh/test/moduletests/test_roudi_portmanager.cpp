@@ -28,6 +28,8 @@
 #include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
+#include "testutils/watch_dog.hpp"
+
 #include <cstdint>
 #include <limits> // std::numeric_limits
 
@@ -766,6 +768,96 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
 
     // so we should be able to get some more now
     acquireMaxNumberOfNodes(nodeName, runtimeName);
+}
+
+TEST_F(PortManager_test, UnblockShutdownMakesAllPublisherStopOffer)
+{
+    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
+    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
+
+    constexpr uint64_t MAX_PUB_SUB = iox::algorithm::min(iox::MAX_PUBLISHERS, iox::MAX_SUBSCRIBERS);
+    iox::cxx::vector<PublisherPortUser, MAX_PUB_SUB> publisher;
+    iox::cxx::vector<SubscriberPortUser, MAX_PUB_SUB> subscriber;
+
+    for (unsigned int i = 0; i < MAX_PUB_SUB; i++)
+    {
+        auto servideDescription = getUniqueSD();
+        auto publisherRuntimeName = iox::RuntimeName_t(iox::cxx::TruncateToCapacity, "pub_" + std::to_string(i));
+        auto publisherPortDataResult = m_portManager->acquirePublisherPortData(servideDescription,
+                                                                               publisherOptions,
+                                                                               publisherRuntimeName,
+                                                                               m_payloadDataSegmentMemoryManager,
+                                                                               PortConfigInfo());
+        ASSERT_FALSE(publisherPortDataResult.has_error());
+        publisher.emplace_back(publisherPortDataResult.value());
+
+        auto subscriberRuntimeName = iox::RuntimeName_t(iox::cxx::TruncateToCapacity, "sub_" + std::to_string(i));
+        auto subscriberPortDataResult = m_portManager->acquireSubscriberPortData(
+            servideDescription, subscriberOptions, subscriberRuntimeName, PortConfigInfo());
+        ASSERT_FALSE(subscriberPortDataResult.has_error());
+        subscriber.emplace_back(subscriberPortDataResult.value());
+
+        EXPECT_TRUE(publisher.back().isOffered());
+        EXPECT_EQ(subscriber.back().getSubscriptionState(), iox::SubscribeState::SUBSCRIBED);
+    }
+
+    m_portManager->unblockShutdown();
+
+    for (const auto& pub : publisher)
+    {
+        EXPECT_FALSE(pub.isOffered());
+    }
+}
+
+TEST_F(PortManager_test, UnblockShutdownUnblocksBlockedPublisher)
+{
+    PublisherOptions publisherOptions{
+        0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    SubscriberOptions subscriberOptions{
+        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PUBLISHER};
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+            .value());
+
+    SubscriberPortUser subscriber(
+        m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    ASSERT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+
+    // send chunk to fill subscriber queue
+    auto maybeChunk = publisher.tryAllocateChunk(42U, 8U);
+    ASSERT_FALSE(maybeChunk.has_error());
+    publisher.sendChunk(maybeChunk.value());
+
+    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool wasChunkSent{false};
+
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+
+    // block in a separate thread
+    std::thread blockingPublisher([&] {
+        auto maybeChunk = publisher.tryAllocateChunk(42U, 8U);
+        ASSERT_FALSE(maybeChunk.has_error());
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        publisher.sendChunk(maybeChunk.value());
+        wasChunkSent = true;
+    });
+
+    // wait some time to check if the publisher is blocked
+    constexpr int64_t SLEEP_IN_MS = 100;
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    EXPECT_THAT(wasChunkSent.load(), Eq(false));
+
+    m_portManager->unblockShutdown();
+
+    blockingPublisher.join(); // ensure the wasChunkSent store happens before the read
+    EXPECT_THAT(wasChunkSent.load(), Eq(true));
 }
 
 TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
