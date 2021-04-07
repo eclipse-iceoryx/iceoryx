@@ -82,7 +82,7 @@ class TestIcedeliveryExample(unittest.TestCase):
 
     def test_publisher_subscriber_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'iox-cpp-publisher sent six times value: 15', timeout=45, stream='stdout')
+            'iox-cpp-publisher sent five times value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
             'iox-cpp-subscriber got value: 15', timeout=45, stream='stdout')
 
