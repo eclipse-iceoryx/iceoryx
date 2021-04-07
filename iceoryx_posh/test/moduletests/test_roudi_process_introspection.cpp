@@ -24,7 +24,7 @@ using ::testing::Return;
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
 class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockPublisherPortUser>
