@@ -20,10 +20,9 @@
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/internal/roudi_environment/runtime_test_interface.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
-#include "iceoryx_posh/roudi/roudi_app.hpp"
+#include "iceoryx_posh/testing/roudi_environment/runtime_test_interface.hpp"
 
 #include <atomic>
 #include <map>

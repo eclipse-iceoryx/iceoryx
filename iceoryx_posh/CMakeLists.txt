@@ -371,37 +371,6 @@ if(TOML_CONFIG)
 
 endif()
 
-if(ROUDI_ENVIRONMENT OR BUILD_TEST)
-    #
-    ######### posh roudi environment ##########
-    #
-    add_library(iceoryx_posh_roudi_environment
-        source/roudi_environment/runtime_test_interface.cpp
-        source/roudi_environment/roudi_environment.cpp
-    )
-
-    add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi_environment ALIAS iceoryx_posh_roudi_environment)
-    set_target_properties(iceoryx_posh_roudi_environment PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-        POSITION_INDEPENDENT_CODE ON
-    )
-
-    target_include_directories(iceoryx_posh_roudi_environment PUBLIC
-        source/roudi_environment
-    )
-
-    target_link_libraries(iceoryx_posh_roudi_environment
-        PUBLIC
-        ${PROJECT_NAMESPACE}::iceoryx_posh
-        PRIVATE
-        iceoryx_utils::iceoryx_utils
-        ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
-    )
-
-    target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS})
-endif()
-
 #
 ########## exporting library ##########
 #
@@ -419,6 +388,59 @@ install(
     DESTINATION include/${PREFIX}/${PROJECT_NAME}/
     COMPONENT dev
 )
+
+if(ROUDI_ENVIRONMENT OR BUILD_TEST)
+    #
+    ######### posh roudi environment ##########
+    #
+    setup_package_name_and_create_files(
+        NAME ${PROJECT_NAME}_roudi_environment
+        NAMESPACE iceoryx_posh_testing
+        PROJECT_PREFIX ${PREFIX}
+    )
+
+    add_library(iceoryx_posh_testing
+        STATIC
+        testing/roudi_environment/runtime_test_interface.cpp
+        testing/roudi_environment/roudi_environment.cpp
+    )
+
+    add_library(iceoryx_posh_testing::iceoryx_posh_testing ALIAS iceoryx_posh_testing)
+    set_target_properties(iceoryx_posh_testing PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+    )
+
+    target_include_directories(iceoryx_posh_testing
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/testing/include>
+        $<INSTALL_INTERFACE:include/${PREFIX}>
+    )
+
+    target_link_libraries(iceoryx_posh_testing
+        PRIVATE
+        iceoryx_posh::iceoryx_posh
+        iceoryx_utils::iceoryx_utils
+        iceoryx_posh::iceoryx_posh_roudi
+    )
+
+    target_compile_options(iceoryx_posh_testing PRIVATE ${ICEORYX_WARNINGS})
+
+    setup_install_directories_and_export_package(
+        TARGETS iceoryx_posh_testing
+        INCLUDE_DIRECTORY testing/include/
+    )
+
+    #
+    ########## find_package in source tree ##########
+    #
+    set(${PROJECT_NAME}_testing_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
+    CACHE FILEPATH
+    "${PROJECT_NAME}_testingConfig.cmake to make find_package(${PROJECT_NAME}_testing) work in source tree!"
+    FORCE
+    )
+endif()
 
 if(BUILD_TEST)
     add_subdirectory(test)

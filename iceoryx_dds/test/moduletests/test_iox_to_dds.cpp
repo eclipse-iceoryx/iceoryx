@@ -25,7 +25,6 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/testing/roudi_gtest.hpp"
 
 #include "mocks/chunk_mock_dds.hpp"
 #include "mocks/google_mocks.hpp"
