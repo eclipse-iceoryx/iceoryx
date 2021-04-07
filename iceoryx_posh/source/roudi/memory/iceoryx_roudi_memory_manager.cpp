@@ -25,14 +25,12 @@ IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiC
     : m_defaultMemory(roudiConfig)
 {
     m_defaultMemory.m_managementShm.addMemoryBlock(&m_portPoolBlock).or_else([](auto) {
-        errorHandler(Error::kROUDI__ICEORYX_ROUDI_MEMORY_MANAGER_FAILED_TO_ADD_PORTPOOL_MEMORY_BLOCK,
-                     nullptr,
-                     ErrorLevel::FATAL);
+        errorHandler(
+            Error::kICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_PORTPOOL_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
     });
     m_memoryManager.addMemoryProvider(&m_defaultMemory.m_managementShm).or_else([](auto) {
-        errorHandler(Error::kROUDI__ICEORYX_ROUDI_MEMORY_MANAGER_FAILED_TO_ADD_MANAGEMENT_MEMORY_BLOCK,
-                     nullptr,
-                     ErrorLevel::FATAL);
+        errorHandler(
+            Error::kICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_MANAGEMENT_MEMORY_BLOCK, nullptr, ErrorLevel::FATAL);
     });
 }
 

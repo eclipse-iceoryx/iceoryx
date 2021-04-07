@@ -59,22 +59,25 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
   private:
     // in order to prevent a second RouDi to cleanup the memory resources of a running RouDi, this resources are
     // protected by a file lock
-    posix::FileLock fileLock = std::move(
-        posix::FileLock::create(ROUDI_LOCK_NAME)
-            .or_else([](auto& error) {
-                if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
-                {
-                    LogFatal() << "Could not acquire lock, is RouDi still running?";
-                    errorHandler(Error::kROUDI_COMPONENTS__ROUDI_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
-                }
-                else
-                {
-                    LogFatal() << "Error occured while acquiring file lock named " << ROUDI_LOCK_NAME;
-                    errorHandler(
-                        Error::kROUDI_COMPONENTS__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
-                }
-            })
-            .value());
+    posix::FileLock fileLock =
+        std::move(posix::FileLock::create(ROUDI_LOCK_NAME)
+                      .or_else([](auto& error) {
+                          if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
+                          {
+                              LogFatal() << "Could not acquire lock, is RouDi still running?";
+                              errorHandler(Error::kICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING,
+                                           nullptr,
+                                           iox::ErrorLevel::FATAL);
+                          }
+                          else
+                          {
+                              LogFatal() << "Error occured while acquiring file lock named " << ROUDI_LOCK_NAME;
+                              errorHandler(Error::kICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK,
+                                           nullptr,
+                                           iox::ErrorLevel::FATAL);
+                          }
+                      })
+                      .value());
 
     PortPoolMemoryBlock m_portPoolBlock;
     cxx::optional<PortPool> m_portPool;
