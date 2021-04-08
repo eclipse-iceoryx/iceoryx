@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.4")
+set(IOX_VERSION_STRING "0.99.5")
 
 find_package(iceoryx_utils REQUIRED)
 
@@ -246,7 +246,6 @@ add_library(iceoryx_posh_roudi
     source/roudi/port_manager.cpp
     source/roudi/port_pool.cpp
     source/roudi/roudi.cpp
-    source/roudi/roudi_lock.cpp
     source/roudi/process.cpp
     source/roudi/process_manager.cpp
     source/roudi/service_registry.cpp

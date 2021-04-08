@@ -21,7 +21,7 @@
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
-#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
@@ -135,7 +135,6 @@ class RouDi
     std::atomic_bool m_runHandleRuntimeMessageThread;
 
     const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
-
   protected:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that
