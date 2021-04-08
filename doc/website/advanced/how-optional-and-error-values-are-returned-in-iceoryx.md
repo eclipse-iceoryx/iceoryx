@@ -108,8 +108,8 @@ There are more convenience functions such as ``value_or`` which provides the val
 user. These can be found in 
 [``expected.hpp``](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_utils/include/iceoryx_utils/cxx/expected.hpp).
 
-Note that when we move an ``expected``, the origin is set to the error value ``E::INVALID_STATE`` and will always return true 
-in ``has_error()``:
+Note that when we move an ``expected``, the origin is set to the error value ``E::INVALID_STATE`` and ``has_error()`` will 
+always return true:
 ```cpp
 cxx::expected<int, E> result(iox::cxx::success<int>(1421));
 cxx::expected<int, E> anotherResult = std::move(result);
