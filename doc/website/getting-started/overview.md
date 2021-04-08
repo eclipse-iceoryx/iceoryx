@@ -114,20 +114,21 @@ We now briefly define the main entities of an iceoryx system which were partiall
 
 ### RouDi
 
-RouDi is an abbreviation for **Rou**ting and **Di**scovery. RouDi takes care of the
-communication setup but does not actually participate in the communication between the publisher and the subscriber.
-RouDi can be thought of as the switchboard operator of iceoryx. One of its other major tasks is the setup of the
-shared memory, which the applications use for exchanging payload data. Sometimes referred to as daemon, RouDi manages
-the shared memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by 
-publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use
-publishers or subscribers. To view the available command line options call `$ICEORYX_ROOT/build/iox-roudi --help`.
+RouDi is an abbreviation for **Rou**ting and **Di**scovery. RouDi takes care of the communication setup but does not 
+actually participate in the communication between the publisher and the subscriber. RouDi can be thought of as the 
+switchboard operator of iceoryx. One of its other major tasks is the setup of the shared memory, which the 
+applications use for exchanging payload data. Sometimes referred to as daemon, RouDi manages the shared memory and is 
+responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps 
+track of all applications which have initialized a runtime and are hence able to use publishers or subscribers. To 
+view the available command line options call `$ICEORYX_ROOT/build/iox-roudi --help`.
 
 ### Shared memory
 
-At the heart of iceoryx lies the Shared memory communication. Shared memory is physical memory that is made accessible
-to multiple processes via a mapping to a memory area in their virtual address spaces.
+To enable zero-copy inter-process communication, iceoryx uses the shared memory approach, i.e. publishers and 
+subscribers can communicate via shared memory resulting in zero-copy communication.
 
-??? clarify failure cases ???
+Shared memory is physical memory that is made accessible to multiple processes via a mapping to a memory area in their 
+virtual address spaces.
 
 For further information have a look at our 
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md).
@@ -135,13 +136,22 @@ For further information have a look at our
 ### Runtime
 
 Each application that wants to use iceoryx has to instantiate its runtime, which essentially enables communication
-with RouDi. The runtime is an object inside the user application that maps the shared memory into the user 
-application's address space. Only one runtime object per user application is allowed.
+with RouDi.
 
 To do so, the following lines of code are required
 ```cpp
 iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
 ```
+
+The runtime is an object inside the user application that maps the shared memory into the user 
+application's address space. When an application terminates, the runtime cleans up all resources needed for the 
+communication with RouDi. If an application crashes, it also takes care about the clean-up. Due to our 
+[lock-free constructs](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_utils#concurrent), 
+a crash of one application does not affect the whole iceoryx system.
+
+!!! note
+    Only one runtime object per user application is allowed.
+
 ### Creating service descriptions for topics
 
 A ``ServiceDescription`` in iceoryx represents a topic under which publisher and subscribers can exchange data and is 
