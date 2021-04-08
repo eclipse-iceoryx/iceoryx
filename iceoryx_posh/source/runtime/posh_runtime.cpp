@@ -109,8 +109,13 @@ PoshRuntime::~PoshRuntime() noexcept
         }
         else
         {
-            LogError() << "Got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
+            LogError() << "Got wrong response from IPC channel for IpcMessageType::TERMINATION:'"
+                       << receiveBuffer.getMessage() << "'";
         }
+    }
+    else
+    {
+        LogError() << "Sending IpcMessageType::TERMINATION to RouDi failed:'" << receiveBuffer.getMessage() << "'";
     }
 }
 
@@ -139,6 +144,11 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Runtime
 RuntimeName_t PoshRuntime::getInstanceName() const noexcept
 {
     return m_appName;
+}
+
+void PoshRuntime::shutdown() noexcept
+{
+    m_shutdownRequested.store(true, std::memory_order_relaxed);
 }
 
 const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noexcept
@@ -589,11 +599,44 @@ bool PoshRuntime::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) 
 }
 
 // this is the callback for the m_keepAliveTimer
-void PoshRuntime::sendKeepAlive() noexcept
+void PoshRuntime::sendKeepAliveAndHandleShutdownPreparation() noexcept
 {
     if (!m_ipcChannelInterface.sendKeepalive())
     {
         LogWarn() << "Error in sending keep alive";
+    }
+
+    // this is not the nicest solution, but we cannot send this in the signal handler where m_shutdownRequested is
+    // usually set; luckily the runtime already has a thread running and therefore this thread is used to unblock the
+    // application shutdown from a potentially blocking publisher with the with the
+    // SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option set
+    if (m_shutdownRequested.exchange(false, std::memory_order_relaxed))
+    {
+        // Inform RouDi to prepare for app shutdown
+        IpcMessage sendBuffer;
+        sendBuffer << IpcMessageTypeToString(IpcMessageType::PREPARE_APP_TERMINATION) << m_appName;
+        IpcMessage receiveBuffer;
+
+        if (m_ipcChannelInterface.sendRequestToRouDi(sendBuffer, receiveBuffer)
+            && (1U == receiveBuffer.getNumberOfElements()))
+        {
+            std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
+
+            if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::PREPARE_APP_TERMINATION_ACK)
+            {
+                LogVerbose() << "RouDi unblocked shutdown of " << m_appName << ".";
+            }
+            else
+            {
+                LogError() << "Got wrong response from IPC channel for PREPARE_APP_TERMINATION:'"
+                           << receiveBuffer.getMessage() << "'";
+            }
+        }
+        else
+        {
+            LogError() << "Sending IpcMessageType::PREPARE_APP_TERMINATION to RouDi failed:'"
+                       << receiveBuffer.getMessage() << "'";
+        }
     }
 }
 
