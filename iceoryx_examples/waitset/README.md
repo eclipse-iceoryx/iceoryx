@@ -215,7 +215,7 @@ while (true)
         break; // the shutdown trigger must have set this and we leave the loop
     }
 
-    // No shutdown requested, hence we know which the only attached subscriber should have data. 
+    // No shutdown requested, hence we know the only attached subscriber should have data. 
 
     // Consume a sample
     subscriber.take()

@@ -1,3 +1,19 @@
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -53,14 +69,14 @@ int main()
         // We woke up and hence there must be at least one sample or a shutdown request.
         // We know which subscriber received samples since we only attached one.
         // Otherwise we would need to check the reason for the wake-up by inspecting the return value.
-        // This requires iterating over the result vaector but an be avoided in this simple case.
+        // This requires iterating over the result vector but an be avoided in this simple case.
 
         if(shutdown) {
             std::cout << "shutting down" << std::endl;
             break; // the shutdown trigger must have set this and we leave the loop
         }
 
-        // No shutdown requested, hence we know which the only attached subscriber should have data. 
+        // No shutdown requested, hence we know the only attached subscriber should have data. 
 
         // Consume a sample
         subscriber.take()
