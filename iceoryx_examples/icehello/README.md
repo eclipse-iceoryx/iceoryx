@@ -75,7 +75,7 @@ auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT,
 auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 ```
 
-In order to send our sample we loan some shared memory, inside the `while` loop:
+In order to send our sample, we loan some shared memory inside the `while` loop:
 
 ```cpp
 auto loanResult = publisher.loan();

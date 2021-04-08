@@ -5,15 +5,16 @@
 > This Readme.md is slightly outdated and not all functionality of the introspection is available with v1.0
 
 This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can
-look into the machine room of RouDi. The introspection shows live information about the memory usage and all
+look into the machine room of RouDi. It shows live information about the memory usage and all
 registered processes. Additionally, it shows the publisher and subscriber ports that are created inside the shared
 memory.
 
 ## Run icecrystal
 
 We reuse the binaries from 
-[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery). 
+[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 Create four terminals and run one command in each of them.
+
 ```sh
 # If installed and available in PATH environment variable
 iox-roudi

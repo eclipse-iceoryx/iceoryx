@@ -3,7 +3,7 @@
 ## Introduction
 
 This example demonstrates what kind of quality of service options can be configured on the publisher and subscriber
-side. The options can be used for the typed and untyped C++ API flavours as well as the C API.
+side. The options can be used for the typed and untyped C++ API flavors as well as the C API.
 
 ## Expected Output
 

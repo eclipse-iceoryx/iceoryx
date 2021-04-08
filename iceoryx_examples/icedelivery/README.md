@@ -13,8 +13,8 @@ Create three terminals and start RouDi, a publisher and a subscriber. You can al
 
 ## Code walkthrough
 
-This example makes use of two kind of API flavours. With the untyped API you have the most flexibility. It enables you
-to put higher level APIs with different look and feel on top of iceoryx. E.g. the ara::com API of AUTOSAR Adaptive or
+This example makes use of two kinds of API flavors. With the untyped API, you have the most flexibility. It enables you
+to put APIs on a higher level with a different look and feel on top of iceoryx. E.g. the ara::com API of AUTOSAR Adaptive or
 the ROS2 API. It is not meant to be used by developers in daily life, the assumption is that there will always be a higher
 abstraction. A simple example how such an abstraction could look like is given in the second step with the typed
 example. The typed API provides type safety combined with [RAII](https://en.cppreference.com/w/cpp/language/raii).
@@ -106,7 +106,7 @@ data->y = 2.0;
 data->z = 3.0;
 ```
 
-And finanlly, in both ways, the value is made available to other subscribers with
+And finally, in both ways, the value is made available to other subscribers with
 
 ```cpp
 publisher.publish(userPayload);
@@ -119,7 +119,7 @@ captured with the signal handler and stops the loop.
 
 How can the subscriber application receive the data the publisher application just transmitted?
 
-Similar to the publisher we include the topic data, the subscriber, the runtime as well as the signal handler header:
+Similar to the publisher, we include the topic data, the subscriber, the runtime as well as the signal handler header:
 
 ```cpp
 #include "topic_data.hpp"
@@ -165,11 +165,11 @@ while (!killswitch)
         });
 ```
 
-The `killswitch` will be used to stop the programm execution.
+The `killswitch` will be used to stop the program execution.
 
 Let's translate it into a story again: "Take the data and then if this succeeds, work with the sample, or else if an
-error other than `NO_CHUNK_AVAILABLE` occured, print the string 'Error receiving chunk.'" Of course you don't need to
-take care about all cases, but it is advised to do so.
+error other than `NO_CHUNK_AVAILABLE` occurred, print the string 'Error receiving chunk.'" Of course, you don't need to
+take care of all cases, but we advise doing so.
 
 In the `and_then` case the content of the sample is printed to the command line:
 
@@ -178,7 +178,7 @@ auto object = static_cast<const RadarObject*>(userPayload);
 std::cout << APP_NAME << " got value: " << object->x << std::endl;
 ```
 
-Please note the `static_cast` before reading out the data. It is necessary, because the untyped subscriber is unaware
+Please note the `static_cast` before reading out the data. It is necessary because the untyped subscriber is unaware
 of the type of the transmitted data.
 
 After accessing the value, the chunk of memory needs to be explicitly released by calling:

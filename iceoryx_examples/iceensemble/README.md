@@ -29,7 +29,7 @@ The easiest way is to build all examples via `./tools/iceoryx_build_test.sh`. Th
 ./build/iceoryx_examples/iceoptions/iox-subscriber-with-options
 ```
 
-Alternatively you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmux) script.
+Alternatively, you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmux) script.
 
 ```sh
 ./iceoryx_examples/iceensemble/run_iceensemble.sh
