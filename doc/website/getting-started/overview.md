@@ -60,7 +60,7 @@ Let's create a corresponding subscriber.
 iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTopic"});
 ```
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It 
-is also possible to explicitly wait for data using the [Waitset](../examples/waitset/) or the 
+is also possible to explicitly wait for data using the [WaitSet](../examples/waitset/) or the 
 [Listener](../examples/listener/). The code to receive the data is the same, the only difference is the way we wake 
 up before checking for data.
 ```cpp
@@ -112,7 +112,7 @@ includes all memory chunks used for the data transmission which may still be hel
 
 We now briefly define the main entities of an iceoryx system which were partially already used in the example above.
 
-## RouDi
+### RouDi
 
 RouDi is an abbreviation for **Rou**ting and **Di**scovery. RouDi takes care of the
 communication setup but does not actually participate in the communication between the publisher and the subscriber.
@@ -122,7 +122,7 @@ the shared memory and is responsible for the service discovery, i.e. enabling su
 publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use
 publishers or subscribers. To view the available command line options call `$ICEORYX_ROOT/build/iox-roudi --help`.
 
-## Shared memory
+### Shared memory
 
 At the heart of iceoryx lies the Shared memory communication. Shared memory is physical memory that is made accessible
 to multiple processes via a mapping to a memory area in their virtual address spaces.
@@ -132,7 +132,7 @@ to multiple processes via a mapping to a memory area in their virtual address sp
 For further information have a look at our 
 [conceptual guide](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/conceptual-guide.md).
 
-## Runtime
+### Runtime
 
 Each application that wants to use iceoryx has to instantiate its runtime, which essentially enables communication
 with RouDi. The runtime is an object inside the user application that maps the shared memory into the user 
@@ -142,7 +142,7 @@ To do so, the following lines of code are required
 ```cpp
 iox::runtime::PoshRuntime::initRuntime("some_unique_application_name");
 ```
-## Creating service descriptions for topics
+### Creating service descriptions for topics
 
 A ``ServiceDescription`` in iceoryx represents a topic under which publisher and subscribers can exchange data and is 
 uniquely identified by three string identifiers.
@@ -186,7 +186,7 @@ In the iceoryx world we would subscribe to the service ``("MyRadarService", "fro
 and would receive a sample whenever an obstacle was detected. Or we would subscribe to ``distanceToObstacle`` and would 
 receive a constant stream of data which presents the distance to the obstacle.
 
-### Restrictions
+#### Restrictions
 
 The data type of the transmitted data can be any C++ class, struct or plain old data type as long as it satisfies the 
 following conditions:
@@ -200,7 +200,7 @@ to process local constructs, no dynamic allocators
     Most of the STL types cannot be used, but we reimplemented some of them so that they meet the conditions above. 
     You can find an overview [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_utils#cxx).
 
-## Publisher
+### Publisher
 
 A publisher is tied to a topic and needs a service description to be constructed. If it is typed, one needs to
 additionally specify the data type as a template parameter. Otherwise, the publisher is only aware of raw memory and 
@@ -211,7 +211,7 @@ have multiple publishers for the same topic (n:m communication). A compile-time 
 1:n communication is available. Should 1:n communication be used RouDi checks for multiple publishers on the same 
 topics and raises an error if there is more than one publisher for a topic.
 
-## Subscriber
+### Subscriber
 
 Symmetrically a subscriber also corresponds to a topic and thus needs a service description to be constructed. As for
 publishers we distinguish between typed and untyped subscribers.
@@ -223,22 +223,32 @@ data that was actually sent.
 When multiple publishers have offered the same topic the subscriber will receive the data of all of them (but in
 indeterminate order between different publishers).
 
-## Waitset
+
+## Avoid polling
 
 The easiest way to receive data is to periodically poll whether data is available. This is sufficient for simple use
-cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
+cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data. An alternative 
+approach to receive data is to wait for user-defined events to occur. This is provided by our ``WaitSet`` and 
+``Listener`` which are introduced in the following sections.
 
-The ``Waitset`` can be used to relinquish control (putting the thread to sleep) and wait for user-defined ``events``
+### WaitSet
+
+The WaitSet can be used to relinquish control (putting the thread to sleep) and wait for user-defined ``events``
 to occur. Usually, these events correspond to the availability of data at specific subscribers. This way we can 
 immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
 
-The Waitset is an implementation of the reactor pattern and is informed with a push strategy that one of the 
+One typical use case is to create a WaitSet, attach multiple subscribers and user triggers and then wait until one 
+or many of the attached objects signal an event. If this happens one receives a list of EventInfos which is 
+corresponding to all occured events. In the case that the wake-up event was the availability of new data, this data 
+can now be collected at the subscriber.
+
+The WaitSet is an implementation of the reactor pattern and is informed with a push strategy that one of the 
 attached events occured at which it informs the user.
 
-For more information on how to use the Waitset see 
-[Waitset](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/README.md).
+For more information on how to use the WaitSet see 
+[WaitSet](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/README.md).
 
-## Listener
+### Listener
 part of #350
 
 ## API
