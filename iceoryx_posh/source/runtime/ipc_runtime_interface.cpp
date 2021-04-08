@@ -255,6 +255,14 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                     Error::kPOSH__RUNTIME_APP_WITH_SAME_RUNTIME_NAME_STILL_RUNNING, nullptr, iox::ErrorLevel::FATAL);
                 break;
             }
+            /// @todo move this to CREATE_PUBLISHER answer
+            else if (stringToIpcMessageType(cmd.c_str()) == IpcMessageType::REG_FAIL_NO_WRITABLE_SHM_SEGMENT)
+            {
+                LogFatal() << "RouDi did not find a  writable shared memory segment for the current user. Try "
+                              "using another user or adapt RouDi's config.";
+                errorHandler(Error::kPOSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, nullptr, iox::ErrorLevel::FATAL);
+                break;
+            }
             else
             {
                 LogError() << "Wrong response received " << receiveBuffer.getMessage();

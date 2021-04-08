@@ -34,14 +34,19 @@ target_link_libraries(iox-cpp-radar
 )
 target_compile_options(iox-cpp-radar PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-
 add_executable(iox-cpp-display iox_display_app.cpp)
-
 
 target_link_libraries(iox-cpp-display
     iceoryx_posh::iceoryx_posh
 )
 target_compile_options(iox-cpp-display PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+add_executable(iox-cpp-cheeky iox_cheeky_app.cpp)
+
+target_link_libraries(iox-cpp-cheeky
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-cpp-cheeky PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 add_executable(iox-cpp-roudi-static-segments
     roudi_main_static_segements.cpp

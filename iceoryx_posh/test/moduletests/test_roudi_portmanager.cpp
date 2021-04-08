@@ -80,8 +80,10 @@ class PortManager_test : public Test
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
         auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
-        m_payloadMemoryManager =
-            m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user).m_memoryManager;
+        auto segmentInfo = m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user);
+        ASSERT_TRUE(segmentInfo.m_memoryManager.has_value());
+
+        m_payloadMemoryManager = segmentInfo.m_memoryManager.value();
 
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
         m_portManager->stopPortIntrospection();
