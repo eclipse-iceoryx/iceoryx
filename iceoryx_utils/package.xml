@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
     <name>iceoryx_utils</name>
-    <version>0.99.4</version>
+    <version>0.99.5</version>
     <description>Eclipse iceoryx inter-process-communication (IPC) middleware basic building blocks</description>
     <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
@@ -13,6 +13,7 @@
     <buildtool_depend>cmake</buildtool_depend>
 
     <depend>acl</depend>
+    <depend>libatomic</depend>
 
     <doc_depend>doxygen</doc_depend>
 
