@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -78,7 +79,7 @@ class SegmentManager
 
     struct SegmentUserInformation
     {
-        MemoryManager* m_memoryManager;
+        cxx::optional<MemoryManager*> m_memoryManager;
         uint64_t m_segmentID;
     };
 
@@ -86,6 +87,7 @@ class SegmentManager
 
     SegmentMappingContainer getSegmentMappings(posix::PosixUser f_user);
     SegmentUserInformation getSegmentInformationForUser(posix::PosixUser f_user);
+    bool doesUserHaveAccessToSegment() noexcept;
 
     static uint64_t requiredManagementMemorySize(const SegmentConfig& f_config);
     static uint64_t requiredChunkMemorySize(const SegmentConfig& f_config);

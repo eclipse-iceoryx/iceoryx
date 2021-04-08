@@ -11,13 +11,15 @@ sudo groupadd -f iceoryx
 sudo useradd -M perception
 sudo useradd -M infotainment
 sudo useradd -M roudi
+sudo useradd -M notallowed
 
 # Assign users to group and disable login
 sudo usermod -L perception -a -G privileged
-sudo usermod -L perception -a -G iceoryx
 sudo usermod -L infotainment -a -G unprivileged
+sudo usermod -L perception -a -G iceoryx
 sudo usermod -L infotainment -a -G iceoryx
 sudo usermod -L roudi -a -G iceoryx
+sudo usermod -L notallowed -a -G iceoryx
 
 # If you're using e.g Yocto or QNX refer to the manual on how to set up groups, users and permissions
 
