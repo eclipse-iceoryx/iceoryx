@@ -29,6 +29,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
+    iox::runtime::PoshRuntime::getInstance().shutdown();
 }
 
 int main()
