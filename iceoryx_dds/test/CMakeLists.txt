@@ -18,6 +18,7 @@ cmake_minimum_required(VERSION 3.5)
 project(test_iox_to_dds VERSION 0)
 
 find_package(iceoryx_utils_testing REQUIRED)
+find_package(iceoryx_posh_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
 set(PROJECT_PREFIX "dds_gateway")
@@ -32,6 +33,7 @@ set(TEST_LINK_LIBS
     iceoryx_utils::iceoryx_utils
     iceoryx_utils_testing::iceoryx_utils_testing
     iceoryx_posh::iceoryx_posh
+    iceoryx_posh_testing::iceoryx_posh_testing
     iceoryx_dds::iceoryx_dds
 )
 

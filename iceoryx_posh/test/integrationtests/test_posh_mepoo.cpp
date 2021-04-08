@@ -23,7 +23,7 @@
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
-#include "testutils/timing_test.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -33,7 +33,7 @@
 #define protected public
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #undef private
 #undef protected
