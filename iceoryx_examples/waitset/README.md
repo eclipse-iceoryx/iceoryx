@@ -124,21 +124,27 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 
 This example consists of 5 use cases.
 
+ 1. `ice_waitset_basic`: A single subscriber is notified by the waitset if data arrives.
+
  1. `ice_waitset_gateway.cpp`: We build a gateway to forward data
     to another network. A list of subscriber events are handled in an uniform way
     by defining a callback which is executed for every subscriber who
     has received data.
-
  2. `ice_waitset_grouping`: We would like to group multiple subscribers into 2 distinct
     groups and handle them whenever they have a specified state according to their group membership.
 
- 3. `ice_waitset_individual`: A list of subscribers where every subscriber is
+ 3. `ice_waitset_gateway.cpp`: We build a gateway to forward data
+    to another network. A list of subscriber events are handled in an uniform way
+    by defining a callback which is executed for every subscriber who
+    has received data.
+
+ 4. `ice_waitset_individual`: A list of subscribers where every subscriber is
     handled differently.
 
- 4. `ice_waitset_sync`: We use the WaitSet to trigger a cyclic call which should
+ 5. `ice_waitset_sync`: We use the WaitSet to trigger a cyclic call which should
     execute an algorithm every 100ms.
 
- 5. `ice_waitset_trigger`: We create our own class which can be attached to a
+ 6. `ice_waitset_trigger`: We create our own class which can be attached to a
     WaitSet to signal states and events.
 
 ## Examples
@@ -149,6 +155,75 @@ logic and is explained in detail in the
 [icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
+
+### Basic
+We create one subscriber and attach it to the waitset. Afterwards we wait for data in 
+a loop and process it when it arrives. To leave the loop and exit the application 
+we have to attach an additional shutdown trigger which unblocks the waitset if Ctrl+C is pressed.
+
+```cpp
+std::atomic_bool shutdown{false};
+iox::popo::UserTrigger shutdownTrigger;
+
+static void sigHandler(int sig [[gnu::unused]])
+{
+    shutdown = true;
+    shutdownTrigger.trigger();
+}
+```
+
+In the beginning create the waitset which is chosen just large enough to manage two triggers (it could be larger). It is important to construct it only after the runtime has already been initialized since it internally depends on facilities set up by the runtime.
+
+Afterwards we attach our previously defined ``shutdownTrigger`` which will unblock the waitset if it is triggered in the ``sigHandler``. Finally we attach the subscriber to the waitset stating that we want to be notified when it has data (indicated by ``iox::popo::SubscriberState::HAS_DATA``).
+
+It is good practice to handle potential failure while attaching, otherwise warnings will emerge since the return value ``cxx::expected`` is marked to require handling.
+In our case no errors should occur since the waitset can accomodate the two triggers we want to attach.
+
+```cpp
+// create waitset 
+// it needs to be able to manage 2 triggers (subscriber and shutdown)
+iox::popo::WaitSet<2> waitset;
+
+// attach shutdown trigger to waitset (needed to stop the processing loop)
+waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+    std::cerr << "failed to attach shutdown trigger" << std::endl;
+    std::terminate();
+});
+
+// attach subscriber to waitset
+waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+    std::cerr << "failed to attach subscriber" << std::endl;
+    std::terminate();
+});
+```
+
+Now we are ready to run the actual processing loop. We simply wait for data or a shutdown request. Note that ``wait`` actually returns a vector of ``EventInfo*`` containing the specific events which occured and caused the wake-up. In our case we can ignore the return value since there are only two possible reasons why the waitset woke up:
+
+1. The single subscriber we attached received data.
+2. The signal handler issued a shutdown request, setting ``shutdown = true`` before waking up the waitset via the ``shutdownTrigger``.
+
+This use is very similar to semaphores and less verbose compared to iterating over the returned vector. Inspecting the returned vector is needed in more complex cases, cf. the [Individual subscriber handling](#Individual) example.
+
+```cpp
+while (true)
+{
+    // We block and wait for samples to arrive.
+    waitset.wait();
+
+    if(shutdown) {
+        std::cout << "shutting down" << std::endl;
+        break; // the shutdown trigger must have set this and we leave the loop
+    }
+
+    // No shutdown requested, hence we know which the only attached subscriber should have data. 
+
+    // Consume a sample
+    subscriber.take()
+              .and_then([](auto& sample) { std::cout << " got value: " << sample->counter << std::endl; })
+              .or_else([](auto& reason) { (void) reason; /* we could check and handle the reason why there is no data */ std::cout << "got no data" << std::endl;});
+}
+```
+Processing just one sample even if more might have arrived will cause the ``wait`` to unblock again immediately to process the next sample (or shut down if requested). Due to the overhead of the ``wait`` call it may still be more efficient to process all samples in a loop until there are none left before waiting again, but it is not required. It would be required if we attach via ``attachEvent`` instead of ``attachState``, since we might wake up due to the arrival of a second sample, only process the first and will not receive a wake up until a third sample arrives (which could be much later or never).
 
 ### Gateway
 
