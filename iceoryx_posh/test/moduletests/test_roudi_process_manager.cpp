@@ -23,6 +23,7 @@
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -113,4 +114,30 @@ TEST_F(ProcessManager_test, RegisterAndUnregisterWorks)
     auto unregisterResult = m_sut->unregisterProcess(m_processname);
 
     EXPECT_TRUE(unregisterResult);
+}
+
+TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
+{
+    m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
+
+    auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
+    auto payloadDataSegmentMemoryManager =
+        m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user).m_memoryManager;
+
+    // get publisher and subscriber
+    PublisherOptions publisherOptions{
+        0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    PublisherPortUser publisher(
+        m_portManager
+            ->acquirePublisherPortData(
+                {1U, 1U, 1U}, publisherOptions, m_processname, payloadDataSegmentMemoryManager, PortConfigInfo())
+            .value());
+
+    ASSERT_TRUE(publisher.isOffered());
+
+    m_sut->handleProcessShutdownPreparationRequest(m_processname);
+
+    // we just check if handleProcessShutdownPreparationRequest calls PortManager::unblockProcessShutdown
+    // ideally this should be checked by a mock, but since there isn't on for PortManager we just check the side effect
+    ASSERT_FALSE(publisher.isOffered());
 }
