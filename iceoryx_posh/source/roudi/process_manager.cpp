@@ -78,9 +78,12 @@ void ProcessManager::handleProcessShutdownPreparationRequest(const RuntimeName_t
 {
     searchForProcessAndThen(
         name,
-        [&](Process&) {
+        [&](Process& process) {
             m_portManager.unblockProcessShutdown(name);
-            // TODO send response
+            // Reply with PREPARE_APP_TERMINATION_ACK and let process shutdown
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::PREPARE_APP_TERMINATION_ACK);
+            process.sendViaIpcChannel(sendBuffer);
         },
         [&]() { LogWarn() << "Unknown application " << name << " requested shutdown preparation."; });
 }
