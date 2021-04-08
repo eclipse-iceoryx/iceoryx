@@ -233,23 +233,38 @@ approach to receive data is to wait for user-defined events to occur. This is pr
 
 ### WaitSet
 
-The WaitSet can be used to relinquish control (putting the thread to sleep) and wait for user-defined ``events``
+The WaitSet can be used to relinquish control (putting the thread to sleep) and wait for user-defined events
 to occur. Usually, these events correspond to the availability of data at specific subscribers. This way we can 
-immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
+immediately wake up when data is available and avoid unnecessary wake-ups if no data is available.
 
 One typical use case is to create a WaitSet, attach multiple subscribers and user triggers and then wait until one 
-or many of the attached objects signal an event. If this happens one receives a list of EventInfos which is 
-corresponding to all occured events. In the case that the wake-up event was the availability of new data, this data 
-can now be collected at the subscriber.
+or many of the attached objects signal an event. If this happens one receives a list of all occured events. This makes 
+it possible to collect data directly from the subscriber when it signals the WaitSet that new data is available.
 
-The WaitSet is an implementation of the reactor pattern and is informed with a push strategy that one of the 
-attached events occured at which it informs the user.
+The WaitSet uses the [reactor pattern](https://en.wikipedia.org/wiki/Reactor_pattern) and is informed with a push 
+strategy that one of the attached events occured at which it informs the user.
 
-For more information on how to use the WaitSet see 
-[WaitSet](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset/README.md).
+For more information on how to use the WaitSet see our
+[WaitSet examples](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/waitset).
 
 ### Listener
-part of #350
+
+The Listener can be used to connect custom callbacks to user-defined events. Unlike the WaitSet, it reacts to those 
+events by executing the connected custom callbacks in a background thread. 
+
+!!! note 
+    The Listener is completely thread-safe but please be aware that most of the objects which can be attached to the 
+    Listener are not thread-safe! This means either the object is handled solely by the Listener, which should be the 
+    most common use case, or the user has to ensure the thread safety with other means like encapsulating the object in 
+    a thread-safe class.
+
+One use case could be that one creates a Listener and attaches multiple subscribers. Every time new data is available, 
+the corresponding connected callback will be executed, e.g. print something to the console or calculate something.
+
+Like the WaitSet, the Listener uses the reactor pattern.
+
+For more information about the Listener see our 
+[callbacks example](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/callbacks).
 
 ## API
 
