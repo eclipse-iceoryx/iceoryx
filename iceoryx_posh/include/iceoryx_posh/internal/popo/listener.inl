@@ -48,6 +48,8 @@ template <typename T, typename EventType, typename>
 inline cxx::expected<ListenerError>
 Listener::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept
 {
+    static_assert(IS_EVENT_ENUM<EventType>,
+                  "Only enums with an underlying EventEnumIdentifier can be attached/detached to the Listener");
     return addEvent(&eventOrigin,
                     static_cast<uint64_t>(eventType),
                     typeid(EventType).hash_code(),
@@ -65,6 +67,8 @@ Listener::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T
 template <typename T, typename EventType, typename>
 inline void Listener::detachEvent(T& eventOrigin, const EventType eventType) noexcept
 {
+    static_assert(IS_EVENT_ENUM<EventType>,
+                  "Only enums with an underlying EventEnumIdentifier can be attached/detached to the Listener");
     EventAttorney::disableEvent(eventOrigin, eventType);
 }
 

@@ -27,7 +27,8 @@ PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDes
                                      const PublisherOptions& publisherOptions,
                                      const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, runtimeName, publisherOptions.nodeName)
-    , m_chunkSenderData(memoryManager, publisherOptions.historyCapacity, memoryInfo)
+    , m_chunkSenderData(
+          memoryManager, publisherOptions.subscriberTooSlowPolicy, publisherOptions.historyCapacity, memoryInfo)
     , m_offeringRequested(publisherOptions.offerOnCreate)
 {
 }

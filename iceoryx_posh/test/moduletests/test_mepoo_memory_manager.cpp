@@ -26,7 +26,7 @@ using namespace ::testing;
 
 using iox::mepoo::ChunkHeader;
 using iox::mepoo::ChunkSettings;
-using PayloadOffset_t = iox::mepoo::ChunkHeader::PayloadOffset_t;
+using UserPayloadOffset_t = iox::mepoo::ChunkHeader::UserPayloadOffset_t;
 
 class MemoryManager_test : public Test
 {
@@ -52,13 +52,13 @@ class MemoryManager_test : public Test
     iox::mepoo::MePooConfig mempoolconf;
 
     const iox::mepoo::ChunkSettings chunkSettings_32{
-        iox::mepoo::ChunkSettings::create(32U, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT).value()};
+        iox::mepoo::ChunkSettings::create(32U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()};
     const iox::mepoo::ChunkSettings chunkSettings_64{
-        iox::mepoo::ChunkSettings::create(64U, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT).value()};
+        iox::mepoo::ChunkSettings::create(64U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()};
     const iox::mepoo::ChunkSettings chunkSettings_128{
-        iox::mepoo::ChunkSettings::create(128U, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT).value()};
+        iox::mepoo::ChunkSettings::create(128U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()};
     const iox::mepoo::ChunkSettings chunkSettings_256{
-        iox::mepoo::ChunkSettings::create(256, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT).value()};
+        iox::mepoo::ChunkSettings::create(256, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()};
 };
 
 
@@ -99,8 +99,8 @@ TEST_F(MemoryManager_test, getChunkWithNoMemPool)
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
-    constexpr uint32_t PAYLOAD_SIZE{15U};
-    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    constexpr uint32_t USER_PAYLOAD_SIZE{15U};
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
@@ -125,8 +125,8 @@ TEST_F(MemoryManager_test, getTooLargeChunk)
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
         });
 
-    constexpr uint32_t PAYLOAD_SIZE{200U};
-    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    constexpr uint32_t USER_PAYLOAD_SIZE{200U};
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
@@ -142,8 +142,8 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolSingleChunk)
     mempoolconf.addMemPool({128, 10});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    constexpr uint32_t PAYLOAD_SIZE{50U};
-    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    constexpr uint32_t USER_PAYLOAD_SIZE{50U};
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
@@ -158,8 +158,8 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)
     mempoolconf.addMemPool({128, ChunkCount});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    constexpr uint32_t PAYLOAD_SIZE{50U};
-    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    constexpr uint32_t USER_PAYLOAD_SIZE{50U};
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
@@ -378,10 +378,10 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
     EXPECT_THAT(sut->getMemPoolInfo(3).m_usedChunks, Eq(ChunkCount));
 }
 
-TEST_F(MemoryManager_test, getChunkWithPayloadSizeZeroShouldNotFail)
+TEST_F(MemoryManager_test, getChunkWithUserPayloadSizeZeroShouldNotFail)
 {
-    constexpr uint32_t PAYLOAD_SIZE{0U};
-    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 

@@ -88,8 +88,8 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
         uint32_t id = 0U;
         auto maybeChunkHeader = m_publisherPort.tryAllocateChunk(sizeof(MemPoolIntrospectionInfoContainer),
                                                                  alignof(MemPoolIntrospectionInfoContainer),
-                                                                 CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                                                 CHUNK_NO_CUSTOM_HEADER_ALIGNMENT);
+                                                                 CHUNK_NO_USER_HEADER_SIZE,
+                                                                 CHUNK_NO_USER_HEADER_ALIGNMENT);
         if (maybeChunkHeader.has_error())
         {
             LogWarn() << "Cannot allocate chunk for mempool introspection!";
@@ -97,7 +97,7 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
             return;
         }
 
-        auto sample = static_cast<MemPoolIntrospectionInfoContainer*>(maybeChunkHeader.value()->payload());
+        auto sample = static_cast<MemPoolIntrospectionInfoContainer*>(maybeChunkHeader.value()->userPayload());
         new (sample) MemPoolIntrospectionInfoContainer;
 
         if (sample->emplace_back())
@@ -159,7 +159,7 @@ MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::copyMemPoolI
         dst.m_minFreeChunks = src.m_minFreeChunks;
         dst.m_numChunks = src.m_numChunks;
         dst.m_chunkSize = src.m_chunkSize;
-        dst.m_payloadSize = src.m_chunkSize - static_cast<uint32_t>(sizeof(mepoo::ChunkHeader));
+        dst.m_chunkPayloadSize = src.m_chunkSize - static_cast<uint32_t>(sizeof(mepoo::ChunkHeader));
     }
 }
 

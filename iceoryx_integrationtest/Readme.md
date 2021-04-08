@@ -44,7 +44,6 @@ iceoryx_workspace
 └── src
     └── iceoryx
         ├── cmake
-        ├── cpptoml_vendor
         ├── doc
         ├── iceoryx_binding_c
         ├── iceoryx_dds

@@ -18,6 +18,7 @@
 #define IOX_POSH_POPO_LISTENER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
+#include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -144,7 +145,7 @@ class Listener
     void removeTrigger(const uint64_t index) noexcept;
 
   private:
-    enum class NoEnumUsed
+    enum class NoEnumUsed : EventEnumIdentifier
     {
         PLACEHOLDER = 0
     };

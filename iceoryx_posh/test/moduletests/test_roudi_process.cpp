@@ -34,11 +34,11 @@ class IpcInterfaceUser_Mock : public iox::roudi::Process
 {
   public:
     IpcInterfaceUser_Mock()
-        : iox::roudi::Process("TestProcess", 200, m_payloadMemoryManager, true, 0x654321, 255)
+        : iox::roudi::Process("TestProcess", 200, m_payloadDataSegmentMemoryManager, true, 0x654321, 255)
     {
     }
     MOCK_METHOD1(sendViaIpcChannel, void(IpcMessage));
-    iox::mepoo::MemoryManager m_payloadMemoryManager;
+    iox::mepoo::MemoryManager m_payloadDataSegmentMemoryManager;
 };
 
 class Process_test : public Test
@@ -46,47 +46,47 @@ class Process_test : public Test
   public:
     const iox::RuntimeName_t processname = {"TestProcess"};
     pid_t pid{200U};
-    iox::mepoo::MemoryManager payloadMemoryManager;
+    iox::mepoo::MemoryManager payloadDataSegmentMemoryManager;
     bool isMonitored = true;
-    const uint64_t payloadSegmentId{0x654321U};
+    const uint64_t dataSegmentId{0x654321U};
     const uint64_t sessionId{255U};
     IpcInterfaceUser_Mock ipcInterfaceUserMock;
 };
 
 TEST_F(Process_test, getPid)
 {
-    Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
     EXPECT_THAT(roudiproc.getPid(), Eq(pid));
 }
 
 TEST_F(Process_test, getName)
 {
-    Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
     EXPECT_THAT(roudiproc.getName(), Eq(std::string(processname)));
 }
 
 TEST_F(Process_test, isMonitored)
 {
-    Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
     EXPECT_THAT(roudiproc.isMonitored(), Eq(isMonitored));
 }
 
-TEST_F(Process_test, getPayloadSegId)
+TEST_F(Process_test, getDataSegmentId)
 {
-    Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(roudiproc.getPayloadSegmentId(), Eq(payloadSegmentId));
+    Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
+    EXPECT_THAT(roudiproc.getDataSegmentId(), Eq(dataSegmentId));
 }
 
 TEST_F(Process_test, getSessionId)
 {
-    Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
     EXPECT_THAT(roudiproc.getSessionId(), Eq(sessionId));
 }
 
-TEST_F(Process_test, getPayloadMemoryManager)
+TEST_F(Process_test, getpayloadDataSegmentMemoryManager)
 {
-    Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
-    EXPECT_THAT(&roudiproc.getPayloadMemoryManager(), Eq(&payloadMemoryManager));
+    Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
+    EXPECT_THAT(&roudiproc.getpayloadDataSegmentMemoryManager(), Eq(&payloadDataSegmentMemoryManager));
 }
 
 TEST_F(Process_test, sendViaIpcChannelPass)
@@ -104,10 +104,10 @@ TEST_F(Process_test, sendViaIpcChannelFail)
         [&sendViaIpcChannelStatusFail](
             const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             sendViaIpcChannelStatusFail.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
 
-    Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
     roudiproc.sendViaIpcChannel(data);
 
     ASSERT_THAT(sendViaIpcChannelStatusFail.has_value(), Eq(true));
@@ -117,7 +117,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
 TEST_F(Process_test, TimeStamp)
 {
     auto timestmp = iox::mepoo::BaseClock_t::now();
-    Process roudiproc(processname, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    Process roudiproc(processname, pid, payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
     roudiproc.setTimestamp(timestmp);
     EXPECT_THAT(roudiproc.getTimestamp(), Eq(timestmp));
 }

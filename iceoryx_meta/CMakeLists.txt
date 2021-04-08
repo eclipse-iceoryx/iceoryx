@@ -15,8 +15,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
-file (STRINGS "../VERSION" iceoryx_VERSION)
-project(iceoryx_meta VERSION ${iceoryx_VERSION})
+project(iceoryx_meta)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -24,6 +23,12 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/build_options.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/install_help_and_config.cmake)
+
+
+# ===== Core
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
 
 # ===== Doxygen example
 if(BUILD_DOC)
@@ -31,14 +36,6 @@ if(BUILD_DOC)
     return()
 endif()
 
-# ===== Dependencies
-if(TOML_CONFIG)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/cpptoml/prebuild)
-endif()
-
-# ===== Core
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
 
 # ===== Extras
 if(INTROSPECTION)
@@ -72,6 +69,8 @@ if(EXAMPLES)
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/package/package.cmake)
+
+show_config_options()
 
 message("")
 message("       Build Properties")

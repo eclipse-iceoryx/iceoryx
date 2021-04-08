@@ -125,7 +125,7 @@ class iox_listener_test : public Test
         {
             EXPECT_THAT(
                 iox_listener_attach_subscriber_event(
-                    &m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_HAS_DATA, &subscriberCallback),
+                    &m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
             EXPECT_THAT(iox_listener_size(&m_sut), Eq(i + 1U));
         }
@@ -159,6 +159,11 @@ constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
 
 
 } // namespace
+
+TEST_F(iox_listener_test, InitListenerWithNullptrForStorageReturnsNullptr)
+{
+    EXPECT_EQ(iox_listener_init(nullptr), nullptr);
+}
 
 TEST_F(iox_listener_test, CapacityIsCorrect)
 {
@@ -214,7 +219,7 @@ TEST_F(iox_listener_test, AttachingTheSameUserTriggerTwiceLeadsToEVENT_ALREADY_A
 TEST_F(iox_listener_test, AttachingSubscriberEventWorks)
 {
     EXPECT_THAT(iox_listener_attach_subscriber_event(
-                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_HAS_DATA, &subscriberCallback),
+                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 }
 
@@ -228,7 +233,7 @@ TEST_F(iox_listener_test, FullListenerReturnsLISTENER_FULLWhenAnotherSubscriberI
     AttachAllSubscriber();
     EXPECT_THAT(iox_listener_attach_subscriber_event(&m_sut,
                                                      &m_subscriber[MAX_NUMBER_OF_EVENTS_PER_LISTENER],
-                                                     iox_SubscriberEvent::SubscriberEvent_HAS_DATA,
+                                                     iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED,
                                                      &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_LISTENER_FULL));
 }
@@ -238,7 +243,8 @@ TEST_F(iox_listener_test, DetachingSubscriberTillListenerEmptyWorks)
     AttachAllSubscriber();
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
     {
-        iox_listener_detach_subscriber_event(&m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_HAS_DATA);
+        iox_listener_detach_subscriber_event(
+            &m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED);
         EXPECT_THAT(iox_listener_size(&m_sut), Eq(MAX_NUMBER_OF_EVENTS_PER_LISTENER - i - 1U));
     }
 }
@@ -247,10 +253,10 @@ TEST_F(iox_listener_test, DetachingSubscriberTillListenerEmptyWorks)
 TEST_F(iox_listener_test, AttachingSubscriberEventTwiceFailsWithEVENT_ALREADY_ATTACHED)
 {
     EXPECT_THAT(iox_listener_attach_subscriber_event(
-                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_HAS_DATA, &subscriberCallback),
+                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
     EXPECT_THAT(iox_listener_attach_subscriber_event(
-                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_HAS_DATA, &subscriberCallback),
+                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_EVENT_ALREADY_ATTACHED));
 }
 
@@ -264,13 +270,13 @@ TIMING_TEST_F(iox_listener_test, UserTriggerCallbackIsCalledWhenTriggered, Repea
 
 TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Repeat(5), [&] {
     EXPECT_THAT(iox_listener_attach_subscriber_event(
-                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_HAS_DATA, &subscriberCallback),
+                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback),
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 
     Subscribe(m_subscriber[0U]);
-    constexpr uint32_t PAYLOAD_SIZE{100U};
+    constexpr uint32_t USER_PAYLOAD_SIZE{100U};
 
-    auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 

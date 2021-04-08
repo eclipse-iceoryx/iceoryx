@@ -1,4 +1,5 @@
-# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,7 +46,7 @@ elseif(QNX)
 elseif(APPLE)
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 elseif(WIN32)
-    set(TEST_CXX_FLAGS PRIVATE /bigobj)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} /bigobj)
 endif()
 
 

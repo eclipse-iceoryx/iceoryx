@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,19 +13,28 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_MOCKS_WAITSET_MOCK_HPP
-#define IOX_POSH_MOCKS_WAITSET_MOCK_HPP
 
-#include "iceoryx_posh/popo/wait_set.hpp"
+#ifndef IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
+#define IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
 
-class WaitSetMock : public iox::popo::WaitSet<>
+#include <cstdint>
+
+namespace iox
 {
-  public:
-    WaitSetMock(iox::popo::ConditionVariableData& condVarData) noexcept
-        : WaitSet(condVarData)
-    {
-    }
+namespace popo
+{
+/// @brief Used by publisher
+enum class SubscriberTooSlowPolicy : uint8_t
+{
+    WAIT_FOR_SUBSCRIBER,
+    DISCARD_OLDEST_DATA
 };
-
-
-#endif
+/// @brief Used by subscriber
+enum class QueueFullPolicy : uint8_t
+{
+    BLOCK_PUBLISHER,
+    DISCARD_OLDEST_DATA
+};
+} // namespace popo
+} // namespace iox
+#endif // IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP

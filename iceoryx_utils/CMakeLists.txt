@@ -16,8 +16,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.5)
-file (STRINGS "../VERSION" iceoryx_utils_VERSION)
-project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
+
+set(IOX_VERSION_STRING "0.99.5")
+
+
+#include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxVersion.cmake")
+
+#parse_version(${IOX_VERSION_STRING})
+project(iceoryx_utils VERSION ${IOX_VERSION_STRING})
+#adjust_version()
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
@@ -272,9 +279,15 @@ install(
     FILES
         cmake/IceoryxPackageHelper.cmake
         cmake/IceoryxPlatform.cmake
+        cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
 if(BUILD_TEST)
     add_subdirectory(test)
 endif(BUILD_TEST)
+
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+  DESTINATION share/doc/iceoryx_utils
+  COMPONENT dev)

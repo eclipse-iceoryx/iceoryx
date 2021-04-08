@@ -18,12 +18,12 @@
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::algorithm;
 using namespace iox::cxx;
 
-namespace
-{
 class algorithm_test : public Test
 {
   public:
@@ -40,8 +40,6 @@ class algorithm_test : public Test
         }
     }
 };
-
-} // namespace
 
 TEST_F(algorithm_test, MaxOfOneElement)
 {
@@ -247,3 +245,4 @@ TEST_F(algorithm_test, MergeWithOverlappingOneElementContainer)
         EXPECT_THAT(mergedContainer[i], Eq(i + OFFSET));
     EXPECT_TRUE(mergedContainer == mergedContainerSwitched);
 }
+} // namespace

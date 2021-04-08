@@ -23,7 +23,6 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
-
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -67,9 +66,9 @@ class PublisherPort_test : public Test
     static constexpr uint32_t SMALL_CHUNK = 128;
     static constexpr uint32_t BIG_CHUNK = 256;
 
-    static constexpr uint32_t PAYLOAD_ALIGNMENT = iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT;
-    static constexpr uint32_t CUSTOM_HEADER_SIZE = iox::CHUNK_NO_CUSTOM_HEADER_SIZE;
-    static constexpr uint32_t CUSTOM_HEADER_ALIGNMENT = iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT;
+    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT;
+    static constexpr uint32_t USER_HEADER_SIZE = iox::CHUNK_NO_USER_HEADER_SIZE;
+    static constexpr uint32_t USER_HEADER_ALIGNMENT = iox::CHUNK_NO_USER_HEADER_ALIGNMENT;
 
     using ChunkQueueData_t = iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig, iox::popo::ThreadSafePolicy>;
 
@@ -79,17 +78,27 @@ class PublisherPort_test : public Test
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
-    iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{0U, iox::NodeName_t{""}, false};
-    ;
+
 
     // publisher port w/o offer on create
-    iox::popo::PublisherPortData m_publisherPortData{
+    iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{
+        0U, iox::NodeName_t{""}, false, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
+    iox::popo::PublisherPortData m_publisherPortDataNoOfferOnCreate{
         iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, m_noOfferOnCreatePublisherOptions};
-    iox::popo::PublisherPortRouDi m_sutNoOfferOnCreateRouDiSide{&m_publisherPortData};
-    iox::popo::PublisherPortUser m_sutNoOfferOnCreateUserSide{&m_publisherPortData};
+    iox::popo::PublisherPortRouDi m_sutNoOfferOnCreateRouDiSide{&m_publisherPortDataNoOfferOnCreate};
+    iox::popo::PublisherPortUser m_sutNoOfferOnCreateUserSide{&m_publisherPortDataNoOfferOnCreate};
+
+    // publisher port that waits for subscriber when queue is full
+    iox::popo::PublisherOptions m_waitForSubscriberPublisherOptions{
+        0U, iox::NodeName_t{""}, false, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    iox::popo::PublisherPortData m_publisherPortDataWaitForSubscriber{
+        iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, m_waitForSubscriberPublisherOptions};
+    iox::popo::PublisherPortRouDi m_sutWaitForSubscriberRouDiSide{&m_publisherPortDataWaitForSubscriber};
+    iox::popo::PublisherPortUser m_sutWaitForSubscriberUserSide{&m_publisherPortDataWaitForSubscriber};
 
     // publisher port w/ history
-    iox::popo::PublisherOptions m_withHistoryPublisherOptions{iox::MAX_PUBLISHER_HISTORY, iox::NodeName_t{""}, true};
+    iox::popo::PublisherOptions m_withHistoryPublisherOptions{
+        iox::MAX_PUBLISHER_HISTORY, iox::NodeName_t{""}, true, iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA};
     iox::popo::PublisherPortData m_publisherPortDataHistory{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withHistoryPublisherOptions};
     iox::popo::PublisherPortUser m_sutWithHistoryUserSide{&m_publisherPortDataHistory};
@@ -99,13 +108,13 @@ class PublisherPort_test : public Test
     iox::popo::PublisherOptions m_withDefaultPublisherOptions{};
     iox::popo::PublisherPortData m_publisherPortDataDefault{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withDefaultPublisherOptions};
-    iox::popo::PublisherPortUser m_sutWithDefaultOptionsUseriSide{&m_publisherPortDataDefault};
+    iox::popo::PublisherPortUser m_sutWithDefaultOptionsUserSide{&m_publisherPortDataDefault};
     iox::popo::PublisherPortRouDi m_sutWithDefaultOptionsRouDiSide{&m_publisherPortDataDefault};
 };
 
 TEST_F(PublisherPort_test, initialStateIsOfferedWithDefaultOptions)
 {
-    EXPECT_TRUE(m_sutWithDefaultOptionsUseriSide.isOffered());
+    EXPECT_TRUE(m_sutWithDefaultOptionsUserSide.isOffered());
 }
 
 TEST_F(PublisherPort_test, initialStateIsNotOfferedWhenNoOfferOnCreate)
@@ -113,10 +122,15 @@ TEST_F(PublisherPort_test, initialStateIsNotOfferedWhenNoOfferOnCreate)
     EXPECT_FALSE(m_sutNoOfferOnCreateUserSide.isOffered());
 }
 
-
 TEST_F(PublisherPort_test, initialStateIsNoSubscribers)
 {
     EXPECT_FALSE(m_sutNoOfferOnCreateUserSide.hasSubscribers());
+}
+
+TEST_F(PublisherPort_test, noWaitingForSubscriberWithDefaultOptions)
+{
+    EXPECT_THAT(m_sutWithDefaultOptionsRouDiSide.getSubscriberTooSlowPolicy(),
+                Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
 }
 
 TEST_F(PublisherPort_test, initialStateReturnsOfferCaProMessageWithDefaultOptions)
@@ -135,6 +149,11 @@ TEST_F(PublisherPort_test, initialStateReturnsNoCaProMessageWhenNoOfferOnCreate)
     EXPECT_FALSE(maybeCaproMessage.has_value());
 }
 
+TEST_F(PublisherPort_test, waitingForSubscriberWhenDesired)
+{
+    EXPECT_THAT(m_sutWaitForSubscriberRouDiSide.getSubscriberTooSlowPolicy(),
+                Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
+}
 
 TEST_F(PublisherPort_test, offerCallResultsInOfferedState)
 {
@@ -206,33 +225,33 @@ TEST_F(PublisherPort_test,
     EXPECT_THAT(caproMessage.m_historyCapacity, Eq(iox::MAX_PUBLISHER_HISTORY));
 }
 
-TEST_F(PublisherPort_test, allocatingAChunkWithoutCustomHeaderAndSmallPayloadAlignmentResultsInSmallChunk)
+TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndSmallUserPayloadAlignmentResultsInSmallChunk)
 {
-    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     EXPECT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 }
 
-TEST_F(PublisherPort_test, allocatingAChunkWithoutCustomHeaderAndLargePayloadAlignmentResultsInLargeChunk)
+TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndLargeUserPayloadAlignmentResultsInLargeChunk)
 {
-    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
-    constexpr uint32_t LARGE_PAYLOAD_ALIGNMENT{SMALL_CHUNK};
+    constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t LARGE_USER_PAYLOAD_ALIGNMENT{SMALL_CHUNK};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        PAYLOAD_SIZE, LARGE_PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        USER_PAYLOAD_SIZE, LARGE_USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     EXPECT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
 }
 
-TEST_F(PublisherPort_test, allocatingAChunkWithLargeCustomHeaderResultsInLargeChunk)
+TEST_F(PublisherPort_test, allocatingAChunkWithLargeUserHeaderResultsInLargeChunk)
 {
-    constexpr uint32_t PAYLOAD_SIZE{SMALL_CHUNK / 2};
-    constexpr uint32_t LARGE_HEADER_SIZE{SMALL_CHUNK};
+    constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint32_t LARGE_USER_HEADER_SIZE{SMALL_CHUNK};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        PAYLOAD_SIZE, PAYLOAD_ALIGNMENT, LARGE_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, LARGE_USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     EXPECT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1U));
@@ -241,7 +260,7 @@ TEST_F(PublisherPort_test, allocatingAChunkWithLargeCustomHeaderResultsInLargeCh
 TEST_F(PublisherPort_test, releasingAnAllocatedChunkReleasesTheMemory)
 {
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
 
     m_sutNoOfferOnCreateUserSide.releaseChunk(chunkHeader);
@@ -253,17 +272,17 @@ TEST_F(PublisherPort_test, releasingAnAllocatedChunkReleasesTheMemory)
 TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
 {
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
 
-    EXPECT_THAT(chunkHeader->originId, Eq(m_sutNoOfferOnCreateUserSide.getUniqueID()));
+    EXPECT_THAT(chunkHeader->originId(), Eq(m_sutNoOfferOnCreateUserSide.getUniqueID()));
     m_sutNoOfferOnCreateUserSide.releaseChunk(chunkHeader);
 }
 
 TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 {
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
 
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
@@ -275,15 +294,15 @@ TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 TEST_F(PublisherPort_test, allocateAndSendMultipleChunksWithoutSubscriberHoldsOnlyTheLast)
 {
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
     maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     chunkHeader = maybeChunkHeader.value();
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
     maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     chunkHeader = maybeChunkHeader.value();
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
 
@@ -293,7 +312,8 @@ TEST_F(PublisherPort_test, allocateAndSendMultipleChunksWithoutSubscriberHoldsOn
 
 TEST_F(PublisherPort_test, subscribeWhenNotOfferedReturnsNACK)
 {
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -310,7 +330,8 @@ TEST_F(PublisherPort_test, unsubscribeWhenNotSubscribedReturnsNACK)
 {
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -327,7 +348,8 @@ TEST_F(PublisherPort_test, subscribeWhenOfferedReturnsACKAndWeHaveSubscribers)
 {
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -345,7 +367,8 @@ TEST_F(PublisherPort_test, unsubscribeWhenSubscribedReturnsACKAndWeHaveNoMoreSub
 {
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -369,7 +392,8 @@ TEST_F(PublisherPort_test, subscribeManyIsFine)
     // using dummy pointers for the provided chunk queue data
     uint64_t dummy;
     uint64_t* dummyPtr = &dummy;
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
@@ -393,7 +417,8 @@ TEST_F(PublisherPort_test, subscribeTillOverflowReturnsNACK)
     // using dummy pointers for the provided chunk queue data
     uint64_t dummy;
     uint64_t* dummyPtr = &dummy;
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
@@ -416,16 +441,17 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
 {
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0U;
     m_sutNoOfferOnCreateRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
-    auto sample = chunkHeader->payload();
+    auto sample = chunkHeader->userPayload();
     new (sample) DummySample();
     static_cast<DummySample*>(sample)->dummy = 17;
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
@@ -435,7 +461,7 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
 
     ASSERT_TRUE(maybeSharedChunk.has_value());
     auto sharedChunk = maybeSharedChunk.value();
-    auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getPayload());
+    auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getUserPayload());
     EXPECT_THAT(dummySample.dummy, Eq(17U));
 }
 
@@ -450,9 +476,9 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     // do it the ara field like way
     // 1. publish a chunk to a not yet offered publisher
     auto maybeChunkHeader = sutWithHistoryUseriSide.tryAllocateChunk(
-        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
-    auto sample = chunkHeader->payload();
+    auto sample = chunkHeader->userPayload();
     new (sample) DummySample();
     static_cast<DummySample*>(sample)->dummy = 17;
     sutWithHistoryUseriSide.sendChunk(chunkHeader);
@@ -460,7 +486,8 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     sutWithHistoryUseriSide.offer();
     sutWithHistoryRouDiSide.tryGetCaProMessage();
     // 3. subscribe with a history request
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -473,7 +500,7 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
 
     ASSERT_TRUE(maybeSharedChunk.has_value());
     auto sharedChunk = maybeSharedChunk.value();
-    auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getPayload());
+    auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getUserPayload());
     EXPECT_THAT(dummySample.dummy, Eq(17U));
 }
 
@@ -487,15 +514,15 @@ TEST_F(PublisherPort_test, noLastChunkWhenNothingSent)
 TEST_F(PublisherPort_test, lastChunkAvailableAfterSend)
 {
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
-        10U, PAYLOAD_ALIGNMENT, CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        10U, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     auto chunkHeader = maybeChunkHeader.value();
-    auto firstPayloadPtr = chunkHeader->payload();
+    auto firstPayloadPtr = chunkHeader->userPayload();
     m_sutNoOfferOnCreateUserSide.sendChunk(chunkHeader);
 
     auto maybeLastChunkHeader = m_sutNoOfferOnCreateUserSide.tryGetPreviousChunk();
 
     ASSERT_TRUE(maybeLastChunkHeader.has_value());
-    EXPECT_THAT(maybeLastChunkHeader.value()->payload(), Eq(firstPayloadPtr));
+    EXPECT_THAT(maybeLastChunkHeader.value()->userPayload(), Eq(firstPayloadPtr));
 }
 
 TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
@@ -504,19 +531,19 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
     for (size_t i = 0; i < iox::MAX_PUBLISHER_HISTORY; i++)
     {
         auto maybeChunkHeader = m_sutWithHistoryUserSide.tryAllocateChunk(
-            sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+            sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
         auto chunkHeader = maybeChunkHeader.value();
         m_sutWithHistoryUserSide.sendChunk(chunkHeader);
     }
     // allocate some samples
     auto maybeChunkHeader1 = m_sutWithHistoryUserSide.tryAllocateChunk(
-        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader1.has_error());
     auto maybeChunkHeader2 = m_sutWithHistoryUserSide.tryAllocateChunk(
-        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader2.has_error());
     auto maybeChunkHeader3 = m_sutWithHistoryUserSide.tryAllocateChunk(
-        sizeof(DummySample), alignof(DummySample), CUSTOM_HEADER_SIZE, CUSTOM_HEADER_ALIGNMENT);
+        sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     EXPECT_FALSE(maybeChunkHeader3.has_error());
 
     m_sutWithHistoryRouDiSide.releaseAllChunks();

@@ -1,4 +1,5 @@
-# Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+# Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ set(PROJECT_PREFIX "posh")
 # Set path for input files in test
 SET(POSH_TEST_INPUT_FILES_PATH ${CMAKE_CURRENT_SOURCE_DIR}/input/)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_input_path.hpp.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_input_path.hpp)
+               ${CMAKE_BINARY_DIR}/generated/iceoryx/tests/posh/moduletests/test_input_path.hpp)
 
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
@@ -60,7 +61,7 @@ if(LINUX)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS} /W3)
+    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -69,7 +70,7 @@ endif()
 
 # unittests
 add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
-target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
+target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . ${CMAKE_BINARY_DIR}/generated)
 # TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})

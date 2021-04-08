@@ -68,15 +68,13 @@ int main()
     options.queueCapacity = 256U;
     options.nodeName = "iox-c-ex-waitset-individual-node1";
 
-    subscriber[0] = iox_sub_init(
-        &(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
+    subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
 
     options.nodeName = "iox-c-ex-waitset-individual-node2";
-    subscriber[1] = iox_sub_init(
-        &(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
+    subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_ws_attach_subscriber_event(waitSet, subscriber[0U], SubscriberEvent_HAS_DATA, 0U, NULL);
-    iox_ws_attach_subscriber_event(waitSet, subscriber[1U], SubscriberEvent_HAS_DATA, 0U, NULL);
+    iox_ws_attach_subscriber_state(waitSet, subscriber[0U], SubscriberState_HAS_DATA, 0U, NULL);
+    iox_ws_attach_subscriber_state(waitSet, subscriber[1U], SubscriberState_HAS_DATA, 0U, NULL);
 
 
     uint64_t missedElements = 0U;

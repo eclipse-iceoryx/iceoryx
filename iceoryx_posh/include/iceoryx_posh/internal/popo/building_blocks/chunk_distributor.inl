@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -132,23 +133,78 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() const 
 template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
 {
-    typename MemberType_t::LockGuard_t lock(*getMembers());
-
-    // send to all the queues
-    for (auto& queue : getMembers()->m_queues)
+    typename ChunkDistributorDataType::QueueContainer_t remainingQueues;
     {
-        deliverToQueue(queue.get(), chunk);
+        typename MemberType_t::LockGuard_t lock(*getMembers());
+
+        bool willWaitForSubscriber =
+            getMembers()->m_subscriberTooSlowPolicy == SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+        // send to all the queues
+        for (auto& queue : getMembers()->m_queues)
+        {
+            bool isBlockingQueue =
+                (willWaitForSubscriber && queue->m_queueFullPolicy == QueueFullPolicy::BLOCK_PUBLISHER);
+
+            if (!deliverToQueue(queue.get(), chunk))
+            {
+                if (isBlockingQueue)
+                {
+                    remainingQueues.emplace_back(queue);
+                }
+                else
+                {
+                    ChunkQueuePusher_t(queue.get()).lostAChunk();
+                }
+            }
+        }
     }
 
-    // update the history
+    // busy waiting until every queue is served
+    while (!remainingQueues.empty())
+    {
+        std::this_thread::yield();
+        {
+            // create intersection of current queues and remainingQueues
+            // reason: it is possible that since the last iteration some subscriber have already unsubscribed
+            //          and without this intersection we would deliver to dead queues
+            typename MemberType_t::LockGuard_t lock(*getMembers());
+            typename ChunkDistributorDataType::QueueContainer_t queueIntersection(remainingQueues.size());
+            std::sort(getMembers()->m_queues.begin(), getMembers()->m_queues.end());
+            std::sort(remainingQueues.begin(), remainingQueues.end());
+
+            auto iter = std::set_intersection(getMembers()->m_queues.begin(),
+                                              getMembers()->m_queues.end(),
+                                              remainingQueues.begin(),
+                                              remainingQueues.end(),
+                                              queueIntersection.begin());
+            queueIntersection.resize(static_cast<uint64_t>(iter - queueIntersection.begin()));
+            remainingQueues = queueIntersection;
+
+            // deliver to remaining queues
+            for (uint64_t i = remainingQueues.size() - 1U; !remainingQueues.empty(); --i)
+            {
+                if (deliverToQueue(remainingQueues[i].get(), chunk))
+                {
+                    remainingQueues.erase(remainingQueues.begin() + i);
+                }
+
+                // don't move this up since the for loop counts downwards and the algorithm would break
+                if (i == 0U)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
     addToHistoryWithoutDelivery(chunk);
 }
 
 template <typename ChunkDistributorDataType>
-inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
+inline bool ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
-    ChunkQueuePusher_t(queue).push(chunk);
+    return ChunkQueuePusher_t(queue).push(chunk);
 }
 
 template <typename ChunkDistributorDataType>

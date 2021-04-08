@@ -27,9 +27,18 @@ Trigger::~Trigger()
     reset();
 }
 
-bool Trigger::hasTriggered() const noexcept
+bool Trigger::isStateConditionSatisfied() const noexcept
 {
-    return (isValid()) ? m_hasTriggeredCallback().value() : false;
+    switch (getTriggerType())
+    {
+    case TriggerType::STATE_BASED:
+        return (isValid()) ? m_hasTriggeredCallback().value() : false;
+    case TriggerType::EVENT_BASED:
+        return isValid();
+    case TriggerType::INVALID:
+        return false;
+    };
+    return false;
 }
 
 void Trigger::reset() noexcept
@@ -55,6 +64,9 @@ void Trigger::invalidate() noexcept
     m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
     m_resetCallback = cxx::MethodCallback<void, uint64_t>();
     m_uniqueId = INVALID_TRIGGER_ID;
+    m_triggerType = TriggerType::INVALID;
+    m_originTriggerType = INVALID_TRIGGER_ID;
+    m_originTriggerTypeHash = INVALID_TRIGGER_ID;
 }
 
 Trigger::operator bool() const noexcept
@@ -64,13 +76,15 @@ Trigger::operator bool() const noexcept
 
 bool Trigger::isValid() const noexcept
 {
-    return static_cast<bool>(m_hasTriggeredCallback);
+    return m_uniqueId != INVALID_TRIGGER_ID;
 }
 
 bool Trigger::isLogicalEqualTo(const void* const eventOrigin,
-                               const cxx::ConstMethodCallback<bool>& hasTriggeredCallback) const noexcept
+                               const uint64_t originTriggerType,
+                               const uint64_t originTriggerTypeHash) const noexcept
 {
-    return isValid() && m_eventInfo.m_eventOrigin == eventOrigin && m_hasTriggeredCallback == hasTriggeredCallback;
+    return isValid() && m_eventInfo.m_eventOrigin == eventOrigin && m_originTriggerType == originTriggerType
+           && m_originTriggerTypeHash == originTriggerTypeHash;
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept
@@ -90,7 +104,10 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
         // Trigger
         m_resetCallback = std::move(rhs.m_resetCallback);
         m_hasTriggeredCallback = std::move(rhs.m_hasTriggeredCallback);
-        m_uniqueId = std::move(rhs.m_uniqueId);
+        m_uniqueId = rhs.m_uniqueId;
+        m_triggerType = rhs.m_triggerType;
+        m_originTriggerType = rhs.m_originTriggerType;
+        m_originTriggerTypeHash = rhs.m_originTriggerTypeHash;
 
         rhs.invalidate();
     }
@@ -100,6 +117,11 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
 uint64_t Trigger::getUniqueId() const noexcept
 {
     return m_uniqueId;
+}
+
+TriggerType Trigger::getTriggerType() const noexcept
+{
+    return m_triggerType;
 }
 
 
