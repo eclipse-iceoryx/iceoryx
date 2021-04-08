@@ -54,6 +54,12 @@ See [Eclipse iceoryx 1.0.0 (Almond)](https://projects.eclipse.org/projects/techn
 - iceoryx libs should be build as static libs [\#509](https://github.com/eclipse-iceoryx/iceoryx/issues/509)
 - Build with gcov is broken [\#497](https://github.com/eclipse-iceoryx/iceoryx/issues/497)
 
+## [v0.99.5](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.5) (2021-04-08)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.4...v0.99.5)
+
+- Add libatomic to dependency list in iceoryx_utils for RHEL
+
 ## [v0.99.4](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.4) (2021-04-06)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.3...v0.99.4)
@@ -77,6 +83,7 @@ See [Eclipse iceoryx 1.0.0 (Almond)](https://projects.eclipse.org/projects/techn
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.90.0...v0.99.0)
 
 Intermediate Milestone before the final 1.0.0 release, see v.1.0.0 above for the changes.
+
 ## [v0.90.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.90.0) (2020-12-22)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.17.0...v0.90.0)
