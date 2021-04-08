@@ -13,6 +13,7 @@
     <buildtool_depend>cmake</buildtool_depend>
 
     <depend>acl</depend>
+    <depend>libatomic</depend>
 
     <doc_depend>doxygen</doc_depend>
 
