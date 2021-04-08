@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "timing_test.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 
 namespace iox
 {
-namespace testutils
+namespace utils
+{
+namespace testing
 {
 bool performingTimingTest(const std::function<void()>& testCallback,
                           const uint64_t repetitions,
@@ -56,5 +59,6 @@ std::string verifyTimingTestResult(const char* file,
     }
     return errorMessage;
 }
-} // namespace testutils
+} // namespace testing
+} // namespace utils
 } // namespace iox

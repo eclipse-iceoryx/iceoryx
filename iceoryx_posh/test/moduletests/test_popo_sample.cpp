@@ -19,7 +19,7 @@
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
 #include "test.hpp"
 

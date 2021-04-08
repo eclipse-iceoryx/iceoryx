@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "testutils/roudi_gtest.hpp"
+#include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 using namespace iox;
 using namespace iox::runtime;

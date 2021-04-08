@@ -25,8 +25,8 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
 
 #include <chrono>
 #include <sstream>

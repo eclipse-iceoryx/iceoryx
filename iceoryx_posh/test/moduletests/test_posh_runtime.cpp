@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
 
 #include <type_traits>
 
