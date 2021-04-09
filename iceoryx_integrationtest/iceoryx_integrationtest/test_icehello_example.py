@@ -26,8 +26,7 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
-
-# @brief Test goal: "Integrationtest for the callback in C example of iceoryx"
+# @brief Test goal: "Integrationtest for the icehello example of iceoryx"
 # @pre setup ROS2 launch executables for RouDi (debug mode) and the example processes
 # @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
@@ -46,58 +45,50 @@ def generate_test_description():
         env=proc_env, output='screen',
         sigterm_timeout='20')
 
-    callback_publisher_executable = os.path.join(
+    icehello_publisher_executable = os.path.join(
         colcon_prefix_path,
-        'example_callbacks_in_c/bin/',
-        'iox-c-callbacks-publisher'
+        'example_icehello/bin/',
+        'iox-cpp-publisher-helloworld'
     )
-    callback_publisher_process = launch.actions.ExecuteProcess(
-        cmd=[callback_publisher_executable],
+    icehello_publisher_process = launch.actions.ExecuteProcess(
+        cmd=[icehello_publisher_executable],
         env=proc_env, output='screen')
 
-    callback_subscriber_executable = os.path.join(
+    icehello_subscriber_executable = os.path.join(
         colcon_prefix_path,
-        'example_callbacks_in_c/bin/',
-        'iox-c-callbacks-subscriber'
+        'example_icehello/bin/',
+        'iox-cpp-subscriber-helloworld'
     )
-    callback_subscriber_process = launch.actions.ExecuteProcess(
-        cmd=[callback_subscriber_executable],
+    icehello_subscriber_process = launch.actions.ExecuteProcess(
+        cmd=[icehello_subscriber_executable],
         env=proc_env, output='screen')
 
     return launch.LaunchDescription([
-        callback_publisher_process,
-        callback_subscriber_process,
         roudi_process,
+        icehello_publisher_process,
+        icehello_subscriber_process,
         launch_testing.actions.ReadyToTest()
-    ]), {'roudi_process': roudi_process, 'callback_publisher_process': callback_publisher_process, 'callback_subscriber_process': callback_subscriber_process}
+    ]), {'roudi_process': roudi_process, 'icehello_publisher_process': icehello_publisher_process, 'icehello_subscriber_process': icehello_subscriber_process}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
 
 
-class TestCallBackInCExample(unittest.TestCase):
+class TestIcehelloExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_callback_heartbeat(self, proc_output):
+    def test_icehello_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'heartbeat received', timeout=45, stream='stdout')
-
-    def test_callback_example_data_exchange(self, proc_output):
+            'iox-cpp-publisher-helloworld sent value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'Radar.FrontLeft.Counter sending : 9', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'Radar.FrontRight.Counter sending : 16', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'received: 20', timeout=45, stream='stdout')
-        proc_output.assertWaitFor(
-            'Received samples from FrontLeft and FrontRight. Sum of', timeout=45, stream='stdout')
+            'iox-cpp-subscriber-helloworld got value: 15', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
 
 @launch_testing.post_shutdown_test()
-class TestMultiCallbackInCExampleExitCodes(unittest.TestCase):
+class TestIcehelloExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

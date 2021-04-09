@@ -14,8 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# Build icehello example
 cmake_minimum_required(VERSION 3.5)
-project(example_callbacks)
+project(example_icehello)
 
 include(GNUInstallDirs)
 
@@ -25,28 +26,26 @@ find_package(iceoryx_utils CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-cpp-callbacks-publisher ./ice_callbacks_publisher.cpp)
-target_link_libraries(iox-cpp-callbacks-publisher
+add_executable(iox-cpp-publisher-helloworld ./iox_publisher_helloworld.cpp)
+target_link_libraries(iox-cpp-publisher-helloworld
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-callbacks-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-publisher-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-cpp-callbacks-subscriber ./ice_callbacks_subscriber.cpp)
-target_link_libraries(iox-cpp-callbacks-subscriber
+add_executable(iox-cpp-subscriber-helloworld ./iox_subscriber_helloworld.cpp)
+target_link_libraries(iox-cpp-subscriber-helloworld
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-callbacks-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-subscriber-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(
-    iox-cpp-callbacks-subscriber
-    iox-cpp-callbacks-publisher
-  PROPERTIES
+set_target_properties(iox-cpp-subscriber-helloworld iox-cpp-publisher-helloworld
+                      PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
-install(
-    TARGETS iox-cpp-callbacks-publisher iox-cpp-callbacks-subscriber
-    RUNTIME DESTINATION bin
-)
+# ========================================================== //
+
+install(TARGETS iox-cpp-publisher-helloworld iox-cpp-subscriber-helloworld
+        RUNTIME DESTINATION bin)

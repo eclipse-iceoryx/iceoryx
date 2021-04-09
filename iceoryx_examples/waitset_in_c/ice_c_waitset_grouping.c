@@ -44,7 +44,7 @@ static void sigHandler(int signalValue)
 
 int main()
 {
-    iox_runtime_init("iox-c-ex-waitset-grouping");
+    iox_runtime_init("iox-c-waitset-grouping");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -66,7 +66,7 @@ int main()
     iox_sub_options_init(&options);
     options.historyRequest = 1U;
     options.queueCapacity = 256U;
-    options.nodeName = "iox-c-ex-waitset-grouping-node";
+    options.nodeName = "iox-c-waitset-grouping-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
@@ -113,13 +113,13 @@ int main()
             else if (iox_event_info_get_event_id(event) == FIRST_GROUP_ID)
             {
                 iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
-                const void* chunk;
-                if (iox_sub_take_chunk(subscriber, &chunk))
+                const void* userPayload;
+                if (iox_sub_take_chunk(subscriber, &userPayload))
                 {
-                    printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                    printf("received: %u\n", ((struct CounterTopic*)userPayload)->counter);
                     fflush(stdout);
 
-                    iox_sub_release_chunk(subscriber, chunk);
+                    iox_sub_release_chunk(subscriber, userPayload);
                 }
             }
             // dismiss the received data for the second group

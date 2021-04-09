@@ -1,4 +1,4 @@
-# Copyright 2021 Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -25,12 +25,13 @@ if(BUILD_TESTING)
   add_ros_test(iceoryx_integrationtest/test_roudi_startup_shutdown.py)
   add_ros_test(iceoryx_integrationtest/test_callback_example.py)
   add_ros_test(iceoryx_integrationtest/test_callback_in_c_example.py)
-  add_ros_test(iceoryx_integrationtest/test_multi_publisher_example.py)
+  add_ros_test(iceoryx_integrationtest/test_icehello_example.py)
   add_ros_test(iceoryx_integrationtest/test_icedelivery_example.py)
   add_ros_test(iceoryx_integrationtest/test_icedelivery_in_c_example.py)
   add_ros_test(iceoryx_integrationtest/test_singleprocess_example.py)
   add_ros_test(iceoryx_integrationtest/test_waitset_example.py)
   add_ros_test(iceoryx_integrationtest/test_waitset_in_c_example.py)
+  add_ros_test(iceoryx_integrationtest/test_iceoptions_example.py)
 
 endif()
 

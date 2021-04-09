@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,14 +16,14 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
+constexpr char APP_NAME[] = "iox-cpp-subscriber-helloworld";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -34,39 +33,39 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 int main()
 {
-    // Register sigHandler
+    // register sigHandler
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
+    // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
+    // initialized subscriber
+    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 
-    double ct = 0.0;
+    // run until interrupted by Ctrl-C
     while (!killswitch)
     {
-        ++ct;
+        auto takeResult = subscriber.take();
 
-        // Loan chunk and provide logic to populate it via a lambda
-        publisher.loan(sizeof(RadarObject))
-            .and_then([&](auto& userPayload) {
-                RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
-                iox::cxx::Expects(userPayload == data);
+        if (!takeResult.has_error())
+        {
+            std::cout << APP_NAME << " got value: " << takeResult.value()->x << std::endl;
+        }
+        else
+        {
+            if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+            {
+                std::cout << "No chunk available." << std::endl;
+            }
+            else
+            {
+                std::cout << "Error receiving chunk." << std::endl;
+            }
+        }
 
-                data->x = ct;
-                data->y = ct;
-                data->z = ct;
-                publisher.publish(userPayload);
-            })
-            .or_else([&](auto& error) {
-                // Do something with the error
-                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-            });
-
-        std::cout << APP_NAME << " sent two times value: " << ct << std::endl;
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    return 0;
+    return (EXIT_SUCCESS);
 }

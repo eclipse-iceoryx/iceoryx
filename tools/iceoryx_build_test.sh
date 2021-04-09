@@ -49,7 +49,7 @@ EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
-EXAMPLES="callbacks callbacks_in_c ice_multi_publisher icedelivery singleprocess waitset"
+EXAMPLES="callbacks callbacks_in_c icedelivery singleprocess waitset icehello iceoptions"
 COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
 TOOLCHAIN_FILE=""
 
