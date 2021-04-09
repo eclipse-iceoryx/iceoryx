@@ -39,7 +39,6 @@ class GatewayBase_test : public TestWithParam<iox::capro::Interfaces>
 
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     iox::runtime::PoshRuntime* m_senderRuntime{&iox::runtime::PoshRuntime::initRuntime("sender")};
-    iox::gw::GatewayBase m_base{GetParam()};
 
     void InterOpWait() const
     {
@@ -84,24 +83,16 @@ TEST_F(GatewayBase_test, InterfacePortWillBeDestroyedWhenGatewayGoesOutOfScope)
     EXPECT_TRUE(interfaceImpl->toBeDestroyed());
 }
 
-TEST_F(GatewayBase_test, InterfacePortWillNotBeDestroyedWhenInterfaceImplIsNullptr)
-{
-    iox::popo::InterfacePort* interfaceImpl;
-    {
-        GatewayBaseTestDestructor base{};
-        interfaceImpl = base.getInterfaceImpl();
-    }
-    EXPECT_FALSE(interfaceImpl->toBeDestroyed());
-}
-
 TEST_P(GatewayBase_test, GetCaProMessageMethodWithInvalidMessageReturnFalse)
 {
+    iox::gw::GatewayBase m_base{GetParam()};
     iox::capro::CaproMessage notValidCaproMessage;
     EXPECT_FALSE(m_base.getCaProMessage(notValidCaproMessage));
 }
 
 TEST_P(GatewayBase_test, GetCaProMessageMethodWithValidMessageReturnTrue)
 {
+    iox::gw::GatewayBase m_base{GetParam()};
     m_senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
