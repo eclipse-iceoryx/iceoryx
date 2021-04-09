@@ -71,21 +71,21 @@ void* cyclicHeartbeatTrigger(void* dontCare)
 
 void onSampleReceivedCallback(iox_sub_t subscriber)
 {
-    const struct CounterTopic* chunk;
-    if (iox_sub_take_chunk(subscriber, (const void**)&chunk) == ChunkReceiveResult_SUCCESS)
+    const struct CounterTopic* userPayload;
+    if (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
     {
         iox_service_description_t serviceDescription = iox_sub_get_service_description(subscriber);
         if (strcmp(serviceDescription.instanceString, "FrontLeft") == 0)
         {
-            leftCache.value = *chunk;
+            leftCache.value = *userPayload;
             leftCache.isSet = true;
         }
         else if (strcmp(serviceDescription.instanceString, "FrontRight") == 0)
         {
-            rightCache.value = *chunk;
+            rightCache.value = *userPayload;
             rightCache.isSet = true;
         }
-        printf("received: %d\n", chunk->counter);
+        printf("received: %d\n", userPayload->counter);
         fflush(stdout);
     }
 

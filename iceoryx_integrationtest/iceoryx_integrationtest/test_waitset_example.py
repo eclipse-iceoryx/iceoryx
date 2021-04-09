@@ -34,9 +34,9 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
-    executable_list = ['iox-ex-waitset-publisher', 'iox-ex-waitset-gateway',
-                       'iox-ex-waitset-grouping', 'iox-ex-waitset-individual',
-                       'iox-ex-waitset-sync', 'iox-ex-waitset-trigger']
+    executable_list = ['iox-cpp-waitset-publisher', 'iox-cpp-waitset-gateway',
+                       'iox-cpp-waitset-grouping', 'iox-cpp-waitset-individual',
+                       'iox-cpp-waitset-sync', 'iox-cpp-waitset-trigger']
     process_list = []
 
     for exec in executable_list:
@@ -69,9 +69,9 @@ def generate_test_description():
         process_list[3],
         process_list[4],
         launch_testing.actions.ReadyToTest()
-    ]), {'iox-ex-waitset-publisher': process_list[0], 'iox-ex-waitset-gateway': process_list[1],
-         'iox-ex-waitset-grouping': process_list[2], 'iox-ex-waitset-individual': process_list[3],
-         'iox-ex-waitset-sync': process_list[4], 'roudi_process': roudi_process}
+    ]), {'iox-cpp-waitset-publisher': process_list[0], 'iox-cpp-waitset-gateway': process_list[1],
+         'iox-cpp-waitset-grouping': process_list[2], 'iox-cpp-waitset-individual': process_list[3],
+         'iox-cpp-waitset-sync': process_list[4], 'roudi_process': roudi_process}
 
 
 class TestWaitSetExample(unittest.TestCase):

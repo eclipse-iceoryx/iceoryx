@@ -70,7 +70,7 @@ codebase follows these rules, things are work in progress.
 
 1) **No heap is allowed**, static memory management hugely decreases the complexity of your software (e.g. cxx::vector
     without heap)
-2) **No exception are allowed**, all function and methods need to have `noexcept` in their signature
+2) **No exceptions are allowed**, all function and methods need to have `noexcept` in their signature
 3) **No undefined behavior**, zero-cost abstract is not feasible in high safety environments
 4) **Use C++14**
 5) **[Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))**, if there is a non-default
@@ -79,9 +79,11 @@ codebase follows these rules, things are work in progress.
     our code may contain additions which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()`
     does return a bool)
 7) **Always use `iox::log::Logger`**, instead of `printf()`
-8) **Always use `iox::ErrorHandler()`**, instead of the direct STL calls
+8) **Always use `iox::ErrorHandler()`**, when an error occurs that cannot or shall not be propagated via an 
+    `iox::cxx::expected`, the `iox::ErrorHandler()` shall be used; exceptions are not allowed
 
-See [error-handling.md](./doc/error-handling.md) for additional information about logging and error handling.
+See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional 
+information about logging and error handling.
 
 ### Naming conventions
 
@@ -128,6 +130,7 @@ All new code should follow the folder structure.
 2. Create a new file in `doc/website/getting-started/examples/foobar.md`. This file shall only set the title and include the readme from `./iceoryx_examples/foobar/README.md`
 3. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
 4. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
+5. Add integration test for example
 
 ## Testing
 

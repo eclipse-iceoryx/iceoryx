@@ -44,7 +44,7 @@ static void sigHandler(int signalValue)
 
 int main()
 {
-    iox_runtime_init("iox-c-ex-waitset-individual");
+    iox_runtime_init("iox-c-waitset-individual");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -66,11 +66,11 @@ int main()
     iox_sub_options_init(&options);
     options.historyRequest = 1U;
     options.queueCapacity = 256U;
-    options.nodeName = "iox-c-ex-waitset-individual-node1";
+    options.nodeName = "iox-c-waitset-individual-node1";
 
     subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", &options);
 
-    options.nodeName = "iox-c-ex-waitset-individual-node2";
+    options.nodeName = "iox-c-waitset-individual-node2";
     subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", &options);
 
     iox_ws_attach_subscriber_state(waitSet, subscriber[0U], SubscriberState_HAS_DATA, 0U, NULL);
@@ -101,13 +101,13 @@ int main()
             // process sample received by subscriber1
             else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0U]))
             {
-                const void* chunk;
-                if (iox_sub_take_chunk(subscriber[0U], &chunk))
+                const void* userPayload;
+                if (iox_sub_take_chunk(subscriber[0U], &userPayload))
                 {
-                    printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
+                    printf("subscriber 1 received: %u\n", ((struct CounterTopic*)userPayload)->counter);
                     fflush(stdout);
 
-                    iox_sub_release_chunk(subscriber[0U], chunk);
+                    iox_sub_release_chunk(subscriber[0U], userPayload);
                 }
             }
             // dismiss sample received by subscriber2
