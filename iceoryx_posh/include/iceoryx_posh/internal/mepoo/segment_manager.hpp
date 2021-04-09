@@ -41,7 +41,7 @@ template <typename SegmentType = MePooSegment<>>
 class SegmentManager
 {
   public:
-    SegmentManager(const SegmentConfig& f_segmentConfig, posix::Allocator* f_managementAllocator) noexcept;
+    SegmentManager(const SegmentConfig& segmentConfig, posix::Allocator* managementAllocator) noexcept;
     ~SegmentManager() noexcept = default;
 
     SegmentManager(const SegmentManager& rhs) = delete;
@@ -85,15 +85,15 @@ class SegmentManager
 
     using SegmentMappingContainer = cxx::vector<SegmentMapping, MAX_SHM_SEGMENTS>;
 
-    SegmentMappingContainer getSegmentMappings(posix::PosixUser f_user) noexcept;
-    SegmentUserInformation getSegmentInformationWithWriteAccessForUser(posix::PosixUser f_user) noexcept;
+    SegmentMappingContainer getSegmentMappings(posix::PosixUser user) noexcept;
+    SegmentUserInformation getSegmentInformationWithWriteAccessForUser(posix::PosixUser user) noexcept;
 
-    static uint64_t requiredManagementMemorySize(const SegmentConfig& f_config) noexcept;
-    static uint64_t requiredChunkMemorySize(const SegmentConfig& f_config) noexcept;
-    static uint64_t requiredFullMemorySize(const SegmentConfig& f_config) noexcept;
+    static uint64_t requiredManagementMemorySize(const SegmentConfig& config) noexcept;
+    static uint64_t requiredChunkMemorySize(const SegmentConfig& config) noexcept;
+    static uint64_t requiredFullMemorySize(const SegmentConfig& config) noexcept;
 
   private:
-    bool createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry) noexcept;
+    bool createSegment(const SegmentConfig::SegmentEntry& segmentEntry) noexcept;
 
   private:
     template <typename MemoryManger, typename SegmentManager, typename PublisherPort>

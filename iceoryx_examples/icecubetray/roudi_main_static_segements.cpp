@@ -23,8 +23,6 @@
 int main(int argc, char* argv[])
 {
     using iox::roudi::IceOryxRouDiApp;
-    static constexpr uint32_t ONE_KILOBYTE = 1024U;
-    static constexpr uint32_t ONE_MEGABYTE = 1024U * 1024;
 
     iox::config::CmdLineParser cmdLineParser;
     auto cmdLineArgs = cmdLineParser.parse(argc, argv);
@@ -42,7 +40,7 @@ int main(int argc, char* argv[])
     // We only send very small data, just one mempool per segment
     mepooConfig.addMemPool({128, 1000});
 
-    /// Create an Entry for a new Shared Memory Segment from the MempoolConfig and add it to the RouDiConfig
+    /// Create an entry for a new shared memory segment from the mempooConfig and add it to the roudiConfig
     roudiConfig.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepooConfig});
     roudiConfig.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
 

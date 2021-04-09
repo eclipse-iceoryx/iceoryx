@@ -6,7 +6,7 @@ This example demonstrates how access rights can be applied to shared memory segm
 It provides a custom RouDi, a radar and a display application.
 
 !!! hint
-    The access rights feature is only supported on Linux-based operating systems
+    The access right feature is only supported on Linux-based operating systems
 
 ## Expected output
 
@@ -60,14 +60,14 @@ other POSIX operating system. RouDi needs to be able to send a _SIGKILL_ signal 
                                  +-----------------------+
 ```
 
-#### RouDi and Apps
+### RouDi and Apps
 
-##### Working setup
+#### Working setup
 
 RouDi is built with two static shared memory segments _infotainment_ and _privileged_. The access rights of the segments are configured as depicted in the graphic above.
 
 The `roudiConfig` is composed of a memory pool config called `mepooConfig`. When the segement is created, one needs to
-specific the reader (first string), write group (second string) as well as the `mepooConfig` (last parameter).
+specific the reader group (first string), writer group (second string) as well as the `mepooConfig` (last parameter).
 
 ```cpp
 iox::RouDiConfig_t roudiConfig;
@@ -89,7 +89,7 @@ The display app is started with the user _infotainment_. It reads the topic `{"R
 
 !!! hint
     It's advised to create per writer group only one shared memory segement (e.g. not two segements with `w: infotainment`).
-    In this case it wouldn't be possible to control which segment will be used. (=> add a test for that)
+    In this case it wouldn't be possible to control which segment will be used.
 
 The shared memory segments can be found under `/dev/shm`
 
@@ -106,18 +106,22 @@ drwxr-xr-x  6 root  root         460 Apr  6 15:53 ..
 !!! note
     Note the shared memory managment segment is always available for everyone to **read** and **write**
 
-##### Not-working setup
+#### Not-working setup
 
-The cheeky app is started with the user __notallowed_. It has neither write nor read access to any shared memory segment. Hence, RouDi will print a warning in this case.
+The cheeky app is started with the user _notallowed_. It has neither write nor read access to any shared memory segment. Hence, RouDi will print a warning in this case.
 
-Despite having no read access, subscriber can still be created. In this case no data will ever arrive.
+Despite having no read access, subscribers can still be created. In this case no data will ever arrive.
 
 ```cpp
 iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 ```
 
-When creating a publisher, no valid corresponding shared memory object can be created by RouDi. Hence, an error will be printed and the cheeky app will stop.
+When creating and requesting a publisher RouDi will answer with an error, as there is no write access. Hence, an error will be printed and the cheeky app will stop.
 
 ```cpp
 iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
+
+<center>
+[Check out icecubetray on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icecubetray){ .md-button }
+</center>

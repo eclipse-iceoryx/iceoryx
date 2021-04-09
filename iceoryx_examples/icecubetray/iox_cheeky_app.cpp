@@ -19,25 +19,11 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
-#include <iostream>
-
-bool killswitch = false;
 constexpr char APP_NAME[] = "iox-cpp-cheeky";
-
-static void sigHandler(int f_sig [[gnu::unused]])
-{
-    // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
-}
 
 int main()
 {
-    // register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 

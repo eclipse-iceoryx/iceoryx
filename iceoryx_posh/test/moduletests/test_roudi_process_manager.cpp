@@ -121,8 +121,10 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
     m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
     auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
-    auto payloadDataSegmentMemoryManager =
-        m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user).m_memoryManager;
+    auto payloadDataSegmentMemoryManager = m_roudiMemoryManager->segmentManager()
+                                               .value()
+                                               ->getSegmentInformationWithWriteAccessForUser(user)
+                                               .m_memoryManager;
 
     ASSERT_TRUE(payloadDataSegmentMemoryManager.has_value());
 
