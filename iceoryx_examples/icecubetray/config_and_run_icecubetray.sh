@@ -17,12 +17,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
 WORKSPACE=$(git rev-parse --show-toplevel)
-CONFIG=${1:-config}
-RUN=${2:-run}
-SESSION=iceensemble
+CONFIG="OFF"
+RUN="OFF"
+SESSION=icecubetray
 tmux="tmux -2 -q"
 
-if [ "$CONFIG" == "config" ] ; then
+while (( "$#" )); do
+  case "$1" in
+    config)
+        CONFIG="ON"
+        shift 1
+        ;;
+    run)
+        RUN="ON"
+        shift 1
+        ;;
+    *)
+        echo "Invalid argument '$1'"
+        exit -1
+        ;;
+  esac
+done
+
+if [ "$CONFIG" == "ON" ] ; then
     # Create groups
     sudo groupadd -f privileged
     sudo groupadd -f unprivileged
@@ -45,7 +62,7 @@ fi
 # If you're using e.g Yocto or QNX refer to the manual on how to set up groups, users and permissions
 
 
-if [ "$RUN" == "run" ] ; then
+if [ "$RUN" == "ON" ] ; then
     # Allow RouDi to send SIGKILL to other apps
     sudo setcap cap_kill=ep ./build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments
 
@@ -61,6 +78,7 @@ if [ "$RUN" == "run" ] ; then
     command -v tmux >/dev/null 2>&1 || { echo >&2 "tmux is not installed but required. Trying to install it..."; sudo apt-get install tmux; }
 
     $tmux new-session -d -s $SESSION
+
     # Start custom RouDi in 'iceoryx' group
     $tmux new-window -a -t $SESSION 'sudo -u roudi -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments'
 
@@ -68,10 +86,10 @@ if [ "$RUN" == "run" ] ; then
     $tmux split-window -t 0 -h 'sudo -u perception -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-radar'
 
     # Start display app as 'infotainment' user
-    $tmux split-window -t 1 -h 'sudo -u infotainment -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-display'
+    $tmux split-window -t 1 -v 'sudo -u infotainment -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-display'
 
     # Start cheeky app as 'notallowed' user
-    $tmux split-window -t 0 -h 'sudo -u notallowed -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-cheeky'
+    $tmux split-window -t 0 -v 'sudo -u notallowed -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-cheeky'
 
     $tmux attach -t $SESSION
 fi
