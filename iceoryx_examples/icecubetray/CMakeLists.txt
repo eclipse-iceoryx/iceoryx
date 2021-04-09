@@ -58,7 +58,7 @@ target_link_libraries(iox-cpp-roudi-static-segments
     iceoryx_posh::iceoryx_posh_roudi
 )
 
-target_compile_options(iceperf-roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-roudi-static-segments PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 set_target_properties(iox-cpp-radar iox-cpp-display iox-cpp-cheeky iox-cpp-roudi-static-segments PROPERTIES
     CXX_STANDARD_REQUIRED ON
