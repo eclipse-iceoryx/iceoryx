@@ -35,3 +35,6 @@ sudo -u perception -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/i
 
 # Start display app as 'infotainment' user
 sudo -u infotainment -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-display
+
+# Start cheeky app as 'notallowed' user
+sudo -u notallowed -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-cheeky
