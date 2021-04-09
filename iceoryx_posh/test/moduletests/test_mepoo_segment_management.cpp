@@ -120,7 +120,7 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmpt
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserWithWriteUser))
 {
-    auto memoryManager = sut.getSegmentInformationForUser({"iox_roudi_test2"}).m_memoryManager;
+    auto memoryManager = sut.getSegmentInformationWithWriteAccessForUser({"iox_roudi_test2"}).m_memoryManager;
     ASSERT_TRUE(memoryManager.has_value());
     ASSERT_THAT(memoryManager.value()->getNumberOfMemPools(), Eq(2u));
 
@@ -132,10 +132,10 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUse
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithReadOnlyUser))
 {
-    EXPECT_THAT(sut.getSegmentInformationForUser({"iox_roudi_test1"}).m_memoryManager, Eq(nullptr));
+    EXPECT_THAT(sut.getSegmentInformationWithWriteAccessForUser({"iox_roudi_test1"}).m_memoryManager, Eq(nullptr));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithNonExistingUser))
 {
-    EXPECT_THAT(sut.getSegmentInformationForUser({"no_user"}).m_memoryManager, Eq(nullptr));
+    EXPECT_THAT(sut.getSegmentInformationWithWriteAccessForUser({"no_user"}).m_memoryManager, Eq(nullptr));
 }

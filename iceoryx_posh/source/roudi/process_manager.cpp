@@ -507,17 +507,16 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
     searchForProcessAndThen(
         name,
         [&](Process& process) { // create a PublisherPort
-            auto segmentInfo = m_segmentManager->getSegmentInformationForUser(process.getUser());
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
 
             if (!segmentInfo.m_memoryManager.has_value())
             {
                 // Tell the app not writable shared memory segment was found
-                runtime::IpcInterfaceUser ipcChannel{name};
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(
                     runtime::IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT);
-                ipcChannel.send(sendBuffer);
+                process.sendViaIpcChannel(sendBuffer);
                 return;
             }
 

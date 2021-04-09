@@ -28,7 +28,7 @@ namespace mepoo
 {
 template <typename SegmentType>
 inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& f_segmentConfig,
-                                                   posix::Allocator* f_managementAllocator)
+                                                   posix::Allocator* f_managementAllocator) noexcept
     : m_managementAllocator(f_managementAllocator)
 {
     for (const auto& segmentEntry : f_segmentConfig.m_sharedMemorySegments)
@@ -38,7 +38,7 @@ inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& f_segmen
 }
 
 template <typename SegmentType>
-inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry)
+inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry) noexcept
 {
     if (m_segmentContainer.size() < m_segmentContainer.capacity())
     {
@@ -60,7 +60,7 @@ inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::Segm
 
 template <typename SegmentType>
 inline typename SegmentManager<SegmentType>::SegmentMappingContainer
-SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser f_user)
+SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser f_user) noexcept
 {
     // get all the groups the user is in
     auto l_groupContainer = f_user.getGroups();
@@ -121,14 +121,14 @@ SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser f_user)
 
 template <typename SegmentType>
 inline typename SegmentManager<SegmentType>::SegmentUserInformation
-SegmentManager<SegmentType>::getSegmentInformationForUser(posix::PosixUser f_user)
+SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(posix::PosixUser user) noexcept
 {
-    auto l_groupContainer = f_user.getGroups();
+    auto groupContainer = user.getGroups();
 
     SegmentUserInformation segmentInfo{cxx::nullopt_t(), 0u};
 
     // with the groups we can search for the writable segment of this user
-    for (const auto& groupID : l_groupContainer)
+    for (const auto& groupID : groupContainer)
     {
         for (auto& segment : m_segmentContainer)
         {
@@ -145,7 +145,7 @@ SegmentManager<SegmentType>::getSegmentInformationForUser(posix::PosixUser f_use
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const SegmentConfig& f_config)
+uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const SegmentConfig& f_config) noexcept
 {
     uint64_t memorySize{0u};
     for (auto segment : f_config.m_sharedMemorySegments)
@@ -157,7 +157,7 @@ uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const Segment
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfig& f_config)
+uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfig& f_config) noexcept
 {
     uint64_t memorySize{0u};
     for (auto segment : f_config.m_sharedMemorySegments)
@@ -169,7 +169,7 @@ uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfi
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredFullMemorySize(const SegmentConfig& f_config)
+uint64_t SegmentManager<SegmentType>::requiredFullMemorySize(const SegmentConfig& f_config) noexcept
 {
     return cxx::align(requiredManagementMemorySize(f_config) + requiredChunkMemorySize(f_config),
                       SHARED_MEMORY_ALIGNMENT);

@@ -215,7 +215,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
             break;
         case IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
-                      << "' could not be created. RouDi did not find a  writable shared memory segment for the current "
+                      << "' could not be created. RouDi did not find a writable shared memory segment for the current "
                          "user. Try using another user or adapt RouDi's config.";
             errorHandler(Error::kPOSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, nullptr, iox::ErrorLevel::SEVERE);
             break;

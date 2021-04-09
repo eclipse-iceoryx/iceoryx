@@ -41,8 +41,8 @@ template <typename SegmentType = MePooSegment<>>
 class SegmentManager
 {
   public:
-    SegmentManager(const SegmentConfig& f_segmentConfig, posix::Allocator* f_managementAllocator);
-    ~SegmentManager() = default;
+    SegmentManager(const SegmentConfig& f_segmentConfig, posix::Allocator* f_managementAllocator) noexcept;
+    ~SegmentManager() noexcept = default;
 
     SegmentManager(const SegmentManager& rhs) = delete;
     SegmentManager(SegmentManager&& rhs) = delete;
@@ -58,7 +58,7 @@ class SegmentManager
                        uint64_t size,
                        bool isWritable,
                        uint64_t segmentId,
-                       const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo())
+                       const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo()) noexcept
             : m_sharedMemoryName(sharedMemoryName)
             , m_startAddress(startAddress)
             , m_size(size)
@@ -85,16 +85,15 @@ class SegmentManager
 
     using SegmentMappingContainer = cxx::vector<SegmentMapping, MAX_SHM_SEGMENTS>;
 
-    SegmentMappingContainer getSegmentMappings(posix::PosixUser f_user);
-    SegmentUserInformation getSegmentInformationForUser(posix::PosixUser f_user);
-    bool doesUserHaveAccessToSegment() noexcept;
+    SegmentMappingContainer getSegmentMappings(posix::PosixUser f_user) noexcept;
+    SegmentUserInformation getSegmentInformationWithWriteAccessForUser(posix::PosixUser f_user) noexcept;
 
-    static uint64_t requiredManagementMemorySize(const SegmentConfig& f_config);
-    static uint64_t requiredChunkMemorySize(const SegmentConfig& f_config);
-    static uint64_t requiredFullMemorySize(const SegmentConfig& f_config);
+    static uint64_t requiredManagementMemorySize(const SegmentConfig& f_config) noexcept;
+    static uint64_t requiredChunkMemorySize(const SegmentConfig& f_config) noexcept;
+    static uint64_t requiredFullMemorySize(const SegmentConfig& f_config) noexcept;
 
   private:
-    bool createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry);
+    bool createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry) noexcept;
 
   private:
     template <typename MemoryManger, typename SegmentManager, typename PublisherPort>
