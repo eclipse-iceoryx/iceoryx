@@ -58,14 +58,14 @@ if [ "$CONFIG" == "ON" ] ; then
     sudo usermod -L infotainment -a -G iceoryx
     sudo usermod -L roudi -a -G iceoryx
     sudo usermod -L notallowed -a -G iceoryx
+
+    # Allow RouDi to send SIGKILL to other apps
+    sudo setcap cap_kill=ep $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments
 fi
 
 # If you're using e.g Yocto or QNX refer to the manual on how to set up groups, users and permissions
 
 if [ "$RUN" == "ON" ] ; then
-    # Allow RouDi to send SIGKILL to other apps
-    sudo setcap cap_kill=ep ./build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments
-
     $tmux kill-server
 
     $tmux has-session -t $SESSION
