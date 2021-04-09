@@ -39,7 +39,7 @@ class IpcInterfaceUser_Mock : public iox::roudi::Process
     {
     }
     MOCK_METHOD1(sendViaIpcChannel, void(IpcMessage));
-    iox::mepoo::MemoryManager m_payloadMemoryManager;
+    iox::mepoo::MemoryManager m_payloadDataSegmentMemoryManager;
 };
 
 class Process_test : public Test
@@ -49,7 +49,7 @@ class Process_test : public Test
     pid_t pid{200U};
     PosixUser user{"foo"};
     bool isMonitored = true;
-    const uint64_t payloadSegmentId{0x654321U};
+    const uint64_t dataSegmentId{0x654321U};
     const uint64_t sessionId{255U};
     IpcInterfaceUser_Mock ipcInterfaceUserMock;
 };
@@ -93,7 +93,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
         [&sendViaIpcChannelStatusFail](
             const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
             sendViaIpcChannelStatusFail.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
 
     Process roudiproc(processname, pid, user, isMonitored, sessionId);
@@ -107,6 +107,7 @@ TEST_F(Process_test, TimeStamp)
 {
     auto timestmp = iox::mepoo::BaseClock_t::now();
     Process roudiproc(processname, pid, user, isMonitored, sessionId);
+
     roudiproc.setTimestamp(timestmp);
     EXPECT_THAT(roudiproc.getTimestamp(), Eq(timestmp));
 }

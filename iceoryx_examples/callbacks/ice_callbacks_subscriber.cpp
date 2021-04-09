@@ -31,7 +31,7 @@ iox::posix::Semaphore shutdownSemaphore =
     iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 
 std::atomic_bool keepRunning{true};
-constexpr char APP_NAME[] = "iox-ex-callbacks-subscriber";
+constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 
 iox::cxx::optional<CounterTopic> leftCache;
 iox::cxx::optional<CounterTopic> rightCache;
@@ -107,14 +107,14 @@ int main()
         std::cerr << "unable to attach heartbeat event" << std::endl;
         std::terminate();
     });
-    listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+    listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberLeft" << std::endl;
             std::terminate();
         });
     // it is possible to attach any callback here with the required signature. to simplify the
     // example we attach the same callback onSampleReceivedCallback again
-    listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA, onSampleReceivedCallback)
+    listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberRight" << std::endl;
             std::terminate();
@@ -128,8 +128,8 @@ int main()
     //   when the listener goes out of scope it will detach all events and when a
     //   subscriber goes out of scope it will detach itself from the listener
     listener.detachEvent(heartbeat);
-    listener.detachEvent(subscriberLeft, iox::popo::SubscriberEvent::HAS_DATA);
-    listener.detachEvent(subscriberRight, iox::popo::SubscriberEvent::HAS_DATA);
+    listener.detachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED);
+    listener.detachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED);
 
     heartbeatThread.join();
 

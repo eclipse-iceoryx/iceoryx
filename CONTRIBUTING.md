@@ -70,7 +70,7 @@ codebase follows these rules, things are work in progress.
 
 1) **No heap is allowed**, static memory management hugely decreases the complexity of your software (e.g. cxx::vector
     without heap)
-2) **No exception are allowed**, all function and methods need to have `noexcept` in their signature
+2) **No exceptions are allowed**, all function and methods need to have `noexcept` in their signature
 3) **No undefined behavior**, zero-cost abstract is not feasible in high safety environments
 4) **Use C++14**
 5) **[Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))**, if there is a non-default
@@ -79,9 +79,11 @@ codebase follows these rules, things are work in progress.
     our code may contain additions which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()`
     does return a bool)
 7) **Always use `iox::log::Logger`**, instead of `printf()`
-8) **Always use `iox::ErrorHandler()`**, instead of the direct STL calls
+8) **Always use `iox::ErrorHandler()`**, when an error occurs that cannot or shall not be propagated via an 
+    `iox::cxx::expected`, the `iox::ErrorHandler()` shall be used; exceptions are not allowed
 
-See [error-handling.md](./doc/error-handling.md) for additional information about logging and error handling. 
+See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional 
+information about logging and error handling.
 
 ### Naming conventions
 
@@ -135,7 +137,8 @@ All new code should follow the folder structure.
 We use [Google test](https://github.com/google/googletest) for our unit and integration tests. We require compatibility
 with the version 1.8.1.
 
-Have a look at our [best practice guidelines](./doc/website/advanced/best-practice-for-testing.md) for writing tests in iceoryx.
+Have a look at our [best practice guidelines](./doc/website/advanced/best-practice-for-testing.md) for writing tests and
+[installation guide for contributors](./doc/website/advanced/installation-guide-for-contributors.md#build-and-run-tests) for building them.
 
 ### Unit tests (aka module tests)
 
@@ -168,12 +171,12 @@ example:
 ./tools/iceoryx_build_test.sh debug build-all -c unit
 ```
 **NOTE**
-Iceoryx needs to be build as static library for working with gcov flags. The script does it automatically.
+Iceoryx needs to be built as static library for working with gcov flags. The script does it automatically.
 
 The flag `-c unit` is for having only reports for unit-tests. In the script `tools/gcov/lcov_generate.sh` is the initial scan, filtering and report generation automatically done.
 
-All reports are stored locally in build/lcov as html report (index.html). In Github we are using for codecov for a general reporting of the code coverage. 
-Codecov gives a brief overview over the code coverage and also indicates in Pull-Requests if new added code is not covered by tests.
+All reports are stored locally in build/lcov as html report (index.html). In Github, we are using [codecov](https://about.codecov.io) for a general reporting of the code coverage.
+Codecov gives a brief overview of the code coverage and also indicates in Pull-Requests if newly added code is not covered by tests.
 If you want to download the detailed html reports from the Pull-Requests or master build you can do it by the following way:
 1. Open the "Checks" view in the PR
 2. Open the "Details" link for the check `iceoryx-coverage-doxygen-ubuntu` in `Test Coverage + Doxygen Documentation`

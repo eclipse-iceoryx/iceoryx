@@ -34,14 +34,9 @@ static void sigHandler(int f_sig [[gnu::unused]])
 class SomeClass
 {
   public:
-    static void cyclicRun(iox::popo::UserTrigger* trigger)
+    static void cyclicRun(iox::popo::UserTrigger*)
     {
         std::cout << "activation callback\n";
-
-        // after every call we have to reset the trigger otherwise the waitset
-        // would immediately call us again since we still signal to the waitset that
-        // we have been triggered (waitset is state based)
-        trigger->resetTrigger();
     }
 };
 
@@ -51,7 +46,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-sync");
+    iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-sync");
     std::atomic_bool keepRunning{true};
 
     iox::popo::WaitSet<> waitset;

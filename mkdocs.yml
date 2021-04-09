@@ -4,12 +4,19 @@ repo_url: https://github.com/eclipse/iceoryx
 docs_dir: doc/website/
 remote_branch: main
 markdown_extensions:
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - attr_list
+  - toc:
+      permalink: 🔗
   - meta
   - markdown_include.include:
       base_path: doc
   - admonition
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 plugins:
   - awesome-pages
   - search

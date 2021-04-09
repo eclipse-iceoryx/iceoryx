@@ -25,8 +25,8 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
 
 #include <chrono>
 #include <sstream>
@@ -297,10 +297,10 @@ class PortUser_IntegrationTest : public Test
             publisherPortUser
                 .tryAllocateChunk(sizeof(DummySample),
                                   alignof(DummySample),
-                                  iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                  iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
+                                  iox::CHUNK_NO_USER_HEADER_SIZE,
+                                  iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
                 .and_then([&](auto chunkHeader) {
-                    auto sample = chunkHeader->payload();
+                    auto sample = chunkHeader->userPayload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
                     publisherPortUser.sendChunk(chunkHeader);

@@ -44,7 +44,6 @@ iceoryx_workspace
 └── src
     └── iceoryx
         ├── cmake
-        ├── cpptoml_vendor
         ├── doc
         ├── iceoryx_binding_c
         ├── iceoryx_dds
@@ -65,7 +64,8 @@ colcon build
 Expected output should be like this: `Summary: 13 packages finished [24.1s]`
 Colcon automatically creates the folders `build`, `install` and `log`.
 
-**_NOTE:_** If you get an build error related to CycloneDDS, please delete the build folder from the iceoryx directory.
+**_NOTE:_** Please make sure that the build folder in src/iceoryx is not present to avoid conflicts with the 
+colcon build.
 
 For executing tests you can use colcon too:
 ```bash

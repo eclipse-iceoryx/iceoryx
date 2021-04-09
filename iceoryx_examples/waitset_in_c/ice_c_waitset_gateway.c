@@ -47,19 +47,19 @@ static void sigHandler(int signalValue)
 // an iox_sub_t.
 void subscriberCallback(iox_sub_t const subscriber)
 {
-    const void* chunk;
-    if (iox_sub_take_chunk(subscriber, &chunk))
+    const void* userPayload;
+    while (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)
     {
-        printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)chunk)->counter);
+        printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)userPayload)->counter);
         fflush(stdout);
 
-        iox_sub_release_chunk(subscriber, chunk);
+        iox_sub_release_chunk(subscriber, userPayload);
     }
 }
 
 int main()
 {
-    iox_runtime_init("iox-c-ex-waitset-gateway");
+    iox_runtime_init("iox-c-waitset-gateway");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -81,13 +81,12 @@ int main()
     iox_sub_options_init(&options);
     options.historyRequest = 1U;
     options.queueCapacity = 256U;
-    options.nodeName = "iox-c-ex-waitSet-gateway-node";
+    options.nodeName = "iox-c-waitSet-gateway-node";
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        iox_sub_t subscriber = iox_sub_init(
-            &(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
+        iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_HAS_DATA, 1U, subscriberCallback);
+        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback);
     }
 
 
@@ -123,6 +122,9 @@ int main()
     // cleanup all resources
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
+        // not mandatory since iox_sub_deinit will detach the subscriber automatically
+        // only added to present the full API
+        iox_ws_detach_subscriber_event(waitSet, (iox_sub_t) & (subscriberStorage[i]), SubscriberEvent_DATA_RECEIVED);
         iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
     }
 

@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
@@ -22,6 +23,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 #include "mocks/wait_set_mock.hpp"
 
 using namespace iox;
@@ -81,9 +83,9 @@ class iox_sub_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
-        constexpr uint32_t PAYLOAD_SIZE{100U};
+        constexpr uint32_t USER_PAYLOAD_SIZE{100U};
 
-        auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_PAYLOAD_ALIGNMENT);
+        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         EXPECT_FALSE(chunkSettingsResult.has_error());
         if (chunkSettingsResult.has_error())
         {
@@ -120,6 +122,36 @@ class iox_sub_test : public Test
 };
 
 iox_sub_t iox_sub_test::m_triggerCallbackLatestArgument = nullptr;
+
+TEST_F(iox_sub_test, initSubscriberWithNullptrForStorageReturnsNullptr)
+{
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+
+    EXPECT_EQ(iox_sub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
+}
+
+// this crashes if the fixture is used, therefore a test without a fixture
+TEST(iox_sub_test_DeathTest, initSubscriberWithNotInitializedPublisherOptionsTerminates)
+{
+    iox_sub_options_t options;
+    iox_sub_storage_t storage;
+
+    EXPECT_DEATH({ iox_sub_init(&storage, "a", "b", "c", &options); }, ".*");
+}
+
+TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)
+{
+    iox::roudi::RouDiEnvironment roudiEnv;
+
+    iox_runtime_init("hypnotoad");
+
+    iox_sub_options_t options;
+    iox_sub_options_init(&options);
+    iox_sub_storage_t storage;
+
+    EXPECT_NE(iox_sub_init(&storage, "a", "b", "c", &options), nullptr);
+}
 
 TEST_F(iox_sub_test, initialStateNotSubscribed)
 {
@@ -196,7 +228,7 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
     };
 
     auto sharedChunk = getChunkFromMemoryManager();
-    static_cast<data_t*>(sharedChunk.getPayload())->value = 1234;
+    static_cast<data_t*>(sharedChunk.getUserPayload())->value = 1234;
     m_chunkPusher.push(sharedChunk);
 
     const void* chunk = nullptr;
@@ -205,7 +237,7 @@ TEST_F(iox_sub_test, receiveChunkWithContent)
     EXPECT_THAT(static_cast<const data_t*>(chunk)->value, Eq(1234));
 }
 
-TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
+TEST_F(iox_sub_test, constChunkHeaderCanBeObtainedFromChunkAfterTake)
 {
     this->Subscribe(&m_portPtr);
     auto sharedChunk = getChunkFromMemoryManager();
@@ -214,10 +246,10 @@ TEST_F(iox_sub_test, chunkHeaderCanBeObtainedFromChunkAfterTake)
     const void* chunk = nullptr;
 
     ASSERT_EQ(iox_sub_take_chunk(m_sut, &chunk), ChunkReceiveResult_SUCCESS);
-    auto header = iox_chunk_payload_to_header(chunk);
-    ASSERT_NE(header, nullptr);
-    auto payload = iox_chunk_header_to_payload(header);
-    EXPECT_EQ(payload, chunk);
+    auto chunkHeader = iox_chunk_header_from_user_payload_const(chunk);
+    ASSERT_NE(chunkHeader, nullptr);
+    auto userPayloadFromRoundTrip = iox_chunk_header_to_user_payload_const(chunkHeader);
+    EXPECT_EQ(userPayloadFromRoundTrip, chunk);
 }
 
 TEST_F(iox_sub_test, receiveChunkWhenToManyChunksAreHold)
@@ -278,20 +310,22 @@ TEST_F(iox_sub_test, initialStateHasNoLostChunks)
     EXPECT_FALSE(iox_sub_has_lost_chunks(m_sut));
 }
 
-TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
+TEST_F(iox_sub_test, sendingTooMuchLeadsToOverflow)
 {
     this->Subscribe(&m_portPtr);
-    for (uint64_t i = 0U; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY + 1U; ++i)
+    for (uint64_t i = 0U; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY; ++i)
     {
-        m_chunkPusher.push(getChunkFromMemoryManager());
+        EXPECT_TRUE(m_chunkPusher.push(getChunkFromMemoryManager()));
     }
+    EXPECT_FALSE(m_chunkPusher.push(getChunkFromMemoryManager()));
+    m_chunkPusher.lostAChunk();
 
     EXPECT_TRUE(iox_sub_has_lost_chunks(m_sut));
 }
 
 TEST_F(iox_sub_test, attachingToWaitSetWorks)
 {
-    EXPECT_EQ(iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, NULL),
+    EXPECT_EQ(iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, NULL),
               WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 1U);
 }
@@ -299,9 +333,9 @@ TEST_F(iox_sub_test, attachingToWaitSetWorks)
 TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 {
     WaitSetMock m_waitSet2{m_condVar};
-    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, NULL);
+    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, NULL);
 
-    EXPECT_EQ(iox_ws_attach_subscriber_event(&m_waitSet2, m_sut, SubscriberEvent_HAS_DATA, 0U, NULL),
+    EXPECT_EQ(iox_ws_attach_subscriber_state(&m_waitSet2, m_sut, SubscriberState_HAS_DATA, 0U, NULL),
               WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 0U);
     EXPECT_EQ(m_waitSet2.size(), 1U);
@@ -309,14 +343,14 @@ TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 
 TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 {
-    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, NULL);
-    iox_ws_detach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA);
+    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, NULL);
+    iox_ws_detach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA);
     EXPECT_EQ(m_waitSet->size(), 0U);
 }
 
 TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectEventId)
 {
-    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 587U, NULL);
+    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
@@ -328,7 +362,7 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectEventId)
 
 TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 {
-    iox_ws_attach_subscriber_event(m_waitSet.get(), m_sut, SubscriberEvent_HAS_DATA, 0U, iox_sub_test::triggerCallback);
+    iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, iox_sub_test::triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
@@ -345,8 +379,8 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     auto subscriber = new (malloc(sizeof(cpp2c_Subscriber))) cpp2c_Subscriber();
     subscriber->m_portData = &m_portPtr;
 
-    iox_ws_attach_subscriber_event(
-        m_waitSet.get(), subscriber, SubscriberEvent_HAS_DATA, 0U, iox_sub_test::triggerCallback);
+    iox_ws_attach_subscriber_state(
+        m_waitSet.get(), subscriber, SubscriberState_HAS_DATA, 0U, iox_sub_test::triggerCallback);
 
     iox_sub_deinit(subscriber);
 
@@ -374,6 +408,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     sut.historyRequest = 73;
     sut.nodeName = "Dr.Gonzo";
     sut.subscribeOnCreate = false;
+    sut.queueFullPolicy = QueueFullPolicy_BLOCK_PUBLISHER;
 
     SubscriberOptions options;
     // set subscribeOnCreate to the opposite of the expected default to check if it gets overwritten to default
@@ -384,6 +419,7 @@ TEST(iox_sub_options_test, subscriberOptionsAreInitializedCorrectly)
     EXPECT_EQ(sut.historyRequest, options.historyRequest);
     EXPECT_EQ(sut.nodeName, nullptr);
     EXPECT_EQ(sut.subscribeOnCreate, options.subscribeOnCreate);
+    EXPECT_EQ(sut.queueFullPolicy, cpp2c::queueFullPolicy(options.queueFullPolicy));
     EXPECT_TRUE(iox_sub_options_is_initialized(&sut));
 }
 
@@ -409,12 +445,4 @@ TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash
         },
         ::testing::ExitedWithCode(0),
         ".*");
-}
-
-TEST(iox_sub_options_test, subscriberInitializationTerminatesIfOptionsAreNotInitialized)
-{
-    iox_sub_options_t options;
-    iox_sub_storage_t storage;
-
-    EXPECT_DEATH({ iox_sub_init(&storage, "a", "b", "c", &options); }, ".*");
 }

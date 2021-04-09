@@ -71,21 +71,21 @@ void* cyclicHeartbeatTrigger(void* dontCare)
 
 void onSampleReceivedCallback(iox_sub_t subscriber)
 {
-    const struct CounterTopic* chunk;
-    if (iox_sub_take_chunk(subscriber, (const void**)&chunk) == ChunkReceiveResult_SUCCESS)
+    const struct CounterTopic* userPayload;
+    if (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
     {
         iox_service_description_t serviceDescription = iox_sub_get_service_description(subscriber);
         if (strcmp(serviceDescription.instanceString, "FrontLeft") == 0)
         {
-            leftCache.value = *chunk;
+            leftCache.value = *userPayload;
             leftCache.isSet = true;
         }
         else if (strcmp(serviceDescription.instanceString, "FrontRight") == 0)
         {
-            rightCache.value = *chunk;
+            rightCache.value = *userPayload;
             rightCache.isSet = true;
         }
-        printf("received: %d\n", chunk->counter);
+        printf("received: %d\n", userPayload->counter);
         fflush(stdout);
     }
 
@@ -138,9 +138,10 @@ int main()
 
     // attach everything to the listener, from here one the callbacks are called when an event occurs
     iox_listener_attach_user_trigger_event(listener, heartbeat, &heartbeatCallback);
-    iox_listener_attach_subscriber_event(listener, subscriberLeft, SubscriberEvent_HAS_DATA, &onSampleReceivedCallback);
     iox_listener_attach_subscriber_event(
-        listener, subscriberRight, SubscriberEvent_HAS_DATA, &onSampleReceivedCallback);
+        listener, subscriberLeft, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback);
+    iox_listener_attach_subscriber_event(
+        listener, subscriberRight, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback);
 
     // wait until someone presses CTRL+c
     while (keepRunning)
@@ -152,8 +153,8 @@ int main()
     //   when the listener goes out of scope it will detach all events and when a
     //   subscriber goes out of scope it will detach itself from the listener
     iox_listener_detach_user_trigger_event(listener, heartbeat);
-    iox_listener_detach_subscriber_event(listener, subscriberLeft, SubscriberEvent_HAS_DATA);
-    iox_listener_detach_subscriber_event(listener, subscriberRight, SubscriberEvent_HAS_DATA);
+    iox_listener_detach_subscriber_event(listener, subscriberLeft, SubscriberEvent_DATA_RECEIVED);
+    iox_listener_detach_subscriber_event(listener, subscriberRight, SubscriberEvent_DATA_RECEIVED);
 
 #if !defined(_WIN32)
     pthread_join(heartbeatTriggerThread, NULL);

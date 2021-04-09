@@ -62,6 +62,11 @@ class TriggerHandle
     /// m_conditionVariableDataPtr != nullptr.
     bool isValid() const noexcept;
 
+    /// @brief Returns true when the TriggerHandle was triggered.
+    /// @note The TriggerHandle wasTriggered state is set to false again after the underlying ConditionListener gathered
+    /// all events.
+    bool wasTriggered() const noexcept;
+
     /// @brief triggers the Trigger and informs the Notifyable which verifies that the Trigger was triggered by calling
     /// the hasTriggeredCallback
     void trigger() noexcept;

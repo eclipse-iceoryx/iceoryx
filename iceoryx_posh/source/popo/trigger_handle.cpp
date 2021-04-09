@@ -86,6 +86,16 @@ void TriggerHandle::trigger() noexcept
     }
 }
 
+bool TriggerHandle::wasTriggered() const noexcept
+{
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    if (m_conditionVariableDataPtr != nullptr)
+    {
+        return m_conditionVariableDataPtr->m_activeNotifications[m_uniqueTriggerId].load(std::memory_order_relaxed);
+    }
+    return false;
+}
+
 void TriggerHandle::reset() noexcept
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);

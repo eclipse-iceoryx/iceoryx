@@ -17,7 +17,6 @@
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -35,8 +34,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
              RoudiStartupParameters roudiStartupParameters)
     : m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
-    , m_runDiscoveryThread(true)
-    , m_runIpcChannelThread(true)
+    , m_runMonitoringAndDiscoveryThread(true)
+    , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
     , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
@@ -62,8 +61,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // run the threads
-    m_processManagementThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
-    posix::setThreadName(m_processManagementThread.native_handle(), "ProcessMgmt");
+    m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
+    posix::setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -78,15 +77,24 @@ RouDi::~RouDi()
 
 void RouDi::startProcessRuntimeMessagesThread()
 {
-    m_processRuntimeMessagesThread = std::thread(&RouDi::processRuntimeMessages, this);
-    posix::setThreadName(m_processRuntimeMessagesThread.native_handle(), "IPC-msg-process");
+    m_handleRuntimeMessageThread = std::thread(&RouDi::processRuntimeMessages, this);
+    posix::setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown()
 {
     m_processIntrospection.stop();
     m_portManager->stopPortIntrospection();
-    m_runDiscoveryThread = false;
+
+    // stop the process management thread in order to prevent application to register while shutting down
+    m_runMonitoringAndDiscoveryThread = false;
+    if (m_monitoringAndDiscoveryThread.joinable())
+    {
+        LogDebug() << "Joining 'Mon+Discover' thread...";
+        m_monitoringAndDiscoveryThread.join();
+        LogDebug() << "...'Mon+Discover' thread joined.";
+    }
+
     if (m_killProcessesInDestructor)
     {
         cxx::DeadlineTimer finalKillTimer(m_processKillDelay);
@@ -111,20 +119,14 @@ void RouDi::shutdown()
             m_prcMgr->printWarningForRegisteredProcessesAndClearProcessList();
         }
     }
+
     // Postpone the IpcChannelThread in order to receive TERMINATION
-    m_runIpcChannelThread = false;
+    m_runHandleRuntimeMessageThread = false;
 
-
-    if (m_processManagementThread.joinable())
-    {
-        LogDebug() << "Joining 'ProcessMgmt' thread...";
-        m_processManagementThread.join();
-        LogDebug() << "...'ProcessMgmt' thread joined.";
-    }
-    if (m_processRuntimeMessagesThread.joinable())
+    if (m_handleRuntimeMessageThread.joinable())
     {
         LogDebug() << "Joining 'IPC-msg-process' thread...";
-        m_processRuntimeMessagesThread.join();
+        m_handleRuntimeMessageThread.join();
         LogDebug() << "...'IPC-msg-process' thread joined.";
     }
 }
@@ -136,7 +138,7 @@ void RouDi::cyclicUpdateHook()
 
 void RouDi::monitorAndDiscoveryUpdate()
 {
-    while (m_runDiscoveryThread)
+    while (m_runMonitoringAndDiscoveryThread)
     {
         m_prcMgr->run();
 
@@ -153,7 +155,7 @@ void RouDi::processRuntimeMessages()
     // the logger is intentionally not used, to ensure that this message is always printed
     std::cout << "RouDi is ready for clients" << std::endl;
 
-    while (m_runIpcChannelThread)
+    while (m_runHandleRuntimeMessageThread)
     {
         // read RouDi's IPC channel
         runtime::IpcMessage message;
@@ -211,7 +213,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::CREATE_PUBLISHER:
     {
-        if (message.getNumberOfElements() != 7)
+        if (message.getNumberOfElements() != 8)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_PUBLISHER\" from \"" << runtimeName
                        << "\"received!";
@@ -219,12 +221,14 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(6));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
 
             popo::PublisherOptions options;
             options.historyCapacity = std::stoull(message.getElementAtIndex(3));
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
             options.offerOnCreate = (0U == std::stoull(message.getElementAtIndex(5))) ? false : true;
+            options.subscriberTooSlowPolicy =
+                static_cast<popo::SubscriberTooSlowPolicy>(std::stoul(message.getElementAtIndex(6)));
 
             m_prcMgr->addPublisherForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
@@ -233,7 +237,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     }
     case runtime::IpcMessageType::CREATE_SUBSCRIBER:
     {
-        if (message.getNumberOfElements() != 8)
+        if (message.getNumberOfElements() != 9)
         {
             LogError() << "Wrong number of parameters for \"IpcMessageType::CREATE_SUBSCRIBER\" from \"" << runtimeName
                        << "\"received!";
@@ -241,7 +245,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(7));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(8));
 
 
             popo::SubscriberOptions options;
@@ -249,7 +253,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             options.queueCapacity = std::stoull(message.getElementAtIndex(4));
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
             options.subscribeOnCreate = (0U == std::stoull(message.getElementAtIndex(6))) ? false : true;
-
+            options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(std::stoul(message.getElementAtIndex(7)));
 
             m_prcMgr->addSubscriberForProcess(
                 runtimeName, service, options, iox::runtime::PortConfigInfo(portConfigInfoSerialization));

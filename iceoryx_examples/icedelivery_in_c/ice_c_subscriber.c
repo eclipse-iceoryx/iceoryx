@@ -57,15 +57,15 @@ void receiving()
     {
         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {
-            const void* chunk = NULL;
+            const void* userPayload = NULL;
             // we will receive here more then one sample since the publisher is sending a
             // new sample every 400ms and we check for new samples only every second
-            while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &chunk))
+            while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &userPayload))
             {
-                const struct RadarObject* sample = (const struct RadarObject*)(chunk);
+                const struct RadarObject* sample = (const struct RadarObject*)(userPayload);
                 printf("%s got value: %.0f\n", APP_NAME, sample->x);
                 fflush(stdout);
-                iox_sub_release_chunk(subscriber, chunk);
+                iox_sub_release_chunk(subscriber, userPayload);
             }
             printf("\n");
         }

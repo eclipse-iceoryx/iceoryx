@@ -17,12 +17,14 @@
 
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
-#include "test.hpp"
-#include "testutils/watch_dog.hpp"
+#include "iceoryx_utils/testing/test.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 
 #include <atomic>
 #include <thread>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 
@@ -132,3 +134,4 @@ TEST_F(Mutex_test, TryLockWithRecursiveMutexReturnsFalseWhenMutexLockedInOtherTh
     sutRecursive.unlock();
     lockThread.join();
 }
+} // namespace

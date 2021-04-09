@@ -36,11 +36,15 @@ static void sigHandler(int f_sig [[gnu::unused]])
 // the untyped subscriber.
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
-    subscriber->take().and_then([&](auto& payload) {
-        auto header = iox::mepoo::ChunkHeader::fromPayload(payload);
-        std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec << header->payloadSize
-                  << " ptr: " << std::hex << header->payload() << std::endl;
-    });
+    while (subscriber->hasData())
+    {
+        subscriber->take().and_then([&](auto& userPayload) {
+            auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
+            std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
+                      << chunkHeader->userPayloadSize() << " ptr: " << std::hex << chunkHeader->userPayload()
+                      << std::endl;
+        });
+    }
 }
 
 int main()
@@ -52,7 +56,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-gateway");
+    iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-gateway");
 
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
@@ -69,7 +73,7 @@ int main()
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
 
-        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_DATA, 0, &subscriberCallback)
+        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
                 std::terminate();

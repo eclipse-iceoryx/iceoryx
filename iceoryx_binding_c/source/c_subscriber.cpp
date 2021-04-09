@@ -17,6 +17,7 @@
 
 
 #include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
@@ -52,6 +53,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
     options->historyRequest = subscriberOptions.historyRequest;
     options->nodeName = nullptr;
     options->subscribeOnCreate = subscriberOptions.subscribeOnCreate;
+    options->queueFullPolicy = cpp2c::queueFullPolicy(subscriberOptions.queueFullPolicy);
 
     options->initCheck = SUBSCRIBER_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -67,8 +69,15 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const event,
                        const iox_sub_options_t* const options)
 {
+    if (self == nullptr)
+    {
+        LogWarn() << "subscriber initialization skipped - null pointer provided for iox_sub_storage_t";
+        return nullptr;
+    }
+
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
+
     SubscriberOptions subscriberOptions;
 
     // use default options otherwise
@@ -88,6 +97,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
             subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
         }
         subscriberOptions.subscribeOnCreate = options->subscribeOnCreate;
+        subscriberOptions.queueFullPolicy = c2cpp::queueFullPolicy(options->queueFullPolicy);
     }
 
     me->m_portData =
@@ -116,24 +126,24 @@ void iox_sub_unsubscribe(iox_sub_t const self)
 
 iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self)
 {
-    return cpp2c::SubscribeState(SubscriberPortUser(self->m_portData).getSubscriptionState());
+    return cpp2c::subscribeState(SubscriberPortUser(self->m_portData).getSubscriptionState());
 }
 
-iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const payload)
+iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayloadOfChunk)
 {
     auto result = SubscriberPortUser(self->m_portData).tryGetChunk();
     if (result.has_error())
     {
-        return cpp2c::ChunkReceiveResult(result.get_error());
+        return cpp2c::chunkReceiveResult(result.get_error());
     }
 
-    *payload = result.value()->payload();
+    *userPayloadOfChunk = result.value()->userPayload();
     return ChunkReceiveResult_SUCCESS;
 }
 
-void iox_sub_release_chunk(iox_sub_t const self, const void* const chunk)
+void iox_sub_release_chunk(iox_sub_t const self, const void* const userPayloadOfChunk)
 {
-    SubscriberPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
+    SubscriberPortUser(self->m_portData).releaseChunk(ChunkHeader::fromUserPayload(userPayloadOfChunk));
 }
 
 void iox_sub_release_queued_chunks(iox_sub_t const self)

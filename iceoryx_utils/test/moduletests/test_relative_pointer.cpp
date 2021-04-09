@@ -27,11 +27,11 @@
 #include <cstdint>
 #include <cstring>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::rp;
 
-namespace
-{
 constexpr mode_t ShmMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 constexpr int OFlags = O_CREAT | O_RDWR;
 constexpr size_t ShmSize = 4096 * 32;

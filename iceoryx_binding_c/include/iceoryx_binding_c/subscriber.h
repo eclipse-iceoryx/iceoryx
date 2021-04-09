@@ -29,21 +29,23 @@ typedef struct cpp2c_Subscriber* iox_sub_t;
 /// @brief options to be set for a subscriber
 typedef struct
 {
-    // size of the history chunk queue
+    /// @brief size of the history chunk queue
     uint64_t queueCapacity;
 
-    // number of chunks received after subscription if chunks are available
-    // nullptr indicates that the default node name is used
+    /// @brief number of chunks received after subscription if chunks are available
     uint64_t historyRequest;
 
-    // name of the node the subscriber belongs to
+    /// @brief name of the node the subscriber belongs to
+    /// @note nullptr indicates that the default node name is used
     const char* nodeName;
 
-    // The option whether the subscriber shall try to subscribe when creating it
+    /// @brief The option whether the subscriber shall try to subscribe when creating it
     bool subscribeOnCreate;
 
-    // this value will be set exclusively by iox_sub_options_init
-    // and is not supposed to be modified otherwise
+    /// @brief describes whether a publisher blocks when subscriber queue is full
+    ENUM iox_QueueFullPolicy queueFullPolicy;
+
+    /// @brief this value will be set exclusively by iox_sub_options_init and is not supposed to be modified otherwise
     uint64_t initCheck;
 } iox_sub_options_t;
 
@@ -94,15 +96,15 @@ ENUM iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self);
 
 /// @brief retrieve a received chunk
 /// @param[in] self handle to the subscriber
-/// @param[in] chunk pointer in which the pointer to the chunk is stored
+/// @param[in] userPayloadOfChunk pointer in which the pointer to the user-payload of the chunk is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const chunk);
+ENUM iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayloadOfChunk);
 
 /// @brief release a previously acquired chunk (via iox_sub_getChunk)
 /// @param[in] self handle to the subscriber
-/// @param[in] chunk pointer to the chunk which should be released
-void iox_sub_release_chunk(iox_sub_t const self, const void* const chunk);
+/// @param[in] userPayloadOfChunk pointer to the user-payload of chunk which should be released
+void iox_sub_release_chunk(iox_sub_t const self, const void* const userPayloadOfChunk);
 
 /// @brief release all chunks which are stored in the chunk queue
 /// @param[in] self handle to the subscriber

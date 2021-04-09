@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
 
 #include <type_traits>
 
@@ -378,6 +378,42 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithOfferOnCreateLeadsToOfferedPu
     EXPECT_TRUE(publisherPortData->m_offeringRequested);
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithoutExplicitlySetQueueFullPolicyLeadsToDiscardOldestData)
+{
+    iox::popo::PublisherOptions publisherOptions;
+
+    const auto publisherPortData = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(9U, 13U, 1550U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
+                Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToDiscardOldestDataLeadsToDiscardOldestData)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA;
+
+    const auto publisherPortData = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(90U, 130U, 1550U),
+                                                                     publisherOptions,
+                                                                     iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
+                Eq(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithQueueFullPolicySetToWaitForSubscriberLeadsToWaitForSubscriber)
+{
+    iox::popo::PublisherOptions publisherOptions;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER;
+
+    const auto publisherPortData = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(18U, 31U, 400U), publisherOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(publisherPortData->m_chunkSenderData.m_subscriberTooSlowPolicy,
+                Eq(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER));
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
 {
     iox::popo::SubscriberOptions subscriberOptions;
@@ -469,6 +505,42 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithSubscribeOnCreateLeadsToSubs
         iox::capro::ServiceDescription(1U, 2U, 3U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
     EXPECT_TRUE(subscriberPortData->m_subscribeRequested);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithoutExplicitlySetQueueFullPolicyLeadsToDiscardOldestData)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+
+    const auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(9U, 13U, 1550U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
+                Eq(iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToDiscardOldestDataLeadsToDiscardOldestData)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA;
+
+    const auto subscriberPortData = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(90U, 130U, 1550U),
+                                                                       subscriberOptions,
+                                                                       iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
+                Eq(iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA));
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPublisherLeadsToBlockPublisher)
+{
+    iox::popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PUBLISHER;
+
+    const auto subscriberPortData = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(18U, 31U, 400U), subscriberOptions, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    EXPECT_THAT(subscriberPortData->m_chunkReceiverData.m_queueFullPolicy,
+                Eq(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER));
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)

@@ -21,25 +21,24 @@ project(example_icehello)
 include(GNUInstallDirs)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
+find_package(iceoryx_utils CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
-if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatform)
-endif ()
+include(IceoryxPlatform)
 
-add_executable(iox-ex-publisher-helloworld ./iox_publisher_helloworld.cpp)
-target_link_libraries(iox-ex-publisher-helloworld
+add_executable(iox-cpp-publisher-helloworld ./iox_publisher_helloworld.cpp)
+target_link_libraries(iox-cpp-publisher-helloworld
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-publisher-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-helloworld ./iox_subscriber_helloworld.cpp)
-target_link_libraries(iox-ex-subscriber-helloworld
+add_executable(iox-cpp-subscriber-helloworld ./iox_subscriber_helloworld.cpp)
+target_link_libraries(iox-cpp-subscriber-helloworld
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-subscriber-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-subscriber-helloworld PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-ex-subscriber-helloworld iox-ex-publisher-helloworld
+set_target_properties(iox-cpp-subscriber-helloworld iox-cpp-publisher-helloworld
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -48,5 +47,5 @@ set_target_properties(iox-ex-subscriber-helloworld iox-ex-publisher-helloworld
 
 # ========================================================== //
 
-install(TARGETS iox-ex-publisher-helloworld iox-ex-subscriber-helloworld
+install(TARGETS iox-cpp-publisher-helloworld iox-cpp-subscriber-helloworld
         RUNTIME DESTINATION bin)

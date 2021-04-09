@@ -52,7 +52,6 @@ struct BasePortData
     capro::ServiceDescription m_serviceDescription;
     RuntimeName_t m_runtimeName;
     NodeName_t m_nodeName;
-
     UniquePortId m_uniqueId;
     std::atomic_bool m_toBeDestroyed{false};
 };

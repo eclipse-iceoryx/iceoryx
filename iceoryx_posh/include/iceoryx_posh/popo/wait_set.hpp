@@ -20,6 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
@@ -32,6 +33,8 @@
 #include "iceoryx_utils/cxx/stack.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
+#include <typeinfo>
+
 namespace iox
 {
 namespace popo
@@ -42,11 +45,9 @@ enum class WaitSetError : uint8_t
 {
     INVALID_STATE,
     WAIT_SET_FULL,
-    EVENT_ALREADY_ATTACHED,
-    PROVIDED_HAS_TRIGGERED_CALLBACK_IS_UNSET,
+    ALREADY_ATTACHED,
 };
 
-using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
 
 /// @brief Logical disjunction of a certain number of Triggers
 ///
@@ -54,7 +55,7 @@ using WaitSetHasTriggeredCallback = cxx::ConstMethodCallback<bool>;
 /// over process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it
 /// with the destructor. Hence the lifetime of the condition variable is bound to the lifetime of the WaitSet.
 /// @param[in] Capacity the amount of events which can be attached to the waitset
-template <uint64_t Capacity = MAX_NUMBER_OF_EVENTS_PER_WAITSET>
+template <uint64_t Capacity = MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET>
 class WaitSet
 {
   public:
@@ -105,11 +106,50 @@ class WaitSet
     template <typename T>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const EventInfo::Callback<T>& eventCallback) noexcept;
 
+    /// @brief attaches a state of a given class to the WaitSet.
+    /// @param[in] stateOrigin the class from which the state originates.
+    /// @param[in] stateType the state specified by the class
+    /// @param[in] id an arbitrary user defined id for the state
+    /// @param[in] stateCallback a callback which should be assigned to the state
+    template <typename T, typename StateType, typename = std::enable_if_t<std::is_enum<StateType>::value>>
+    cxx::expected<WaitSetError> attachState(T& stateOrigin,
+                                            const StateType stateType,
+                                            const uint64_t id = 0U,
+                                            const EventInfo::Callback<T>& stateCallback = {}) noexcept;
+
+    /// @brief attaches a state of a given class to the WaitSet.
+    /// @param[in] stateOrigin the class from which the state originates.
+    /// @param[in] stateType the state specified by the class
+    /// @param[in] stateCallback a callback which should be assigned to the state
+    template <typename T, typename StateType, typename = std::enable_if_t<std::is_enum<StateType>::value, void>>
+    cxx::expected<WaitSetError>
+    attachState(T& stateOrigin, const StateType stateType, const EventInfo::Callback<T>& stateCallback) noexcept;
+
+    /// @brief attaches a state of a given class to the WaitSet.
+    /// @param[in] stateOrigin the class from which the state originates.
+    /// @param[in] id an arbitrary user defined id for the state
+    /// @param[in] stateCallback a callback which should be assigned to the state
+    template <typename T>
+    cxx::expected<WaitSetError>
+    attachState(T& stateOrigin, const uint64_t id = 0U, const EventInfo::Callback<T>& stateCallback = {}) noexcept;
+
+    /// @brief attaches a state of a given class to the WaitSet.
+    /// @param[in] stateOrigin the class from which the state originates.
+    /// @param[in] stateCallback a callback which should be assigned to the state
+    template <typename T>
+    cxx::expected<WaitSetError> attachState(T& stateOrigin, const EventInfo::Callback<T>& stateCallback) noexcept;
+
     /// @brief detaches an event from the WaitSet
     /// @param[in] eventOrigin the origin of the event that should be detached
     /// @param[in] args... additional event identifying arguments
     template <typename T, typename... Targs>
     void detachEvent(T& eventOrigin, const Targs&... args) noexcept;
+
+    /// @brief detaches a state based trigger from the WaitSet
+    /// @param[in] stateOrigin the origin of the state that should be detached
+    /// @param[in] args... additional state identifying arguments
+    template <typename T, typename... Targs>
+    void detachState(T& stateOrigin, const Targs&... args) noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the triggers are triggered
     /// @param[in] timeout How long shall we waite for a trigger
@@ -130,14 +170,25 @@ class WaitSet
     explicit WaitSet(ConditionVariableData& condVarData) noexcept;
 
   private:
+    enum class NoStateEnumUsed : StateEnumIdentifier
+    {
+        PLACEHOLDER
+    };
+
+    enum class NoEventEnumUsed : EventEnumIdentifier
+    {
+        PLACEHOLDER
+    };
+
     using WaitFunction = cxx::function_ref<ConditionListener::NotificationVector_t()>;
     template <typename T>
-    cxx::expected<uint64_t, WaitSetError> attachEventImpl(T& eventOrigin,
-                                                          const WaitSetHasTriggeredCallback& hasTriggeredCallback,
-                                                          const uint64_t eventId,
-                                                          const EventInfo::Callback<T>& eventCallback) noexcept;
+    cxx::expected<uint64_t, WaitSetError> attachImpl(T& eventOrigin,
+                                                     const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,
+                                                     const uint64_t eventId,
+                                                     const EventInfo::Callback<T>& eventCallback,
+                                                     const uint64_t originType,
+                                                     const uint64_t originTypeHash) noexcept;
 
-    EventInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
     EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
     EventInfoVector createVectorWithTriggeredTriggers() noexcept;
 

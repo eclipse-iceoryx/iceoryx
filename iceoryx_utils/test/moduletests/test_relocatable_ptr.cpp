@@ -21,11 +21,11 @@
 
 #include <cstring>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::rp;
 
-namespace
-{
 template <size_t n>
 class Memory
 {

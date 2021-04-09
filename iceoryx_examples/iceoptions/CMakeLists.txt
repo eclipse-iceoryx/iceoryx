@@ -1,5 +1,4 @@
-# Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,20 +26,20 @@ find_package(iceoryx_utils CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-ex-publisher-with-options ./iox_publisher_with_options.cpp)
-target_link_libraries(iox-ex-publisher-with-options
+add_executable(iox-cpp-publisher-with-options ./iox_publisher_with_options.cpp)
+target_link_libraries(iox-cpp-publisher-with-options
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-publisher-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-publisher-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-subscriber-with-options ./iox_subscriber_with_options.cpp)
-target_link_libraries(iox-ex-subscriber-with-options
+add_executable(iox-cpp-subscriber-with-options ./iox_subscriber_with_options.cpp)
+target_link_libraries(iox-cpp-subscriber-with-options
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-subscriber-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-subscriber-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 
-set_target_properties(iox-ex-publisher-with-options iox-ex-subscriber-with-options
+set_target_properties(iox-cpp-publisher-with-options iox-cpp-subscriber-with-options
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -49,5 +48,5 @@ set_target_properties(iox-ex-publisher-with-options iox-ex-subscriber-with-optio
 
 # ========================================================== //
 
-install(TARGETS iox-ex-publisher-with-options iox-ex-subscriber-with-options
+install(TARGETS iox-cpp-publisher-with-options iox-cpp-subscriber-with-options
         RUNTIME DESTINATION bin)

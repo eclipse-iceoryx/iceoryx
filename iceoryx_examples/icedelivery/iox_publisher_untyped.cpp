@@ -24,7 +24,7 @@
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-ex-publisher-untyped";
+constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -47,43 +47,18 @@ int main()
     {
         ++ct;
 
-        // API Usage #1
-        //  * Loaned chunk can be held until ready to publish
-        auto result = publisher.loan(sizeof(RadarObject));
-        if (!result.has_error())
-        {
-            // In the untyped API we get a void pointer to the payload, therefore the data must be constructed
-            // in place
-            void* chunk = result.value();
-            RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
-            iox::cxx::Expects(chunk == data);
-
-            data->x = ct;
-            data->y = ct;
-            data->z = ct;
-            publisher.publish(chunk);
-        }
-        else
-        {
-            auto error = result.get_error();
-            // Do something with the error
-            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-        }
-
-
-        // API Usage #2
-        // * Loan chunk and provide logic to populate it via a lambda
+        // Loan chunk and provide logic to populate it via a lambda
         publisher.loan(sizeof(RadarObject))
-            .and_then([&](auto& chunk) {
-                RadarObject* data = new (chunk) RadarObject(ct, ct, ct);
-                iox::cxx::Expects(chunk == data);
+            .and_then([&](auto& userPayload) {
+                RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
+                iox::cxx::Expects(userPayload == data);
 
                 data->x = ct;
                 data->y = ct;
                 data->z = ct;
-                publisher.publish(chunk);
+                publisher.publish(userPayload);
             })
-            .or_else([&](iox::popo::AllocationError error) {
+            .or_else([&](auto& error) {
                 // Do something with the error
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             });

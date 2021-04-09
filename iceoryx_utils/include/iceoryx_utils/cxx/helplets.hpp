@@ -274,6 +274,24 @@ using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 #define IOX_NO_DISCARD
 #endif
 #endif
+
+/// @brief IOX_FALLTHROUGH adds the [[fallthrough]] keyword when it is available for the current compiler.
+/// @note
+//    [[fallthrough]] supported since gcc 7 (https://gcc.gnu.org/projects/cxx-status.html)
+///   [[fallthrough]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
+///   activate keywords for gcc>=7 or clang>=4
+#if (defined(__GNUC__) && __GNUC__ >= 7) || (defined(__clang__) && __clang_major >= 4)
+#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
+#else
+// On WIN32 we are using C++17 which makes the keyword [[fallthrough]] available
+#if defined(_WIN32)
+#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
+// on an unknown platform we use for now nothing since we do not know what is supported there
+#else
+#define IOX_FALLTHROUGH
+#endif
+#endif
+
 /// @brief Returns info whether called on a 32-bit system
 /// @return True if called on 32-bit, false if not 32-bit system
 constexpr bool isCompiledOn32BitSystem()

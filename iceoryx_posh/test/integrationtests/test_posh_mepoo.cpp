@@ -23,7 +23,7 @@
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
-#include "testutils/timing_test.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -33,7 +33,7 @@
 #define protected public
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #undef private
 #undef protected
@@ -306,12 +306,10 @@ class Mepoo_IntegrationTest : public Test
         for (int idx = 0; idx < times; ++idx)
         {
             publisherPort
-                ->tryAllocateChunk(TOPIC_SIZE,
-                                   TOPIC_ALIGNMENT,
-                                   iox::CHUNK_NO_CUSTOM_HEADER_SIZE,
-                                   iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT)
+                ->tryAllocateChunk(
+                    TOPIC_SIZE, TOPIC_ALIGNMENT, iox::CHUNK_NO_USER_HEADER_SIZE, iox::CHUNK_NO_USER_HEADER_ALIGNMENT)
                 .and_then([&](auto sample) {
-                    new (sample->payload()) Topic;
+                    new (sample->userPayload()) Topic;
                     publisherPort->sendChunk(sample);
                     m_roudiEnv->InterOpWait();
                 });
