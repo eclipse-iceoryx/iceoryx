@@ -16,14 +16,11 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.7)
 
-set(IOX_VERSION_STRING "0.99.6")
+set(IOX_VERSION_STRING "0.99.7")
 
-find_package(iceoryx_utils REQUIRED)
-
-#include(IceoryxVersion)
-#parse_version(${IOX_VERSION_STRING})
 project(iceoryx_dds VERSION ${IOX_VERSION_STRING})
-#adjust_version()
+
+option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 
 if(NOT cpptoml_FOUND)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/dds_gateway/cpptoml/prebuild)
@@ -31,6 +28,7 @@ if(NOT cpptoml_FOUND)
     find_package(cpptoml REQUIRED)
 endif()
 
+find_package(iceoryx_utils REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)
