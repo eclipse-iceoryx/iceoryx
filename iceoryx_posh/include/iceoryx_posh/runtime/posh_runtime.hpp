@@ -78,7 +78,7 @@ class PoshRuntime
     /// @return name of the registered application
     RuntimeName_t getInstanceName() const noexcept;
 
-    /// @brief initiates the shutdown of the runtime to unblock all potentially blocking publisher with the
+    /// @brief initiates the shutdown of the runtime to unblock all potentially blocking publisher
     /// with the SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option set
     void shutdown() noexcept;
 

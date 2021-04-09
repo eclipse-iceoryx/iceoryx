@@ -29,6 +29,8 @@ static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT or SIGTERM, now exit gracefully
     killswitch = true;
+    // this is optional, but since the iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option is used,
+    // a slow subscriber might block the shutdown and this call unblocks the publisher
     iox::runtime::PoshRuntime::getInstance().shutdown();
 }
 
