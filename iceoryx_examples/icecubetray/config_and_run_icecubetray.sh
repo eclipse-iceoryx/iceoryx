@@ -59,8 +59,8 @@ if [ "$CONFIG" == "ON" ] ; then
     sudo usermod -L roudi -a -G iceoryx
     sudo usermod -L notallowed -a -G iceoryx
 fi
-# If you're using e.g Yocto or QNX refer to the manual on how to set up groups, users and permissions
 
+# If you're using e.g Yocto or QNX refer to the manual on how to set up groups, users and permissions
 
 if [ "$RUN" == "ON" ] ; then
     # Allow RouDi to send SIGKILL to other apps

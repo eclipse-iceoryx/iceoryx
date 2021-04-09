@@ -27,28 +27,28 @@ namespace iox
 namespace mepoo
 {
 template <typename SegmentType>
-inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& f_segmentConfig,
-                                                   posix::Allocator* f_managementAllocator) noexcept
-    : m_managementAllocator(f_managementAllocator)
+inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentConfig,
+                                                   posix::Allocator* managementAllocator) noexcept
+    : m_managementAllocator(managementAllocator)
 {
-    for (const auto& segmentEntry : f_segmentConfig.m_sharedMemorySegments)
+    for (const auto& segmentEntry : segmentConfig.m_sharedMemorySegments)
     {
         createSegment(segmentEntry);
     }
 }
 
 template <typename SegmentType>
-inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry) noexcept
+inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::SegmentEntry& segmentEntry) noexcept
 {
     if (m_segmentContainer.size() < m_segmentContainer.capacity())
     {
-        auto readerGroup = iox::posix::PosixGroup(f_segmentEntry.m_readerGroup);
-        auto writerGroup = iox::posix::PosixGroup(f_segmentEntry.m_writerGroup);
-        m_segmentContainer.emplace_back(f_segmentEntry.m_mempoolConfig,
+        auto readerGroup = iox::posix::PosixGroup(segmentEntry.m_readerGroup);
+        auto writerGroup = iox::posix::PosixGroup(segmentEntry.m_writerGroup);
+        m_segmentContainer.emplace_back(segmentEntry.m_mempoolConfig,
                                         *m_managementAllocator,
                                         readerGroup,
                                         writerGroup,
-                                        f_segmentEntry.m_memoryInfo);
+                                        segmentEntry.m_memoryInfo);
         return true;
     }
     else
@@ -60,10 +60,10 @@ inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::Segm
 
 template <typename SegmentType>
 inline typename SegmentManager<SegmentType>::SegmentMappingContainer
-SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser f_user) noexcept
+SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser user) noexcept
 {
     // get all the groups the user is in
-    auto l_groupContainer = f_user.getGroups();
+    auto l_groupContainer = user.getGroups();
 
     SegmentManager::SegmentMappingContainer l_mappingContainer;
     bool l_foundInWriterGroup = false;
@@ -145,10 +145,10 @@ SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(posix::
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const SegmentConfig& f_config) noexcept
+uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const SegmentConfig& config) noexcept
 {
     uint64_t memorySize{0u};
-    for (auto segment : f_config.m_sharedMemorySegments)
+    for (auto segment : config.m_sharedMemorySegments)
     {
         memorySize +=
             cxx::align(MemoryManager::requiredManagementMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
@@ -157,10 +157,10 @@ uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const Segment
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfig& f_config) noexcept
+uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfig& config) noexcept
 {
     uint64_t memorySize{0u};
-    for (auto segment : f_config.m_sharedMemorySegments)
+    for (auto segment : config.m_sharedMemorySegments)
     {
         memorySize +=
             cxx::align(MemoryManager::requiredChunkMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
@@ -169,9 +169,9 @@ uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfi
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredFullMemorySize(const SegmentConfig& f_config) noexcept
+uint64_t SegmentManager<SegmentType>::requiredFullMemorySize(const SegmentConfig& config) noexcept
 {
-    return cxx::align(requiredManagementMemorySize(f_config) + requiredChunkMemorySize(f_config),
+    return cxx::align(requiredManagementMemorySize(config) + requiredChunkMemorySize(config),
                       SHARED_MEMORY_ALIGNMENT);
 }
 

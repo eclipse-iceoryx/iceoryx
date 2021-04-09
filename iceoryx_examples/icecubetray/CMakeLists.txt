@@ -60,7 +60,7 @@ target_link_libraries(iox-cpp-roudi-static-segments
 
 target_compile_options(iceperf-roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-cpp-radar iox-cpp-display iox-cpp-roudi-static-segments PROPERTIES
+set_target_properties(iox-cpp-radar iox-cpp-display iox-cpp-cheeky iox-cpp-roudi-static-segments PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -68,6 +68,6 @@ set_target_properties(iox-cpp-radar iox-cpp-display iox-cpp-roudi-static-segment
 
 
 install(
-    TARGETS iox-cpp-radar iox-cpp-display iox-cpp-roudi-static-segments
+    TARGETS iox-cpp-radar iox-cpp-display iox-cpp-cheeky iox-cpp-roudi-static-segments
     RUNTIME DESTINATION bin
 )

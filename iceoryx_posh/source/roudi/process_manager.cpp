@@ -511,7 +511,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
 
             if (!segmentInfo.m_memoryManager.has_value())
             {
-                // Tell the app not writable shared memory segment was found
+                // Tell the app no writable shared memory segment was found
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(
