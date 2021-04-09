@@ -41,39 +41,12 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    // initialized subscriber
+    // Subscriber can be create without any readable shared memory segment, in this case no data will ever arrive
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+
+    // When starting this app with the user 'notallowed', the publisher object can't be initalised correctly because
+    // 'notallowed' does not have write access.
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 
-    // run until interrupted by Ctrl-C
-    while (!killswitch)
-    {
-        auto takeResult = subscriber.take();
-
-        if (!takeResult.has_error())
-        {
-            publisher.loan().and_then([&](auto& sample) {
-                sample->x = takeResult.value()->x;
-                sample->y = takeResult.value()->y;
-                sample->z = takeResult.value()->z;
-                std::cout << APP_NAME << " sending value: " << takeResult.value()->x << std::endl;
-                sample.publish();
-            });
-        }
-        else
-        {
-            if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-            {
-                std::cout << "No chunk available." << std::endl;
-            }
-            else
-            {
-                std::cout << "Error receiving chunk." << std::endl;
-            }
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-
-    return (EXIT_SUCCESS);
+    return (EXIT_FAILURE);
 }

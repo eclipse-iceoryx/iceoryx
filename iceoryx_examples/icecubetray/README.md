@@ -2,12 +2,11 @@
 
 ## Introduction
 
-This example demonstrates how access rights can be applied to shared memory segments on Linux-based operating system.
+This example demonstrates how access rights can be applied to shared memory segments.
 It provides a custom RouDi, a radar and a display application.
 
 !!! hint
     The access rights feature is only supported on Linux-based operating systems
-
 
 ## Expected output
 
@@ -15,7 +14,7 @@ It provides a custom RouDi, a radar and a display application.
 
 ## Code walkthrough
 
-The user _roudi_ does not need root access rights. However, it needs _CAP\_KILL_ capability or something similar on
+The user _roudi_ does not need root access rights. However, it needs _CAP\_KILL_ capability or similar rights on
 other POSIX operating system. RouDi needs to be able to send a _SIGKILL_ signal to the apps in case RouDi is shutdown.
 
 | Users        | privileged group | unprivileged group | infotainment group |   iceoryx group    |
@@ -63,14 +62,30 @@ other POSIX operating system. RouDi needs to be able to send a _SIGKILL_ signal 
 
 #### RouDi and Apps
 
-
 ##### Working setup
 
 RouDi is built with two static shared memory segments _infotainment_ and _privileged_. The access rights of the segments are configured as depicted in the graphic above.
 
+The `roudiConfig` is composed of a memory pool config called `mepooConfig`. When the segement is created, one needs to
+specific the reader (first string), write group (second string) as well as the `mepooConfig` (last parameter).
+
+```cpp
+iox::RouDiConfig_t roudiConfig;
+
+// Create Mempool Config
+iox::mepoo::MePooConfig mepooConfig;
+
+// We only send very small data, just one mempool per segment
+mepooConfig.addMemPool({128, 1000});
+
+/// Create an Entry for a new Shared Memory Segment from the MempoolConfig and add it to the RouDiConfig
+roudiConfig.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepooConfig});
+roudiConfig.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
+```
+
 The radar app is started with the user _perception_ and is sending data into the _privileged_ shared memory segment.
 
-The display app is started with the user _infotainment_. It reads the topic `{"Radar", "FrontLeft", "Object"}` from the privileged segement and forwards it as a slighty modified topic `{"Radar", "HMI-Display", "Object"}`. Because the user _infotainment_ only has write access to the infotainment segment, the data is written to this one.
+The display app is started with the user _infotainment_. It reads the topic `{"Radar", "FrontLeft", "Object"}` from the privileged segement and forwards it as a slighty modified topic `{"Radar", "HMI-Display", "Object"}`. Because the user _infotainment_ only has write access to the infotainment segment, the data is written to this segment.
 
 !!! hint
     It's advised to create per writer group only one shared memory segement (e.g. not two segements with `w: infotainment`).
@@ -95,4 +110,14 @@ drwxr-xr-x  6 root  root         460 Apr  6 15:53 ..
 
 The cheeky app is started with the user __notallowed_. It has neither write nor read access to any shared memory segment. Hence, RouDi will print a warning in this case.
 
-(Start preprocessing app with 'notallowed' user, should not get not_null segfault in RouDi, but something like "Access denied, no shared memory payload segment available")
+Despite having no read access, subscriber can still be created. In this case no data will ever arrive.
+
+```cpp
+iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+```
+
+When creating a publisher, no valid corresponding shared memory object can be created by RouDi. Hence, an error will be printed and the cheeky app will stop.
+
+```cpp
+iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
+```
