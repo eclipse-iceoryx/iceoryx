@@ -608,7 +608,7 @@ void PoshRuntime::sendKeepAliveAndHandleShutdownPreparation() noexcept
 
     // this is not the nicest solution, but we cannot send this in the signal handler where m_shutdownRequested is
     // usually set; luckily the runtime already has a thread running and therefore this thread is used to unblock the
-    // application shutdown from a potentially blocking publisher with the with the
+    // application shutdown from a potentially blocking publisher with the
     // SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option set
     if (m_shutdownRequested.exchange(false, std::memory_order_relaxed))
     {
