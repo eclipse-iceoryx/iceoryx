@@ -69,13 +69,13 @@ void Iceoryx::shutdown() noexcept
 
 void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    m_publisher.loan(payloadSizeInBytes).and_then([&](auto& chunk) {
-        auto sendSample = static_cast<PerfTopic*>(chunk);
+    m_publisher.loan(payloadSizeInBytes).and_then([&](auto& userPayload) {
+        auto sendSample = static_cast<PerfTopic*>(userPayload);
         sendSample->payloadSize = payloadSizeInBytes;
         sendSample->run = runFlag;
         sendSample->subPackets = 1;
 
-        m_publisher.publish(chunk);
+        m_publisher.publish(userPayload);
     });
 }
 

@@ -55,7 +55,9 @@ endif()
 
 # ===== Examples
 if(EXAMPLES)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icehello ${CMAKE_BINARY_DIR}/iceoryx_examples/icehello)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceoptions ${CMAKE_BINARY_DIR}/iceoryx_examples/iceoptions)
     if(BINDING_C)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/callbacks_in_c ${CMAKE_BINARY_DIR}/iceoryx_examples/callbacks_in_c)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_in_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_in_c)
@@ -65,7 +67,6 @@ if(EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/waitset ${CMAKE_BINARY_DIR}/iceoryx_examples/waitset)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/callbacks ${CMAKE_BINARY_DIR}/iceoryx_examples/callbacks)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_multi_publisher ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_multi_publisher)
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/package/package.cmake)

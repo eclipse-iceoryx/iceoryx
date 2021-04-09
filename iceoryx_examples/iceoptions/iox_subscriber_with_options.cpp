@@ -23,7 +23,7 @@
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-ex-subscriber-with-options";
+constexpr char APP_NAME[] = "iox-cpp-subscriber-with-options";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -70,7 +70,7 @@ int main()
     while (!killswitch)
     {
         subscriber.take().and_then(
-            [](auto& object) { std::cout << APP_NAME << " got value: " << object->x << std::endl; });
+            [](auto& sample) { std::cout << APP_NAME << " got value: " << sample->x << std::endl; });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

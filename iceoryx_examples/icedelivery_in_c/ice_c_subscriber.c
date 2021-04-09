@@ -27,6 +27,8 @@
 
 bool killswitch = false;
 
+const char APP_NAME[] = "iox-c-subscriber";
+
 static void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
@@ -37,7 +39,7 @@ static void sigHandler(int signalValue)
 
 void receiving()
 {
-    iox_runtime_init("iox-c-subscriber");
+    iox_runtime_init(APP_NAME);
 
     // When starting the subscriber late it will miss the first samples which the
     // publisher has send. The history ensures that we at least get the last 10
@@ -49,22 +51,21 @@ void receiving()
     options.nodeName = "iox-c-subscriber-node";
     iox_sub_storage_t subscriberStorage;
 
-    iox_sub_t subscriber =
-        iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", &options);
+    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Object", &options);
 
     while (!killswitch)
     {
         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {
-            const void* chunk = NULL;
+            const void* userPayload = NULL;
             // we will receive here more then one sample since the publisher is sending a
             // new sample every 400ms and we check for new samples only every second
-            while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &chunk))
+            while (ChunkReceiveResult_SUCCESS == iox_sub_take_chunk(subscriber, &userPayload))
             {
-                const struct RadarObject* sample = (const struct RadarObject*)(chunk);
-                printf("Got value: %.0f\n", sample->x);
+                const struct RadarObject* sample = (const struct RadarObject*)(userPayload);
+                printf("%s got value: %.0f\n", APP_NAME, sample->x);
                 fflush(stdout);
-                iox_sub_release_chunk(subscriber, chunk);
+                iox_sub_release_chunk(subscriber, userPayload);
             }
             printf("\n");
         }
