@@ -125,7 +125,7 @@ SegmentManager<SegmentType>::getSegmentInformationForUser(posix::PosixUser f_use
 {
     auto l_groupContainer = f_user.getGroups();
 
-    SegmentUserInformation segmentInfo{nullptr, 0u};
+    SegmentUserInformation segmentInfo{cxx::nullopt_t(), 0u};
 
     // with the groups we can search for the writable segment of this user
     for (const auto& groupID : l_groupContainer)

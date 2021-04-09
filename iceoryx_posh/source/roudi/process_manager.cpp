@@ -514,8 +514,9 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                 // Tell the app not writable shared memory segment was found
                 runtime::IpcInterfaceUser ipcChannel{name};
                 runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(
-                    runtime::IpcMessageType::REG_FAIL_NO_WRITABLE_SHM_SEGMENT);
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageErrorTypeToString(
+                    runtime::IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT);
                 ipcChannel.send(sendBuffer);
                 return;
             }
