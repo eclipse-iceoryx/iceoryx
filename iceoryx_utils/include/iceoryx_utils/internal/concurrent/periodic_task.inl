@@ -83,7 +83,7 @@ inline void PeriodicTask<T>::run() noexcept
     iox::cxx::TimerEvent waitState = iox::cxx::TimerEvent::STOP;
     do
     {
-        m_callable();
+        IOX_DISCARD_RESULT(m_callable());
         auto waitResult = m_periodicTimer.wait();
         cxx::Expects(!waitResult.has_error());
         waitState = waitResult.value();

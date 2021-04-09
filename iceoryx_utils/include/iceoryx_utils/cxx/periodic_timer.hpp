@@ -22,18 +22,33 @@
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include <thread>
 
+using namespace iox::units;
+using namespace iox::units::duration_literals;
 
 namespace iox
 {
 namespace cxx
 {
 /// @brief This enum class offers the timer state events.
-/// If the timer is active the TimerEvent has TICK as the state
-/// If tht timer is inactive the TimerEvent has STOP as the state
+/// If the timer is active the TimerEvent has ENABLED as the state
+/// If tht timer is inactive the TimerEvent has DIABLED as the state
+enum class TimerState
+{
+    DISABLED,
+    ENABLED
+};
+/// @brief This enum class offers the timer state events.
+/// After the wait if the timer is disabled it returns STOP
+/// After the wait if the timer is enabled and to be activated without delay it returns TICK
+/// After the wait if the timer is enabled and to be activated with delay it returns TICK_DELAY
+/// After the wait if the timer is enabled and to be activated with delay breaching the delay threshold it returns
+/// TICK_THRESHOLD_DELAY
 enum class TimerEvent
 {
+    STOP,
     TICK,
-    STOP
+    TICK_DELAY,
+    TICK_THRESHOLD_DELAY
 };
 
 
@@ -57,6 +72,11 @@ class PeriodicTimer
     /// @brief Constructor
     /// @param[in] interval duration until the timer sleeps and wakes up for execution
     PeriodicTimer(const iox::units::Duration interval) noexcept;
+
+    /// @brief Constructor
+    /// @param[in] interval duration until the timer sleeps and wakes up for execution
+    /// @param[in] delayThreshold accepted considerable duration of delay for next activation
+    PeriodicTimer(const iox::units::Duration interval, const iox::units::Duration delayThreshold) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.
     ~PeriodicTimer() noexcept;
@@ -84,7 +104,9 @@ class PeriodicTimer
 
   private:
     iox::units::Duration m_interval;
-    posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U).value()};
+    iox::units::Duration m_timeForNextActivation;
+    iox::units::Duration m_delayThreshold{0_ms};
+    posix::Semaphore m_waitSemaphore{posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U).value()};
 };
 
 } // namespace cxx
