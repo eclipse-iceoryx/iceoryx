@@ -26,10 +26,14 @@ set(IOX_VERSION_STRING "0.99.7")
 project(iceoryx_utils VERSION ${IOX_VERSION_STRING})
 #adjust_version()
 
-option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
+
+if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
 
 if(CLANG_TIDY)
     find_program(
