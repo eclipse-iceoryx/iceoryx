@@ -8,7 +8,7 @@ set up iceoryx applications.
 To set up a collection of applications using iceoryx (an _iceoryx system_), the applications need to initialize a
 runtime and create _publishers_ and _subscribers_. The publishers send data of a specific _topic_ which can be
 received by subscribers of the same topic. To enable publishers to offer their topic and subscribers to subscribe to
-these offered topics, the middleware daemon, called ``RouDi``, must be running.
+these offered topics, the middleware daemon, called `RouDi`, must be running.
 
 But before we get into more details, let's start with a simple example.
 
@@ -52,10 +52,10 @@ else
 }
 ```
 
-Here ``result`` is an ``expected`` and hence we may get an error. This can happen if we try to loan too many samples
-and exhaust memory. We have to handle this potential error since the expected class has the ``nodiscard`` keyword
+Here `result` is an `expected` and hence we may get an error. This can happen if we try to loan too many samples
+and exhaust memory. We have to handle this potential error since the expected class has the `nodiscard` keyword
 attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could also
-explicitly discard it with ``IOX_DISCARD_RESULT`` which is discouraged. If you want to know more about ``expected``,
+explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about `expected`,
 take a look at
 [How optional and error values are returned in iceoryx](../advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
@@ -92,7 +92,7 @@ while (keepRunning)
 }
 ```
 
-By calling ``take`` we get an ``expected`` and hence we have to handle the potential error.
+By calling `take` we get an `expected` and hence we have to handle the potential error.
 
 And that's it. We have created our first simple iceoryx example.
 [Here](https://github.com/eclipse-iceoryx/iceoryx/blob/master/iceoryx_examples/README.md) you can find further examples
@@ -130,8 +130,7 @@ applications use for exchanging payload data. Sometimes referred to as daemon, R
 responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps
 track of all applications which have initialized a runtime and are hence able to use publishers or subscribers.
 
-When an application terminates, RouDi cleans up all resources needed for the communication with RouDi. If an
-application crashes, it also takes care about the clean-up. Due to our mostly lock-free inter-process mechanisms
+When an application crashes, RouDi cleans up all resources. Due to our mostly lock-free inter-process mechanisms
 (only one last lock; we are working to remove it), iceoryx-based communication is much more reliable compared to
 traditional mechanism using locking.
 
@@ -167,20 +166,20 @@ application's address space.
 
 ### Creating service descriptions for topics
 
-A ``ServiceDescription`` in iceoryx represents a topic under which publisher and subscribers can exchange data and is
+A `ServiceDescription` in iceoryx represents a topic under which publisher and subscribers can exchange data and is
 uniquely identified by three string identifiers.
 
-1. ``Group`` name
-2. ``Instance`` name
-3. ``Topic`` name
+1. `Group` name
+2. `Instance` name
+3. `Topic` name
 
-A triple consisting of such strings is called a ``ServiceDescription``. Two ``ServiceDescription``s are considered
+A triple consisting of such strings is called a `ServiceDescription`. Two `ServiceDescription`s are considered
 matching if all these three strings are element-wise equal, i.e. group, instance and topic names are the same for both
-of them. This means the group and instance identifier can be ignored to create different ``ServiceDescription``s. They
+of them. This means the group and instance identifier can be ignored to create different `ServiceDescription`s. They
 will be needed for advanced filtering functionality in the future.
 
-The service model of iceoryx is derived from AUTOSAR and is still used in the API with these names (``Service``,
-``Instance``, ``Event``). The so called canonical protocol is implemented in the namespace ``capro``.
+The service model of iceoryx is derived from AUTOSAR and is still used in the API with these names (`Service`,
+`Instance`, `Event`). The so called canonical protocol is implemented in the namespace `capro`.
 
 The following table gives an overview of the different terminologies and the current mapping:
 
@@ -207,8 +206,8 @@ MyRadarService frontLeftRadarInstance;
 std::cout << frontLeftRadarInstance.hasObstacleDetected << std::endl;
 ```
 
-In the iceoryx world we would subscribe to the service ``("MyRadarService", "frontLeftRadarInstance", "hasObstacleDetected")``
-and would receive a sample whenever an obstacle was detected. Or we would subscribe to ``distanceToObstacle`` and would
+In the iceoryx world we would subscribe to the service `("MyRadarService", "frontLeftRadarInstance", "hasObstacleDetected")`
+and would receive a sample whenever an obstacle was detected. Or we would subscribe to `distanceToObstacle` and would
 receive a constant stream of data which presents the distance to the obstacle.
 
 #### Restrictions
@@ -253,8 +252,8 @@ indeterminate order between different publishers).
 
 The easiest way to receive data is to periodically poll whether data is available. This is sufficient for simple use
 cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data. An alternative
-approach to receive data is to wait for user-defined events to occur. This is provided by our ``WaitSet`` and
-``Listener`` which are introduced in the following sections.
+approach to receive data is to wait for user-defined events to occur. This is provided by our `WaitSet` and
+`Listener` which are introduced in the following sections.
 
 ### WaitSet
 
@@ -298,10 +297,10 @@ The API is offered in two languages, C++ and C. Detailed information can be foun
 [C example](../examples/icedelivery_in_c/).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
-the monadic types ``cxx::expected`` and ``cxx::optional`` which are introduced
+the monadic types `cxx::expected` and `cxx::optional` which are introduced
 [here](../advanced/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
-With the C++ API, we distinguish between the ``typed API`` and the ``untyped API``. In the typed API, the underlying
+With the C++ API, we distinguish between the `typed API` and the `untyped API`. In the typed API, the underlying
 data type is made apparent by typed pointers or references to some data type T (often a template parameter). This allows
 working with the data in a C++ idiomatic and type-safe way and should be preferred whenever possible. The typed API is
 mainly used when iceoryx is used stand-alone, i.e. not integrated into a third party framework.
