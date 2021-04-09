@@ -65,11 +65,11 @@ samples present in the subscriber.
      the _EventId_, call the _EventCallback_ or acquire the _EventOrigin_.
 - **EventOrigin** the pointer to the class where the _Event_ originated from, short
      pointer to the _Triggerable_.
-- **Event** a state change of an object.
-- **Events** a _Triggerable_ will signal an event via a _TriggerHandle_ to a _Notifyable_.
-     For instance one can attach the subscriber event `DATA_RECEIVED` to _WaitSet_. This will cause the
-     subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a sample was received.
-- **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
+ - **Event** a state change of an object; a _Triggerable_ will signal an event via a _TriggerHandle_ to 
+     a _Notifyable_. For instance one can attach the subscriber event `DATA_RECEIVED` to _WaitSet_. 
+     This will cause the subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a 
+     sample was received.
+ - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
 - **State** a specified set of values to which the members of an object are set.
 - **Trigger** a class which is used by the _Notifyable_ to acquire the information which events were
