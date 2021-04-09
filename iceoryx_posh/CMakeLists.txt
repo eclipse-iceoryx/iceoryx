@@ -16,16 +16,14 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.6")
+set(IOX_VERSION_STRING "0.99.7")
 
-find_package(iceoryx_utils REQUIRED)
-
-#include(IceoryxVersion)
-#parse_version(${IOX_VERSION_STRING})
 project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
-#adjust_version()
 
 find_package(Threads REQUIRED)
+find_package(iceoryx_utils REQUIRED)
+
+option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
@@ -113,7 +111,7 @@ add_library(iceoryx_posh
     source/popo/building_blocks/chunk_queue_types.cpp
     source/popo/building_blocks/condition_listener.cpp
     source/popo/building_blocks/condition_notifier.cpp
-    source/popo/building_blocks/condition_variable_data.cpp    
+    source/popo/building_blocks/condition_variable_data.cpp
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
     source/popo/listener.cpp
