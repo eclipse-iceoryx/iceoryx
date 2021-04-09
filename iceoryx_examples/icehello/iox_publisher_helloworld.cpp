@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,14 +16,14 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 #include <iostream>
 
 bool killswitch = false;
-constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
+constexpr char APP_NAME[] = "iox-cpp-publisher-helloworld";
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -40,30 +39,32 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 
     double ct = 0.0;
     while (!killswitch)
     {
         ++ct;
 
-        // Loan chunk and provide logic to populate it via a lambda
-        publisher.loan(sizeof(RadarObject))
-            .and_then([&](auto& userPayload) {
-                RadarObject* data = new (userPayload) RadarObject(ct, ct, ct);
-                iox::cxx::Expects(userPayload == data);
+        // Retrieve a sample from shared memory
+        auto loanResult = publisher.loan();
+        if (!loanResult.has_error())
+        {
+            auto& sample = loanResult.value();
+            // Sample can be held until ready to publish
+            sample->x = ct;
+            sample->y = ct;
+            sample->z = ct;
+            sample.publish();
+        }
+        else
+        {
+            auto error = loanResult.get_error();
+            // Do something with error
+            std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
+        }
 
-                data->x = ct;
-                data->y = ct;
-                data->z = ct;
-                publisher.publish(userPayload);
-            })
-            .or_else([&](auto& error) {
-                // Do something with the error
-                std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
-            });
-
-        std::cout << APP_NAME << " sent two times value: " << ct << std::endl;
+        std::cout << APP_NAME << " sent value: " << ct << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

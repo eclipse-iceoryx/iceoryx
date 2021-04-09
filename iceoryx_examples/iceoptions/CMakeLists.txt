@@ -14,8 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# Build iceoptions example
 cmake_minimum_required(VERSION 3.5)
-project(example_callbacks)
+project(example_iceoptions)
 
 include(GNUInstallDirs)
 
@@ -25,28 +26,27 @@ find_package(iceoryx_utils CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-cpp-callbacks-publisher ./ice_callbacks_publisher.cpp)
-target_link_libraries(iox-cpp-callbacks-publisher
+add_executable(iox-cpp-publisher-with-options ./iox_publisher_with_options.cpp)
+target_link_libraries(iox-cpp-publisher-with-options
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-callbacks-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-publisher-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-cpp-callbacks-subscriber ./ice_callbacks_subscriber.cpp)
-target_link_libraries(iox-cpp-callbacks-subscriber
+add_executable(iox-cpp-subscriber-with-options ./iox_subscriber_with_options.cpp)
+target_link_libraries(iox-cpp-subscriber-with-options
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-cpp-callbacks-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-subscriber-with-options PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(
-    iox-cpp-callbacks-subscriber
-    iox-cpp-callbacks-publisher
-  PROPERTIES
+
+set_target_properties(iox-cpp-publisher-with-options iox-cpp-subscriber-with-options
+                      PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
-install(
-    TARGETS iox-cpp-callbacks-publisher iox-cpp-callbacks-subscriber
-    RUNTIME DESTINATION bin
-)
+# ========================================================== //
+
+install(TARGETS iox-cpp-publisher-with-options iox-cpp-subscriber-with-options
+        RUNTIME DESTINATION bin)

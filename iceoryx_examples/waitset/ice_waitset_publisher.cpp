@@ -31,7 +31,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void sending()
 {
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-waitset");
+    iox::runtime::PoshRuntime::initRuntime("iox-cpp-publisher-waitset");
     iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
 
     for (uint32_t counter = 0U; !killswitch; ++counter)

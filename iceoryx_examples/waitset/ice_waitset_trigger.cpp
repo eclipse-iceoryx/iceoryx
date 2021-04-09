@@ -248,7 +248,7 @@ void eventLoop()
 
 int main()
 {
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-trigger");
+    iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-trigger");
 
     // we create a waitset and a triggerClass instance inside of the two
     // global optionals

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,23 +13,23 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_EXAMPLES_ICEOPTIONS_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_ICEOPTIONS_TOPIC_DATA_HPP
 
-#ifndef IOX_EXAMPLES_MULTI_PUBLISHER_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_MULTI_PUBLISHER_TOPIC_DATA_HPP
-
-#include <cstdint>
-#include <ostream>
-
-struct CounterTopic
+struct RadarObject
 {
-    uint32_t counter;
-    uint32_t id;
+    RadarObject() noexcept
+    {
+    }
+    RadarObject(double x, double y, double z) noexcept
+        : x(x)
+        , y(y)
+        , z(z)
+    {
+    }
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
 };
 
-std::ostream& operator<<(std::ostream& s, const CounterTopic& topic)
-{
-    s << "id " << topic.id << " counter " << topic.counter;
-    return s;
-}
-
-#endif // IOX_EXAMPLES_MULTI_PUBLISHER_TOPIC_DATA_HPP
+#endif // IOX_EXAMPLES_ICEOPTIONS_TOPIC_DATA_HPP

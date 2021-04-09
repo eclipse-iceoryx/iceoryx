@@ -128,6 +128,7 @@ All new code should follow the folder structure.
 2. Create a new file in `doc/website/getting-started/examples/foobar.md`. This file shall only set the title and include the readme from `./iceoryx_examples/foobar/README.md`
 3. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
 4. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
+5. Add integration test for example
 
 ## Testing
 
