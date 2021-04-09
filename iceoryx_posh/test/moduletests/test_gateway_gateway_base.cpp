@@ -16,8 +16,8 @@
 
 #include "iceoryx_posh/gateway/gateway_base.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #include "test.hpp"
 
