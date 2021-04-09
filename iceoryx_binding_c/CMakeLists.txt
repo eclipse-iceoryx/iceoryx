@@ -29,7 +29,9 @@ find_package(iceoryx_posh REQUIRED)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
-option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+if(NOT (WIN32))
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
 
 #
 ########## set variables for export ##########

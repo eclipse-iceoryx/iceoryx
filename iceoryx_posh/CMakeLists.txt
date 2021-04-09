@@ -23,8 +23,6 @@ project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 find_package(Threads REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
-option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
-
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 
@@ -39,6 +37,11 @@ include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
 include(cmake/iceoryx_posh_deployment.cmake)
+
+if(NOT (WIN32))
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
+
 
 if(CLANG_TIDY)
     find_program(
