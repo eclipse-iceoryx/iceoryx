@@ -60,19 +60,20 @@ target_link_libraries(iox-cpp-waitset-trigger
 )
 target_compile_options(iox-cpp-waitset-trigger PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-add_executable(iox-ex-waitset-basic ./ice_waitset_basic.cpp)
-target_link_libraries(iox-ex-waitset-basic
+add_executable(iox-cpp-waitset-basic ./ice_waitset_basic.cpp)
+target_link_libraries(iox-cpp-waitset-basic
     iceoryx_posh::iceoryx_posh
 )
-target_compile_options(iox-ex-waitset-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-cpp-waitset-basic PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 set_target_properties(
+    iox-cpp-waitset-basic
     iox-cpp-waitset-trigger
     iox-cpp-waitset-sync
     iox-cpp-waitset-individual
     iox-cpp-waitset-grouping
     iox-cpp-waitset-gateway
-    iox-cpp-waitset-publisher
+    iox-cpp-waitset-publisher 
   PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}

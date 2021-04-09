@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ int main()
         // We woke up and hence there must be at least one sample or a shutdown request.
         // We know which subscriber received samples since we only attached one.
         // Otherwise we would need to check the reason for the wake-up by inspecting the return value.
-        // This requires iterating over the result vector but an be avoided in this simple case.
+        // This requires iterating over the result vector but can be avoided in this simple case.
 
         if(shutdown) {
             std::cout << "shutting down" << std::endl;
@@ -81,7 +81,7 @@ int main()
         // Consume a sample
         subscriber.take()
              .and_then([](auto& sample) { std::cout << " got value: " << sample->counter << std::endl; })
-             .or_else([](auto& reason) { (void) reason; /* we could check and handle the reason why there is no data */ 
+             .or_else([](auto& reason[[gnu::unused]]) { /* we could check and handle the reason why there is no data */ 
                          std::cout << "got no data" << std::endl;});
 
         // We could consume all samples but do not need to.
