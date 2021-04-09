@@ -20,8 +20,6 @@ set(IOX_VERSION_STRING "0.99.7")
 
 project(iceoryx_dds VERSION ${IOX_VERSION_STRING})
 
-option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
-
 if(NOT cpptoml_FOUND)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/dds_gateway/cpptoml/prebuild)
 
@@ -33,6 +31,10 @@ find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+
+if(NOT (WIN32))
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
 
 #
 ########## set variables for export ##########
