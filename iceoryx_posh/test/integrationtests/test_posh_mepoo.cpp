@@ -250,7 +250,7 @@ class Mepoo_IntegrationTest : public Test
     {
         auto currentUser = iox::posix::PosixUser::getUserOfCurrentProcess();
         auto memoryManager = m_roudiEnv->m_roudiApp->m_mempoolIntrospection.m_segmentManager
-                                 ->getSegmentInformationForUser(currentUser.getName())
+                                 ->getSegmentInformationWithWriteAccessForUser(currentUser.getName())
                                  .m_memoryManager;
         ASSERT_TRUE(memoryManager.has_value());
         m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(*memoryManager.value(), mempoolInfo);

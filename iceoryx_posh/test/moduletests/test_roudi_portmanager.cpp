@@ -83,7 +83,7 @@ class PortManager_test : public Test
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
         auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
-        auto segmentInfo = m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user);
+        auto segmentInfo = m_roudiMemoryManager->segmentManager().value()->getSegmentInformationWithWriteAccessForUser(user);
         ASSERT_TRUE(segmentInfo.m_memoryManager.has_value());
 
         m_payloadDataSegmentMemoryManager = segmentInfo.m_memoryManager.value();
