@@ -189,6 +189,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_PUBLISHER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyCapacity)
                << options.nodeName << std::to_string(options.offerOnCreate)
+               << std::to_string(static_cast<uint8_t>(options.subscriberTooSlowPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
@@ -294,6 +295,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(options.historyRequest)
                << std::to_string(options.queueCapacity) << options.nodeName << std::to_string(options.subscribeOnCreate)
+               << std::to_string(static_cast<uint8_t>(options.queueFullPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);

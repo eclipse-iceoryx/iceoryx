@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/publisher.hpp"
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"
@@ -44,7 +44,7 @@ struct DummyData
 };
 } // namespace
 
-using TestPublisher = iox::popo::Publisher<DummyData, iox::mepoo::NoUserHeader, MockBasePublisher<DummyData>>;
+using TestPublisher = iox::popo::PublisherImpl<DummyData, iox::mepoo::NoUserHeader, MockBasePublisher<DummyData>>;
 
 class PublisherTest : public Test
 {

@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"
@@ -32,8 +32,7 @@ struct alignas(2) TestUserHeader
     uint16_t dummy2{2U};
 };
 
-using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<iox::mepoo::NoUserHeader, MockBasePublisher<void>>;
-using TestUntypedPublisherWithUserHeader = iox::popo::UntypedPublisherImpl<TestUserHeader, MockBasePublisher<void>>;
+using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<MockBasePublisher<void>>;
 
 class UntypedPublisherTest : public Test
 {
@@ -75,17 +74,19 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
 
 TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndUserHeaderWorks)
 {
-    TestUntypedPublisherWithUserHeader sutWithUserHeader{{"", "", ""}};
+    TestUntypedPublisher sutWithUserHeader{{"", "", ""}};
     MockPublisherPortUser& portMockWithUserHeader{sutWithUserHeader.mockPort()};
 
     constexpr uint32_t USER_PAYLOAD_SIZE = 42U;
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT = 512U;
-    EXPECT_CALL(
-        portMockWithUserHeader,
-        tryAllocateChunk(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, sizeof(TestUserHeader), alignof(TestUserHeader)))
+    constexpr uint32_t USER_HEADER_SIZE = sizeof(TestUserHeader);
+    constexpr uint32_t USER_HEADER_ALIGNMENT = alignof(TestUserHeader);
+    EXPECT_CALL(portMockWithUserHeader,
+                tryAllocateChunk(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
-    auto result = sutWithUserHeader.loan(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
+    auto result =
+        sutWithUserHeader.loan(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //

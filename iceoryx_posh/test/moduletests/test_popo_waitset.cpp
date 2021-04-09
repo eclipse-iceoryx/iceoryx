@@ -21,9 +21,9 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
-#include "testutils/watch_dog.hpp"
 
 #include <chrono>
 #include <memory>

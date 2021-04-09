@@ -20,7 +20,8 @@
 
 #include <vector>
 
-
+namespace
+{
 using namespace ::testing;
 using namespace iox::cxx;
 
@@ -1287,3 +1288,4 @@ TEST_F(vector_test, EmplaceAtPositionAfterEndBeforeCapacityExceedsFails)
     EXPECT_FALSE(sut.emplace(sut.size() + 1, 3));
     ASSERT_THAT(sut.size(), Eq(2));
 }
+} // namespace

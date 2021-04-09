@@ -200,10 +200,11 @@ namespace roudi
 {
 using ConfigFilePathString_t = cxx::string<1024>;
 
-constexpr char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
+constexpr const char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
+constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memmory segment for the iceoryx managment data
-constexpr char SHM_NAME[] = "/iceoryx_mgmt";
+constexpr const char SHM_NAME[] = "/iceoryx_mgmt";
 
 // Timeout
 using namespace units::duration_literals;

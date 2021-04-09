@@ -54,11 +54,48 @@ See [Eclipse iceoryx 1.0.0 (Almond)](https://projects.eclipse.org/projects/techn
 - iceoryx libs should be build as static libs [\#509](https://github.com/eclipse-iceoryx/iceoryx/issues/509)
 - Build with gcov is broken [\#497](https://github.com/eclipse-iceoryx/iceoryx/issues/497)
 
+## [v0.99.x](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.x) (2021-04-xx)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.6...v0.99.x)
+
+- cleanup testing libraries; if used outside of iceoryx, include paths and link targets must be adjusted
+
+## [v0.99.6](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.6) (2021-04-08)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.5...v0.99.6)
+
+- Add git to dependency list in iceoryx_posh for RHEL
+
+## [v0.99.5](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.5) (2021-04-08)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.4...v0.99.5)
+
+- Add libatomic to dependency list in iceoryx_utils for RHEL
+
+## [v0.99.4](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.4) (2021-04-06)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.3...v0.99.4)
+
+- Increase version number to trigger build again on ROS buildfarm
+
+## [v0.99.3](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.3) (2021-04-06)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.2...v0.99.3)
+
+- Increase version number to trigger build again on ROS buildfarm
+
+## [v0.99.2](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.2) (2021-04-03)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.0...v0.99.2)
+
+- Prepare package release for iceoryx 1.0 [\#670](https://github.com/eclipse-iceoryx/iceoryx/issues/670)
+
 ## [v0.99.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.0) (2021-04-01)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.90.0...v0.99.0)
 
 Intermediate Milestone before the final 1.0.0 release, see v.1.0.0 above for the changes.
+
 ## [v0.90.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.90.0) (2020-12-22)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.17.0...v0.90.0)

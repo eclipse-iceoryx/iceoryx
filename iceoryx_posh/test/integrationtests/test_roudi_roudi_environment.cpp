@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,20 +13,25 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_MEPOO_CHUNK_HEADER_INL
-#define IOX_POSH_MEPOO_CHUNK_HEADER_INL
 
-namespace iox
+
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+
+#include "test.hpp"
+
+using namespace ::testing;
+using namespace iox::roudi;
+using ::testing::Return;
+
+class RouDiEnvironment_test : public Test
 {
-namespace mepoo
+  public:
+    void SetUp(){};
+    void TearDown(){};
+};
+
+TEST_F(RouDiEnvironment_test, StartingRouDiTwiceLeadsToError)
 {
-template <typename T>
-T* ChunkHeader::userHeader() const noexcept
-{
-    // the UserHeader is always located relative to "this" in this way
-    return reinterpret_cast<T*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
+    RouDiEnvironment m_sut{iox::RouDiConfig_t().setDefaults()};
+    EXPECT_DEATH({ RouDiEnvironment m_sut2{iox::RouDiConfig_t().setDefaults()}; }, ".*");
 }
-} // namespace mepoo
-} // namespace iox
-
-#endif // IOX_POSH_MEPOO_CHUNK_HEADER_INL

@@ -25,6 +25,12 @@
 
 namespace iox
 {
+namespace popo
+{
+template <typename T>
+class ChunkSender;
+}
+
 namespace mepoo
 {
 /// @brief Helper struct to use as default template parameter when no user-header is used
@@ -57,62 +63,84 @@ struct alignas(32) ChunkHeader
     ///            - semantic meaning of a member changes
     static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
 
-    // BEGIN members
-
-    /// @brief The size of the whole chunk, including the header
-    uint32_t chunkSize{0U};
-
-    /// @brief Used to detect incompatibilities for record&replay functionality
-    uint8_t chunkHeaderVersion{CHUNK_HEADER_VERSION};
-
-    /// @brief Currently not used and set to `0`
-    uint8_t reserved1{0U};
-    uint8_t reserved2{0U};
-    uint8_t reserved3{0U};
-
-    /// @brief The unique identifier of the publisher the chunk was sent from
-    UniquePortId originId{popo::InvalidId};
-
-    /// @brief a serial number for the sent chunks
-    uint64_t sequenceNumber{0U};
-
-    /// @brief The size of the chunk occupied by the user-payload
-    uint32_t userPayloadSize{0U};
-
-    /// @brief The offset of the user-payload relative to the begin of the chunk
-    UserPayloadOffset_t userPayloadOffset{sizeof(ChunkHeader)};
-
-    // END members
-
-    // BEGIN methods
-
-    /// @brief Get a pointer to the user-payload carried by the chunk
-    /// @return the pointer to the user-payload
-    void* userPayload() const noexcept;
+    /// @brief The ChunkHeader version is used to detect incompatibilities for record&replay functionality
+    /// @return the ChunkHeader version
+    uint8_t chunkHeaderVersion() const noexcept;
 
     /// @brief Get the pointer to the user-header
     /// @return the pointer to the user-header
-    template <typename T>
-    T* userHeader() const noexcept;
+    void* userHeader() noexcept;
+
+    /// @brief Get the const pointer to the user-header
+    /// @return the const pointer to the user-header
+    const void* userHeader() const noexcept;
+
+    /// @brief Get a pointer to the user-payload carried by the chunk
+    /// @return the pointer to the user-payload
+    void* userPayload() noexcept;
+
+    /// @brief Get a const pointer to the user-payload carried by the chunk
+    /// @return the const pointer to the user-payload
+    const void* userPayload() const noexcept;
 
     /// @brief Get a pointer to the `ChunkHeader` associated to the user-payload of the chunk
     /// @param[in] userPayload is the pointer to the user-payload of the chunk
     /// @return the pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
-    static ChunkHeader* fromUserPayload(const void* const userPayload) noexcept;
+    static ChunkHeader* fromUserPayload(void* const userPayload) noexcept;
+
+    /// @brief Get a const pointer to the `ChunkHeader` associated to the user-payload of the chunk
+    /// @param[in] userPayload is the const pointer to the user-payload of the chunk
+    /// @return the const pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
+    static const ChunkHeader* fromUserPayload(const void* const userPayload) noexcept;
 
     /// @brief Calculates the used size of the chunk with the ChunkHeader, user-heander and user-payload
     /// @return the used size of the chunk
     uint32_t usedSizeOfChunk() const noexcept;
 
+    /// @brief The size of the whole chunk, including the header
+    /// @return the chunk size
+    uint32_t chunkSize() const noexcept;
+
+    /// @brief The size of the chunk occupied by the user-payload
+    /// @return the user-payload size
+    uint32_t userPayloadSize() const noexcept;
+
+    /// @brief The unique identifier of the publisher the chunk was sent from
+    /// @return the id of the publisher the chunk was sent from
+    UniquePortId originId() const;
+
+    /// @brief A serial number for the sent chunks
+    /// @brief the serquence number of the chunk
+    uint64_t sequenceNumber() const;
+
   private:
+    template <typename T>
+    friend class popo::ChunkSender;
+
+    void setOriginId(UniquePortId originId);
+
+    void setSequenceNumber(uint64_t sequenceNumber);
+
     uint64_t overflowSafeUsedSizeOfChunk() const noexcept;
 
-    // END methods
+  private:
+    // the order of these members must be changed carefully and if this happens, the m_chunkHeaderVersion
+    // needs to be adapted in order to be able to detect incompatibilities between publisher/subscriber
+    // or record&replay, m_chunkSize and m_chunkHeaderVersion should therefore neither changed the type,
+    // nor the position
+
+    // size of the whole chunk, including the header
+    uint32_t m_chunkSize{0U};
+    uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
+    // reserved for future functionality and used to indicate the padding bytes; currently not used and set to `0`
+    uint8_t m_reserved[3]{};
+    UniquePortId m_originId{popo::InvalidId};
+    uint64_t m_sequenceNumber{0U};
+    uint32_t m_userPayloadSize{0U};
+    UserPayloadOffset_t m_userPayloadOffset{sizeof(ChunkHeader)};
 };
 
 } // namespace mepoo
 } // namespace iox
-
-#include "iceoryx_posh/internal/mepoo/chunk_header.inl"
 
 #endif // IOX_POSH_MEPOO_CHUNK_HEADER_HPP

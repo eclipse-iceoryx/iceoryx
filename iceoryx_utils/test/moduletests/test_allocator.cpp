@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +18,8 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
-
+namespace
+{
 using namespace testing;
 
 class Allocator_Test : public Test
@@ -116,3 +118,4 @@ TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
     std::set_terminate([]() { std::cout << "", std::abort(); });
     EXPECT_DEATH({ sut.allocate(5); }, ".*");
 }
+} // namespace

@@ -15,19 +15,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "timing_test.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 #if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-#include "test.hpp"
+#include "iceoryx_utils/testing/test.hpp"
 
 #include <atomic>
 #include <chrono>
 #include <thread>
 
-
+namespace
+{
 using namespace ::testing;
 using namespace iox::units::duration_literals;
 
@@ -362,5 +363,5 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
 
     t.join();
 });
-
+} // namespace
 #endif // not defined QNX

@@ -111,14 +111,14 @@ template <typename T, typename H>
 template <typename R, typename>
 inline R& Sample<T, H>::getUserHeader() noexcept
 {
-    return *mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get())->template userHeader<R>();
+    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get())->userHeader());
 }
 
 template <typename T, typename H>
 template <typename R, typename>
 inline const R& Sample<T, H>::getUserHeader() const noexcept
 {
-    return *mepoo::ChunkHeader::fromUserPayload(m_members.sampleUniquePtr.get())->template userHeader<R>();
+    return const_cast<Sample<T, H>*>(this)->getUserHeader();
 }
 
 template <typename T, typename H>

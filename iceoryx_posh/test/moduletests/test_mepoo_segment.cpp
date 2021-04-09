@@ -23,8 +23,8 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/testing/test_definitions.hpp"
 #include "test.hpp"
-#include "testutils/test_definitions.hpp"
 
 
 #include <functional>
@@ -203,5 +203,5 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     auto& chunkSettings = chunkSettingsResult.value();
 
     auto chunk = sut.getMemoryManager().getChunk(chunkSettings);
-    EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize, Eq(USER_PAYLOAD_SIZE));
+    EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
 }

@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,22 +14,25 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP
+#define IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP
 
-#include "test.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
-/// @note: This is just a test for provocating a segmentation fault
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
+using namespace ::testing;
+using ::testing::Return;
 
-// using namespace ::testing;
-// using ::testing::Return;
+class RouDi_GTest : public iox::roudi::RouDiEnvironment, public Test
+{
+  public:
+    RouDi_GTest() = default;
+    RouDi_GTest(iox::RouDiConfig_t& roudiConfig)
+        : iox::roudi::RouDiEnvironment(roudiConfig)
+    {
+    }
+};
 
-// TEST(Segfault_test, run) {
-
-// struct foo
-// {
-// 		int num;
-// };
-
-// 	foo* bar = 0;
-// 	(bar->num)++;
-// }
+#endif // IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP

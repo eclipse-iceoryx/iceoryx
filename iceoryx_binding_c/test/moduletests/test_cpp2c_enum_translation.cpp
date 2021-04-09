@@ -212,4 +212,30 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
 #pragma GCC diagnostic pop
 }
 
+TEST(cpp2c_enum_translation_test, SubscriberTooSlowPolicy)
+{
+    EXPECT_EQ(cpp2c::subscriberTooSlowPolicy(iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER),
+              SubscriberTooSlowPolicy_WAIT_FOR_SUBSCRIBER);
+    EXPECT_EQ(cpp2c::subscriberTooSlowPolicy(iox::popo::SubscriberTooSlowPolicy::DISCARD_OLDEST_DATA),
+              SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA);
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::subscriberTooSlowPolicy(static_cast<iox::popo::SubscriberTooSlowPolicy>(-1)),
+              SubscriberTooSlowPolicy_DISCARD_OLDEST_DATA);
+#pragma GCC diagnostic pop
+}
+
+TEST(cpp2c_enum_translation_test, QueueFullPolicy)
+{
+    EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::BLOCK_PUBLISHER), QueueFullPolicy_BLOCK_PUBLISHER);
+    EXPECT_EQ(cpp2c::queueFullPolicy(iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA),
+              QueueFullPolicy_DISCARD_OLDEST_DATA);
+    // ignore the warning since we would like to test the behavior of an invalid enum value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    EXPECT_EQ(cpp2c::queueFullPolicy(static_cast<iox::popo::QueueFullPolicy>(-1)), QueueFullPolicy_DISCARD_OLDEST_DATA);
+#pragma GCC diagnostic pop
+}
+
 } // namespace

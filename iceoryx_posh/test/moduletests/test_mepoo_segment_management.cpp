@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +23,8 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_utils/testing/test_definitions.hpp"
 #include "test.hpp"
-#include "testutils/test_definitions.hpp"
 
 
 using namespace ::testing;

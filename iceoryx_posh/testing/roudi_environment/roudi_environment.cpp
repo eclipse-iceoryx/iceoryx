@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
@@ -40,8 +40,8 @@ RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,
     : RouDiEnvironment(BaseCTor::BASE, uniqueRouDiId)
 {
     m_roudiComponents = std::unique_ptr<IceOryxRouDiComponents>(new IceOryxRouDiComponents(roudiConfig));
-    m_roudiApp = std::unique_ptr<RouDi>(new RouDi(m_roudiComponents->m_rouDiMemoryManager,
-                                                  m_roudiComponents->m_portManager,
+    m_roudiApp = std::unique_ptr<RouDi>(new RouDi(m_roudiComponents->rouDiMemoryManager,
+                                                  m_roudiComponents->portManager,
                                                   RouDi::RoudiStartupParameters{monitoringMode, false}));
 }
 

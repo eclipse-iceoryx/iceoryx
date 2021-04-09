@@ -14,14 +14,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set(PACKAGE_VERSION "@cpptoml_vendor_VERSION@")
+#
+########## dummyConfig.cmake to be able to use find_package with the source tree ##########
+#
 
-# Check whether the requested PACKAGE_FIND_VERSION is compatible
-if("${PACKAGE_VERSION}" VERSION_LESS "${PACKAGE_FIND_VERSION}")
-  set(PACKAGE_VERSION_COMPATIBLE FALSE)
-else()
-  set(PACKAGE_VERSION_COMPATIBLE TRUE)
-  if ("${PACKAGE_VERSION}" VERSION_EQUAL "${PACKAGE_FIND_VERSION}")
-    set(PACKAGE_VERSION_EXACT TRUE)
-  endif()
+if(NOT ${CMAKE_FIND_PACKAGE_NAME}_FOUND_PRINTED)
+    message(STATUS "The package '${CMAKE_FIND_PACKAGE_NAME}' is used in source code version.")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND_PRINTED true CACHE INTERNAL "")
 endif()

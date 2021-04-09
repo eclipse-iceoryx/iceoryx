@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,35 +14,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test.hpp"
+#ifndef IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
+#define IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
 
-#include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
+#include <cstdint>
 
-using namespace ::testing;
-using ::testing::Return;
-
-
-class RouDiLock_test : public Test
+namespace iox
 {
-  public:
-    void SetUp(){};
-    void TearDown(){};
-
-    iox::roudi::RouDiLock sut;
+namespace popo
+{
+/// @brief Used by publisher
+enum class SubscriberTooSlowPolicy : uint8_t
+{
+    WAIT_FOR_SUBSCRIBER,
+    DISCARD_OLDEST_DATA
 };
-
-TEST_F(RouDiLock_test, Lock)
+/// @brief Used by subscriber
+enum class QueueFullPolicy : uint8_t
 {
-}
-
-TEST_F(RouDiLock_test, TryDoubleLock)
-{
-    EXPECT_DEATH({ iox::roudi::RouDiLock sut2; }, ".*");
-}
-
-TEST_F(RouDiLock_test, LockAfterUnlock)
-{
-    sut.~RouDiLock();
-
-    iox::roudi::RouDiLock sut2;
-}
+    BLOCK_PUBLISHER,
+    DISCARD_OLDEST_DATA
+};
+} // namespace popo
+} // namespace iox
+#endif // IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP

@@ -23,12 +23,32 @@ extern "C" {
 
 using namespace iox::mepoo;
 
-void* iox_chunk_header_to_user_payload(iox_chunk_header_t const chunkHeader)
+void* iox_chunk_header_to_user_payload(iox_chunk_header_t* const chunkHeader)
 {
     return reinterpret_cast<ChunkHeader*>(chunkHeader)->userPayload();
 }
 
-iox_chunk_header_t iox_chunk_header_from_user_payload(const void* const userPayload)
+const void* iox_chunk_header_to_user_payload_const(const iox_chunk_header_t* const chunkHeader)
 {
-    return ChunkHeader::fromUserPayload(userPayload);
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userPayload();
+}
+
+void* iox_chunk_header_to_user_header(iox_chunk_header_t* const chunkHeader)
+{
+    return reinterpret_cast<ChunkHeader*>(chunkHeader)->userHeader();
+}
+
+const void* iox_chunk_header_to_user_header_const(const iox_chunk_header_t* const chunkHeader)
+{
+    return reinterpret_cast<const ChunkHeader*>(chunkHeader)->userHeader();
+}
+
+iox_chunk_header_t* iox_chunk_header_from_user_payload(void* const userPayload)
+{
+    return reinterpret_cast<iox_chunk_header_t*>(ChunkHeader::fromUserPayload(userPayload));
+}
+
+const iox_chunk_header_t* iox_chunk_header_from_user_payload_const(const void* const userPayload)
+{
+    return reinterpret_cast<const iox_chunk_header_t*>(ChunkHeader::fromUserPayload(userPayload));
 }

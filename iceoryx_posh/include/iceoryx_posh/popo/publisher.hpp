@@ -43,7 +43,7 @@ class PublisherInterface
     PublisherInterface() = default;
 };
 template <typename T, typename H = mepoo::NoUserHeader, typename BasePublisher_t = BasePublisher<>>
-class Publisher : public BasePublisher_t, public PublisherInterface<T, H>
+class PublisherImpl : public BasePublisher_t, public PublisherInterface<T, H>
 {
     static_assert(!std::is_void<T>::value, "The type `T` must not be void. Use the UntypedPublisher for void types.");
     static_assert(!std::is_void<H>::value, "The user-header `H` must not be void.");
@@ -57,12 +57,13 @@ class Publisher : public BasePublisher_t, public PublisherInterface<T, H>
     static_assert(!std::is_pointer<H>::value, "The user-header must `H` not be a pointer.");
 
   public:
-    Publisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions = PublisherOptions());
-    Publisher(const Publisher& other) = delete;
-    Publisher& operator=(const Publisher&) = delete;
-    Publisher(Publisher&& rhs) = default;
-    Publisher& operator=(Publisher&& rhs) = default;
-    virtual ~Publisher() = default;
+    PublisherImpl(const capro::ServiceDescription& service,
+                  const PublisherOptions& publisherOptions = PublisherOptions());
+    PublisherImpl(const PublisherImpl& other) = delete;
+    PublisherImpl& operator=(const PublisherImpl&) = delete;
+    PublisherImpl(PublisherImpl&& rhs) = default;
+    PublisherImpl& operator=(PublisherImpl&& rhs) = default;
+    virtual ~PublisherImpl() = default;
 
     ///
     /// @brief loan Get a sample from loaned shared memory and consctruct the data with the given arguments.
@@ -105,13 +106,16 @@ class Publisher : public BasePublisher_t, public PublisherInterface<T, H>
     using BasePublisher_t::port;
 
   private:
-    Sample<T, H> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
+    Sample<T, H> convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept;
 
     cxx::expected<Sample<T, H>, AllocationError> loanSample() noexcept;
 
     using PublisherSampleDeleter = SampleDeleter<typename BasePublisher_t::PortType>;
     PublisherSampleDeleter m_sampleDeleter{port()};
 };
+
+template <typename T>
+using Publisher = PublisherImpl<T>;
 
 } // namespace popo
 } // namespace iox
