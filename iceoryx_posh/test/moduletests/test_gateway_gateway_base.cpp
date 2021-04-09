@@ -74,17 +74,24 @@ INSTANTIATE_TEST_CASE_P(GatewayBasetests,
 
 #pragma GCC diagnostic pop
 
-TEST_P(GatewayBase_test, InterfacePortWillBeDestroyedWhenGatewayGoesOutOfScope)
+TEST_F(GatewayBase_test, InterfacePortWillBeDestroyedWhenGatewayGoesOutOfScope)
 {
     iox::popo::InterfacePort* interfaceImpl;
-
     {
-        GatewayBaseTestDestructor base{GetParam()};
-
+        GatewayBaseTestDestructor base{iox::capro::Interfaces::INTERNAL};
         interfaceImpl = base.getInterfaceImpl();
     }
-
     EXPECT_TRUE(interfaceImpl->toBeDestroyed());
+}
+
+TEST_F(GatewayBase_test, InterfacePortWillNotBeDestroyedWhenInterfaceImplIsNullptr)
+{
+    iox::popo::InterfacePort* interfaceImpl;
+    {
+        GatewayBaseTestDestructor base{};
+        interfaceImpl = base.getInterfaceImpl();
+    }
+    EXPECT_FALSE(interfaceImpl->toBeDestroyed());
 }
 
 TEST_P(GatewayBase_test, GetCaProMessageMethodWithInvalidMessageReturnFalse)
