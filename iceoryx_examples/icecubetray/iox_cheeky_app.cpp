@@ -27,11 +27,12 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    // Subscribers can be created without any readable shared memory segment, in this case no data will ever arrive
+    // When starting this app with the user 'notallowed'
+
+    // 1) Subscribers can be created without any readable shared memory segment, in this case no data will ever arrive
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 
-    // When starting this app with the user 'notallowed', the publisher object can't be initalised correctly because
-    // 'notallowed' does not have write access
+    // 2) The publisher object can't be initalised correctly because 'notallowed' does not have write access
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 
     return (EXIT_FAILURE);

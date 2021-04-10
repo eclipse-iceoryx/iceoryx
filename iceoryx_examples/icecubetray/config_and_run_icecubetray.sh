@@ -16,6 +16,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# ***NOTE***
+# This shell script is for Linux-based operating systems only.
+# If you're using e.g QNX refer to the manual on how to set up groups, users and permissions
+
 WORKSPACE=$(git rev-parse --show-toplevel)
 CONFIG="OFF"
 RUN="OFF"
@@ -62,8 +66,6 @@ if [ "$CONFIG" == "ON" ] ; then
     # Allow RouDi to send SIGKILL to other apps
     sudo setcap cap_kill=ep $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments
 fi
-
-# If you're using e.g Yocto or QNX refer to the manual on how to set up groups, users and permissions
 
 if [ "$RUN" == "ON" ] ; then
     $tmux kill-server
