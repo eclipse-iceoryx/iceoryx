@@ -31,6 +31,7 @@ inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentC
                                                    posix::Allocator* managementAllocator) noexcept
     : m_managementAllocator(managementAllocator)
 {
+    cxx::Expects(segmentConfig.m_sharedMemorySegments.capacity() <= m_segmentContainer.capacity());
     for (const auto& segmentEntry : segmentConfig.m_sharedMemorySegments)
     {
         createSegment(segmentEntry);
@@ -38,21 +39,12 @@ inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentC
 }
 
 template <typename SegmentType>
-inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::SegmentEntry& segmentEntry) noexcept
+inline void SegmentManager<SegmentType>::createSegment(const SegmentConfig::SegmentEntry& segmentEntry) noexcept
 {
-    if (m_segmentContainer.size() < m_segmentContainer.capacity())
-    {
-        auto readerGroup = iox::posix::PosixGroup(segmentEntry.m_readerGroup);
-        auto writerGroup = iox::posix::PosixGroup(segmentEntry.m_writerGroup);
-        m_segmentContainer.emplace_back(
-            segmentEntry.m_mempoolConfig, *m_managementAllocator, readerGroup, writerGroup, segmentEntry.m_memoryInfo);
-        return true;
-    }
-    else
-    {
-        errorHandler(Error::kMEPOO__SEGMENT_CONTAINER_OVERFLOW);
-        return false;
-    }
+    auto readerGroup = iox::posix::PosixGroup(segmentEntry.m_readerGroup);
+    auto writerGroup = iox::posix::PosixGroup(segmentEntry.m_writerGroup);
+    m_segmentContainer.emplace_back(
+        segmentEntry.m_mempoolConfig, *m_managementAllocator, readerGroup, writerGroup, segmentEntry.m_memoryInfo);
 }
 
 template <typename SegmentType>
@@ -60,13 +52,13 @@ inline typename SegmentManager<SegmentType>::SegmentMappingContainer
 SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser user) noexcept
 {
     // get all the groups the user is in
-    auto l_groupContainer = user.getGroups();
+    auto groupContainer = user.getGroups();
 
-    SegmentManager::SegmentMappingContainer l_mappingContainer;
-    bool l_foundInWriterGroup = false;
+    SegmentManager::SegmentMappingContainer mappingContainer;
+    bool foundInWriterGroup = false;
 
     // with the groups we can get all the segments (read or write) for the user
-    for (const auto& groupID : l_groupContainer)
+    for (const auto& groupID : groupContainer)
     {
         for (const auto& segment : m_segmentContainer)
         {
@@ -74,14 +66,14 @@ SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser user) noexcept
             {
                 // a user is allowed to be only in one writer group, as we currently only support one memory manager per
                 // process
-                if (!l_foundInWriterGroup)
+                if (!foundInWriterGroup)
                 {
-                    l_mappingContainer.emplace_back("/" + segment.getWriterGroup().getName(),
-                                                    segment.getSharedMemoryObject().getBaseAddress(),
-                                                    segment.getSharedMemoryObject().getSizeInBytes(),
-                                                    true,
-                                                    segment.getSegmentId());
-                    l_foundInWriterGroup = true;
+                    mappingContainer.emplace_back("/" + segment.getWriterGroup().getName(),
+                                                  segment.getSharedMemoryObject().getBaseAddress(),
+                                                  segment.getSharedMemoryObject().getSizeInBytes(),
+                                                  true,
+                                                  segment.getSegmentId());
+                    foundInWriterGroup = true;
                 }
                 else
                 {
@@ -91,29 +83,26 @@ SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser user) noexcept
         }
     }
 
-    for (const auto& groupID : l_groupContainer)
+    for (const auto& groupID : groupContainer)
     {
         for (const auto& segment : m_segmentContainer)
         {
             // only add segments which are not yet added as writer
             if (segment.getReaderGroup() == groupID
-                && std::find_if(l_mappingContainer.begin(),
-                                l_mappingContainer.end(),
-                                [&](const SegmentMapping& mapping) {
-                                    return mapping.m_startAddress == segment.getSharedMemoryObject().getBaseAddress();
-                                })
-                       == l_mappingContainer.end())
+                && std::find_if(mappingContainer.begin(), mappingContainer.end(), [&](const SegmentMapping& mapping) {
+                       return mapping.m_startAddress == segment.getSharedMemoryObject().getBaseAddress();
+                   }) == mappingContainer.end())
             {
-                l_mappingContainer.emplace_back("/" + segment.getWriterGroup().getName(),
-                                                segment.getSharedMemoryObject().getBaseAddress(),
-                                                segment.getSharedMemoryObject().getSizeInBytes(),
-                                                false,
-                                                segment.getSegmentId());
+                mappingContainer.emplace_back("/" + segment.getWriterGroup().getName(),
+                                              segment.getSharedMemoryObject().getBaseAddress(),
+                                              segment.getSharedMemoryObject().getSizeInBytes(),
+                                              false,
+                                              segment.getSegmentId());
             }
         }
     }
 
-    return l_mappingContainer;
+    return mappingContainer;
 }
 
 template <typename SegmentType>

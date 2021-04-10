@@ -29,6 +29,19 @@
 
 using namespace ::testing;
 using namespace iox::mepoo;
+using namespace iox::posix;
+
+class MePooSegmentMock
+{
+  public:
+    MePooSegmentMock(const MePooConfig& mempoolConfig [[gnu::unused]],
+                     Allocator& managementAllocator [[gnu::unused]],
+                     const PosixGroup& readerGroup [[gnu::unused]],
+                     const PosixGroup& writerGroup [[gnu::unused]],
+                     const MemoryInfo& memoryInfo [[gnu::unused]]) noexcept
+    {
+    }
+};
 
 class SegmentManager_test : public Test
 {
@@ -70,8 +83,26 @@ class SegmentManager_test : public Test
     SegmentConfig getSegmentConfig()
     {
         SegmentConfig config;
-        segmentConfig.m_sharedMemorySegments.push_back({"iox_roudi_test1", "iox_roudi_test2", mepooConfig});
-        segmentConfig.m_sharedMemorySegments.push_back({"iox_roudi_test2", "iox_roudi_test3", mepooConfig});
+        config.m_sharedMemorySegments.push_back({"iox_roudi_test1", "iox_roudi_test2", mepooConfig});
+        config.m_sharedMemorySegments.push_back({"iox_roudi_test2", "iox_roudi_test3", mepooConfig});
+        return config;
+    }
+
+    SegmentConfig getInvalidSegmentConfig()
+    {
+        SegmentConfig config;
+        config.m_sharedMemorySegments.push_back({"iox_roudi_test1", "iox_roudi_test1", mepooConfig});
+        config.m_sharedMemorySegments.push_back({"iox_roudi_test3", "iox_roudi_test1", mepooConfig});
+        return config;
+    }
+
+    SegmentConfig getSegmentConfigWithMaximumNumberOfSegements()
+    {
+        SegmentConfig config;
+        for (uint64_t i = 0U; i < iox::MAX_SHM_SEGMENTS; ++i)
+        {
+            config.m_sharedMemorySegments.push_back({"iox_roudi_test1", "iox_roudi_test1", mepooConfig});
+        }
         return config;
     }
 
@@ -139,4 +170,29 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUse
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithNonExistingUser))
 {
     EXPECT_FALSE(sut.getSegmentInformationWithWriteAccessForUser({"no_user"}).m_memoryManager.has_value());
+}
+
+TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMoreThanOneWriterGroupFails))
+{
+    auto errorHandlerCalled{false};
+    iox::Error receivedError{iox::Error::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
+
+    SegmentConfig segmentConfig = getInvalidSegmentConfig();
+    SegmentManager<> sut{segmentConfig, &allocator};
+    sut.getSegmentMappings(PosixUser("iox_roudi_test1"));
+
+    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_THAT(receivedError, Eq(iox::Error::kMEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT));
+}
+
+TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMaximumNumberOfSegmentsWorks))
+{
+    SegmentConfig segmentConfig = getSegmentConfigWithMaximumNumberOfSegements();
+    SegmentManager<MePooSegmentMock> sut{segmentConfig, &allocator};
 }
