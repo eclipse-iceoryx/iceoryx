@@ -2,11 +2,11 @@
 
 ## Introduction
 
-This example demonstrates how access rights can be applied to shared memory segments.
+This example demonstrates how access rights can be applied to shared memory segments on Linux-based operating systems.
 It provides a custom RouDi, a radar and a display application.
 
 !!! hint
-    The access right feature is only supported on Linux-based operating systems
+    The access right feature is only supported on Linux and QNX
 
 ## Expected output
 
