@@ -133,10 +133,10 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUse
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithReadOnlyUser))
 {
-    EXPECT_THAT(sut.getSegmentInformationWithWriteAccessForUser({"iox_roudi_test1"}).m_memoryManager, Eq(nullptr));
+    EXPECT_FALSE(sut.getSegmentInformationWithWriteAccessForUser({"iox_roudi_test1"}).m_memoryManager.has_value());
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithNonExistingUser))
 {
-    EXPECT_THAT(sut.getSegmentInformationWithWriteAccessForUser({"no_user"}).m_memoryManager, Eq(nullptr));
+    EXPECT_FALSE(sut.getSegmentInformationWithWriteAccessForUser({"no_user"}).m_memoryManager.has_value());
 }
