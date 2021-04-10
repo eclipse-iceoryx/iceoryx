@@ -28,9 +28,9 @@ using blksize_t = int;
 using blkcnt_t = int;
 // using off_t = int;
 
-mode_t umask(mode_t mask)
-{
-   return 0;
-}
+// mode_t umask(mode_t mask)
+//{
+//    return mode_t();
+//}
 
 #endif // IOX_UTILS_WIN_PLATFORM_TYPES_HPP
