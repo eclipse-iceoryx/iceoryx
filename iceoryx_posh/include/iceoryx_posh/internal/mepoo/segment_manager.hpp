@@ -93,7 +93,7 @@ class SegmentManager
     static uint64_t requiredFullMemorySize(const SegmentConfig& config) noexcept;
 
   private:
-    bool createSegment(const SegmentConfig::SegmentEntry& segmentEntry) noexcept;
+    void createSegment(const SegmentConfig::SegmentEntry& segmentEntry) noexcept;
 
   private:
     template <typename MemoryManger, typename SegmentManager, typename PublisherPort>
