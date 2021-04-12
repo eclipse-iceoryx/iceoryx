@@ -78,6 +78,10 @@ class PoshRuntime
     /// @return name of the registered application
     RuntimeName_t getInstanceName() const noexcept;
 
+    /// @brief initiates the shutdown of the runtime to unblock all potentially blocking publisher
+    /// with the SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER option set
+    void shutdown() noexcept;
+
     /// @brief find all services that match the provided service description
     /// @param[in] serviceDescription service to search for
     /// @return cxx::expected<InstanceContainer, FindServiceError>
@@ -207,15 +211,17 @@ class PoshRuntime
     SharedMemoryUser m_ShmInterface;
     popo::ApplicationPort m_applicationPort;
 
-    void sendKeepAlive() noexcept;
+    std::atomic<bool> m_shutdownRequested{false};
+    void sendKeepAliveAndHandleShutdownPreparation() noexcept;
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
 
     /// @note the m_keepAliveTask should always be the last member, so that it will be the first member to be destroyed
-    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_keepAliveTask{concurrent::PeriodicTaskAutoStart,
-                                                                        PROCESS_KEEP_ALIVE_INTERVAL,
-                                                                        "KeepAlive",
-                                                                        *this,
-                                                                        &PoshRuntime::sendKeepAlive};
+    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_keepAliveTask{
+        concurrent::PeriodicTaskAutoStart,
+        PROCESS_KEEP_ALIVE_INTERVAL,
+        "KeepAlive",
+        *this,
+        &PoshRuntime::sendKeepAliveAndHandleShutdownPreparation};
 };
 
 } // namespace runtime

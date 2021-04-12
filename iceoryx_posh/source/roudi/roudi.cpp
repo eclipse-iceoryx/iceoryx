@@ -337,6 +337,20 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         m_prcMgr->updateLivelinessOfProcess(runtimeName);
         break;
     }
+    case runtime::IpcMessageType::PREPARE_APP_TERMINATION:
+    {
+        if (message.getNumberOfElements() != 2)
+        {
+            LogError() << "Wrong number of parameters for \"IpcMessageType::PREPARE_APP_TERMINATION\" from \""
+                       << runtimeName << "\"received!";
+        }
+        else
+        {
+            // this is used to unblock a potentially block application by blocking publisher
+            m_prcMgr->handleProcessShutdownPreparationRequest(runtimeName);
+        }
+        break;
+    }
     case runtime::IpcMessageType::TERMINATION:
     {
         if (message.getNumberOfElements() != 2)
