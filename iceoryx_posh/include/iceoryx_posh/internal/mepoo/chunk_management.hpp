@@ -31,7 +31,7 @@ namespace mepoo
 class MemPool;
 struct ChunkHeader;
 
-struct alignas(32) ChunkManagement
+struct ChunkManagement
 {
     using base_t = ChunkHeader;
     using referenceCounterBase_t = uint64_t;

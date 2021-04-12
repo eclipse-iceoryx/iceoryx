@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
@@ -198,16 +199,8 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    constexpr uint32_t CHUNK_SIZE{32U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
-
-    auto chunkSettingsResult =
-        iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-    ASSERT_FALSE(chunkSettingsResult.has_error());
-    auto& chunkSettings = chunkSettingsResult.value();
-
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
-    m_chunkReceiver.release(&myCrazyChunk);
+    ChunkMock<bool> myCrazyChunk;
+    m_chunkReceiver.release(myCrazyChunk.chunkHeader());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));

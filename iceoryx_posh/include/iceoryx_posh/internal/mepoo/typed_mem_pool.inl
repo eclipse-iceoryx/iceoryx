@@ -130,9 +130,7 @@ inline uint64_t TypedMemPool<T>::requiredChunkSize() noexcept
     // this is safe since we use correct values for size and alignment
     auto& chunkSettings = chunkSettingsResult.value();
 
-    return cxx::align(
-        std::max(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), posix::Allocator::MEMORY_ALIGNMENT),
-        MemPool::MEMORY_ALIGNMENT);
+    return cxx::align(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
 template <typename T>

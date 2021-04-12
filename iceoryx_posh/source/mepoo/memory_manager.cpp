@@ -44,7 +44,7 @@ void MemoryManager::printMemPoolVector(log::LogStream& log) const noexcept
 
 void MemoryManager::addMemPool(posix::Allocator& managementAllocator,
                                posix::Allocator& chunkMemoryAllocator,
-                               const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> chunkPayloadSize,
+                               const cxx::greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
                                const cxx::greater_or_equal<uint32_t, 1> numberOfChunks) noexcept
 {
     uint32_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint32_t>(chunkPayloadSize));
