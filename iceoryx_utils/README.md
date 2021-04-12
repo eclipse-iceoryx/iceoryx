@@ -105,6 +105,7 @@ attribute overview of the available Queues:
 ### Error handling
 
 The Error-Handler is a central instance for collecting al errors and react to them. In the file `error-handling.hpp` are all error enums collected. The Error-Handler has different error-levels, for more information see [error-handling.md](../doc/design/error-handling.md)
+
 | class                   | internal | maybe obsolete | description |
 |:-----------------------:|:--------:|:--------------:|:------------|
 |`errorHandler`            |   | | Free function to call the Error-Handler with a defined error and an error-level, see header file for practical example.|
@@ -113,6 +114,7 @@ The Error-Handler is a central instance for collecting al errors and react to th
 ### Log
 
 For information about how to use the logger API see [error-handling.md](../doc/design/error-handling.md)
+
 | class                   | internal | maybe obsolete | description |
 |:-----------------------:|:--------:|:--------------:|:------------|
 |`logger`             |   | | |
@@ -144,6 +146,7 @@ abstractions or add a new one when using POSIX resources like semaphores, shared
 
 Never use physical properties like speed or time directly as integer or float in your code.
 Otherwise you encounter problems like this function `void setTimeout(int timeout)`. What is the unit of the argument, seconds? minutes? If you use our `Duration` you see it directly in the code.
+
 ```
 void setTimeout(const Duration & timeout);
 
@@ -173,3 +176,7 @@ setTimeout(5_ms); // 5 milliseconds
 | class                   | internal | maybe obsolete | description |
 |:-----------------------:|:--------:|:--------------:|:------------|
 |`FileReader`          | i | x | Wrapper for opening files and reading them. Maybe not needed. |
+
+<center>
+[Check out iceoryx_utils on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_utils/){ .md-button }
+</center>

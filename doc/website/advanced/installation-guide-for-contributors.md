@@ -1,6 +1,6 @@
 # Installation guide for contributors
 
-## Build and run tests
+## :material-test-tube: Build and run tests
 
 While developing on iceoryx you want to know if your changes are breaking existing functions or if your newly written tests are passing.
 For that purpose, we are generating CMake targets that are executing the tests. First, we need to build them:
@@ -44,7 +44,7 @@ Let's assume you want to execute only `ServiceDescription_test` from posh_module
 ./build/posh/test/posh_moduletests --gtest_filter="ServiceDescription_test*"
 ```
 
-## Use Sanitizer Scan
+## :fontawesome-solid-pump-soap: Use Sanitizer Scan
 
 Due to the fact that iceoryx works a lot with system memory, it should be ensured that errors like memory leaks are not introduced.
 To prevent this, we use the clang toolchain which offers several tools for scanning the codebase. One of them is the [Address-Sanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) which checks for example on dangling pointers.
@@ -83,7 +83,7 @@ This should be only rarely used and only in coordination with an iceoryx maintai
     iceoryx needs to be built as a static library for working with sanitizer flags. The script does it automatically.
     Except when you want to use the ${ICEORYX_WARNINGS} then you have to call `findpackage(iceoryx_utils)`
 
-## iceoryx library build
+## :material-library: iceoryx library build
 
 The iceoryx build consists of several libraries which have dependencies on each other. The goal is to have self-encapsulated library packages available where the end-user can easily find it with the CMake command `find-package(...)`.
 In the default case, the iceoryx libraries are installed by `make install` into `/usr/lib` which requires root access. As an alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path` as build-flag for the CMake file in iceoryx_meta.
