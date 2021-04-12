@@ -233,7 +233,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             iox::cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate);
             options.offerOnCreate = (0U == offerOnCreate) ? false : true;
 
-            uint8_t subscriberTooSlowPolicy{};
+            uint16_t subscriberTooSlowPolicy{};
             iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy);
             options.subscriberTooSlowPolicy = static_cast<popo::SubscriberTooSlowPolicy>(subscriberTooSlowPolicy);
 
@@ -268,7 +268,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate);
             options.subscribeOnCreate = (0U == subscribeOnCreate ? false : true);
 
-            uint8_t queueFullPolicy{};
+            uint16_t queueFullPolicy{};
             iox::cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy);
             options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(queueFullPolicy);
 
