@@ -92,7 +92,7 @@ TEST_F(Allocator_Test, allocateAndAlignment)
     iox::posix::Allocator sut(memory, memorySize);
     auto bla = static_cast<uint8_t*>(sut.allocate(5, MEMORY_ALIGNMENT));
     auto bla2 = static_cast<uint8_t*>(sut.allocate(5, MEMORY_ALIGNMENT));
-    EXPECT_THAT(bla2 - bla, Eq(32));
+    EXPECT_THAT(bla2 - bla, Eq(8U));
 }
 
 TEST_F(Allocator_Test, allocateElementOfSizeZero)
