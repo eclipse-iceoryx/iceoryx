@@ -27,8 +27,9 @@ class alignas(32) MemPool_test : public Test
     static constexpr uint32_t NumberOfChunks{100};
     static constexpr uint32_t ChunkSize{64};
 
-    static constexpr uint32_t LoFFLiMemoryRequirement{
-        iox::mepoo::MemPool::freeList_t::requiredMemorySize(NumberOfChunks) + 10000};
+    using FreeListIndex_t = iox::mepoo::MemPool::freeList_t::Index_t;
+    static constexpr FreeListIndex_t LoFFLiMemoryRequirement{
+        iox::mepoo::MemPool::freeList_t::requiredIndexMemorySize(NumberOfChunks) + 10000};
 
     MemPool_test()
         : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)

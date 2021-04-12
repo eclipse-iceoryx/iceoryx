@@ -42,7 +42,9 @@ class alignas(32) TypedMemPool_test : public Test
     static constexpr uint32_t NumberOfChunks{3};
     static constexpr uint32_t ChunkSize{128};
 
-    static constexpr uint32_t LoFFLiMemoryRequirement{MemPool::freeList_t::requiredMemorySize(NumberOfChunks) + 100000};
+    using FreeListIndex_t = MemPool::freeList_t::Index_t;
+    static constexpr FreeListIndex_t LoFFLiMemoryRequirement{
+        MemPool::freeList_t::requiredIndexMemorySize(NumberOfChunks) + 100000};
 
     TypedMemPool_test()
         : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
@@ -114,7 +116,9 @@ class alignas(32) TypedMemPool_Semaphore_test : public Test
     static constexpr uint32_t NumberOfChunks{3};
     static constexpr uint32_t ChunkSize{sizeof(iox::posix::Semaphore)};
 
-    static constexpr uint32_t LoFFLiMemoryRequirement{MemPool::freeList_t::requiredMemorySize(NumberOfChunks) + 100000};
+    using FreeListIndex_t = MemPool::freeList_t::Index_t;
+    static constexpr FreeListIndex_t LoFFLiMemoryRequirement{
+        MemPool::freeList_t::requiredIndexMemorySize(NumberOfChunks) + 100000};
 
     TypedMemPool_Semaphore_test()
         : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)

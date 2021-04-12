@@ -118,13 +118,15 @@ uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& mePooCon
     for (const auto& mempool : mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;
-        memorySize += cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(mempool.m_chunkCount)),
-                                 SHARED_MEMORY_ALIGNMENT);
+        memorySize +=
+            cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredIndexMemorySize(mempool.m_chunkCount)),
+                       MemPool::CHUNK_MEMORY_ALIGNMENT);
     }
 
-    memorySize += sumOfAllChunks * sizeof(ChunkManagement);
-    memorySize += cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(sumOfAllChunks)),
-                             SHARED_MEMORY_ALIGNMENT);
+    memorySize +=
+        cxx::align(static_cast<uint64_t>(sumOfAllChunks * sizeof(ChunkManagement)), MemPool::CHUNK_MEMORY_ALIGNMENT);
+    memorySize += cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredIndexMemorySize(sumOfAllChunks)),
+                             MemPool::CHUNK_MEMORY_ALIGNMENT);
 
     return memorySize;
 }

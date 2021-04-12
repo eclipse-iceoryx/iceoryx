@@ -48,11 +48,11 @@ MemPool::MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> c
 {
     if (isMultipleOfAlignment(chunkSize))
     {
-        m_rawMemory =
-            static_cast<uint8_t*>(chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize, CHUNK_MEMORY_ALIGNMENT));
+        m_rawMemory = static_cast<uint8_t*>(chunkMemoryAllocator.allocate(
+            static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize, CHUNK_MEMORY_ALIGNMENT));
         auto memoryLoFFLi =
-            static_cast<uint32_t*>(managementAllocator.allocate(freeList_t::requiredMemorySize(m_numberOfChunks)));
-        m_freeIndices.init(memoryLoFFLi, m_numberOfChunks);
+            managementAllocator.allocate(freeList_t::requiredIndexMemorySize(m_numberOfChunks), CHUNK_MEMORY_ALIGNMENT);
+        m_freeIndices.init(static_cast<concurrent::LoFFLi::Index_t*>(memoryLoFFLi), m_numberOfChunks);
     }
     else
     {
