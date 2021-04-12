@@ -447,7 +447,9 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeade
     SCOPED_TRACE(std::string("User-Payload: size = ") + std::to_string(userPayloadParams.size)
                  + std::string("; alignment = ") + std::to_string(userPayloadParams.alignment));
 
-    constexpr uint32_t USER_HEADER_SIZES[]{1U, sizeof(ChunkHeader) / 2U, sizeof(ChunkHeader), sizeof(ChunkHeader) * 2U};
+    constexpr uint32_t SMALL_USER_HEADER{alignof(ChunkHeader)};
+    static_assert(SMALL_USER_HEADER < sizeof(ChunkHeader), "For this test the size must be smaller than ChunkHeader");
+    constexpr uint32_t USER_HEADER_SIZES[]{1U, SMALL_USER_HEADER, sizeof(ChunkHeader), sizeof(ChunkHeader) * 2U};
     constexpr uint32_t USER_HEADER_ALIGNMENTS[]{0U, 1U, alignof(ChunkHeader) / 2U, alignof(ChunkHeader)};
 
     for (const auto userHeaderAlignment : USER_HEADER_ALIGNMENTS)

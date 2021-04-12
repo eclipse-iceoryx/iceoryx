@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
@@ -24,10 +25,15 @@ namespace mepoo
 {
 ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept
     : m_chunkSize(chunkSize)
+    , m_userHeaderSize(chunkSettings.userHeaderSize())
     , m_userPayloadSize(chunkSettings.userPayloadSize())
+    , m_userPayloadAlignment(chunkSettings.userPayloadAlignment())
 {
     static_assert(alignof(ChunkHeader) >= 8U,
                   "All the calculations expect the ChunkHeader alignment to be at least 8!");
+    static_assert(alignof(ChunkHeader) <= mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT,
+                  "The ChunkHeader must not exceed the alignment of the mempool chunks, which are aligned to "
+                  "'MemPool::CHUNK_MEMORY_ALIGNMENT'!");
 
     const auto userPayloadAlignment = chunkSettings.userPayloadAlignment();
     const auto userHeaderSize = chunkSettings.userHeaderSize();

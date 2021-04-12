@@ -38,9 +38,7 @@ struct NoUserHeader
 {
 };
 
-/// @brief IMPORTANT the alignment MUST be 32 or less since all mempools are
-///         32 byte aligned otherwise we get alignment problems!
-struct alignas(32) ChunkHeader
+struct ChunkHeader
 {
     using UserPayloadOffset_t = uint32_t;
 
@@ -136,7 +134,9 @@ struct alignas(32) ChunkHeader
     uint8_t m_reserved[3]{};
     UniquePortId m_originId{popo::InvalidId};
     uint64_t m_sequenceNumber{0U};
+    uint32_t m_userHeaderSize{0U};
     uint32_t m_userPayloadSize{0U};
+    uint32_t m_userPayloadAlignment{1U};
     UserPayloadOffset_t m_userPayloadOffset{sizeof(ChunkHeader)};
 };
 
