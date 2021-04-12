@@ -58,8 +58,8 @@ strong {
 }
 
 .md-footer-meta {
-    height: 200px;
     display: flex;
+    flex-direction: row;
 }
 
 .md-footer-meta__inner {
@@ -68,5 +68,12 @@ strong {
 }
 
 .md-footer-copyright {
-    margin: 0 .6rem;
+    margin: 0.6rem;
+}
+
+@media screen and (max-width: 800px) {
+    .md-footer-meta {
+        display: flex;
+        flex-direction: column;
+   }
 }
