@@ -57,6 +57,16 @@ doxybook2 --input $WORKSPACE/build/doc/iceoryx_dds/xml/ --output $WORKSPACE/doc/
 mkdir -p $WORKSPACE/doc/website/API-reference/introspection
 doxybook2 --input $WORKSPACE/build/doc/iceoryx_introspection/xml/ --output $WORKSPACE/doc/website/API-reference/introspection
 
+# Remove index files
+PACKAGES="utils posh c-binding DDS-gateway introspection"
+FILES="index_classes.md index_examples.md index_files.md index_modules.md index_namespaces.md index_pages.md"
+
+for PACKAGE in ${PACKAGES}  ; do
+    for FILE in ${FILES}  ; do
+        rm $WORKSPACE/doc/website/API-reference/$PACKAGE/$FILE
+    done
+done
+
 
 if [ "$TYPE" == "local" ]; then
     echo "starting local webserver"
