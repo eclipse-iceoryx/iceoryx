@@ -22,8 +22,9 @@ plugins:
   - search
 theme:
   name: 'material'
+  custom_dir: doc/website/overrides
   font: false
-  logo: https://user-images.githubusercontent.com/8661268/114322343-016b4c80-9b20-11eb-853b-bff3739da457.png
+  logo: images/iceoryx-logo-white.png
 extra:
   version:
     provider: mike

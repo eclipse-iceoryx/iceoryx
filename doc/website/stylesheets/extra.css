@@ -40,23 +40,33 @@
     --md-accent-fg-color: #ff4d00;
 }
 
-body
-{
+body {
     font-family: "TStar Pro Regular", sans-serif;
 }
 
-h1
-{
+h1 {
     font-family: "Slate Pro", sans-serif;
     text-transform: uppercase;
 }
 
-h2
-{
+h2 {
     font-family: "TStar Pro Bold", sans-serif;
 }
 
-strong
-{
+strong {
     font-family: "TStar Pro Bold", sans-serif;
+}
+
+.md-footer-meta {
+    height: 200px;
+    display: flex;
+}
+
+.md-footer-meta__inner {
+    flex: 0 0 25%;
+    justify-content: left;
+}
+
+.md-footer-copyright {
+    margin: 0 .6rem;
 }
