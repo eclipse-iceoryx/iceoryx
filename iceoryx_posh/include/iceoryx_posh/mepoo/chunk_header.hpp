@@ -99,9 +99,17 @@ struct ChunkHeader
     /// @return the chunk size
     uint32_t chunkSize() const noexcept;
 
+    /// @brief The size of the chunk occupied by the user-header
+    /// @return the user-header size
+    uint32_t userHeaderSize() const noexcept;
+
     /// @brief The size of the chunk occupied by the user-payload
     /// @return the user-payload size
     uint32_t userPayloadSize() const noexcept;
+
+    /// @brief The alignment of the chunk occupied by the user-payload
+    /// @return the user-payload alignment
+    uint32_t userPayloadAlignment() const noexcept;
 
     /// @brief The unique identifier of the publisher the chunk was sent from
     /// @return the id of the publisher the chunk was sent from

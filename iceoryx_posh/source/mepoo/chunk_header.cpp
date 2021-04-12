@@ -158,11 +158,20 @@ uint32_t ChunkHeader::chunkSize() const noexcept
     return m_chunkSize;
 }
 
+uint32_t ChunkHeader::userHeaderSize() const noexcept
+{
+    return m_userHeaderSize;
+}
+
 uint32_t ChunkHeader::userPayloadSize() const noexcept
 {
     return m_userPayloadSize;
 }
 
+uint32_t ChunkHeader::userPayloadAlignment() const noexcept
+{
+    return m_userPayloadAlignment;
+}
 
 UniquePortId ChunkHeader::originId() const
 {
