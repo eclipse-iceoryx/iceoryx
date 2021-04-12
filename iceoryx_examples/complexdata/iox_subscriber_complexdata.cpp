@@ -50,55 +50,55 @@ int main()
                 std::stringstream s;
                 s << APP_NAME << " got values:";
 
-                s << std::endl << "from stringForwardList: ";
+                s << std::endl << "stringForwardList: ";
                 for (auto i = sample->stringForwardList.begin(); i != sample->stringForwardList.end(); ++i)
                 {
-                    s << *i << ", ";
+                    s << *i << " ";
                 }
 
-                s << std::endl << "from integerList: ";
+                s << std::endl << "integerList: ";
                 for (auto i = sample->integerList.begin(); i != sample->integerList.end(); ++i)
                 {
-                    s << *i << ", ";
+                    s << *i << " ";
                 }
 
-                s << std::endl << "from optionalList: ";
+                s << std::endl << "optionalList: ";
                 for (auto i = sample->optionalList.begin(); i != sample->optionalList.end(); ++i)
                 {
-                    (i->has_value()) ? s << i->value() << ", " : s << "optional is empty, ";
+                    (i->has_value()) ? s << i->value() << " " : s << "optional is empty, ";
                 }
 
-                s << std::endl << "from floatStack: ";
+                s << std::endl << "floatStack: ";
                 auto stackCopy = sample->floatStack;
                 for (uint64_t i = stackCopy.capacity(); i > 0U; i--)
                 {
                     auto result = stackCopy.pop();
-                    (result.has_value()) ? s << result.value() << ", " : s << "stack is empty";
+                    (result.has_value()) ? s << result.value() << " " : s << "stack is empty";
                 }
 
-                s << std::endl << "from someString: ";
+                s << std::endl << "someString: ";
                 s << sample->someString;
 
-                s << std::endl << "from doubleVector: ";
+                s << std::endl << "doubleVector: ";
                 for (uint64_t i = 0U; i < sample->doubleVector.size(); ++i)
                 {
-                    s << sample->doubleVector[i] << ", ";
+                    s << sample->doubleVector[i] << " ";
                 }
 
-                s << std::endl << "from variantVector: ";
+                s << std::endl << "variantVector: ";
                 for (uint64_t i = 0U; i < sample->variantVector.size(); ++i)
                 {
                     if (sample->variantVector[i].index() == 0)
                     {
-                        s << *sample->variantVector[i].template get_at_index<0>() << ", ";
+                        s << *sample->variantVector[i].template get_at_index<0>() << " ";
                     }
-                    if (sample->variantVector[i].index() == 1)
+                    else if (sample->variantVector[i].index() == 1)
                     {
-                        s << *sample->variantVector[i].template get_at_index<1>() << ", ";
+                        s << *sample->variantVector[i].template get_at_index<1>() << " ";
                     }
                 }
 
-                s << std::endl;
+                s << std::endl << std::endl;
                 std::cout << s.str();
             })
             .or_else([](auto& result) {
@@ -116,3 +116,4 @@ int main()
 
     return (EXIT_SUCCESS);
 }
+

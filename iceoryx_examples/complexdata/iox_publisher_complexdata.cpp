@@ -29,12 +29,17 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-// void handle(const bool hasSuccess) {
-// if(!hasSuccess) {
-// std::cerr << "asdasd\n";
-// std::terminate();
-//}
-//}
+// push_front (list), push (stack), emplace_back (vector) return a bool - true if the insertion succeeded, false
+// otherwise
+// to keep the example clear, this helper function handles the return values
+void handle(const bool hasSuccess)
+{
+    if (!hasSuccess)
+    {
+        std::cerr << "failed to insert element" << std::endl;
+        std::terminate();
+    }
+}
 
 int main()
 {
@@ -48,36 +53,39 @@ int main()
     // initialize publisher
     iox::popo::Publisher<ComplexDataType> publisher({"Radar", "FrontLeft", "Object"});
 
+    uint64_t ct = 0;
     // run until interrupted by Ctrl-C
     while (!killswitch)
     {
+        ++ct;
         publisher.loan()
             .and_then([&](auto& sample) {
                 // forward_list<string<10>, 5>
-                ////// return values
-                sample->stringForwardList.push_front("hello");
-                sample->stringForwardList.push_front("world");
-                // list<int64_t, 5>;
-                // handle(sample->integerList.push_front(30));
-                sample->integerList.push_front(30);
-                sample->integerList.push_front(19);
-                sample->integerList.push_front(90);
-                // list<optional<uint32_t>, 5>
-                sample->optionalList.push_front(42U);
-                sample->optionalList.push_front(nullopt);
-                // stack<float, 15>
+                handle(sample->stringForwardList.push_front("world"));
+                handle(sample->stringForwardList.push_front("hello"));
+                // list<uint64_t, 10>;
+                handle(sample->integerList.push_front(ct));
+                handle(sample->integerList.push_front(ct * 2));
+                handle(sample->integerList.push_front(ct + 4));
+                // list<optional<int32_t>, 15>
+                handle(sample->optionalList.push_front(42));
+                handle(sample->optionalList.push_front(nullopt));
+                // stack<float, 5>
                 for (uint64_t i = 0U; i < sample->floatStack.capacity(); ++i)
                 {
-                    sample->floatStack.push(2008.11f);
+                    handle(sample->floatStack.push(static_cast<float>(ct * i)));
                 }
-                // string<15>
+                // string<20>
                 sample->someString = "hello iceoryx";
-                // vector<double, 10>
-                sample->doubleVector.emplace_back(2021.04);
+                // vector<double, 5>
+                for (uint64_t i = 0U; i < sample->doubleVector.capacity(); ++i)
+                {
+                    handle(sample->doubleVector.emplace_back(static_cast<double>(ct + i)));
+                }
                 // vector<variant<string<10>, double>, 10>;
-                sample->variantVector.emplace_back(in_place_index<0>(), "hello");
-                sample->variantVector.emplace_back(in_place_index<1>(), 42.0);
-                sample->variantVector.emplace_back(in_place_index<0>(), "bye");
+                handle(sample->variantVector.emplace_back(in_place_index<0>(), "seven"));
+                handle(sample->variantVector.emplace_back(in_place_index<1>(), 8.0));
+                handle(sample->variantVector.emplace_back(in_place_index<0>(), "nine"));
 
                 sample.publish();
             })
@@ -91,3 +99,4 @@ int main()
 
     return (EXIT_SUCCESS);
 }
+

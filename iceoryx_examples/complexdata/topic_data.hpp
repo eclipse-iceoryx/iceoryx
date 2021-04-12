@@ -30,11 +30,11 @@ using namespace iox::cxx;
 struct ComplexDataType
 {
     forward_list<string<10>, 5> stringForwardList;
-    list<int64_t, 5> integerList;
-    list<optional<uint32_t>, 5> optionalList;
-    stack<float, 15> floatStack;
-    string<15> someString;
-    vector<double, 10> doubleVector;
+    list<uint64_t, 10> integerList;
+    list<optional<int32_t>, 15> optionalList;
+    stack<float, 5> floatStack;
+    string<20> someString;
+    vector<double, 5> doubleVector;
     vector<variant<string<10>, double>, 10> variantVector;
 };
 
