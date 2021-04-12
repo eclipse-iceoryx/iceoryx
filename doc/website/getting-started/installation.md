@@ -134,7 +134,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
         The installation directory is usually left at its default, which is `/usr/local`
 
     !!! note
-        iceoryx is built in release mode with `-O3` optimization by default. If you want to enable debug symbols please set `CMAKE_BUILD_TYPE=Debug`.
+        iceoryx is built in release mode as static library with `-O3` optimization by default. If you want to enable debug symbols please set `CMAKE_BUILD_TYPE=Deb`.
 
 ### Build options
 
