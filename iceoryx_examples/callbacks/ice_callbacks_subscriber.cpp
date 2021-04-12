@@ -107,13 +107,17 @@ int main()
         std::cerr << "unable to attach heartbeat event" << std::endl;
         std::terminate();
     });
+
+    // It is possible to attach any c function here with a signature of void(iox::popo::Subscriber<CounterTopic> *).
+    // But please be aware that the listener does not take ownership of the callback, therefore it has to exist as
+    // long as the event is attached. Furthermore, it excludes lambdas which are capturing data since they are not
+    // convertable to a c function pointer.
+    // to simplify the example we attach the same callback onSampleReceivedCallback again
     listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberLeft" << std::endl;
             std::terminate();
         });
-    // it is possible to attach any callback here with the required signature. to simplify the
-    // example we attach the same callback onSampleReceivedCallback again
     listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberRight" << std::endl;
