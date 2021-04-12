@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
+#include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
@@ -40,27 +41,18 @@ DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcep
 }
 mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const
 {
+    constexpr uint32_t ALIGNMENT{mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT};
     mepoo::MePooConfig mempoolConfig;
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(static_cast<uint64_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)),
-                                          SHARED_MEMORY_ALIGNMENT)),
-         10});
+        {cxx::align(static_cast<uint32_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)), ALIGNMENT), 10});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(
-             cxx::align(static_cast<uint64_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)),
-         10});
+        {cxx::align(static_cast<uint32_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), ALIGNMENT), 10});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(
-             cxx::align(static_cast<uint64_t>(sizeof(roudi::PortIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)),
-         10});
+        {cxx::align(static_cast<uint32_t>(sizeof(roudi::PortIntrospectionFieldTopic)), ALIGNMENT), 10});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(static_cast<uint64_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)),
-                                          SHARED_MEMORY_ALIGNMENT)),
-         10});
+        {cxx::align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT), 10});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(
-             cxx::align(static_cast<uint64_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)),
-                        SHARED_MEMORY_ALIGNMENT)),
+        {cxx::align(static_cast<uint32_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)), ALIGNMENT),
          10});
 
     mempoolConfig.optimize();
