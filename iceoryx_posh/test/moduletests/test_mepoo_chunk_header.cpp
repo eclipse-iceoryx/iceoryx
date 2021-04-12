@@ -32,8 +32,9 @@ TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 {
     constexpr uint32_t CHUNK_SIZE{753U};
     constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
 
-    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
+    auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
@@ -48,7 +49,9 @@ TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 
     EXPECT_THAT(sut.sequenceNumber(), Eq(0U));
 
+    EXPECT_THAT(sut.userHeaderSize(), Eq(0U));
     EXPECT_THAT(sut.userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
+    EXPECT_THAT(sut.userPayloadAlignment(), Eq(USER_PAYLOAD_ALIGNMENT));
 
     // a default created ChunkHeader has always an adjacent user-payload
     const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
@@ -288,6 +291,17 @@ void createChunksOnMultipleAddresses(const PayloadParams& userPayloadParams,
     }
 }
 
+void checkUserHeaderSizeAndPayloadSizeAndAlignmentIsSet(const ChunkHeader& sut,
+                                                        const PayloadParams& userPayloadParams,
+                                                        const uint32_t userHeaderSize)
+{
+    EXPECT_EQ(sut.userPayloadSize(), userPayloadParams.size);
+    // a user-payload alignment of zero will internally be set to one
+    auto adjustedAlignment = userPayloadParams.alignment == 0U ? 1U : userPayloadParams.alignment;
+    EXPECT_EQ(sut.userPayloadAlignment(), adjustedAlignment);
+    EXPECT_EQ(sut.userHeaderSize(), userHeaderSize);
+}
+
 void checkUserPayloadNotOverlappingWithChunkHeader(const ChunkHeader& sut)
 {
     SCOPED_TRACE(std::string("Check user-payload not overlapping with ChunkHeader"));
@@ -397,6 +411,7 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithoutUserHeader, CheckIntegrityOfChunkHe
     constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
 
     createChunksOnMultipleAddresses(userPayloadParams, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT, [&](ChunkHeader& sut) {
+        checkUserHeaderSizeAndPayloadSizeAndAlignmentIsSet(sut, userPayloadParams, USER_HEADER_SIZE);
         checkUserPayloadNotOverlappingWithChunkHeader(sut);
         checkUserPayloadSize(sut, userPayloadParams);
         checkUserPayloadAlignment(sut, userPayloadParams);
@@ -468,6 +483,7 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeade
 
             createChunksOnMultipleAddresses(
                 userPayloadParams, userHeaderSize, userHeaderAlignment, [&](ChunkHeader& sut) {
+                    checkUserHeaderSizeAndPayloadSizeAndAlignmentIsSet(sut, userPayloadParams, userHeaderSize);
                     checkUserHeaderIsAdjacentToChunkHeader(sut);
                     checkUserPayloadNotOverlappingWithUserHeader(sut, userHeaderSize);
                     checkUserPayloadSize(sut, userPayloadParams);
