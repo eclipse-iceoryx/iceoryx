@@ -105,8 +105,9 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& mePooConfig) 
         // and the the chunk-payload size is taken into account;
         // the user has the option to further partition the chunk-payload with
         // a user-header and therefore reduce the user-payload size
-        memorySize += static_cast<uint64_t>(mempoolConfig.m_chunkCount)
-                      * MemoryManager::sizeWithChunkHeaderStruct(mempoolConfig.m_size);
+        memorySize += cxx::align(static_cast<uint64_t>(mempoolConfig.m_chunkCount)
+                                     * MemoryManager::sizeWithChunkHeaderStruct(mempoolConfig.m_size),
+                                 MemPool::CHUNK_MEMORY_ALIGNMENT);
     }
     return memorySize;
 }
