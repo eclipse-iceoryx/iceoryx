@@ -49,7 +49,7 @@ class SharedMemoryObject : public DesignPattern::Creation<SharedMemoryObject, Sh
     SharedMemoryObject& operator=(SharedMemoryObject&&) = default;
     ~SharedMemoryObject() = default;
 
-    void* allocate(const uint64_t size, const uint64_t alignment = Allocator::MEMORY_ALIGNMENT);
+    void* allocate(const uint64_t size, const uint64_t alignment);
     void finalizeAllocation();
 
     Allocator* getAllocator();
