@@ -36,7 +36,7 @@ void handle(const bool hasSuccess)
 {
     if (!hasSuccess)
     {
-        std::cerr << "failed to insert element" << std::endl;
+        std::cerr << "Failed to insert element." << std::endl;
         std::terminate();
     }
 }

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "topic_data.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
 
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -40,7 +40,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialized subscriber
-    iox::popo::Subscriber<ComplexDataType> subscriber({"Radar", "FrontLeft", "Object"});
+    iox::popo::Subscriber<iox::cxx::vector<double, 5>> subscriber({"Radar", "FrontLeft", "Object"});
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
@@ -48,57 +48,14 @@ int main()
         subscriber.take()
             .and_then([](auto& sample) {
                 std::stringstream s;
-                s << APP_NAME << " got values:";
+                s << APP_NAME << " got values: ";
 
-                s << std::endl << "stringForwardList: ";
-                for (auto i = sample->stringForwardList.begin(); i != sample->stringForwardList.end(); ++i)
+                for (uint64_t i = 0U; i < sample->size(); ++i)
                 {
-                    s << *i << " ";
+                    s << sample->at(i) << " ";
                 }
 
-                s << std::endl << "integerList: ";
-                for (auto i = sample->integerList.begin(); i != sample->integerList.end(); ++i)
-                {
-                    s << *i << " ";
-                }
-
-                s << std::endl << "optionalList: ";
-                for (auto i = sample->optionalList.begin(); i != sample->optionalList.end(); ++i)
-                {
-                    (i->has_value()) ? s << i->value() << " " : s << "optional is empty, ";
-                }
-
-                s << std::endl << "floatStack: ";
-                auto stackCopy = sample->floatStack;
-                for (uint64_t i = stackCopy.capacity(); i > 0U; i--)
-                {
-                    auto result = stackCopy.pop();
-                    (result.has_value()) ? s << result.value() << " " : s << "stack is empty";
-                }
-
-                s << std::endl << "someString: ";
-                s << sample->someString;
-
-                s << std::endl << "doubleVector: ";
-                for (uint64_t i = 0U; i < sample->doubleVector.size(); ++i)
-                {
-                    s << sample->doubleVector[i] << " ";
-                }
-
-                s << std::endl << "variantVector: ";
-                for (uint64_t i = 0U; i < sample->variantVector.size(); ++i)
-                {
-                    if (sample->variantVector[i].index() == 0)
-                    {
-                        s << *sample->variantVector[i].template get_at_index<0>() << " ";
-                    }
-                    else if (sample->variantVector[i].index() == 1)
-                    {
-                        s << *sample->variantVector[i].template get_at_index<1>() << " ";
-                    }
-                }
-
-                s << std::endl << std::endl;
+                s << std::endl;
                 std::cout << s.str();
             })
             .or_else([](auto& result) {

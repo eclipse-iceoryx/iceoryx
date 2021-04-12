@@ -26,6 +26,18 @@ find_package(iceoryx_utils CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
+add_executable(iox-cpp-publisher-vector ./iox_publisher_vector.cpp)
+target_link_libraries(iox-cpp-publisher-vector
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-cpp-publisher-vector PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+add_executable(iox-cpp-subscriber-vector ./iox_subscriber_vector.cpp)
+target_link_libraries(iox-cpp-subscriber-vector
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-cpp-subscriber-vector PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
 add_executable(iox-cpp-publisher-complexdata ./iox_publisher_complexdata.cpp)
 target_link_libraries(iox-cpp-publisher-complexdata
     iceoryx_posh::iceoryx_posh
@@ -38,7 +50,8 @@ target_link_libraries(iox-cpp-subscriber-complexdata
 )
 target_compile_options(iox-cpp-subscriber-complexdata PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iox-cpp-subscriber-complexdata iox-cpp-publisher-complexdata
+set_target_properties(iox-cpp-subscriber-complexdata iox-cpp-subscriber-vector
+                      iox-cpp-publisher-complexdata iox-cpp-publisher-vector
                       PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -47,6 +60,7 @@ set_target_properties(iox-cpp-subscriber-complexdata iox-cpp-publisher-complexda
 
 # ========================================================== //
 
-install(TARGETS iox-cpp-publisher-complexdata iox-cpp-subscriber-complexdata
+install(TARGETS iox-cpp-publisher-complexdata iox-cpp-publisher-vector
+        iox-cpp-subscriber-complexdata iox-cpp-subscriber-vector
         RUNTIME DESTINATION bin)
 
