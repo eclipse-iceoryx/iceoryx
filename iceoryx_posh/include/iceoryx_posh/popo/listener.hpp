@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
+#include "iceoryx_posh/popo/event_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
@@ -155,6 +156,10 @@ class Listener
     template <typename T, typename UserType>
     cxx::expected<ListenerError>
     attachEvent(T& eventOrigin, CallbackWithUserTypeRef_t<T, UserType> eventCallback, UserType& userType) noexcept;
+
+    template <typename T, typename UserType>
+    cxx::expected<ListenerError> attachEvent(T& eventOrigin, const EventCallback<T, UserType>& eventCallback) noexcept;
+
 
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
     ///        the eventType with further specifies the event inside of eventOrigin

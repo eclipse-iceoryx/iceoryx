@@ -124,6 +124,24 @@ Listener::attachEvent(T& eventOrigin, CallbackWithUserTypeRef_t<T, UserType> eve
         });
 }
 
+template <typename T, typename UserType>
+inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
+                                                          const EventCallback<T, UserType>& eventCallback) noexcept
+{
+    return addEvent(&eventOrigin,
+                    eventCallback.m_userValue,
+                    static_cast<uint64_t>(NoEnumUsed::PLACEHOLDER),
+                    typeid(NoEnumUsed).hash_code(),
+                    reinterpret_cast<GenericCallbackRef_t>(*eventCallback.m_callback),
+                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
+                    EventAttorney::getInvalidateTriggerMethod(eventOrigin))
+        .and_then([&](auto& eventId) {
+            EventAttorney::enableEvent(
+                eventOrigin, TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId));
+        });
+}
+
+
 template <typename T, typename EventType, typename>
 inline void Listener::detachEvent(T& eventOrigin, const EventType eventType) noexcept
 {
