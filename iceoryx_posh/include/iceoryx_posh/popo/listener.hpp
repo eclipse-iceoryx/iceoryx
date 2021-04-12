@@ -157,6 +157,13 @@ class Listener
     cxx::expected<ListenerError>
     attachEvent(T& eventOrigin, CallbackWithUserTypeRef_t<T, UserType> eventCallback, UserType& userType) noexcept;
 
+    template <typename T,
+              typename EventType,
+              typename UserType,
+              typename = std::enable_if_t<std::is_enum<EventType>::value>>
+    cxx::expected<ListenerError>
+    attachEvent(T& eventOrigin, const EventType eventType, const EventCallback<T, UserType>& eventCallback) noexcept;
+
     template <typename T, typename UserType>
     cxx::expected<ListenerError> attachEvent(T& eventOrigin, const EventCallback<T, UserType>& eventCallback) noexcept;
 

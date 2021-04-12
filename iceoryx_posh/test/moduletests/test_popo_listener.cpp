@@ -562,10 +562,11 @@ TIMING_TEST_F(Listener_test, CallbackWithEventAndUserTypeIsCalledAfterNotify, Re
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     uint64_t userType = 0U;
-    ASSERT_FALSE(
-        m_sut
-            ->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallbackWithUserType, userType)
-            .has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallbackWithUserType, userType))
+                     .has_error());
 
     fuu.triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
