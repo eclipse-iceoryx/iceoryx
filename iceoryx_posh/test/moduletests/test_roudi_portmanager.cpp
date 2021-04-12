@@ -198,6 +198,9 @@ class PortManager_test : public Test
             }
         }
     }
+
+    void setupAndTestBlockingPublisher(const iox::RuntimeName_t& publisherRuntimeName,
+                                       std::function<void()> testHook) noexcept;
 };
 
 template <typename vector>
@@ -770,16 +773,12 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
     acquireMaxNumberOfNodes(nodeName, runtimeName);
 }
 
-TEST_F(PortManager_test, UnblockShutdownMakesAllPublisherStopOffer)
+TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
 {
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
+    iox::cxx::vector<PublisherPortUser, iox::MAX_PUBLISHERS> publisher;
 
-    constexpr uint64_t MAX_PUB_SUB = iox::algorithm::min(iox::MAX_PUBLISHERS, iox::MAX_SUBSCRIBERS);
-    iox::cxx::vector<PublisherPortUser, MAX_PUB_SUB> publisher;
-    iox::cxx::vector<SubscriberPortUser, MAX_PUB_SUB> subscriber;
-
-    for (unsigned int i = 0; i < MAX_PUB_SUB; i++)
+    for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {
         auto servideDescription = getUniqueSD();
         auto publisherRuntimeName = iox::RuntimeName_t(iox::cxx::TruncateToCapacity, "pub_" + std::to_string(i));
@@ -791,17 +790,10 @@ TEST_F(PortManager_test, UnblockShutdownMakesAllPublisherStopOffer)
         ASSERT_FALSE(publisherPortDataResult.has_error());
         publisher.emplace_back(publisherPortDataResult.value());
 
-        auto subscriberRuntimeName = iox::RuntimeName_t(iox::cxx::TruncateToCapacity, "sub_" + std::to_string(i));
-        auto subscriberPortDataResult = m_portManager->acquireSubscriberPortData(
-            servideDescription, subscriberOptions, subscriberRuntimeName, PortConfigInfo());
-        ASSERT_FALSE(subscriberPortDataResult.has_error());
-        subscriber.emplace_back(subscriberPortDataResult.value());
-
         EXPECT_TRUE(publisher.back().isOffered());
-        EXPECT_EQ(subscriber.back().getSubscriptionState(), iox::SubscribeState::SUBSCRIBED);
     }
 
-    m_portManager->unblockShutdown();
+    m_portManager->unblockRouDiShutdown();
 
     for (const auto& pub : publisher)
     {
@@ -809,17 +801,43 @@ TEST_F(PortManager_test, UnblockShutdownMakesAllPublisherStopOffer)
     }
 }
 
-TEST_F(PortManager_test, UnblockShutdownUnblocksBlockedPublisher)
+TEST_F(PortManager_test, UnblockProcessShutdownMakesPublisherStopOffer)
 {
+    const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
+
+    // get publisher and subscriber
+    PublisherOptions publisherOptions{
+        0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    PublisherPortUser publisher(m_portManager
+                                    ->acquirePublisherPortData({1U, 1U, 1U},
+                                                               publisherOptions,
+                                                               publisherRuntimeName,
+                                                               m_payloadDataSegmentMemoryManager,
+                                                               PortConfigInfo())
+                                    .value());
+
+    EXPECT_TRUE(publisher.isOffered());
+
+    m_portManager->unblockProcessShutdown(publisherRuntimeName);
+
+    EXPECT_FALSE(publisher.isOffered());
+}
+
+void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& publisherRuntimeName,
+                                                     std::function<void()> testHook) noexcept
+{
+    // get publisher and subscriber
     PublisherOptions publisherOptions{
         0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
     SubscriberOptions subscriberOptions{
         1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PUBLISHER};
-    PublisherPortUser publisher(
-        m_portManager
-            ->acquirePublisherPortData(
-                {1U, 1U, 1U}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
-            .value());
+    PublisherPortUser publisher(m_portManager
+                                    ->acquirePublisherPortData({1U, 1U, 1U},
+                                                               publisherOptions,
+                                                               publisherRuntimeName,
+                                                               m_payloadDataSegmentMemoryManager,
+                                                               PortConfigInfo())
+                                    .value());
 
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1U, 1U, 1U}, subscriberOptions, "schlomo", PortConfigInfo()).value());
@@ -854,10 +872,24 @@ TEST_F(PortManager_test, UnblockShutdownUnblocksBlockedPublisher)
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
     EXPECT_THAT(wasChunkSent.load(), Eq(false));
 
-    m_portManager->unblockShutdown();
+    ASSERT_TRUE(testHook);
+    testHook();
 
     blockingPublisher.join(); // ensure the wasChunkSent store happens before the read
     EXPECT_THAT(wasChunkSent.load(), Eq(true));
+}
+
+TEST_F(PortManager_test, UnblockRouDiShutdownUnblocksBlockedPublisher)
+{
+    const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
+    setupAndTestBlockingPublisher(publisherRuntimeName, [&] { m_portManager->unblockRouDiShutdown(); });
+}
+
+TEST_F(PortManager_test, UnblockProcessShutdownUnblocksBlockedPublisher)
+{
+    const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
+    setupAndTestBlockingPublisher(publisherRuntimeName,
+                                  [&] { m_portManager->unblockProcessShutdown(publisherRuntimeName); });
 }
 
 TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)

@@ -53,3 +53,8 @@ uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLeng
 
     return instanceName.size();
 }
+
+void iox_runtime_shutdown()
+{
+    PoshRuntime::getInstance().shutdown();
+}
