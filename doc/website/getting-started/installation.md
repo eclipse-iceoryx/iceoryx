@@ -195,11 +195,10 @@ colcon build
 ```
 
 !!! note
+    If you don't want to install ROS2, you can skip the iceoryx_integrationtest package by calling:
 
-If you don't want to install ROS2, you can skip the iceoryx_integrationtest package by calling:
-
-```bash
-colcon build --packages-skip iceoryx_integrationtest
-```
+    ```bash
+    colcon build --packages-skip iceoryx_integrationtest
+    ```
 
 This build method makes the most sense in combination with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git)

@@ -8,7 +8,7 @@ title: Home
         width="50%">
 </p>
 
-Eclipse iceoryx is a true zero-copy inter-process communication that allows virtually limitless data transfer at constant time.
+Eclipse iceoryx™ is a true zero-copy inter-process communication that allows virtually limitless data transfer at constant time.
 
 | <h2>:octicons-stopwatch-16: Easy</h2> | <h2>:material-shield-half-full: Safe</h2> | <h2>:material-truck-fast: Fast</h2> |
 |----|----|-----|
