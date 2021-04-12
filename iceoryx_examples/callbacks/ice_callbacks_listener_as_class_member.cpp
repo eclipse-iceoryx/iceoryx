@@ -49,14 +49,16 @@ class CounterClass
         : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
         , m_subscriberRight({"Radar", "FrontRight", "Counter"})
     {
+        /// Attach the static method onSampleReceivedCallback and provide this as additional argument
+        /// to the callback to gain access to the object whenever the callback is called.
+        /// It is not possible to use a lambda with capturing here since they are not convertable to
+        /// a C function pointer.
         m_listener
             .attachEvent(m_subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback, *this)
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberLeft" << std::endl;
                 std::terminate();
             });
-        // it is possible to attach any callback here with the required signature. to simplify the
-        // example we attach the same callback onSampleReceivedCallback again
         m_listener
             .attachEvent(m_subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback, *this)
             .or_else([](auto) {
@@ -72,6 +74,9 @@ class CounterClass
     }
 
   private:
+    /// This method has to be static since only c functions are allowed as callback.
+    /// To gain access to the members and methods of CounterClass we provide as an additional argument the this pointer
+    /// which is stored in self
     static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, CounterClass* self)
     {
         subscriber->take().and_then([subscriber, self](auto& sample) {
