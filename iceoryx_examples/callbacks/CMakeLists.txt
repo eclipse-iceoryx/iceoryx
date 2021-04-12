@@ -37,7 +37,16 @@ target_link_libraries(iox-cpp-callbacks-subscriber
 )
 target_compile_options(iox-cpp-callbacks-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
+add_executable(iox-cpp-callbacks-listener-as-class-member ./ice_callbacks_listener_as_class_member.cpp)
+target_link_libraries(iox-cpp-callbacks-listener-as-class-member
+    iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-cpp-callbacks-listener-as-class-member PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+
+
 set_target_properties(
+    iox-cpp-callbacks-listener-as-class-member
     iox-cpp-callbacks-subscriber
     iox-cpp-callbacks-publisher
   PROPERTIES
@@ -47,6 +56,6 @@ set_target_properties(
 )
 
 install(
-    TARGETS iox-cpp-callbacks-publisher iox-cpp-callbacks-subscriber
+    TARGETS iox-cpp-callbacks-publisher iox-cpp-callbacks-subscriber iox-cpp-callbacks-listener-as-class-member
     RUNTIME DESTINATION bin
 )
