@@ -119,6 +119,10 @@ class SimpleEventClass
     {
         m_handleStoepsel.trigger();
     }
+    void triggerNoEventType() noexcept
+    {
+        m_handleNoEventEnum.trigger();
+    }
 
     iox::popo::TriggerHandle m_handleHypnotoad;
     iox::popo::TriggerHandle m_handleStoepsel;
@@ -166,6 +170,12 @@ class Listener_test : public Test
             IOX_DISCARD_RESULT(g_callbackBlocker->wait());
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(g_triggerCallbackRuntimeInMs));
+    }
+
+    static void triggerCallbackWithUserType(SimpleEventClass* const event, uint64_t* userType) noexcept
+    {
+        g_triggerCallbackArg[0].m_source = event;
+        ++(*userType);
     }
 
     static void attachCallback(SimpleEventClass* const) noexcept
@@ -546,6 +556,35 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
 
     TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
     TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 1U);
+});
+
+TIMING_TEST_F(Listener_test, CallbackWithEventAndUserTypeIsCalledAfterNotify, Repeat(5), [&] {
+    m_sut.emplace(m_condVarData);
+    SimpleEventClass fuu;
+    uint64_t userType = 0U;
+    ASSERT_FALSE(
+        m_sut
+            ->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallbackWithUserType, userType)
+            .has_error());
+
+    fuu.triggerStoepsel();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
+    TIMING_TEST_EXPECT_TRUE(userType == 1U);
+});
+
+TIMING_TEST_F(Listener_test, CallbackWithUserTypeIsCalledAfterNotify, Repeat(5), [&] {
+    m_sut.emplace(m_condVarData);
+    SimpleEventClass fuu;
+    uint64_t userType = 0U;
+    ASSERT_FALSE(m_sut->attachEvent(fuu, Listener_test::triggerCallbackWithUserType, userType).has_error());
+
+    fuu.triggerNoEventType();
+    std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
+
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
+    TIMING_TEST_EXPECT_TRUE(userType == 1U);
 });
 
 TIMING_TEST_F(Listener_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [&] {

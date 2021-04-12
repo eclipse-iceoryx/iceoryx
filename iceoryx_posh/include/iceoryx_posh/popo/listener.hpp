@@ -65,13 +65,20 @@ enum class ListenerError
 class Listener
 {
   public:
+    using GenericCallbackPtr_t = void (*)();
+    using GenericCallbackRef_t = void (&)();
+
     template <typename T>
     using CallbackRef_t = void (&)(T* const);
-    using TranslationCallbackRef_t = void (&)(void* const, void (*const)(void* const));
+    template <typename T, typename UserType>
+    using CallbackWithUserTypeRef_t = void (&)(T* const, UserType* const);
+    using TranslationCallbackRef_t = void (&)(void* const, void* const, GenericCallbackPtr_t const);
 
     template <typename T>
     using CallbackPtr_t = void (*)(T* const);
-    using TranslationCallbackPtr_t = void (*)(void* const, void (*const)(void* const));
+    template <typename T, typename UserType>
+    using CallbackWithUserTypePtr_t = void (*)(T* const, UserType* const);
+    using TranslationCallbackPtr_t = void (*)(void* const, void* const, GenericCallbackPtr_t const);
 
     Listener() noexcept;
     Listener(const Listener&) = delete;
@@ -103,6 +110,19 @@ class Listener
     template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<ListenerError>
     attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept;
+
+    template <typename T,
+              typename EventType,
+              typename UserType,
+              typename = std::enable_if_t<std::is_enum<EventType>::value>>
+    cxx::expected<ListenerError> attachEvent(T& eventOrigin,
+                                             const EventType eventType,
+                                             CallbackWithUserTypeRef_t<T, UserType> eventCallback,
+                                             UserType& userType) noexcept;
+
+    template <typename T, typename UserType>
+    cxx::expected<ListenerError>
+    attachEvent(T& eventOrigin, CallbackWithUserTypeRef_t<T, UserType> eventCallback, UserType& userType) noexcept;
 
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
     ///        the eventType with further specifies the event inside of eventOrigin
@@ -136,9 +156,10 @@ class Listener
     void threadLoop() noexcept;
     cxx::expected<uint32_t, ListenerError>
     addEvent(void* const origin,
+             void* const userType,
              const uint64_t eventType,
              const uint64_t eventTypeHash,
-             CallbackRef_t<void> callback,
+             GenericCallbackRef_t callback,
              TranslationCallbackRef_t translationCallback,
              const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
 
@@ -159,9 +180,10 @@ class Listener
         bool reset() noexcept;
         bool init(const uint64_t eventId,
                   void* const origin,
+                  void* const userType,
                   const uint64_t eventType,
                   const uint64_t eventTypeHash,
-                  CallbackRef_t<void> callback,
+                  GenericCallbackRef_t callback,
                   TranslationCallbackRef_t translationCallback,
                   const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
         void executeCallback() noexcept;
@@ -174,8 +196,9 @@ class Listener
         uint64_t m_eventType = INVALID_ID;
         uint64_t m_eventTypeHash = INVALID_ID;
 
-        CallbackPtr_t<void> m_callback = nullptr;
+        GenericCallbackPtr_t m_callback = nullptr;
         TranslationCallbackPtr_t m_translationCallback = nullptr;
+        void* m_userType = nullptr;
 
         uint64_t m_eventId = INVALID_ID;
         cxx::MethodCallback<void, uint64_t> m_invalidationCallback;

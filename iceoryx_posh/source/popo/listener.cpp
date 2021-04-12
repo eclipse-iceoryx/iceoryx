@@ -45,9 +45,10 @@ Listener::~Listener()
 
 cxx::expected<uint32_t, ListenerError>
 Listener::addEvent(void* const origin,
+                   void* const userType,
                    const uint64_t eventType,
                    const uint64_t eventTypeHash,
-                   CallbackRef_t<void> callback,
+                   GenericCallbackRef_t callback,
                    TranslationCallbackRef_t translationCallback,
                    const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
@@ -68,7 +69,7 @@ Listener::addEvent(void* const origin,
     }
 
     if (!m_events[index]->init(
-            index, origin, eventType, eventTypeHash, callback, translationCallback, invalidationCallback))
+            index, origin, userType, eventType, eventTypeHash, callback, translationCallback, invalidationCallback))
     {
         return cxx::error<ListenerError>(ListenerError::EMPTY_INVALIDATION_CALLBACK);
     }
@@ -118,14 +119,15 @@ void Listener::Event_t::executeCallback() noexcept
         return;
     }
 
-    m_translationCallback(m_origin, m_callback);
+    m_translationCallback(m_origin, m_userType, m_callback);
 }
 
 bool Listener::Event_t::init(const uint64_t eventId,
                              void* const origin,
+                             void* const userType,
                              const uint64_t eventType,
                              const uint64_t eventTypeHash,
-                             CallbackRef_t<void> callback,
+                             GenericCallbackRef_t callback,
                              TranslationCallbackRef_t translationCallback,
                              const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
@@ -133,6 +135,7 @@ bool Listener::Event_t::init(const uint64_t eventId,
     {
         m_eventId = eventId;
         m_origin = origin;
+        m_userType = userType;
         m_eventType = eventType;
         m_eventTypeHash = eventTypeHash;
         m_callback = &callback;
