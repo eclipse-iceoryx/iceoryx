@@ -24,7 +24,7 @@
 
 using namespace ::testing;
 using namespace iox::mepoo;
-class alignas(32) TypedMemPool_test : public Test
+class TypedMemPool_test : public Test
 {
   public:
     class TestClass
@@ -55,7 +55,7 @@ class alignas(32) TypedMemPool_test : public Test
     void SetUp(){};
     void TearDown(){};
 
-    alignas(32) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
+    alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
     iox::posix::Allocator allocator;
 
     TypedMemPool<TestClass> sut;
@@ -110,7 +110,7 @@ TEST_F(TypedMemPool_test, OutOfChunksErrorWhenFull)
     EXPECT_THAT(object4.get_error(), Eq(TypedMemPoolError::OutOfChunks));
 }
 
-class alignas(32) TypedMemPool_Semaphore_test : public Test
+class TypedMemPool_Semaphore_test : public Test
 {
   public:
     static constexpr uint32_t NumberOfChunks{3};
@@ -129,7 +129,7 @@ class alignas(32) TypedMemPool_Semaphore_test : public Test
     void SetUp(){};
     void TearDown(){};
 
-    alignas(32) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
+    alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
     iox::posix::Allocator allocator;
 
     TypedMemPool<iox::posix::Semaphore> sut;

@@ -20,8 +20,9 @@
 #include "test.hpp"
 
 using namespace ::testing;
+using namespace iox::mepoo;
 
-class alignas(32) MemPool_test : public Test
+class MemPool_test : public Test
 {
   public:
     static constexpr uint32_t NumberOfChunks{100};
@@ -40,10 +41,10 @@ class alignas(32) MemPool_test : public Test
     void SetUp(){};
     void TearDown(){};
 
-    alignas(32) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
+    alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
     iox::posix::Allocator allocator;
 
-    iox::mepoo::MemPool sut;
+    MemPool sut;
 };
 
 TEST_F(MemPool_test, CTor)
