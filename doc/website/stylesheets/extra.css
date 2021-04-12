@@ -1,0 +1,13 @@
+@font-face {
+    font-family: "TStar Pro";
+    src: url("./TSTARPRO-Regular.otf") format("opentype");
+  }
+
+:root {
+    --md-primary-fg-color:        #2f8db3;
+    --md-primary-fg-color--light: #FFFFFF;
+    --md-primary-fg-color--dark:  #8dc6d9;
+    --md-accent-fg-color: #ff4d00;
+    --md-text-font-family: "TStar Pro";
+  }
+

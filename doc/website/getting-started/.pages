@@ -1,4 +1,5 @@
 nav:
   - overview.md
+  - what-is-iceoryx.md
   - installation.md
   - examples
