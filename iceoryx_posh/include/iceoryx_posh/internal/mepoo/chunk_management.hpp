@@ -39,12 +39,7 @@ struct ChunkManagement
 
     ChunkManagement(const cxx::not_null<base_t*> chunkHeader,
                     const cxx::not_null<MemPool*> mempool,
-                    const cxx::not_null<MemPool*> chunkManagementPool) noexcept
-        : m_chunkHeader(chunkHeader)
-        , m_mempool(mempool)
-        , m_chunkManagementPool(chunkManagementPool)
-    {
-    }
+                    const cxx::not_null<MemPool*> chunkManagementPool) noexcept;
 
     iox::rp::RelativePointer<base_t> m_chunkHeader;
     referenceCounter_t m_referenceCounter{1U};

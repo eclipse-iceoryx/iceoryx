@@ -47,7 +47,8 @@ class LoFFLi_test : public Test
     {
     }
 
-    uint32_t m_memoryLoFFLi[LoFFLiType::requiredMemorySize(Size)];
+    using LoFFLiIndex_t = typename LoFFLiType::Index_t;
+    LoFFLiIndex_t m_memoryLoFFLi[LoFFLiType::requiredIndexMemorySize(Size)];
     LoFFLiType m_loffli;
 };
 
