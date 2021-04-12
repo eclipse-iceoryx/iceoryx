@@ -2253,7 +2253,7 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
 {
     uint64_t i = 0U;
     using TestFwdList = list<TestListElement, TESTLISTCAPACITY>;
-    alignas(alignof(TestFwdList)) uint8_t otherSutBuffer[sizeof(TestFwdList)];
+    alignas(TestFwdList) uint8_t otherSutBuffer[sizeof(TestFwdList)];
     uint8_t* otherSutPtr = otherSutBuffer;
 
     {

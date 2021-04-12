@@ -184,7 +184,7 @@ class vector
 
   private:
     using element_t = uint8_t[sizeof(T)];
-    alignas(alignof(T)) element_t m_data[Capacity];
+    alignas(T) element_t m_data[Capacity];
     uint64_t m_size = 0u;
 };
 } // namespace cxx
