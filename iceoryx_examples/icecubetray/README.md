@@ -14,8 +14,7 @@ It provides a custom RouDi, a radar and a display application.
 
 ## Code walkthrough
 
-The user _roudi_ does not need root access rights. However, it needs _CAP\_KILL_ capability or similar rights on
-other POSIX operating system. RouDi needs to be able to send a _SIGKILL_ signal to the apps in case RouDi is shutdown.
+RouDi needs to be able to send a _SIGKILL_ signal to the apps in case RouDi is shutdown. Hence, RouDi needs _CAP\_KILL_ capability or similar rights on other POSIX operating system. However, the user _roudi_ does not need root access rights.
 
 | Users        | privileged group | unprivileged group | infotainment group |   iceoryx group    |
 |--------------|:----------------:|:------------------:|:------------------:|:------------------:|
@@ -68,6 +67,7 @@ RouDi is built with two static shared memory segments _infotainment_ and _privil
 
 The `roudiConfig` is composed of a memory pool config called `mepooConfig`. When the segement is created, one needs to
 specific the reader group (first string), writer group (second string) as well as the `mepooConfig` (last parameter).
+The access rights are solely based on user groups and not on users itself. All users in the reader group are allowed to read, but don't have write access. Users in the writer group have both read and write access.
 
 ```cpp
 iox::RouDiConfig_t roudiConfig;
@@ -82,6 +82,10 @@ mepooConfig.addMemPool({128, 1000});
 roudiConfig.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepooConfig});
 roudiConfig.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
 ```
+
+!!! tip
+    Shared memory segment can also be configured via a
+    [TOML config](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/advanced/configuration-guide.md#dynamic-configuration) file.
 
 The radar app is started with the user _perception_ and is sending data into the _privileged_ shared memory segment.
 
@@ -104,7 +108,8 @@ drwxr-xr-x  6 root  root         460 Apr  6 15:53 ..
 ```
 
 !!! note
-    Note the shared memory managment segment is always available for everyone to **read** and **write**
+    Note the shared memory managment segment (`iceoryx_mgmt`) is always available for everyone in the group `iceoryx`
+    to **read** and **write**.
 
 #### Not-working setup
 
