@@ -87,7 +87,7 @@ class PortManager_test : public Test
             m_roudiMemoryManager->segmentManager().value()->getSegmentInformationWithWriteAccessForUser(user);
         ASSERT_TRUE(segmentInfo.m_memoryManager.has_value());
 
-        m_payloadDataSegmentMemoryManager = segmentInfo.m_memoryManager.value();
+        m_payloadDataSegmentMemoryManager = &segmentInfo.m_memoryManager.value().get();
 
 
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically

@@ -524,7 +524,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
             }
 
             auto maybePublisher = m_portManager.acquirePublisherPortData(
-                service, publisherOptions, name, segmentInfo.m_memoryManager.value(), portConfigInfo);
+                service, publisherOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo);
 
 
             if (!maybePublisher.has_error())

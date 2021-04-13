@@ -136,7 +136,7 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
                                     ->acquirePublisherPortData({1U, 1U, 1U},
                                                                publisherOptions,
                                                                m_processname,
-                                                               payloadDataSegmentMemoryManager.value(),
+                                                               &payloadDataSegmentMemoryManager.value().get(),
                                                                PortConfigInfo())
                                     .value());
 
