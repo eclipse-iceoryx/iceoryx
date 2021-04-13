@@ -110,11 +110,11 @@ class CounterClass
         }
     }
 
-    iox::popo::Listener m_listener;
     iox::popo::Subscriber<CounterTopic> m_subscriberLeft;
     iox::popo::Subscriber<CounterTopic> m_subscriberRight;
     iox::cxx::optional<CounterTopic> m_leftCache;
     iox::cxx::optional<CounterTopic> m_rightCache;
+    iox::popo::Listener m_listener;
 };
 
 int main()
