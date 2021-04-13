@@ -35,5 +35,5 @@ int main()
     // 2) The publisher object can't be initalised correctly because 'notallowed' does not have write access
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 
-    return (EXIT_FAILURE);
+    return EXIT_FAILURE;
 }
