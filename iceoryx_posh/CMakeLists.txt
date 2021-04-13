@@ -89,6 +89,7 @@ add_library(iceoryx_posh
     source/mepoo/memory_manager.cpp
     source/mepoo/mem_pool.cpp
     source/mepoo/shared_chunk.cpp
+    source/mepoo/shm_safe_unmanaged_chunk.cpp
     source/mepoo/segment_manager.cpp
     source/mepoo/mepoo_segment.cpp
     source/mepoo/memory_info.cpp
