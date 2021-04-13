@@ -17,7 +17,7 @@
 #ifndef STRINGTOIPCMESSAGE_HPP
 #define STRINGTOIPCMESSAGE_HPP
 
-/// @brief 	The StringToIPCMessage is a class which inherits from iox::runtime::IpcInterfaceBase to make the protected
+/// @brief The StringToIPCMessage is a class which inherits from iox::runtime::IpcInterfaceBase to make the protected
 /// method iox::runtime::IpcInterfaceBase::setMessageFromString public and accessible for the fuzz test.
 
 class StringToIPCMessage : public iox::runtime::IpcInterfaceBase

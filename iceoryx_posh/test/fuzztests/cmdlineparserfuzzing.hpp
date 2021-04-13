@@ -36,44 +36,44 @@ enum class InputMode
 };
 
 /// @brief CmdLineParserFuzzing is a class which parses the command lines to configure the Fuzz Wrappers for
-/// example to tell	which interface shall be fuzzed.
+/// example to tell which interface shall be fuzzed.
 class CmdLineParserFuzzing
 {
   public:
     CmdLineParserFuzzing();
 
-    /// @brief	Parses the command line parameters which are entered by starting the fuzz wrappers
-    /// @param[in] 	amount of arguments given to the method
-    ///	@param[in]	containing the command line parameters
-    ///	@param[out]	Containing the messages which shall be sent to the interface
+    /// @brief Parses the command line parameters which are entered by starting the fuzz wrappers
+    /// @param[in] amount of arguments given to the method
+    /// @param[in] containing the command line parameters
+    /// @param[out] Containing the messages which shall be sent to the interface
     std::vector<std::string> parseCmd(int argc, char* argv[]) noexcept;
 
-    /// @brief	Getter to return m_helpFlag
-    ///	@param[out]	Containing a flag showing if the help menu was displayed.
+    /// @brief Getter to return m_helpFlag
+    /// @param[out] Containing a flag showing if the help menu was displayed.
     bool getHelpFlag();
 
-    /// @brief	Getter to return m inputMode
-    ///	@param[out]	Containing enum InputMode to show if messages are sent to the API via stdin or command line (cl).
+    /// @brief Getter to return m inputMode
+    /// @param[out] Containing enum InputMode to show if messages are sent to the API via stdin or command line (cl).
     InputMode getInputMode();
 
-    /// @brief	Getter to return m_errorFlag
-    ///	@param[out]	Containing a flag showing if an error happened and fuzzing cannot be started
+    /// @brief Getter to return m_errorFlag
+    /// @param[out] Containing a flag showing if an error happened and fuzzing cannot be started
     bool getErrorFlag();
 
-    /// @brief	Getter to return m_cmdLineFlag
-    ///	@param[out]	Containing a flag showing if a command line parameter was given after InputMode::CL was set
+    /// @brief Getter to return m_cmdLineFlag
+    /// @param[out] Containing a flag showing if a command line parameter was given after InputMode::CL was set
     bool getCmdLineFlag();
 
-    /// @brief	Getter to return m_fuzzingAPI
-    ///	@param[out]	Containing enum FuzzingFlag indicating which API wants to be fuzzed.
+    /// @brief Getter to return m_fuzzingAPI
+    /// @param[out] Containing enum FuzzingFlag indicating which API wants to be fuzzed.
     FuzzingApi getFuzzingAPI();
 
-    /// @brief	Getter to return m_tomlFileFlag
-    ///	@param[out]	Containing a flag showing if TOML API wants to be fuzzed.
+    /// @brief Getter to return m_tomlFileFlag
+    /// @param[out] Containing a flag showing if TOML API wants to be fuzzed.
     bool getTomlFileFlag();
 
-    /// @brief	Getter to return m_tomlFile
-    ///	@param[out]	Containing an std::string to a file which can be used to temporarily write a TOML configuration to
+    /// @brief Getter to return m_tomlFile
+    /// @param[out] Containing an std::string to a file which can be used to temporarily write a TOML configuration to
     /// the file.
     std::string getTomlFile();
 

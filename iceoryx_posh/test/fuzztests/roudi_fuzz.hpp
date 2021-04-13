@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 
-/// @brief 	RouDiFuzz is a class which inherits from iox::roudi::RouDi to make some protected methods available for
+/// @brief RouDiFuzz is a class which inherits from iox::roudi::RouDi to make some protected methods available for
 /// Fuzzing. This is necessary, to directly injects messages in these messages to test the robustness of the interfaces
 class RouDiFuzz : iox::roudi::RouDi
 {
