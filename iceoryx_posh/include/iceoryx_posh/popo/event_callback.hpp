@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_EVENT_CALLBACK_HPP
 #define IOX_POSH_POPO_EVENT_CALLBACK_HPP
 
+#include "iceoryx_utils/cxx/helplets.hpp"
+
 namespace iox
 {
 namespace popo
@@ -27,6 +29,13 @@ struct NoType_t
 {
 };
 } // namespace internal
+
+using GenericCallbackPtr_t = void (*)();
+using GenericCallbackRef_t = void (&)();
+
+using TranslationCallbackRef_t = void (&)(void* const, void* const, GenericCallbackPtr_t const);
+using TranslationCallbackPtr_t = void (*)(void* const, void* const, GenericCallbackPtr_t const);
+
 
 ///@brief the struct describes a callback with a user defined type which can
 ///         be attached to a WaitSet or a Listener
@@ -64,6 +73,28 @@ EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginT
 template <typename OriginType, typename UserType>
 EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const, UserType* const),
                                                         UserType& userValue);
+
+template <typename T, typename UserType>
+struct TranslateAndCallTypelessCallback
+{
+    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback)
+    {
+        reinterpret_cast<typename EventCallback<T, UserType>::Ptr_t>(underlyingCallback)(
+            static_cast<T*>(origin), static_cast<UserType*>(userType));
+    }
+};
+
+template <typename T>
+struct TranslateAndCallTypelessCallback<T, internal::NoType_t>
+{
+    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback)
+    {
+        IOX_DISCARD_RESULT(userType);
+        reinterpret_cast<typename EventCallback<T, internal::NoType_t>::Ptr_t>(underlyingCallback)(
+            static_cast<T*>(origin));
+    }
+};
+
 } // namespace popo
 } // namespace iox
 

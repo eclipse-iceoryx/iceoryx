@@ -21,19 +21,16 @@ namespace iox
 {
 namespace popo
 {
-template <typename T>
-inline void myCallback(void* const triggerOrigin, EventInfo::Callback<void> callbackPtr) noexcept
-{
-    (*reinterpret_cast<EventInfo::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(triggerOrigin));
-}
-
-template <typename T>
-inline EventInfo::EventInfo(T* const eventOrigin, const uint64_t eventId, const Callback<T> callback) noexcept
+template <typename T, typename UserType>
+inline EventInfo::EventInfo(T* const eventOrigin,
+                            const uint64_t eventId,
+                            const EventCallback<T, UserType>& callback) noexcept
     : m_eventOrigin(eventOrigin)
+    , m_userValue(callback.m_userValue)
     , m_eventOriginTypeHash(typeid(T).hash_code())
     , m_eventId(eventId)
-    , m_callbackPtr(reinterpret_cast<Callback<void>>(callback))
-    , m_callback(myCallback<T>)
+    , m_callbackPtr(reinterpret_cast<GenericCallbackPtr_t>(callback.m_callback))
+    , m_callback(TranslateAndCallTypelessCallback<T, UserType>::call)
 {
 }
 

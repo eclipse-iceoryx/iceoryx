@@ -18,6 +18,7 @@
 #define IOX_POSH_POPO_TRIGGER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/popo/event_callback.hpp"
 #include "iceoryx_posh/popo/event_info.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
@@ -76,13 +77,13 @@ class Trigger
     /// @param[in] uniqueId a context wide unique id to identify the trigger
     /// @param[in] stateType the uint64_t value of the  state origins state enum
     /// @param[in] stateTypeHash the uint64_t type hash of the state enum
-    template <typename T>
+    template <typename T, typename UserType>
     Trigger(StateBasedTrigger_t,
             T* const stateOrigin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t eventId,
-            const Callback<T> callback,
+            const EventCallback<T, UserType>& callback,
             const uint64_t uniqueId,
             const uint64_t stateType,
             const uint64_t stateTypeHash) noexcept;
@@ -98,12 +99,12 @@ class Trigger
     /// @param[in] uniqueId a context wide unique id to identify the trigger
     /// @param[in] eventType the uint64_t value of the events origins event enum
     /// @param[in] eventTypeHash the uint64_t type hash of the event enum
-    template <typename T>
+    template <typename T, typename UserType>
     Trigger(EventBasedTrigger_t,
             T* const eventOrigin,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t eventId,
-            const Callback<T> callback,
+            const EventCallback<T, UserType>& callback,
             const uint64_t uniqueId,
             const uint64_t eventType,
             const uint64_t eventTypeHash) noexcept;
@@ -157,12 +158,12 @@ class Trigger
     TriggerType getTriggerType() const noexcept;
 
   private:
-    template <typename T>
+    template <typename T, typename UserType>
     Trigger(T* const eventOrigin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t eventId,
-            const Callback<T> callback,
+            const EventCallback<T, UserType>& callback,
             const uint64_t uniqueId,
             const TriggerType triggerType,
             const uint64_t originTriggerType,

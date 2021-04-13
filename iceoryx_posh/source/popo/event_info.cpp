@@ -31,7 +31,7 @@ bool EventInfo::operator()() const noexcept
 {
     if (m_eventOrigin != nullptr && m_callbackPtr != nullptr)
     {
-        m_callback(m_eventOrigin, m_callbackPtr);
+        m_callback(m_eventOrigin, m_userValue, m_callbackPtr);
         return true;
     }
     return false;
