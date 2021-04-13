@@ -89,7 +89,7 @@ callback (`heartbeatCallback`).
 listener.attachEvent(heartbeat, iox::popo::createEventCallback(heartbeatCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach heartbeat event" << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
 });
 
 listener.attachEvent(subscriberLeft,
@@ -97,7 +97,7 @@ listener.attachEvent(subscriberLeft,
                      iox::popo::createEventCallback(onSampleReceivedCallback))
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberLeft" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
 // It is possible to attach any c function here with a signature of void(iox::popo::Subscriber<CounterTopic> *).
@@ -110,7 +110,7 @@ listener.attachEvent(subscriberRight,
                      iox::popo::createEventCallback(onSampleReceivedCallback))
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberRight" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 ```
 
@@ -196,7 +196,7 @@ Afterward, we reset both caches to start fresh again.
 
 ### Additional user defined argument for callbacks (ice_callbacks_listener_as_class_member.cpp)
 
-Here we demonstrate how you can virtually everything as an additional argument to the callbacks.
+Here we demonstrate how you can provide virtually everything as an additional argument to the callbacks.
 You just have to provide a reference to a value as additional argument in the `attachEvent` method 
 which is then provided as argument in your callback. One of the use cases is to get access 
 to members and methods of an object inside a static method which we demonstrate here.
