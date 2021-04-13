@@ -16,17 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
 
 namespace iox
 {
 namespace mepoo
 {
 SharedChunk::SharedChunk(ChunkManagement* const resource) noexcept
-    : m_chunkManagement(resource)
-{
-}
-
-SharedChunk::SharedChunk(const rp::RelativePointer<ChunkManagement>& resource) noexcept
     : m_chunkManagement(resource)
 {
 }
@@ -67,6 +63,7 @@ void SharedChunk::freeChunk() noexcept
 {
     m_chunkManagement->m_mempool->freeChunk(m_chunkManagement->m_chunkHeader);
     m_chunkManagement->m_chunkManagementPool->freeChunk(m_chunkManagement);
+    m_chunkManagement = nullptr;
 }
 
 SharedChunk& SharedChunk::operator=(const SharedChunk& rhs) noexcept
@@ -123,16 +120,6 @@ bool SharedChunk::operator!=(const void* const rhs) const noexcept
     return !(*this == rhs);
 }
 
-bool SharedChunk::hasNoOtherOwners() const noexcept
-{
-    if (m_chunkManagement == nullptr)
-    {
-        return true;
-    }
-
-    return m_chunkManagement->m_referenceCounter.load(std::memory_order_relaxed) == 1U;
-}
-
 SharedChunk::operator bool() const noexcept
 {
     return m_chunkManagement != nullptr;
@@ -153,13 +140,6 @@ ChunkHeader* SharedChunk::getChunkHeader() const noexcept
 ChunkManagement* SharedChunk::release() noexcept
 {
     ChunkManagement* returnValue = m_chunkManagement;
-    m_chunkManagement = nullptr;
-    return returnValue;
-}
-
-iox::rp::RelativePointer<ChunkManagement> SharedChunk::releaseWithRelativePtr() noexcept
-{
-    auto returnValue = m_chunkManagement;
     m_chunkManagement = nullptr;
     return returnValue;
 }
