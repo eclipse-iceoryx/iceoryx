@@ -253,7 +253,7 @@ class Mepoo_IntegrationTest : public Test
                                  ->getSegmentInformationWithWriteAccessForUser(currentUser.getName())
                                  .m_memoryManager;
         ASSERT_TRUE(memoryManager.has_value());
-        m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(*memoryManager.value(), mempoolInfo);
+        m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(memoryManager.value().get(), mempoolInfo);
 
         // internally, the chunks are adjusted to the additional management information;
         // this needs to be subtracted to be able to compare to the configured sizes

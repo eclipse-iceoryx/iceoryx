@@ -154,10 +154,10 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUse
 {
     auto memoryManager = sut.getSegmentInformationWithWriteAccessForUser({"iox_roudi_test2"}).m_memoryManager;
     ASSERT_TRUE(memoryManager.has_value());
-    ASSERT_THAT(memoryManager.value()->getNumberOfMemPools(), Eq(2u));
+    ASSERT_THAT(memoryManager.value().get().getNumberOfMemPools(), Eq(2u));
 
-    auto poolInfo1 = memoryManager.value()->getMemPoolInfo(0);
-    auto poolInfo2 = memoryManager.value()->getMemPoolInfo(1);
+    auto poolInfo1 = memoryManager.value().get().getMemPoolInfo(0);
+    auto poolInfo2 = memoryManager.value().get().getMemPoolInfo(1);
     EXPECT_THAT(poolInfo1.m_numChunks, Eq(5u));
     EXPECT_THAT(poolInfo2.m_numChunks, Eq(7u));
 }

@@ -120,7 +120,7 @@ SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const p
         {
             if (segment.getWriterGroup() == groupID)
             {
-                segmentInfo.m_memoryManager = &segment.getMemoryManager();
+                segmentInfo.m_memoryManager = segment.getMemoryManager();
                 segmentInfo.m_segmentID = segment.getSegmentId();
                 return segmentInfo;
             }
