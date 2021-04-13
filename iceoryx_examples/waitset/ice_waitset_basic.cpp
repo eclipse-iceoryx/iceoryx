@@ -26,12 +26,15 @@
 #include <iostream>
 
 std::atomic_bool shutdown{false};
-iox::popo::WaitSet<>* waitsetPtr;
+iox::popo::WaitSet<>* waitsetPtr = nullptr;
 
 static void sigHandler(int sig [[gnu::unused]])
 {
     shutdown = true;
-    waitsetPtr->markForDestruction();
+    if (waitsetPtr)
+    {
+        waitsetPtr->markForDestruction();
+    }
 }
 
 int main()
