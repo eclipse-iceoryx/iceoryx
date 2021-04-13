@@ -194,10 +194,15 @@ Afterward, we reset both caches to start fresh again.
     }
 ```
 
-### ice_callbacks_listener_as_class_member.cpp
+### Additional user defined argument for callbacks (ice_callbacks_listener_as_class_member.cpp)
+
+Here we demonstrate how you can virtually everything as an additional argument to the callbacks.
+You just have to provide a reference to a value as additional argument in the `attachEvent` method 
+which is then provided as argument in your callback. One of the use cases is to get access 
+to members and methods of an object inside a static method which we demonstrate here.
 
 This example is identical to the [ice_callbacks_subscriber.cpp](#ice_callbacks_subscriber.cpp) 
-one except that we left out the cyclic heartbeat trigger. The key difference is that 
+one, except that we left out the cyclic heartbeat trigger. The key difference is that 
 the listener is now a class member and in every callback we would like to change 
 some member variables. To do this we require an additional pointer to the object 
 since the listener requires c function references which do not allow the usage
@@ -205,7 +210,7 @@ of lambdas with capturing. Here we can use the userType feature which allows us
 to provide the this pointer as additional argument to the callback.
 
 The main function is now pretty short, we instantiate our object of type `CounterClass`
-and call `waitForControlC` which uses the `shutdownSemaphore` like in the 
+and call `waitForShutdown` which uses the `shutdownSemaphore` like in the 
 previous example to wait for the control c event from the user.
 ```cpp
 auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
@@ -215,7 +220,7 @@ iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
 CounterClass counterClass;
 
-counterClass.waitForControlC();
+counterClass.waitForShutdown();
 ```
 
 Our `CounterClass` has the following members:
@@ -232,7 +237,7 @@ class CounterClass {
 
 And their purposes are the same as in the previous example. In the constructor
 we initialize the two subscribers and attach them to our listener. But now we 
-add an additional parameter in the `iox::popo::createEventCallback` the 
+add an additional parameter in the `iox::popo::createEventCallback`, the 
 dereferenced `this` pointer. It has to be dereferenced since we require a reference 
 as argument.
 ```cpp
@@ -250,7 +255,7 @@ CounterClass()
                      iox::popo::createEventCallback(onSampleReceivedCallback, *this))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberLeft" << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
     m_listener
         .attachEvent(m_subscriberRight,
@@ -258,7 +263,7 @@ CounterClass()
                      iox::popo::createEventCallback(onSampleReceivedCallback, *this))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberRight" << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 }
 ```
