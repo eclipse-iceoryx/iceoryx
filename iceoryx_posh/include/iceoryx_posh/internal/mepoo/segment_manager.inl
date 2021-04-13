@@ -49,7 +49,7 @@ inline void SegmentManager<SegmentType>::createSegment(const SegmentConfig::Segm
 
 template <typename SegmentType>
 inline typename SegmentManager<SegmentType>::SegmentMappingContainer
-SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser user) noexcept
+SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) noexcept
 {
     // get all the groups the user is in
     auto groupContainer = user.getGroups();
@@ -107,7 +107,7 @@ SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser user) noexcept
 
 template <typename SegmentType>
 inline typename SegmentManager<SegmentType>::SegmentUserInformation
-SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(posix::PosixUser user) noexcept
+SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const posix::PosixUser& user) noexcept
 {
     auto groupContainer = user.getGroups();
 

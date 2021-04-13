@@ -158,7 +158,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @return Returns if the process could be added successfully.
     bool addProcess(const RuntimeName_t& name,
                     const uint32_t pid,
-                    posix::PosixUser user,
+                    const posix::PosixUser& user,
                     const bool isMonitored,
                     const int64_t transmissionTimestamp,
                     const uint64_t sessionId,

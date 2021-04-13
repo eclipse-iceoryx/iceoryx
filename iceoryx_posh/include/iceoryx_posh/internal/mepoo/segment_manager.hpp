@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -85,8 +86,8 @@ class SegmentManager
 
     using SegmentMappingContainer = cxx::vector<SegmentMapping, MAX_SHM_SEGMENTS>;
 
-    SegmentMappingContainer getSegmentMappings(posix::PosixUser user) noexcept;
-    SegmentUserInformation getSegmentInformationWithWriteAccessForUser(posix::PosixUser user) noexcept;
+    SegmentMappingContainer getSegmentMappings(const posix::PosixUser& user) noexcept;
+    SegmentUserInformation getSegmentInformationWithWriteAccessForUser(const posix::PosixUser& user) noexcept;
 
     static uint64_t requiredManagementMemorySize(const SegmentConfig& config) noexcept;
     static uint64_t requiredChunkMemorySize(const SegmentConfig& config) noexcept;

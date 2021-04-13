@@ -27,7 +27,7 @@ namespace roudi
 {
 Process::Process(const RuntimeName_t& name,
                  const uint32_t pid,
-                 posix::PosixUser user,
+                 const posix::PosixUser& user,
                  const bool isMonitored,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
