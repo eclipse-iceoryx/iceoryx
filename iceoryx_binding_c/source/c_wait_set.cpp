@@ -111,6 +111,21 @@ iox_WaitSetResult iox_ws_attach_subscriber_state(iox_ws_t const self,
     return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
+iox_WaitSetResult iox_ws_attach_subscriber_state_with_context_data(iox_ws_t const self,
+                                                                   iox_sub_t const subscriber,
+                                                                   const iox_SubscriberState subscriberState,
+                                                                   const uint64_t eventId,
+                                                                   void (*callback)(iox_sub_t, void*),
+                                                                   void* const contextData)
+{
+    EventCallback<cpp2c_Subscriber, void> eventCallback;
+    eventCallback.m_callback = callback;
+    eventCallback.m_contextData = contextData;
+
+    auto result = self->attachState(*subscriber, c2cpp::subscriberState(subscriberState), eventId, eventCallback);
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
 iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
                                                  iox_sub_t const subscriber,
                                                  const iox_SubscriberEvent subscriberEvent,
@@ -122,12 +137,41 @@ iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
     return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
+iox_WaitSetResult iox_ws_attach_subscriber_event_with_context_data(iox_ws_t const self,
+                                                                   iox_sub_t const subscriber,
+                                                                   const iox_SubscriberEvent subscriberEvent,
+                                                                   const uint64_t eventId,
+                                                                   void (*callback)(iox_sub_t, void*),
+                                                                   void* const contextData)
+{
+    EventCallback<cpp2c_Subscriber, void> eventCallback;
+    eventCallback.m_callback = callback;
+    eventCallback.m_contextData = contextData;
+
+    auto result = self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), eventId, eventCallback);
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
 iox_WaitSetResult iox_ws_attach_user_trigger_event(iox_ws_t const self,
                                                    iox_user_trigger_t const userTrigger,
                                                    const uint64_t eventId,
                                                    void (*callback)(iox_user_trigger_t))
 {
     auto result = self->attachEvent(*userTrigger, eventId, createEventCallback(*callback));
+    return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
+}
+
+iox_WaitSetResult iox_ws_attach_user_trigger_event_with_context_data(iox_ws_t const self,
+                                                                     iox_user_trigger_t const userTrigger,
+                                                                     const uint64_t eventId,
+                                                                     void (*callback)(iox_user_trigger_t, void*),
+                                                                     void* const contextData)
+{
+    EventCallback<UserTrigger, void> eventCallback;
+    eventCallback.m_callback = callback;
+    eventCallback.m_contextData = contextData;
+
+    auto result = self->attachEvent(*userTrigger, eventId, eventCallback);
     return (result.has_error()) ? cpp2c::waitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
