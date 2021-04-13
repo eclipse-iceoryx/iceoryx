@@ -75,7 +75,11 @@ struct iox_listener_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
+#if defined(__APPLE__)
+    uint64_t do_not_touch_me[2643];
+#else
     uint64_t do_not_touch_me[2567];
+#endif
 };
 typedef struct iox_listener_storage_t_ iox_listener_storage_t;
 
