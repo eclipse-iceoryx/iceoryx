@@ -52,8 +52,8 @@ bool UsedChunkList<Capacity>::insert(mepoo::SharedChunk chunk) noexcept
         rp::RelativePointer<mepoo::ChunkManagement> ptr = chunk.release();
         auto id = ptr.getId();
         auto offset = ptr.getOffset();
-        cxx::Ensures(id < DataElement_t::MAX_ID && "RelativePointer id must fit into id type!");
-        cxx::Ensures(offset < DataElement_t::MAX_OFFSET && "RelativePointer offset must fit into offset type!");
+        cxx::Ensures(id <= DataElement_t::MAX_VALID_ID && "RelativePointer id must fit into id type!");
+        cxx::Ensures(offset <= DataElement_t::MAX_VALID_OFFSET && "RelativePointer offset must fit into offset type!");
         m_listData[m_usedListHead] = DataElement_t(static_cast<uint16_t>(id), offset);
 
         // set freeListHead to the next free entry

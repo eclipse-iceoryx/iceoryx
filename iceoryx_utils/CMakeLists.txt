@@ -178,6 +178,7 @@ add_library(iceoryx_utils
     source/units/duration.cpp
     source/relocatable_pointer/base_relative_pointer.cpp
     source/relocatable_pointer/base_relocatable_pointer.cpp
+    source/relocatable_pointer/relative_pointer_data.cpp
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
