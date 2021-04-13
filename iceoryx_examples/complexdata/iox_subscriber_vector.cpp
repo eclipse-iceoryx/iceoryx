@@ -39,7 +39,7 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    // initialized subscriber
+    // initialize subscriber
     iox::popo::Subscriber<iox::cxx::vector<double, 5>> subscriber({"Radar", "FrontLeft", "Object"});
 
     // run until interrupted by Ctrl-C
