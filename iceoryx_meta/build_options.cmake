@@ -39,14 +39,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # "Create compile_commands.json file"
 
 if(BUILD_ALL)
   set(EXAMPLES ON)
-  set(INTROSPECTION ON)
   set(BUILD_TEST ON)
   set(INTROSPECTION ON)
   set(BINDING_C ON)
   set(DDS_GATEWAY ON)
 endif()
 
-## must be before the BUILD_TEST check 
+## must be before the BUILD_TEST check
 if(COVERAGE AND NOT BUILD_TEST)
   set(BUILD_TEST ON)
   set(BUILD_TEST_HINT "${BUILD_TEST_HINT} (activated by COVERAGE=ON)")
