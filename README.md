@@ -44,6 +44,8 @@ Don't get too frighten of the API when strolling through the codebase. Think of 
 The normal use case is that iceoryx is integrated as high-performance IPC transport layer in a bigger framework with additional API layers.
 An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
 
+You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io).
+
 ### Where is Eclipse iceoryx used?
 
 |Framework | Description |
