@@ -24,7 +24,7 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
-# @brief Test goal: "Integrationtest for the icecubetray example of iceoryx"
+# @brief Test goal: "Integrationtest for the ice_access_control example of iceoryx"
 # @pre setup ROS2 launch executable for RouDi (debug mode) the example processes
 # @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
@@ -34,7 +34,7 @@ def generate_test_description():
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
 
     # Configure users and groups necessary to run this integration test
-    subprocess.call(['sh', '$(git rev-parse --show-toplevel)/iceoryx_examples/icecubetray/config_and_run_icecubetray.sh config'])
+    subprocess.call(['sh', '$(git rev-parse --show-toplevel)/iceoryx_examples/ice_access_control/config_and_run_ice_access_control.sh config'])
 
     executable_list = ['iox-cpp-display', 'iox-cpp-radar', 'iox-cpp-cheeky']
     user_list = ['infotainment', 'perception', 'notallowed']
@@ -53,7 +53,7 @@ def generate_test_description():
 
     roudi_executable = os.path.join(
         colcon_prefix_path,
-        'iceoryx_icecubetray/bin/',
+        'iceoryx_ice_access_control/bin/',
         'iox-cpp-roudi-static-segments'
     )
     roudi_process = launch.actions.ExecuteProcess(
@@ -70,25 +70,25 @@ def generate_test_description():
     ]), {'iox-cpp-radar': process_list[0], 'iox-cpp-display': process_list[1], 'iox-cpp-cheeky': process_list[2]}
 
 
-class TestIcecubetrayExample(unittest.TestCase):
+class TestIceAccessControlExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_icecubetray_radar(self, proc_output):
+    def test_ice_access_control_radar(self, proc_output):
         proc_output.assertWaitFor(
             'iox-cpp-radar sent value: 10', timeout=45, stream='stdout')
 
-    def test_icecubetray_display(self, proc_output):
+    def test_ice_access_control_display(self, proc_output):
         proc_output.assertWaitFor(
             'iox-cpp-display sending value: 10', timeout=45, stream='stdout')
 
-    def test_icecubetray_cheeky(self, proc_output):
+    def test_ice_access_control_cheeky(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi did not find a writable shared memory segment for the current user.', timeout=45, stream='stdout')
 
 
 @ launch_testing.post_shutdown_test()
-class TestIcecubetraySetExampleExitCodes(unittest.TestCase):
+class Testice_access_controlSetExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

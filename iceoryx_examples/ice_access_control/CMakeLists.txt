@@ -14,9 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Build icecubetray example
+# Build ice_access_control example
 cmake_minimum_required(VERSION 3.5)
-project(example_icecubetray)
+project(example_ice_access_control)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" OFF)
 

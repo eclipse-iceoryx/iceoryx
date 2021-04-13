@@ -1,4 +1,4 @@
-# icecubetray
+# ice_access_control
 
 ## Introduction
 
@@ -165,5 +165,5 @@ iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 ```
 
 <center>
-[Check out icecubetray on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icecubetray){ .md-button }
+[Check out ice_access_control on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/ice_access_control){ .md-button }
 </center>
