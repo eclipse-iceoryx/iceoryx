@@ -69,6 +69,21 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     }
     m_mgmtSegmentId = maybeMgmtSegmentId.value();
 }
+
+void ProcessManager::handleProcessShutdownPreparationRequest(const RuntimeName_t& name) noexcept
+{
+    searchForProcessAndThen(
+        name,
+        [&](Process& process) {
+            m_portManager.unblockProcessShutdown(name);
+            // Reply with PREPARE_APP_TERMINATION_ACK and let process shutdown
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::PREPARE_APP_TERMINATION_ACK);
+            process.sendViaIpcChannel(sendBuffer);
+        },
+        [&]() { LogWarn() << "Unknown application " << name << " requested shutdown preparation."; });
+}
+
 void ProcessManager::requestShutdownOfAllProcesses() noexcept
 {
     // send SIG_TERM to all running applications and wait for processes to answer with TERMINATION
@@ -78,7 +93,7 @@ void ProcessManager::requestShutdownOfAllProcesses() noexcept
     }
 
     // this unblocks the RouDi shutdown if a publisher port is blocked by a full subscriber queue
-    m_portManager.unblockShutdown();
+    m_portManager.unblockRouDiShutdown();
 }
 
 bool ProcessManager::isAnyRegisteredProcessStillRunning() noexcept

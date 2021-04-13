@@ -98,6 +98,10 @@ class ProcessManager : public ProcessManagerInterface
     /// @return true if one or more of the registered processes is running, false otherwise
     bool isAnyRegisteredProcessStillRunning() noexcept;
 
+    /// @brief A process is about to shut down and needs to be unblock by a potentially block publisher
+    /// @param [in] name of the process runtime which is about to shut down
+    void handleProcessShutdownPreparationRequest(const RuntimeName_t& name) noexcept;
+
     /// @brief Tries to gracefully terminate all registered processes
     void requestShutdownOfAllProcesses() noexcept;
 
