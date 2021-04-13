@@ -38,13 +38,23 @@ class ShmSafeUnmanagedChunk
     /// @brief Creates a SharedChunk with incrementing the chunk reference counter and does not invalidate itself
     SharedChunk duplicateToSharedChunk() noexcept;
 
-    /// @brief Checks if the underlying RelativePointerData is logically a nullptr
+    /// @brief Checks if the underlying RelativePointerData to the chunk is logically a nullptr
     /// @return true if logically a nullptr otherwise false
     bool isLogicalNullptr() const noexcept;
 
     /// @brief Access to the ChunkHeader of the underlying chunk
     /// @return the pointer to the ChunkHeader of the underlying chunk or nullptr if isLogicalNullptr would return true
+    ChunkHeader* getChunkHeader() noexcept;
+
+    /// @brief const access to the ChunkHeader of the underlying chunk
+    /// @return the const pointer to the ChunkHeader of the underlying chunk or nullptr if isLogicalNullptr would return
+    /// true
     const ChunkHeader* getChunkHeader() const noexcept;
+
+    /// @brief Checks if the underlying RelativePointerData to the chunk is neither logically a nullptr nor that the
+    /// chunk has other owner
+    /// @return true if neither logically a nullptr nor other owner chunk owners present, otherwise false
+    bool isNotLogicalNullptrAndHasNoOtherOwners() const noexcept;
 
   private:
     rp::RelativePointerData m_chunkManagement;
