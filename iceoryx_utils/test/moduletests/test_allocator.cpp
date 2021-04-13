@@ -35,6 +35,8 @@ class Allocator_Test : public Test
         free(memory);
     }
 
+    static constexpr uint64_t MEMORY_ALIGNMENT{iox::posix::Allocator::MEMORY_ALIGNMENT};
+
     void* memory;
     size_t memorySize = 10016;
 };
@@ -42,7 +44,7 @@ class Allocator_Test : public Test
 TEST_F(Allocator_Test, allocateOneSmallElement)
 {
     iox::posix::Allocator sut(memory, memorySize);
-    int* bla = static_cast<int*>(sut.allocate(sizeof(int)));
+    int* bla = static_cast<int*>(sut.allocate(sizeof(int), MEMORY_ALIGNMENT));
     *bla = 123;
     EXPECT_THAT(*bla, Eq(123));
 }
@@ -70,7 +72,7 @@ TEST_F(Allocator_Test, allocateTooMuchSingleElement)
 {
     iox::posix::Allocator sut(memory, memorySize);
     std::set_terminate([]() { std::cout << "", std::abort(); });
-    EXPECT_DEATH({ sut.allocate(memorySize + 1); }, ".*");
+    EXPECT_DEATH({ sut.allocate(memorySize + 1, MEMORY_ALIGNMENT); }, ".*");
 }
 
 TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
@@ -82,21 +84,21 @@ TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
     }
 
     std::set_terminate([]() { std::cout << "", std::abort(); });
-    EXPECT_DEATH({ sut.allocate(1); }, ".*");
+    EXPECT_DEATH({ sut.allocate(1, MEMORY_ALIGNMENT); }, ".*");
 }
 
 TEST_F(Allocator_Test, allocateAndAlignment)
 {
     iox::posix::Allocator sut(memory, memorySize);
-    auto bla = static_cast<uint8_t*>(sut.allocate(5));
-    auto bla2 = static_cast<uint8_t*>(sut.allocate(5));
-    EXPECT_THAT(bla2 - bla, Eq(32));
+    auto bla = static_cast<uint8_t*>(sut.allocate(5, MEMORY_ALIGNMENT));
+    auto bla2 = static_cast<uint8_t*>(sut.allocate(5, MEMORY_ALIGNMENT));
+    EXPECT_THAT(bla2 - bla, Eq(8U));
 }
 
 TEST_F(Allocator_Test, allocateElementOfSizeZero)
 {
     iox::posix::Allocator sut(memory, memorySize);
-    EXPECT_DEATH(sut.allocate(0), ".*");
+    EXPECT_DEATH(sut.allocate(0, MEMORY_ALIGNMENT), ".*");
 }
 
 TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
@@ -112,10 +114,10 @@ TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
         using iox::posix::Allocator::finalizeAllocation;
     };
     AllocatorAccess sut(memory, memorySize);
-    sut.allocate(5);
+    sut.allocate(5, MEMORY_ALIGNMENT);
     sut.finalizeAllocation();
 
     std::set_terminate([]() { std::cout << "", std::abort(); });
-    EXPECT_DEATH({ sut.allocate(5); }, ".*");
+    EXPECT_DEATH({ sut.allocate(5, MEMORY_ALIGNMENT); }, ".*");
 }
 } // namespace

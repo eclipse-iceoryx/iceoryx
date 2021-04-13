@@ -189,9 +189,10 @@ class Listener
         void push(const uint32_t index) noexcept;
         uint64_t indicesInUse() const noexcept;
 
-        uint32_t m_loffliStorage[concurrent::LoFFLi::requiredMemorySize(MAX_NUMBER_OF_EVENTS_PER_LISTENER)
-                                 / sizeof(uint32_t)];
-        concurrent::LoFFLi m_loffli;
+        using LoFFLi = concurrent::LoFFLi;
+        LoFFLi::Index_t
+            m_loffliStorage[LoFFLi::requiredIndexMemorySize(MAX_NUMBER_OF_EVENTS_PER_LISTENER) / sizeof(uint32_t)];
+        LoFFLi m_loffli;
         std::atomic<uint64_t> m_indicesInUse{0U};
     } m_indexManager;
 

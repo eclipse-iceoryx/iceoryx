@@ -1929,7 +1929,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
 {
     uint64_t i = 0U;
     using TestFwdList = forward_list<TestListElement, TESTLISTCAPACITY>;
-    alignas(alignof(TestFwdList)) uint8_t otherSutBuffer[sizeof(TestFwdList)];
+    alignas(TestFwdList) uint8_t otherSutBuffer[sizeof(TestFwdList)];
     uint8_t* otherSutPtr = otherSutBuffer;
 
     {
