@@ -24,7 +24,7 @@ WORKSPACE=$(git rev-parse --show-toplevel)
 CONFIG="OFF"
 RUN="OFF"
 SESSION=icecubetray
-tmux="tmux -2 -q"
+TMUX="TMUX -2 -q"
 
 while (( "$#" )); do
   case "$1" in
@@ -56,42 +56,40 @@ if [ "$CONFIG" == "ON" ] ; then
     sudo useradd -M notallowed
 
     # Assign users to group and disable login
-    sudo usermod -L perception -a -G privileged
-    sudo usermod -L infotainment -a -G unprivileged
-    sudo usermod -L perception -a -G iceoryx
-    sudo usermod -L infotainment -a -G iceoryx
-    sudo usermod -L roudi -a -G iceoryx
-    sudo usermod -L notallowed -a -G iceoryx
+    sudo usermod -L perception -a -G privileged,iceoryx -s /sbin/nologin
+    sudo usermod -L infotainment -a -G unprivileged,iceoryx -s /sbin/nologin
+    sudo usermod -L roudi -a -G iceoryx -s /sbin/nologin
+    sudo usermod -L notallowed -a -G iceoryx -s /sbin/nologin
 
     # Allow RouDi to send SIGKILL to other apps
     sudo setcap cap_kill=ep $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments
 fi
 
 if [ "$RUN" == "ON" ] ; then
-    $tmux kill-server
+    $TMUX kill-server
 
-    $tmux has-session -t $SESSION
+    $TMUX has-session -t $SESSION
     if [ $? -eq 0 ]; then
         echo "Session $SESSION already exists. Attaching to session."
-        $tmux attach -t $SESSION
+        $TMUX attach -t $SESSION
         exit 0;
     fi
 
-    command -v tmux >/dev/null 2>&1 || { echo >&2 "tmux is not installed but required. Trying to install it..."; sudo apt-get install tmux; }
+    command -v $TMUX >/dev/null 2>&1 || { echo >&2 "TMUX is not installed but required. Trying to install it..."; sudo apt-get install TMUX; }
 
-    $tmux new-session -d -s $SESSION
+    $TMUX new-session -d -s $SESSION
 
     # Start custom RouDi in 'iceoryx' group
-    $tmux new-window -a -t $SESSION 'sudo -u roudi -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments'
+    $TMUX new-window -a -t $SESSION 'sudo -u roudi -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments'
 
     # Start perception app as 'perception' user
-    $tmux split-window -t 0 -h 'sudo -u perception -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-radar'
+    $TMUX split-window -t 0 -h 'sudo -u perception -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-radar'
 
     # Start display app as 'infotainment' user
-    $tmux split-window -t 1 -v 'sudo -u infotainment -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-display'
+    $TMUX split-window -t 1 -v 'sudo -u infotainment -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-display'
 
     # Start cheeky app as 'notallowed' user
-    $tmux split-window -t 0 -v 'sudo -u notallowed -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-cheeky'
+    $TMUX split-window -t 0 -v 'sudo -u notallowed -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-cheeky'
 
-    $tmux attach -t $SESSION
+    $TMUX attach -t $SESSION
 fi
