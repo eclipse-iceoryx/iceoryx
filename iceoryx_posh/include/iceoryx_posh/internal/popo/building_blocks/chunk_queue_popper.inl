@@ -52,11 +52,7 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
     // check if queue had an element that was poped and return if so
     if (retVal.has_value())
     {
-        auto chunkTupleOut = *retVal;
-        auto chunkManagement =
-            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
-        auto chunk = mepoo::SharedChunk(chunkManagement);
-        return cxx::make_optional<mepoo::SharedChunk>(chunk);
+        return cxx::make_optional<mepoo::SharedChunk>(retVal.value().releaseToSharedChunk());
     }
     else
     {
@@ -108,13 +104,10 @@ inline uint64_t ChunkQueuePopper<ChunkQueueDataType>::getMaximumCapacity() const
 template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
 {
-    while (auto maybeChunkTuple = getMembers()->m_queue.pop())
+    while (auto maybeUnmanagedChunk = getMembers()->m_queue.pop())
     {
         // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
-        auto chunkTupleOut = maybeChunkTuple.value();
-        auto chunkManagement =
-            rp::RelativePointer<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
-        auto chunk = mepoo::SharedChunk(chunkManagement);
+        maybeUnmanagedChunk.value().releaseToSharedChunk();
     }
 }
 
