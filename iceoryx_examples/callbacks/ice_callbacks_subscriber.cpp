@@ -103,7 +103,7 @@ int main()
     });
 
     // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
-    listener.attachEvent(heartbeat, heartbeatCallback).or_else([](auto) {
+    listener.attachEvent(heartbeat, iox::popo::createEventCallback(heartbeatCallback)).or_else([](auto) {
         std::cerr << "unable to attach heartbeat event" << std::endl;
         std::terminate();
     });
@@ -113,12 +113,18 @@ int main()
     // long as the event is attached. Furthermore, it excludes lambdas which are capturing data since they are not
     // convertable to a c function pointer.
     // to simplify the example we attach the same callback onSampleReceivedCallback again
-    listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
+    listener
+        .attachEvent(subscriberLeft,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createEventCallback(onSampleReceivedCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberLeft" << std::endl;
             std::terminate();
         });
-    listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
+    listener
+        .attachEvent(subscriberRight,
+                     iox::popo::SubscriberEvent::DATA_RECEIVED,
+                     iox::popo::createEventCallback(onSampleReceivedCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberRight" << std::endl;
             std::terminate();

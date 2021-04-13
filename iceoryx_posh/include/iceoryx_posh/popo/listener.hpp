@@ -89,74 +89,6 @@ class Listener
     Listener& operator=(const Listener&) = delete;
     Listener& operator=(Listener&&) = delete;
 
-    /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
-    ///        the corresponding callback which will be called when the event occurs.
-    /// @note This method can be called from any thread concurrently without any restrictions!
-    /// @note The Listener does not take ownership of the eventCallback and only C function references are allowed.
-    ///         This excludes lambdas with captures. If you would like to capture something please use the attachEvent
-    ///         method with an additional user type.
-    /// @tparam[in] T type of the class which will signal the event
-    /// @param[in] eventOrigin the object which will signal the event (the origin)
-    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. The callback has
-    /// the signature: void(T*).
-    /// @return If an error occurs the enum packed inside an expected which describes the error.
-    template <typename T>
-    cxx::expected<ListenerError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
-
-    /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin, an enum which further
-    ///        defines the event inside the class and the corresponding callback which will be called when the event
-    ///        occurs.
-    /// @note This method can be called from any thread concurrently without any restrictions!
-    /// @note The Listener does not take ownership of the eventCallback and only C function references are allowed.
-    ///         This excludes lambdas with captures. If you would like to capture something please use the attachEvent
-    ///         method with an additional user type.
-    /// @tparam[in] T type of the class which will signal the event
-    /// @param[in] eventOrigin the object which will signal the event (the origin)
-    /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
-    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. The callback has
-    /// the signature: void(T*)
-    /// @return If an error occurs the enum packed inside an expected which describes the error.
-    template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
-    cxx::expected<ListenerError>
-    attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept;
-
-    /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin, an enum which further
-    ///        defines the event inside the class and the corresponding callback which will be called when the event
-    ///        occurs.
-    /// @note This method can be called from any thread concurrently without any restrictions!
-    /// @note The Listener does not take ownership of the eventCallback and only C function references are allowed.
-    ///         This excludes lambdas with captures. If you would like to capture something please use the userType.
-    /// @tparam[in] T type of the class which will signal the event
-    /// @param[in] eventOrigin the object which will signal the event (the origin)
-    /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
-    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. The callback has
-    /// the signature: void(T*, UserType *)
-    /// @param[in] userType a reference to a user defined type which is provided to eventCallback as additional argument
-    /// @return If an error occurs the enum packed inside an expected which describes the error.
-    template <typename T,
-              typename EventType,
-              typename UserType,
-              typename = std::enable_if_t<std::is_enum<EventType>::value>>
-    cxx::expected<ListenerError> attachEvent(T& eventOrigin,
-                                             const EventType eventType,
-                                             CallbackWithUserTypeRef_t<T, UserType> eventCallback,
-                                             UserType& userType) noexcept;
-
-    /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
-    ///        the corresponding callback which will be called when the event occurs.
-    /// @note This method can be called from any thread concurrently without any restrictions!
-    /// @note The Listener does not take ownership of the eventCallback and only C function references are allowed.
-    ///         This excludes lambdas with captures. If you would like to capture something please use the userType.
-    /// @tparam[in] T type of the class which will signal the event
-    /// @param[in] eventOrigin the object which will signal the event (the origin)
-    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. The callback has
-    /// the signature: void(T*, UserType*)
-    /// @param[in] userType a reference to a user defined type which is provided to eventCallback as additional argument
-    /// @return If an error occurs the enum packed inside an expected which describes the error.
-    template <typename T, typename UserType>
-    cxx::expected<ListenerError>
-    attachEvent(T& eventOrigin, CallbackWithUserTypeRef_t<T, UserType> eventCallback, UserType& userType) noexcept;
-
     template <typename T,
               typename EventType,
               typename UserType,
@@ -166,7 +98,6 @@ class Listener
 
     template <typename T, typename UserType>
     cxx::expected<ListenerError> attachEvent(T& eventOrigin, const EventCallback<T, UserType>& eventCallback) noexcept;
-
 
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
     ///        the eventType with further specifies the event inside of eventOrigin

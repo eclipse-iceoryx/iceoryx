@@ -182,8 +182,11 @@ class Listener_test : public Test
     {
         for (auto& e : g_toBeAttached.GetCopy())
         {
-            ASSERT_FALSE(
-                e.sut->attachEvent(*e.object, SimpleEvent::StoepselBachelorParty, triggerCallback<0U>).has_error());
+            ASSERT_FALSE(e.sut
+                             ->attachEvent(*e.object,
+                                           SimpleEvent::StoepselBachelorParty,
+                                           createEventCallback(triggerCallback<0U>))
+                             .has_error());
         }
     }
 
@@ -239,7 +242,8 @@ class Listener_test : public Test
     {
         for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
         {
-            EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[i], Listener_test::triggerCallback<0U>).has_error());
+            EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[i], createEventCallback(Listener_test::triggerCallback<0U>))
+                             .has_error());
             EXPECT_THAT(m_sut->size(), Eq(i + 1U));
         }
     }
@@ -248,7 +252,9 @@ class Listener_test : public Test
         for (uint64_t i = 0U; i < m_sut->capacity(); ++i)
         {
             bool hasError =
-                m_sut->attachEvent(m_simpleEvents[i], eventType, Listener_test::triggerCallback<0U>).has_error();
+                m_sut
+                    ->attachEvent(m_simpleEvents[i], eventType, createEventCallback(Listener_test::triggerCallback<0U>))
+                    .has_error();
             EXPECT_FALSE(hasError);
             if (hasError)
             {
@@ -284,7 +290,9 @@ struct AttachEvent
     template <typename EventType>
     static void doIt(TestListener& sut, std::vector<SimpleEventClass>& events, const EventType event)
     {
-        EXPECT_THAT(sut.attachEvent(events[N], event, Listener_test::triggerCallback<N>).has_error(), Eq(false));
+        EXPECT_THAT(
+            sut.attachEvent(events[N], event, createEventCallback(Listener_test::triggerCallback<N>)).has_error(),
+            Eq(false));
         AttachEvent<N - 1U>::doIt(sut, events, event);
     }
 };
@@ -295,7 +303,9 @@ struct AttachEvent<0U>
     template <typename EventType>
     static void doIt(TestListener& sut, std::vector<SimpleEventClass>& events, const EventType event)
     {
-        EXPECT_THAT(sut.attachEvent(events[0U], event, Listener_test::triggerCallback<0U>).has_error(), Eq(false));
+        EXPECT_THAT(
+            sut.attachEvent(events[0U], event, createEventCallback(Listener_test::triggerCallback<0U>)).has_error(),
+            Eq(false));
     }
 };
 } // namespace
@@ -316,7 +326,8 @@ TEST_F(Listener_test, IsEmptyWhenConstructed)
 
 TEST_F(Listener_test, AttachingWithoutEnumIfEnoughSpaceAvailableWorks)
 {
-    EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], Listener_test::triggerCallback<0U>).has_error());
+    EXPECT_FALSE(
+        m_sut->attachEvent(m_simpleEvents[0U], createEventCallback(Listener_test::triggerCallback<0U>)).has_error());
     EXPECT_THAT(m_sut->size(), Eq(1U));
 }
 
@@ -336,7 +347,8 @@ TEST_F(Listener_test, DetachDecreasesSize)
 TEST_F(Listener_test, AttachWithoutEnumOneMoreThanCapacityFails)
 {
     fillUpWithSimpleEvents();
-    auto result = m_sut->attachEvent(m_simpleEvents[m_sut->capacity()], Listener_test::triggerCallback<0U>);
+    auto result =
+        m_sut->attachEvent(m_simpleEvents[m_sut->capacity()], createEventCallback(Listener_test::triggerCallback<0U>));
 
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ListenerError::LISTENER_FULL));
@@ -344,8 +356,11 @@ TEST_F(Listener_test, AttachWithoutEnumOneMoreThanCapacityFails)
 
 TEST_F(Listener_test, AttachingWithEnumIfEnoughSpaceAvailableWorks)
 {
-    EXPECT_FALSE(
-        m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::Hypnotoad, Listener_test::triggerCallback<0U>).has_error());
+    EXPECT_FALSE(m_sut
+                     ->attachEvent(m_simpleEvents[0U],
+                                   SimpleEvent::Hypnotoad,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
     EXPECT_THAT(m_sut->size(), Eq(1U));
 }
 
@@ -357,8 +372,9 @@ TEST_F(Listener_test, AttachWithEnumTillCapacityIsFullWorks)
 TEST_F(Listener_test, AttachWithEnumOneMoreThanCapacityFails)
 {
     fillUpWithSimpleEventsWithEnum(SimpleEvent::Hypnotoad);
-    auto result = m_sut->attachEvent(
-        m_simpleEvents[m_sut->capacity()], SimpleEvent::Hypnotoad, Listener_test::triggerCallback<0U>);
+    auto result = m_sut->attachEvent(m_simpleEvents[m_sut->capacity()],
+                                     SimpleEvent::Hypnotoad,
+                                     createEventCallback(Listener_test::triggerCallback<0U>));
 
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ListenerError::LISTENER_FULL));
@@ -369,10 +385,11 @@ TEST_F(Listener_test, DetachMakesSpaceForAnotherAttachWithEventEnum)
     fillUpWithSimpleEventsWithEnum(SimpleEvent::Hypnotoad);
 
     m_sut->detachEvent(m_simpleEvents[0U], SimpleEvent::Hypnotoad);
-    EXPECT_FALSE(
-        m_sut
-            ->attachEvent(m_simpleEvents[m_sut->capacity()], SimpleEvent::Hypnotoad, Listener_test::triggerCallback<0U>)
-            .has_error());
+    EXPECT_FALSE(m_sut
+                     ->attachEvent(m_simpleEvents[m_sut->capacity()],
+                                   SimpleEvent::Hypnotoad,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 }
 
 TEST_F(Listener_test, DetachMakesSpaceForAnotherAttachWithoutEventEnum)
@@ -380,58 +397,75 @@ TEST_F(Listener_test, DetachMakesSpaceForAnotherAttachWithoutEventEnum)
     fillUpWithSimpleEvents();
 
     m_sut->detachEvent(m_simpleEvents[0U]);
-    EXPECT_FALSE(m_sut->attachEvent(m_simpleEvents[m_sut->capacity()], Listener_test::triggerCallback<0U>).has_error());
+    EXPECT_FALSE(
+        m_sut->attachEvent(m_simpleEvents[m_sut->capacity()], createEventCallback(Listener_test::triggerCallback<0U>))
+            .has_error());
 }
 
 TEST_F(Listener_test, AttachingEventWithoutEventTypeLeadsToAttachedNoEventEnumTriggerHandle)
 {
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(m_simpleEvents[0U], createEventCallback(Listener_test::triggerCallback<0U>)).has_error());
     EXPECT_TRUE(m_simpleEvents[0U].m_handleNoEventEnum.isValid());
 }
 
 TEST_F(Listener_test, AttachingEventWithEventTypeLeadsToAttachedTriggerHandle)
 {
-    ASSERT_FALSE(
-        m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>)
-            .has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(m_simpleEvents[0U],
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
     EXPECT_TRUE(m_simpleEvents[0U].m_handleStoepsel.isValid());
 }
 
 TEST_F(Listener_test, OverridingAlreadyAttachedEventWithEnumFails)
 {
-    ASSERT_FALSE(
-        m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>)
-            .has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(m_simpleEvents[0U],
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
-    auto result =
-        m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>);
+    auto result = m_sut->attachEvent(m_simpleEvents[0U],
+                                     SimpleEvent::StoepselBachelorParty,
+                                     createEventCallback(Listener_test::triggerCallback<0U>));
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ListenerError::EVENT_ALREADY_ATTACHED));
 }
 
 TEST_F(Listener_test, OverridingAlreadyAttachedEventWithoutEnumFails)
 {
-    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(m_simpleEvents[0U], createEventCallback(Listener_test::triggerCallback<0U>)).has_error());
 
-    auto result = m_sut->attachEvent(m_simpleEvents[0U], Listener_test::triggerCallback<0U>);
+    auto result = m_sut->attachEvent(m_simpleEvents[0U], createEventCallback(Listener_test::triggerCallback<0U>));
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ListenerError::EVENT_ALREADY_ATTACHED));
 }
 
 TEST_F(Listener_test, AttachingSameClassWithTwoDifferentEventsWorks)
 {
-    ASSERT_FALSE(
-        m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::Hypnotoad, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(m_simpleEvents[0U],
+                                   SimpleEvent::Hypnotoad,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
-    EXPECT_FALSE(
-        m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>)
-            .has_error());
+    EXPECT_FALSE(m_sut
+                     ->attachEvent(m_simpleEvents[0U],
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 }
 
 TEST_F(Listener_test, DetachingSameClassWithDifferentEventEnumChangesNothing)
 {
-    ASSERT_FALSE(
-        m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::Hypnotoad, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(m_simpleEvents[0U],
+                                   SimpleEvent::Hypnotoad,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
     m_sut->detachEvent(m_simpleEvents[0U], SimpleEvent::StoepselBachelorParty);
     EXPECT_THAT(m_sut->size(), Eq(1U));
@@ -439,8 +473,11 @@ TEST_F(Listener_test, DetachingSameClassWithDifferentEventEnumChangesNothing)
 
 TEST_F(Listener_test, DetachingDifferentClassWithSameEventEnumChangesNothing)
 {
-    ASSERT_FALSE(
-        m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::Hypnotoad, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(m_simpleEvents[0U],
+                                   SimpleEvent::Hypnotoad,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
     m_sut->detachEvent(m_simpleEvents[1U], SimpleEvent::Hypnotoad);
     EXPECT_THAT(m_sut->size(), Eq(1U));
@@ -486,7 +523,7 @@ TEST_F(Listener_test, AttachedEventDTorDetachesItself)
 {
     {
         SimpleEventClass fuu;
-        ASSERT_FALSE(m_sut->attachEvent(fuu, Listener_test::triggerCallback<0U>).has_error());
+        ASSERT_FALSE(m_sut->attachEvent(fuu, createEventCallback(Listener_test::triggerCallback<0U>)).has_error());
     }
 
     EXPECT_THAT(m_sut->size(), Eq(0U));
@@ -495,7 +532,7 @@ TEST_F(Listener_test, AttachedEventDTorDetachesItself)
 TEST_F(Listener_test, AttachingSimpleEventWithoutEnumSetsNoEventEnumTriggerHandle)
 {
     SimpleEventClass fuu;
-    ASSERT_FALSE(m_sut->attachEvent(fuu, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut->attachEvent(fuu, createEventCallback(Listener_test::triggerCallback<0U>)).has_error());
 
     EXPECT_TRUE(static_cast<bool>(fuu.m_handleNoEventEnum));
 }
@@ -503,7 +540,7 @@ TEST_F(Listener_test, AttachingSimpleEventWithoutEnumSetsNoEventEnumTriggerHandl
 TEST_F(Listener_test, DetachingSimpleEventResetsTriggerHandle)
 {
     SimpleEventClass fuu;
-    ASSERT_FALSE(m_sut->attachEvent(fuu, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut->attachEvent(fuu, createEventCallback(Listener_test::triggerCallback<0U>)).has_error());
     m_sut->detachEvent(fuu);
 
     EXPECT_FALSE(static_cast<bool>(fuu.m_handleNoEventEnum));
@@ -512,8 +549,11 @@ TEST_F(Listener_test, DetachingSimpleEventResetsTriggerHandle)
 TEST_F(Listener_test, AttachingEventWithEnumSetsTriggerHandle)
 {
     SimpleEventClass fuu;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
     EXPECT_TRUE(static_cast<bool>(fuu.m_handleStoepsel));
 }
@@ -521,8 +561,11 @@ TEST_F(Listener_test, AttachingEventWithEnumSetsTriggerHandle)
 TEST_F(Listener_test, DetachingEventWithEnumResetsTriggerHandle)
 {
     SimpleEventClass fuu;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
     m_sut->detachEvent(fuu, SimpleEvent::StoepselBachelorParty);
 
     EXPECT_FALSE(static_cast<bool>(fuu.m_handleStoepsel));
@@ -531,8 +574,11 @@ TEST_F(Listener_test, DetachingEventWithEnumResetsTriggerHandle)
 TEST_F(Listener_test, DetachingNonAttachedEventResetsNothing)
 {
     SimpleEventClass fuu;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
     m_sut->detachEvent(fuu, SimpleEvent::Hypnotoad);
 
     EXPECT_TRUE(static_cast<bool>(fuu.m_handleStoepsel));
@@ -548,8 +594,11 @@ TEST_F(Listener_test, DetachingNonAttachedEventResetsNothing)
 TIMING_TEST_F(Listener_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
     fuu.triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
@@ -579,7 +628,8 @@ TIMING_TEST_F(Listener_test, CallbackWithUserTypeIsCalledAfterNotify, Repeat(5),
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     uint64_t userType = 0U;
-    ASSERT_FALSE(m_sut->attachEvent(fuu, Listener_test::triggerCallbackWithUserType, userType).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(fuu, createEventCallback(Listener_test::triggerCallbackWithUserType, userType)).has_error());
 
     fuu.triggerNoEventType();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
@@ -592,10 +642,16 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu1;
     SimpleEventClass fuu2;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu1, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu2, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<1U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu1,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu2,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<1U>))
+                     .has_error());
 
     fuu1.triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
@@ -611,8 +667,11 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [
 TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallback, Repeat(5), [&] {
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
     constexpr uint64_t NUMBER_OF_TRIGGER_UNBLOCKS = 10U;
 
@@ -633,10 +692,16 @@ TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallbackOnce, R
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     SimpleEventClass bar;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
-    ASSERT_FALSE(
-        m_sut->attachEvent(bar, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<1U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(bar,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<1U>))
+                     .has_error());
 
     constexpr uint64_t NUMBER_OF_TRIGGER_UNBLOCKS = 10U;
 
@@ -659,8 +724,11 @@ TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallbackOnce, R
 TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCallback, Repeat(5), [&] {
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
     constexpr uint64_t NUMBER_OF_RETRIGGERS = 10U;
 
@@ -684,10 +752,16 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     SimpleEventClass bar;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
-    ASSERT_FALSE(
-        m_sut->attachEvent(bar, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<1U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(bar,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<1U>))
+                     .has_error());
 
     constexpr uint64_t NUMBER_OF_RETRIGGERS = 10U;
 
@@ -713,8 +787,11 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
 TIMING_TEST_F(Listener_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
-    ASSERT_FALSE(
-        m_sut->attachEvent(fuu, SimpleEvent::StoepselBachelorParty, Listener_test::triggerCallback<0U>).has_error());
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(fuu,
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(Listener_test::triggerCallback<0U>))
+                     .has_error());
 
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
@@ -793,13 +870,17 @@ TIMING_TEST_F(Listener_test, AttachingWhileCallbackIsRunningWorks, Repeat(5), [&
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
-    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, triggerCallback<0U>).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createEventCallback(triggerCallback<0U>))
+            .has_error());
 
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
     events[0U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    ASSERT_FALSE(m_sut->attachEvent(events[1U], SimpleEvent::StoepselBachelorParty, triggerCallback<1U>).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(events[1U], SimpleEvent::StoepselBachelorParty, createEventCallback(triggerCallback<1U>))
+            .has_error());
     events[1U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS * 2U));
 
@@ -814,7 +895,7 @@ TIMING_TEST_F(Listener_test, AttachingMultipleWhileCallbackIsRunningWorks, Repea
     ASSERT_FALSE(m_sut
                      ->attachEvent(events[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U],
                                    SimpleEvent::StoepselBachelorParty,
-                                   triggerCallback<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U>)
+                                   createEventCallback(triggerCallback<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U>))
                      .has_error());
 
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
@@ -841,7 +922,9 @@ TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningWorks, Repeat(5), [&
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
-    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, triggerCallback<0U>).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createEventCallback(triggerCallback<0U>))
+            .has_error());
 
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
     events[0U].triggerStoepsel();
@@ -859,7 +942,9 @@ TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningWorks, Repeat(5), [&
 TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningBlocksDetach, Repeat(5), [&] {
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
-    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, triggerCallback<0U>).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createEventCallback(triggerCallback<0U>))
+            .has_error());
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
     events[0U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 4U));
@@ -875,7 +960,9 @@ TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningBlocksDetach, Repeat
 TIMING_TEST_F(Listener_test, EventDestructorBlocksWhenCallbackIsRunning, Repeat(5), [&] {
     m_sut.emplace(m_condVarData);
     SimpleEventClass* event = new SimpleEventClass();
-    ASSERT_FALSE(m_sut->attachEvent(*event, SimpleEvent::StoepselBachelorParty, triggerCallback<0U>).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(*event, SimpleEvent::StoepselBachelorParty, createEventCallback(triggerCallback<0U>))
+            .has_error());
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
     event->triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 4U));
@@ -927,7 +1014,7 @@ TIMING_TEST_F(Listener_test, AttachingDetachingRunsIndependentOfCallback, Repeat
     ASSERT_FALSE(m_sut
                      ->attachEvent(events[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U],
                                    SimpleEvent::StoepselBachelorParty,
-                                   triggerCallback<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U>)
+                                   createEventCallback(triggerCallback<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U>))
                      .has_error());
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
     events[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U].triggerStoepsel();
@@ -957,7 +1044,8 @@ TIMING_TEST_F(Listener_test, DetachingSelfInCallbackWorks, Repeat(5), [&] {
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     g_toBeDetached->push_back({&events[0U], &*m_sut});
-    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, detachCallback).has_error());
+    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createEventCallback(detachCallback))
+                     .has_error());
 
     events[0U].triggerStoepsel();
 
@@ -972,8 +1060,11 @@ TIMING_TEST_F(Listener_test, DetachingNonSelfEventInCallbackWorks, Repeat(5), [&
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     g_toBeDetached->push_back({&events[1U], &*m_sut});
-    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, detachCallback).has_error());
-    ASSERT_FALSE(m_sut->attachEvent(events[1U], SimpleEvent::StoepselBachelorParty, triggerCallback<1U>).has_error());
+    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createEventCallback(detachCallback))
+                     .has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(events[1U], SimpleEvent::StoepselBachelorParty, createEventCallback(triggerCallback<1U>))
+            .has_error());
 
     events[0U].triggerStoepsel();
 
@@ -998,9 +1089,14 @@ TIMING_TEST_F(Listener_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefo
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     g_toBeDetached->push_back({&events[1U], &*m_sut});
-    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, notifyAndThenDetachStoepselCallback)
+    ASSERT_FALSE(m_sut
+                     ->attachEvent(events[0U],
+                                   SimpleEvent::StoepselBachelorParty,
+                                   createEventCallback(notifyAndThenDetachStoepselCallback))
                      .has_error());
-    ASSERT_FALSE(m_sut->attachEvent(events[1U], SimpleEvent::StoepselBachelorParty, triggerCallback<1U>).has_error());
+    ASSERT_FALSE(
+        m_sut->attachEvent(events[1U], SimpleEvent::StoepselBachelorParty, createEventCallback(triggerCallback<1U>))
+            .has_error());
 
     g_triggerCallbackRuntimeInMs = 3U * CALLBACK_WAIT_IN_MS / 2U;
     events[1U].triggerStoepsel();
@@ -1025,7 +1121,8 @@ TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(5), [&] {
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     g_toBeAttached->push_back({&events[1U], &*m_sut});
-    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, attachCallback).has_error());
+    ASSERT_FALSE(m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createEventCallback(attachCallback))
+                     .has_error());
 
     events[0U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 2U));
