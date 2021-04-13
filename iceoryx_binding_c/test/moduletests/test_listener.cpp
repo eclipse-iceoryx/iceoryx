@@ -21,7 +21,7 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
-#include "testutils/timing_test.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 
 using namespace iox;
 using namespace iox::popo;

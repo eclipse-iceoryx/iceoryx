@@ -186,25 +186,25 @@ class optional
     void reset() noexcept;
 
     /// @brief Returns a reference to the underlying value. If the optional has no
-    ///         value the behavior is undefined. You need to verify that the
+    ///         value the application terminates. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return reference to the underlying type
     T& value() & noexcept;
 
     /// @brief Returns a const reference to the underlying value. If the optional has no
-    ///         value the behavior is undefined. You need to verify that the
+    ///         value the application terminates. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const reference to the underlying type
     const T& value() const& noexcept;
 
     /// @brief Returns a rvalue reference to the underlying value. If the optional has no
-    ///         value the behavior is undefined. You need to verify that the
+    ///         value the application terminates. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return rvalue reference to the underlying type
     T&& value() && noexcept;
 
     /// @brief Returns a const rvalue reference to the underlying value. If the optional has no
-    ///         value the behavior is undefined. You need to verify that the
+    ///         value the application terminates. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const rvalue reference to the underlying type
     const T&& value() const&& noexcept;

@@ -54,6 +54,19 @@ See [Eclipse iceoryx 1.0.0 (Almond)](https://projects.eclipse.org/projects/techn
 - iceoryx libs should be build as static libs [\#509](https://github.com/eclipse-iceoryx/iceoryx/issues/509)
 - Build with gcov is broken [\#497](https://github.com/eclipse-iceoryx/iceoryx/issues/497)
 
+## [v0.99.7](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.7) (2021-04-09)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.6...v0.99.7)
+
+- cleanup testing libraries; if used outside of iceoryx, include paths and link targets must be adjusted
+- build iceoryx_utils, iceoryx_posh and iceoryx_binding_c as shared libraries in colcon
+
+## [v0.99.6](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.6) (2021-04-08)
+
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.5...v0.99.6)
+
+- Add git to dependency list in iceoryx_posh for RHEL
+
 ## [v0.99.5](https://github.com/eclipse-iceoryx/iceoryx/tree/v0.99.5) (2021-04-08)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.99.4...v0.99.5)

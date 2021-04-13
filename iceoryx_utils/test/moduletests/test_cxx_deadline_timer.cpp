@@ -17,8 +17,8 @@
 
 #include "iceoryx_utils/cxx/deadline_timer.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
 
 #include <chrono>
 #include <thread>

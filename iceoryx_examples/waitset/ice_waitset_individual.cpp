@@ -37,7 +37,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-individual");
+    iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-individual");
 
     iox::popo::WaitSet<> waitset;
 

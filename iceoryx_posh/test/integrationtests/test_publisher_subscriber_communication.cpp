@@ -17,6 +17,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "iceoryx_utils/cxx/forward_list.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -25,8 +26,7 @@
 #include "iceoryx_utils/cxx/variant.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-#include "testutils/roudi_gtest.hpp"
-#include "testutils/watch_dog.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 
 #include "test.hpp"
 

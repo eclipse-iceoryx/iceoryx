@@ -20,6 +20,7 @@ set(test_iceoryx_posh_VERSION 0)
 project(test_iceoryx_posh VERSION ${test_iceoryx_posh_VERSION})
 
 find_package(iceoryx_utils_testing REQUIRED)
+find_package(iceoryx_posh_testing REQUIRED)
 
 if(BUILD_TEST AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
@@ -36,7 +37,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_input_path.hpp.in
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
 file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
 file(GLOB_RECURSE COMPONENTTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/componenttests/*.cpp")
-file(GLOB_RECURSE TESTUTILS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/testutils/*.cpp")
 file(GLOB_RECURSE MOCKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/mocks/*.cpp")
 
 
@@ -53,7 +53,7 @@ set(TEST_LINK_LIBS
     iceoryx_posh::iceoryx_posh_config
     iceoryx_posh::iceoryx_posh_gateway
     iceoryx_posh::iceoryx_posh_roudi
-    iceoryx_posh::iceoryx_posh_roudi_environment
+    iceoryx_posh_testing::iceoryx_posh_testing
 )
 
 if(LINUX)
@@ -69,7 +69,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # unittests
-add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
+add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${MOCKS_SRC})
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . ${CMAKE_BINARY_DIR}/generated)
 # TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})

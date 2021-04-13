@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/newtype.hpp"
+#include "iceoryx_utils/testing/compile_test.hpp"
 #include "test.hpp"
-#include "testutils/compile_test.hpp"
 
 namespace
 {

@@ -19,8 +19,8 @@
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
-#include "test.hpp"
-#include "testutils/timing_test.hpp"
+#include "iceoryx_utils/testing/test.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 
 #include <atomic>
 #include <chrono>

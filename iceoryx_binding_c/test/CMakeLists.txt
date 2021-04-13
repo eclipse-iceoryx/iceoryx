@@ -18,6 +18,7 @@ cmake_minimum_required(VERSION 3.5)
 project(test_binding_c VERSION 0)
 
 find_package(iceoryx_utils_testing REQUIRED)
+find_package(iceoryx_posh_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
 set(PROJECT_PREFIX "binding_c")
@@ -35,7 +36,7 @@ set(TEST_LINK_LIBS
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_config
     iceoryx_posh::iceoryx_posh_roudi
-    iceoryx_posh::iceoryx_posh_roudi_environment
+    iceoryx_posh_testing::iceoryx_posh_testing
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")

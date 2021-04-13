@@ -38,8 +38,8 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
     while (subscriber->hasData())
     {
-        subscriber->take().and_then([&](auto& userPayloadOfChunk) {
-            auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
+        subscriber->take().and_then([&](auto& userPayload) {
+            auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
             std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
                       << chunkHeader->userPayloadSize() << " ptr: " << std::hex << chunkHeader->userPayload()
                       << std::endl;
@@ -56,7 +56,7 @@ int main()
     auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
     auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-gateway");
+    iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-gateway");
 
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
