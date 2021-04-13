@@ -27,18 +27,19 @@ struct TranslateAndCallTypelessCallback
 {
     static void call(void* const origin, void* const userType, Listener::GenericCallbackPtr_t underlyingCallback)
     {
-        reinterpret_cast<Listener::CallbackWithUserTypePtr_t<T, UserType>>(underlyingCallback)(
+        reinterpret_cast<typename EventCallback<T, UserType>::Ptr_t>(underlyingCallback)(
             static_cast<T*>(origin), static_cast<UserType*>(userType));
     }
 };
 
 template <typename T>
-struct TranslateAndCallTypelessCallback<T, void>
+struct TranslateAndCallTypelessCallback<T, internal::NoType_t>
 {
     static void call(void* const origin, void* const userType, Listener::GenericCallbackPtr_t underlyingCallback)
     {
         IOX_DISCARD_RESULT(userType);
-        reinterpret_cast<Listener::CallbackPtr_t<T>>(underlyingCallback)(static_cast<T*>(origin));
+        reinterpret_cast<typename EventCallback<T, internal::NoType_t>::Ptr_t>(underlyingCallback)(
+            static_cast<T*>(origin));
     }
 };
 } // namespace internal
