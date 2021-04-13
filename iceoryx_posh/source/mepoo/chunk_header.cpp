@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
@@ -24,10 +25,15 @@ namespace mepoo
 {
 ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept
     : m_chunkSize(chunkSize)
+    , m_userHeaderSize(chunkSettings.userHeaderSize())
     , m_userPayloadSize(chunkSettings.userPayloadSize())
+    , m_userPayloadAlignment(chunkSettings.userPayloadAlignment())
 {
     static_assert(alignof(ChunkHeader) >= 8U,
                   "All the calculations expect the ChunkHeader alignment to be at least 8!");
+    static_assert(alignof(ChunkHeader) <= mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT,
+                  "The ChunkHeader must not exceed the alignment of the mempool chunks, which are aligned to "
+                  "'MemPool::CHUNK_MEMORY_ALIGNMENT'!");
 
     const auto userPayloadAlignment = chunkSettings.userPayloadAlignment();
     const auto userHeaderSize = chunkSettings.userHeaderSize();
@@ -152,28 +158,37 @@ uint32_t ChunkHeader::chunkSize() const noexcept
     return m_chunkSize;
 }
 
+uint32_t ChunkHeader::userHeaderSize() const noexcept
+{
+    return m_userHeaderSize;
+}
+
 uint32_t ChunkHeader::userPayloadSize() const noexcept
 {
     return m_userPayloadSize;
 }
 
+uint32_t ChunkHeader::userPayloadAlignment() const noexcept
+{
+    return m_userPayloadAlignment;
+}
 
-UniquePortId ChunkHeader::originId() const
+UniquePortId ChunkHeader::originId() const noexcept
 {
     return m_originId;
 }
 
-void ChunkHeader::setOriginId(UniquePortId originId)
+void ChunkHeader::setOriginId(UniquePortId originId) noexcept
 {
     m_originId = originId;
 }
 
-uint64_t ChunkHeader::sequenceNumber() const
+uint64_t ChunkHeader::sequenceNumber() const noexcept
 {
     return m_sequenceNumber;
 }
 
-void ChunkHeader::setSequenceNumber(uint64_t sequenceNumber)
+void ChunkHeader::setSequenceNumber(uint64_t sequenceNumber) noexcept
 {
     m_sequenceNumber = sequenceNumber;
 }

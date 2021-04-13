@@ -38,9 +38,7 @@ struct NoUserHeader
 {
 };
 
-/// @brief IMPORTANT the alignment MUST be 32 or less since all mempools are
-///         32 byte aligned otherwise we get alignment problems!
-struct alignas(32) ChunkHeader
+struct ChunkHeader
 {
     using UserPayloadOffset_t = uint32_t;
 
@@ -101,25 +99,33 @@ struct alignas(32) ChunkHeader
     /// @return the chunk size
     uint32_t chunkSize() const noexcept;
 
+    /// @brief The size of the chunk occupied by the user-header
+    /// @return the user-header size
+    uint32_t userHeaderSize() const noexcept;
+
     /// @brief The size of the chunk occupied by the user-payload
     /// @return the user-payload size
     uint32_t userPayloadSize() const noexcept;
 
+    /// @brief The alignment of the chunk occupied by the user-payload
+    /// @return the user-payload alignment
+    uint32_t userPayloadAlignment() const noexcept;
+
     /// @brief The unique identifier of the publisher the chunk was sent from
     /// @return the id of the publisher the chunk was sent from
-    UniquePortId originId() const;
+    UniquePortId originId() const noexcept;
 
     /// @brief A serial number for the sent chunks
     /// @brief the serquence number of the chunk
-    uint64_t sequenceNumber() const;
+    uint64_t sequenceNumber() const noexcept;
 
   private:
     template <typename T>
     friend class popo::ChunkSender;
 
-    void setOriginId(UniquePortId originId);
+    void setOriginId(UniquePortId originId) noexcept;
 
-    void setSequenceNumber(uint64_t sequenceNumber);
+    void setSequenceNumber(uint64_t sequenceNumber) noexcept;
 
     uint64_t overflowSafeUsedSizeOfChunk() const noexcept;
 
@@ -136,7 +142,9 @@ struct alignas(32) ChunkHeader
     uint8_t m_reserved[3]{};
     UniquePortId m_originId{popo::InvalidId};
     uint64_t m_sequenceNumber{0U};
+    uint32_t m_userHeaderSize{0U};
     uint32_t m_userPayloadSize{0U};
+    uint32_t m_userPayloadAlignment{1U};
     UserPayloadOffset_t m_userPayloadOffset{sizeof(ChunkHeader)};
 };
 

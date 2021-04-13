@@ -38,7 +38,9 @@ MemPoolInfo::MemPoolInfo(const uint32_t usedChunks,
 {
 }
 
-MemPool::MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> chunkSize,
+constexpr uint64_t MemPool::CHUNK_MEMORY_ALIGNMENT;
+
+MemPool::MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
                  const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
                  posix::Allocator& managementAllocator,
                  posix::Allocator& chunkMemoryAllocator) noexcept
@@ -48,23 +50,22 @@ MemPool::MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> chunkSi
 {
     if (isMultipleOfAlignment(chunkSize))
     {
-        m_rawMemory =
-            static_cast<uint8_t*>(chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize));
+        m_rawMemory = static_cast<uint8_t*>(chunkMemoryAllocator.allocate(
+            static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize, CHUNK_MEMORY_ALIGNMENT));
         auto memoryLoFFLi =
-            static_cast<uint32_t*>(managementAllocator.allocate(freeList_t::requiredMemorySize(m_numberOfChunks)));
-        m_freeIndices.init(memoryLoFFLi, m_numberOfChunks);
+            managementAllocator.allocate(freeList_t::requiredIndexMemorySize(m_numberOfChunks), CHUNK_MEMORY_ALIGNMENT);
+        m_freeIndices.init(static_cast<concurrent::LoFFLi::Index_t*>(memoryLoFFLi), m_numberOfChunks);
     }
     else
     {
         std::cerr << chunkSize << " :: " << numberOfChunks << std::endl;
-        errorHandler(
-            Error::kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_THAN_SHARED_MEMORY_ALIGNMENT_AND_MULTIPLE_OF_ALIGNMENT);
+        errorHandler(Error::kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
     }
 }
 
 bool MemPool::isMultipleOfAlignment(const uint32_t value) const noexcept
 {
-    return (value % SHARED_MEMORY_ALIGNMENT == 0U);
+    return (value % CHUNK_MEMORY_ALIGNMENT == 0U);
 }
 
 void MemPool::adjustMinFree() noexcept

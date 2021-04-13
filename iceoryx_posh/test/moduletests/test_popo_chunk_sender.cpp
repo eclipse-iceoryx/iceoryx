@@ -27,6 +27,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -235,16 +236,8 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    constexpr uint32_t CHUNK_SIZE{32U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
-
-    auto chunkSettingsResult =
-        iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-    ASSERT_FALSE(chunkSettingsResult.has_error());
-    auto& chunkSettings = chunkSettingsResult.value();
-
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
-    m_chunkSender.release(&myCrazyChunk);
+    ChunkMock<bool> myCrazyChunk;
+    m_chunkSender.release(myCrazyChunk.chunkHeader());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
@@ -460,16 +453,8 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
             errorHandlerCalled = true;
         });
 
-    constexpr uint32_t CHUNK_SIZE{32U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
-
-    auto chunkSettingsResult =
-        iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-    ASSERT_FALSE(chunkSettingsResult.has_error());
-    auto& chunkSettings = chunkSettingsResult.value();
-
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
-    m_chunkSender.send(&myCrazyChunk);
+    ChunkMock<bool> myCrazyChunk;
+    m_chunkSender.send(myCrazyChunk.chunkHeader());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
@@ -502,16 +487,8 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
             errorHandlerCalled = true;
         });
 
-    constexpr uint32_t CHUNK_SIZE{32U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
-
-    auto chunkSettingsResult =
-        iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-    ASSERT_FALSE(chunkSettingsResult.has_error());
-    auto& chunkSettings = chunkSettingsResult.value();
-
-    iox::mepoo::ChunkHeader myCrazyChunk{CHUNK_SIZE, chunkSettings};
-    m_chunkSender.pushToHistory(&myCrazyChunk);
+    ChunkMock<bool> myCrazyChunk;
+    m_chunkSender.pushToHistory(myCrazyChunk.chunkHeader());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));

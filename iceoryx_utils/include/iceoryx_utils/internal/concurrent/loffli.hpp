@@ -29,13 +29,18 @@ namespace concurrent
 {
 class LoFFLi
 {
+  public:
+    using Index_t = uint32_t;
+
   private:
-    /// @todo std::atomic_is_lock_free check
     struct alignas(8) Node
     {
-        uint32_t indexToNextFreeIndex;
+        Index_t indexToNextFreeIndex;
         uint32_t abaCounter;
     };
+
+    static_assert(sizeof(Node) <= 8U,
+                  "The size of 'Node' must not exceed 8 bytes in order to be lock-free on 64 bit systems!");
 
     /// @todo introduce typesafe indices with the properties listed below
     ///       id is required that not two loefflis with the same properties
@@ -61,40 +66,38 @@ class LoFFLi
     /// @endcode
 
     uint32_t m_size{0U};
-    uint32_t m_invalidIndex{0U};
+    Index_t m_invalidIndex{0U};
     std::atomic<Node> m_head{{0U, 1U}};
-    iox::rp::RelativePointer<uint32_t> m_nextFreeIndex;
+    iox::rp::RelativePointer<Index_t> m_nextFreeIndex;
 
   public:
     LoFFLi() = default;
     /// @todo: why init not in ctor
-    /// @todo: size = capacity
 
     /// Initializes the lock-free free-list
-    /// @param [in] freeIndicesMemory pointer to a memory with the size calculated by requiredMemorySize()
-    /// @param [in] size is the number of elements of the free-list; must be the same used at requiredMemorySize()
-    void init(cxx::not_null<uint32_t*> freeIndicesMemory, const uint32_t size) noexcept;
+    /// @param [in] freeIndicesMemory pointer to a memory with the capacity calculated by requiredMemorySize()
+    /// @param [in] capacity is the number of elements of the free-list; must be the same used at requiredMemorySize()
+    void init(cxx::not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept;
 
     /// Pop a value from the free-list
     /// @param [out] index for an element to use
     /// @return true if index is valid, false otherwise
-    bool pop(uint32_t& index) noexcept;
+    bool pop(Index_t& index) noexcept;
 
     /// Push previously poped element
     /// @param [in] index to previously poped element
     /// @return true if index is valid or not yet pushed, false otherwise
-    bool push(const uint32_t index) noexcept;
+    bool push(const Index_t index) noexcept;
 
     /// Calculates the required memory size for a free-list
-    /// @param [in] size is the number of elements of the free-list
-    /// @return the required memory size for a free-list with size elements
-    static inline constexpr std::size_t requiredMemorySize(const uint32_t size) noexcept
-    {
-        return (static_cast<size_t>(size) + 1U) * sizeof(uint32_t);
-    }
+    /// @param [in] capacity is the number of elements of the free-list
+    /// @return the required memory size for a free-list with the requested capacity
+    static inline constexpr std::size_t requiredIndexMemorySize(const uint32_t capacity) noexcept;
 };
 
 } // namespace concurrent
 } // namespace iox
+
+#include "loffli.inl"
 
 #endif // IOX_UTILS_CONCURRENT_LOFFLI_HPP
