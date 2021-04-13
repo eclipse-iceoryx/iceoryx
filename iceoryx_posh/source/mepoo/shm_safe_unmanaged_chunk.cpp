@@ -63,7 +63,7 @@ bool ShmSafeUnmanagedChunk::isLogicalNullptr() const noexcept
     return m_chunkManagement.isLogicalNullptr();
 }
 
-const ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() const noexcept
+ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() noexcept
 {
     if (m_chunkManagement.isLogicalNullptr())
     {
@@ -71,6 +71,22 @@ const ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() const noexcept
     }
     auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
     return chunkMgmt->m_chunkHeader;
+}
+
+const ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() const noexcept
+{
+    return const_cast<ShmSafeUnmanagedChunk*>(this)->getChunkHeader();
+}
+
+bool ShmSafeUnmanagedChunk::isNotLogicalNullptrAndHasNoOtherOwners() const noexcept
+{
+    if (m_chunkManagement.isLogicalNullptr())
+    {
+        return false;
+    }
+
+    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
+    return chunkMgmt->m_referenceCounter.load(std::memory_order_relaxed) == 1U;
 }
 
 } // namespace mepoo
