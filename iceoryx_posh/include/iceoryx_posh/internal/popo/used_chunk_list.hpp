@@ -17,11 +17,9 @@
 #ifndef IOX_POSH_POPO_USED_CHUNK_LIST_HPP
 #define IOX_POSH_POPO_USED_CHUNK_LIST_HPP
 
-#include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer_data.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -73,7 +71,7 @@ class UsedChunkList
   private:
     static constexpr uint32_t INVALID_INDEX{Capacity};
 
-    using DataElement_t = rp::RelativePointerData;
+    using DataElement_t = mepoo::ShmSafeUnmanagedChunk;
     static constexpr DataElement_t DATA_ELEMENT_LOGICAL_NULLPTR{};
 
   private:
