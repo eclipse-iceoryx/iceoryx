@@ -91,39 +91,36 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
         {
             std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
             std::cout << "Options:" << std::endl;
-            std::cout << "-h, --help                              Display help." << std::endl;
-            std::cout << "-f, --fuzzing-api <API>               	Specify API which will be fuzzed." << std::endl;
-            std::cout << "                                      	<API> {uds, com, toml}" << std::endl;
-            std::cout
-                << "                                      	uds: Starts RouDi and sends messages via Unix Domain "
-                   "Sockets. Multiple messages can be sent. (e.g.: register message first and then offer service)."
-                << std::endl;
-            std::cout << "                                      	com: Invokes the processMessage method in RouDi "
-                         "directly. This abstracts the IPC and is faster but multiple messages are not supported."
+            std::cout << "-h, --help" << std::endl;
+            std::cout << "\tDisplay help." << std::endl;
+            std::cout << "-f, --fuzzing-api <API>" << std::endl;
+            std::cout << "\tSpecify API which will be fuzzed." << std::endl;
+            std::cout << "\t<API> {uds, com, toml}" << std::endl;
+            std::cout << "\t\tuds: Starts RouDi and sends messages via Unix Domain Sockets. Multiple messages can be "
+                         "sent. (e.g.: register message first and then offer service)."
                       << std::endl;
-            std::cout
-                << "                                      	toml: Send inputs to test the TOML config file parser. A "
-                   "file is created in your current working directory and the path is sent to the Parser."
-                << std::endl;
-            std::cout << "-m, --input-mode <MODE>              	<MODE> {stdin, cl}" << std::endl;
-            std::cout << "                                      	stdin: Send input via stdin." << std::endl;
-            std::cout << "                                      	cl: Send input via commandline. Needs parameter i "
-                         "to send the input."
+            std::cout << "\t\tcom: Invokes the processMessage method in RouDi directly. This abstracts the IPC and is "
+                         "faster but multiple messages are not supported."
                       << std::endl;
-            std::cout << "-c, --command-line-file <PATH_TO_FILE> 	<PATH_TO_FILE> : Read the specified file and send "
-                         "the input to the interface."
+            std::cout << "\t\ttoml: Send inputs to test the TOML config file parser. A file is created in your current "
+                         "working directory and the path is sent to the parser."
                       << std::endl;
-            std::cout
-                << "-i, --command-line-input <INPUT>      	<INPUT> : Send the input via this command line, requires "
-                   "to use input-mode cl. It's possible to send several commands with several -i commands."
-                << std::endl;
-            std::cout
-                << "-t, --toml-file <PATH_TO_FILE>          <PATH_TO_FILE> : Needs to be used when TOML is parsed. The "
-                   "file is used to write messages which will be parsed by the TOML configuration parser."
-                << std::endl;
-            std::cout << "-l, --log-level                         <LogLevel>  {off, fatal, debug} : Set the log level. "
-                         "Off is standard;"
+            std::cout << "-m, --input-mode <MODE>" << std::endl;
+            std::cout << "\t<MODE> {stdin, cl}" << std::endl;
+            std::cout << "\t\tstdin: Send input via stdin." << std::endl;
+            std::cout << "\t\tcl: Send input via command line. Needs parameter i to send the input." << std::endl;
+            std::cout << "-c, --command-line-file <PATH_TO_FILE>" << std::endl;
+            std::cout << "\t<PATH_TO_FILE> Read the specified file and send the input to the interface." << std::endl;
+            std::cout << "-i, --command-line-input <INPUT>" << std::endl;
+            std::cout << "\t<INPUT> Send the input via this command line, requires to use input-mode cl. It's possible "
+                         "to send several commands with several -i commands."
                       << std::endl;
+            std::cout << "-t, --toml-file <PATH_TO_FILE>" << std::endl;
+            std::cout << "\t<PATH_TO_FILE> Needs to be used when TOML is parsed. The file is used to write messages "
+                         "which will be parsed by the TOML configuration parser."
+                      << std::endl;
+            std::cout << "-l, --log-level" << std::endl;
+            std::cout << "\t<LogLevel> {off, fatal, debug} : Set the log level. Off is default;" << std::endl;
             m_helpFlag = true;
         }
         break;
