@@ -42,7 +42,7 @@ class CmdLineParserFuzzing
   public:
     CmdLineParserFuzzing();
 
-    /// @brief	Parses the command line parameters whiich are entered by starting the fuzz wrappers
+    /// @brief	Parses the command line parameters which are entered by starting the fuzz wrappers
     /// @param[in] 	amount of arguments given to the method
     ///	@param[in]	containing the command line parameters
     ///	@param[out]	Containing the messages which shall be sent to the interface
@@ -53,7 +53,7 @@ class CmdLineParserFuzzing
     bool getHelpFlag();
 
     /// @brief	Getter to return m inputMode
-    ///	@param[out]	Containing enum InputMode to show if messages are sent to the APi via stdin or command line (cl).
+    ///	@param[out]	Containing enum InputMode to show if messages are sent to the API via stdin or command line (cl).
     InputMode getInputMode();
 
     /// @brief	Getter to return m_errorFlag

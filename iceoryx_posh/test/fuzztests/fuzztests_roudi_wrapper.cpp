@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
         {
             if (timeout >= TIMEOUT)
             {
-                std::cout << "RouDI could not be started, program terminates!" << std::endl;
+                std::cout << "RouDi could not be started, program terminates!" << std::endl;
                 return -1;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 1/10 of a second

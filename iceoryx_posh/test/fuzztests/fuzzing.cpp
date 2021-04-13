@@ -35,7 +35,7 @@ void Fuzzing::fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMe
     else
     {
         iox::LogDebug()
-            << "Error, the Smart Pointer for RouDI which is used to call the method 'processMessage' is NULL";
+            << "Error, the Smart Pointer for RouDi which is used to call the method 'processMessage' is NULL";
     }
 }
 

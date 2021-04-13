@@ -27,7 +27,7 @@ class Fuzzing
   public:
     Fuzzing();
 
-    /// @brief fuzzingRouDiCom is a method to test the processMessage method of RouDI. It shall be independent from
+    /// @brief fuzzingRouDiCom is a method to test the processMessage method of RouDi. It shall be independent from
     /// the underlying protocol such as uds. It should also be slightly faster since some functions are not invoked
     /// compared to uds fuzzing. However, a RouDi thread is also started with this approach because otherwise it was not
     /// be possible to invoke the processMessage method within RouDi without directly modifying the code in RouDi.
@@ -35,7 +35,7 @@ class Fuzzing
     /// @param[in] std::string containing a message which shall be sent to the interface
     void fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage);
 
-    /// @brief fuzzingRouDiUDS is a method to test the Unix Domain Socket interface of RouDI. It connects to
+    /// @brief fuzzingRouDiUDS is a method to test the Unix Domain Socket interface of RouDi. It connects to
     /// RouDi's uds and sends the message given as input to RouDi
     /// @param[in] std::string containing a message which shall be sent to the interface
     /// @param[out] int as result of connect(). If the int = -1 it means that it was not possible to connect to the
