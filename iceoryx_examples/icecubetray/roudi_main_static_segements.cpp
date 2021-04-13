@@ -40,7 +40,8 @@ int main(int argc, char* argv[])
     // We only send very small data, just one mempool per segment
     mepooConfig.addMemPool({128, 1000});
 
-    /// Create an entry for a new shared memory segment from the mempooConfig and add it to the roudiConfig
+    // Create an entry for a new shared memory segment from the mempooConfig and add it to the roudiConfig
+    // Parameters are {"ReaderGroup", "WriterGroup", MemoryPoolConfig}
     roudiConfig.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepooConfig});
     roudiConfig.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
 

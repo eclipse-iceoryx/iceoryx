@@ -29,10 +29,13 @@ int main()
 
     // When starting this app with the user 'notallowed'
 
-    // 1) Subscribers can be created without any readable shared memory segment, in this case no data will ever arrive
+    // 1) Subscribers can be created without any readable shared memory segment
+    /// @todo currently segfaults, in this case no data should ever arrive
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
 
-    // 2) The publisher object can't be initalised correctly because 'notallowed' does not have write access
+    // 2) The publisher object can't be initalised correctly because the user 'notallowed' isn't in any group which has
+    // write access to any shared memory segment.
+    // The error POSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT will be reported and programm execution will end
     iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
 
     return EXIT_FAILURE;
