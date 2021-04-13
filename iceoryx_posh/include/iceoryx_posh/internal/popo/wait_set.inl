@@ -46,6 +46,12 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 }
 
 template <uint64_t Capacity>
+inline void WaitSet<Capacity>::markForDestruction() noexcept
+{
+    m_conditionListener.destroy();
+}
+
+template <uint64_t Capacity>
 template <typename T, typename UserType>
 inline cxx::expected<uint64_t, WaitSetError>
 WaitSet<Capacity>::attachImpl(T& eventOrigin,

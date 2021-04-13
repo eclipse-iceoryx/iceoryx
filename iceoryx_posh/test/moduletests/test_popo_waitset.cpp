@@ -1308,3 +1308,58 @@ TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWai
     ASSERT_THAT(eventVector.size(), Eq(1));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
 }
+
+TEST_F(WaitSet_test, WaitUnblocksAfterMarkForDestructionCall)
+{
+    std::atomic_bool doStartWaiting{false};
+    std::atomic_bool isThreadFinished{false};
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
+
+    std::thread t([&] {
+        doStartWaiting.store(true);
+        auto triggerVector = m_sut->wait();
+        triggerVector = m_sut->wait();
+        triggerVector = m_sut->wait();
+        isThreadFinished.store(true);
+    });
+
+    while (!doStartWaiting.load())
+        ;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_FALSE(isThreadFinished.load());
+
+    m_sut->markForDestruction();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_TRUE(isThreadFinished.load());
+
+    t.join();
+}
+
+TEST_F(WaitSet_test, TimedWaitUnblocksAfterMarkForDestructionCall)
+{
+    std::atomic_bool doStartWaiting{false};
+    std::atomic_bool isThreadFinished{false};
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
+
+    std::thread t([&] {
+        doStartWaiting.store(true);
+        auto triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        isThreadFinished.store(true);
+    });
+
+    while (!doStartWaiting.load())
+        ;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_FALSE(isThreadFinished.load());
+
+    m_sut->markForDestruction();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_TRUE(isThreadFinished.load());
+
+    t.join();
+}
+
