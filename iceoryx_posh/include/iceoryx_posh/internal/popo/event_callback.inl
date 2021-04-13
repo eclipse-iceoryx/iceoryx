@@ -21,7 +21,7 @@ namespace iox
 {
 namespace popo
 {
-template <typename OriginType, typename UserType = internal::NoType_t>
+template <typename OriginType, typename UserType>
 inline EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const))
 {
     return EventCallback<OriginType, UserType>{&callback};
