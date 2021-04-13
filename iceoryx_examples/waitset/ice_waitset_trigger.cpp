@@ -263,7 +263,7 @@ int main()
                       iox::popo::createEventCallback(callOnActivate))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassStates::IS_ACTIVATED state " << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
     // attach the PERFORM_ACTION_CALLED event to the waitset and assign a callback
     waitset
@@ -273,7 +273,7 @@ int main()
                       iox::popo::createEventCallback(MyTriggerClass::callOnAction))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassEvents::PERFORM_ACTION_CALLED event " << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 
     // start the event loop which is handling the events
