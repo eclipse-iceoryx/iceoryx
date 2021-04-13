@@ -54,13 +54,17 @@ class CounterClass
         /// It is not possible to use a lambda with capturing here since they are not convertable to
         /// a C function pointer.
         m_listener
-            .attachEvent(m_subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback, *this)
+            .attachEvent(m_subscriberLeft,
+                         iox::popo::SubscriberEvent::DATA_RECEIVED,
+                         iox::popo::createEventCallback(onSampleReceivedCallback, *this))
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberLeft" << std::endl;
                 std::terminate();
             });
         m_listener
-            .attachEvent(m_subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback, *this)
+            .attachEvent(m_subscriberRight,
+                         iox::popo::SubscriberEvent::DATA_RECEIVED,
+                         iox::popo::createEventCallback(onSampleReceivedCallback, *this))
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberRight" << std::endl;
                 std::terminate();

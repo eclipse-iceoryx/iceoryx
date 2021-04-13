@@ -28,9 +28,6 @@ struct NoType_t
 };
 } // namespace internal
 
-using GenericCallbackPtr_t = void (*)();
-using GenericCallbackRef_t = void (&)();
-
 ///@brief the struct describes a callback with a user defined type which can
 ///         be attached to a WaitSet or a Listener
 template <typename OriginType, typename UserType>
