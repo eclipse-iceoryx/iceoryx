@@ -23,7 +23,7 @@
 class StringToIPCMessage : public iox::runtime::IpcInterfaceBase
 {
   public:
-    StringToIPCMessage(const iox::ProcessName_t& name, const int64_t maxMessages, const int64_t messageSize);
+    StringToIPCMessage(const iox::RuntimeName_t& name, const int64_t maxMessages, const int64_t messageSize);
 
     /// @brief Set the content of answer from buffer.
     /// @param[in] buffer Raw message as char pointer

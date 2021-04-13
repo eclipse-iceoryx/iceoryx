@@ -29,5 +29,5 @@ void RouDiFuzz::processMessageFuzz(std::string aMessage)
     StringToIPCMessage::setMessageFromString(aMessage.c_str(), ipcMessage);
     iox::runtime::IpcMessageType cmd = iox::runtime::stringToIpcMessageType(ipcMessage.getElementAtIndex(0).c_str());
     std::string processName = ipcMessage.getElementAtIndex(1);
-    iox::roudi::RouDi::processMessage(ipcMessage, cmd, iox::ProcessName_t(iox::cxx::TruncateToCapacity, processName));
+    iox::roudi::RouDi::processMessage(ipcMessage, cmd, iox::RuntimeName_t(iox::cxx::TruncateToCapacity, processName));
 }

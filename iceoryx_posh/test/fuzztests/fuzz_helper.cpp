@@ -34,7 +34,7 @@ std::shared_ptr<RouDiFuzz> FuzzHelper::startRouDiThread()
     static iox::roudi::IceOryxRouDiComponents m_rouDiComponents(iox::RouDiConfig_t().setDefaults());
     static iox::RouDiConfig_t m_config = iox::RouDiConfig_t().setDefaults();
     std::shared_ptr<RouDiFuzz> aRouDi(
-        new RouDiFuzz(m_rouDiComponents.m_rouDiMemoryManager, m_rouDiComponents.m_portManager));
+        new RouDiFuzz(m_rouDiComponents.rouDiMemoryManager, m_rouDiComponents.portManager));
     return aRouDi;
 }
 
