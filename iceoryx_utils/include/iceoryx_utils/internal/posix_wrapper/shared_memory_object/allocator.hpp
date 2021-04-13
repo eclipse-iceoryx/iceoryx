@@ -31,7 +31,7 @@ class Allocator
 
   public:
     static constexpr uint64_t MEMORY_ALIGNMENT = 8U;
-    /// @brief A bumb allocator for the memory provided in the ctor arguments
+    /// @brief A bump allocator for the memory provided in the ctor arguments
     /// @param[in] startAddress of the memory this allocator manages
     /// @param[in] length of the memory this allocator manages
     Allocator(void* const startAddress, const uint64_t length) noexcept;
