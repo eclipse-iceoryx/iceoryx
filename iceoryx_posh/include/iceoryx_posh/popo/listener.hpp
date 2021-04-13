@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/event_attorney.hpp"
+#include "iceoryx_posh/popo/event_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
@@ -65,13 +66,10 @@ enum class ListenerError
 class Listener
 {
   public:
-    template <typename T>
-    using CallbackRef_t = void (&)(T* const);
-    using TranslationCallbackRef_t = void (&)(void* const, void (*const)(void* const));
-
-    template <typename T>
-    using CallbackPtr_t = void (*)(T* const);
-    using TranslationCallbackPtr_t = void (*)(void* const, void (*const)(void* const));
+    using GenericCallbackPtr_t = void (*)();
+    using GenericCallbackRef_t = void (&)();
+    using TranslationCallbackRef_t = void (&)(void* const, void* const, GenericCallbackPtr_t const);
+    using TranslationCallbackPtr_t = void (*)(void* const, void* const, GenericCallbackPtr_t const);
 
     Listener() noexcept;
     Listener(const Listener&) = delete;
@@ -81,16 +79,6 @@ class Listener
     Listener& operator=(const Listener&) = delete;
     Listener& operator=(Listener&&) = delete;
 
-    /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
-    ///        the corresponding callback which will be called when the event occurs.
-    /// @note This method can be called from any thread concurrently without any restrictions!
-    /// @tparam[in] T type of the class which will signal the event
-    /// @param[in] eventOrigin the object which will signal the event (the origin)
-    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs
-    /// @return If an error occurs the enum packed inside an expected which describes the error.
-    template <typename T>
-    cxx::expected<ListenerError> attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept;
-
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin, an enum which further
     ///        defines the event inside the class and the corresponding callback which will be called when the event
     ///        occurs.
@@ -98,11 +86,26 @@ class Listener
     /// @tparam[in] T type of the class which will signal the event
     /// @param[in] eventOrigin the object which will signal the event (the origin)
     /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
-    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs
+    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. has to be created
+    /// with iox::popo::createEventCallback
     /// @return If an error occurs the enum packed inside an expected which describes the error.
-    template <typename T, typename EventType, typename = std::enable_if_t<std::is_enum<EventType>::value>>
+    template <typename T,
+              typename EventType,
+              typename UserType,
+              typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<ListenerError>
-    attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept;
+    attachEvent(T& eventOrigin, const EventType eventType, const EventCallback<T, UserType>& eventCallback) noexcept;
+
+    /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
+    ///        the corresponding callback which will be called when the event occurs.
+    /// @note This method can be called from any thread concurrently without any restrictions!
+    /// @tparam[in] T type of the class which will signal the event
+    /// @param[in] eventOrigin the object which will signal the event (the origin)
+    /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. Has to be created
+    /// with iox::popo::createEventCallback
+    /// @return If an error occurs the enum packed inside an expected which describes the error.
+    template <typename T, typename UserType>
+    cxx::expected<ListenerError> attachEvent(T& eventOrigin, const EventCallback<T, UserType>& eventCallback) noexcept;
 
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
     ///        the eventType with further specifies the event inside of eventOrigin
@@ -136,9 +139,10 @@ class Listener
     void threadLoop() noexcept;
     cxx::expected<uint32_t, ListenerError>
     addEvent(void* const origin,
+             void* const userType,
              const uint64_t eventType,
              const uint64_t eventTypeHash,
-             CallbackRef_t<void> callback,
+             GenericCallbackRef_t callback,
              TranslationCallbackRef_t translationCallback,
              const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
 
@@ -159,9 +163,10 @@ class Listener
         bool reset() noexcept;
         bool init(const uint64_t eventId,
                   void* const origin,
+                  void* const userType,
                   const uint64_t eventType,
                   const uint64_t eventTypeHash,
-                  CallbackRef_t<void> callback,
+                  GenericCallbackRef_t callback,
                   TranslationCallbackRef_t translationCallback,
                   const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
         void executeCallback() noexcept;
@@ -174,8 +179,9 @@ class Listener
         uint64_t m_eventType = INVALID_ID;
         uint64_t m_eventTypeHash = INVALID_ID;
 
-        CallbackPtr_t<void> m_callback = nullptr;
+        GenericCallbackPtr_t m_callback = nullptr;
         TranslationCallbackPtr_t m_translationCallback = nullptr;
+        void* m_userType = nullptr;
 
         uint64_t m_eventId = INVALID_ID;
         cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
