@@ -203,7 +203,9 @@ TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 80U;
     ASSERT_FALSE(
-        m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback).has_error());
+        m_waitSet
+            .attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, createEventCallback(iox_event_info_test::eventCallback))
+            .has_error());
     m_userTrigger.trigger();
 
     auto eventInfoVector = m_waitSet.wait();
@@ -216,7 +218,9 @@ TEST_F(iox_event_info_test, callbackCanBeCalledMultipleTimes)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 180U;
     ASSERT_FALSE(
-        m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, &iox_event_info_test::eventCallback).has_error());
+        m_waitSet
+            .attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, createEventCallback(iox_event_info_test::eventCallback))
+            .has_error());
     m_userTrigger.trigger();
     auto eventInfoVector = m_waitSet.wait();
 

@@ -984,7 +984,8 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
 void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    auto result1 = test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
+    auto result1 =
+        test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
 
@@ -1011,8 +1012,10 @@ TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallback)
 void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
                                                 const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    auto result1 = test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
-    auto result2 = test->m_sut->attachEvent(test->m_simpleEvents[1], 2U, &WaitSet_test::triggerCallback2);
+    auto result1 =
+        test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1));
+    auto result2 =
+        test->m_sut->attachEvent(test->m_simpleEvents[1], 2U, createEventCallback(WaitSet_test::triggerCallback2));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
     ASSERT_THAT(result2.has_error(), Eq(false));

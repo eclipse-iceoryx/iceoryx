@@ -20,30 +20,6 @@ namespace iox
 {
 namespace popo
 {
-namespace internal
-{
-template <typename T, typename UserType>
-struct TranslateAndCallTypelessCallback
-{
-    static void call(void* const origin, void* const userType, Listener::GenericCallbackPtr_t underlyingCallback)
-    {
-        reinterpret_cast<typename EventCallback<T, UserType>::Ptr_t>(underlyingCallback)(
-            static_cast<T*>(origin), static_cast<UserType*>(userType));
-    }
-};
-
-template <typename T>
-struct TranslateAndCallTypelessCallback<T, internal::NoType_t>
-{
-    static void call(void* const origin, void* const userType, Listener::GenericCallbackPtr_t underlyingCallback)
-    {
-        IOX_DISCARD_RESULT(userType);
-        reinterpret_cast<typename EventCallback<T, internal::NoType_t>::Ptr_t>(underlyingCallback)(
-            static_cast<T*>(origin));
-    }
-};
-} // namespace internal
-
 template <typename T, typename UserType>
 inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
                                                           const EventCallback<T, UserType>& eventCallback) noexcept
@@ -53,7 +29,7 @@ inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
                     static_cast<uint64_t>(NoEnumUsed::PLACEHOLDER),
                     typeid(NoEnumUsed).hash_code(),
                     reinterpret_cast<GenericCallbackRef_t>(*eventCallback.m_callback),
-                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
+                    TranslateAndCallTypelessCallback<T, UserType>::call,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(
@@ -71,7 +47,7 @@ inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
                     static_cast<uint64_t>(eventType),
                     typeid(EventType).hash_code(),
                     reinterpret_cast<GenericCallbackRef_t>(*eventCallback.m_callback),
-                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
+                    TranslateAndCallTypelessCallback<T, UserType>::call,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(

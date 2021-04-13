@@ -167,7 +167,7 @@ TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 {
     UserTrigger sut;
-    ASSERT_FALSE(m_waitSet.attachEvent(sut, 123U, &UserTrigger_test::callback).has_error());
+    ASSERT_FALSE(m_waitSet.attachEvent(sut, 123U, createEventCallback(UserTrigger_test::callback)).has_error());
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();
@@ -180,7 +180,7 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
 TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
 {
     UserTrigger sut;
-    ASSERT_FALSE(m_waitSet.attachEvent(sut, 0U, &UserTrigger_test::callback).has_error());
+    ASSERT_FALSE(m_waitSet.attachEvent(sut, 0U, createEventCallback(UserTrigger_test::callback)).has_error());
     sut.trigger();
 
     auto triggerInfoVector = m_waitSet.wait();

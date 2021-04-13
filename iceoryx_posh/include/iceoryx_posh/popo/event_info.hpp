@@ -18,6 +18,7 @@
 #define IOX_POSH_POPO_EVENT_INFO_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/popo/event_callback.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
@@ -45,8 +46,8 @@ class EventInfo
     /// @param[in] eventOrigin the origin of the event
     /// @param[in] eventId id of the event
     /// @param[in] callback the callback of the event
-    template <typename T>
-    EventInfo(T* const eventOrigin, const uint64_t eventId, const Callback<T> callback) noexcept;
+    template <typename T, typename UserType>
+    EventInfo(T* const eventOrigin, const uint64_t eventId, const EventCallback<T, UserType>& callback) noexcept;
 
     /// @brief returns the event id
     /// @return the empty EventInfo always returns INVALID_ID, otherwise the actual eventId is returned
@@ -75,11 +76,12 @@ class EventInfo
 
   protected:
     void* m_eventOrigin = nullptr;
+    void* m_userValue = nullptr;
     uint64_t m_eventOriginTypeHash = 0U;
     uint64_t m_eventId = INVALID_ID;
 
-    Callback<void> m_callbackPtr = nullptr;
-    cxx::function_ref<void(void* const, Callback<void>)> m_callback;
+    GenericCallbackPtr_t m_callbackPtr = nullptr;
+    TranslationCallbackPtr_t m_callback = nullptr;
 };
 
 } // namespace popo

@@ -73,7 +73,9 @@ int main()
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
 
-        waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
+        waitset
+            .attachEvent(
+                subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createEventCallback(subscriberCallback))
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
                 std::terminate();

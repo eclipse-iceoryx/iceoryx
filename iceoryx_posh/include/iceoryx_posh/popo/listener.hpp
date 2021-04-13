@@ -66,11 +66,6 @@ enum class ListenerError
 class Listener
 {
   public:
-    using GenericCallbackPtr_t = void (*)();
-    using GenericCallbackRef_t = void (&)();
-    using TranslationCallbackRef_t = void (&)(void* const, void* const, GenericCallbackPtr_t const);
-    using TranslationCallbackPtr_t = void (*)(void* const, void* const, GenericCallbackPtr_t const);
-
     Listener() noexcept;
     Listener(const Listener&) = delete;
     Listener(Listener&&) = delete;

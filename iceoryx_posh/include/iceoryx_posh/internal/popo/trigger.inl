@@ -22,12 +22,12 @@ namespace iox
 {
 namespace popo
 {
-template <typename T>
+template <typename T, typename UserType>
 inline Trigger::Trigger(T* const eventOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
-                        const Callback<T> callback,
+                        const EventCallback<T, UserType>& callback,
                         const uint64_t uniqueId,
                         const TriggerType triggerType,
                         const uint64_t originTriggerType,
@@ -47,13 +47,13 @@ inline Trigger::Trigger(T* const eventOrigin,
     }
 }
 
-template <typename T>
+template <typename T, typename UserType>
 inline Trigger::Trigger(StateBasedTrigger_t,
                         T* const stateOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
-                        const Callback<T> callback,
+                        const EventCallback<T, UserType>& callback,
                         const uint64_t uniqueId,
                         const uint64_t stateType,
                         const uint64_t stateTypeHash) noexcept
@@ -74,12 +74,12 @@ inline Trigger::Trigger(StateBasedTrigger_t,
     }
 }
 
-template <typename T>
+template <typename T, typename UserType>
 inline Trigger::Trigger(EventBasedTrigger_t,
                         T* const eventOrigin,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
-                        const Callback<T> callback,
+                        const EventCallback<T, UserType>& callback,
                         const uint64_t uniqueId,
                         const uint64_t eventType,
                         const uint64_t eventTypeHash) noexcept

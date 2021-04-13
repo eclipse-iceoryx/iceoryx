@@ -60,7 +60,7 @@ int main()
     // create and attach the cyclicTrigger with a callback to
     // SomeClass::myCyclicRun
     iox::popo::UserTrigger cyclicTrigger;
-    waitset.attachEvent(cyclicTrigger, 0U, &SomeClass::cyclicRun).or_else([](auto) {
+    waitset.attachEvent(cyclicTrigger, 0U, createEventCallback(SomeClass::cyclicRun)).or_else([](auto) {
         std::cerr << "failed to attach cyclic trigger" << std::endl;
         std::terminate();
     });
