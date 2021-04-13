@@ -159,12 +159,14 @@ which wakes up the blocking `waitset.wait()` whenever Ctrl+C is pressed.
 
 ```cpp
 std::atomic_bool shutdown{false};
-iox::popo::WaitSet<>* waitsetPtr;
+iox::popo::WaitSet<>* waitsetPtr = nullptr;
 
 static void sigHandler(int sig [[gnu::unused]])
 {
     shutdown = true;
-    waitset->markForDestruction();
+    if (waisetPtr) {
+        waitset->markForDestruction();
+    }
 }
 ```
 
