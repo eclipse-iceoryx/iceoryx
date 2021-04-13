@@ -24,7 +24,7 @@ namespace popo
 template <typename OriginType, typename UserType>
 inline EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const))
 {
-    return EventCallback<OriginType, UserType>{&callback};
+    return EventCallback<OriginType, internal::NoType_t>{&callback};
 }
 
 template <typename OriginType, typename UserType>

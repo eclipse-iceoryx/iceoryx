@@ -71,16 +71,6 @@ class Listener
     using TranslationCallbackRef_t = void (&)(void* const, void* const, GenericCallbackPtr_t const);
     using TranslationCallbackPtr_t = void (*)(void* const, void* const, GenericCallbackPtr_t const);
 
-    template <typename T>
-    using CallbackRef_t = void (&)(T* const);
-    template <typename T, typename UserType>
-    using CallbackWithUserTypeRef_t = void (&)(T* const, UserType* const);
-
-    template <typename T>
-    using CallbackPtr_t = void (*)(T* const);
-    template <typename T, typename UserType>
-    using CallbackWithUserTypePtr_t = void (*)(T* const, UserType* const);
-
     Listener() noexcept;
     Listener(const Listener&) = delete;
     Listener(Listener&&) = delete;
