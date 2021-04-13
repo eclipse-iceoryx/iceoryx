@@ -25,11 +25,11 @@ inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
                                                           const EventCallback<T, UserType>& eventCallback) noexcept
 {
     return addEvent(&eventOrigin,
-                    eventCallback.m_userValue,
+                    eventCallback.m_contextData,
                     static_cast<uint64_t>(NoEnumUsed::PLACEHOLDER),
                     typeid(NoEnumUsed).hash_code(),
-                    reinterpret_cast<GenericCallbackRef_t>(*eventCallback.m_callback),
-                    TranslateAndCallTypelessCallback<T, UserType>::call,
+                    reinterpret_cast<internal::GenericCallbackRef_t>(*eventCallback.m_callback),
+                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(
@@ -43,11 +43,11 @@ inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
                                                           const EventCallback<T, UserType>& eventCallback) noexcept
 {
     return addEvent(&eventOrigin,
-                    eventCallback.m_userValue,
+                    eventCallback.m_contextData,
                     static_cast<uint64_t>(eventType),
                     typeid(EventType).hash_code(),
-                    reinterpret_cast<GenericCallbackRef_t>(*eventCallback.m_callback),
-                    TranslateAndCallTypelessCallback<T, UserType>::call,
+                    reinterpret_cast<internal::GenericCallbackRef_t>(*eventCallback.m_callback),
+                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(

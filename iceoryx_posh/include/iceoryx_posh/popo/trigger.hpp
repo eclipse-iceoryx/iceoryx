@@ -57,9 +57,6 @@ class Trigger
   public:
     static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
 
-    template <typename T>
-    using Callback = EventInfo::Callback<T>;
-
     Trigger() noexcept = delete;
     Trigger(const Trigger&) = delete;
     Trigger& operator=(const Trigger&) = delete;
@@ -158,12 +155,12 @@ class Trigger
     TriggerType getTriggerType() const noexcept;
 
   private:
-    template <typename T, typename UserType>
+    template <typename T, typename ContextDataType>
     Trigger(T* const eventOrigin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t eventId,
-            const EventCallback<T, UserType>& callback,
+            const EventCallback<T, ContextDataType>& callback,
             const uint64_t uniqueId,
             const TriggerType triggerType,
             const uint64_t originTriggerType,

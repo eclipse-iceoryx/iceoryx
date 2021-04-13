@@ -21,17 +21,17 @@ namespace iox
 {
 namespace popo
 {
-template <typename OriginType, typename UserType>
-inline EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const))
+template <typename OriginType, typename ContextDataType>
+inline EventCallback<OriginType, ContextDataType> createEventCallback(void (&callback)(OriginType* const))
 {
     return EventCallback<OriginType, internal::NoType_t>{&callback};
 }
 
-template <typename OriginType, typename UserType>
-inline EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const, UserType* const),
-                                                               UserType& userValue)
+template <typename OriginType, typename ContextDataType>
+inline EventCallback<OriginType, ContextDataType>
+createEventCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue)
 {
-    return EventCallback<OriginType, UserType>{&callback, &userValue};
+    return EventCallback<OriginType, ContextDataType>{&callback, &userValue};
 }
 } // namespace popo
 } // namespace iox

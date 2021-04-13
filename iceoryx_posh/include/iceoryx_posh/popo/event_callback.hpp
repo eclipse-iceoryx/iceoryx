@@ -23,12 +23,14 @@ namespace iox
 {
 namespace popo
 {
+template <typename OriginType, typename ContextDataType>
+struct EventCallback;
+
 namespace internal
 {
 struct NoType_t
 {
 };
-} // namespace internal
 
 using GenericCallbackPtr_t = void (*)();
 using GenericCallbackRef_t = void (&)();
@@ -36,17 +38,37 @@ using GenericCallbackRef_t = void (&)();
 using TranslationCallbackRef_t = void (&)(void* const, void* const, GenericCallbackPtr_t const);
 using TranslationCallbackPtr_t = void (*)(void* const, void* const, GenericCallbackPtr_t const);
 
+template <typename T, typename ContextDataType>
+struct TranslateAndCallTypelessCallback
+{
+    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback)
+    {
+        reinterpret_cast<typename EventCallback<T, ContextDataType>::Ptr_t>(underlyingCallback)(
+            static_cast<T*>(origin), static_cast<ContextDataType*>(userType));
+    }
+};
+
+template <typename T>
+struct TranslateAndCallTypelessCallback<T, internal::NoType_t>
+{
+    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback)
+    {
+        IOX_DISCARD_RESULT(userType);
+        reinterpret_cast<typename EventCallback<T, NoType_t>::Ptr_t>(underlyingCallback)(static_cast<T*>(origin));
+    }
+};
+} // namespace internal
 
 ///@brief the struct describes a callback with a user defined type which can
 ///         be attached to a WaitSet or a Listener
-template <typename OriginType, typename UserType>
+template <typename OriginType, typename ContextDataType>
 struct EventCallback
 {
-    using Ref_t = void (&)(OriginType* const, UserType* const);
-    using Ptr_t = void (*)(OriginType* const, UserType* const);
+    using Ref_t = void (&)(OriginType* const, ContextDataType* const);
+    using Ptr_t = void (*)(OriginType* const, ContextDataType* const);
 
     Ptr_t m_callback = nullptr;
-    UserType* m_userValue = nullptr;
+    ContextDataType* m_contextData = nullptr;
 };
 
 ///@brief the struct describes a callback which can be attached to a WaitSet or a Listener
@@ -57,43 +79,22 @@ struct EventCallback<OriginType, internal::NoType_t>
     using Ptr_t = void (*)(OriginType* const);
 
     Ptr_t m_callback = nullptr;
-    internal::NoType_t* m_userValue = nullptr;
+    internal::NoType_t* m_contextData = nullptr;
 };
 
 /// @brief creates an EventCallback
 /// @param[in] callback reference to a callback with the signature void(OriginType*)
 /// @return the callback stored inside of an EventCallback
-template <typename OriginType, typename UserType = internal::NoType_t>
-EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const));
+template <typename OriginType, typename ContextDataType = internal::NoType_t>
+EventCallback<OriginType, ContextDataType> createEventCallback(void (&callback)(OriginType* const));
 
 /// @brief creates an EventCallback with a user defined value
-/// @param[in] callback reference to a callback with the signature void(OriginType*, UserType*)
+/// @param[in] callback reference to a callback with the signature void(OriginType*, ContextDataType*)
 /// @param[in] userValue reference to a user defined value
 /// @return the callback and user value stored inside of an EventCallback
-template <typename OriginType, typename UserType>
-EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const, UserType* const),
-                                                        UserType& userValue);
-
-template <typename T, typename UserType>
-struct TranslateAndCallTypelessCallback
-{
-    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback)
-    {
-        reinterpret_cast<typename EventCallback<T, UserType>::Ptr_t>(underlyingCallback)(
-            static_cast<T*>(origin), static_cast<UserType*>(userType));
-    }
-};
-
-template <typename T>
-struct TranslateAndCallTypelessCallback<T, internal::NoType_t>
-{
-    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback)
-    {
-        IOX_DISCARD_RESULT(userType);
-        reinterpret_cast<typename EventCallback<T, internal::NoType_t>::Ptr_t>(underlyingCallback)(
-            static_cast<T*>(origin));
-    }
-};
+template <typename OriginType, typename ContextDataType>
+EventCallback<OriginType, ContextDataType>
+createEventCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue);
 
 } // namespace popo
 } // namespace iox

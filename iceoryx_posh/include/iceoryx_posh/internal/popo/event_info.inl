@@ -21,16 +21,16 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename UserType>
+template <typename T, typename ContextDataType>
 inline EventInfo::EventInfo(T* const eventOrigin,
                             const uint64_t eventId,
-                            const EventCallback<T, UserType>& callback) noexcept
+                            const EventCallback<T, ContextDataType>& callback) noexcept
     : m_eventOrigin(eventOrigin)
-    , m_userValue(callback.m_userValue)
+    , m_userValue(callback.m_contextData)
     , m_eventOriginTypeHash(typeid(T).hash_code())
     , m_eventId(eventId)
-    , m_callbackPtr(reinterpret_cast<GenericCallbackPtr_t>(callback.m_callback))
-    , m_callback(TranslateAndCallTypelessCallback<T, UserType>::call)
+    , m_callbackPtr(reinterpret_cast<internal::GenericCallbackPtr_t>(callback.m_callback))
+    , m_callback(internal::TranslateAndCallTypelessCallback<T, ContextDataType>::call)
 {
 }
 

@@ -88,12 +88,12 @@ class WaitSet
     /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T,
               typename EventType,
-              typename UserType = internal::NoType_t,
+              typename ContextDataType = internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
                                             const EventType eventType,
                                             const uint64_t eventId = 0U,
-                                            const EventCallback<T, UserType>& eventCallback = {}) noexcept;
+                                            const EventCallback<T, ContextDataType>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @param[in] eventOrigin the class from which the event originates.
@@ -101,25 +101,27 @@ class WaitSet
     /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T,
               typename EventType,
-              typename UserType = internal::NoType_t,
+              typename ContextDataType = internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<EventType>::value, void>>
-    cxx::expected<WaitSetError>
-    attachEvent(T& eventOrigin, const EventType eventType, const EventCallback<T, UserType>& eventCallback) noexcept;
+    cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
+                                            const EventType eventType,
+                                            const EventCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventId an arbitrary user defined id for the event
     /// @param[in] eventCallback a callback which should be assigned to the event
-    template <typename T, typename UserType = internal::NoType_t>
+    template <typename T, typename ContextDataType = internal::NoType_t>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
                                             const uint64_t eventId = 0U,
-                                            const EventCallback<T, UserType>& eventCallback = {}) noexcept;
+                                            const EventCallback<T, ContextDataType>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventCallback a callback which should be assigned to the event
-    template <typename T, typename UserType = internal::NoType_t>
-    cxx::expected<WaitSetError> attachEvent(T& eventOrigin, const EventCallback<T, UserType>& eventCallback) noexcept;
+    template <typename T, typename ContextDataType = internal::NoType_t>
+    cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
+                                            const EventCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @param[in] stateOrigin the class from which the state originates.
@@ -128,12 +130,12 @@ class WaitSet
     /// @param[in] stateCallback a callback which should be assigned to the state
     template <typename T,
               typename StateType,
-              typename UserType = internal::NoType_t,
+              typename ContextDataType = internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<StateType>::value>>
     cxx::expected<WaitSetError> attachState(T& stateOrigin,
                                             const StateType stateType,
                                             const uint64_t id = 0U,
-                                            const EventCallback<T, UserType>& stateCallback = {}) noexcept;
+                                            const EventCallback<T, ContextDataType>& stateCallback = {}) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @param[in] stateOrigin the class from which the state originates.
@@ -141,24 +143,27 @@ class WaitSet
     /// @param[in] stateCallback a callback which should be assigned to the state
     template <typename T,
               typename StateType,
-              typename UserType = internal::NoType_t,
+              typename ContextDataType = internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<StateType>::value, void>>
-    cxx::expected<WaitSetError>
-    attachState(T& stateOrigin, const StateType stateType, const EventCallback<T, UserType>& stateCallback) noexcept;
+    cxx::expected<WaitSetError> attachState(T& stateOrigin,
+                                            const StateType stateType,
+                                            const EventCallback<T, ContextDataType>& stateCallback) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @param[in] stateOrigin the class from which the state originates.
     /// @param[in] id an arbitrary user defined id for the state
     /// @param[in] stateCallback a callback which should be assigned to the state
-    template <typename T, typename UserType = internal::NoType_t>
-    cxx::expected<WaitSetError>
-    attachState(T& stateOrigin, const uint64_t id = 0U, const EventCallback<T, UserType>& stateCallback = {}) noexcept;
+    template <typename T, typename ContextDataType = internal::NoType_t>
+    cxx::expected<WaitSetError> attachState(T& stateOrigin,
+                                            const uint64_t id = 0U,
+                                            const EventCallback<T, ContextDataType>& stateCallback = {}) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @param[in] stateOrigin the class from which the state originates.
     /// @param[in] stateCallback a callback which should be assigned to the state
-    template <typename T, typename UserType = internal::NoType_t>
-    cxx::expected<WaitSetError> attachState(T& stateOrigin, const EventCallback<T, UserType>& stateCallback) noexcept;
+    template <typename T, typename ContextDataType = internal::NoType_t>
+    cxx::expected<WaitSetError> attachState(T& stateOrigin,
+                                            const EventCallback<T, ContextDataType>& stateCallback) noexcept;
 
     /// @brief detaches an event from the WaitSet
     /// @param[in] eventOrigin the origin of the event that should be detached
@@ -202,11 +207,11 @@ class WaitSet
     };
 
     using WaitFunction = cxx::function_ref<ConditionListener::NotificationVector_t()>;
-    template <typename T, typename UserType>
+    template <typename T, typename ContextDataType>
     cxx::expected<uint64_t, WaitSetError> attachImpl(T& eventOrigin,
                                                      const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,
                                                      const uint64_t eventId,
-                                                     const EventCallback<T, UserType>& eventCallback,
+                                                     const EventCallback<T, ContextDataType>& eventCallback,
                                                      const uint64_t originType,
                                                      const uint64_t originTypeHash) noexcept;
 
