@@ -75,6 +75,12 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
+    /// @brief Non reversable call. After this call wait() and timedWait() do
+    ///        not block any longer and never return triggered events. This
+    ///        method can be used to manually initialize destruction and to wakeup
+    ///        any thread which is waiting in wait() or timedWait().
+    void markForDestruction() noexcept;
+
     /// @brief attaches an event of a given class to the WaitSet.
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventType the event specified by the class
