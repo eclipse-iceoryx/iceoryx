@@ -23,7 +23,7 @@
 WORKSPACE=$(git rev-parse --show-toplevel)
 CONFIG="OFF"
 RUN="OFF"
-SESSION=icecubetray
+SESSION=ice_access_control
 TMUX="TMUX -2 -q"
 
 while (( "$#" )); do
@@ -62,7 +62,7 @@ if [ "$CONFIG" == "ON" ] ; then
     sudo usermod -L notallowed -a -G iceoryx -s /sbin/nologin
 
     # Allow RouDi to send SIGKILL to other apps
-    sudo setcap cap_kill=ep $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments
+    sudo setcap cap_kill=ep $WORKSPACE/build/iceoryx_examples/ice_access_control/iox-cpp-roudi-static-segments
 fi
 
 if [ "$RUN" == "ON" ] ; then
@@ -80,16 +80,16 @@ if [ "$RUN" == "ON" ] ; then
     $TMUX new-session -d -s $SESSION
 
     # Start custom RouDi in 'iceoryx' group
-    $TMUX new-window -a -t $SESSION 'sudo -u roudi -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-roudi-static-segments'
+    $TMUX new-window -a -t $SESSION 'sudo -u roudi -g iceoryx -- $WORKSPACE/build/iceoryx_examples/ice_access_control/iox-cpp-roudi-static-segments'
 
     # Start perception app as 'perception' user
-    $TMUX split-window -t 0 -h 'sudo -u perception -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-radar'
+    $TMUX split-window -t 0 -h 'sudo -u perception -g iceoryx -- $WORKSPACE/build/iceoryx_examples/ice_access_control/iox-cpp-radar'
 
     # Start display app as 'infotainment' user
-    $TMUX split-window -t 1 -v 'sudo -u infotainment -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-display'
+    $TMUX split-window -t 1 -v 'sudo -u infotainment -g iceoryx -- $WORKSPACE/build/iceoryx_examples/ice_access_control/iox-cpp-display'
 
     # Start cheeky app as 'notallowed' user
-    $TMUX split-window -t 0 -v 'sudo -u notallowed -g iceoryx -- $WORKSPACE/build/iceoryx_examples/icecubetray/iox-cpp-cheeky'
+    $TMUX split-window -t 0 -v 'sudo -u notallowed -g iceoryx -- $WORKSPACE/build/iceoryx_examples/ice_access_control/iox-cpp-cheeky'
 
     $TMUX attach -t $SESSION
 fi
