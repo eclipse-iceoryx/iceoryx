@@ -63,7 +63,7 @@ int main()
     // attach shutdownTrigger to handle CTRL+C
     waitset.attachEvent(shutdownTrigger).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
     // create subscriber and subscribe them to our service
@@ -76,7 +76,7 @@ int main()
         waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
-                std::terminate();
+                std::exit(EXIT_FAILURE);
             });
     }
 

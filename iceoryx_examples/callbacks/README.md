@@ -88,19 +88,19 @@ callback (`heartbeatCallback`).
 ```cpp
 listener.attachEvent(heartbeat, heartbeatCallback).or_else([](auto) {
     std::cerr << "unable to attach heartbeat event" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 listener.attachEvent(subscriberLeft, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberLeft" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 // it is possible to attach any callback here with the required signature. to simplify the
 // example we attach the same callback onSampleReceivedCallback again
 listener.attachEvent(subscriberRight, iox::popo::SubscriberEvent::DATA_RECEIVED, onSampleReceivedCallback)
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberRight" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 ```
 

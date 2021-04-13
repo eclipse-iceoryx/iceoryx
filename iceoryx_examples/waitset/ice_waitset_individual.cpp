@@ -44,7 +44,7 @@ int main()
     // attach shutdownTrigger to handle CTRL+C
     waitset.attachEvent(shutdownTrigger).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
     // create two subscribers, subscribe to the service and attach them to the waitset
@@ -53,11 +53,11 @@ int main()
 
     waitset.attachState(subscriber1, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cerr << "failed to attach subscriber1" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
     waitset.attachState(subscriber2, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cerr << "failed to attach subscriber2" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
     // event loop
