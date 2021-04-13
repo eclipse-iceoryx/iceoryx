@@ -54,7 +54,7 @@ int main()
     // attach shutdownTrigger to handle CTRL+C
     waitset.attachEvent(shutdownTrigger).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
     // create and attach the cyclicTrigger with a callback to
@@ -62,7 +62,7 @@ int main()
     iox::popo::UserTrigger cyclicTrigger;
     waitset.attachEvent(cyclicTrigger, 0U, &SomeClass::cyclicRun).or_else([](auto) {
         std::cerr << "failed to attach cyclic trigger" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
     // start a thread which triggers cyclicTrigger every second
