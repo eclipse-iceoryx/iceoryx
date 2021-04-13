@@ -37,7 +37,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 {
     shutdownSemaphore.post().or_else([](auto) {
         std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
     keepRunning = false;
 }
@@ -59,7 +59,7 @@ class CounterClass
                          iox::popo::createEventCallback(onSampleReceivedCallback, *this))
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberLeft" << std::endl;
-                std::terminate();
+                std::exit(EXIT_FAILURE);
             });
         m_listener
             .attachEvent(m_subscriberRight,
@@ -67,11 +67,11 @@ class CounterClass
                          iox::popo::createEventCallback(onSampleReceivedCallback, *this))
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberRight" << std::endl;
-                std::terminate();
+                std::exit(EXIT_FAILURE);
             });
     }
 
-    void waitForControlC() noexcept
+    void waitForShutdown() noexcept
     {
         shutdownSemaphore.wait().or_else(
             [](auto) { std::cerr << "unable to call wait on shutdownSemaphore - semaphore corrupt?" << std::endl; });
@@ -126,7 +126,7 @@ int main()
 
     CounterClass counterClass;
 
-    counterClass.waitForControlC();
+    counterClass.waitForShutdown();
 
     return (EXIT_SUCCESS);
 }
