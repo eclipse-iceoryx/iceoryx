@@ -242,7 +242,7 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 
 bool ProcessManager::addProcess(const RuntimeName_t& name,
                                 const uint32_t pid,
-                                posix::PosixUser user,
+                                const posix::PosixUser& user,
                                 const bool isMonitored,
                                 const int64_t transmissionTimestamp,
                                 const uint64_t sessionId,
