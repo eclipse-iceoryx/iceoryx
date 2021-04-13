@@ -1,6 +1,7 @@
 site_name: iceoryx.io
 site_url: https://iceoryx.io
 repo_url: https://github.com/eclipse/iceoryx
+edit_uri: ""
 docs_dir: doc/website/
 remote_branch: main
 markdown_extensions:
