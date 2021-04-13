@@ -22,21 +22,38 @@ namespace popo
 {
 namespace internal
 {
-template <typename T>
-inline void translateAndCallTypelessCallback(void* const origin, void (*underlyingCallback)(void* const))
+template <typename T, typename UserType>
+struct TranslateAndCallTypelessCallback
 {
-    reinterpret_cast<void (*)(T* const)>(underlyingCallback)(static_cast<T*>(origin));
-}
-} // namespace internal
+    static void call(void* const origin, void* const userType, Listener::GenericCallbackPtr_t underlyingCallback)
+    {
+        reinterpret_cast<typename EventCallback<T, UserType>::Ptr_t>(underlyingCallback)(
+            static_cast<T*>(origin), static_cast<UserType*>(userType));
+    }
+};
 
 template <typename T>
-inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin, CallbackRef_t<T> eventCallback) noexcept
+struct TranslateAndCallTypelessCallback<T, internal::NoType_t>
+{
+    static void call(void* const origin, void* const userType, Listener::GenericCallbackPtr_t underlyingCallback)
+    {
+        IOX_DISCARD_RESULT(userType);
+        reinterpret_cast<typename EventCallback<T, internal::NoType_t>::Ptr_t>(underlyingCallback)(
+            static_cast<T*>(origin));
+    }
+};
+} // namespace internal
+
+template <typename T, typename UserType>
+inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
+                                                          const EventCallback<T, UserType>& eventCallback) noexcept
 {
     return addEvent(&eventOrigin,
+                    eventCallback.m_userValue,
                     static_cast<uint64_t>(NoEnumUsed::PLACEHOLDER),
                     typeid(NoEnumUsed).hash_code(),
-                    reinterpret_cast<CallbackRef_t<void>>(eventCallback),
-                    internal::translateAndCallTypelessCallback<T>,
+                    reinterpret_cast<GenericCallbackRef_t>(*eventCallback.m_callback),
+                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(
@@ -44,17 +61,17 @@ inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin, Callba
         });
 }
 
-template <typename T, typename EventType, typename>
-inline cxx::expected<ListenerError>
-Listener::attachEvent(T& eventOrigin, const EventType eventType, CallbackRef_t<T> eventCallback) noexcept
+template <typename T, typename EventType, typename UserType, typename>
+inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
+                                                          const EventType eventType,
+                                                          const EventCallback<T, UserType>& eventCallback) noexcept
 {
-    static_assert(IS_EVENT_ENUM<EventType>,
-                  "Only enums with an underlying EventEnumIdentifier can be attached/detached to the Listener");
     return addEvent(&eventOrigin,
+                    eventCallback.m_userValue,
                     static_cast<uint64_t>(eventType),
                     typeid(EventType).hash_code(),
-                    reinterpret_cast<CallbackRef_t<void>>(eventCallback),
-                    internal::translateAndCallTypelessCallback<T>,
+                    reinterpret_cast<GenericCallbackRef_t>(*eventCallback.m_callback),
+                    internal::TranslateAndCallTypelessCallback<T, UserType>::call,
                     EventAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             EventAttorney::enableEvent(
