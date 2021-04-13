@@ -20,7 +20,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
-bool killswitch = false;
+std::atomic_bool killswitch{false};
 constexpr char APP_NAME[] = "iox-cpp-publisher-complexdata";
 
 static void sigHandler(int f_sig [[gnu::unused]])
@@ -32,12 +32,12 @@ static void sigHandler(int f_sig [[gnu::unused]])
 // push_front (list), push (stack), emplace_back (vector) return a bool - true if the insertion succeeded, false
 // otherwise
 // to keep the example clear, this helper function handles the return values
-void handle(const bool hasSuccess)
+void handleInsertionReturnVal(const bool hasSuccess)
 {
     if (!hasSuccess)
     {
         std::cerr << "Failed to insert element." << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     }
 }
 
@@ -51,7 +51,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialize publisher
-    iox::popo::Publisher<ComplexDataType> publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::Publisher<ComplexDataType> publisher({"Group", "Instance", "Topic"});
 
     uint64_t ct = 0;
     // run until interrupted by Ctrl-C
@@ -61,31 +61,31 @@ int main()
         publisher.loan()
             .and_then([&](auto& sample) {
                 // forward_list<string<10>, 5>
-                handle(sample->stringForwardList.push_front("world"));
-                handle(sample->stringForwardList.push_front("hello"));
+                handleInsertionReturnVal(sample->stringForwardList.push_front("world"));
+                handleInsertionReturnVal(sample->stringForwardList.push_front("hello"));
                 // list<uint64_t, 10>;
-                handle(sample->integerList.push_front(ct));
-                handle(sample->integerList.push_front(ct * 2));
-                handle(sample->integerList.push_front(ct + 4));
+                handleInsertionReturnVal(sample->integerList.push_front(ct));
+                handleInsertionReturnVal(sample->integerList.push_front(ct * 2));
+                handleInsertionReturnVal(sample->integerList.push_front(ct + 4));
                 // list<optional<int32_t>, 15>
-                handle(sample->optionalList.push_front(42));
-                handle(sample->optionalList.push_front(nullopt));
+                handleInsertionReturnVal(sample->optionalList.push_front(42));
+                handleInsertionReturnVal(sample->optionalList.push_front(nullopt));
                 // stack<float, 5>
                 for (uint64_t i = 0U; i < sample->floatStack.capacity(); ++i)
                 {
-                    handle(sample->floatStack.push(static_cast<float>(ct * i)));
+                    handleInsertionReturnVal(sample->floatStack.push(static_cast<float>(ct * i)));
                 }
                 // string<20>
                 sample->someString = "hello iceoryx";
                 // vector<double, 5>
                 for (uint64_t i = 0U; i < sample->doubleVector.capacity(); ++i)
                 {
-                    handle(sample->doubleVector.emplace_back(static_cast<double>(ct + i)));
+                    handleInsertionReturnVal(sample->doubleVector.emplace_back(static_cast<double>(ct + i)));
                 }
                 // vector<variant<string<10>, double>, 10>;
-                handle(sample->variantVector.emplace_back(in_place_index<0>(), "seven"));
-                handle(sample->variantVector.emplace_back(in_place_index<1>(), 8.0));
-                handle(sample->variantVector.emplace_back(in_place_index<0>(), "nine"));
+                handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "seven"));
+                handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<1>(), 8.0));
+                handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "nine"));
 
                 sample.publish();
             })

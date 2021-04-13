@@ -20,7 +20,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
-bool killswitch = false;
+std::atomic_bool killswitch{false};
 constexpr char APP_NAME[] = "iox-cpp-publisher-vector";
 
 static void sigHandler(int f_sig [[gnu::unused]])
@@ -39,7 +39,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialize publisher
-    iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontRight", "Object"});
 
     uint64_t ct = 0;
     // run until interrupted by Ctrl-C
@@ -53,6 +53,7 @@ int main()
                     if (!success)
                     {
                         std::cerr << "Failed to insert element." << std::endl;
+                        break;
                     }
                 }
 

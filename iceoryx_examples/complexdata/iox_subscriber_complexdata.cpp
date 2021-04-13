@@ -21,7 +21,7 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
-bool killswitch = false;
+std::atomic_bool killswitch{false};
 constexpr char APP_NAME[] = "iox-cpp-subscriber-complexdata";
 
 static void sigHandler(int f_sig [[gnu::unused]])
@@ -40,7 +40,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialize subscriber
-    iox::popo::Subscriber<ComplexDataType> subscriber({"Radar", "FrontLeft", "Object"});
+    iox::popo::Subscriber<ComplexDataType> subscriber({"Group", "Instance", "Topic"});
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
@@ -50,51 +50,59 @@ int main()
                 std::stringstream s;
                 s << APP_NAME << " got values:";
 
-                s << std::endl << "stringForwardList: ";
-                for (auto i = sample->stringForwardList.begin(); i != sample->stringForwardList.end(); ++i)
+                s << std::endl << "stringForwardList:";
+                for (const auto& entry : sample->stringForwardList)
                 {
-                    s << *i << " ";
+                    s << " " << entry;
                 }
 
-                s << std::endl << "integerList: ";
-                for (auto i = sample->integerList.begin(); i != sample->integerList.end(); ++i)
+                s << std::endl << "integerList:";
+                for (const auto& entry : sample->integerList)
                 {
-                    s << *i << " ";
+                    s << " " << entry;
                 }
 
-                s << std::endl << "optionalList: ";
-                for (auto i = sample->optionalList.begin(); i != sample->optionalList.end(); ++i)
+                s << std::endl << "optionalList:";
+                for (const auto& entry : sample->optionalList)
                 {
-                    (i->has_value()) ? s << i->value() << " " : s << "optional is empty, ";
+                    (entry.has_value()) ? s << " " << entry.value() : s << " optional is empty";
                 }
 
-                s << std::endl << "floatStack: ";
+                s << std::endl << "floatStack:";
                 auto stackCopy = sample->floatStack;
-                for (uint64_t i = stackCopy.capacity(); i > 0U; i--)
+                while (stackCopy.size() > 0U)
                 {
                     auto result = stackCopy.pop();
-                    (result.has_value()) ? s << result.value() << " " : s << "stack is empty";
+                    if (result.has_value())
+                    {
+                        s << " " << result.value();
+                    }
                 }
 
-                s << std::endl << "someString: ";
-                s << sample->someString;
+                s << std::endl << "someString: " << sample->someString;
 
                 s << std::endl << "doubleVector: ";
-                for (uint64_t i = 0U; i < sample->doubleVector.size(); ++i)
+                for (const auto& entry : sample->doubleVector)
                 {
-                    s << sample->doubleVector[i] << " ";
+                    s << " " << entry;
                 }
 
-                s << std::endl << "variantVector: ";
-                for (uint64_t i = 0U; i < sample->variantVector.size(); ++i)
+                s << std::endl << "variantVector:";
+                for (const auto& i : sample->variantVector)
                 {
-                    if (sample->variantVector[i].index() == 0)
+                    switch (i.index())
                     {
-                        s << *sample->variantVector[i].template get_at_index<0>() << " ";
-                    }
-                    else if (sample->variantVector[i].index() == 1)
-                    {
-                        s << *sample->variantVector[i].template get_at_index<1>() << " ";
+                    case 0:
+                        s << " " << *i.template get_at_index<0>();
+                        break;
+                    case 1:
+                        s << " " << *i.template get_at_index<1>();
+                        break;
+                    case INVALID_VARIANT_INDEX:
+                        s << " variant does not contain a type";
+                        break;
+                    default:
+                        s << " this is a new type";
                     }
                 }
 

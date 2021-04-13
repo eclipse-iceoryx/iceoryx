@@ -253,7 +253,7 @@ inline const T* variant<Types...>::get_if(const T* f_default_value) const noexce
 }
 
 template <typename... Types>
-constexpr size_t variant<Types...>::index() const noexcept
+constexpr uint64_t variant<Types...>::index() const noexcept
 {
     return m_type_index;
 }

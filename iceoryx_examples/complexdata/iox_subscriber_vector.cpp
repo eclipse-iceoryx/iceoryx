@@ -21,7 +21,7 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
-bool killswitch = false;
+std::atomic_bool killswitch{false};
 constexpr char APP_NAME[] = "iox-cpp-subscriber-complexdata";
 
 static void sigHandler(int f_sig [[gnu::unused]])
@@ -40,7 +40,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialize subscriber
-    iox::popo::Subscriber<iox::cxx::vector<double, 5>> subscriber({"Radar", "FrontLeft", "Object"});
+    iox::popo::Subscriber<iox::cxx::vector<double, 5>> subscriber({"Radar", "FrontRight", "Object"});
 
     // run until interrupted by Ctrl-C
     while (!killswitch)
@@ -48,11 +48,11 @@ int main()
         subscriber.take()
             .and_then([](auto& sample) {
                 std::stringstream s;
-                s << APP_NAME << " got values: ";
+                s << APP_NAME << " got values:";
 
-                for (uint64_t i = 0U; i < sample->size(); ++i)
+                for (const auto& entry : *sample)
                 {
-                    s << sample->at(i) << " ";
+                    s << " " << entry;
                 }
 
                 s << std::endl;
