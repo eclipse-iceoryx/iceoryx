@@ -24,13 +24,16 @@ namespace iox
 {
 namespace concurrent
 {
-void LoFFLi::init(cxx::not_null<uint32_t*> freeIndicesMemory, const uint32_t size) noexcept
+void LoFFLi::init(cxx::not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept
 {
-    cxx::Expects(size > 0);
-    cxx::Expects(size <= UINT32_MAX - 2U);
+    cxx::Expects(capacity > 0 && "A capacity of 0 is not supported!");
+    constexpr uint32_t INTERNALLY_RESERVED_INDICES{1U};
+    cxx::Expects(capacity < (std::numeric_limits<Index_t>::max() - INTERNALLY_RESERVED_INDICES)
+                 && "Requested capacityexceeds limits!");
+    cxx::Expects(m_head.is_lock_free() && "std::atomic<LoFFLi::Node> must be lock-free!");
 
     m_nextFreeIndex = freeIndicesMemory;
-    m_size = size;
+    m_size = capacity;
     m_invalidIndex = m_size + 1;
 
     if (m_nextFreeIndex != nullptr)
@@ -42,7 +45,7 @@ void LoFFLi::init(cxx::not_null<uint32_t*> freeIndicesMemory, const uint32_t siz
     }
 }
 
-bool LoFFLi::pop(uint32_t& index) noexcept
+bool LoFFLi::pop(Index_t& index) noexcept
 {
     Node oldHead = m_head.load(std::memory_order_acquire);
     Node newHead = oldHead;
@@ -76,7 +79,7 @@ bool LoFFLi::pop(uint32_t& index) noexcept
     return true;
 }
 
-bool LoFFLi::push(const uint32_t index) noexcept
+bool LoFFLi::push(const Index_t index) noexcept
 {
     /// we synchronize with m_nextFreeIndex in pop to perform the validity check
     std::atomic_thread_fence(std::memory_order_release);

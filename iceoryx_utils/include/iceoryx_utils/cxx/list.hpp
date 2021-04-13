@@ -379,7 +379,7 @@ class list
     // first used list element (begin())
     NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];
-    alignas(alignof(T)) element_t m_data[Capacity];
+    alignas(T) element_t m_data[Capacity];
 
     size_type m_size{0U};
 }; // list
