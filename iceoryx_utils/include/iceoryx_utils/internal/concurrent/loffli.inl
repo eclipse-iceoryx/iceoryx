@@ -21,9 +21,9 @@ namespace iox
 {
 namespace concurrent
 {
-inline constexpr std::size_t LoFFLi::requiredIndexMemorySize(const uint32_t size) noexcept
+inline constexpr std::size_t LoFFLi::requiredIndexMemorySize(const uint32_t capacity) noexcept
 {
-    return (static_cast<size_t>(size) + 1U) * sizeof(LoFFLi::Index_t);
+    return (static_cast<size_t>(capacity) + 1U) * sizeof(LoFFLi::Index_t);
 }
 
 } // namespace concurrent

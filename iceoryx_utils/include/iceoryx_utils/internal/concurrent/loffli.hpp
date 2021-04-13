@@ -33,12 +33,14 @@ class LoFFLi
     using Index_t = uint32_t;
 
   private:
-    /// @todo std::atomic_is_lock_free check
     struct alignas(8) Node
     {
         Index_t indexToNextFreeIndex;
         uint32_t abaCounter;
     };
+
+    static_assert(sizeof(Node) <= 8U,
+                  "The size of 'Node' must not exceed 8 bytes in order to be lock-free on 64 bit systems!");
 
     /// @todo introduce typesafe indices with the properties listed below
     ///       id is required that not two loefflis with the same properties
@@ -71,12 +73,11 @@ class LoFFLi
   public:
     LoFFLi() = default;
     /// @todo: why init not in ctor
-    /// @todo: size = capacity
 
     /// Initializes the lock-free free-list
-    /// @param [in] freeIndicesMemory pointer to a memory with the size calculated by requiredMemorySize()
-    /// @param [in] size is the number of elements of the free-list; must be the same used at requiredMemorySize()
-    void init(cxx::not_null<Index_t*> freeIndicesMemory, const uint32_t size) noexcept;
+    /// @param [in] freeIndicesMemory pointer to a memory with the capacity calculated by requiredMemorySize()
+    /// @param [in] capacity is the number of elements of the free-list; must be the same used at requiredMemorySize()
+    void init(cxx::not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept;
 
     /// Pop a value from the free-list
     /// @param [out] index for an element to use
@@ -89,9 +90,9 @@ class LoFFLi
     bool push(const Index_t index) noexcept;
 
     /// Calculates the required memory size for a free-list
-    /// @param [in] size is the number of elements of the free-list
-    /// @return the required memory size for a free-list with size elements
-    static inline constexpr std::size_t requiredIndexMemorySize(const uint32_t size) noexcept;
+    /// @param [in] capacity is the number of elements of the free-list
+    /// @return the required memory size for a free-list with the requested capacity
+    static inline constexpr std::size_t requiredIndexMemorySize(const uint32_t capacity) noexcept;
 };
 
 } // namespace concurrent
