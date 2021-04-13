@@ -22,12 +22,12 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename UserType>
+template <typename T, typename ContextDataType>
 inline Trigger::Trigger(T* const eventOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
-                        const EventCallback<T, UserType>& callback,
+                        const EventCallback<T, ContextDataType>& callback,
                         const uint64_t uniqueId,
                         const TriggerType triggerType,
                         const uint64_t originTriggerType,
@@ -47,13 +47,13 @@ inline Trigger::Trigger(T* const eventOrigin,
     }
 }
 
-template <typename T, typename UserType>
+template <typename T, typename ContextDataType>
 inline Trigger::Trigger(StateBasedTrigger_t,
                         T* const stateOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
-                        const EventCallback<T, UserType>& callback,
+                        const EventCallback<T, ContextDataType>& callback,
                         const uint64_t uniqueId,
                         const uint64_t stateType,
                         const uint64_t stateTypeHash) noexcept
@@ -74,12 +74,12 @@ inline Trigger::Trigger(StateBasedTrigger_t,
     }
 }
 
-template <typename T, typename UserType>
+template <typename T, typename ContextDataType>
 inline Trigger::Trigger(EventBasedTrigger_t,
                         T* const eventOrigin,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t eventId,
-                        const EventCallback<T, UserType>& callback,
+                        const EventCallback<T, ContextDataType>& callback,
                         const uint64_t uniqueId,
                         const uint64_t eventType,
                         const uint64_t eventTypeHash) noexcept

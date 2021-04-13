@@ -35,8 +35,6 @@ class EventInfo
 {
   public:
     static constexpr uint64_t INVALID_ID = std::numeric_limits<uint64_t>::max();
-    template <typename T>
-    using Callback = void (*)(T* const);
 
     /// @brief constructs an empty EventInfo
     EventInfo() = default;
@@ -46,8 +44,8 @@ class EventInfo
     /// @param[in] eventOrigin the origin of the event
     /// @param[in] eventId id of the event
     /// @param[in] callback the callback of the event
-    template <typename T, typename UserType>
-    EventInfo(T* const eventOrigin, const uint64_t eventId, const EventCallback<T, UserType>& callback) noexcept;
+    template <typename T, typename ContextDataType>
+    EventInfo(T* const eventOrigin, const uint64_t eventId, const EventCallback<T, ContextDataType>& callback) noexcept;
 
     /// @brief returns the event id
     /// @return the empty EventInfo always returns INVALID_ID, otherwise the actual eventId is returned
@@ -80,8 +78,8 @@ class EventInfo
     uint64_t m_eventOriginTypeHash = 0U;
     uint64_t m_eventId = INVALID_ID;
 
-    GenericCallbackPtr_t m_callbackPtr = nullptr;
-    TranslationCallbackPtr_t m_callback = nullptr;
+    internal::GenericCallbackPtr_t m_callbackPtr = nullptr;
+    internal::TranslationCallbackPtr_t m_callback = nullptr;
 };
 
 } // namespace popo

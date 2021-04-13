@@ -48,8 +48,8 @@ Listener::addEvent(void* const origin,
                    void* const userType,
                    const uint64_t eventType,
                    const uint64_t eventTypeHash,
-                   GenericCallbackRef_t callback,
-                   TranslationCallbackRef_t translationCallback,
+                   internal::GenericCallbackRef_t callback,
+                   internal::TranslationCallbackRef_t translationCallback,
                    const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
     std::lock_guard<std::mutex> lock(m_addEventMutex);
@@ -127,8 +127,8 @@ bool Listener::Event_t::init(const uint64_t eventId,
                              void* const userType,
                              const uint64_t eventType,
                              const uint64_t eventTypeHash,
-                             GenericCallbackRef_t callback,
-                             TranslationCallbackRef_t translationCallback,
+                             internal::GenericCallbackRef_t callback,
+                             internal::TranslationCallbackRef_t translationCallback,
                              const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
 {
     if (invalidationCallback)
