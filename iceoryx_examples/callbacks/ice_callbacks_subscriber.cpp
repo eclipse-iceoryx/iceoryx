@@ -40,7 +40,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 {
     shutdownSemaphore.post().or_else([](auto) {
         std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
     keepRunning = false;
 }
@@ -105,7 +105,7 @@ int main()
     // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
     listener.attachEvent(heartbeat, iox::popo::createEventCallback(heartbeatCallback)).or_else([](auto) {
         std::cerr << "unable to attach heartbeat event" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
     // It is possible to attach any c function here with a signature of void(iox::popo::Subscriber<CounterTopic> *).
@@ -119,7 +119,7 @@ int main()
                      iox::popo::createEventCallback(onSampleReceivedCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberLeft" << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
     listener
         .attachEvent(subscriberRight,
@@ -127,7 +127,7 @@ int main()
                      iox::popo::createEventCallback(onSampleReceivedCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberRight" << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 
     // wait until someone presses CTRL+c
