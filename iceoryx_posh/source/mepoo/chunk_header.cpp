@@ -173,22 +173,22 @@ uint32_t ChunkHeader::userPayloadAlignment() const noexcept
     return m_userPayloadAlignment;
 }
 
-UniquePortId ChunkHeader::originId() const
+UniquePortId ChunkHeader::originId() const noexcept
 {
     return m_originId;
 }
 
-void ChunkHeader::setOriginId(UniquePortId originId)
+void ChunkHeader::setOriginId(UniquePortId originId) noexcept
 {
     m_originId = originId;
 }
 
-uint64_t ChunkHeader::sequenceNumber() const
+uint64_t ChunkHeader::sequenceNumber() const noexcept
 {
     return m_sequenceNumber;
 }
 
-void ChunkHeader::setSequenceNumber(uint64_t sequenceNumber)
+void ChunkHeader::setSequenceNumber(uint64_t sequenceNumber) noexcept
 {
     m_sequenceNumber = sequenceNumber;
 }
