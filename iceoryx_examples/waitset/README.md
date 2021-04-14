@@ -183,13 +183,13 @@ iox::popo::WaitSet<2> waitset;
 // attach shutdown trigger to waitset (needed to stop the processing loop)
 waitset.attachEvent(shutdownTrigger).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 
 // attach subscriber to waitset
 waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -266,7 +266,7 @@ iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER>;
 
 waitset.attachEvent(shutdownTrigger).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -284,7 +284,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 }
 ```
@@ -337,7 +337,7 @@ iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
 waitset.attachEvent(shutdownTrigger).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -361,7 +361,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, FIRST_GROUP_ID)
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 }
 
@@ -370,7 +370,7 @@ for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, SECOND_GROUP_ID)
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 }
 ```
@@ -432,7 +432,7 @@ iox::popo::WaitSet waitset<>;
 
 waitset.attachEvent(shutdownTrigger).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 ```
 
@@ -445,11 +445,11 @@ iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"
 
 waitset.attachEvent(subscriber1, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber1" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 waitset.attachEvent(subscriber2, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber2" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -519,7 +519,7 @@ iox::popo::WaitSet<> waitset;
 // attach shutdownTrigger to handle CTRL+C
 waitset.attachEvent(shutdownTrigger).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -531,7 +531,7 @@ eventId `0` and the callback `SomeClass::cyclicRun`
 iox::popo::UserTrigger cyclicTrigger;
 waitset.attachEvent(cyclicTrigger, 0U, &SomeClass::cyclicRun).or_else([](auto) {
     std::cerr << "failed to attach cyclic trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -910,14 +910,14 @@ to the waitset and provide a callback for them.
     waitset->attachState(*triggerClass, MyTriggerClassStates::IS_ACTIVATED, ACTIVATE_ID, &callOnActivate)
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassStates::IS_ACTIVATED state " << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
     waitset
         ->attachEvent(
             *triggerClass, MyTriggerClassEvents::PERFORM_ACTION_CALLED, ACTION_ID, &MyTriggerClass::callOnAction)
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassEvents::PERFORM_ACTION_CALLED event " << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 ```
 
