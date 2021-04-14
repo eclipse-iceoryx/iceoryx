@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +17,8 @@
 
 #ifndef IOX_DDS_DDS_DATA_WRITER_HPP
 #define IOX_DDS_DDS_DATA_WRITER_HPP
+
+#include "iceoryx_dds/dds/iox_chunk_datagram_header.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
@@ -45,6 +48,16 @@ class DataWriter
     /// @param size
     ///
     virtual void write(const uint8_t* const bytes, const uint64_t size) noexcept = 0;
+
+    ///
+    /// @brief write Write the provided header and bytes on the DDS network on the topic: serviceId/instanceId/eventId
+    /// @param datagramHeader
+    /// @param userHeaderBytes
+    /// @param userPayloadBytes
+    ///
+    virtual void write(iox::dds::IoxChunkDatagramHeader datagramHeader,
+                       const uint8_t* userHeaderBytes,
+                       const uint8_t* userPayloadBytes) noexcept = 0;
 
     ///
     /// @brief getServiceId
