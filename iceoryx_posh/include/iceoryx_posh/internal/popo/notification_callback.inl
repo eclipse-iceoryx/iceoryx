@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_EVENT_CALLBACK_INL
-#define IOX_POSH_POPO_EVENT_CALLBACK_INL
+#ifndef IOX_POSH_POPO_NOTIFICATION_CALLBACK_INL
+#define IOX_POSH_POPO_NOTIFICATION_CALLBACK_INL
 
 namespace iox
 {
@@ -28,7 +28,7 @@ inline void TranslateAndCallTypelessCallback<T, ContextDataType>::call(void* con
                                                                        void* const userType,
                                                                        GenericCallbackPtr_t underlyingCallback) noexcept
 {
-    reinterpret_cast<typename EventCallback<T, ContextDataType>::Ptr_t>(underlyingCallback)(
+    reinterpret_cast<typename NotificationCallback<T, ContextDataType>::Ptr_t>(underlyingCallback)(
         static_cast<T*>(origin), static_cast<ContextDataType*>(userType));
 }
 
@@ -37,21 +37,21 @@ inline void TranslateAndCallTypelessCallback<T, NoType_t>::call(void* const orig
                                                                 void* const userType IOX_MAYBE_UNUSED,
                                                                 GenericCallbackPtr_t underlyingCallback) noexcept
 {
-    reinterpret_cast<typename EventCallback<T, NoType_t>::Ptr_t>(underlyingCallback)(static_cast<T*>(origin));
+    reinterpret_cast<typename NotificationCallback<T, NoType_t>::Ptr_t>(underlyingCallback)(static_cast<T*>(origin));
 }
 } // namespace internal
 
 template <typename OriginType, typename ContextDataType>
-inline EventCallback<OriginType, ContextDataType> createEventCallback(void (&callback)(OriginType* const))
+inline NotificationCallback<OriginType, ContextDataType> createNotificationCallback(void (&callback)(OriginType* const))
 {
-    return EventCallback<OriginType, internal::NoType_t>{&callback};
+    return NotificationCallback<OriginType, internal::NoType_t>{&callback};
 }
 
 template <typename OriginType, typename ContextDataType>
-inline EventCallback<OriginType, ContextDataType>
-createEventCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue)
+inline NotificationCallback<OriginType, ContextDataType>
+createNotificationCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue)
 {
-    return EventCallback<OriginType, ContextDataType>{&callback, &userValue};
+    return NotificationCallback<OriginType, ContextDataType>{&callback, &userValue};
 }
 } // namespace popo
 } // namespace iox

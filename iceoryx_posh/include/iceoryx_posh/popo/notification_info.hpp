@@ -18,7 +18,7 @@
 #define IOX_POSH_POPO_NOTIFICATION_INFO_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/popo/event_callback.hpp"
+#include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
@@ -47,7 +47,7 @@ class NotificationInfo
     template <typename T, typename ContextDataType>
     NotificationInfo(T* const notificationOrigin,
                      const uint64_t notificationId,
-                     const EventCallback<T, ContextDataType>& callback) noexcept;
+                     const NotificationCallback<T, ContextDataType>& callback) noexcept;
 
     /// @brief returns the notification id
     /// @return the empty NotificationInfo always returns INVALID_ID, otherwise the actual notificationId is returned

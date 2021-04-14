@@ -77,7 +77,7 @@ class Trigger_test : public Test
                         {m_triggerClass, &TriggerClass::hasTriggered},
                         {m_triggerClass, &TriggerClass::resetCall},
                         eventId,
-                        createEventCallback(TriggerClass::callback),
+                        createNotificationCallback(TriggerClass::callback),
                         uniqueId++,
                         type,
                         typeHash);
@@ -93,7 +93,7 @@ class Trigger_test : public Test
                         &m_triggerClass,
                         {m_triggerClass, &TriggerClass::resetCall},
                         eventId,
-                        createEventCallback(TriggerClass::callback),
+                        createNotificationCallback(TriggerClass::callback),
                         uniqueId++,
                         type,
                         typeHash);
@@ -175,7 +175,7 @@ TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 eventId,
-                createEventCallback(TriggerClass::callback),
+                createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -204,7 +204,7 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
                 cxx::ConstMethodCallback<bool>(),
                 {m_triggerClass, &TriggerClass::resetCall},
                 eventId,
-                createEventCallback(TriggerClass::callback),
+                createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -235,7 +235,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
                 eventId,
-                createEventCallback(TriggerClass::callback),
+                createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -298,7 +298,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
                 eventId,
-                createEventCallback(TriggerClass::callback),
+                createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -364,7 +364,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFro
                 {thirdTriggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
-                createEventCallback(TriggerClass::callback),
+                createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -401,7 +401,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {thirdTriggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
-                createEventCallback(TriggerClass::callback),
+                createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -425,7 +425,7 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfNotificationInfo)
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
-                createEventCallback(TriggerClass::callback),
+                createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -445,7 +445,7 @@ TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 createEventCallback(TriggerClass::callback),
+                 createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId,
                  originType,
                  originTypeHash);
@@ -465,7 +465,7 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginTypeDiffers)
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 createEventCallback(TriggerClass::callback),
+                 createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId1,
                  originType,
                  originTypeHash);
@@ -486,7 +486,7 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginAndOriginTypeHashDiffers)
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 createEventCallback(TriggerClass::callback),
+                 createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId1,
                  originType,
                  originTypeHash);
@@ -509,7 +509,7 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginTypeAndOriginTypeHashDiffer
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 createEventCallback(TriggerClass::callback),
+                 createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId1,
                  originType,
                  originTypeHash);
@@ -529,7 +529,7 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualWhenInvalid)
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 createEventCallback(TriggerClass::callback),
+                 createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId1,
                  originType,
                  originTypeHash);
@@ -672,7 +672,7 @@ TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIs
                 &m_triggerClass,
                 cxx::MethodCallback<void, uint64_t>(),
                 eventId,
-                createEventCallback(TriggerClass::callback),
+                createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 originType,
                 originTypeHash);

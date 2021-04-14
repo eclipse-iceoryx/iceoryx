@@ -48,7 +48,7 @@ class NotificationInfo_test : public Test
 
     NotificationOriginTest m_origin;
     NotificationOriginTest m_falseOrigin;
-    NotificationInfo m_sut{&m_origin, 1478U, createEventCallback(NotificationOriginTest::callback)};
+    NotificationInfo m_sut{&m_origin, 1478U, createNotificationCallback(NotificationOriginTest::callback)};
 };
 
 TEST_F(NotificationInfo_test, defaultCTorConstructsEmptyNotificationInfo)
@@ -122,6 +122,6 @@ TEST_F(NotificationInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSett
 
 TEST_F(NotificationInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
 {
-    m_sut = NotificationInfo{&m_origin, 9U, EventCallback<NotificationOriginTest, int>{}};
+    m_sut = NotificationInfo{&m_origin, 9U, NotificationCallback<NotificationOriginTest, int>{}};
     EXPECT_FALSE(m_sut());
 }

@@ -57,7 +57,7 @@ inline cxx::expected<uint64_t, WaitSetError>
 WaitSet<Capacity>::attachImpl(T& eventOrigin,
                               const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,
                               const uint64_t eventId,
-                              const EventCallback<T, ContextDataType>& eventCallback,
+                              const NotificationCallback<T, ContextDataType>& eventCallback,
                               const uint64_t originType,
                               const uint64_t originTypeHash) noexcept
 {
@@ -110,7 +110,7 @@ inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                const EventType eventType,
                                const uint64_t eventId,
-                               const EventCallback<T, ContextDataType>& eventCallback) noexcept
+                               const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     static_assert(IS_EVENT_ENUM<EventType>, "Only enums with an underlying EventEnumIdentifier are allowed.");
 
@@ -131,7 +131,7 @@ WaitSet<Capacity>::attachEvent(T& eventOrigin,
 template <uint64_t Capacity>
 template <typename T, typename EventType, typename ContextDataType, typename>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
-    T& eventOrigin, const EventType eventType, const EventCallback<T, ContextDataType>& eventCallback) noexcept
+    T& eventOrigin, const EventType eventType, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     return attachEvent(eventOrigin, eventType, NotificationInfo::INVALID_ID, eventCallback);
 }
@@ -139,7 +139,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
-    T& eventOrigin, const uint64_t eventId, const EventCallback<T, ContextDataType>& eventCallback) noexcept
+    T& eventOrigin, const uint64_t eventId, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     return attachImpl(eventOrigin,
                       WaitSetIsConditionSatisfiedCallback(),
@@ -156,7 +156,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError>
-WaitSet<Capacity>::attachEvent(T& eventOrigin, const EventCallback<T, ContextDataType>& eventCallback) noexcept
+WaitSet<Capacity>::attachEvent(T& eventOrigin, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     return attachEvent(eventOrigin, NotificationInfo::INVALID_ID, eventCallback);
 }
@@ -167,7 +167,7 @@ inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachState(T& stateOrigin,
                                const StateType stateType,
                                const uint64_t id,
-                               const EventCallback<T, ContextDataType>& stateCallback) noexcept
+                               const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
     static_assert(IS_STATE_ENUM<StateType>, "Only enums with an underlying StateEnumIdentifier are allowed.");
     auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin, stateType);
@@ -189,7 +189,7 @@ WaitSet<Capacity>::attachState(T& stateOrigin,
 template <uint64_t Capacity>
 template <typename T, typename StateType, typename ContextDataType, typename>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
-    T& stateOrigin, const StateType stateType, const EventCallback<T, ContextDataType>& stateCallback) noexcept
+    T& stateOrigin, const StateType stateType, const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
     return attachState(stateOrigin, stateType, NotificationInfo::INVALID_ID, stateCallback);
 }
@@ -197,7 +197,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
-    T& stateOrigin, const uint64_t id, const EventCallback<T, ContextDataType>& stateCallback) noexcept
+    T& stateOrigin, const uint64_t id, const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
     auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin);
     return attachImpl(stateOrigin,
@@ -215,7 +215,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError>
-WaitSet<Capacity>::attachState(T& stateOrigin, const EventCallback<T, ContextDataType>& stateCallback) noexcept
+WaitSet<Capacity>::attachState(T& stateOrigin, const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
     return attachState(stateOrigin, NotificationInfo::INVALID_ID, stateCallback);
 }

@@ -24,7 +24,7 @@ namespace popo
 template <typename T, typename ContextDataType>
 inline NotificationInfo::NotificationInfo(T* const notificationOrigin,
                                           const uint64_t notificationId,
-                                          const EventCallback<T, ContextDataType>& callback) noexcept
+                                          const NotificationCallback<T, ContextDataType>& callback) noexcept
     : m_notificationOrigin(notificationOrigin)
     , m_userValue(callback.m_contextData)
     , m_notificationOriginTypeHash(typeid(T).hash_code())
