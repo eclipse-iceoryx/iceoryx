@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +18,7 @@
 #include "iceoryx_dds/dds/cyclone_data_writer.hpp"
 #include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include <Mempool_DCPS.hpp>
 #include <string>
@@ -52,6 +54,48 @@ void iox::dds::CycloneDataWriter::write(const uint8_t* const bytes, const uint64
 {
     auto chunk = Mempool::Chunk();
     std::copy(bytes, bytes + size, std::back_inserter(chunk.payload()));
+    m_writer.write(chunk);
+}
+
+void iox::dds::CycloneDataWriter::write(iox::dds::IoxChunkDatagramHeader datagramHeader,
+                                        const uint8_t* userHeaderBytes,
+                                        const uint8_t* userPayloadBytes) noexcept
+{
+    if (datagramHeader.userHeaderSize > 0
+        && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBytes == nullptr))
+    {
+        LogError() << "[CycloneDataWriter] invalid user-header parameter! Dropping chunk!";
+        return;
+    }
+    if (datagramHeader.userPayloadSize > 0 && userHeaderBytes == nullptr)
+    {
+        LogError() << "[CycloneDataWriter] invalid user-payload parameter! Dropping chunk!";
+        return;
+    }
+
+    datagramHeader.endianness = getEndianess();
+
+    auto datagramSize =
+        sizeof(iox::dds::IoxChunkDatagramHeader) + datagramHeader.userHeaderSize + datagramHeader.userPayloadSize;
+
+    auto chunk = Mempool::Chunk();
+    chunk.payload().reserve(datagramSize);
+
+    auto chunkDatagramAsArray = reinterpret_cast<const uint8_t*>(&datagramHeader);
+    std::copy(chunkDatagramAsArray,
+              chunkDatagramAsArray + sizeof(iox::dds::IoxChunkDatagramHeader),
+              std::back_inserter(chunk.payload()));
+    if (userHeaderBytes)
+    {
+        std::copy(
+            userHeaderBytes, userHeaderBytes + datagramHeader.userHeaderSize, std::back_inserter(chunk.payload()));
+    }
+    if (userPayloadBytes)
+    {
+        std::copy(
+            userPayloadBytes, userPayloadBytes + datagramHeader.userPayloadSize, std::back_inserter(chunk.payload()));
+    }
+
     m_writer.write(chunk);
 }
 
