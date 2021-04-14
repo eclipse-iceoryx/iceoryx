@@ -20,7 +20,17 @@ namespace iox
 {
 namespace rp
 {
+// This is necessary if an supervising application needs to do a cleanup of resources hold by a crashed application. If
+// the size is larger than 8 bytes on a 64 bit system, torn writes happens and if the application crashes at the wrong
+// time, the supervisor reads corrupt data.
 static_assert(sizeof(RelativePointerData) <= 8U, "The RelativePointerData size must not exceed 64 bit!");
+// This ensures that the address of the RelativePointerData object is appropriately aligned to be accessed within one
+// CPU cycle, i.e. if the size is 8 and the alignment is 4 it could be placed at an address with modulo 4 which would
+// also result in torn writes.
+static_assert(sizeof(RelativePointerData) == alignof(RelativePointerData),
+              "A RelativePointerData must be placed on an address which does not cross the native alignment!");
+// This is important for the use in the SOFI where under some conditions the copy operation could work on partially
+// obsolet data and therefore non-trivial copy ctor/assignment operator or dtor would work on corrupted data.
 static_assert(std::is_trivially_copyable<RelativePointerData>::value,
               "The RelativePointerData must be trivially copyable!");
 

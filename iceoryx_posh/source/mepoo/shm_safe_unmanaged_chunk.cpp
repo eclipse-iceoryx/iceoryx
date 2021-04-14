@@ -20,8 +20,18 @@ namespace iox
 {
 namespace mepoo
 {
+// Torn writes are problematic since RouDi needs to cleanup all chunks when an application crashes. If the size is
+// larger than 8 bytes on a 64 bit system, torn writes happens and the data is only partially written when the
+// application crashes at the wrong time. RouDi would then read corrupt data and try to access invalid memory.
 static_assert(sizeof(ShmSafeUnmanagedChunk) <= 8U,
               "The ShmSafeUnmanagedChunk size must not exceed 64 bit to prevent torn writes!");
+// This ensures that the address of the ShmSafeUnmanagedChunk object is appropriately aligned to be accessed within one
+// CPU cycle, i.e. if the size is 8 and the alignment is 4 it could be placed at an address with modulo 4 which would
+// also result in torn writes.
+static_assert(sizeof(ShmSafeUnmanagedChunk) == alignof(ShmSafeUnmanagedChunk),
+              "A ShmSafeUnmanagedChunk must be placed on an address which does not cross the native alignment!");
+// This is important for the use in the SOFI where under some conditions the copy operation could work on partially
+// obsolet data and therefore non-trivial copy ctor/assignment operator or dtor would work on corrupted data.
 static_assert(std::is_trivially_copyable<ShmSafeUnmanagedChunk>::value,
               "The ShmSafeUnmanagedChunk must be trivially copyable to prevent Frankenstein objects when the copy ctor "
               "works on half dead objects!");
