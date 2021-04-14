@@ -123,9 +123,8 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
             std::cout << "-l, --log-level" << std::endl;
             std::cout << "\t<LogLevel> {off, fatal, debug} : Set the log level. Off is default;" << std::endl;
             m_helpFlag = true;
+            break;
         }
-        break;
-
         case 'f':
         {
             if (strcmp(optarg, "uds") == 0)
@@ -146,9 +145,8 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
                 m_errorFlag = true;
                 return m_allMessages;
             }
+            break;
         }
-        break;
-
         case 'm':
         {
             if (strcmp(optarg, "stdin") == 0)
@@ -167,15 +165,14 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
                 m_errorFlag = true;
                 return m_allMessages;
             }
+            break;
         }
-        break;
         case 'i':
         {
             m_cmdLineFlag = true;
             m_allMessages.emplace_back(optarg);
+            break;
         }
-        break;
-
         case 'c':
         {
             m_cmdLineFlag = true;
@@ -187,7 +184,6 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
                                             (std::istreambuf_iterator<char>()));
                 m_allMessages.emplace_back(tempFileContent);
             }
-
             else
             {
                 std::cout
@@ -195,9 +191,8 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
                 m_errorFlag = true;
                 return m_allMessages;
             }
+            break;
         }
-        break;
-
         case 'l':
         {
             if (strcmp(optarg, "off") == 0)
@@ -217,21 +212,20 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
                 std::cout << "Options for Logging are 'off', 'fatal' and 'debug'!" << std::endl;
             }
             iox::log::LogManager::GetLogManager().SetDefaultLogLevel(m_logLevel);
+            break;
         }
-        break;
         case 't':
         {
             m_tomlFileFlag = true;
             m_tomlFile = optarg;
+            break;
         }
-        break;
         default:
         {
             std::cout << "Unknown command.\n" << std::endl;
             m_errorFlag = true;
             return m_allMessages;
         }
-        break;
         };
     }
     return m_allMessages;

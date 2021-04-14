@@ -78,13 +78,13 @@ class CmdLineParserFuzzing
     std::string getTomlFile();
 
   private:
-    std::vector<std::string> m_allMessages;
-    bool m_helpFlag;
-    InputMode m_inputMode;
     bool m_errorFlag;
     bool m_cmdLineFlag;
-    FuzzingApi m_fuzzingAPI;
+    bool m_helpFlag;
     bool m_tomlFileFlag;
+    InputMode m_inputMode;
+    FuzzingApi m_fuzzingAPI;
     std::string m_tomlFile;
+    std::vector<std::string> m_allMessages;
 };
 #endif // CMDLINEPARSERFUZZING_HPP
