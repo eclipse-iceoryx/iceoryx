@@ -231,9 +231,11 @@ as long as there are samples in the subscriber since we attached an event that n
 us only once. But it is impossible to miss samples since the notification is reset
 right after `wait` or `timedWait` is returned - this means if a sample arrives after
 those calls we will be notified again.
+Additionally, we would like to count the sum of all processed samples therefor we 
+add a second argument called `sumOfAllSamples`, the user defined context data.
 
 ```cpp
-void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
+void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t* const sumOfAllSamples)
 {
     while (subscriber->hasData())
     {
@@ -242,41 +244,56 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
                       << sample.getHeader()->payloadSize << " ptr: " << std::hex << sample.getHeader()->payload()
                       << std::endl;
         });
+        ++(*sumOfAllSamples);
     }
 }
 ```
 
-An _Event_ always requires a callback which has the following signature
-`void (EventOrigin)`. In our example the _EventOrigin_ is a
+The _Event_ callback requires a signature of either `void (EventOrigin)` or 
+`void(EventOrigin, ContextDataType *)` when one would like to provide an additional 
+data pointer to the callback.
+In our example the _EventOrigin_ is a
 `iox::popo::UntypedSubscriber` pointer which we use to acquire the latest sample by calling
-`take()`. When `take()` was successful we print our message to
+`take()` and the `ContextDataType` is an `uint64_t` used to count the processed 
+samples. When `take()` was successful we print our message to
 the console inside of the `and_then` lambda.
 
-In our `main` function we create a _WaitSet_ which has storage capacity for 5 events,
-4 subscribers and one shutdown trigger, after we registered us at our central
+The `shutdownTrigger` uses a simpler callback which just informs us that we are 
+exiting the program. Therefor we do not need an additional `ContextDataType` pointer.
+```cpp
+void shutdownCallback(iox::popo::UserTrigger*)
+{
+    std::cout << "CTRL+c pressed - exiting now" << std::endl;
+}
+```
+
+In our `main` function we create a _WaitSet_ which has storage capacity for 3 events,
+2 subscribers and one shutdown trigger, after we registered us at our central
 broker RouDi. Then we attach our `shutdownTrigger` to handle `CTRL+c` events.
 
 ```cpp
 iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER>;
 
-waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+waitset.attachEvent(shutdownTrigger, iox::popo::createEventCallback(shutdownCallback)).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
     std::exit(EXIT_FAILURE);
 });
 ```
 
-After that we create a vector to hold our subscribers, we create and then
-attach them to our _WaitSet_ with the `SubscriberEvent::DATA_RECEIVED` event and the `subscriberCallback`.
+After that we define our `sumOfAllSamples` variable and create a vector to hold our subscribers. We create and then
+attach the subscribers to our _WaitSet_ with the `SubscriberEvent::DATA_RECEIVED` event and the `subscriberCallback`.
 Everytime one of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 
 ```cpp
+uint64_t sumOfAllSamples = 0U;
+
 iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
 
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createEventCallback(subscriberCallback))
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createEventCallback(subscriberCallback, sumOfAllSamples))
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
             std::exit(EXIT_FAILURE);
@@ -315,6 +332,8 @@ while (true)
             (*event)();
         }
     }
+
+    std::cout << "sum of all samples: " << std::dec << sumOfAllSamples << std::endl;
 ```
 
 ### Grouping

@@ -31,10 +31,15 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownTrigger.trigger();
 }
 
+void shutdownCallback(iox::popo::UserTrigger*)
+{
+    std::cout << "CTRL+c pressed - exiting now" << std::endl;
+}
+
 // The callback of the event. Every callback must have an argument which is
 // a pointer to the origin of the Trigger. In our case the event origin is
 // the untyped subscriber.
-void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
+void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t* const sumOfAllSamples)
 {
     while (subscriber->hasData())
     {
@@ -44,12 +49,14 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
                       << chunkHeader->userPayloadSize() << " ptr: " << std::hex << chunkHeader->userPayload()
                       << std::endl;
         });
+        // no nullptr check required since it is guaranteed != nullptr
+        ++(*sumOfAllSamples);
     }
 }
 
 int main()
 {
-    constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
+    constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 2U;
     constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
 
     // register sigHandler
@@ -61,10 +68,12 @@ int main()
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+    waitset.attachEvent(shutdownTrigger, iox::popo::createEventCallback(shutdownCallback)).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
+
+    uint64_t sumOfAllSamples = 0U;
 
     // create subscriber and subscribe them to our service
     iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
@@ -74,8 +83,10 @@ int main()
         auto& subscriber = subscriberVector.back();
 
         waitset
-            .attachEvent(
-                subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createEventCallback(subscriberCallback))
+            .attachEvent(subscriber,
+                         iox::popo::SubscriberEvent::DATA_RECEIVED,
+                         0,
+                         createEventCallback(subscriberCallback, sumOfAllSamples))
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
                 std::exit(EXIT_FAILURE);
@@ -101,7 +112,7 @@ int main()
             }
         }
 
-        std::cout << std::endl;
+        std::cout << "sum of all samples: " << std::dec << sumOfAllSamples << std::endl;
     }
 
     return (EXIT_SUCCESS);
