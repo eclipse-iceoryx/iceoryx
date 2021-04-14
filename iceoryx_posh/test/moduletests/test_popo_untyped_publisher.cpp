@@ -106,27 +106,6 @@ TEST_F(UntypedPublisherTest, LoanFailsIfPortCannotSatisfyAllocationRequest)
     // ===== Cleanup ===== //
 }
 
-TEST_F(UntypedPublisherTest, LoanPreviousChunkSucceeds)
-{
-    EXPECT_CALL(portMock, tryGetPreviousChunk())
-        .WillOnce(Return(ByMove(iox::cxx::optional<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
-    // ===== Test ===== //
-    auto result = sut.loanPreviousChunk();
-    // ===== Verify ===== //
-    EXPECT_TRUE(result.has_value());
-    // ===== Cleanup ===== //
-}
-
-TEST_F(UntypedPublisherTest, LoanPreviousChunkFails)
-{
-    EXPECT_CALL(portMock, tryGetPreviousChunk()).WillOnce(Return(ByMove(iox::cxx::nullopt)));
-    // ===== Test ===== //
-    auto result = sut.loanPreviousChunk();
-    // ===== Verify ===== //
-    EXPECT_FALSE(result.has_value());
-    // ===== Cleanup ===== //
-}
-
 TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
 {
     constexpr uint32_t ALLOCATION_SIZE = 7U;

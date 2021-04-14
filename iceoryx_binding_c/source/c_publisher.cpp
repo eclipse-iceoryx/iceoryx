@@ -161,15 +161,6 @@ void iox_pub_publish_chunk(iox_pub_t const self, void* const userPayloadOfChunk)
     PublisherPortUser(self->m_portData).sendChunk(ChunkHeader::fromUserPayload(userPayloadOfChunk));
 }
 
-const void* iox_pub_loan_previous_chunk(iox_pub_t const self)
-{
-    const void* returnValue = nullptr;
-    PublisherPortUser(self->m_portData).tryGetPreviousChunk().and_then([&](const ChunkHeader* h) {
-        returnValue = h->userPayload();
-    });
-    return returnValue;
-}
-
 void iox_pub_offer(iox_pub_t const self)
 {
     PublisherPortUser(self->m_portData).offer();
