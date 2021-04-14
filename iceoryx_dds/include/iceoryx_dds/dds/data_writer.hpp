@@ -51,9 +51,9 @@ class DataWriter
 
     ///
     /// @brief write Write the provided header and bytes on the DDS network on the topic: serviceId/instanceId/eventId
-    /// @param datagramHeader
-    /// @param userHeaderBytes
-    /// @param userPayloadBytes
+    /// @param datagramHeader with size information
+    /// @param userHeaderBytes buffer with the user-header
+    /// @param userPayloadBytes buffer with the user-payload
     ///
     virtual void write(iox::dds::IoxChunkDatagramHeader datagramHeader,
                        const uint8_t* userHeaderBytes,

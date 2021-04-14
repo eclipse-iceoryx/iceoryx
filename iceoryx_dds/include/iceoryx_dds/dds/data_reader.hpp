@@ -32,12 +32,22 @@ enum class DataReaderError : uint8_t
     INVALID_STATE,
     NOT_CONNECTED,
     INVALID_RECV_BUFFER,
+    INVALID_DATAGRAM_HEADER,
+    INVALID_BUFFER_PARAMETER_FOR_USER_HEADER,
+    INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD,
     INVALID_DATA,
-    RECV_BUFFER_TOO_SMALL
+    RECV_BUFFER_TOO_SMALL,
+    BUFFER_SIZE_MISSMATCH
 };
 
-constexpr char DataReaderErrorString[][64] = {
-    "NOT_CONNECTED", "INVALID_RECV_BUFFER", "INVALID_DATA", "RECV_BUFFER_TOO_SMALL"};
+constexpr const char* DataReaderErrorString[] = {"NOT_CONNECTED",
+                                                 "INVALID_RECV_BUFFER",
+                                                 "INVALID_DATAGRAM_HEADER",
+                                                 "INVALID_BUFFER_PARAMETER_FOR_USER_HEADER",
+                                                 "INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD",
+                                                 "INVALID_DATA",
+                                                 "RECV_BUFFER_TOO_SMALL",
+                                                 "BUFFER_SIZE_MISSMATCH"};
 
 class DataReader
 {
@@ -72,6 +82,16 @@ class DataReader
     /// @return Error if unsuccessful.
     ///
     virtual iox::cxx::expected<DataReaderError> takeNext(uint8_t* const buffer, const uint64_t& bufferSize) = 0;
+
+    ///
+    /// @brief take Take the next available sample from the DDS data space.
+    /// @param datagramHeader with size information
+    /// @param userHeaderBytes buffer for the user-header
+    /// @param userPayloadBytes buffer for the user-payload
+    /// @return Error if unsuccessful.
+    ///
+    virtual iox::cxx::expected<DataReaderError>
+    takeNext(const IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBytes, uint8_t* userPayloadBytes) = 0;
 
 
     ///
