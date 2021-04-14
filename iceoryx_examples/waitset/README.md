@@ -166,7 +166,7 @@ static void sigHandler(int sig [[gnu::unused]])
 {
     shutdown = true;
     if (waisetPtr) {
-        waitset->markForDestruction();
+        waitsetPtr->markForDestruction();
     }
 }
 ```
@@ -195,7 +195,7 @@ waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([]
 
 We create a loop which we will exit as soon as someone presses CTRL+c and our 
 signal handler sets shutdown to true. If this happens `markForDestruction` turns 
-the `waitset.wait()` into an empty non blocking method and makes sure that we do 
+the `waitset.wait()` into an empty non-blocking method and makes sure that we do 
 not wait until infinity.
 
 ```cpp
@@ -278,7 +278,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
 
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createEventCallback(subscriberCallback))
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
             std::exit(EXIT_FAILURE);
