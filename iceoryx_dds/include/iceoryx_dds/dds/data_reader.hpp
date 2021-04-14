@@ -72,12 +72,12 @@ class DataReader
     ///
     /// @brief take Take the next available sample from the DDS data space.
     /// @param datagramHeader with size information
-    /// @param userHeaderBytes buffer for the user-header
-    /// @param userPayloadBytes buffer for the user-payload
+    /// @param userHeaderBuffer buffer for the user-header
+    /// @param userPayloadBuffer buffer for the user-payload
     /// @return Error if unsuccessful.
     ///
     virtual iox::cxx::expected<DataReaderError>
-    takeNext(const IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBytes, uint8_t* userPayloadBytes) = 0;
+    takeNext(const IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBuffer, uint8_t* userPayloadBuffer) = 0;
 
 
     /// @todo iox-#14 this needs either to be removed or also ported to IoxChunkDatagramHeader
