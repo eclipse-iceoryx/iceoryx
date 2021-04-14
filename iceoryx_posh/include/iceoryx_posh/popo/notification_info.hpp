@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_EVENT_INFO_HPP
-#define IOX_POSH_POPO_EVENT_INFO_HPP
+#ifndef IOX_POSH_POPO_NOTIFICATION_INFO_HPP
+#define IOX_POSH_POPO_NOTIFICATION_INFO_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/popo/event_callback.hpp"
@@ -29,38 +29,40 @@ namespace iox
 {
 namespace popo
 {
-/// @brief EventInfo holds the state of a trigger like the pointer to the triggerOrigin,
+/// @brief NotificationInfo holds the state of a trigger like the pointer to the triggerOrigin,
 ///        the event id and the callback.
-class EventInfo
+class NotificationInfo
 {
   public:
     static constexpr uint64_t INVALID_ID = std::numeric_limits<uint64_t>::max();
 
-    /// @brief constructs an empty EventInfo
-    EventInfo() = default;
-    virtual ~EventInfo() = default;
+    /// @brief constructs an empty NotificationInfo
+    NotificationInfo() = default;
+    virtual ~NotificationInfo() = default;
 
-    /// @brief constructs a EventInfo object
-    /// @param[in] eventOrigin the origin of the event
-    /// @param[in] eventId id of the event
+    /// @brief constructs a NotificationInfo object
+    /// @param[in] notificationOrigin the origin of the event
+    /// @param[in] notificationId id of the event
     /// @param[in] callback the callback of the event
     template <typename T, typename ContextDataType>
-    EventInfo(T* const eventOrigin, const uint64_t eventId, const EventCallback<T, ContextDataType>& callback) noexcept;
+    NotificationInfo(T* const notificationOrigin,
+                     const uint64_t notificationId,
+                     const EventCallback<T, ContextDataType>& callback) noexcept;
 
     /// @brief returns the event id
-    /// @return the empty EventInfo always returns INVALID_ID, otherwise the actual eventId is returned
+    /// @return the empty NotificationInfo always returns INVALID_ID, otherwise the actual notificationId is returned
     /// which can also be INVALID_ID
-    uint64_t getEventId() const noexcept;
+    uint64_t getNotificationId() const noexcept;
 
-    /// @brief confirms the eventOrigin
-    /// @param[in] eventOrigin the possible eventOrigin
-    /// @return true if the address is equal to the eventOrigin, otherwise false. The empty EventInfo returns
-    /// always false.
+    /// @brief confirms the notificationOrigin
+    /// @param[in] notificationOrigin the possible notificationOrigin
+    /// @return true if the address is equal to the notificationOrigin, otherwise false. The empty NotificationInfo
+    /// returns always false.
     template <typename T>
-    bool doesOriginateFrom(T* const eventOrigin) const noexcept;
+    bool doesOriginateFrom(T* const notificationOrigin) const noexcept;
 
-    /// @brief returns the pointer to the eventOrigin.
-    /// @return If T equals the Triggerable type it returns the eventOrigin.
+    /// @brief returns the pointer to the notificationOrigin.
+    /// @return If T equals the Triggerable type it returns the notificationOrigin.
     /// Otherwise it calls the errorHandler with a moderate error of
     /// kPOPO__EVENT_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
     template <typename T>
@@ -73,10 +75,10 @@ class EventInfo
     friend class Trigger;
 
   protected:
-    void* m_eventOrigin = nullptr;
+    void* m_notificationOrigin = nullptr;
     void* m_userValue = nullptr;
-    uint64_t m_eventOriginTypeHash = 0U;
-    uint64_t m_eventId = INVALID_ID;
+    uint64_t m_notificationOriginTypeHash = 0U;
+    uint64_t m_notificationId = INVALID_ID;
 
     internal::GenericCallbackPtr_t m_callbackPtr = nullptr;
     internal::TranslationCallbackPtr_t m_callback = nullptr;
@@ -85,6 +87,6 @@ class EventInfo
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/event_info.inl"
+#include "iceoryx_posh/internal/popo/notification_info.inl"
 
 #endif

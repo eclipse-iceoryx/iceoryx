@@ -133,7 +133,7 @@ template <typename T, typename EventType, typename ContextDataType, typename>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
     T& eventOrigin, const EventType eventType, const EventCallback<T, ContextDataType>& eventCallback) noexcept
 {
-    return attachEvent(eventOrigin, eventType, EventInfo::INVALID_ID, eventCallback);
+    return attachEvent(eventOrigin, eventType, NotificationInfo::INVALID_ID, eventCallback);
 }
 
 template <uint64_t Capacity>
@@ -158,7 +158,7 @@ template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachEvent(T& eventOrigin, const EventCallback<T, ContextDataType>& eventCallback) noexcept
 {
-    return attachEvent(eventOrigin, EventInfo::INVALID_ID, eventCallback);
+    return attachEvent(eventOrigin, NotificationInfo::INVALID_ID, eventCallback);
 }
 
 template <uint64_t Capacity>
@@ -191,7 +191,7 @@ template <typename T, typename StateType, typename ContextDataType, typename>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
     T& stateOrigin, const StateType stateType, const EventCallback<T, ContextDataType>& stateCallback) noexcept
 {
-    return attachState(stateOrigin, stateType, EventInfo::INVALID_ID, stateCallback);
+    return attachState(stateOrigin, stateType, NotificationInfo::INVALID_ID, stateCallback);
 }
 
 template <uint64_t Capacity>
@@ -217,7 +217,7 @@ template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachState(T& stateOrigin, const EventCallback<T, ContextDataType>& stateCallback) noexcept
 {
-    return attachState(stateOrigin, EventInfo::INVALID_ID, stateCallback);
+    return attachState(stateOrigin, NotificationInfo::INVALID_ID, stateCallback);
 }
 
 template <uint64_t Capacity>
@@ -259,21 +259,23 @@ inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
+inline typename WaitSet<Capacity>::NotificationInfoVector
+WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnTriggeredTriggers([this, timeout] { return this->m_conditionListener.timedWait(timeout); });
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
+inline typename WaitSet<Capacity>::NotificationInfoVector WaitSet<Capacity>::wait() noexcept
 {
     return waitAndReturnTriggeredTriggers([this] { return this->m_conditionListener.wait(); });
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
+inline typename WaitSet<Capacity>::NotificationInfoVector
+WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
 {
-    EventInfoVector triggers;
+    NotificationInfoVector triggers;
     if (!m_activeNotifications.empty())
     {
         for (uint64_t i = m_activeNotifications.size() - 1U;; --i)
@@ -284,7 +286,7 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
 
             if (!doRemoveNotificationId && trigger->isStateConditionSatisfied())
             {
-                cxx::Expects(triggers.push_back(&m_triggerArray[index]->getEventInfo()));
+                cxx::Expects(triggers.push_back(&m_triggerArray[index]->getNotificationInfo()));
                 doRemoveNotificationId = (trigger->getTriggerType() == TriggerType::EVENT_BASED);
             }
 
@@ -318,7 +320,7 @@ inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) no
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::EventInfoVector
+inline typename WaitSet<Capacity>::NotificationInfoVector
 WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
     if (m_conditionListener.wasNotified())
@@ -326,7 +328,7 @@ WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noex
         this->acquireNotifications(wait);
     }
 
-    EventInfoVector triggers = createVectorWithTriggeredTriggers();
+    NotificationInfoVector triggers = createVectorWithTriggeredTriggers();
 
     if (!triggers.empty())
     {

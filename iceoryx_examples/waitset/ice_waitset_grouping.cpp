@@ -85,19 +85,19 @@ int main()
     // event loop
     while (true)
     {
-        auto eventVector = waitset.wait();
+        auto notificationVector = waitset.wait();
 
-        for (auto& event : eventVector)
+        for (auto& notification : notificationVector)
         {
-            if (event->doesOriginateFrom(&shutdownTrigger))
+            if (notification->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             // we print the received data for the first group
-            else if (event->getEventId() == FIRST_GROUP_ID)
+            else if (notification->getNotificationId() == FIRST_GROUP_ID)
             {
-                auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
+                auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
                 subscriber->take().and_then([&](auto& userPayloadOfChunk) {
                     const CounterTopic* data = static_cast<const CounterTopic*>(userPayloadOfChunk);
                     std::cout << "received: " << std::dec << data->counter << std::endl;
@@ -105,10 +105,10 @@ int main()
                 });
             }
             // dismiss the received data for the second group
-            else if (event->getEventId() == SECOND_GROUP_ID)
+            else if (notification->getNotificationId() == SECOND_GROUP_ID)
             {
                 std::cout << "dismiss data\n";
-                auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
+                auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
                 // We need to release the data to reset the trigger hasData
                 // otherwise the WaitSet would notify us in `waitset.wait()` again
                 // instantly.

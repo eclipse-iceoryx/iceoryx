@@ -77,11 +77,11 @@ int main()
     // event loop
     while (keepRunning.load())
     {
-        auto eventVector = waitset.wait();
+        auto notificationVector = waitset.wait();
 
-        for (auto& event : eventVector)
+        for (auto& notification : notificationVector)
         {
-            if (event->doesOriginateFrom(&shutdownTrigger))
+            if (notification->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning.store(false);
@@ -89,7 +89,7 @@ int main()
             else
             {
                 // call SomeClass::myCyclicRun
-                (*event)();
+                (*notification)();
             }
         }
 

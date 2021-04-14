@@ -14,24 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/popo/event_info.hpp"
+#include "iceoryx_posh/popo/notification_info.hpp"
 
 namespace iox
 {
 namespace popo
 {
-constexpr uint64_t EventInfo::INVALID_ID;
+constexpr uint64_t NotificationInfo::INVALID_ID;
 
-uint64_t EventInfo::getEventId() const noexcept
+uint64_t NotificationInfo::getNotificationId() const noexcept
 {
-    return m_eventId;
+    return m_notificationId;
 }
 
-bool EventInfo::operator()() const noexcept
+bool NotificationInfo::operator()() const noexcept
 {
-    if (m_eventOrigin != nullptr && m_callbackPtr != nullptr)
+    if (m_notificationOrigin != nullptr && m_callbackPtr != nullptr)
     {
-        m_callback(m_eventOrigin, m_userValue, m_callbackPtr);
+        m_callback(m_notificationOrigin, m_userValue, m_callbackPtr);
         return true;
     }
     return false;

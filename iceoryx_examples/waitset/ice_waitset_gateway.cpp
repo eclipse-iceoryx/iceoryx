@@ -98,19 +98,19 @@ int main()
     // event loop
     while (true)
     {
-        auto eventVector = waitset.wait();
+        auto notificationVector = waitset.wait();
 
-        for (auto& event : eventVector)
+        for (auto& notification : notificationVector)
         {
-            if (event->doesOriginateFrom(&shutdownTrigger))
+            if (notification->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             else
             {
-                // call the callback which was assigned to the event
-                (*event)();
+                // call the callback which was assigned to the notification
+                (*notification)();
             }
         }
 
