@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
-#include "iceoryx_binding_c/event_info.h"
+#include "iceoryx_binding_c/notification_info.h"
 #include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
@@ -118,19 +118,19 @@ int main()
     uint64_t numberOfEvents = 0U;
 
     // array where all event infos from iox_ws_wait will be stored
-    iox_event_info_t eventArray[NUMBER_OF_EVENTS];
+    iox_notification_info_t notificationArray[NUMBER_OF_EVENTS];
 
     // event loop
     bool keepRunning = true;
     while (keepRunning)
     {
-        numberOfEvents = iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
+        numberOfEvents = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_EVENTS, &missedElements);
 
         for (uint64_t i = 0U; i < numberOfEvents; ++i)
         {
-            iox_event_info_t event = eventArray[i];
+            iox_notification_info_t event = notificationArray[i];
 
-            if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
+            if (iox_notification_info_does_originate_from_user_trigger(event, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
@@ -138,7 +138,7 @@ int main()
             else
             {
                 // call the callback which was assigned to the event
-                iox_event_info_call(event);
+                iox_notification_info_call(event);
             }
         }
 

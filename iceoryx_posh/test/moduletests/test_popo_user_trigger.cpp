@@ -151,7 +151,7 @@ TEST_F(UserTrigger_test, TriggersWaitSet)
 
     auto result = m_waitSet.timedWait(1_s);
     ASSERT_THAT(result.size(), Eq(1U));
-    EXPECT_THAT(result[0U]->getEventId(), 4412U);
+    EXPECT_THAT(result[0U]->getNotificationId(), 4412U);
 }
 
 TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)

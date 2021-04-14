@@ -413,7 +413,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
     EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, uniqueId);
 }
 
-TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfEventInfo)
+TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfNotificationInfo)
 {
     constexpr uint64_t USER_DEFINED_EVENT_ID = 893U;
     constexpr uint64_t uniqueTriggerId = 0U;
@@ -431,7 +431,7 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfEventInfo)
                 typeHash);
 
     sut.updateOrigin(secondTriggerClass);
-    EXPECT_TRUE(sut.getEventInfo().doesOriginateFrom(&secondTriggerClass));
+    EXPECT_TRUE(sut.getNotificationInfo().doesOriginateFrom(&secondTriggerClass));
 }
 
 TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)

@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
-#include "iceoryx_binding_c/event_info.h"
+#include "iceoryx_binding_c/notification_info.h"
 #include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
@@ -106,19 +106,19 @@ int main()
     uint64_t missedElements = 0U;
     uint64_t numberOfEvents = 0U;
 
-    // array where all trigger from iox_ws_wait will be stored
-    iox_event_info_t eventArray[NUMBER_OF_EVENTS];
+    // array where all notifications from iox_ws_wait will be stored
+    iox_notification_info_t notificationArray[NUMBER_OF_EVENTS];
 
     // event loop
     while (keepRunning)
     {
-        numberOfEvents = iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
+        numberOfEvents = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_EVENTS, &missedElements);
 
         for (uint64_t i = 0U; i < numberOfEvents; ++i)
         {
-            iox_event_info_t event = eventArray[i];
+            iox_notification_info_t notification = notificationArray[i];
 
-            if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
+            if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
@@ -126,7 +126,7 @@ int main()
             else
             {
                 // call myCyclicRun
-                iox_event_info_call(event);
+                iox_notification_info_call(notification);
             }
         }
     }

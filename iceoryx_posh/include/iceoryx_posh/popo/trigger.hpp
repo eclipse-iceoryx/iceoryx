@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/event_callback.hpp"
-#include "iceoryx_posh/popo/event_info.hpp"
+#include "iceoryx_posh/popo/notification_info.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
@@ -48,8 +48,8 @@ enum class TriggerType
 };
 
 /// @brief The Trigger class is usually managed by a factory class like a
-///      WaitSet and acquired by classes which would like to signal an
-///      event. Multiple Trigger can share a common ConditionVariableData pointer
+///      WaitSet and acquired by classes which would like to signal a
+///      notification. Multiple Trigger can share a common ConditionVariableData pointer
 ///      so that multiple Trigger can signal a single instance.
 ///
 class Trigger
@@ -68,7 +68,7 @@ class Trigger
     /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
     /// empty callback is set the trigger is in a defined but invalid state.
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
-    /// @param[in] eventId id of the corresponding event
+    /// @param[in] notificationId id of the corresponding event/state
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
     /// @param[in] uniqueId a context wide unique id to identify the trigger
@@ -79,7 +79,7 @@ class Trigger
             T* const stateOrigin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
-            const uint64_t eventId,
+            const uint64_t notificationId,
             const EventCallback<T, UserType>& callback,
             const uint64_t uniqueId,
             const uint64_t stateType,
@@ -87,24 +87,24 @@ class Trigger
 
     /// @brief Creates an event based Trigger
     /// @param[in] EventBasedTrigger_t signals that we are creating an event based trigger
-    /// @param[in] eventOrigin pointer to the class where the signal originates from, if it's set to nullptr the Trigger
-    /// is in a defined but invalid state
+    /// @param[in] notificationOrigin pointer to the class where the signal originates from, if it's set to nullptr the
+    /// Trigger is in a defined but invalid state
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
-    /// @param[in] eventId id of the corresponding event
+    /// @param[in] notificationId id of the corresponding event
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
     /// @param[in] uniqueId a context wide unique id to identify the trigger
-    /// @param[in] eventType the uint64_t value of the events origins event enum
-    /// @param[in] eventTypeHash the uint64_t type hash of the event enum
+    /// @param[in] notificationType the uint64_t value of the events origins event enum
+    /// @param[in] notificationTypeHash the uint64_t type hash of the event enum
     template <typename T, typename UserType>
     Trigger(EventBasedTrigger_t,
-            T* const eventOrigin,
+            T* const notificationOrigin,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
-            const uint64_t eventId,
+            const uint64_t notificationId,
             const EventCallback<T, UserType>& callback,
             const uint64_t uniqueId,
-            const uint64_t eventType,
-            const uint64_t eventTypeHash) noexcept;
+            const uint64_t notificationType,
+            const uint64_t notificationTypeHash) noexcept;
 
     Trigger(Trigger&& rhs) noexcept;
     Trigger& operator=(Trigger&& rhs) noexcept;
@@ -139,7 +139,7 @@ class Trigger
     ///       - origin == rhs.origin
     ///       - originTriggerType == rhs.originTriggerType
     ///       - originTriggerTypeHash == rhs.originTriggerTypeHash
-    bool isLogicalEqualTo(const void* const eventOrigin,
+    bool isLogicalEqualTo(const void* const notificationOrigin,
                           const uint64_t originTriggerType,
                           const uint64_t originTriggerTypeHash) const noexcept;
 
@@ -148,18 +148,18 @@ class Trigger
     template <typename T>
     void updateOrigin(T& newOrigin) noexcept;
 
-    /// @brief returns the EventInfo
-    const EventInfo& getEventInfo() const noexcept;
+    /// @brief returns the NotificationInfo
+    const NotificationInfo& getNotificationInfo() const noexcept;
 
     /// @brief returns the type of trigger
     TriggerType getTriggerType() const noexcept;
 
   private:
     template <typename T, typename ContextDataType>
-    Trigger(T* const eventOrigin,
+    Trigger(T* const notificationOrigin,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
-            const uint64_t eventId,
+            const uint64_t notificationId,
             const EventCallback<T, ContextDataType>& callback,
             const uint64_t uniqueId,
             const TriggerType triggerType,
@@ -167,7 +167,7 @@ class Trigger
             const uint64_t originTriggerTypeHash) noexcept;
 
   private:
-    EventInfo m_eventInfo;
+    NotificationInfo m_notificationInfo;
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;

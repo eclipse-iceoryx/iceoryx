@@ -222,25 +222,25 @@ void callOnActivate(MyTriggerClass* const triggerClassPtr)
 }
 
 // The global event loop. It will create an infinite loop and
-// will work on the incoming events.
+// will work on the incoming notifications.
 void eventLoop()
 {
     while (true)
     {
-        auto eventVector = waitset->wait();
-        for (auto& event : eventVector)
+        auto notificationVector = waitset->wait();
+        for (auto& notification : notificationVector)
         {
-            if (event->getEventId() == ACTIVATE_ID)
+            if (notification->getNotificationId() == ACTIVATE_ID)
             {
                 // reset MyTriggerClass instance state
-                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassStates::IS_ACTIVATED);
+                notification->getOrigin<MyTriggerClass>()->reset(MyTriggerClassStates::IS_ACTIVATED);
                 // call the callback attached to the trigger
-                (*event)();
+                (*notification)();
             }
-            else if (event->getEventId() == ACTION_ID)
+            else if (notification->getNotificationId() == ACTION_ID)
             {
-                // reset is not required since we attached an event here. we will be notified once
-                (*event)();
+                // reset is not required since we attached an notification here. we will be notified once
+                (*notification)();
             }
         }
     }

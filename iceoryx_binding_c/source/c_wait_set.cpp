@@ -30,30 +30,30 @@ extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
 }
 
-static uint64_t event_info_vector_to_c_array(const WaitSet<>::EventInfoVector& triggerVector,
-                                             iox_event_info_t* eventInfoArray,
-                                             const uint64_t eventInfoArrayCapacity,
-                                             uint64_t* missedElements)
+static uint64_t notification_info_vector_to_c_array(const WaitSet<>::NotificationInfoVector& triggerVector,
+                                                    iox_notification_info_t* notificationInfoArray,
+                                                    const uint64_t notificationInfoArrayCapacity,
+                                                    uint64_t* missedElements)
 {
-    uint64_t eventInfoArraySize = 0U;
+    uint64_t notificationInfoArraySize = 0U;
     uint64_t triggerVectorSize = triggerVector.size();
-    if (triggerVectorSize > eventInfoArrayCapacity)
+    if (triggerVectorSize > notificationInfoArrayCapacity)
     {
-        *missedElements = triggerVectorSize - eventInfoArrayCapacity;
-        eventInfoArraySize = eventInfoArrayCapacity;
+        *missedElements = triggerVectorSize - notificationInfoArrayCapacity;
+        notificationInfoArraySize = notificationInfoArrayCapacity;
     }
     else
     {
         *missedElements = 0U;
-        eventInfoArraySize = triggerVectorSize;
+        notificationInfoArraySize = triggerVectorSize;
     }
 
-    for (uint64_t i = 0U; i < eventInfoArraySize; ++i)
+    for (uint64_t i = 0U; i < notificationInfoArraySize; ++i)
     {
-        eventInfoArray[i] = triggerVector[i];
+        notificationInfoArray[i] = triggerVector[i];
     }
 
-    return eventInfoArraySize;
+    return notificationInfoArraySize;
 }
 
 iox_ws_t iox_ws_init(iox_ws_storage_t* self)
@@ -74,20 +74,23 @@ void iox_ws_deinit(iox_ws_t const self)
 
 uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            struct timespec timeout,
-                           iox_event_info_t* const eventInfoArray,
-                           const uint64_t eventInfoArrayCapacity,
+                           iox_notification_info_t* const notificationInfoArray,
+                           const uint64_t notificationInfoArrayCapacity,
                            uint64_t* missedElements)
 {
-    return event_info_vector_to_c_array(
-        self->timedWait(units::Duration(timeout)), eventInfoArray, eventInfoArrayCapacity, missedElements);
+    return notification_info_vector_to_c_array(self->timedWait(units::Duration(timeout)),
+                                               notificationInfoArray,
+                                               notificationInfoArrayCapacity,
+                                               missedElements);
 }
 
 uint64_t iox_ws_wait(iox_ws_t const self,
-                     iox_event_info_t* const eventInfoArray,
-                     const uint64_t eventInfoArrayCapacity,
+                     iox_notification_info_t* const notificationInfoArray,
+                     const uint64_t notificationInfoArrayCapacity,
                      uint64_t* missedElements)
 {
-    return event_info_vector_to_c_array(self->wait(), eventInfoArray, eventInfoArrayCapacity, missedElements);
+    return notification_info_vector_to_c_array(
+        self->wait(), notificationInfoArray, notificationInfoArrayCapacity, missedElements);
 }
 
 uint64_t iox_ws_size(iox_ws_t const self)
