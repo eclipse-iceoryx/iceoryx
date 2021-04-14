@@ -121,10 +121,6 @@ TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)
     m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
     auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
-<<<<<<< HEAD
-=======
-
->>>>>>> 9e1d2158f (iox-#482 Fix ProcessManager test case)
     auto payloadDataSegmentMemoryManager = m_roudiMemoryManager->segmentManager()
                                                .value()
                                                ->getSegmentInformationWithWriteAccessForUser(user)
