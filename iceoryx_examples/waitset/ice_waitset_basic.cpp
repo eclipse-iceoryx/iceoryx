@@ -28,7 +28,7 @@
 std::atomic_bool shutdown{false};
 iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
-static void sigHandler(int sig [[gnu::unused]])
+static void sigHandler(int sig IOX_MAYBE_UNUSED)
 {
     shutdown = true;
     if (waitset)
