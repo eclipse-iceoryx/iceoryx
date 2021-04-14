@@ -108,7 +108,7 @@ class MyTriggerClass
         std::cout << "action performed" << std::endl;
     }
 
-    friend iox::popo::EventAttorney;
+    friend iox::popo::NotificationAttorney;
 
   private:
     /// @brief Only usable by the WaitSet, not for public use

@@ -679,13 +679,13 @@ enum class MyTriggerClassEvents : iox::popo::EventEnumIdentifier
 
 ##### Further Requirements
 
- 1. `friend iox::popo::EventAttorney`
+ 1. `friend iox::popo::NotificationAttorney`
 
     Methods like `enableEvent`, `disableEvent` etc. should never be accessible
     via the public API and should be therefore private. To avoid that every class
     has to befriend the _WaitSet_, _Listener_ and other internal structures we
     implemented the client attorney pattern and the class has only to befriend
-    the `iox::popo::EventAttorney`.
+    the `iox::popo::NotificationAttorney`.
 
  2. Deleted move and copy operations
 
@@ -748,13 +748,13 @@ the two const methods `hasPerformedAction` and `isActivated`.
 
 Since the following methods should not be accessible by the public but must be
 accessible by any _Notifyable_ like the _WaitSet_ and to avoid that
-we have to befriend every possible _Notifyable_ we created the `EventAttorney`.
-Every _Triggerable_ has to befriend the `EventAttorney` which provides access
+we have to befriend every possible _Notifyable_ we created the `NotificationAttorney`.
+Every _Triggerable_ has to befriend the `NotificationAttorney` which provides access
 to the private methods `enableEvent`/`enableState`, `disableEvent`/`disableState`, `invalidateTrigger` and
 `getCallbackForIsStateConditionSatisfied` to all _Notifyables_.
 
 ```cpp
-    friend iox::popo::EventAttorney;
+    friend iox::popo::NotificationAttorney;
 ```
 
 The method `enableEvent` is called by the _WaitSet_ when a `MyTriggerClass` event
