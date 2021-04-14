@@ -29,10 +29,14 @@ set -e
 
 WORKSPACE=$(git rev-parse --show-toplevel)
 WEBREPO="git@github.com:eclipse-iceoryx/iceoryx-web.git"
-VERSION=$1
-TYPE=${2:-local} #`local` starts a local webserver to inspect the results, `publish` pushes the generated doc to iceoryx_web
+TYPE=${1:-local} #`local` starts a local webserver to inspect the results, `publish` pushes the generated doc to iceoryx_web
+VERSION=$2
+BRANCH=$3
+ALIAS=$4
 
 cd $WORKSPACE
+
+git checkout $BRANCH
 
 # Generate doxygen
 cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
@@ -74,12 +78,11 @@ if [ "$TYPE" == "local" ]; then
 fi
 
 if [ "$TYPE" == "publish" ]; then
-   # Generate HTML and push to GitHub pages
+    # Generate HTML and push to GitHub pages
     if [ ! -d "$WORKSPACE/../iceoryx-web" ]; then
         cd $WORKSPACE/../
         git clone $WEBREPO
     fi
     cd $WORKSPACE/../iceoryx-web
-    mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml --remote-branch $VERSION
+    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --push --update-aliases $VERSION $ALIAS
 fi
-
