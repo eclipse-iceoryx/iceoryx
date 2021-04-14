@@ -45,7 +45,7 @@ class UntypedSubscriberImpl : public BaseSubscriber_t
     UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
     UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
-    virtual ~UntypedSubscriberImpl() = default;
+    virtual ~UntypedSubscriberImpl();
 
     ///
     /// @brief Take the chunk from the top of the receive queue.
