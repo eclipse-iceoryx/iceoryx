@@ -58,7 +58,7 @@ class ObjectPool
         T* data{nullptr};
     };
 
-    alignas(alignof(T)) Container m_values;
+    alignas(T) Container m_values;
     CellInfo m_cellInfo[CAPACITY];
     char* m_first;
     char* m_last;

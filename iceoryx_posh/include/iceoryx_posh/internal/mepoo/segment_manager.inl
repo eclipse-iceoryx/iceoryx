@@ -150,8 +150,7 @@ uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const Segment
     uint64_t memorySize{0u};
     for (auto segment : f_config.m_sharedMemorySegments)
     {
-        memorySize +=
-            cxx::align(MemoryManager::requiredManagementMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
+        memorySize += MemoryManager::requiredManagementMemorySize(segment.m_mempoolConfig);
     }
     return memorySize;
 }
@@ -162,8 +161,7 @@ uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfi
     uint64_t memorySize{0u};
     for (auto segment : f_config.m_sharedMemorySegments)
     {
-        memorySize +=
-            cxx::align(MemoryManager::requiredChunkMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
+        memorySize += MemoryManager::requiredChunkMemorySize(segment.m_mempoolConfig);
     }
     return memorySize;
 }
@@ -171,8 +169,7 @@ uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfi
 template <typename SegmentType>
 uint64_t SegmentManager<SegmentType>::requiredFullMemorySize(const SegmentConfig& f_config)
 {
-    return cxx::align(requiredManagementMemorySize(f_config) + requiredChunkMemorySize(f_config),
-                      SHARED_MEMORY_ALIGNMENT);
+    return requiredManagementMemorySize(f_config) + requiredChunkMemorySize(f_config);
 }
 
 } // namespace mepoo

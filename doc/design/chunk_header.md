@@ -35,33 +35,34 @@ Framing with terminology
 - iceoryx runs on multiple platforms -> endianness of recorded chunks might differ
 - for tracing, a chunk should be uniquely identifiable -> store origin and sequence number
 - the chunk is located in the shared memory, which will be mapped to arbitrary positions in the address space of various processes -> no absolute pointer are allowed
-- aligning the `ChunkHeader` to 32 bytes will ensure that all member are on the same cache line and will improve performance
 - in order to reduce complexity, the alignment of the user-header must not exceed the alignment of the `ChunkHeader`
 
 ### Solution
 
 #### ChunkHeader Definition
 ```
-struct alignas(32) ChunkHeader
+class ChunkHeader
 {
     uint32_t chunkSize;
     uint8_t chunkHeaderVersion;
-    uint8_t reserved1;
-    uint8_t reserved2;
-    uint8_t reserved3;
+    uint8_t reserved[3];
     uint64_t originId;
     uint64_t sequenceNumber;
-    uint32_t userPayloadSize;
+    uint32_t userHeaderSize{0U};
+    uint32_t userPayloadSize{0U};
+    uint32_t userPayloadAlignment{1U};
     uint32_t userPayloadOffset;
 };
 ```
 
 - **chunkSize** is the size of the whole chunk
 - **chunkHeaderVersion** is used to detect incompatibilities for record&replay functionality
-- **reserved1**, **reserved2**, **reserved3** are currently not used and set to `0`
+- **reserved[3]** is currently not used and set to `0`
 - **originId** is the unique identifier of the publisher the chunk was sent from
 - **sequenceNumber** is a serial number for the sent chunks
+- **userPayloadSize** is the size of the chunk occupied by the user-header
 - **userPayloadSize** is the size of the chunk occupied by the user-payload
+- **userPayloadAlignment** is the alignment of the chunk occupied by the user-payload
 - **userPayloadOffset** is the offset of the user-payload relative to the begin of the chunk
 
 #### Framing
@@ -160,7 +161,7 @@ chunkSize = sizeof(chunkHeader) + userPayloadSize;
 
 2. No user-header and user-payload alignment exceeds the `ChunkHeader` alignment
 
-Worst case scenario is when a part of the `ChunkHeader` crosses the user-payload alignment boundary, so that the user-payload must be aligned to the next boundary. Currently this is not possible, since the size equals the alignment of the `ChunkHeader`. This might change if more member are added to the `ChunkHeader` or the alignment is reduced. The following drawing demonstrates this scenario.
+Worst case scenario is when a part of the `ChunkHeader` crosses the user-payload alignment boundary, so that the user-payload must be aligned to the next boundary. The following drawing demonstrates this scenario.
 
 ```
                                ┌ back-offset

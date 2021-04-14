@@ -239,7 +239,7 @@ class optional
     const optional& or_else(const cxx::function_ref<void()>& callable) const noexcept;
 
   private:
-    alignas(alignof(T)) byte_t m_data[sizeof(T)];
+    alignas(T) byte_t m_data[sizeof(T)];
     bool m_hasValue{false};
 
   private:
