@@ -19,7 +19,9 @@
 #include "iceoryx_utils/log/logging.hpp"
 #include "iceoryx_utils/log/logstream.hpp"
 
+#include "iceoryx_utils/cxx/attributes.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
+
 
 #include <chrono>
 #include <ctime>
@@ -31,7 +33,7 @@ namespace iox
 {
 namespace log
 {
-Logger::Logger(std::string ctxId IOX_MAYBE_UNUSED, std::string ctxDescription IOX_MAYBE_UNUSED, LogLevel appLogLevel)
+Logger::Logger(IOX_MAYBE_UNUSED std::string ctxId, IOX_MAYBE_UNUSED std::string ctxDescription, LogLevel appLogLevel)
     : m_logLevel(appLogLevel)
 {
 }
