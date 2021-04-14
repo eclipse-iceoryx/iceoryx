@@ -37,8 +37,8 @@ PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& ser
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
-inline cxx::optional<RuntimeName_t> PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service
-                                                                                [[gnu::unused]]) const noexcept
+inline cxx::optional<RuntimeName_t>
+PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) const noexcept
 {
     // Duplicates are allowed when using n:m policy
     return cxx::nullopt;

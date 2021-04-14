@@ -109,7 +109,7 @@ inline void BaseSubscriber<port_t>::invalidateTrigger(const uint64_t uniqueTrigg
 
 template <typename port_t>
 inline void BaseSubscriber<port_t>::enableState(iox::popo::TriggerHandle&& triggerHandle,
-                                                [[gnu::unused]] const SubscriberState subscriberState) noexcept
+                                                IOX_MAYBE_UNUSED const SubscriberState subscriberState) noexcept
 
 {
     switch (subscriberState)

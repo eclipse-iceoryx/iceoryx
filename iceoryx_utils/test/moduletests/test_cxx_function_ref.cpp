@@ -313,7 +313,7 @@ TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfVoid)
 
 TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfIntInt)
 {
-    auto value = SameSignature([](int value1, int value2 [[gnu::unused]]) -> int { return value1; });
+    auto value = SameSignature([](int value1, int value2 IOX_MAYBE_UNUSED) -> int { return value1; });
     EXPECT_THAT(value, Eq(sameSignatureIntIntTestValue));
 }
 } // namespace

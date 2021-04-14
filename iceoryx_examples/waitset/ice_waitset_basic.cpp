@@ -77,8 +77,8 @@ int main()
                 subscriber.take()
                     .and_then([](auto& sample) { std::cout << " got value: " << sample->counter << std::endl; })
                     .or_else([](auto& reason
-                                [[gnu::unused]]) { /* we could check and handle the reason why there is no data */
-                                                   std::cout << "got no data" << std::endl;
+                                    IOX_MAYBE_UNUSED) { /* we could check and handle the reason why there is no data */
+                                                        std::cout << "got no data" << std::endl;
                     });
                 // We could consume all samples but do not need to.
                 // If there is more than one sample we will wake up again since the state of the subscriber is still

@@ -26,7 +26,7 @@
 
 iox::popo::UserTrigger shutdownTrigger;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     shutdownTrigger.trigger();
 }

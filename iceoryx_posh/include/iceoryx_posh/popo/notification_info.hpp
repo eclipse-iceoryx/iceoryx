@@ -30,7 +30,7 @@ namespace iox
 namespace popo
 {
 /// @brief NotificationInfo holds the state of a trigger like the pointer to the triggerOrigin,
-///        the event id and the callback.
+///        the notification id and the callback.
 class NotificationInfo
 {
   public:
@@ -49,7 +49,7 @@ class NotificationInfo
                      const uint64_t notificationId,
                      const EventCallback<T, ContextDataType>& callback) noexcept;
 
-    /// @brief returns the event id
+    /// @brief returns the notification id
     /// @return the empty NotificationInfo always returns INVALID_ID, otherwise the actual notificationId is returned
     /// which can also be INVALID_ID
     uint64_t getNotificationId() const noexcept;

@@ -34,7 +34,7 @@
 
 std::atomic_bool keepRunning{true};
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     // caught SIGINT or SIGTERM, now exit gracefully
     keepRunning = false;

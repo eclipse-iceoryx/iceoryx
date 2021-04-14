@@ -32,8 +32,8 @@ LogManager& LogManager::GetLogManager()
     return manager;
 }
 
-Logger& LogManager::CreateLogContext(std::string ctxId [[gnu::unused]],
-                                     std::string ctxDescription [[gnu::unused]],
+Logger& LogManager::CreateLogContext(std::string ctxId IOX_MAYBE_UNUSED,
+                                     std::string ctxDescription IOX_MAYBE_UNUSED,
                                      LogLevel appDefLogLevel) noexcept
 {
     static std::mutex mtx;
