@@ -128,12 +128,6 @@ void iox_pub_release_chunk(iox_pub_t const self, void* const userPayloadOfChunk)
 /// @param[in] userPayloadOfChunk pointer to the user-payload of the chunk which should be send
 void iox_pub_publish_chunk(iox_pub_t const self, void* const userPayloadOfChunk);
 
-/// @brief returns the previously sended chunk
-/// @param[in] self handle of the publisher
-/// @return nullptr if no chunk was previously send otherwise a pointer to the
-///           previous chunk
-const void* iox_pub_loan_previous_chunk(iox_pub_t const self);
-
 /// @brief offers the service
 /// @param[in] self handle of the publisher
 void iox_pub_offer(iox_pub_t const self);

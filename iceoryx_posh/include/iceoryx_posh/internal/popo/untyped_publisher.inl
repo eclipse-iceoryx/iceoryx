@@ -55,17 +55,6 @@ UntypedPublisherImpl<BasePublisher_t>::loan(const uint32_t userPayloadSize,
 }
 
 template <typename BasePublisher_t>
-cxx::optional<void*> UntypedPublisherImpl<BasePublisher_t>::loanPreviousChunk() noexcept
-{
-    auto result = port().tryGetPreviousChunk();
-    if (result.has_value())
-    {
-        return result.value()->userPayload();
-    }
-    return cxx::nullopt;
-}
-
-template <typename BasePublisher_t>
 inline void UntypedPublisherImpl<BasePublisher_t>::release(void* const userPayloadOfChunk) noexcept
 {
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
