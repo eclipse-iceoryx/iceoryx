@@ -245,6 +245,7 @@ as argument.
     The user has to ensure that the contextData (`*this`) in `attachEvent` 
     lives as long as the attachment, with its callback, is attached otherwise 
     the callback context data pointer is dangling.
+
 ```cpp
 CounterService()
     : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
