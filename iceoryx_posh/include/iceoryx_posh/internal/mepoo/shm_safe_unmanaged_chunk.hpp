@@ -24,6 +24,9 @@ namespace iox
 {
 namespace mepoo
 {
+/// @brief This class to safely store a chunk in shared memory. To be able to do so, torn writes/reads need to
+/// prevented, since they create Frankenstein objects. Therefore, the class must not be larger than 64 bits and
+/// trivially copy-able in case an application dies while writing this and RouDi needs to clean up.
 class ShmSafeUnmanagedChunk
 {
   public:

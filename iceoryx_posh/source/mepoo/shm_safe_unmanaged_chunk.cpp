@@ -21,9 +21,11 @@ namespace iox
 {
 namespace mepoo
 {
-static_assert(sizeof(ShmSafeUnmanagedChunk) <= 8U, "The ShmSafeUnmanagedChunk size must not exceed 64 bit!");
+static_assert(sizeof(ShmSafeUnmanagedChunk) <= 8U,
+              "The ShmSafeUnmanagedChunk size must not exceed 64 bit to prevent torn writes!");
 static_assert(std::is_trivially_copyable<ShmSafeUnmanagedChunk>::value,
-              "The ShmSafeUnmanagedChunk must be trivially copyable!");
+              "The ShmSafeUnmanagedChunk must be trivially copyable to prevent Frankenstein objects when the copy ctor "
+              "works on half dead objects!");
 
 ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
 {
