@@ -84,7 +84,7 @@ TEST_F(SharedMemoryUserTest, ConstructorShmObjectWithValidTopicSizeAndDoMapShare
     });
 
     SharedMemoryUser ShmUser(doMapSharedMemoryIntoThread, topicSize, segmentId, segmentManagerAddressOffset);
-    ASSERT_FALSE(detectedError.has_value());
+    EXPECT_FALSE(detectedError.has_value());
 }
 
 TEST_F(SharedMemoryUserTest, ConstructorShmObjectWithValidTopicSizeAndDoMapSharedMemoryIntoThreadBoolSetToTrueReturnNoError)
@@ -100,7 +100,7 @@ TEST_F(SharedMemoryUserTest, ConstructorShmObjectWithValidTopicSizeAndDoMapShare
     });
     SharedMemoryUser ShmUser(doMapSharedMemoryIntoThread, topicSize, segmentId, segmentManagerAddressOffset);
   
-    ASSERT_FALSE(detectedError.has_value());
+    EXPECT_FALSE(detectedError.has_value());
 }
 } // namespace test
 } // namespace iox
