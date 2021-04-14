@@ -16,6 +16,7 @@
 
 #include "roudi_fuzz.hpp"
 #include "string_to_ipc_message.hpp"
+
 RouDiFuzz::RouDiFuzz(iox::roudi::RouDiMemoryInterface& roudiMemoryInterface,
                      iox::roudi::PortManager& portManager,
                      iox::roudi::RouDi::RoudiStartupParameters aStartupParameter)

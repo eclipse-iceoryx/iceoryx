@@ -16,8 +16,9 @@
 
 #include "fuzzing.hpp"
 #include "cpptoml.h"
+#include "iceoryx_utils/platform/socket.hpp"
+
 #include <fstream>
-#include <sys/socket.h>
 #include <thread>
 
 std::string const UDS_NAME = "/tmp/";

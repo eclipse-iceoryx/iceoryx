@@ -18,6 +18,7 @@
 #include "fuzz_helper.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/platform/getopt.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <string>

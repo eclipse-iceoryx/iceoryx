@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #include "fuzztests_roudi_wrapper.hpp"
 #include "cmdlineparserfuzzing.hpp"
 #include "fuzz_helper.hpp"
@@ -22,6 +21,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <thread>

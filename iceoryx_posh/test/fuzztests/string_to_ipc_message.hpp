@@ -17,6 +17,8 @@
 #ifndef STRINGTOIPCMESSAGE_HPP
 #define STRINGTOIPCMESSAGE_HPP
 
+#include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
+
 /// @brief The StringToIPCMessage is a class which inherits from iox::runtime::IpcInterfaceBase to make the protected
 /// method iox::runtime::IpcInterfaceBase::setMessageFromString public and accessible for the fuzz test.
 
