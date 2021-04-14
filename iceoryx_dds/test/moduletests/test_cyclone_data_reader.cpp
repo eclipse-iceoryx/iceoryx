@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "test.hpp"
 
 #include <Mempool_DCPS.hpp>
@@ -52,7 +53,14 @@ TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
     EXPECT_EQ(true, takeResult.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, takeResult.get_error());
 
-    auto takeNextResult = reader.takeNext(buffer, bufferSize);
+    ChunkMock<uint64_t> chunkMock;
+    iox::dds::IoxChunkDatagramHeader datagramHeader;
+    datagramHeader.endianness = getEndianess();
+    datagramHeader.userPayloadSize = chunkMock.chunkHeader()->userPayloadSize();
+    datagramHeader.userPayloadAlignment = chunkMock.chunkHeader()->userPayloadAlignment();
+    auto takeNextResult = reader.takeNext(datagramHeader,
+                                          static_cast<uint8_t*>(chunkMock.chunkHeader()->userHeader()),
+                                          static_cast<uint8_t*>(chunkMock.chunkHeader()->userPayload()));
     EXPECT_EQ(true, takeNextResult.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, takeResult.get_error());
 }
@@ -71,7 +79,11 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
     EXPECT_EQ(true, takeResult.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, takeResult.get_error());
 
-    auto takeNextResult = reader.takeNext(buffer, bufferSize);
+    iox::dds::IoxChunkDatagramHeader datagramHeader;
+    datagramHeader.endianness = getEndianess();
+    datagramHeader.userHeaderSize = 42U;
+    datagramHeader.userPayloadAlignment = 8U;
+    auto takeNextResult = reader.takeNext(datagramHeader, nullptr, nullptr);
     EXPECT_EQ(true, takeNextResult.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, takeNextResult.get_error());
 }

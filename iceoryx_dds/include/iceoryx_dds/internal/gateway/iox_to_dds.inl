@@ -19,6 +19,7 @@
 #define IOX_DDS_IOX_TO_DDS_INL
 
 #include "iceoryx_dds/dds/dds_config.hpp"
+#include "iceoryx_dds/dds/iox_chunk_datagram_header.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
@@ -110,8 +111,15 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
     {
         subscriber->take().and_then([&](const void* userPayload) {
             auto dataWriter = channel.getExternalTerminal();
-            auto header = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
-            dataWriter->write(static_cast<const uint8_t*>(userPayload), header->userPayloadSize());
+            auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
+            iox::dds::IoxChunkDatagramHeader datagramHeader;
+            datagramHeader.userHeaderId = chunkHeader->userHeaderId();
+            datagramHeader.userHeaderSize = chunkHeader->userHeaderSize();
+            datagramHeader.userPayloadSize = chunkHeader->userPayloadSize();
+            datagramHeader.userPayloadAlignment = chunkHeader->userPayloadAlignment();
+            dataWriter->write(datagramHeader,
+                              static_cast<const uint8_t*>(chunkHeader->userHeader()),
+                              static_cast<const uint8_t*>(chunkHeader->userPayload()));
             subscriber->release(userPayload);
         });
     }

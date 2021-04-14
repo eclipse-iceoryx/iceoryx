@@ -50,13 +50,6 @@ void iox::dds::CycloneDataWriter::connect() noexcept
     LogDebug() << "[CycloneDataWriter] Connected to topic: " << topic;
 }
 
-void iox::dds::CycloneDataWriter::write(const uint8_t* const bytes, const uint64_t size) noexcept
-{
-    auto chunk = Mempool::Chunk();
-    std::copy(bytes, bytes + size, std::back_inserter(chunk.payload()));
-    m_writer.write(chunk);
-}
-
 void iox::dds::CycloneDataWriter::write(iox::dds::IoxChunkDatagramHeader datagramHeader,
                                         const uint8_t* userHeaderBytes,
                                         const uint8_t* userPayloadBytes) noexcept

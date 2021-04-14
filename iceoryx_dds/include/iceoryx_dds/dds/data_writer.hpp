@@ -43,13 +43,6 @@ class DataWriter
     virtual void connect() noexcept = 0;
 
     ///
-    /// @brief write Write the provided bytes on the DDS network on the topic: serviceId/instanceId/eventId
-    /// @param bytes
-    /// @param size
-    ///
-    virtual void write(const uint8_t* const bytes, const uint64_t size) noexcept = 0;
-
-    ///
     /// @brief write Write the provided header and bytes on the DDS network on the topic: serviceId/instanceId/eventId
     /// @param datagramHeader with size information
     /// @param userHeaderBytes buffer with the user-header

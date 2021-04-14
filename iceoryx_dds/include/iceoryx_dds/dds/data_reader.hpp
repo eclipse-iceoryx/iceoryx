@@ -58,12 +58,6 @@ class DataReader
     virtual void connect() noexcept = 0;
 
     ///
-    /// @brief peekNextSize Get the size of the next sample if one is available.
-    /// @return The size of the next sample if one is available.
-    ///
-    virtual iox::cxx::optional<uint32_t> peekNextSize() = 0;
-
-    ///
     /// @brief peekNextIoxChunkDatagramHeader Get the IoxChunkDatagramHeader of the next sample if one is available.
     /// @return The IoxChunkDatagramHeader of the next sample if one is available.
     ///
@@ -77,14 +71,6 @@ class DataReader
 
     ///
     /// @brief take Take the next available sample from the DDS data space.
-    /// @param buffer Receive buffer in which sample will be stored.
-    /// @param bufferSize Size of the provided buffer.
-    /// @return Error if unsuccessful.
-    ///
-    virtual iox::cxx::expected<DataReaderError> takeNext(uint8_t* const buffer, const uint64_t& bufferSize) = 0;
-
-    ///
-    /// @brief take Take the next available sample from the DDS data space.
     /// @param datagramHeader with size information
     /// @param userHeaderBytes buffer for the user-header
     /// @param userPayloadBytes buffer for the user-payload
@@ -94,6 +80,7 @@ class DataReader
     takeNext(const IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBytes, uint8_t* userPayloadBytes) = 0;
 
 
+    /// @todo iox-#14 this needs either to be removed or also ported to IoxChunkDatagramHeader
     ///
     /// @brief take Take up to a maximum number of samples from the DDS data space.
     /// @param buffer Receive buffer in which samples will be stored.
