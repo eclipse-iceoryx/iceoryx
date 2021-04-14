@@ -76,12 +76,6 @@ class PublisherImpl : public BasePublisher_t, public PublisherInterface<T, H>
     cxx::expected<Sample<T, H>, AllocationError> loan(Args&&... args) noexcept;
 
     ///
-    /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
-    /// @return The previously loaned sample if retrieved.
-    ///
-    cxx::optional<Sample<T, H>> loanPreviousSample() noexcept;
-
-    ///
     /// @brief publish Publishes the given sample and then releases its loan.
     /// @param sample The sample to publish.
     ///

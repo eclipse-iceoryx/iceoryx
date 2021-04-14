@@ -48,13 +48,7 @@ bool UsedChunkList<Capacity>::insert(mepoo::SharedChunk chunk) noexcept
         m_listIndices[m_freeListHead] = m_usedListHead;
         m_usedListHead = m_freeListHead;
 
-        // store chunk mgmt ptr
-        rp::RelativePointer<mepoo::ChunkManagement> ptr = chunk.release();
-        auto id = ptr.getId();
-        auto offset = ptr.getOffset();
-        cxx::Ensures(id < DataElement_t::MAX_ID && "RelativePointer id must fit into id type!");
-        cxx::Ensures(offset < DataElement_t::MAX_OFFSET && "RelativePointer offset must fit into offset type!");
-        m_listData[m_usedListHead] = DataElement_t(static_cast<uint16_t>(id), offset);
+        m_listData[m_usedListHead] = DataElement_t(chunk);
 
         // set freeListHead to the next free entry
         m_freeListHead = nextFree;
@@ -79,14 +73,10 @@ bool UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader, mepo
     {
         if (!m_listData[current].isLogicalNullptr())
         {
-            auto chunkMgmt =
-                rp::RelativePointer<mepoo::ChunkManagement>(m_listData[current].offset(), m_listData[current].id());
             // does the entry match the one we want to remove?
-            if (chunkMgmt->m_chunkHeader == chunkHeader)
+            if (m_listData[current].getChunkHeader() == chunkHeader)
             {
-                // return the chunk mgmt entry as SharedChunk object
-                chunk = mepoo::SharedChunk(chunkMgmt);
-                m_listData[current] = DATA_ELEMENT_LOGICAL_NULLPTR;
+                chunk = m_listData[current].releaseToSharedChunk();
 
                 // remove index from used list
                 if (current == m_usedListHead)
@@ -121,7 +111,8 @@ void UsedChunkList<Capacity>::cleanup() noexcept
     {
         if (!data.isLogicalNullptr())
         {
-            mepoo::SharedChunk{rp::RelativePointer<mepoo::ChunkManagement>(data.offset(), data.id())};
+            // release ownership by creating a SharedChunk
+            data.releaseToSharedChunk();
         }
     }
 
@@ -153,7 +144,7 @@ void UsedChunkList<Capacity>::init() noexcept
     // clear data
     for (auto& data : m_listData)
     {
-        data = DATA_ELEMENT_LOGICAL_NULLPTR;
+        data.releaseToSharedChunk();
     }
 
     m_synchronizer.clear(std::memory_order_release);
