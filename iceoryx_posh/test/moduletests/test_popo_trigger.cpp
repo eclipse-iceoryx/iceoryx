@@ -23,6 +23,7 @@
 using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
+using namespace ::testing::internal;
 
 class Trigger_test : public Test
 {
@@ -56,11 +57,11 @@ class Trigger_test : public Test
 
     void SetUp() override
     {
-        internal::CaptureStderr();
+        CaptureStderr();
     }
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
+        std::string output = GetCapturedStderr();
         if (Test::HasFailure())
         {
             std::cout << output << std::endl;
@@ -76,7 +77,7 @@ class Trigger_test : public Test
                         {m_triggerClass, &TriggerClass::hasTriggered},
                         {m_triggerClass, &TriggerClass::resetCall},
                         eventId,
-                        TriggerClass::callback,
+                        createEventCallback(TriggerClass::callback),
                         uniqueId++,
                         type,
                         typeHash);
@@ -92,7 +93,7 @@ class Trigger_test : public Test
                         &m_triggerClass,
                         {m_triggerClass, &TriggerClass::resetCall},
                         eventId,
-                        TriggerClass::callback,
+                        createEventCallback(TriggerClass::callback),
                         uniqueId++,
                         type,
                         typeHash);
@@ -174,7 +175,7 @@ TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 eventId,
-                TriggerClass::callback,
+                createEventCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -203,7 +204,7 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
                 cxx::ConstMethodCallback<bool>(),
                 {m_triggerClass, &TriggerClass::resetCall},
                 eventId,
-                TriggerClass::callback,
+                createEventCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -234,7 +235,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
                 eventId,
-                TriggerClass::callback,
+                createEventCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -297,7 +298,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
                 eventId,
-                TriggerClass::callback,
+                createEventCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -363,7 +364,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFro
                 {thirdTriggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
-                TriggerClass::callback,
+                createEventCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -400,7 +401,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {thirdTriggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
-                TriggerClass::callback,
+                createEventCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -424,7 +425,7 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfEventInfo)
                 {m_triggerClass, &TriggerClass::hasTriggered},
                 {m_triggerClass, &TriggerClass::resetCall},
                 USER_DEFINED_EVENT_ID,
-                TriggerClass::callback,
+                createEventCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 type,
                 typeHash);
@@ -444,7 +445,7 @@ TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 TriggerClass::callback,
+                 createEventCallback(TriggerClass::callback),
                  uniqueTriggerId,
                  originType,
                  originTypeHash);
@@ -464,7 +465,7 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginTypeDiffers)
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 TriggerClass::callback,
+                 createEventCallback(TriggerClass::callback),
                  uniqueTriggerId1,
                  originType,
                  originTypeHash);
@@ -485,7 +486,7 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginAndOriginTypeHashDiffers)
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 TriggerClass::callback,
+                 createEventCallback(TriggerClass::callback),
                  uniqueTriggerId1,
                  originType,
                  originTypeHash);
@@ -508,7 +509,7 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginTypeAndOriginTypeHashDiffer
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 TriggerClass::callback,
+                 createEventCallback(TriggerClass::callback),
                  uniqueTriggerId1,
                  originType,
                  originTypeHash);
@@ -528,7 +529,7 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualWhenInvalid)
                  {m_triggerClass, &TriggerClass::hasTriggered},
                  {m_triggerClass, &TriggerClass::resetCall},
                  USER_DEFINED_EVENT_ID,
-                 TriggerClass::callback,
+                 createEventCallback(TriggerClass::callback),
                  uniqueTriggerId1,
                  originType,
                  originTypeHash);
@@ -671,7 +672,7 @@ TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIs
                 &m_triggerClass,
                 cxx::MethodCallback<void, uint64_t>(),
                 eventId,
-                TriggerClass::callback,
+                createEventCallback(TriggerClass::callback),
                 uniqueTriggerId,
                 originType,
                 originTypeHash);

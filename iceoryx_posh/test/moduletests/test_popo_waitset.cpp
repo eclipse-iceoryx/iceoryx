@@ -216,6 +216,8 @@ class WaitSet_test : public Test
 
         SimpleEventClass* m_triggerCallbackArgument1 = nullptr;
         SimpleEventClass* m_triggerCallbackArgument2 = nullptr;
+        uint64_t* m_contextData1 = nullptr;
+        uint64_t* m_contextData2 = nullptr;
         bool m_autoResetTrigger = true;
         bool m_isEventBased = false;
     };
@@ -231,6 +233,20 @@ class WaitSet_test : public Test
     static void triggerCallback2(WaitSet_test::SimpleEventClass* const waitset)
     {
         waitset->m_triggerCallbackArgument2 = waitset;
+    }
+
+    static void triggerCallback1WithContextData(WaitSet_test::SimpleEventClass* const waitset,
+                                                uint64_t* const contextData)
+    {
+        waitset->m_triggerCallbackArgument1 = waitset;
+        waitset->m_contextData1 = contextData;
+    }
+
+    static void triggerCallback2WithContextData(WaitSet_test::SimpleEventClass* const waitset,
+                                                uint64_t* const contextData)
+    {
+        waitset->m_triggerCallbackArgument2 = waitset;
+        waitset->m_contextData2 = contextData;
     }
 
     void SetUp() override
@@ -981,10 +997,11 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
     WaitReturnsAllTriggeredConditionWhenAllAreTriggered(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
-void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
-                                               const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void WaitReturnsEventTriggersWithOneCorrectCallback(WaitSet_test* test,
+                                                    const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    auto result1 = test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
+    auto result1 =
+        test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
 
@@ -998,21 +1015,25 @@ void WaitReturnsTriggersWithOneCorrectCallback(WaitSet_test* test,
     EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
 }
 
-TEST_F(WaitSet_test, WaitReturnsTriggersWithOneCorrectCallback)
+TEST_F(WaitSet_test, WaitReturnsEventTriggersWithOneCorrectCallback)
 {
-    WaitReturnsTriggersWithOneCorrectCallback(this, [&] { return m_sut->wait(); });
+    WaitReturnsEventTriggersWithOneCorrectCallback(this, [&] { return m_sut->wait(); });
 }
 
-TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallback)
+TEST_F(WaitSet_test, TimedWaitReturnsEventTriggersWithTwoCorrectCallback)
 {
-    WaitReturnsTriggersWithOneCorrectCallback(this, [&] { return m_sut->timedWait(10_ms); });
+    WaitReturnsEventTriggersWithOneCorrectCallback(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
-void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
-                                                const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+void WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(
+    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
 {
-    auto result1 = test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, &WaitSet_test::triggerCallback1);
-    auto result2 = test->m_sut->attachEvent(test->m_simpleEvents[1], 2U, &WaitSet_test::triggerCallback2);
+    uint64_t contextData1 = 0U;
+    uint64_t contextData2 = 0U;
+    auto result1 = test->m_sut->attachEvent(
+        test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1WithContextData, contextData1));
+    auto result2 = test->m_sut->attachEvent(
+        test->m_simpleEvents[1], 2U, createEventCallback(WaitSet_test::triggerCallback2WithContextData, contextData2));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
     ASSERT_THAT(result2.has_error(), Eq(false));
@@ -1028,16 +1049,84 @@ void WaitReturnsTriggersWithTwoCorrectCallbacks(WaitSet_test* test,
 
     EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
     EXPECT_THAT(test->m_simpleEvents[1].m_triggerCallbackArgument2, Eq(&test->m_simpleEvents[1]));
+    EXPECT_THAT(test->m_simpleEvents[0].m_contextData1, Eq(&contextData1));
+    EXPECT_THAT(test->m_simpleEvents[1].m_contextData2, Eq(&contextData2));
 }
 
-TEST_F(WaitSet_test, WaitReturnsTriggersWithTwoCorrectCallbacks)
+TEST_F(WaitSet_test, WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData)
 {
-    WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut->wait(); });
+    WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->wait(); });
 }
 
-TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithTwoCorrectCallbacks)
+TEST_F(WaitSet_test, TimedWaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData)
 {
-    WaitReturnsTriggersWithTwoCorrectCallbacks(this, [&] { return m_sut->timedWait(10_ms); });
+    WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->timedWait(10_ms); });
+}
+
+void WaitReturnsStateTriggersWithOneCorrectCallback(WaitSet_test* test,
+                                                    const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    auto result1 =
+        test->m_sut->attachState(test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1));
+
+    ASSERT_THAT(result1.has_error(), Eq(false));
+
+    test->m_simpleEvents[0].trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(1U));
+
+    (*triggerVector[0U])();
+
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
+}
+
+TEST_F(WaitSet_test, WaitReturnsStateTriggersWithOneCorrectCallback)
+{
+    WaitReturnsStateTriggersWithOneCorrectCallback(this, [&] { return m_sut->wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsStateTriggersWithTwoCorrectCallback)
+{
+    WaitReturnsStateTriggersWithOneCorrectCallback(this, [&] { return m_sut->timedWait(10_ms); });
+}
+
+void WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(
+    WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
+{
+    uint64_t contextData1 = 0U;
+    uint64_t contextData2 = 0U;
+    auto result1 = test->m_sut->attachState(
+        test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1WithContextData, contextData1));
+    auto result2 = test->m_sut->attachState(
+        test->m_simpleEvents[1], 2U, createEventCallback(WaitSet_test::triggerCallback2WithContextData, contextData2));
+
+    ASSERT_THAT(result1.has_error(), Eq(false));
+    ASSERT_THAT(result2.has_error(), Eq(false));
+
+    test->m_simpleEvents[0].trigger();
+    test->m_simpleEvents[1].trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(2U));
+
+    (*triggerVector[0U])();
+    (*triggerVector[1U])();
+
+    EXPECT_THAT(test->m_simpleEvents[0].m_triggerCallbackArgument1, Eq(&test->m_simpleEvents[0]));
+    EXPECT_THAT(test->m_simpleEvents[1].m_triggerCallbackArgument2, Eq(&test->m_simpleEvents[1]));
+    EXPECT_THAT(test->m_simpleEvents[0].m_contextData1, Eq(&contextData1));
+    EXPECT_THAT(test->m_simpleEvents[1].m_contextData2, Eq(&contextData2));
+}
+
+TEST_F(WaitSet_test, WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData)
+{
+    WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData)
+{
+    WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(this, [&] { return m_sut->timedWait(10_ms); });
 }
 
 void NonResetStatesAreReturnedAgain(WaitSet_test* test, const std::function<WaitSet<>::EventInfoVector()>& waitCall)
@@ -1305,3 +1394,58 @@ TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWai
     ASSERT_THAT(eventVector.size(), Eq(1));
     EXPECT_TRUE(doesEventInfoVectorContain(eventVector, 8171, m_simpleEvents[1]));
 }
+
+TEST_F(WaitSet_test, WaitUnblocksAfterMarkForDestructionCall)
+{
+    std::atomic_bool doStartWaiting{false};
+    std::atomic_bool isThreadFinished{false};
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
+
+    std::thread t([&] {
+        doStartWaiting.store(true);
+        auto triggerVector = m_sut->wait();
+        triggerVector = m_sut->wait();
+        triggerVector = m_sut->wait();
+        isThreadFinished.store(true);
+    });
+
+    while (!doStartWaiting.load())
+        ;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_FALSE(isThreadFinished.load());
+
+    m_sut->markForDestruction();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_TRUE(isThreadFinished.load());
+
+    t.join();
+}
+
+TEST_F(WaitSet_test, TimedWaitUnblocksAfterMarkForDestructionCall)
+{
+    std::atomic_bool doStartWaiting{false};
+    std::atomic_bool isThreadFinished{false};
+    ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
+
+    std::thread t([&] {
+        doStartWaiting.store(true);
+        auto triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        triggerVector = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+        isThreadFinished.store(true);
+    });
+
+    while (!doStartWaiting.load())
+        ;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_FALSE(isThreadFinished.load());
+
+    m_sut->markForDestruction();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_TRUE(isThreadFinished.load());
+
+    t.join();
+}
+

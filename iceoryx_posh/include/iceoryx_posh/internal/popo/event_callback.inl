@@ -21,17 +21,37 @@ namespace iox
 {
 namespace popo
 {
-template <typename OriginType, typename UserType>
-inline EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const))
+namespace internal
+{
+template <typename T, typename ContextDataType>
+inline void TranslateAndCallTypelessCallback<T, ContextDataType>::call(void* const origin,
+                                                                       void* const userType,
+                                                                       GenericCallbackPtr_t underlyingCallback) noexcept
+{
+    reinterpret_cast<typename EventCallback<T, ContextDataType>::Ptr_t>(underlyingCallback)(
+        static_cast<T*>(origin), static_cast<ContextDataType*>(userType));
+}
+
+template <typename T>
+inline void TranslateAndCallTypelessCallback<T, NoType_t>::call(void* const origin,
+                                                                void* const userType IOX_MAYBE_UNUSED,
+                                                                GenericCallbackPtr_t underlyingCallback) noexcept
+{
+    reinterpret_cast<typename EventCallback<T, NoType_t>::Ptr_t>(underlyingCallback)(static_cast<T*>(origin));
+}
+} // namespace internal
+
+template <typename OriginType, typename ContextDataType>
+inline EventCallback<OriginType, ContextDataType> createEventCallback(void (&callback)(OriginType* const))
 {
     return EventCallback<OriginType, internal::NoType_t>{&callback};
 }
 
-template <typename OriginType, typename UserType>
-inline EventCallback<OriginType, UserType> createEventCallback(void (&callback)(OriginType* const, UserType* const),
-                                                               UserType& userValue)
+template <typename OriginType, typename ContextDataType>
+inline EventCallback<OriginType, ContextDataType>
+createEventCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue)
 {
-    return EventCallback<OriginType, UserType>{&callback, &userValue};
+    return EventCallback<OriginType, ContextDataType>{&callback, &userValue};
 }
 } // namespace popo
 } // namespace iox
