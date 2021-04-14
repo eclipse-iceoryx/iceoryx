@@ -69,7 +69,8 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
         }
     }
 
-    cxx::MethodCallback<void, uint64_t> invalidationCallback = EventAttorney::getInvalidateTriggerMethod(eventOrigin);
+    cxx::MethodCallback<void, uint64_t> invalidationCallback =
+        NotificationAttorney::getInvalidateTriggerMethod(eventOrigin);
     auto index = m_indexRepository.pop();
     if (!index)
     {
@@ -121,7 +122,7 @@ WaitSet<Capacity>::attachEvent(T& eventOrigin,
                       static_cast<uint64_t>(eventType),
                       typeid(EventType).hash_code())
         .and_then([&](auto& uniqueId) {
-            EventAttorney::enableEvent(
+            NotificationAttorney::enableEvent(
                 eventOrigin,
                 TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
                 eventType);
@@ -148,7 +149,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
                       static_cast<uint64_t>(NoEventEnumUsed::PLACEHOLDER),
                       typeid(NoEventEnumUsed).hash_code())
         .and_then([&](auto& uniqueId) {
-            EventAttorney::enableEvent(
+            NotificationAttorney::enableEvent(
                 eventOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
         });
 }
@@ -170,7 +171,7 @@ WaitSet<Capacity>::attachState(T& stateOrigin,
                                const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
     static_assert(IS_STATE_ENUM<StateType>, "Only enums with an underlying StateEnumIdentifier are allowed.");
-    auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin, stateType);
+    auto hasTriggeredCallback = NotificationAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin, stateType);
 
     return attachImpl(stateOrigin,
                       hasTriggeredCallback,
@@ -179,7 +180,7 @@ WaitSet<Capacity>::attachState(T& stateOrigin,
                       static_cast<uint64_t>(stateType),
                       typeid(StateType).hash_code())
         .and_then([&](auto& uniqueId) {
-            EventAttorney::enableState(
+            NotificationAttorney::enableState(
                 stateOrigin,
                 TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
                 stateType);
@@ -199,7 +200,7 @@ template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
     T& stateOrigin, const uint64_t id, const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin);
+    auto hasTriggeredCallback = NotificationAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin);
     return attachImpl(stateOrigin,
                       hasTriggeredCallback,
                       id,
@@ -207,7 +208,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
                       static_cast<uint64_t>(NoStateEnumUsed::PLACEHOLDER),
                       typeid(NoStateEnumUsed).hash_code())
         .and_then([&](auto& uniqueId) {
-            EventAttorney::enableState(
+            NotificationAttorney::enableState(
                 stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
         });
 }
@@ -224,14 +225,14 @@ template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
-    EventAttorney::disableEvent(eventOrigin, args...);
+    NotificationAttorney::disableEvent(eventOrigin, args...);
 }
 
 template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachState(T& stateOrigin, const Targs&... args) noexcept
 {
-    EventAttorney::disableState(stateOrigin, args...);
+    NotificationAttorney::disableState(stateOrigin, args...);
 }
 
 template <uint64_t Capacity>

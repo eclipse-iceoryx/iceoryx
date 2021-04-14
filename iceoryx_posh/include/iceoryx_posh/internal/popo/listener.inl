@@ -30,9 +30,9 @@ Listener::attachEvent(T& eventOrigin, const NotificationCallback<T, UserType>& e
                     typeid(NoEnumUsed).hash_code(),
                     reinterpret_cast<internal::GenericCallbackRef_t>(*eventCallback.m_callback),
                     internal::TranslateAndCallTypelessCallback<T, UserType>::call,
-                    EventAttorney::getInvalidateTriggerMethod(eventOrigin))
+                    NotificationAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
-            EventAttorney::enableEvent(
+            NotificationAttorney::enableEvent(
                 eventOrigin, TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId));
         });
 }
@@ -47,9 +47,9 @@ inline cxx::expected<ListenerError> Listener::attachEvent(
                     typeid(EventType).hash_code(),
                     reinterpret_cast<internal::GenericCallbackRef_t>(*eventCallback.m_callback),
                     internal::TranslateAndCallTypelessCallback<T, UserType>::call,
-                    EventAttorney::getInvalidateTriggerMethod(eventOrigin))
+                    NotificationAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
-            EventAttorney::enableEvent(
+            NotificationAttorney::enableEvent(
                 eventOrigin,
                 TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId),
                 eventType);
@@ -61,13 +61,13 @@ inline void Listener::detachEvent(T& eventOrigin, const EventType eventType) noe
 {
     static_assert(IS_EVENT_ENUM<EventType>,
                   "Only enums with an underlying EventEnumIdentifier can be attached/detached to the Listener");
-    EventAttorney::disableEvent(eventOrigin, eventType);
+    NotificationAttorney::disableEvent(eventOrigin, eventType);
 }
 
 template <typename T>
 inline void Listener::detachEvent(T& eventOrigin) noexcept
 {
-    EventAttorney::disableEvent(eventOrigin);
+    NotificationAttorney::disableEvent(eventOrigin);
 }
 
 inline constexpr uint64_t Listener::capacity() noexcept

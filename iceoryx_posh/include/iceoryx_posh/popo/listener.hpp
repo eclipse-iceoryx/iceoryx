@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
-#include "iceoryx_posh/popo/event_attorney.hpp"
+#include "iceoryx_posh/popo/notification_attorney.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
