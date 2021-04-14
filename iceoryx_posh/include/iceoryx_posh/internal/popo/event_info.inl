@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_TRIGGER_INFO_INL
-#define IOX_POSH_POPO_TRIGGER_INFO_INL
+#ifndef IOX_POSH_POPO_EVENT_INFO_INL
+#define IOX_POSH_POPO_EVENT_INFO_INL
 
 namespace iox
 {

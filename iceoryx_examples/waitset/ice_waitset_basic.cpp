@@ -73,9 +73,8 @@ int main()
             // markForDestruction the eventVector is empty otherwise we know which subscriber received samples
             // since we only attached one.
             // Best practice is to always acquire the eventVector and iterate over all elements and then react
-            // accordingly. When this is not done and more elements are attached to the WaitSet it can reduce
-            // the runtime or even cause problems since we either miss events or handle events for objects which
-            // never occurred.
+            // accordingly. When this is not done and more elements are attached to the WaitSet it can cause
+            // problems since we either miss events or handle events for objects which never occurred.
             if (event->doesOriginateFrom(&subscriber))
             {
                 // Consume a sample
