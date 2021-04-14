@@ -415,7 +415,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 
         bool errorHandlerCalled = false;
         auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-            [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+            [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
 
@@ -443,7 +443,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 
         bool errorHandlerCalled = false;
         auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-            [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+            [&errorHandlerCalled](const iox::Error error IOX_MAYBE_UNUSED,
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
         auto subscriberPortDataResult =
@@ -765,7 +765,7 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
 
     // first acquire all possible NodeData
     acquireMaxNumberOfNodes(
-        nodeName, runtimeName, [&](auto node, auto newNodeName [[gnu::unused]], auto newProcessName [[gnu::unused]]) {
+        nodeName, runtimeName, [&](auto node, auto newNodeName IOX_MAYBE_UNUSED, auto newProcessName IOX_MAYBE_UNUSED) {
             nodeContainer.push_back(node);
         });
 

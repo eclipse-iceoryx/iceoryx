@@ -33,7 +33,7 @@ constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 iox::posix::Semaphore shutdownSemaphore =
     iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     shutdownSemaphore.post().or_else([](auto) {
         std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;

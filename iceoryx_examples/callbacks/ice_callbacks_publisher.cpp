@@ -26,7 +26,7 @@
 bool keepRunning = true;
 constexpr char APP_NAME[] = "iox-cpp-callbacks-publisher";
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     keepRunning = false;
 }

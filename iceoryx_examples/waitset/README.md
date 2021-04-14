@@ -161,7 +161,7 @@ which wakes up the blocking `waitset.wait()` whenever Ctrl+C is pressed.
 std::atomic_bool shutdown{false};
 iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
-static void sigHandler(int sig [[gnu::unused]])
+static void sigHandler(int sig IOX_MAYBE_UNUSED)
 {
     shutdown = true;
     if (waiset) {
@@ -208,7 +208,7 @@ while (!shutdown.load())
        subscriber.take()
          .and_then([](auto& sample) { 
             std::cout << " got value: " << sample->counter << std::endl; })
-         .or_else([](auto& reason [[gnu::unused]]) { 
+         .or_else([](auto& reason IOX_MAYBE_UNUSED) { 
              std::cout << "got no data" << std::endl; });
     }
   }

@@ -26,7 +26,7 @@
 
 iox::popo::UserTrigger shutdownTrigger;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     shutdownTrigger.trigger();
 }
@@ -62,7 +62,7 @@ int main()
     constexpr uint64_t FIRST_GROUP_ID = 123U;
     constexpr uint64_t SECOND_GROUP_ID = 456U;
 
-    // attach the first two subscribers to waitset with a eventid of FIRST_GROUP_ID
+    // attach the first two subscribers to waitset with a id of FIRST_GROUP_ID
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
         waitset.attachState(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, FIRST_GROUP_ID)
@@ -72,7 +72,7 @@ int main()
             });
     }
 
-    // attach the remaining subscribers to waitset with a eventid of SECOND_GROUP_ID
+    // attach the remaining subscribers to waitset with a id of SECOND_GROUP_ID
     for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         waitset.attachState(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, SECOND_GROUP_ID)

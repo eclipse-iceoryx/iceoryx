@@ -31,7 +31,7 @@ namespace iox
 {
 namespace log
 {
-Logger::Logger(std::string ctxId [[gnu::unused]], std::string ctxDescription [[gnu::unused]], LogLevel appLogLevel)
+Logger::Logger(std::string ctxId IOX_MAYBE_UNUSED, std::string ctxDescription IOX_MAYBE_UNUSED, LogLevel appLogLevel)
     : m_logLevel(appLogLevel)
 {
 }
