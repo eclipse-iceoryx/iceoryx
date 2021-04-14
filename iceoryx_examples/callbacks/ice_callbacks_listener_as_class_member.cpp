@@ -53,6 +53,8 @@ class CounterService
         /// to the callback to gain access to the object whenever the callback is called.
         /// It is not possible to use a lambda with capturing here since they are not convertable to
         /// a C function pointer.
+        /// important: the user has to ensure that the contextData (*this) lives as long as
+        ///            the subscriber with its callback is attached to the listener
         m_listener
             .attachEvent(m_subscriberLeft,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,
