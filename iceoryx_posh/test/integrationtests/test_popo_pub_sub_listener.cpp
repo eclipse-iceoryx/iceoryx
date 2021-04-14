@@ -17,56 +17,51 @@
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
-
+#include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 #include "test.hpp"
 
-#include <chrono>
-#include <stdlib.h>
-#include <thread>
-
 using namespace ::testing;
-using namespace iox::popo;
-using namespace iox::cxx;
-using namespace iox::roudi;
-using namespace iox::capro;
-using namespace iox::runtime;
 using ::testing::Return;
 
-void onSampleReceivedCallback(Subscriber<int>* subscriber)
+using namespace iox::popo;
+using namespace iox::capro;
+using namespace iox::runtime;
+
+namespace
 {
-    static_cast<void>(subscriber);
+void onSampleReceivedCallback(Subscriber<int>* subscriber IOX_MAYBE_UNUSED)
+{
 }
 
-class PubSubListener_IntegrationTest : public Test
+void onSampleReceivedCallbackForUntypedSub(UntypedSubscriber* subscriber IOX_MAYBE_UNUSED)
+{
+}
+
+class PubSubListener_IntegrationTest : public RouDi_GTest
 {
   public:
-    PubSubListener_IntegrationTest()
-        : m_runtime(PoshRuntime::initRuntime("foo"))
+    void SetUp() override
     {
+        PoshRuntime::initRuntime("PubSubListener_IntegrationTest");
         m_listener = std::make_unique<Listener>();
         m_subscriber = std::make_unique<Subscriber<int>>(m_serviceDescr);
+        m_untypedSubscriber = std::make_unique<UntypedSubscriber>(m_serviceDescr);
     }
-    virtual ~PubSubListener_IntegrationTest()
+    void TearDown() override
     {
     }
-
-    void SetUp()
-    {
-    }
-    void TearDown(){};
 
     ServiceDescription m_serviceDescr{"Radar", "FrontLeft", "Counter"};
-    RouDiEnvironment m_roudiEnv;
-    PoshRuntime& m_runtime;
     std::unique_ptr<Listener> m_listener;
     std::unique_ptr<Subscriber<int>> m_subscriber;
+    std::unique_ptr<UntypedSubscriber> m_untypedSubscriber;
 };
+} // namespace
 
 TEST_F(PubSubListener_IntegrationTest, SubscriberGoesOutOfScopeAndDeatchingWorks)
 {
-    
     m_listener
         ->attachEvent(*m_subscriber,
                       iox::popo::SubscriberEvent::DATA_RECEIVED,
@@ -74,6 +69,16 @@ TEST_F(PubSubListener_IntegrationTest, SubscriberGoesOutOfScopeAndDeatchingWorks
         .or_else([](auto) { ASSERT_TRUE(false); });
 
     m_subscriber.reset();
-
-    EXPECT_TRUE(m_listener);
 }
+
+TEST_F(PubSubListener_IntegrationTest, UntypedSubscriberGoesOutOfScopeAndDeatchingWorks)
+{
+    m_listener
+        ->attachEvent(*m_untypedSubscriber,
+                      iox::popo::SubscriberEvent::DATA_RECEIVED,
+                      iox::popo::createEventCallback(onSampleReceivedCallbackForUntypedSub))
+        .or_else([](auto) { ASSERT_TRUE(false); });
+
+    m_untypedSubscriber.reset();
+}
+
