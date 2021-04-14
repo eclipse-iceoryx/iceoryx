@@ -570,7 +570,7 @@ TEST_F(iox_ws_test, SubscriberStateCallbackIsCalled)
     iox_ws_attach_subscriber_state(
         m_sut, &m_subscriberVector[0], iox_SubscriberState::SubscriberState_HAS_DATA, 0, &subscriberCallback);
 
-    m_subscriberVector[0].m_portData->m_chunkReceiverData.m_queue.push(ChunkTuple());
+    m_subscriberVector[0].m_portData->m_chunkReceiverData.m_queue.push(iox::mepoo::ShmSafeUnmanagedChunk());
     m_subscriberVector[0].m_trigger.trigger();
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
     EXPECT_EQ(m_missedElements, 0U);
@@ -590,7 +590,7 @@ TEST_F(iox_ws_test, SubscriberStateCallbackWithContextDataIsCalled)
                                                      &subscriberCallbackWithContextData,
                                                      &someContextData);
 
-    m_subscriberVector[0].m_portData->m_chunkReceiverData.m_queue.push(ChunkTuple());
+    m_subscriberVector[0].m_portData->m_chunkReceiverData.m_queue.push(iox::mepoo::ShmSafeUnmanagedChunk());
     m_subscriberVector[0].m_trigger.trigger();
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
     EXPECT_EQ(m_missedElements, 0U);
