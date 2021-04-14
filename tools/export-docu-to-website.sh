@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2020 by ApexAI Inc. All rights reserved.
+# Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 # Necessary tools:
 # mkdocs-awesome-pages-plugin, v2.5.0
-# mkdocs-material, v6.2.3
+# mkdocs-material, v7.0.7+insiders.2.5.0
 # markdown-include, v0.6.0
 # mkdocs, v1.1.2
 # Doxygen, 1.8.17
@@ -29,10 +29,13 @@ set -e
 
 WORKSPACE=$(git rev-parse --show-toplevel)
 WEBREPO="git@github.com:eclipse-iceoryx/iceoryx-web.git"
-VERSION=$1
-TYPE=${2:-local} #`local` starts a local webserver to inspect the results, `publish` pushes the generated doc to iceoryx_web
+TYPE=${1:-local} #`local` starts a local webserver to inspect the results, `publish` pushes the generated doc to iceoryx_web
+VERSION=$2
+BRANCH=$3
 
 cd $WORKSPACE
+
+git checkout $BRANCH
 
 # Generate doxygen
 cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
@@ -57,6 +60,16 @@ doxybook2 --input $WORKSPACE/build/doc/iceoryx_dds/xml/ --output $WORKSPACE/doc/
 mkdir -p $WORKSPACE/doc/website/API-reference/introspection
 doxybook2 --input $WORKSPACE/build/doc/iceoryx_introspection/xml/ --output $WORKSPACE/doc/website/API-reference/introspection
 
+# Remove index files
+PACKAGES="utils posh c-binding DDS-gateway introspection"
+FILES="index_classes.md index_examples.md index_files.md index_modules.md index_namespaces.md index_pages.md"
+
+for PACKAGE in ${PACKAGES}  ; do
+    for FILE in ${FILES}  ; do
+        rm $WORKSPACE/doc/website/API-reference/$PACKAGE/$FILE
+    done
+done
+
 
 if [ "$TYPE" == "local" ]; then
     echo "starting local webserver"
@@ -64,12 +77,11 @@ if [ "$TYPE" == "local" ]; then
 fi
 
 if [ "$TYPE" == "publish" ]; then
-   # Generate HTML and push to GitHub pages
+    # Generate HTML and push to GitHub pages
     if [ ! -d "$WORKSPACE/../iceoryx-web" ]; then
         cd $WORKSPACE/../
         git clone $WEBREPO
     fi
     cd $WORKSPACE/../iceoryx-web
-    mkdocs gh-deploy --config-file ../iceoryx/mkdocs.yml --remote-branch $VERSION
+    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --push --update-aliases $VERSION latest
 fi
-

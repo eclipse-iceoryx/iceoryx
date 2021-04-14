@@ -1,7 +1,7 @@
 # iceoryx - true zero-copy inter-process-communication
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" width="50%">
+<img src="https://user-images.githubusercontent.com/8661268/114321508-64a6b000-9b1b-11eb-95ef-b84c91387cff.png" width="50%">
 </p>
 
 [![Build & Test](https://github.com/eclipse-iceoryx/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
@@ -43,6 +43,8 @@ Don't get too frighten of the API when strolling through the codebase. Think of 
 ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" API ourselves, but instead a typed API.
 The normal use case is that iceoryx is integrated as high-performance IPC transport layer in a bigger framework with additional API layers.
 An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
+
+You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io).
 
 ### Where is Eclipse iceoryx used?
 
