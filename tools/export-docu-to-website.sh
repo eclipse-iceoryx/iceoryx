@@ -32,7 +32,6 @@ WEBREPO="git@github.com:eclipse-iceoryx/iceoryx-web.git"
 TYPE=${1:-local} #`local` starts a local webserver to inspect the results, `publish` pushes the generated doc to iceoryx_web
 VERSION=$2
 BRANCH=$3
-ALIAS=$4
 
 cd $WORKSPACE
 
@@ -84,5 +83,5 @@ if [ "$TYPE" == "publish" ]; then
         git clone $WEBREPO
     fi
     cd $WORKSPACE/../iceoryx-web
-    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --push --update-aliases $VERSION $ALIAS
+    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --push --update-aliases $VERSION latest
 fi

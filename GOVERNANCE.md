@@ -9,7 +9,7 @@ An up to date list of the maintainers can be found at the [Eclipse project page]
 
 ## Bi-weekly meetup
 
-The developer meetup happens bi-weekly every first and third Thursday from 17:00 - 18:00 CET. Everyone is welcome to join.
+The developer meetup is held every first and third Thursday each month from 17:00 - 18:00 CET. Everyone is welcome to join.
 
 You can join by using this Zoom link: https://eclipse.zoom.us/j/95918504483?pwd=RWM5Y1pkeStKVDZsU09EY1hnclREUT09
 
