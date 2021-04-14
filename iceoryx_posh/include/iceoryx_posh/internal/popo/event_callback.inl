@@ -21,6 +21,27 @@ namespace iox
 {
 namespace popo
 {
+namespace internal
+{
+template <typename T, typename ContextDataType>
+inline void TranslateAndCallTypelessCallback<T, ContextDataType>::call(void* const origin,
+                                                                       void* const userType,
+                                                                       GenericCallbackPtr_t underlyingCallback) noexcept
+{
+    reinterpret_cast<typename EventCallback<T, ContextDataType>::Ptr_t>(underlyingCallback)(
+        static_cast<T*>(origin), static_cast<ContextDataType*>(userType));
+}
+
+template <typename T>
+inline void TranslateAndCallTypelessCallback<T, NoType_t>::call(void* const origin,
+                                                                void* const userType,
+                                                                GenericCallbackPtr_t underlyingCallback) noexcept
+{
+    IOX_DISCARD_RESULT(userType);
+    reinterpret_cast<typename EventCallback<T, NoType_t>::Ptr_t>(underlyingCallback)(static_cast<T*>(origin));
+}
+} // namespace internal
+
 template <typename OriginType, typename ContextDataType>
 inline EventCallback<OriginType, ContextDataType> createEventCallback(void (&callback)(OriginType* const))
 {
