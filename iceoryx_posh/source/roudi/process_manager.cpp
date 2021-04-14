@@ -228,25 +228,8 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             }
             else
             {
-                // process exists and is not monitored, we expect that the existing process crashed
-                LogDebug() << "Registering already existing application " << name;
-
-                // remove the existing process and add the new process afterwards, we do not send ack to new process
-                constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
-                if (!searchForProcessAndRemoveIt(name, terminationFeedback))
-                {
-                    LogWarn()
-                        << "Received REG from " << name
-                        << ", but another application with this name is already registered and could not be removed";
-                    return;
-                }
-                else
-                {
-                    LogDebug() << "Removed existing application " << name;
-                    // try registration again, should succeed since removal was successful
-                    returnValue =
-                        addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
-                }
+                // try registration again, should succeed since removal was successful
+                returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
             }
         },
         [&]() {
