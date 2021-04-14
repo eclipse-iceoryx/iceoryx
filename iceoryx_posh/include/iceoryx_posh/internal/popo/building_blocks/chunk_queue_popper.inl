@@ -52,7 +52,19 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
     // check if queue had an element that was poped and return if so
     if (retVal.has_value())
     {
-        return cxx::make_optional<mepoo::SharedChunk>(retVal.value().releaseToSharedChunk());
+        auto chunk = retVal.value().releaseToSharedChunk();
+
+        auto receivedChunkHeaderVersion = chunk.getChunkHeader()->chunkHeaderVersion();
+        if (receivedChunkHeaderVersion != mepoo::ChunkHeader::CHUNK_HEADER_VERSION)
+        {
+            LogError() << "Received chunk with CHUNK_HEADER_VERSION '" << receivedChunkHeaderVersion
+                       << "' but expected '" << mepoo::ChunkHeader::CHUNK_HEADER_VERSION << "'! Dropping chunk!";
+            errorHandler(Error::kPOPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION,
+                         nullptr,
+                         ErrorLevel::SEVERE);
+            return cxx::nullopt_t();
+        }
+        return cxx::make_optional<mepoo::SharedChunk>(chunk);
     }
     else
     {
