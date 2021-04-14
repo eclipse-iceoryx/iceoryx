@@ -18,6 +18,7 @@
 #ifndef IOX_DDS_DDS_DATA_READER_HPP
 #define IOX_DDS_DDS_DATA_READER_HPP
 
+#include "iceoryx_dds/dds/iox_chunk_datagram_header.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -51,6 +52,12 @@ class DataReader
     /// @return The size of the next sample if one is available.
     ///
     virtual iox::cxx::optional<uint32_t> peekNextSize() = 0;
+
+    ///
+    /// @brief peekNextIoxChunkDatagramHeader Get the IoxChunkDatagramHeader of the next sample if one is available.
+    /// @return The IoxChunkDatagramHeader of the next sample if one is available.
+    ///
+    virtual iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() = 0;
 
     ///
     /// @brief hasSamples Checks if new samples ready to take.
