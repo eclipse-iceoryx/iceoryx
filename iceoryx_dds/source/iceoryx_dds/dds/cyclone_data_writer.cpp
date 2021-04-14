@@ -60,7 +60,7 @@ void iox::dds::CycloneDataWriter::write(iox::dds::IoxChunkDatagramHeader datagra
         LogError() << "[CycloneDataWriter] invalid user-header parameter! Dropping chunk!";
         return;
     }
-    if (datagramHeader.userPayloadSize > 0 && userHeaderBytes == nullptr)
+    if (datagramHeader.userPayloadSize > 0 && userPayloadBytes == nullptr)
     {
         LogError() << "[CycloneDataWriter] invalid user-payload parameter! Dropping chunk!";
         return;

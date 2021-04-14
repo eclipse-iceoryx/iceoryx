@@ -141,12 +141,25 @@ bool iox::dds::CycloneDataReader::hasSamples()
 }
 
 iox::cxx::expected<iox::dds::DataReaderError> iox::dds::CycloneDataReader::takeNext(
-    const iox::dds::IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBytes, uint8_t* userPayloadBytes)
+    const iox::dds::IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBuffer, uint8_t* userPayloadBuffer)
 {
     // validation checks
     if (!m_isConnected.load())
     {
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
+    }
+    // it is assume that peekNextIoxChunkDatagramHeader was called beforehand and that the provided datagramHeader
+    // belongs to this sample
+    if (datagramHeader.userHeaderSize > 0
+        && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBuffer == nullptr))
+    {
+        return iox::cxx::error<iox::dds::DataReaderError>(
+            iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_HEADER);
+    }
+    if (datagramHeader.userPayloadSize > 0 && userPayloadBuffer == nullptr)
+    {
+        return iox::cxx::error<iox::dds::DataReaderError>(
+            iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD);
     }
 
     // take next sample and copy into buffer
@@ -170,20 +183,6 @@ iox::cxx::expected<iox::dds::DataReaderError> iox::dds::CycloneDataReader::takeN
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATAGRAM_HEADER);
     }
 
-    // it is assume that peekNextIoxChunkDatagramHeader was called beforehand and that the provided datagramHeader
-    // belongs to this sample
-    if (datagramHeader.userHeaderSize > 0
-        && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBytes == nullptr))
-    {
-        return iox::cxx::error<iox::dds::DataReaderError>(
-            iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_HEADER);
-    }
-    if (datagramHeader.userPayloadSize > 0 && userHeaderBytes == nullptr)
-    {
-        return iox::cxx::error<iox::dds::DataReaderError>(
-            iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD);
-    }
-
     auto dataSize = sampleSize - sizeof(iox::dds::IoxChunkDatagramHeader);
     auto bufferSize = datagramHeader.userHeaderSize + datagramHeader.userPayloadSize;
 
@@ -196,16 +195,16 @@ iox::cxx::expected<iox::dds::DataReaderError> iox::dds::CycloneDataReader::takeN
 
     // copy data into the provided buffer
 
-    if (userHeaderBytes)
+    if (userHeaderBuffer)
     {
         auto bytes = &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader)];
-        std::memcpy(userHeaderBytes, bytes, datagramHeader.userHeaderSize);
+        std::memcpy(userHeaderBuffer, bytes, datagramHeader.userHeaderSize);
     }
 
-    if (userPayloadBytes)
+    if (userPayloadBuffer)
     {
         auto bytes = &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader) + datagramHeader.userHeaderSize];
-        std::memcpy(userPayloadBytes, bytes, datagramHeader.userPayloadSize);
+        std::memcpy(userPayloadBuffer, bytes, datagramHeader.userPayloadSize);
     }
 
     return iox::cxx::success<>();
