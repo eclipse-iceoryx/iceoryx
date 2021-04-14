@@ -82,6 +82,8 @@ class WaitSet
     void markForDestruction() noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
+    /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
+    /// contextData. The user has to ensure that both will live as long as the event is attached.
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventType the event specified by the class
     /// @param[in] eventId an arbitrary user defined id for the event
@@ -96,6 +98,8 @@ class WaitSet
                                             const EventCallback<T, ContextDataType>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
+    /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
+    /// contextData. The user has to ensure that both will live as long as the event is attached.
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventType the event specified by the class
     /// @param[in] eventCallback a callback which should be assigned to the event
@@ -108,6 +112,8 @@ class WaitSet
                                             const EventCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
+    /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
+    /// contextData. The user has to ensure that both will live as long as the event is attached.
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventId an arbitrary user defined id for the event
     /// @param[in] eventCallback a callback which should be assigned to the event
@@ -117,6 +123,8 @@ class WaitSet
                                             const EventCallback<T, ContextDataType>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
+    /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
+    /// contextData. The user has to ensure that both will live as long as the event is attached.
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T, typename ContextDataType = internal::NoType_t>
@@ -124,6 +132,8 @@ class WaitSet
                                             const EventCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
+    /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
+    /// contextData. The user has to ensure that both will live as long as the state is attached.
     /// @param[in] stateOrigin the class from which the state originates.
     /// @param[in] stateType the state specified by the class
     /// @param[in] id an arbitrary user defined id for the state
@@ -138,6 +148,8 @@ class WaitSet
                                             const EventCallback<T, ContextDataType>& stateCallback = {}) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
+    /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
+    /// contextData. The user has to ensure that both will live as long as the state is attached.
     /// @param[in] stateOrigin the class from which the state originates.
     /// @param[in] stateType the state specified by the class
     /// @param[in] stateCallback a callback which should be assigned to the state
@@ -150,6 +162,8 @@ class WaitSet
                                             const EventCallback<T, ContextDataType>& stateCallback) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
+    /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
+    /// contextData. The user has to ensure that both will live as long as the state is attached.
     /// @param[in] stateOrigin the class from which the state originates.
     /// @param[in] id an arbitrary user defined id for the state
     /// @param[in] stateCallback a callback which should be assigned to the state
@@ -159,6 +173,8 @@ class WaitSet
                                             const EventCallback<T, ContextDataType>& stateCallback = {}) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
+    /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
+    /// contextData. The user has to ensure that both will live as long as the state is attached.
     /// @param[in] stateOrigin the class from which the state originates.
     /// @param[in] stateCallback a callback which should be assigned to the state
     template <typename T, typename ContextDataType = internal::NoType_t>

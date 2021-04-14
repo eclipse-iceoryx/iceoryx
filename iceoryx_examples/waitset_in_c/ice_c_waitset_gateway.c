@@ -54,6 +54,12 @@ void shutdownCallback(iox_user_trigger_t userTrigger)
 // an iox_sub_t.
 void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
 {
+    if (contextData == NULL)
+    {
+        fprintf(stderr, "aborting subscriberCallback since contextData is a null pointer\n");
+        return;
+    }
+
     uint64_t* sumOfAllSamples = (uint64_t*)contextData;
     const void* userPayload = NULL;
     while (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)

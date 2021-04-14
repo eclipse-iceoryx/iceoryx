@@ -50,6 +50,12 @@ prints out the subscriber pointer and the content of the received sample.
 ```c
 void subscriberCallback(iox_sub_t const subscriber, void * const contextData)
 {
+    if (contextData == NULL)
+    {
+        fprintf(stderr, "aborting subscriberCallback since contextData is a null pointer\n");
+        return;
+    }
+
     uint64_t* sumOfAllSamples = (uint64_t*)contextData;
     const void* userPayload;
     while (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)
@@ -92,12 +98,17 @@ shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, shutdownCallback);
 ```
 
-In the next steps, we define `sumOfAllSamples`, create four subscribers with `iox_sub_init`,
+In the next steps, we define `sumOfAllSamples`, create two subscribers with `iox_sub_init`,
 subscribe them to our topic
 and attach the event `SubscriberEvent_DATA_RECEIVED` to the WaitSet with
 the `subscriberCallback`, an event id `1U` and a pointer to our user defined 
 context data `sumOfAllSamples` which is then provided as argument for the callback.
 
+!!! attention 
+    The user has to ensure that the contextData (`sumOfAllSamples`) in 
+    `iox_ws_attach_subscriber_event_with_context_data` lives as long as the 
+    attachment, with its callback, is attached otherwise the callback context 
+    data pointer is dangling.
 ```c
 uint64_t sumOfAllSamples = 0U;
 

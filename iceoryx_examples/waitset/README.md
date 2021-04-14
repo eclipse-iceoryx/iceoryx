@@ -285,6 +285,10 @@ After that we define our `sumOfAllSamples` variable and create a vector to hold 
 attach the subscribers to our _WaitSet_ with the `SubscriberEvent::DATA_RECEIVED` event and the `subscriberCallback`.
 Everytime one of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 
+!!! attention 
+    The user has to ensure that the contextData (`sumOfAllSamples`) in `attachEvent` 
+    lives as long as the attachment, with its callback, is attached otherwise 
+    the callback context data pointer is dangling.
 ```cpp
 uint64_t sumOfAllSamples = 0U;
 

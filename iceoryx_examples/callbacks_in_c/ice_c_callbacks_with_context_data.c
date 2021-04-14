@@ -22,9 +22,6 @@
 #include "sleep_for.h"
 #include "topic_data.h"
 
-#if !defined(_WIN32)
-#include <pthread.h>
-#endif
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -53,6 +50,12 @@ typedef struct
 
 void onSampleReceivedCallback(iox_sub_t subscriber, void* contextData)
 {
+    if (contextData == NULL)
+    {
+        fprintf(stderr, "aborting onSampleReceivedCallback since contextData is a null pointer\n");
+        return;
+    }
+
     CounterService* self = (CounterService*)contextData;
     const struct CounterTopic* userPayload;
     if (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
@@ -110,9 +113,11 @@ int main()
     iox_sub_t subscriberLeft = iox_sub_init(&subscriberLeftStorage, "Radar", "FrontLeft", "Counter", &options);
     iox_sub_t subscriberRight = iox_sub_init(&subscriberRightStorage, "Radar", "FrontRight", "Counter", &options);
 
-    // attach everything to the listener, from here one the callbacks are called when an event occurs
-    // we attach the pointer to counterService as context data with is then provided as second argument to
+    // attach everything to the listener, from here on the callbacks are called when an event occurs
+    // we attach the pointer to counterService as context data that is then provided as second argument to
     // the callback which allows us to modify counterService from within the callback
+    // important: the user has to ensure that the contextData (counterService) lives as long as
+    //            the subscriber with its callback is attached to the listener
     iox_listener_attach_subscriber_event_with_context_data(
         listener, subscriberLeft, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback, &counterService);
     iox_listener_attach_subscriber_event_with_context_data(

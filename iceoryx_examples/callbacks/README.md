@@ -240,6 +240,11 @@ we initialize the two subscribers and attach them to our listener. But now we
 add an additional parameter in the `iox::popo::createEventCallback`, the 
 dereferenced `this` pointer. It has to be dereferenced since we require a reference 
 as argument.
+
+!!! attention 
+    The user has to ensure that the contextData (`*this`) in `attachEvent` 
+    lives as long as the attachment, with its callback, is attached otherwise 
+    the callback context data pointer is dangling.
 ```cpp
 CounterService()
     : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
