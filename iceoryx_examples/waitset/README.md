@@ -193,13 +193,13 @@ waitset->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([
 
 We create a loop which we will exit as soon as someone presses CTRL+c and our 
 signal handler sets shutdown to true. If this happens `markForDestruction` turns 
-the `waitset.wait()` into an empty non-blocking method and makes sure that we do 
+the `waitset->wait()` into an empty non-blocking method and makes sure that we do 
 not wait until infinity.
 
 ```cpp
 while (!shutdown.load())
 {
-  auto eventVector = waitset.wait();
+  auto eventVector = waitset->wait();
 
   for (auto& event : eventVector)
   {
