@@ -75,6 +75,9 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
     }
     else
     {
+        // currently there is no way to set the user-header id; this is just a preparation for future functionality
+        m_userHeaderId = UNKNONW_USER_HEADER;
+
         // the most complex case with a user-header
         auto addressOfChunkHeader = reinterpret_cast<uint64_t>(this);
         uint64_t headerEndAddress = addressOfChunkHeader + sizeof(ChunkHeader) + userHeaderSize;
@@ -106,6 +109,11 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
 uint8_t ChunkHeader::chunkHeaderVersion() const noexcept
 {
     return m_chunkHeaderVersion;
+}
+
+uint16_t ChunkHeader::userHeaderId() const noexcept
+{
+    return m_userHeaderId;
 }
 
 void* ChunkHeader::userHeader() noexcept
