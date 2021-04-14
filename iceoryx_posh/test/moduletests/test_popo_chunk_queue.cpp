@@ -157,6 +157,28 @@ TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
     }
 }
 
+TYPED_TEST(ChunkQueue_test, PopChunkWithIncompatibleChunkHeaderCallsErrorHandler)
+{
+    auto chunk = this->allocateChunk();
+    // this is currently the only possibility to test an invalid CHUNK_HEADER_VERSION
+    auto chunkHeaderAddress = reinterpret_cast<uint64_t>(chunk.getChunkHeader());
+    auto chunkHeaderVersionAddress = chunkHeaderAddress + sizeof(uint32_t);
+    auto chunkHeaderVersionPointer = reinterpret_cast<uint8_t*>(chunkHeaderVersionAddress);
+    *chunkHeaderVersionPointer = std::numeric_limits<uint8_t>::max();
+
+    this->m_pusher.push(chunk);
+
+    iox::Error receivedError{iox::Error::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            receivedError = error;
+            EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
+        });
+
+    EXPECT_FALSE(this->m_popper.tryPop().has_value());
+    EXPECT_EQ(receivedError, iox::Error::kPOPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION);
+}
+
 TYPED_TEST(ChunkQueue_test, ClearOnEmpty)
 {
     this->m_popper.clear();
@@ -347,14 +369,14 @@ TYPED_TEST(ChunkQueueSoFi_test, InitialNoLostChunks)
 
 TYPED_TEST(ChunkQueueSoFi_test, IndicateALostChunk)
 {
-    this->m_pusher.lostAChunk();    
+    this->m_pusher.lostAChunk();
 
     EXPECT_TRUE(this->m_popper.hasLostChunks());
 }
 
 TYPED_TEST(ChunkQueueSoFi_test, LostChunkInfoIsResetAfterRead)
 {
-    this->m_pusher.lostAChunk();    
+    this->m_pusher.lostAChunk();
     this->m_popper.hasLostChunks();
 
     EXPECT_FALSE(this->m_popper.hasLostChunks());
