@@ -52,13 +52,13 @@ int main()
     // attach shutdown trigger to waitset (needed to stop the processing loop)
     waitset.attachEvent(shutdownTrigger).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
     // attach subscriber to waitset
     waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cerr << "failed to attach subscriber" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 
     while (true)
