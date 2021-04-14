@@ -44,7 +44,17 @@ target_link_libraries(iox-c-callbacks-subscriber
 )
 target_compile_options(iox-c-callbacks-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
+add_executable(iox-c-callbacks-with-context-data ./ice_c_callbacks_with_context_data.c)
+set_source_files_properties(./ice_c_callbacks_with_context_data.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-c-callbacks-with-context-data
+    iceoryx_binding_c::iceoryx_binding_c
+)
+target_compile_options(iox-c-callbacks-with-context-data PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+
+
 set_target_properties(
+    iox-c-callbacks-with-context-data
     iox-c-callbacks-subscriber
     iox-c-callbacks-publisher
   PROPERTIES
@@ -54,6 +64,6 @@ set_target_properties(
 )
 
 install(
-    TARGETS iox-c-callbacks-publisher iox-c-callbacks-subscriber
+    TARGETS iox-c-callbacks-publisher iox-c-callbacks-subscriber iox-c-callbacks-with-context-data
     RUNTIME DESTINATION bin
 )
