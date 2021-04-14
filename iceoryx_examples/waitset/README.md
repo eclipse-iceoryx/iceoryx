@@ -160,13 +160,13 @@ which wakes up the blocking `waitset.wait()` whenever Ctrl+C is pressed.
 
 ```cpp
 std::atomic_bool shutdown{false};
-iox::popo::WaitSet<>* waitsetPtr = nullptr;
+iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
 static void sigHandler(int sig [[gnu::unused]])
 {
     shutdown = true;
-    if (waisetPtr) {
-        waitsetPtr->markForDestruction();
+    if (waiset) {
+        waitset->markForDestruction();
     }
 }
 ```
@@ -179,15 +179,14 @@ It is good practice to handle potential failure while attaching, otherwise warni
 In our case no errors should occur since the WaitSet can accomodate the two triggers we want to attach.
 
 ```cpp
-iox::popo::WaitSet<> waitset;
-waitsetPtr = &waitset;
+waitset.emplace();
 
 auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
 iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
 
-waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+waitset->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber" << std::endl;
     std::exit(EXIT_FAILURE);
 });

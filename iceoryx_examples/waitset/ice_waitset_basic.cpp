@@ -26,14 +26,14 @@
 #include <iostream>
 
 std::atomic_bool shutdown{false};
-iox::popo::WaitSet<>* waitsetPtr = nullptr;
+iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
 static void sigHandler(int sig [[gnu::unused]])
 {
     shutdown = true;
-    if (waitsetPtr)
+    if (waitset)
     {
-        waitsetPtr->markForDestruction();
+        waitset->markForDestruction();
     }
 }
 
@@ -42,12 +42,8 @@ int main()
     // initialize runtime
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-basic");
 
-    // create waitset
-    iox::popo::WaitSet<> waitset;
-
-    // set the waitsetPtr so that the sigHandler can unblock any blocking call inside the waitset so
-    // that we can exit gracefully
-    waitsetPtr = &waitset;
+    // create waitset inside of the optional
+    waitset.emplace();
 
     // register signal handler to handle termination of the loop
     auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
@@ -57,7 +53,7 @@ int main()
     iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
 
     // attach subscriber to waitset
-    waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+    waitset->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cerr << "failed to attach subscriber" << std::endl;
         std::exit(EXIT_FAILURE);
     });
@@ -65,7 +61,7 @@ int main()
     while (!shutdown.load())
     {
         // We block and wait for samples to arrive.
-        auto eventVector = waitset.wait();
+        auto eventVector = waitset->wait();
 
         for (auto& event : eventVector)
         {
