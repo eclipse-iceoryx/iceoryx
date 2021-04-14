@@ -73,6 +73,12 @@ uint64_t iox_ws_size(iox_ws_t const self);
 /// @brief returns the maximum amount of events which can be registered at the waitset
 uint64_t iox_ws_capacity(iox_ws_t const self);
 
+/// @brief Non-reversible call. After this call iox_ws_wait() and iox_ws_timed_wait() do
+///        not block any longer and never return triggered events. This
+///        function can be used to manually initialize destruction and to wakeup
+///        any thread which is waiting in iox_ws_wait() or iox_ws_timed_wait().
+void iox_ws_mark_for_destruction(iox_ws_t const self);
+
 /// @brief attaches a subscriber state to a waitset
 /// @param[in] self handle to the waitset
 /// @param[in] subscriber the subscriber of the state which should be attached

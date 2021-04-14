@@ -422,6 +422,25 @@ TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
 });
 
+TIMING_TEST_F(iox_ws_test, WaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
+    std::atomic_bool waitWasCalled{false};
+    std::thread t([&] {
+        iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
+        iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
+        iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
+        waitWasCalled.store(true);
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    TIMING_TEST_EXPECT_FALSE(waitWasCalled.load());
+
+    iox_ws_mark_for_destruction(m_sut);
+
+    t.join();
+    TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
+});
+
+
 TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, NULL);
 
@@ -435,6 +454,24 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
     TIMING_TEST_EXPECT_FALSE(waitWasCalled.load());
 
     iox_user_trigger_trigger(m_userTrigger[0U]);
+
+    t.join();
+    TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
+});
+
+TIMING_TEST_F(iox_ws_test, TimedWaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
+    std::atomic_bool waitWasCalled{false};
+    std::thread t([&] {
+        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
+        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
+        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
+        waitWasCalled.store(true);
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    TIMING_TEST_EXPECT_FALSE(waitWasCalled.load());
+
+    iox_ws_mark_for_destruction(m_sut);
 
     t.join();
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
