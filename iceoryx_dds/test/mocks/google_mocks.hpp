@@ -71,6 +71,7 @@ class MockDataReader
     MockDataReader(const iox::capro::ServiceDescription&){};
     MOCK_METHOD0(connect, void(void));
     MOCK_METHOD0(peekNextSize, iox::cxx::optional<uint64_t>(void));
+    MOCK_METHOD0(peekNextIoxChunkDatagramHeader, iox::cxx::optional<iox::dds::IoxChunkDatagramHeader>(void));
     MOCK_METHOD2(takeNext, iox::cxx::expected<iox::dds::DataReaderError>(uint8_t* const, const uint64_t&));
     MOCK_METHOD3(take,
                  iox::cxx::expected<uint64_t, iox::dds::DataReaderError>(uint8_t* const buffer,
