@@ -422,6 +422,7 @@ we just dismiss the received data.
         subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
             const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
             std::cout << "received: " << std::dec << data->counter << std::endl;
+            subscriber->release(userPayload);
         });
     }
     else if (notification->getEventId() == SECOND_GROUP_ID)
