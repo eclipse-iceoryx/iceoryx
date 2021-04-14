@@ -34,13 +34,13 @@ int main(int argc, char* argv[])
 
     if (cmd.getHelpFlag())
     {
-        return 1;
+        return EXIT_SUCCESS;
     }
 
     if (cmd.getErrorFlag())
     {
         std::cout << "No or wrong command lines were specified. Please use --help!" << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 
     if (allMessages.empty())
@@ -48,13 +48,13 @@ int main(int argc, char* argv[])
         std::cout << "Please use -m [cl, stdin] to enter the input you want to send to the executable. If you use -m "
                      "cl, then you also need use -i [INPUT_MESSAGE] or -c [PATH_To_File] to specify the message."
                   << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 
     if (cmd.getInputMode() == InputMode::NONE)
     {
         std::cout << "Please use -m to specify the input. Please use --help to get more information." << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 
     if ((cmd.getInputMode() == InputMode::CL) && (!cmd.getCmdLineFlag()))
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
         std::cout << "Please use -i [INPUT_MESSAGE] or -c [PATH_To_File] to enter a String which you want to send to "
                      "the interface. It is also possible to use -m stdin instead."
                   << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
     FuzzHelper aFuzzHelper;
     std::shared_ptr<RouDiFuzz> aRouDi;
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
             std::cout << "Please use -t [PATH_To_File] to specify a file where the messages are written to which are "
                          "sent to the TOML configuration parser."
                       << std::endl;
-            return -1;
+            return EXIT_FAILURE;
         }
         else
         {
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
             if (timeout >= TIMEOUT)
             {
                 std::cout << "RouDi could not be started, program terminates!" << std::endl;
-                return -1;
+                return EXIT_FAILURE;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 1/10 of a second
             timeout += 1;
@@ -109,29 +109,28 @@ int main(int argc, char* argv[])
             {
                 iox::LogDebug() << "Messages sent to RouDi: " << aMessage;
                 aFuzzer.fuzzingRouDiCom(aRouDi, aMessage);
+                break;
             }
-            break;
 
             case FuzzingApi::UDS:
             {
                 aFuzzer.fuzzingRouDiUDS(aMessage);
                 iox::LogDebug() << "Messages sent to RouDi: " << aMessage;
+                break;
             }
-            break;
 
             case FuzzingApi::TOML:
             {
                 aFuzzer.fuzzingTOMLParser(aMessage, cmd.getTomlFile());
                 iox::LogDebug() << "Messages sent to TOML Parser: " << aMessage;
+                break;
             }
-            break;
 
             default:
             {
                 std::cout << "Error: Unkown Fuzzing API parameter" << std::endl;
-                return -1;
+                return EXIT_FAILURE;
             }
-            break;
             };
         }
     }
@@ -141,6 +140,6 @@ int main(int argc, char* argv[])
         std::cout << "Error: Only stdin and command line are allowed to enter an input. Please use --help to get more "
                      "information."
                   << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 }
