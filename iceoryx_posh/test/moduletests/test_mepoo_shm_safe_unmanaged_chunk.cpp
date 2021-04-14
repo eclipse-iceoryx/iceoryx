@@ -107,7 +107,7 @@ TEST_F(ShmSafeUnmanagedChunk_test,
     auto sharedChunk = getChunkFromMemoryManager();
 
     ShmSafeUnmanagedChunk sut(sharedChunk);
-    sut.duplicateToSharedChunk();
+    sut.cloneToSharedChunk();
 
     EXPECT_FALSE(sut.isLogicalNullptr());
 
@@ -143,7 +143,7 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallDuplicateToSharedChunkOnDefaultConstructe
 {
     ShmSafeUnmanagedChunk sut;
 
-    EXPECT_FALSE(sut.duplicateToSharedChunk());
+    EXPECT_FALSE(sut.cloneToSharedChunk());
 
     sut.releaseToSharedChunk();
 }
@@ -155,7 +155,7 @@ TEST_F(ShmSafeUnmanagedChunk_test,
 
     ShmSafeUnmanagedChunk sut(sharedChunk);
 
-    auto duplicatedSharedChunk = sut.duplicateToSharedChunk();
+    auto duplicatedSharedChunk = sut.cloneToSharedChunk();
     EXPECT_TRUE(duplicatedSharedChunk);
 
     sut.releaseToSharedChunk();
@@ -170,7 +170,7 @@ TEST_F(ShmSafeUnmanagedChunk_test,
     ShmSafeUnmanagedChunk sut(sharedChunk);
     sut.releaseToSharedChunk();
 
-    EXPECT_FALSE(sut.duplicateToSharedChunk());
+    EXPECT_FALSE(sut.cloneToSharedChunk());
 }
 
 TEST_F(ShmSafeUnmanagedChunk_test, CallGetChunkHeaderOnNonConstDefaultConstructedSutResultsInNullptr)

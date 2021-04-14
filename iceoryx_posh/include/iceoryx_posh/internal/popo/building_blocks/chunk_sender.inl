@@ -68,7 +68,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
 
     if (lastChunkChunkHeader && (lastChunkChunkHeader->chunkSize() >= requiredChunkSize))
     {
-        auto sharedChunk = lastChunkUnmanaged.duplicateToSharedChunk();
+        auto sharedChunk = lastChunkUnmanaged.cloneToSharedChunk();
         if (getMembers()->m_chunksInUse.insert(sharedChunk))
         {
             auto chunkSize = lastChunkChunkHeader->chunkSize();

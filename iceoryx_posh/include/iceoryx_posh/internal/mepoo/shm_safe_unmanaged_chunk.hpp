@@ -39,7 +39,7 @@ class ShmSafeUnmanagedChunk
     SharedChunk releaseToSharedChunk() noexcept;
 
     /// @brief Creates a SharedChunk with incrementing the chunk reference counter and does not invalidate itself
-    SharedChunk duplicateToSharedChunk() noexcept;
+    SharedChunk cloneToSharedChunk() noexcept;
 
     /// @brief Checks if the underlying RelativePointerData to the chunk is logically a nullptr
     /// @return true if logically a nullptr otherwise false
