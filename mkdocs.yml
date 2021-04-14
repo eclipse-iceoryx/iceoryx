@@ -26,6 +26,8 @@ theme:
   custom_dir: doc/website/overrides
   font: false
   logo: images/iceoryx-logo-white.png
+  features:
+    - navigation.indexes
 extra:
   version:
     provider: mike

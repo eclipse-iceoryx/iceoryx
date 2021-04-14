@@ -18,7 +18,7 @@
 
 # Necessary tools:
 # mkdocs-awesome-pages-plugin, v2.5.0
-# mkdocs-material, v6.2.3
+# mkdocs-material, v7.0.7+insiders.2.5.0
 # markdown-include, v0.6.0
 # mkdocs, v1.1.2
 # Doxygen, 1.8.17
