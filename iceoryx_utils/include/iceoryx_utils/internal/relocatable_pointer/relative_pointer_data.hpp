@@ -69,7 +69,7 @@ class RelativePointerData
     /// @note the maximum offset which can be represented
     static constexpr offset_t MAX_VALID_OFFSET{OFFSET_RANGE - 1U};
     /// @note internal representation of a nullptr
-    static constexpr offset_t LOGICAL_NULLPTR{std::numeric_limits<offset_t>::max()};
+    static constexpr offset_t LOGICAL_NULLPTR{NULL_POINTER_OFFSET << 16 | NULL_POINTER_ID};
 
   private:
     uint64_t m_idAndOffset{LOGICAL_NULLPTR};
