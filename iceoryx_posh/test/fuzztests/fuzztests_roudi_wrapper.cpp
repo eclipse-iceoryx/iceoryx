@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    if (cmd.getInputMode() == InputMode::CL and !cmd.getCmdLineFlag())
+    if ((cmd.getInputMode() == InputMode::CL) && (!cmd.getCmdLineFlag()))
     {
         std::cout << "Please use -i [INPUT_MESSAGE] or -c [PATH_To_File] to enter a String which you want to send to "
                      "the interface. It is also possible to use -m stdin instead."
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    if (cmd.getFuzzingAPI() == FuzzingApi::UDS or cmd.getFuzzingAPI() == FuzzingApi::COM) // Start RouDi
+    if ((cmd.getFuzzingAPI() == FuzzingApi::UDS) || (cmd.getFuzzingAPI() == FuzzingApi::COM)) // Start RouDi
     {
         aRouDi = aFuzzHelper.startRouDiThread();
         unsigned char timeout = 0;
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    if (cmd.getInputMode() == InputMode::CL or cmd.getInputMode() == InputMode::STDIN)
+    if ((cmd.getInputMode() == InputMode::CL) || (cmd.getInputMode() == InputMode::STDIN))
     {
         Fuzzing aFuzzer;
         for (std::string aMessage : allMessages)
