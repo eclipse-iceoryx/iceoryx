@@ -100,6 +100,11 @@ uint64_t iox_ws_capacity(iox_ws_t const self)
     return self->capacity();
 }
 
+void iox_ws_mark_for_destruction(iox_ws_t const self)
+{
+    self->markForDestruction();
+}
+
 iox_WaitSetResult iox_ws_attach_subscriber_state(iox_ws_t const self,
                                                  iox_sub_t const subscriber,
                                                  const iox_SubscriberState subscriberState,
