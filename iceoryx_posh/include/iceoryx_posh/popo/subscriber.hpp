@@ -39,6 +39,8 @@ class SubscriberImpl : public BaseSubscriber_t
     SubscriberImpl(SubscriberImpl&& rhs) = delete;
     SubscriberImpl& operator=(SubscriberImpl&& rhs) = delete;
     virtual ~SubscriberImpl() = default;
+    // implement destructor and reset triggerHandle
+    // untyped subscriber too
 
     ///
     /// @brief Take the samples from the top of the receive queue.
