@@ -38,3 +38,7 @@ Alternatively, you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmu
 ## Expected Output
 
 <!-- add asciiema link here -->
+
+<center>
+[Check out iceensemble on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceensemble){ .md-button }
+</center>

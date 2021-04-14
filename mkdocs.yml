@@ -1,6 +1,7 @@
 site_name: iceoryx.io
 site_url: https://iceoryx.io
 repo_url: https://github.com/eclipse/iceoryx
+edit_uri: ""
 docs_dir: doc/website/
 remote_branch: main
 markdown_extensions:
@@ -22,6 +23,14 @@ plugins:
   - search
 theme:
   name: 'material'
+  custom_dir: doc/website/overrides
+  font: false
+  logo: images/iceoryx-logo-white.png
+  features:
+    - navigation.indexes
 extra:
   version:
     provider: mike
+extra_css:
+  - stylesheets/extra.css
+  
