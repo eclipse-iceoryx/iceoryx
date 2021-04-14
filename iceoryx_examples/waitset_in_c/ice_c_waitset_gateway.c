@@ -130,7 +130,7 @@ int main()
             }
         }
 
-        printf("sum of all samples: %lu\n", sumOfAllSamples);
+        printf("sum of all samples: %lu\n", (unsigned long)sumOfAllSamples);
         fflush(stdout);
     }
 
