@@ -72,11 +72,12 @@ TEST_F(ShmSafeUnmanagedChunk_test, DefaultConstructedResultsInLogicallyNullptr)
     EXPECT_TRUE(sut.isLogicalNullptr());
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, ConstructedWithEmptySharedChunkResultsInTermination)
+TEST_F(ShmSafeUnmanagedChunk_test, ConstructedWithEmptySharedChunkResultsInLogicallyNullptr)
 {
     SharedChunk sharedChunk;
+    ShmSafeUnmanagedChunk sut(sharedChunk);
 
-    EXPECT_DEATH({ ShmSafeUnmanagedChunk sut(sharedChunk); }, ".*");
+    EXPECT_TRUE(sut.isLogicalNullptr());
 }
 
 TEST_F(ShmSafeUnmanagedChunk_test, CallIsLogicalNullptrOnSutConstructedWithSharedChunkResultsNotInLogicalyNullptr)

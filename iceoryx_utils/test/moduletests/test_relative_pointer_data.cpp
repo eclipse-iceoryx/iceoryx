@@ -100,20 +100,34 @@ TEST(RealtivePointerData_test, ResetOnConstructedWithNonZeroIdAndOffsetResultsIn
     EXPECT_TRUE(sut.isLogicalNullptr());
 }
 
-TEST(RealtivePointerData_test, ConstructedWithNullPointerIdResultsInTermination)
+TEST(RealtivePointerData_test, ConstructedWithNullPointerIdResultsLogicallyNullptr)
 {
     constexpr uint16_t ID{RelativePointerData::NULL_POINTER_ID};
     constexpr uint64_t OFFSET{RelativePointerData::MAX_VALID_OFFSET};
 
-    EXPECT_DEATH({ RelativePointerData sut(ID, OFFSET); }, ".*");
+    RelativePointerData sut(ID, OFFSET);
+
+    EXPECT_TRUE(sut.isLogicalNullptr());
 }
 
-TEST(RealtivePointerData_test, ConstructedWithNullPointerOffsetResultsInTermination)
+TEST(RealtivePointerData_test, ConstructedWithNullPointerOffsetResultsInLogicallyNullptr)
 {
     constexpr uint16_t ID{RelativePointerData::MAX_VALID_ID};
     constexpr uint64_t OFFSET{RelativePointerData::NULL_POINTER_OFFSET};
 
-    EXPECT_DEATH({ RelativePointerData sut(ID, OFFSET); }, ".*");
+    RelativePointerData sut(ID, OFFSET);
+
+    EXPECT_TRUE(sut.isLogicalNullptr());
+}
+
+TEST(RealtivePointerData_test, ConstructedWithNullPointerIdAndOffsetResultsInLogicallyNullptr)
+{
+    constexpr uint16_t ID{RelativePointerData::NULL_POINTER_ID};
+    constexpr uint64_t OFFSET{RelativePointerData::NULL_POINTER_OFFSET};
+
+    RelativePointerData sut(ID, OFFSET);
+
+    EXPECT_TRUE(sut.isLogicalNullptr());
 }
 
 } // namespace

@@ -24,10 +24,10 @@ namespace rp
 constexpr RelativePointerData::RelativePointerData(id_t id, offset_t offset) noexcept
     : m_idAndOffset(static_cast<uint64_t>(id) | (offset << 16U))
 {
-    /// @todo iox-#605 if PointerRepository::registerPtr checks for max id <= MAX_ID and max size <= MAX_OFFSET, this
-    /// could be removed
-    cxx::Ensures(id <= MAX_VALID_ID && "id must not exceed MAX_VALID_ID!");
-    cxx::Ensures(offset <= MAX_VALID_OFFSET && "offset must not exceed MAX_VALIDOFFSET!");
+    if (id > MAX_VALID_ID || offset > MAX_VALID_OFFSET)
+    {
+        m_idAndOffset = LOGICAL_NULLPTR;
+    }
 }
 } // namespace rp
 } // namespace iox

@@ -27,13 +27,17 @@ static_assert(std::is_trivially_copyable<ShmSafeUnmanagedChunk>::value,
 
 ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
 {
-    rp::RelativePointer<mepoo::ChunkManagement> ptr = chunk.release();
-    auto id = ptr.getId();
-    auto offset = ptr.getOffset();
-    cxx::Ensures(id <= rp::RelativePointerData::MAX_VALID_ID && "RelativePointer id must fit into id type!");
-    cxx::Ensures(offset <= rp::RelativePointerData::MAX_VALID_OFFSET
-                 && "RelativePointer offset must fit into offset type!");
-    m_chunkManagement = rp::RelativePointerData(static_cast<rp::RelativePointerData::id_t>(id), offset);
+    // this is only necessary if it's not an empty chunk
+    if (chunk)
+    {
+        rp::RelativePointer<mepoo::ChunkManagement> ptr = chunk.release();
+        auto id = ptr.getId();
+        auto offset = ptr.getOffset();
+        cxx::Ensures(id <= rp::RelativePointerData::ID_RANGE && "RelativePointer id must fit into id type!");
+        cxx::Ensures(offset <= rp::RelativePointerData::OFFSET_RANGE
+                     && "RelativePointer offset must fit into offset type!");
+        m_chunkManagement = rp::RelativePointerData(static_cast<rp::RelativePointerData::id_t>(id), offset);
+    }
 }
 
 SharedChunk ShmSafeUnmanagedChunk::releaseToSharedChunk() noexcept
