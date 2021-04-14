@@ -62,6 +62,7 @@ void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
         fflush(stdout);
 
         iox_sub_release_chunk(subscriber, userPayload);
+        // no NULL check required since it is guaranteed always not NULL
         ++(*sumOfAllSamples);
     }
 }
