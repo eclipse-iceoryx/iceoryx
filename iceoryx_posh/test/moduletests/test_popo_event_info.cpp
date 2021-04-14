@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class EventInfo_test : public Test
 
     EventOriginTest m_origin;
     EventOriginTest m_falseOrigin;
-    EventInfo m_sut{&m_origin, 1478U, EventOriginTest::callback};
+    EventInfo m_sut{&m_origin, 1478U, createEventCallback(EventOriginTest::callback)};
 };
 
 TEST_F(EventInfo_test, defaultCTorConstructsEmptyEventInfo)
@@ -122,6 +122,6 @@ TEST_F(EventInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallb
 
 TEST_F(EventInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
 {
-    m_sut = EventInfo{&m_origin, 9U, EventInfo::Callback<EventOriginTest>()};
+    m_sut = EventInfo{&m_origin, 9U, EventCallback<EventOriginTest, int>{}};
     EXPECT_FALSE(m_sut());
 }

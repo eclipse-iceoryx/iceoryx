@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,26 +14,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_TRIGGER_INFO_INL
-#define IOX_POSH_POPO_TRIGGER_INFO_INL
+#ifndef IOX_POSH_POPO_EVENT_INFO_INL
+#define IOX_POSH_POPO_EVENT_INFO_INL
 
 namespace iox
 {
 namespace popo
 {
-template <typename T>
-inline void myCallback(void* const triggerOrigin, EventInfo::Callback<void> callbackPtr) noexcept
-{
-    (*reinterpret_cast<EventInfo::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(triggerOrigin));
-}
-
-template <typename T>
-inline EventInfo::EventInfo(T* const eventOrigin, const uint64_t eventId, const Callback<T> callback) noexcept
+template <typename T, typename ContextDataType>
+inline EventInfo::EventInfo(T* const eventOrigin,
+                            const uint64_t eventId,
+                            const EventCallback<T, ContextDataType>& callback) noexcept
     : m_eventOrigin(eventOrigin)
+    , m_userValue(callback.m_contextData)
     , m_eventOriginTypeHash(typeid(T).hash_code())
     , m_eventId(eventId)
-    , m_callbackPtr(reinterpret_cast<Callback<void>>(callback))
-    , m_callback(myCallback<T>)
+    , m_callbackPtr(reinterpret_cast<internal::GenericCallbackPtr_t>(callback.m_callback))
+    , m_callback(internal::TranslateAndCallTypelessCallback<T, ContextDataType>::call)
 {
 }
 

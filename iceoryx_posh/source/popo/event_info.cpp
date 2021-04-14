@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ bool EventInfo::operator()() const noexcept
 {
     if (m_eventOrigin != nullptr && m_callbackPtr != nullptr)
     {
-        m_callback(m_eventOrigin, m_callbackPtr);
+        m_callback(m_eventOrigin, m_userValue, m_callbackPtr);
         return true;
     }
     return false;

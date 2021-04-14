@@ -154,68 +154,64 @@ logic and is explained in detail in the
 ### Basic
 We create one subscriber and attach it to the WaitSet. Afterwards we wait for data in 
 a loop and process it on arrival. To leave the loop and exit the application 
-we have to attach an additional shutdown trigger which unblocks the WaitSet if Ctrl+C is pressed.
+we have to register a signal handler that calls `waitset.markForDestruction()`
+which wakes up the blocking `waitset.wait()` whenever Ctrl+C is pressed.
 
 ```cpp
 std::atomic_bool shutdown{false};
-iox::popo::UserTrigger shutdownTrigger;
+iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
 static void sigHandler(int sig [[gnu::unused]])
 {
     shutdown = true;
-    shutdownTrigger.trigger();
+    if (waiset) {
+        waitset->markForDestruction();
+    }
 }
 ```
 
-In the beginning create the WaitSet which is chosen just large enough to manage two triggers (it could be larger). It is important to construct it only after the runtime has already been initialized since it internally depends on facilities set up by the runtime.
+In the beginning we create the WaitSet. It is important to construct it only after the runtime has already been initialized since it internally depends on facilities set up by the runtime.
 
-Afterwards we attach our previously defined `shutdownTrigger` which will unblock the WaitSet if it is triggered in the `sigHandler`. Finally we attach the subscriber to the WaitSet stating that we want to be notified when it has data (indicated by `iox::popo::SubscriberState::HAS_DATA`).
+Afterwards we register our signal handler which will unblock the WaitSet. Finally we attach the subscriber to the WaitSet stating that we want to be notified when it has data (indicated by `iox::popo::SubscriberState::HAS_DATA`).
 
 It is good practice to handle potential failure while attaching, otherwise warnings will emerge since the return value `cxx::expected` is marked to require handling.
 In our case no errors should occur since the WaitSet can accomodate the two triggers we want to attach.
 
 ```cpp
-// create waitset 
-// it needs to be able to manage 2 triggers (subscriber and shutdown)
-iox::popo::WaitSet<2> waitset;
+waitset.emplace();
 
-// attach shutdown trigger to waitset (needed to stop the processing loop)
-waitset.attachEvent(shutdownTrigger).or_else([](auto) {
-    std::cerr << "failed to attach shutdown trigger" << std::endl;
-    std::exit(EXIT_FAILURE);
-});
+auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
 
-// attach subscriber to waitset
-waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
+
+waitset->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber" << std::endl;
     std::exit(EXIT_FAILURE);
 });
 ```
 
-Now we are ready to run the actual processing loop. We simply wait for data or a shutdown request. Note that `wait` actually returns a vector of `EventInfo*` containing the specific events which occurred and caused the wake-up. In our case we can ignore the return value since there are only two possible reasons why the WaitSet woke up:
-
-1. The single subscriber we attached received data.
-2. The signal handler issued a shutdown request, setting `shutdown = true` before waking up the WaitSet via the `shutdownTrigger`.
-
-This use is very similar to semaphores and less verbose compared to iterating over the returned vector. Inspecting the returned vector is needed in more complex cases, cf. the [Individual subscriber handling](#Individual) example.
+We create a loop which we will exit as soon as someone presses CTRL+c and our 
+signal handler sets shutdown to true. If this happens `markForDestruction` turns 
+the `waitset->wait()` into an empty non-blocking method and makes sure that we do 
+not wait until infinity.
 
 ```cpp
-while (true)
+while (!shutdown.load())
 {
-    // We block and wait for samples to arrive.
-    waitset.wait();
+  auto eventVector = waitset->wait();
 
-    if(shutdown) {
-        std::cout << "shutting down" << std::endl;
-        break; // the shutdown trigger must have set this and we leave the loop
+  for (auto& event : eventVector)
+  {
+    if (event->doesOriginateFrom(&subscriber))
+    {
+       subscriber.take()
+         .and_then([](auto& sample) { 
+            std::cout << " got value: " << sample->counter << std::endl; })
+         .or_else([](auto& reason [[gnu::unused]]) { 
+             std::cout << "got no data" << std::endl; });
     }
-
-    // No shutdown requested, hence we know the only attached subscriber should have data. 
-
-    // Consume a sample
-    subscriber.take()
-              .and_then([](auto& sample) { std::cout << " got value: " << sample->counter << std::endl; })
-              .or_else([](auto& reason) { (void) reason; /* we could check and handle the reason why there is no data */ std::cout << "got no data" << std::endl;});
+  }
 }
 ```
 Processing just one sample even if more might have arrived will cause `wait` to unblock again immediately to process the next sample (or shut down if requested). Due to the overhead of the `wait` call it may still be more efficient to process all samples in a loop until there are none left before waiting again, but it is not required. It would be required if we attach via `attachEvent` instead of `attachState`, since we might wake up due to the arrival of a second sample, only process the first and will not receive a wake up until a third sample arrives (which could be much later or never).
@@ -280,7 +276,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
 
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createEventCallback(subscriberCallback))
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
             std::exit(EXIT_FAILURE);
@@ -528,7 +524,7 @@ eventId `0` and the callback `SomeClass::cyclicRun`
 
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-waitset.attachEvent(cyclicTrigger, 0U, &SomeClass::cyclicRun).or_else([](auto) {
+waitset.attachEvent(cyclicTrigger, 0U, createEventCallback(SomeClass::cyclicRun)).or_else([](auto) {
     std::cerr << "failed to attach cyclic trigger" << std::endl;
     std::exit(EXIT_FAILURE);
 });
@@ -906,14 +902,20 @@ After that we can attach the `IS_ACTIVATED` state and `PERFORM_ACTION_CALLED` ev
 to the waitset and provide a callback for them.
 
 ```cpp
-    waitset->attachState(*triggerClass, MyTriggerClassStates::IS_ACTIVATED, ACTIVATE_ID, &callOnActivate)
+    waitset->attachState(*triggerClass, 
+                         MyTriggerClassStates::IS_ACTIVATED, 
+                         ACTIVATE_ID, 
+                         iox::popo::createEventCallback(callOnActivate))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassStates::IS_ACTIVATED state " << std::endl;
             std::exit(EXIT_FAILURE);
         });
     waitset
         ->attachEvent(
-            *triggerClass, MyTriggerClassEvents::PERFORM_ACTION_CALLED, ACTION_ID, &MyTriggerClass::callOnAction)
+            *triggerClass, 
+            MyTriggerClassEvents::PERFORM_ACTION_CALLED, 
+            ACTION_ID, 
+            iox::popo::createEventCallback(MyTriggerClass::callOnAction))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassEvents::PERFORM_ACTION_CALLED event " << std::endl;
             std::exit(EXIT_FAILURE);
