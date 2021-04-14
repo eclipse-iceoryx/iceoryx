@@ -19,6 +19,7 @@
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_utils/testing/timing_test.hpp"
 #include "mocks/wait_set_mock.hpp"
 
@@ -39,11 +40,16 @@ extern "C" {
 
 using namespace ::testing;
 
+namespace
+{
 class iox_ws_test : public Test
 {
   public:
     void SetUp() override
     {
+        m_callbackOrigin = nullptr;
+        m_contextData = nullptr;
+
         for (uint64_t i = 0U; i <= MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
         {
             m_portDataVector.emplace_back(TEST_SERVICE_DESCRIPTION,
@@ -85,7 +91,37 @@ class iox_ws_test : public Test
     uint64_t m_missedElements = 0U;
     uint64_t m_numberOfTriggeredConditions = 0U;
     timespec m_timeout{0, 0};
+
+    static void* m_callbackOrigin;
+    static void* m_contextData;
 };
+
+void* iox_ws_test::m_callbackOrigin = nullptr;
+void* iox_ws_test::m_contextData = nullptr;
+
+void subscriberCallback(iox_sub_t subscriber)
+{
+    iox_ws_test::m_callbackOrigin = subscriber;
+}
+
+void subscriberCallbackWithContextData(iox_sub_t subscriber, void* const contextData)
+{
+    iox_ws_test::m_callbackOrigin = subscriber;
+    iox_ws_test::m_contextData = contextData;
+}
+
+void userTriggerCallback(iox::popo::UserTrigger* userTrigger)
+{
+    iox_ws_test::m_callbackOrigin = userTrigger;
+}
+
+void userTriggerCallbackWithContextData(iox::popo::UserTrigger* userTrigger, void* const contextData)
+{
+    iox_ws_test::m_callbackOrigin = userTrigger;
+    iox_ws_test::m_contextData = contextData;
+}
+
+} // namespace
 
 TEST_F(iox_ws_test, InitWaitSetWithNullptrForStorageReturnsNullptr)
 {
@@ -494,3 +530,103 @@ TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTimeout, Repeat(5), [&] {
 
     t.join();
 });
+
+TEST_F(iox_ws_test, SubscriberEventCallbackIsCalled)
+{
+    iox_ws_attach_subscriber_event(
+        m_sut, &m_subscriberVector[0], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, 0, &subscriberCallback);
+
+    m_subscriberVector[0].m_trigger.trigger();
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
+    EXPECT_EQ(m_missedElements, 0U);
+
+    iox_event_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(&m_subscriberVector[0]));
+}
+
+TEST_F(iox_ws_test, SubscriberEventCallbackWithContextDataIsCalled)
+{
+    uint64_t someContextData = 0U;
+    iox_ws_attach_subscriber_event_with_context_data(m_sut,
+                                                     &m_subscriberVector[0],
+                                                     iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED,
+                                                     0,
+                                                     &subscriberCallbackWithContextData,
+                                                     &someContextData);
+
+    m_subscriberVector[0].m_trigger.trigger();
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
+    EXPECT_EQ(m_missedElements, 0U);
+
+    iox_event_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(&m_subscriberVector[0]));
+    EXPECT_THAT(m_contextData, Eq(&someContextData));
+}
+
+TEST_F(iox_ws_test, SubscriberStateCallbackIsCalled)
+{
+    iox_ws_attach_subscriber_state(
+        m_sut, &m_subscriberVector[0], iox_SubscriberState::SubscriberState_HAS_DATA, 0, &subscriberCallback);
+
+    m_subscriberVector[0].m_portData->m_chunkReceiverData.m_queue.push(ChunkTuple());
+    m_subscriberVector[0].m_trigger.trigger();
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
+    EXPECT_EQ(m_missedElements, 0U);
+
+    iox_event_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(&m_subscriberVector[0]));
+}
+
+TEST_F(iox_ws_test, SubscriberStateCallbackWithContextDataIsCalled)
+{
+    uint64_t someContextData = 0U;
+    iox_ws_attach_subscriber_state_with_context_data(m_sut,
+                                                     &m_subscriberVector[0],
+                                                     iox_SubscriberState::SubscriberState_HAS_DATA,
+                                                     0,
+                                                     &subscriberCallbackWithContextData,
+                                                     &someContextData);
+
+    m_subscriberVector[0].m_portData->m_chunkReceiverData.m_queue.push(ChunkTuple());
+    m_subscriberVector[0].m_trigger.trigger();
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
+    EXPECT_EQ(m_missedElements, 0U);
+
+    iox_event_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(&m_subscriberVector[0]));
+    EXPECT_THAT(m_contextData, Eq(&someContextData));
+}
+
+
+TEST_F(iox_ws_test, UserTriggerCallbackIsCalled)
+{
+    iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0], 0, &userTriggerCallback);
+    iox_user_trigger_trigger(m_userTrigger[0]);
+
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
+    EXPECT_EQ(m_missedElements, 0U);
+
+    iox_event_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(m_userTrigger[0]));
+}
+
+TEST_F(iox_ws_test, UserTriggerCallbackWithContextDataIsCalled)
+{
+    uint64_t someContextData = 0U;
+    iox_ws_attach_user_trigger_event_with_context_data(
+        m_sut, m_userTrigger[0], 0, &userTriggerCallbackWithContextData, &someContextData);
+    iox_user_trigger_trigger(m_userTrigger[0]);
+
+    ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
+    EXPECT_EQ(m_missedElements, 0U);
+
+    iox_event_info_call(m_eventInfoStorage[0]);
+
+    EXPECT_THAT(m_callbackOrigin, Eq(m_userTrigger[0]));
+    EXPECT_THAT(m_contextData, Eq(&someContextData));
+}
