@@ -16,7 +16,6 @@
 
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 
-
 namespace iox
 {
 namespace mepoo
@@ -53,7 +52,7 @@ SharedChunk ShmSafeUnmanagedChunk::releaseToSharedChunk() noexcept
     return SharedChunk(chunkMgmt);
 }
 
-SharedChunk ShmSafeUnmanagedChunk::duplicateToSharedChunk() noexcept
+SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
 {
     if (m_chunkManagement.isLogicalNullptr())
     {
