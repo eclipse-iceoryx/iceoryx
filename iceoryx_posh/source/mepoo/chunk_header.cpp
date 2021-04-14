@@ -118,6 +118,10 @@ uint16_t ChunkHeader::userHeaderId() const noexcept
 
 void* ChunkHeader::userHeader() noexcept
 {
+    if (m_userHeaderId == NO_USER_HEADER)
+    {
+        return nullptr;
+    }
     // the UserHeader is always located relative to "this" in this way
     return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
 }
