@@ -68,7 +68,7 @@ int main()
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger, iox::popo::createEventCallback(shutdownCallback)).or_else([](auto) {
+    waitset.attachEvent(shutdownTrigger, iox::popo::createNotificationCallback(shutdownCallback)).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
@@ -88,7 +88,7 @@ int main()
             .attachEvent(subscriber,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,
                          0,
-                         createEventCallback(subscriberCallback, sumOfAllSamples))
+                         createNotificationCallback(subscriberCallback, sumOfAllSamples))
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
                 std::exit(EXIT_FAILURE);

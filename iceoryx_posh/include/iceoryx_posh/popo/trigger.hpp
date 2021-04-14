@@ -18,7 +18,7 @@
 #define IOX_POSH_POPO_TRIGGER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/popo/event_callback.hpp"
+#include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
@@ -80,7 +80,7 @@ class Trigger
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t notificationId,
-            const EventCallback<T, UserType>& callback,
+            const NotificationCallback<T, UserType>& callback,
             const uint64_t uniqueId,
             const uint64_t stateType,
             const uint64_t stateTypeHash) noexcept;
@@ -101,7 +101,7 @@ class Trigger
             T* const notificationOrigin,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t notificationId,
-            const EventCallback<T, UserType>& callback,
+            const NotificationCallback<T, UserType>& callback,
             const uint64_t uniqueId,
             const uint64_t notificationType,
             const uint64_t notificationTypeHash) noexcept;
@@ -160,7 +160,7 @@ class Trigger
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t notificationId,
-            const EventCallback<T, ContextDataType>& callback,
+            const NotificationCallback<T, ContextDataType>& callback,
             const uint64_t uniqueId,
             const TriggerType triggerType,
             const uint64_t originTriggerType,

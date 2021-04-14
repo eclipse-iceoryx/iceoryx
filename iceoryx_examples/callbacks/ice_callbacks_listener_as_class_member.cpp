@@ -58,7 +58,7 @@ class CounterService
         m_listener
             .attachEvent(m_subscriberLeft,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,
-                         iox::popo::createEventCallback(onSampleReceivedCallback, *this))
+                         iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberLeft" << std::endl;
                 std::exit(EXIT_FAILURE);
@@ -66,7 +66,7 @@ class CounterService
         m_listener
             .attachEvent(m_subscriberRight,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,
-                         iox::popo::createEventCallback(onSampleReceivedCallback, *this))
+                         iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberRight" << std::endl;
                 std::exit(EXIT_FAILURE);

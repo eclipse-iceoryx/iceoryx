@@ -51,7 +51,7 @@ class iox_notification_info_test : public Test
 
     void SetUp()
     {
-        m_lastEventCallbackArgument = nullptr;
+        m_lastNotificationCallbackArgument = nullptr;
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
         m_subscriber.m_portData = &m_portPtr;
@@ -72,7 +72,7 @@ class iox_notification_info_test : public Test
 
     static void notificationCallback(UserTrigger* arg)
     {
-        m_lastEventCallbackArgument = arg;
+        m_lastNotificationCallbackArgument = arg;
     }
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
@@ -91,7 +91,7 @@ class iox_notification_info_test : public Test
     }
 
 
-    static UserTrigger* m_lastEventCallbackArgument;
+    static UserTrigger* m_lastNotificationCallbackArgument;
     ConditionVariableData m_condVar{"myApp"};
     WaitSetMock m_waitSet{m_condVar};
     UserTrigger m_userTrigger;
@@ -113,7 +113,7 @@ class iox_notification_info_test : public Test
     iox_sub_t m_subscriberHandle = &m_subscriber;
 };
 
-UserTrigger* iox_notification_info_test::m_lastEventCallbackArgument = nullptr;
+UserTrigger* iox_notification_info_test::m_lastNotificationCallbackArgument = nullptr;
 
 TEST_F(iox_notification_info_test, notificationInfoHasCorrectId)
 {
@@ -205,14 +205,14 @@ TEST_F(iox_notification_info_test, callbackCanBeCalledOnce)
     ASSERT_FALSE(m_waitSet
                      .attachEvent(m_userTrigger,
                                   ARBITRARY_EVENT_ID,
-                                  createEventCallback(iox_notification_info_test::notificationCallback))
+                                  createNotificationCallback(iox_notification_info_test::notificationCallback))
                      .has_error());
     m_userTrigger.trigger();
 
     auto notificationInfoVector = m_waitSet.wait();
 
     iox_notification_info_call(notificationInfoVector[0U]);
-    EXPECT_EQ(m_lastEventCallbackArgument, &m_userTrigger);
+    EXPECT_EQ(m_lastNotificationCallbackArgument, &m_userTrigger);
 }
 
 TEST_F(iox_notification_info_test, callbackCanBeCalledMultipleTimes)
@@ -221,18 +221,18 @@ TEST_F(iox_notification_info_test, callbackCanBeCalledMultipleTimes)
     ASSERT_FALSE(m_waitSet
                      .attachEvent(m_userTrigger,
                                   ARBITRARY_EVENT_ID,
-                                  createEventCallback(iox_notification_info_test::notificationCallback))
+                                  createNotificationCallback(iox_notification_info_test::notificationCallback))
                      .has_error());
     m_userTrigger.trigger();
     auto notificationInfoVector = m_waitSet.wait();
 
     iox_notification_info_call(notificationInfoVector[0U]);
-    m_lastEventCallbackArgument = nullptr;
+    m_lastNotificationCallbackArgument = nullptr;
     iox_notification_info_call(notificationInfoVector[0U]);
-    m_lastEventCallbackArgument = nullptr;
+    m_lastNotificationCallbackArgument = nullptr;
     iox_notification_info_call(notificationInfoVector[0U]);
-    m_lastEventCallbackArgument = nullptr;
+    m_lastNotificationCallbackArgument = nullptr;
     iox_notification_info_call(notificationInfoVector[0U]);
 
-    EXPECT_EQ(m_lastEventCallbackArgument, &m_userTrigger);
+    EXPECT_EQ(m_lastNotificationCallbackArgument, &m_userTrigger);
 }

@@ -21,8 +21,8 @@ namespace iox
 namespace popo
 {
 template <typename T, typename UserType>
-inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
-                                                          const EventCallback<T, UserType>& eventCallback) noexcept
+inline cxx::expected<ListenerError>
+Listener::attachEvent(T& eventOrigin, const NotificationCallback<T, UserType>& eventCallback) noexcept
 {
     return addEvent(&eventOrigin,
                     eventCallback.m_contextData,
@@ -38,9 +38,8 @@ inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
 }
 
 template <typename T, typename EventType, typename UserType, typename>
-inline cxx::expected<ListenerError> Listener::attachEvent(T& eventOrigin,
-                                                          const EventType eventType,
-                                                          const EventCallback<T, UserType>& eventCallback) noexcept
+inline cxx::expected<ListenerError> Listener::attachEvent(
+    T& eventOrigin, const EventType eventType, const NotificationCallback<T, UserType>& eventCallback) noexcept
 {
     return addEvent(&eventOrigin,
                     eventCallback.m_contextData,

@@ -260,7 +260,7 @@ int main()
         ->attachState(*triggerClass,
                       MyTriggerClassStates::IS_ACTIVATED,
                       ACTIVATE_ID,
-                      iox::popo::createEventCallback(callOnActivate))
+                      iox::popo::createNotificationCallback(callOnActivate))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassStates::IS_ACTIVATED state " << std::endl;
             std::exit(EXIT_FAILURE);
@@ -270,7 +270,7 @@ int main()
         ->attachEvent(*triggerClass,
                       MyTriggerClassEvents::PERFORM_ACTION_CALLED,
                       ACTION_ID,
-                      iox::popo::createEventCallback(MyTriggerClass::callOnAction))
+                      iox::popo::createNotificationCallback(MyTriggerClass::callOnAction))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassEvents::PERFORM_ACTION_CALLED event " << std::endl;
             std::exit(EXIT_FAILURE);

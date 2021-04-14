@@ -1001,8 +1001,8 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
 void WaitReturnsEventTriggersWithOneCorrectCallback(WaitSet_test* test,
                                                     const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
-    auto result1 =
-        test->m_sut->attachEvent(test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1));
+    auto result1 = test->m_sut->attachEvent(
+        test->m_simpleEvents[0], 1U, createNotificationCallback(WaitSet_test::triggerCallback1));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
 
@@ -1032,9 +1032,13 @@ void WaitReturnsEventTriggersWithTwoCorrectCallbacksWithContextData(
     uint64_t contextData1 = 0U;
     uint64_t contextData2 = 0U;
     auto result1 = test->m_sut->attachEvent(
-        test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1WithContextData, contextData1));
+        test->m_simpleEvents[0],
+        1U,
+        createNotificationCallback(WaitSet_test::triggerCallback1WithContextData, contextData1));
     auto result2 = test->m_sut->attachEvent(
-        test->m_simpleEvents[1], 2U, createEventCallback(WaitSet_test::triggerCallback2WithContextData, contextData2));
+        test->m_simpleEvents[1],
+        2U,
+        createNotificationCallback(WaitSet_test::triggerCallback2WithContextData, contextData2));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
     ASSERT_THAT(result2.has_error(), Eq(false));
@@ -1067,8 +1071,8 @@ TEST_F(WaitSet_test, TimedWaitReturnsEventTriggersWithTwoCorrectCallbacksWithCon
 void WaitReturnsStateTriggersWithOneCorrectCallback(WaitSet_test* test,
                                                     const std::function<WaitSet<>::NotificationInfoVector()>& waitCall)
 {
-    auto result1 =
-        test->m_sut->attachState(test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1));
+    auto result1 = test->m_sut->attachState(
+        test->m_simpleEvents[0], 1U, createNotificationCallback(WaitSet_test::triggerCallback1));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
 
@@ -1098,9 +1102,13 @@ void WaitReturnsStateTriggersWithTwoCorrectCallbacksWithContextData(
     uint64_t contextData1 = 0U;
     uint64_t contextData2 = 0U;
     auto result1 = test->m_sut->attachState(
-        test->m_simpleEvents[0], 1U, createEventCallback(WaitSet_test::triggerCallback1WithContextData, contextData1));
+        test->m_simpleEvents[0],
+        1U,
+        createNotificationCallback(WaitSet_test::triggerCallback1WithContextData, contextData1));
     auto result2 = test->m_sut->attachState(
-        test->m_simpleEvents[1], 2U, createEventCallback(WaitSet_test::triggerCallback2WithContextData, contextData2));
+        test->m_simpleEvents[1],
+        2U,
+        createNotificationCallback(WaitSet_test::triggerCallback2WithContextData, contextData2));
 
     ASSERT_THAT(result1.has_error(), Eq(false));
     ASSERT_THAT(result2.has_error(), Eq(false));
