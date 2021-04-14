@@ -41,21 +41,13 @@ using TranslationCallbackPtr_t = void (*)(void* const, void* const, GenericCallb
 template <typename T, typename ContextDataType>
 struct TranslateAndCallTypelessCallback
 {
-    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback)
-    {
-        reinterpret_cast<typename EventCallback<T, ContextDataType>::Ptr_t>(underlyingCallback)(
-            static_cast<T*>(origin), static_cast<ContextDataType*>(userType));
-    }
+    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback) noexcept;
 };
 
 template <typename T>
-struct TranslateAndCallTypelessCallback<T, internal::NoType_t>
+struct TranslateAndCallTypelessCallback<T, NoType_t>
 {
-    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback)
-    {
-        IOX_DISCARD_RESULT(userType);
-        reinterpret_cast<typename EventCallback<T, NoType_t>::Ptr_t>(underlyingCallback)(static_cast<T*>(origin));
-    }
+    static void call(void* const origin, void* const userType, GenericCallbackPtr_t underlyingCallback) noexcept;
 };
 } // namespace internal
 
