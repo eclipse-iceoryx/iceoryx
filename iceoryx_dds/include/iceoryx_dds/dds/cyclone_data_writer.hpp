@@ -45,7 +45,6 @@ class CycloneDataWriter : public iox::dds::DataWriter
     CycloneDataWriter& operator=(CycloneDataWriter&&) = default;
 
     void connect() noexcept override;
-    void write(const uint8_t* const bytes, const uint64_t size) noexcept override;
     void write(iox::dds::IoxChunkDatagramHeader datagramHeader,
                const uint8_t* userHeaderBytes,
                const uint8_t* userPayloadBytes) noexcept override;

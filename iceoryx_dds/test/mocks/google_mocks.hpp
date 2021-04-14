@@ -70,9 +70,7 @@ class MockDataReader
   public:
     MockDataReader(const iox::capro::ServiceDescription&){};
     MOCK_METHOD0(connect, void(void));
-    MOCK_METHOD0(peekNextSize, iox::cxx::optional<uint64_t>(void));
     MOCK_METHOD0(peekNextIoxChunkDatagramHeader, iox::cxx::optional<iox::dds::IoxChunkDatagramHeader>(void));
-    MOCK_METHOD2(takeNext, iox::cxx::expected<iox::dds::DataReaderError>(uint8_t* const, const uint64_t&));
     MOCK_METHOD3(takeNext,
                  iox::cxx::expected<iox::dds::DataReaderError>(const iox::dds::IoxChunkDatagramHeader,
                                                                uint8_t*,
@@ -91,7 +89,6 @@ class MockDataWriter
   public:
     MockDataWriter(const iox::capro::ServiceDescription&){};
     MOCK_METHOD0(connect, void(void));
-    MOCK_METHOD2(write, bool(uint8_t*, uint64_t));
     MOCK_METHOD3(write, bool(iox::dds::IoxChunkDatagramHeader, const uint8_t*, const uint8_t*));
     MOCK_CONST_METHOD0(getServiceId, std::string(void));
     MOCK_CONST_METHOD0(getInstanceId, std::string(void));
