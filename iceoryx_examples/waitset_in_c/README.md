@@ -109,6 +109,7 @@ context data `sumOfAllSamples` which is then provided as argument for the callba
     `iox_ws_attach_subscriber_event_with_context_data` lives as long as the 
     attachment, with its callback, is attached otherwise the callback context 
     data pointer is dangling.
+
 ```c
 uint64_t sumOfAllSamples = 0U;
 

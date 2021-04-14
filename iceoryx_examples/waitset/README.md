@@ -289,6 +289,7 @@ Everytime one of the subscribers is receiving a new sample it will trigger the _
     The user has to ensure that the contextData (`sumOfAllSamples`) in `attachEvent` 
     lives as long as the attachment, with its callback, is attached otherwise 
     the callback context data pointer is dangling.
+
 ```cpp
 uint64_t sumOfAllSamples = 0U;
 

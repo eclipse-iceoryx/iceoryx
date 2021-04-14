@@ -236,6 +236,7 @@ as additional argument so that we can access it in the callback.
     `iox_listener_attach_subscriber_event_with_context_data` 
     lives as long as the attachment, with its callback is, attached otherwise 
     the callback context data pointer is dangling.
+
 ```c 
 iox_listener_attach_subscriber_event_with_context_data(
     listener, subscriberLeft, SubscriberEvent_DATA_RECEIVED, &onSampleReceivedCallback, &counterService);
