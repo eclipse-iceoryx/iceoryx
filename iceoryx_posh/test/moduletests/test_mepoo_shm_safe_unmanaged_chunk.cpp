@@ -65,14 +65,14 @@ class ShmSafeUnmanagedChunk_test : public Test
     iox::posix::Allocator m_memoryAllocator{m_memory.get(), MEMORY_SIZE};
 };
 
-TEST_F(ShmSafeUnmanagedChunk_test, DefaultConstructedResultsInLogicallyNullptr)
+TEST_F(ShmSafeUnmanagedChunk_test, DefaultConstructedResultsInLogicalNullptr)
 {
     ShmSafeUnmanagedChunk sut;
 
     EXPECT_TRUE(sut.isLogicalNullptr());
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, ConstructedWithEmptySharedChunkResultsInLogicallyNullptr)
+TEST_F(ShmSafeUnmanagedChunk_test, ConstructedWithEmptySharedChunkResultsInLogicalNullptr)
 {
     SharedChunk sharedChunk;
     ShmSafeUnmanagedChunk sut(sharedChunk);
@@ -80,7 +80,7 @@ TEST_F(ShmSafeUnmanagedChunk_test, ConstructedWithEmptySharedChunkResultsInLogic
     EXPECT_TRUE(sut.isLogicalNullptr());
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, CallIsLogicalNullptrOnSutConstructedWithSharedChunkResultsNotInLogicalyNullptr)
+TEST_F(ShmSafeUnmanagedChunk_test, CallIsLogicalNullptrOnSutConstructedWithSharedChunkResultsNotInLogicalNullptr)
 {
     auto sharedChunk = getChunkFromMemoryManager();
 
@@ -91,7 +91,7 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallIsLogicalNullptrOnSutConstructedWithShare
     sut.releaseToSharedChunk();
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, CallIsLogicalNullptrOnSutPreviouslyCalledReleaseToSharedChunkResultsInLogicalyNullptr)
+TEST_F(ShmSafeUnmanagedChunk_test, CallIsLogicalNullptrOnSutPreviouslyCalledReleaseToSharedChunkResultsInLogicalNullptr)
 {
     auto sharedChunk = getChunkFromMemoryManager();
 
@@ -101,7 +101,8 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallIsLogicalNullptrOnSutPreviouslyCalledRele
     EXPECT_TRUE(sut.isLogicalNullptr());
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, CallIsLogicalNullptrOnSutPreviouslyCalledDuplicateToSharedChunkResultsNotInLogicalyNullptr)
+TEST_F(ShmSafeUnmanagedChunk_test,
+       CallIsLogicalNullptrOnSutPreviouslyCalledDuplicateToSharedChunkResultsNotInLogicalNullptr)
 {
     auto sharedChunk = getChunkFromMemoryManager();
 
@@ -129,7 +130,8 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallReleaseToSharedChunkOnSutConstructedWithS
     EXPECT_EQ(memoryManager.getMemPoolInfo(0).m_usedChunks, 0U);
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, CallReleaseToSharedChunkTwiceOnSutConstructedWithSharedChunkResultsInEmptySharedChunk)
+TEST_F(ShmSafeUnmanagedChunk_test,
+       CallReleaseToSharedChunkTwiceOnSutConstructedWithSharedChunkResultsInEmptySharedChunk)
 {
     ShmSafeUnmanagedChunk sut(getChunkFromMemoryManager());
     sut.releaseToSharedChunk();
@@ -146,7 +148,8 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallDuplicateToSharedChunkOnDefaultConstructe
     sut.releaseToSharedChunk();
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, CallDuplicateToSharedChunkOnSutConstructedWithSharedChunkResultsInNotEmptySharedChunk)
+TEST_F(ShmSafeUnmanagedChunk_test,
+       CallDuplicateToSharedChunkOnSutConstructedWithSharedChunkResultsInNotEmptySharedChunk)
 {
     auto sharedChunk = getChunkFromMemoryManager();
 
@@ -159,7 +162,8 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallDuplicateToSharedChunkOnSutConstructedWit
     EXPECT_EQ(memoryManager.getMemPoolInfo(0).m_usedChunks, 1U);
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, CallDuplicateToSharedChunkOnSutPreviouslyCalledReleaseToSharedChunkResultsInEmptySharedChunk)
+TEST_F(ShmSafeUnmanagedChunk_test,
+       CallDuplicateToSharedChunkOnSutPreviouslyCalledReleaseToSharedChunkResultsInEmptySharedChunk)
 {
     auto sharedChunk = getChunkFromMemoryManager();
 
@@ -206,7 +210,7 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallGetChunkHeaderOnConstSutConstructedWithSh
         auto chunkHeader = sut.getChunkHeader();
         EXPECT_NE(chunkHeader, nullptr);
         EXPECT_EQ(chunkHeader, sharedChunk.getChunkHeader());
-    } (sut);
+    }(sut);
 
     sut.releaseToSharedChunk();
 }
@@ -232,7 +236,8 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallIsNotLogicalNullptrAndHasNoOtherOwnersOnD
     EXPECT_FALSE(sut.isNotLogicalNullptrAndHasNoOtherOwners());
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, CallIsNotLogicalNullptrAndHasNoOtherOwnersOnOnSutConstructedWithSharedChunkResultsInTrue)
+TEST_F(ShmSafeUnmanagedChunk_test,
+       CallIsNotLogicalNullptrAndHasNoOtherOwnersOnOnSutConstructedWithSharedChunkResultsInTrue)
 {
     ShmSafeUnmanagedChunk sut(getChunkFromMemoryManager());
 
@@ -241,7 +246,8 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallIsNotLogicalNullptrAndHasNoOtherOwnersOnO
     sut.releaseToSharedChunk();
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, CallIsNotLogicalNullptrAndHasNoOtherOwnersOnOnSutConstructedWithSharedChunkAndOtherOwnerResultsInFalse)
+TEST_F(ShmSafeUnmanagedChunk_test,
+       CallIsNotLogicalNullptrAndHasNoOtherOwnersOnOnSutConstructedWithSharedChunkAndOtherOwnerResultsInFalse)
 {
     auto sharedChunk = getChunkFromMemoryManager();
 
@@ -252,15 +258,29 @@ TEST_F(ShmSafeUnmanagedChunk_test, CallIsNotLogicalNullptrAndHasNoOtherOwnersOnO
     sut.releaseToSharedChunk();
 }
 
-TEST_F(ShmSafeUnmanagedChunk_test, Foo)
+TEST_F(
+    ShmSafeUnmanagedChunk_test,
+    CallIsNotLogicalNullptrAndHasNoOtherOwnersOnOnSutConstructedWithSharedChunkAndOtherOwnerReleasedOwnershipResultsInTrue)
 {
     auto sharedChunk = getChunkFromMemoryManager();
 
     ShmSafeUnmanagedChunk sut(sharedChunk);
 
-    EXPECT_EQ(memoryManager.getMemPoolInfo(0).m_usedChunks, 1U);
+    // release ownership by assigning an empty SharedChunk
+    sharedChunk = SharedChunk();
+
+    EXPECT_TRUE(sut.isNotLogicalNullptrAndHasNoOtherOwners());
 
     sut.releaseToSharedChunk();
+}
+
+TEST_F(ShmSafeUnmanagedChunk_test,
+       CallIsNotLogicalNullptrAndHasNoOtherOwnersOnOnSutPreviouslyCalledReleaseToSharedChunkResultsInFalse)
+{
+    ShmSafeUnmanagedChunk sut(getChunkFromMemoryManager());
+    sut.releaseToSharedChunk();
+
+    EXPECT_FALSE(sut.isNotLogicalNullptrAndHasNoOtherOwners());
 }
 
 } // namespace
