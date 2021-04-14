@@ -28,7 +28,8 @@
 
 int main(int argc, char* argv[])
 {
-    constexpr unsigned char TIMEOUT = 50; // 5s for a Timeout
+    constexpr uint8_t MAX_RETRIES = 50;
+    constexpr uint64_t WAIT_RETRY_IN_MS = 100;
     CmdLineParserFuzzing cmd;
     std::vector<std::string> allMessages = cmd.parseCmd(argc, argv);
 
@@ -64,6 +65,7 @@ int main(int argc, char* argv[])
                   << std::endl;
         return EXIT_FAILURE;
     }
+
     FuzzHelper aFuzzHelper;
     std::shared_ptr<RouDiFuzz> aRouDi;
 
@@ -85,16 +87,17 @@ int main(int argc, char* argv[])
     if ((cmd.getFuzzingAPI() == FuzzingApi::UDS) || (cmd.getFuzzingAPI() == FuzzingApi::COM)) // Start RouDi
     {
         aRouDi = aFuzzHelper.startRouDiThread();
-        unsigned char timeout = 0;
+
+        uint8_t retryCounter{0};
         while (!aFuzzHelper.checkIsRouDiRunning())
         {
-            if (timeout >= TIMEOUT)
+            if (retryCounter >= MAX_RETRIES)
             {
                 std::cout << "RouDi could not be started, program terminates!" << std::endl;
                 return EXIT_FAILURE;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 1/10 of a second
-            timeout += 1;
+            std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_RETRY_IN_MS));
+            retryCounter++;
         }
     }
 
@@ -134,7 +137,6 @@ int main(int argc, char* argv[])
             };
         }
     }
-
     else
     {
         std::cout << "Error: Only stdin and command line are allowed to enter an input. Please use --help to get more "
