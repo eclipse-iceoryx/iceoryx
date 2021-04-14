@@ -55,7 +55,7 @@ enum class TimerEvent
 /// @brief This class offers periodic timer functionality. This timer is started immediately upon construction.
 /// The periodic timer waits for the duration specified as interval before it comes to execution again
 /// @code
-///     iox::cxx::PeriodicTimer periodicTimer(1000_ms);
+///     iox::cxx::Timer periodicTimer(1000_ms);
 ///
 ///     // to do the execution periodically
 ///     while(...){
@@ -66,20 +66,21 @@ enum class TimerEvent
 ///     periodicTimer.stop();
 ///
 /// @endcode
-class PeriodicTimer
+class Timer
 {
   public:
     /// @brief Constructor
     /// @param[in] interval duration until the timer sleeps and wakes up for execution
-    PeriodicTimer(const iox::units::Duration interval) noexcept;
+    Timer(const iox::units::Duration interval) noexcept;
 
     /// @brief Constructor
     /// @param[in] interval duration until the timer sleeps and wakes up for execution
-    /// @param[in] delayThreshold accepted considerable duration of delay for next activation
-    PeriodicTimer(const iox::units::Duration interval, const iox::units::Duration delayThreshold) noexcept;
+    /// @param[in] delayThreshold accepted considerable duration of delay for next activation. The delayThreshold should
+    /// be a natural number for delay consideration.
+    Timer(const iox::units::Duration interval, const iox::units::Duration delayThreshold) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.
-    ~PeriodicTimer() noexcept;
+    ~Timer() noexcept;
 
     /// @brief starts the timer. This also calculates the time until the timer goes for sleep. This also acquires the
     /// binary semaphore.
@@ -103,8 +104,8 @@ class PeriodicTimer
     cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> wait() noexcept;
 
   private:
-    iox::units::Duration m_interval;
-    iox::units::Duration m_timeForNextActivation;
+    iox::units::Duration m_interval{0_ms};
+    iox::units::Duration m_timeForNextActivation{0_ms};
     iox::units::Duration m_delayThreshold{0_ms};
     posix::Semaphore m_waitSemaphore{posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U).value()};
 };

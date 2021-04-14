@@ -14,31 +14,31 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/cxx/periodic_timer.hpp"
+#include "iceoryx_utils/cxx/timer.hpp"
 
 namespace iox
 {
 namespace cxx
 {
-PeriodicTimer::PeriodicTimer(const iox::units::Duration interval) noexcept
+Timer::Timer(const iox::units::Duration interval) noexcept
     : m_interval(interval)
 {
     start();
 }
 
-PeriodicTimer::PeriodicTimer(const iox::units::Duration interval, const iox::units::Duration delayThreshold) noexcept
+Timer::Timer(const iox::units::Duration interval, const iox::units::Duration delayThreshold) noexcept
     : m_interval(interval)
     , m_delayThreshold(delayThreshold)
 {
     start();
 }
 
-PeriodicTimer::~PeriodicTimer() noexcept
+Timer::~Timer() noexcept
 {
     m_waitSemaphore.~Semaphore();
 }
 
-void PeriodicTimer::start() noexcept
+void Timer::start() noexcept
 {
     stop();
     auto waitResult = m_waitSemaphore.timedWait(m_interval, true);
@@ -46,49 +46,46 @@ void PeriodicTimer::start() noexcept
     m_timeForNextActivation = now() + m_interval;
 }
 
-void PeriodicTimer::start(const iox::units::Duration interval) noexcept
+void Timer::start(const iox::units::Duration interval) noexcept
 {
     m_interval = interval;
     start();
 }
 
-void PeriodicTimer::stop() noexcept
+void Timer::stop() noexcept
 {
     auto stopResult = m_waitSemaphore.post();
     cxx::Expects(!stopResult.has_error());
 }
 
 
-const iox::units::Duration PeriodicTimer::now() const noexcept
+const iox::units::Duration Timer::now() const noexcept
 {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     return iox::units::Duration(ts);
 }
 
-cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> PeriodicTimer::wait() noexcept
+cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> Timer::wait() noexcept
 {
     if (*(m_waitSemaphore.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
     {
-        auto actualWaitDuration = m_timeForNextActivation - now();
-
-        if (actualWaitDuration.toMilliseconds() == 0)
+        if (now() > m_timeForNextActivation)
         {
-            return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK);
+            auto timeDiff = now() - m_timeForNextActivation;
+            m_timeForNextActivation = m_timeForNextActivation + m_interval;
+            if (m_delayThreshold.toMilliseconds() > 0)
+            {
+                if (timeDiff > m_delayThreshold)
+                {
+                    return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK_THRESHOLD_DELAY);
+                }
+            }
+            return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK_DELAY);
         }
-        // else if (actualWaitDuration.toMilliseconds() < 0)
-        // {
-        //     if (actualWaitDuration > m_delayThreshold)
-        //     {
-        //         return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK_THRESHOLD_DELAY);
-        //     }
-        //     else
-        //     {
-        //         return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK_DELAY);
-        //     }
-        // }
         else
         {
+            auto actualWaitDuration = m_timeForNextActivation - now();
             auto waitResult = m_waitSemaphore.timedWait(actualWaitDuration, true);
             if (waitResult.has_error())
             {
@@ -96,28 +93,10 @@ cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> PeriodicTimer::wait()
             }
             else
             {
+                m_timeForNextActivation = m_timeForNextActivation + m_interval;
                 return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK);
             }
         }
-        // auto periodicWaitDuration = m_interval;
-        // auto timeBeforeSemBlocking = now();
-        // auto waitResult = m_waitSemaphore.timedWait(periodicWaitDuration, true);
-        // auto timeAfterSemBlocking = now();
-        // if (timeAfterSemBlocking - timeBeforeSemBlocking >= periodicWaitDuration)
-        // {
-        //     if (waitResult.has_error())
-        //     {
-        //         return cxx::error<posix::SemaphoreError>(waitResult.get_error());
-        //     }
-        //     else
-        //     {
-        //         return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::TICK);
-        //     }
-        // }
-        // else
-        // {
-        //     stop();
-        // }
     }
     return cxx::success<iox::cxx::TimerEvent>(iox::cxx::TimerEvent::STOP);
 }

@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_utils/cxx/periodic_timer.hpp"
+#include "iceoryx_utils/cxx/timer.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
 
 #include <chrono>
 #include <thread>
@@ -27,7 +27,7 @@ using namespace ::testing;
 using namespace iox::units;
 using namespace iox::units::duration_literals;
 
-using Timer = iox::cxx::PeriodicTimer;
+using Timer = iox::cxx::Timer;
 
 class PeriodicTimer_test : public Test
 {
@@ -61,8 +61,7 @@ TIMING_TEST_F(PeriodicTimer_test, ZeroINTERVALTest, Repeat(5), [&] {
     Timer sut(0_s);
 
     auto timerState = sut.wait();
-
-    bool result = timerState.value() == iox::cxx::TimerEvent::TICK ? true : false;
+    bool result = timerState.value() == iox::cxx::TimerEvent::TICK_DELAY ? true : false;
 
     TIMING_TEST_EXPECT_TRUE(result);
 });
@@ -78,7 +77,7 @@ TIMING_TEST_F(PeriodicTimer_test, DurationINTERVALTest, Repeat(5), [&] {
     auto duration = timeAfterWait.tv_sec - timeBeforeWait.tv_sec;
     bool result = (((unsigned)duration) == INTERVAL.toSeconds()) ? true : false;
 
-
+    TIMING_TEST_EXPECT_FALSE(timerState.has_error());
     TIMING_TEST_EXPECT_TRUE(result);
 });
 
@@ -134,4 +133,55 @@ TIMING_TEST_F(PeriodicTimer_test, currentTimeTest, Repeat(5), [&] {
     bool result = timeNow.toSeconds() == currentSystemTime.toSeconds() ? true : false;
 
     TIMING_TEST_EXPECT_TRUE(result);
+});
+
+TIMING_TEST_F(PeriodicTimer_test, periodicityWithoutExecutionTimeTest, Repeat(5), [&] {
+    Timer sut(INTERVAL);
+    auto timeUntilNextActivation = sut.now() + INTERVAL;
+
+    auto timerState = sut.wait();
+
+    TIMING_TEST_EXPECT_TRUE(sut.now().toMilliseconds() == timeUntilNextActivation.toMilliseconds());
+    TIMING_TEST_EXPECT_TRUE(timerState.value() == iox::cxx::TimerEvent::TICK ? true : false);
+});
+
+TIMING_TEST_F(PeriodicTimer_test, periodicityExecutionTimeLessThanActivationTimeTest, Repeat(5), [&] {
+    constexpr int EXECUTIONTIME = 2;
+    Timer sut(INTERVAL);
+    auto timeUntilNextActivation = sut.now() + INTERVAL;
+
+    std::this_thread::sleep_for(std::chrono::seconds(EXECUTIONTIME));
+    auto timerState = sut.wait();
+    auto currentTime = sut.now();
+
+    TIMING_TEST_EXPECT_TRUE(currentTime.toMilliseconds() == timeUntilNextActivation.toMilliseconds());
+    TIMING_TEST_EXPECT_TRUE(timerState.value() == iox::cxx::TimerEvent::TICK ? true : false);
+});
+
+TIMING_TEST_F(PeriodicTimer_test, periodicityExecutionTimeGreaterThanActivationTimeTest, Repeat(5), [&] {
+    constexpr int EXECUTIONTIME = 6;
+    Timer sut(INTERVAL);
+    auto timeUntilNextActivation = sut.now() + INTERVAL;
+
+    std::this_thread::sleep_for(std::chrono::seconds(EXECUTIONTIME));
+    auto timerState = sut.wait();
+    auto currentTime = sut.now();
+    uint EXPECTED_DELAY = EXECUTIONTIME - INTERVAL.toSeconds();
+
+    TIMING_TEST_EXPECT_TRUE(currentTime.toSeconds() - timeUntilNextActivation.toSeconds() >= EXPECTED_DELAY);
+    TIMING_TEST_EXPECT_TRUE(timerState.value() == iox::cxx::TimerEvent::TICK_DELAY ? true : false);
+});
+
+TIMING_TEST_F(PeriodicTimer_test, periodicityExecutionTimeGreaterThanDelayThreshold, Repeat(5), [&] {
+    constexpr int EXECUTIONTIME = 12;
+    Timer sut(INTERVAL, INTERVAL);
+    auto timeUntilNextActivation = sut.now() + INTERVAL;
+
+    std::this_thread::sleep_for(std::chrono::seconds(EXECUTIONTIME));
+    auto timerState = sut.wait();
+    auto currentTime = sut.now();
+    uint EXPECTED_DELAY = EXECUTIONTIME - INTERVAL.toSeconds();
+
+    TIMING_TEST_EXPECT_TRUE(currentTime.toSeconds() - timeUntilNextActivation.toSeconds() >= EXPECTED_DELAY);
+    TIMING_TEST_EXPECT_TRUE(timerState.value() == iox::cxx::TimerEvent::TICK_THRESHOLD_DELAY ? true : false);
 });

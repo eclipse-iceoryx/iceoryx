@@ -46,16 +46,13 @@ template <typename T>
 inline PeriodicTask<T>::~PeriodicTask() noexcept
 {
     stop();
-    m_periodicTimer.stop();
 }
 
 template <typename T>
 inline void PeriodicTask<T>::start(const units::Duration interval) noexcept
 {
     stop();
-
     m_interval = interval;
-    m_periodicTimer.start(m_interval);
     m_taskExecutor = std::thread(&PeriodicTask::run, this);
     posix::setThreadName(m_taskExecutor.native_handle(), m_taskName);
 }
@@ -65,7 +62,7 @@ inline void PeriodicTask<T>::stop() noexcept
 {
     if (m_taskExecutor.joinable())
     {
-        m_periodicTimer.stop();
+        cxx::Expects(!m_stop.post().has_error());
         m_taskExecutor.join();
     }
 }
@@ -76,18 +73,20 @@ inline bool PeriodicTask<T>::isActive() const noexcept
     return m_taskExecutor.joinable();
 }
 
-
 template <typename T>
 inline void PeriodicTask<T>::run() noexcept
 {
-    iox::cxx::TimerEvent waitState = iox::cxx::TimerEvent::STOP;
+    posix::SemaphoreWaitState waitState = posix::SemaphoreWaitState::NO_TIMEOUT;
     do
     {
         IOX_DISCARD_RESULT(m_callable());
-        auto waitResult = m_periodicTimer.wait();
+
+        /// @todo use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once available
+        auto waitResult = m_stop.timedWait(m_interval, true);
         cxx::Expects(!waitResult.has_error());
+
         waitState = waitResult.value();
-    } while (waitState == iox::cxx::TimerEvent::TICK);
+    } while (waitState == posix::SemaphoreWaitState::TIMEOUT);
 }
 
 } // namespace concurrent
