@@ -194,7 +194,7 @@ Afterward, we reset both caches to start fresh again.
     }
 ```
 
-### Additional user defined argument for callbacks (ice_callbacks_listener_as_class_member.cpp)
+### Additional context data for callbacks (ice_callbacks_listener_as_class_member.cpp)
 
 Here we demonstrate how you can provide virtually everything as an additional argument to the callbacks.
 You just have to provide a reference to a value as additional argument in the `attachEvent` method 
