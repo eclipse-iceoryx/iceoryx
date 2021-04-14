@@ -15,8 +15,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_utils/cxx/attributes.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "test.hpp"
+
 
 using namespace ::testing;
 using namespace iox::popo;

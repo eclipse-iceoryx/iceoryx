@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_utils/cxx/attributes.hpp"
 #include "iceoryx_utils/cxx/forward_list.hpp"
 #include "test.hpp"
 
