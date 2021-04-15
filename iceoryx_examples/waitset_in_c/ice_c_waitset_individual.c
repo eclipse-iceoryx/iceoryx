@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_EVENTS 3
+#define NUMBER_OF_NOTIFICATIONS 3
 #define NUMBER_OF_SUBSCRIBERS 2
 
 iox_user_trigger_storage_t shutdownTriggerStorage;
@@ -78,18 +78,18 @@ int main()
 
 
     uint64_t missedElements = 0U;
-    uint64_t numberOfEvents = 0U;
+    uint64_t numberOfNotifications = 0U;
 
     // array where all notification infos from iox_ws_wait will be stored
-    iox_notification_info_t notificationArray[NUMBER_OF_EVENTS];
+    iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
     // event loop
     bool keepRunning = true;
     while (keepRunning)
     {
-        numberOfEvents = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_EVENTS, &missedElements);
+        numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 
-        for (uint64_t i = 0U; i < numberOfEvents; ++i)
+        for (uint64_t i = 0U; i < numberOfNotifications; ++i)
         {
             iox_notification_info_t notification = notificationArray[i];
 

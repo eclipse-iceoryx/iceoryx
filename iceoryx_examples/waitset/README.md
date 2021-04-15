@@ -6,7 +6,7 @@ The WaitSet is **not** thread-safe!
 
 - It is **not** allowed to attach or detach _Triggerable_
    classes with `attachEvent` or `detachEvent` when another thread is currently
-   waiting for events with `wait` or `timedWait`.
+   waiting for notifications with `wait` or `timedWait`.
 - Do **not** call any of the WaitSet methods concurrently.
 
 The _TriggerHandle_ on the other hand, is thread-safe! Therefore you are allowed to
@@ -19,7 +19,7 @@ The WaitSet is a set where you can attach objects so that they can signal a wide
 of events to one single notifiable. The typical approach is that one creates a
 WaitSet attaches multiple subscribers, user trigger or other _Triggerables_ to it and then wait till
 one or many of the attached entities signal an event. If that happens one receives
-a list of _EventInfos_ which is corresponding to all occurred events.
+a list of _NotificationInfos_ which is corresponding to all occurred events.
 
 ## Events and States
 
@@ -52,23 +52,23 @@ samples present in the subscriber.
 
 ## Glossary
 
-- **NotificationCallback** a callback attached to an _EventInfo_. It must have the
-    following signature `void ( EventOrigin )`. Any free function, static
-    class method and non capturing lambda is allowed. You have to ensure the lifetime of that callback.
-    This can become important when you would like to use lambdas.
-- **EventId** an id which is tagged to an event. It does not need to be unique
-     or follow any restrictions. The user can choose any arbitrary `uint64_t`. Assigning
-     the same _EventId_ to multiple _Events_ can be useful when you would like to
-     group _Events_.
-- **EventInfo** a class which corresponds with _Triggers_ and is used to inform
-     the user which _Event_ occurred. You can use the _EventInfo_ to acquire
-     the _EventId_, call the _NotificationCallback_ or acquire the _EventOrigin_.
-- **EventOrigin** the pointer to the class where the _Event_ originated from, short
-     pointer to the _Triggerable_.
  - **Event** a state change of an object; a _Triggerable_ will signal an event via a _TriggerHandle_ to 
      a _Notifyable_. For instance one can attach the subscriber event `DATA_RECEIVED` to _WaitSet_. 
      This will cause the subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a 
      sample was received.
+- **NotificationCallback** a callback attached to an _NotificationInfo_. It must have the
+    following signature `void ( NotificationOrigin )`. Any free function, static
+    class method and non capturing lambda is allowed. You have to ensure the lifetime of that callback.
+    This can become important when you would like to use lambdas.
+- **NotificationId** an id which is tagged to an event. It does not need to be unique
+     or follow any restrictions. The user can choose any arbitrary `uint64_t`. Assigning
+     the same _NotificationId_ to multiple _Events_ can be useful when you would like to
+     group _Events_.
+- **NotificationInfo** a class which corresponds with _Triggers_ and is used to inform
+     the user which _Event_ occurred. You can use the _NotificationInfo_ to acquire
+     the _NotificationId_, call the _NotificationCallback_ or acquire the _NotificationOrigin_.
+- **NotificationOrigin** the pointer to the class where the _Event_ originated from, short
+     pointer to the _Triggerable_.
  - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
 - **State** a specified set of values to which the members of an object are set.
@@ -83,10 +83,10 @@ samples present in the subscriber.
      logical equal to another _Trigger_ if they:
     - are attached to the same _Notifyable_ (or in other words they are using the
        same `ConditionVariable`)
-    - they have the same _EventOrigin_
+    - they have the same _NotificationOrigin_
     - they have the same callback to verify that they were triggered
        (`hasNotificationCallback`)
-    - they have the same _EventId_
+    - they have the same _NotificationId_
 - **WaitSet** a _Notifyable_ which manages a set of _Triggers_ which are corresponding to _Events_.
      A user may attach or detach events. The _Waitset_ is listening
      to the whole set of _Triggers_ and if one or more _Triggers_ are triggered by an event it will notify
@@ -98,9 +98,9 @@ samples present in the subscriber.
 **Events** or **States** can be attached to a **Notifyable** like the **WaitSet**.
 The **WaitSet** will listen on **Triggers** for a signal that an **Event** has occurred and it hands out
 **TriggerHandles** to **Triggerable** objects. The **TriggerHandle** is used to inform the **WaitSet**
-about the occurrence of an **Event**. When returning from `WaitSet::wait()` the user is provided with a vector of **EventInfos**
-associated with **Events** which had occurred and **States** which persists. The **EventOrigin**, **EventId** and **NotificationCallback**
-are stored inside of the **EventInfo** and can be acquired by the user.
+about the occurrence of an **Event**. When returning from `WaitSet::wait()` the user is provided with a vector of **NotificationInfos**
+associated with **Events** which had occurred and **States** which persists. The **NotificationOrigin**, **NotificationId** and **NotificationCallback**
+are stored inside of the **NotificationInfo** and can be acquired by the user.
 
 !!! attention
     Please be aware of the thread-safety restrictions of the _WaitSet_ and
@@ -118,7 +118,7 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 |check if event/state originated from some object|`notification->doesOriginateFrom(ptrToSomeObject)`|
 |get id of the event/state|`notification->getNotificationId()`|
 |call eventCallback|`(*notification)()`|
-|acquire _EventOrigin_|`notification->getOrigin<OriginType>();`|
+|acquire _NotificationOrigin_|`notification->getOrigin<OriginType>();`|
 
 ## Use Cases
 This example consists of 6 use cases.
@@ -249,10 +249,10 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t
 }
 ```
 
-The _Event_ callback requires a signature of either `void (EventOrigin)` or 
-`void(EventOrigin, ContextDataType *)` when one would like to provide an additional 
+The _Event_ callback requires a signature of either `void (NotificationOrigin)` or 
+`void(NotificationOrigin, ContextDataType *)` when one would like to provide an additional 
 data pointer to the callback.
-In our example the _EventOrigin_ is a
+In our example the _NotificationOrigin_ is a
 `iox::popo::UntypedSubscriber` pointer which we use to acquire the latest sample by calling
 `take()` and the `ContextDataType` is an `uint64_t` used to count the processed 
 samples. When `take()` was successful we print our message to
@@ -313,12 +313,12 @@ whenever `attachEvent` failed.
 Now our system is prepared and ready to work. We enter the event loop which
 starts with a call to our _WaitSet_ (`waitset.wait()`). This call will block until
 one or more events triggered the _WaitSet_. After the call returned we get a
-vector filled with _EventInfos_ which are corresponding to all the events which
+vector filled with _NotificationInfos_ which are corresponding to all the events which
 triggered the _WaitSet_.
 
 We iterate through this vector, if an _Event_ originated from the `shutdownTrigger`
 we exit the program otherwise we just call the assigned callback by calling
-the trigger. This will then call `subscriberCallback` with the _EventOrigin_
+the trigger. This will then call `subscriberCallback` with the _NotificationOrigin_
 (the pointer to the untyped subscriber) as parameter.
 
 ```cpp
@@ -395,7 +395,7 @@ for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 ```
 
 The event loop calls `auto notificationVector = waitset.wait()` in a blocking call to
-receive a vector of all the _EventInfos_ which are corresponding to the occurred events.
+receive a vector of all the _NotificationInfos_ which are corresponding to the occurred events.
 If the _Event_ originated from the `shutdownTrigger` we terminate the program.
 
 ```cpp
@@ -416,7 +416,7 @@ we would like to print the received data to the console and in the second group
 we just dismiss the received data.
 
 ```cpp
-    else if (notification->getEventId() == FIRST_GROUP_ID)
+    else if (notification->getNotificationId() == FIRST_GROUP_ID)
     {
         auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
         subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
@@ -425,7 +425,7 @@ we just dismiss the received data.
             subscriber->release(userPayload);
         });
     }
-    else if (notification->getEventId() == SECOND_GROUP_ID)
+    else if (notification->getNotificationId() == SECOND_GROUP_ID)
     {
         std::cout << "dismiss data\n";
         auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
@@ -440,8 +440,8 @@ we just dismiss the received data.
 ### Individual
 
 When every _Triggerable_ requires a different reaction we need to know the
-origin of an _Event_. We can call `event.doesOriginateFrom(EventOrigin)`
-which will return true if the event originated from _EventOrigin_ and
+origin of an _Event_. We can call `event.doesOriginateFrom(NotificationOrigin)`
+which will return true if the event originated from _NotificationOrigin_ and
 otherwise false.
 
 We start this example by creating a _WaitSet_ with the default capacity and
@@ -531,7 +531,7 @@ class SomeClass
 We begin as always, by creating a _WaitSet_ with the default capacity and by
 attaching the `shutdownTrigger` to 
 it. In this case we do not set an event id when calling `attachEvent` which means
-the default event id  `EventInfo::INVALID_ID` is set.
+the default event id  `NotificationInfo::INVALID_ID` is set.
 
 ```cpp
 iox::popo::WaitSet<> waitset;
@@ -900,12 +900,12 @@ void eventLoop()
         auto notificationVector = waitset->wait();
         for (auto& notification : notificationVector)
         {
-            if (notification->getEventId() == ACTIVATE_ID)
+            if (notification->getNotificationId() == ACTIVATE_ID)
             {
                 notification->getOrigin<MyTriggerClass>()->reset(MyTriggerClassStates::IS_ACTIVATED);
                 (*notification)();
             }
-            else if (notification->getEventId() == ACTION_ID)
+            else if (notification->getNotificationId() == ACTION_ID)
             {
                 (*notification)();
             }
