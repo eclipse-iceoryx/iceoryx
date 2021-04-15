@@ -47,11 +47,11 @@ class CycloneDataReader : public DataReader
 
     void connect() noexcept override;
 
-    iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() override;
-    bool hasSamples() override;
+    iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() noexcept override;
+    bool hasSamples() noexcept override;
     iox::cxx::expected<DataReaderError> takeNext(const IoxChunkDatagramHeader datagramHeader,
                                                  uint8_t* const userHeaderBuffer,
-                                                 uint8_t* const userPayloadBuffer) override;
+                                                 uint8_t* const userPayloadBuffer) noexcept override;
 
     capro::IdString_t getServiceId() const noexcept override;
     capro::IdString_t getInstanceId() const noexcept override;

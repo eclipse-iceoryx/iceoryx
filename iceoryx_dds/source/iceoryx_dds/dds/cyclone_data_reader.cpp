@@ -55,7 +55,8 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader()
+iox::cxx::optional<iox::dds::IoxChunkDatagramHeader>
+iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader() noexcept
 {
     // ensure to only read sample - do not take
     auto readSamples = m_impl.select().max_samples(1U).state(::dds::sub::status::SampleState::any()).read();
@@ -113,7 +114,7 @@ iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::CycloneDataReader
     return datagramHeader;
 }
 
-bool iox::dds::CycloneDataReader::hasSamples()
+bool iox::dds::CycloneDataReader::hasSamples() noexcept
 {
     auto samples = m_impl.select().max_samples(1u).state(::dds::sub::status::SampleState::any()).read();
     return samples.length() > 0;
@@ -122,7 +123,7 @@ bool iox::dds::CycloneDataReader::hasSamples()
 iox::cxx::expected<iox::dds::DataReaderError>
 iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagramHeader,
                                       uint8_t* const userHeaderBuffer,
-                                      uint8_t* const userPayloadBuffer)
+                                      uint8_t* const userPayloadBuffer) noexcept
 {
     // validation checks
     if (!m_isConnected.load())
