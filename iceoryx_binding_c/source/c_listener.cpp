@@ -57,11 +57,48 @@ ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t cons
     return ListenerResult_SUCCESS;
 }
 
+ENUM iox_ListenerResult
+iox_listener_attach_subscriber_event_with_context_data(iox_listener_t const self,
+                                                       iox_sub_t const subscriber,
+                                                       const ENUM iox_SubscriberEvent subscriberEvent,
+                                                       void (*callback)(iox_sub_t, void*),
+                                                       void* const contextData)
+{
+    EventCallback<cpp2c_Subscriber, void> eventCallback;
+    eventCallback.m_callback = callback;
+    eventCallback.m_contextData = contextData;
+
+    auto result = self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), eventCallback);
+    if (result.has_error())
+    {
+        return cpp2c::listenerResult(result.get_error());
+    }
+    return ListenerResult_SUCCESS;
+}
+
 ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t const self,
                                                                iox_user_trigger_t const userTrigger,
                                                                void (*callback)(iox_user_trigger_t))
 {
     auto result = self->attachEvent(*userTrigger, createEventCallback(*callback));
+    if (result.has_error())
+    {
+        return cpp2c::listenerResult(result.get_error());
+    }
+    return ListenerResult_SUCCESS;
+}
+
+ENUM iox_ListenerResult iox_listener_attach_user_trigger_event_with_context_data(iox_listener_t const self,
+                                                                                 iox_user_trigger_t const userTrigger,
+                                                                                 void (*callback)(iox_user_trigger_t,
+                                                                                                  void*),
+                                                                                 void* const contextData)
+{
+    EventCallback<UserTrigger, void> eventCallback;
+    eventCallback.m_callback = callback;
+    eventCallback.m_contextData = contextData;
+
+    auto result = self->attachEvent(*userTrigger, eventCallback);
     if (result.has_error())
     {
         return cpp2c::listenerResult(result.get_error());

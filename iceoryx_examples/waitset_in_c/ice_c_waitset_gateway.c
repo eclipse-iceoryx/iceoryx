@@ -42,18 +42,34 @@ static void sigHandler(int signalValue)
     iox_user_trigger_trigger(shutdownTrigger);
 }
 
+void shutdownCallback(iox_user_trigger_t userTrigger)
+{
+    (void)userTrigger;
+    printf("CTRL+c pressed - exiting now\n");
+    fflush(stdout);
+}
+
 // The callback of the trigger. Every callback must have an argument which is
 // a pointer to the origin of the Trigger. In our case the trigger origin is
 // an iox_sub_t.
-void subscriberCallback(iox_sub_t const subscriber)
+void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
 {
-    const void* userPayload;
+    if (contextData == NULL)
+    {
+        fprintf(stderr, "aborting subscriberCallback since contextData is a null pointer\n");
+        return;
+    }
+
+    uint64_t* sumOfAllSamples = (uint64_t*)contextData;
+    const void* userPayload = NULL;
     while (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)
     {
         printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)userPayload)->counter);
         fflush(stdout);
 
         iox_sub_release_chunk(subscriber, userPayload);
+        // no NULL check required since it is guaranteed always not NULL
+        ++(*sumOfAllSamples);
     }
 }
 
@@ -66,17 +82,18 @@ int main()
     shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
+    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, shutdownCallback);
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
 
+    uint64_t sumOfAllSamples = 0U;
+
     // array where the subscriber are stored
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
     // create subscriber and subscribe them to our service
-
     iox_sub_options_t options;
     iox_sub_options_init(&options);
     options.historyRequest = 1U;
@@ -86,7 +103,8 @@ int main()
     {
         iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-        iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback);
+        iox_ws_attach_subscriber_event_with_context_data(
+            waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback, &sumOfAllSamples);
     }
 
 
@@ -117,6 +135,9 @@ int main()
                 iox_event_info_call(event);
             }
         }
+
+        printf("sum of all samples: %lu\n", (unsigned long)sumOfAllSamples);
+        fflush(stdout);
     }
 
     // cleanup all resources

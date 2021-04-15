@@ -194,7 +194,7 @@ Afterward, we reset both caches to start fresh again.
     }
 ```
 
-### Additional user defined argument for callbacks (ice_callbacks_listener_as_class_member.cpp)
+### Additional context data for callbacks (ice_callbacks_listener_as_class_member.cpp)
 
 Here we demonstrate how you can provide virtually everything as an additional argument to the callbacks.
 You just have to provide a reference to a value as additional argument in the `attachEvent` method 
@@ -209,7 +209,7 @@ since the listener requires c function references which do not allow the usage
 of lambdas with capturing. Here we can use the userType feature which allows us 
 to provide the this pointer as additional argument to the callback.
 
-The main function is now pretty short, we instantiate our object of type `CounterClass`
+The main function is now pretty short, we instantiate our object of type `CounterService`
 and call `waitForShutdown` which uses the `shutdownSemaphore` like in the 
 previous example to wait for the control c event from the user.
 ```cpp
@@ -218,14 +218,14 @@ auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TER
 
 iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-CounterClass counterClass;
+CounterService counterService;
 
-counterClass.waitForShutdown();
+counterService.waitForShutdown();
 ```
 
-Our `CounterClass` has the following members:
+Our `CounterService` has the following members:
 ```cpp
-class CounterClass {
+class CounterService {
     //...
     iox::popo::Subscriber<CounterTopic> m_subscriberLeft;
     iox::popo::Subscriber<CounterTopic> m_subscriberRight;
@@ -240,8 +240,14 @@ we initialize the two subscribers and attach them to our listener. But now we
 add an additional parameter in the `iox::popo::createEventCallback`, the 
 dereferenced `this` pointer. It has to be dereferenced since we require a reference 
 as argument.
+
+!!! attention 
+    The user has to ensure that the contextData (`*this`) in `attachEvent` 
+    lives as long as the attachment, with its callback, is attached otherwise 
+    the callback context data pointer is dangling.
+
 ```cpp
-CounterClass()
+CounterService()
     : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
     , m_subscriberRight({"Radar", "FrontRight", "Counter"})
 {
@@ -275,7 +281,7 @@ have access to the members of an object, therefore we have to add an additional
 argument, the pointer to the object itself, called `self`. 
 ```cpp
 static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, 
-                                     CounterClass* self)
+                                     CounterService* self)
 {
     subscriber->take().and_then([subscriber, self](auto& sample) {
         auto instanceString = subscriber->getServiceDescription().getInstanceIDString();

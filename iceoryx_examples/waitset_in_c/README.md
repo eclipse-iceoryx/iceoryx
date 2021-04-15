@@ -39,22 +39,44 @@ To run an example you need a running `iox-roudi` and the waitset publisher
 ### Gateway
 Let's say we would like to write a gateway and would like to forward every
 incoming message from a subscriber with the same callback. For instance we could perform
-a memcopy of the received data into a specific struct.
+a memcopy of the received data into a specific struct. Additionally, we would 
+like to count all processed samples therefor we provide an extra void pointer 
+argument called `contextData` which is a pointer to an `uint64_t`.
 
 This could be performed by a function that we attach to an event as a
 callback. In our case, we have the function `subscriberCallback` that
 prints out the subscriber pointer and the content of the received sample.
 
 ```c
-void subscriberCallback(iox_sub_t const subscriber)
+void subscriberCallback(iox_sub_t const subscriber, void * const contextData)
 {
+    if (contextData == NULL)
+    {
+        fprintf(stderr, "aborting subscriberCallback since contextData is a null pointer\n");
+        return;
+    }
+
+    uint64_t* sumOfAllSamples = (uint64_t*)contextData;
     const void* userPayload;
     while (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)
     {
         printf("subscriber: %p received %u\n", (void*)subscriber, ((struct CounterTopic*)userPayload)->counter);
+        fflush(stdout);
 
         iox_sub_release_chunk(subscriber, userPayload);
+        ++(*sumOfAllSamples);
     }
+}
+```
+
+The `shutdownTrigger` gets a simplified callback where it just states that the 
+program will be terminated. For this we do not need any context data.
+```c
+void shutdownCallback(iox_user_trigger_t userTrigger)
+{
+    (void)userTrigger;
+    printf("CTRL+c pressed - exiting now\n");
+    fflush(stdout);
 }
 ```
 
@@ -73,15 +95,24 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
+iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, shutdownCallback);
 ```
 
-In the next steps, we create four subscribers with `iox_sub_init`,
+In the next steps, we define `sumOfAllSamples`, create two subscribers with `iox_sub_init`,
 subscribe them to our topic
 and attach the event `SubscriberEvent_DATA_RECEIVED` to the WaitSet with
-the `subscriberCallback` and an event id `1U`.
+the `subscriberCallback`, an event id `1U` and a pointer to our user defined 
+context data `sumOfAllSamples` which is then provided as argument for the callback.
+
+!!! attention 
+    The user has to ensure that the contextData (`sumOfAllSamples`) in 
+    `iox_ws_attach_subscriber_event_with_context_data` lives as long as the 
+    attachment, with its callback, is attached otherwise the callback context 
+    data pointer is dangling.
 
 ```c
+uint64_t sumOfAllSamples = 0U;
+
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBERS];
 
 iox_sub_options_t options;
@@ -93,7 +124,8 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", &options);
 
-    iox_ws_attach_subscriber_event(waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback);
+    iox_ws_attach_subscriber_event_with_context_data(
+        waitSet, subscriber, SubscriberEvent_DATA_RECEIVED, 1U, subscriberCallback, &sumOfAllSamples);
 }
 ```
 
@@ -133,6 +165,9 @@ for (uint64_t i = 0U; i < numberOfEvents; ++i)
     {
         iox_event_info_call(event);
     }
+
+    printf("sum of all samples: %lu\n", sumOfAllSamples);
+    fflush(stdout);
 }
 ```
 
