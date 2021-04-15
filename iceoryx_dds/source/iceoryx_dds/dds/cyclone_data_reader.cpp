@@ -183,14 +183,14 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
 
     if (userHeaderBuffer)
     {
-        auto bytes = &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader)];
-        std::memcpy(userHeaderBuffer, bytes, datagramHeader.userHeaderSize);
+        auto userHeaderBytes = &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader)];
+        std::memcpy(userHeaderBuffer, userHeaderBytes, datagramHeader.userHeaderSize);
     }
 
     if (userPayloadBuffer)
     {
-        auto bytes = &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader) + datagramHeader.userHeaderSize];
-        std::memcpy(userPayloadBuffer, bytes, datagramHeader.userPayloadSize);
+        auto userPayloadBytes = &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader) + datagramHeader.userHeaderSize];
+        std::memcpy(userPayloadBuffer, userPayloadBytes, datagramHeader.userPayloadSize);
     }
 
     return iox::cxx::success<>();
