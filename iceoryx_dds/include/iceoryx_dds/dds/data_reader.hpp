@@ -35,7 +35,7 @@ enum class DataReaderError : uint8_t
     INVALID_BUFFER_PARAMETER_FOR_USER_HEADER,
     INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD,
     INVALID_DATA,
-    BUFFER_SIZE_MISSMATCH
+    BUFFER_SIZE_MISMATCH
 };
 
 constexpr const char* DataReaderErrorString[] = {"INVALID_STATE",
@@ -44,7 +44,7 @@ constexpr const char* DataReaderErrorString[] = {"INVALID_STATE",
                                                  "INVALID_BUFFER_PARAMETER_FOR_USER_HEADER",
                                                  "INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD",
                                                  "INVALID_DATA",
-                                                 "BUFFER_SIZE_MISSMATCH"};
+                                                 "BUFFER_SIZE_MISMATCH"};
 
 class DataReader
 {
