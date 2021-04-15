@@ -47,6 +47,12 @@ inline void UntypedSubscriberImpl<BaseSubscriber_t>::release(const void* const u
     port().releaseChunk(chunkHeader);
 }
 
+template <typename BaseSubscriber_t>
+inline UntypedSubscriberImpl<BaseSubscriber_t>::~UntypedSubscriberImpl() noexcept
+{
+    BaseSubscriber_t::m_trigger.reset();
+}
+
 } // namespace popo
 } // namespace iox
 
