@@ -51,8 +51,8 @@ void iox::dds::CycloneDataWriter::connect() noexcept
 }
 
 void iox::dds::CycloneDataWriter::write(iox::dds::IoxChunkDatagramHeader datagramHeader,
-                                        const uint8_t* userHeaderBytes,
-                                        const uint8_t* userPayloadBytes) noexcept
+                                        const uint8_t* const userHeaderBytes,
+                                        const uint8_t* const userPayloadBytes) noexcept
 {
     if (datagramHeader.userHeaderSize > 0
         && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBytes == nullptr))

@@ -46,8 +46,8 @@ class CycloneDataWriter : public iox::dds::DataWriter
 
     void connect() noexcept override;
     void write(iox::dds::IoxChunkDatagramHeader datagramHeader,
-               const uint8_t* userHeaderBytes,
-               const uint8_t* userPayloadBytes) noexcept override;
+               const uint8_t* const userHeaderBytes,
+               const uint8_t* const userPayloadBytes) noexcept override;
     capro::IdString_t getServiceId() const noexcept override;
     capro::IdString_t getInstanceId() const noexcept override;
     capro::IdString_t getEventId() const noexcept override;
