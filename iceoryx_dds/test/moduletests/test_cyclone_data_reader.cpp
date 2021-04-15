@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,7 +94,7 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
     ChunkMock<DummyPayload, DummyUserHeader> chunkMock;
     iox::dds::IoxChunkDatagramHeader datagramHeader;
     datagramHeader.endianness = getEndianess();
-    datagramHeader.userHeaderId = iox::mepoo::ChunkHeader::UNKNONW_USER_HEADER;
+    datagramHeader.userHeaderId = iox::mepoo::ChunkHeader::UNKNOWN_USER_HEADER;
     datagramHeader.userHeaderSize = chunkMock.chunkHeader()->userHeaderSize();
     datagramHeader.userPayloadSize = chunkMock.chunkHeader()->userPayloadSize();
     datagramHeader.userPayloadAlignment = chunkMock.chunkHeader()->userPayloadAlignment();
