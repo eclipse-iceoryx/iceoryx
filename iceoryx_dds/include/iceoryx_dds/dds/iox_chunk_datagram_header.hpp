@@ -17,6 +17,8 @@
 #ifndef IOX_DDS_DDS_IOX_CHUNK_DATAGRAM_HEADER_HPP
 #define IOX_DDS_DDS_IOX_CHUNK_DATAGRAM_HEADER_HPP
 
+#include "iceoryx_utils/cxx/vector.hpp"
+
 #include <cstdint>
 
 namespace iox
@@ -40,6 +42,18 @@ Endianess getEndianess();
 /// @brief The datagram header with chunk metadata for user-header and user-payload
 struct IoxChunkDatagramHeader
 {
+    using Serialized_t = iox::cxx::vector<uint8_t, 16U>;
+
+    /// @brief Serializes a IoxChunkDatagramHeader into a vector of uint8_t
+    /// @param[in] datagramHeader to serialize
+    /// @return the serialized IoxChunkDatagramHeader
+    static Serialized_t serialize(const IoxChunkDatagramHeader& datagramHeader);
+
+    /// @brief Deserializes a vector of uint8_t into a IoxChunkDatagramHeader
+    /// @param[in] serializedDatagram is the serialized IoxChunkDatagramHeader
+    /// @return the deserialized IoxChunkDatagramHeader
+    static IoxChunkDatagramHeader deserialize(const Serialized_t& serializedDatagramHeader);
+
     /// @brief From the 1.0 release onward, this must be incremented for each incompatible change, e.g.
     ///            - data width of members changes
     ///            - members are rearranged
