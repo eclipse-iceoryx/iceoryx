@@ -66,7 +66,7 @@ FILES="index_classes.md index_examples.md index_files.md index_modules.md index_
 
 for PACKAGE in ${PACKAGES}  ; do
     for FILE in ${FILES}  ; do
-        rm $WORKSPACE/doc/website/API-reference/$PACKAGE/$FILE
+        rm -f $WORKSPACE/doc/website/API-reference/$PACKAGE/$FILE
     done
 done
 
