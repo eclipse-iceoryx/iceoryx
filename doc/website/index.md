@@ -8,9 +8,9 @@ title: Home
         width="50%">
 </p>
 
-Eclipse iceoryx™ is a true zero-copy inter-process communication that allows virtually limitless data transfer at constant time.
+Eclipse iceoryx™ is an inter-process-communication midddleware that enables virtually limitless data transmissions at constant time.
 
-| <h2>:octicons-stopwatch-16: Easy</h2> | <h2>:material-shield-half-full: Safe</h2> | <h2>:material-truck-fast: Fast</h2> |
+| <h2>:material-truck-fast: Fast</h2> | <h2>::material-puzzle: Flexible</h2> | <h2>:material-shield-half-full: Dependable</h2> |
 |----|----|-----|
-|<ul><li>Simple publish-subscribe API with service discovery</li><li>Straightforward usage for ROS2 and Adaptive AUTOSAR</li><li>Runs on QNX, Linux, MacOS and Windows</li></ul>|<ul><li>Automotive-grade (ISO26262 certification ongoing)</li><li>Lock-free algorithms prevent deadlocks</li><li>Huge library with safe STL implementations</li></ul>|<ul><li>Written in C++14</li><li>C binding available</li><li>Zero-copy data transmission with shared memory</li><li>Ultra low latency</li></ul>|
-|[Learn more](getting-started/what-is-iceoryx.md#easy){ .md-button }|[Learn more ](getting-started/what-is-iceoryx.md#safe){ .md-button }|[Learn more](getting-started/what-is-iceoryx.md#fast){ .md-button }|
+|<ul><li>True zero-copy shared memory communication</li><li>Message transfers with a latency of less than 1 µs</li><li>Made to handle GBytes/sec data transfers</li></ul>|<ul><li>Support of various operating systems, communication patterns and APIs</li><li>Service discovery enables the design of dynamic systems</li><li>Easy to integrate into frameworks like ROS 2 or AUTOSAR Adaptive</li></ul>|<ul><li>Developed according to automotive requirements</li><li>Implementation based on static memory and lock-free algorithms</li><li>Huge C++ library with safe STL implementations</li></ul>|
+|[Learn more](getting-started/what-is-iceoryx.md#fast){ .md-button }|[Learn more ](getting-started/what-is-iceoryx.md#flexible){ .md-button }|[Learn more](getting-started/what-is-iceoryx.md#dependable){ .md-button }|
