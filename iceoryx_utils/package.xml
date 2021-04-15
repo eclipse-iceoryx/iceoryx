@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
     <name>iceoryx_utils</name>
-    <version>0.99.7</version>
+    <version>1.0.0</version>
     <description>Eclipse iceoryx inter-process-communication (IPC) middleware basic building blocks</description>
     <maintainer email="michael.poehnl@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
