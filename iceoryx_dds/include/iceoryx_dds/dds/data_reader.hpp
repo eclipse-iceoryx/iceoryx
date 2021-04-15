@@ -79,20 +79,6 @@ class DataReader
     virtual iox::cxx::expected<DataReaderError>
     takeNext(const IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBuffer, uint8_t* userPayloadBuffer) = 0;
 
-
-    /// @todo iox-#14 this needs either to be removed or also ported to IoxChunkDatagramHeader
-    ///
-    /// @brief take Take up to a maximum number of samples from the DDS data space.
-    /// @param buffer Receive buffer in which samples will be stored.
-    /// @param bufferSize The size of the buffer (in bytes).
-    /// @param maxSamples The maximum number of samples to request from the network.
-    /// @return Number of samples taken if successful. Number of samples will be in the sange [0,maxSamples].
-    ///
-    /// @note Sample size must be known ahead of time & can be checked using @ref peekNextSize() .
-    ///
-    virtual iox::cxx::expected<uint64_t, DataReaderError>
-    take(uint8_t* const buffer, const uint64_t& bufferSize, const iox::cxx::optional<uint64_t>& maxSamples) = 0;
-
     ///
     /// @brief getServiceId
     /// @return The ID of the service producing the bytes
