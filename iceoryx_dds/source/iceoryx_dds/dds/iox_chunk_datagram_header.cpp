@@ -81,10 +81,10 @@ IoxChunkDatagramHeader::deserialize(const IoxChunkDatagramHeader::Serialized_t& 
                                     | (static_cast<uint32_t>(serializedDatagramHeader[5U]) << 16U)
                                     | (static_cast<uint32_t>(serializedDatagramHeader[6U]) << 8U)
                                     | static_cast<uint32_t>(serializedDatagramHeader[7U]);
-    datagramHeader.userHeaderSize = (static_cast<uint32_t>(serializedDatagramHeader[8U]) << 24U)
-                                    | (static_cast<uint32_t>(serializedDatagramHeader[9U]) << 16U)
-                                    | (static_cast<uint32_t>(serializedDatagramHeader[10U]) << 8U)
-                                    | static_cast<uint32_t>(serializedDatagramHeader[11U]);
+    datagramHeader.userPayloadSize = (static_cast<uint32_t>(serializedDatagramHeader[8U]) << 24U)
+                                     | (static_cast<uint32_t>(serializedDatagramHeader[9U]) << 16U)
+                                     | (static_cast<uint32_t>(serializedDatagramHeader[10U]) << 8U)
+                                     | static_cast<uint32_t>(serializedDatagramHeader[11U]);
     datagramHeader.userPayloadAlignment = (static_cast<uint32_t>(serializedDatagramHeader[12U]) << 24U)
                                           | (static_cast<uint32_t>(serializedDatagramHeader[13U]) << 16U)
                                           | (static_cast<uint32_t>(serializedDatagramHeader[14U]) << 8U)
