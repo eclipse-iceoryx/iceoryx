@@ -78,6 +78,8 @@ class Listener
     ///        defines the event inside the class and the corresponding callback which will be called when the event
     ///        occurs.
     /// @note This method can be called from any thread concurrently without any restrictions!
+    ///        Furthermore, attachEvent does not take ownership of callback in the underlying eventCallback or the
+    ///        optional contextData. The user has to ensure that both will live as long as the event is attached.
     /// @tparam[in] T type of the class which will signal the event
     /// @param[in] eventOrigin the object which will signal the event (the origin)
     /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
@@ -95,6 +97,8 @@ class Listener
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
     ///        the corresponding callback which will be called when the event occurs.
     /// @note This method can be called from any thread concurrently without any restrictions!
+    ///        Furthermore, attachEvent does not take ownership of callback in the underlying eventCallback or the
+    ///        optional contextData. The user has to ensure that both will live as long as the event is attached.
     /// @tparam[in] T type of the class which will signal the event
     /// @param[in] eventOrigin the object which will signal the event (the origin)
     /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. Has to be created

@@ -42,10 +42,10 @@ static void sigHandler(int f_sig [[gnu::unused]])
     keepRunning = false;
 }
 
-class CounterClass
+class CounterService
 {
   public:
-    CounterClass()
+    CounterService()
         : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
         , m_subscriberRight({"Radar", "FrontRight", "Counter"})
     {
@@ -53,6 +53,8 @@ class CounterClass
         /// to the callback to gain access to the object whenever the callback is called.
         /// It is not possible to use a lambda with capturing here since they are not convertable to
         /// a C function pointer.
+        /// important: the user has to ensure that the contextData (*this) lives as long as
+        ///            the subscriber with its callback is attached to the listener
         m_listener
             .attachEvent(m_subscriberLeft,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,
@@ -81,7 +83,7 @@ class CounterClass
     /// This method has to be static since only c functions are allowed as callback.
     /// To gain access to the members and methods of CounterClass we provide as an additional argument the this pointer
     /// which is stored in self
-    static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, CounterClass* self)
+    static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, CounterService* self)
     {
         subscriber->take().and_then([subscriber, self](auto& sample) {
             auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
@@ -124,9 +126,9 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    CounterClass counterClass;
+    CounterService counterService;
 
-    counterClass.waitForShutdown();
+    counterService.waitForShutdown();
 
     return (EXIT_SUCCESS);
 }
