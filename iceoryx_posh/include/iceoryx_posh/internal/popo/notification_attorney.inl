@@ -14,46 +14,46 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_EVENT_ACCESSOR_INL
-#define IOX_POSH_POPO_EVENT_ACCESSOR_INL
+#ifndef IOX_POSH_POPO_NOTIFICATION_ATTORNEY_INL
+#define IOX_POSH_POPO_NOTIFICATION_ATTORNEY_INL
 
 namespace iox
 {
 namespace popo
 {
 template <typename T, typename... Targs>
-inline void EventAttorney::enableEvent(T& eventOrigin, Targs&&... args) noexcept
+inline void NotificationAttorney::enableEvent(T& eventOrigin, Targs&&... args) noexcept
 {
     eventOrigin.enableEvent(std::forward<Targs>(args)...);
 }
 
 template <typename T, typename... Targs>
-inline void EventAttorney::disableEvent(T& eventOrigin, Targs&&... args) noexcept
+inline void NotificationAttorney::disableEvent(T& eventOrigin, Targs&&... args) noexcept
 {
     eventOrigin.disableEvent(std::forward<Targs>(args)...);
 }
 
 template <typename T, typename... Targs>
-inline void EventAttorney::enableState(T& eventOrigin, Targs&&... args) noexcept
+inline void NotificationAttorney::enableState(T& eventOrigin, Targs&&... args) noexcept
 {
     eventOrigin.enableState(std::forward<Targs>(args)...);
 }
 
 template <typename T, typename... Targs>
-inline void EventAttorney::disableState(T& eventOrigin, Targs&&... args) noexcept
+inline void NotificationAttorney::disableState(T& eventOrigin, Targs&&... args) noexcept
 {
     eventOrigin.disableState(std::forward<Targs>(args)...);
 }
 
 template <typename T, typename... Targs>
 inline WaitSetIsConditionSatisfiedCallback
-EventAttorney::getCallbackForIsStateConditionSatisfied(T& eventOrigin, Targs&&... args) noexcept
+NotificationAttorney::getCallbackForIsStateConditionSatisfied(T& eventOrigin, Targs&&... args) noexcept
 {
     return eventOrigin.getCallbackForIsStateConditionSatisfied(std::forward<Targs>(args)...);
 }
 
 template <typename T>
-inline cxx::MethodCallback<void, uint64_t> EventAttorney::getInvalidateTriggerMethod(T& eventOrigin) noexcept
+inline cxx::MethodCallback<void, uint64_t> NotificationAttorney::getInvalidateTriggerMethod(T& eventOrigin) noexcept
 {
     return cxx::MethodCallback<void, uint64_t>(
         eventOrigin, static_cast<cxx::MethodCallback<void, uint64_t>::MethodPointer<T>>(&T::invalidateTrigger));

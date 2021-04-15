@@ -41,9 +41,9 @@ inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<Base
 }
 
 template <typename BaseSubscriber_t>
-inline void UntypedSubscriberImpl<BaseSubscriber_t>::release(const void* const userPayloadOfChunk) noexcept
+inline void UntypedSubscriberImpl<BaseSubscriber_t>::release(const void* const userPayload) noexcept
 {
-    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayloadOfChunk);
+    auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
     port().releaseChunk(chunkHeader);
 }
 

@@ -87,7 +87,7 @@ class iox_ws_test : public Test
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1];
     cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1> m_userTrigger;
 
-    iox_event_info_t m_eventInfoStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET];
+    iox_notification_info_t m_eventInfoStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET];
     uint64_t m_missedElements = 0U;
     uint64_t m_numberOfTriggeredConditions = 0U;
     timespec m_timeout{0, 0};
@@ -274,10 +274,10 @@ TEST_F(iox_ws_test, SingleTriggerCaseWaitReturnsCorrectTrigger)
 
     iox_ws_wait(m_sut, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
-    iox_event_info_t eventInfo = m_eventInfoStorage[0U];
+    iox_notification_info_t eventInfo = m_eventInfoStorage[0U];
 
-    EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 5678U);
-    EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[0U]));
+    EXPECT_EQ(iox_notification_info_get_notification_id(eventInfo), 5678U);
+    EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[0U]));
 }
 
 TEST_F(iox_ws_test, MultiTriggerCaseWaitReturnsCorrectTrigger)
@@ -292,9 +292,9 @@ TEST_F(iox_ws_test, MultiTriggerCaseWaitReturnsCorrectTrigger)
 
     for (uint64_t i = 0U; i < 8; ++i)
     {
-        iox_event_info_t eventInfo = m_eventInfoStorage[i];
-        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 1337U + i);
-        EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
+        iox_notification_info_t eventInfo = m_eventInfoStorage[i];
+        EXPECT_EQ(iox_notification_info_get_notification_id(eventInfo), 1337U + i);
+        EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
     }
 }
 
@@ -310,9 +310,9 @@ TEST_F(iox_ws_test, MaxTriggerCaseWaitReturnsCorrectTrigger)
 
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
-        iox_event_info_t eventInfo = m_eventInfoStorage[i];
-        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 42U * i + 1U);
-        EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
+        iox_notification_info_t eventInfo = m_eventInfoStorage[i];
+        EXPECT_EQ(iox_notification_info_get_notification_id(eventInfo), 42U * i + 1U);
+        EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
     }
 }
 
@@ -359,10 +359,10 @@ TEST_F(iox_ws_test, SingleTriggerCaseTimedWaitReturnsCorrectTrigger)
 
     iox_ws_timed_wait(m_sut, m_timeout, m_eventInfoStorage, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET, &m_missedElements);
 
-    iox_event_info_t eventInfo = m_eventInfoStorage[0U];
+    iox_notification_info_t eventInfo = m_eventInfoStorage[0U];
 
-    EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 5678U);
-    EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[0U]));
+    EXPECT_EQ(iox_notification_info_get_notification_id(eventInfo), 5678U);
+    EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[0U]));
 }
 
 TEST_F(iox_ws_test, MultiTriggerCaseTimedWaitReturnsCorrectTrigger)
@@ -377,9 +377,9 @@ TEST_F(iox_ws_test, MultiTriggerCaseTimedWaitReturnsCorrectTrigger)
 
     for (uint64_t i = 0U; i < 8U; ++i)
     {
-        iox_event_info_t eventInfo = m_eventInfoStorage[i];
-        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 1337U + i);
-        EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
+        iox_notification_info_t eventInfo = m_eventInfoStorage[i];
+        EXPECT_EQ(iox_notification_info_get_notification_id(eventInfo), 1337U + i);
+        EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
     }
 }
 
@@ -395,9 +395,9 @@ TEST_F(iox_ws_test, MaxTriggerCaseTimedWaitReturnsCorrectTrigger)
 
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
-        iox_event_info_t eventInfo = m_eventInfoStorage[i];
-        EXPECT_EQ(iox_event_info_get_event_id(eventInfo), 42U * i + 1U);
-        EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
+        iox_notification_info_t eventInfo = m_eventInfoStorage[i];
+        EXPECT_EQ(iox_notification_info_get_notification_id(eventInfo), 42U * i + 1U);
+        EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(eventInfo, m_userTrigger[i]));
     }
 }
 
@@ -540,7 +540,7 @@ TEST_F(iox_ws_test, SubscriberEventCallbackIsCalled)
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
     EXPECT_EQ(m_missedElements, 0U);
 
-    iox_event_info_call(m_eventInfoStorage[0]);
+    iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(&m_subscriberVector[0]));
 }
@@ -559,7 +559,7 @@ TEST_F(iox_ws_test, SubscriberEventCallbackWithContextDataIsCalled)
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
     EXPECT_EQ(m_missedElements, 0U);
 
-    iox_event_info_call(m_eventInfoStorage[0]);
+    iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(&m_subscriberVector[0]));
     EXPECT_THAT(m_contextData, Eq(&someContextData));
@@ -575,7 +575,7 @@ TEST_F(iox_ws_test, SubscriberStateCallbackIsCalled)
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
     EXPECT_EQ(m_missedElements, 0U);
 
-    iox_event_info_call(m_eventInfoStorage[0]);
+    iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(&m_subscriberVector[0]));
 }
@@ -595,7 +595,7 @@ TEST_F(iox_ws_test, SubscriberStateCallbackWithContextDataIsCalled)
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
     EXPECT_EQ(m_missedElements, 0U);
 
-    iox_event_info_call(m_eventInfoStorage[0]);
+    iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(&m_subscriberVector[0]));
     EXPECT_THAT(m_contextData, Eq(&someContextData));
@@ -610,7 +610,7 @@ TEST_F(iox_ws_test, UserTriggerCallbackIsCalled)
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
     EXPECT_EQ(m_missedElements, 0U);
 
-    iox_event_info_call(m_eventInfoStorage[0]);
+    iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(m_userTrigger[0]));
 }
@@ -625,7 +625,7 @@ TEST_F(iox_ws_test, UserTriggerCallbackWithContextDataIsCalled)
     ASSERT_THAT(iox_ws_wait(m_sut, m_eventInfoStorage, 1U, &m_missedElements), Eq(1U));
     EXPECT_EQ(m_missedElements, 0U);
 
-    iox_event_info_call(m_eventInfoStorage[0]);
+    iox_notification_info_call(m_eventInfoStorage[0]);
 
     EXPECT_THAT(m_callbackOrigin, Eq(m_userTrigger[0]));
     EXPECT_THAT(m_contextData, Eq(&someContextData));

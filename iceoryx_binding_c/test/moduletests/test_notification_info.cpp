@@ -22,7 +22,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/popo/event_info.hpp"
+#include "iceoryx_posh/popo/notification_info.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "mocks/wait_set_mock.hpp"
 
@@ -35,7 +35,7 @@ using namespace iox::posix;
 
 
 extern "C" {
-#include "iceoryx_binding_c/event_info.h"
+#include "iceoryx_binding_c/notification_info.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/wait_set.h"
 }
@@ -44,14 +44,14 @@ extern "C" {
 
 using namespace ::testing;
 
-class iox_event_info_test : public Test
+class iox_notification_info_test : public Test
 {
   public:
     const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
 
     void SetUp()
     {
-        m_lastEventCallbackArgument = nullptr;
+        m_lastNotificationCallbackArgument = nullptr;
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
         m_subscriber.m_portData = &m_portPtr;
@@ -70,9 +70,9 @@ class iox_event_info_test : public Test
         SubscriberPortSingleProducer(ptr).dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     }
 
-    static void eventCallback(UserTrigger* arg)
+    static void notificationCallback(UserTrigger* arg)
     {
-        m_lastEventCallbackArgument = arg;
+        m_lastNotificationCallbackArgument = arg;
     }
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
@@ -91,7 +91,7 @@ class iox_event_info_test : public Test
     }
 
 
-    static UserTrigger* m_lastEventCallbackArgument;
+    static UserTrigger* m_lastNotificationCallbackArgument;
     ConditionVariableData m_condVar{"myApp"};
     WaitSetMock m_waitSet{m_condVar};
     UserTrigger m_userTrigger;
@@ -113,124 +113,126 @@ class iox_event_info_test : public Test
     iox_sub_t m_subscriberHandle = &m_subscriber;
 };
 
-UserTrigger* iox_event_info_test::m_lastEventCallbackArgument = nullptr;
+UserTrigger* iox_notification_info_test::m_lastNotificationCallbackArgument = nullptr;
 
-TEST_F(iox_event_info_test, eventInfoHasCorrectId)
+TEST_F(iox_notification_info_test, notificationInfoHasCorrectId)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 123U;
     ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
 
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    ASSERT_THAT(eventInfoVector.size(), Eq(1U));
-    EXPECT_EQ(iox_event_info_get_event_id(eventInfoVector[0]), ARBITRARY_EVENT_ID);
+    ASSERT_THAT(notificationInfoVector.size(), Eq(1U));
+    EXPECT_EQ(iox_notification_info_get_notification_id(notificationInfoVector[0]), ARBITRARY_EVENT_ID);
 }
 
-TEST_F(iox_event_info_test, eventOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
+TEST_F(iox_notification_info_test, notificationOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 124U;
     ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
 
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    EXPECT_TRUE(iox_event_info_does_originate_from_user_trigger(eventInfoVector[0U], &m_userTrigger));
-    EXPECT_FALSE(iox_event_info_does_originate_from_subscriber(eventInfoVector[0U], &m_subscriber));
+    EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(notificationInfoVector[0U], &m_userTrigger));
+    EXPECT_FALSE(iox_notification_info_does_originate_from_subscriber(notificationInfoVector[0U], &m_subscriber));
 }
 
-TEST_F(iox_event_info_test, eventOriginIsSubscriberPointerWhenItsOriginatingFromThemStateBased)
+TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsOriginatingFromThemStateBased)
 {
     iox_ws_attach_subscriber_state(&m_waitSet, m_subscriberHandle, SubscriberState_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    EXPECT_TRUE(iox_event_info_does_originate_from_subscriber(eventInfoVector[0U], m_subscriberHandle));
-    EXPECT_FALSE(iox_event_info_does_originate_from_user_trigger(eventInfoVector[0U], &m_userTrigger));
+    EXPECT_TRUE(iox_notification_info_does_originate_from_subscriber(notificationInfoVector[0U], m_subscriberHandle));
+    EXPECT_FALSE(iox_notification_info_does_originate_from_user_trigger(notificationInfoVector[0U], &m_userTrigger));
 }
 
-TEST_F(iox_event_info_test, eventOriginIsSubscriberPointerWhenItsOriginatingFromThemEventBased)
+TEST_F(iox_notification_info_test, notificationOriginIsSubscriberPointerWhenItsOriginatingFromThemEventBased)
 {
     iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_DATA_RECEIVED, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    EXPECT_TRUE(iox_event_info_does_originate_from_subscriber(eventInfoVector[0U], m_subscriberHandle));
-    EXPECT_FALSE(iox_event_info_does_originate_from_user_trigger(eventInfoVector[0U], &m_userTrigger));
+    EXPECT_TRUE(iox_notification_info_does_originate_from_subscriber(notificationInfoVector[0U], m_subscriberHandle));
+    EXPECT_FALSE(iox_notification_info_does_originate_from_user_trigger(notificationInfoVector[0U], &m_userTrigger));
 }
 
-TEST_F(iox_event_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingFromThem)
+TEST_F(iox_notification_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatingFromThem)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 89121U;
     ASSERT_FALSE(m_waitSet.attachEvent(m_userTrigger, ARBITRARY_EVENT_ID).has_error());
     m_userTrigger.trigger();
 
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_get_user_trigger_origin(eventInfoVector[0U]), &m_userTrigger);
-    EXPECT_EQ(iox_event_info_get_subscriber_origin(eventInfoVector[0U]), nullptr);
+    EXPECT_EQ(iox_notification_info_get_user_trigger_origin(notificationInfoVector[0U]), &m_userTrigger);
+    EXPECT_EQ(iox_notification_info_get_subscriber_origin(notificationInfoVector[0U]), nullptr);
 }
 
-TEST_F(iox_event_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThemStateBased)
+TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThemStateBased)
 {
     iox_ws_attach_subscriber_state(&m_waitSet, m_subscriberHandle, SubscriberState_HAS_DATA, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_get_user_trigger_origin(eventInfoVector[0U]), nullptr);
-    EXPECT_EQ(iox_event_info_get_subscriber_origin(eventInfoVector[0U]), m_subscriberHandle);
+    EXPECT_EQ(iox_notification_info_get_user_trigger_origin(notificationInfoVector[0U]), nullptr);
+    EXPECT_EQ(iox_notification_info_get_subscriber_origin(notificationInfoVector[0U]), m_subscriberHandle);
 }
 
-TEST_F(iox_event_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThemEventBased)
+TEST_F(iox_notification_info_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThemEventBased)
 {
     iox_ws_attach_subscriber_event(&m_waitSet, m_subscriberHandle, SubscriberEvent_DATA_RECEIVED, 587U, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(getChunkFromMemoryManager());
 
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_event_info_get_user_trigger_origin(eventInfoVector[0U]), nullptr);
-    EXPECT_EQ(iox_event_info_get_subscriber_origin(eventInfoVector[0U]), m_subscriberHandle);
+    EXPECT_EQ(iox_notification_info_get_user_trigger_origin(notificationInfoVector[0U]), nullptr);
+    EXPECT_EQ(iox_notification_info_get_subscriber_origin(notificationInfoVector[0U]), m_subscriberHandle);
 }
 
-TEST_F(iox_event_info_test, callbackCanBeCalledOnce)
+TEST_F(iox_notification_info_test, callbackCanBeCalledOnce)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 80U;
-    ASSERT_FALSE(
-        m_waitSet
-            .attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, createEventCallback(iox_event_info_test::eventCallback))
-            .has_error());
+    ASSERT_FALSE(m_waitSet
+                     .attachEvent(m_userTrigger,
+                                  ARBITRARY_EVENT_ID,
+                                  createNotificationCallback(iox_notification_info_test::notificationCallback))
+                     .has_error());
     m_userTrigger.trigger();
 
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    iox_event_info_call(eventInfoVector[0U]);
-    EXPECT_EQ(m_lastEventCallbackArgument, &m_userTrigger);
+    iox_notification_info_call(notificationInfoVector[0U]);
+    EXPECT_EQ(m_lastNotificationCallbackArgument, &m_userTrigger);
 }
 
-TEST_F(iox_event_info_test, callbackCanBeCalledMultipleTimes)
+TEST_F(iox_notification_info_test, callbackCanBeCalledMultipleTimes)
 {
     constexpr uint64_t ARBITRARY_EVENT_ID = 180U;
-    ASSERT_FALSE(
-        m_waitSet
-            .attachEvent(m_userTrigger, ARBITRARY_EVENT_ID, createEventCallback(iox_event_info_test::eventCallback))
-            .has_error());
+    ASSERT_FALSE(m_waitSet
+                     .attachEvent(m_userTrigger,
+                                  ARBITRARY_EVENT_ID,
+                                  createNotificationCallback(iox_notification_info_test::notificationCallback))
+                     .has_error());
     m_userTrigger.trigger();
-    auto eventInfoVector = m_waitSet.wait();
+    auto notificationInfoVector = m_waitSet.wait();
 
-    iox_event_info_call(eventInfoVector[0U]);
-    m_lastEventCallbackArgument = nullptr;
-    iox_event_info_call(eventInfoVector[0U]);
-    m_lastEventCallbackArgument = nullptr;
-    iox_event_info_call(eventInfoVector[0U]);
-    m_lastEventCallbackArgument = nullptr;
-    iox_event_info_call(eventInfoVector[0U]);
+    iox_notification_info_call(notificationInfoVector[0U]);
+    m_lastNotificationCallbackArgument = nullptr;
+    iox_notification_info_call(notificationInfoVector[0U]);
+    m_lastNotificationCallbackArgument = nullptr;
+    iox_notification_info_call(notificationInfoVector[0U]);
+    m_lastNotificationCallbackArgument = nullptr;
+    iox_notification_info_call(notificationInfoVector[0U]);
 
-    EXPECT_EQ(m_lastEventCallbackArgument, &m_userTrigger);
+    EXPECT_EQ(m_lastNotificationCallbackArgument, &m_userTrigger);
 }

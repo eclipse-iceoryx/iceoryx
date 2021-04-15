@@ -49,7 +49,7 @@ class UserTrigger
     /// @note The hasTrigger state will be reset after it was handled by a WaitSet/Listener
     bool hasTriggered() const noexcept;
 
-    friend class EventAttorney;
+    friend class NotificationAttorney;
 
   private:
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.
