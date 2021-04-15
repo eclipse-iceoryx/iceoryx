@@ -86,7 +86,12 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
                             LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
                                       << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
                         });
+                })
+                .or_else([](auto& error) {
+                    LogError() << "[DDS2IceoryxGateway] Could not loan chunk! Error code: "
+                               << static_cast<uint64_t>(error);
                 });
+            ;
         });
     }
 }
