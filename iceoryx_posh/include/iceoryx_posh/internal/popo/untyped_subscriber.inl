@@ -48,7 +48,7 @@ inline void UntypedSubscriberImpl<BaseSubscriber_t>::release(const void* const u
 }
 
 template <typename BaseSubscriber_t>
-UntypedSubscriberImpl<BaseSubscriber_t>::~UntypedSubscriberImpl()
+inline UntypedSubscriberImpl<BaseSubscriber_t>::~UntypedSubscriberImpl() noexcept
 {
     BaseSubscriber_t::m_trigger.reset();
 }
