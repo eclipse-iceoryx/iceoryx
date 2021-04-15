@@ -31,22 +31,19 @@ enum class DataReaderError : uint8_t
 {
     INVALID_STATE,
     NOT_CONNECTED,
-    INVALID_RECV_BUFFER,
     INVALID_DATAGRAM_HEADER,
     INVALID_BUFFER_PARAMETER_FOR_USER_HEADER,
     INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD,
     INVALID_DATA,
-    RECV_BUFFER_TOO_SMALL,
     BUFFER_SIZE_MISSMATCH
 };
 
-constexpr const char* DataReaderErrorString[] = {"NOT_CONNECTED",
-                                                 "INVALID_RECV_BUFFER",
+constexpr const char* DataReaderErrorString[] = {"INVALID_STATE",
+                                                 "NOT_CONNECTED",
                                                  "INVALID_DATAGRAM_HEADER",
                                                  "INVALID_BUFFER_PARAMETER_FOR_USER_HEADER",
                                                  "INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD",
                                                  "INVALID_DATA",
-                                                 "RECV_BUFFER_TOO_SMALL",
                                                  "BUFFER_SIZE_MISSMATCH"};
 
 class DataReader
