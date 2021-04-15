@@ -49,6 +49,7 @@ TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 
     EXPECT_THAT(sut.sequenceNumber(), Eq(0U));
 
+    EXPECT_THAT(sut.userHeaderId(), Eq(ChunkHeader::NO_USER_HEADER));
     EXPECT_THAT(sut.userHeaderSize(), Eq(0U));
     EXPECT_THAT(sut.userPayloadSize(), Eq(USER_PAYLOAD_SIZE));
     EXPECT_THAT(sut.userPayloadAlignment(), Eq(USER_PAYLOAD_ALIGNMENT));
@@ -291,14 +292,17 @@ void createChunksOnMultipleAddresses(const PayloadParams& userPayloadParams,
     }
 }
 
-void checkUserHeaderSizeAndPayloadSizeAndAlignmentIsSet(const ChunkHeader& sut,
-                                                        const PayloadParams& userPayloadParams,
-                                                        const uint32_t userHeaderSize)
+void checkUserHeaderIdAndSizeAndPayloadSizeAndAlignmentIsSet(const ChunkHeader& sut,
+                                                             const PayloadParams& userPayloadParams,
+                                                             const uint16_t userHeaderId,
+                                                             const uint32_t userHeaderSize)
 {
+    SCOPED_TRACE(std::string("Check user-header id and size and user-payload alignment ist correctly set"));
     EXPECT_EQ(sut.userPayloadSize(), userPayloadParams.size);
     // a user-payload alignment of zero will internally be set to one
     auto adjustedAlignment = userPayloadParams.alignment == 0U ? 1U : userPayloadParams.alignment;
     EXPECT_EQ(sut.userPayloadAlignment(), adjustedAlignment);
+    EXPECT_EQ(sut.userHeaderId(), userHeaderId);
     EXPECT_EQ(sut.userHeaderSize(), userHeaderSize);
 }
 
@@ -411,7 +415,8 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithoutUserHeader, CheckIntegrityOfChunkHe
     constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
 
     createChunksOnMultipleAddresses(userPayloadParams, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT, [&](ChunkHeader& sut) {
-        checkUserHeaderSizeAndPayloadSizeAndAlignmentIsSet(sut, userPayloadParams, USER_HEADER_SIZE);
+        checkUserHeaderIdAndSizeAndPayloadSizeAndAlignmentIsSet(
+            sut, userPayloadParams, ChunkHeader::NO_USER_HEADER, USER_HEADER_SIZE);
         checkUserPayloadNotOverlappingWithChunkHeader(sut);
         checkUserPayloadSize(sut, userPayloadParams);
         checkUserPayloadAlignment(sut, userPayloadParams);
@@ -483,7 +488,8 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeade
 
             createChunksOnMultipleAddresses(
                 userPayloadParams, userHeaderSize, userHeaderAlignment, [&](ChunkHeader& sut) {
-                    checkUserHeaderSizeAndPayloadSizeAndAlignmentIsSet(sut, userPayloadParams, userHeaderSize);
+                    checkUserHeaderIdAndSizeAndPayloadSizeAndAlignmentIsSet(
+                        sut, userPayloadParams, ChunkHeader::UNKNOWN_USER_HEADER, userHeaderSize);
                     checkUserHeaderIsAdjacentToChunkHeader(sut);
                     checkUserPayloadNotOverlappingWithUserHeader(sut, userHeaderSize);
                     checkUserPayloadSize(sut, userPayloadParams);

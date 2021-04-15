@@ -64,16 +64,34 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 
     while (reader->hasSamples())
     {
-        reader->peekNextSize().and_then([&](auto size) {
-            publisher->loan(size).and_then([&](auto chunk) {
-                reader->takeNext(static_cast<uint8_t*>(chunk), size)
-                    .and_then([&]() { publisher->publish(chunk); })
-                    .or_else([&](DataReaderError err) {
-                        publisher->release(chunk);
-                        LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
-                                  << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
-                    });
-            });
+        reader->peekNextIoxChunkDatagramHeader().and_then([&](auto datagramHeader) {
+            // this is safe, it is just used to check if the alignment doesn't exceed the
+            // alignment of the ChunkHeader but since this is data from a previously valid
+            // chunk, we can assume that the alignment was correct and use this value
+            constexpr uint32_t USER_HEADER_ALIGNMENT{1U};
+            publisher
+                ->loan(datagramHeader.userPayloadSize,
+                       datagramHeader.userPayloadAlignment,
+                       datagramHeader.userHeaderSize,
+                       USER_HEADER_ALIGNMENT)
+                .and_then([&](auto userPayload) {
+                    auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
+                    reader
+                        ->takeNext(datagramHeader,
+                                   static_cast<uint8_t*>(chunkHeader->userHeader()),
+                                   static_cast<uint8_t*>(chunkHeader->userPayload()))
+                        .and_then([&]() { publisher->publish(userPayload); })
+                        .or_else([&](DataReaderError err) {
+                            publisher->release(userPayload);
+                            LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
+                                      << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+                        });
+                })
+                .or_else([](auto& error) {
+                    LogError() << "[DDS2IceoryxGateway] Could not loan chunk! Error code: "
+                               << static_cast<uint64_t>(error);
+                });
+            ;
         });
     }
 }
