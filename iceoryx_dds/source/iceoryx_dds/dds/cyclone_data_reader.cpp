@@ -195,7 +195,7 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
     if (bufferSize != dataSize)
     {
         // provided buffer don't match
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::BUFFER_SIZE_MISSMATCH);
+        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::BUFFER_SIZE_MISMATCH);
     }
 
     // copy data into the provided buffer
