@@ -61,13 +61,13 @@ class DataReader
     /// @brief peekNextIoxChunkDatagramHeader Get the IoxChunkDatagramHeader of the next sample if one is available.
     /// @return The IoxChunkDatagramHeader of the next sample if one is available.
     ///
-    virtual iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() = 0;
+    virtual iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() noexcept = 0;
 
     ///
     /// @brief hasSamples Checks if new samples ready to take.
     /// @return True if new samples available.
     ///
-    virtual bool hasSamples() = 0;
+    virtual bool hasSamples() noexcept = 0;
 
     ///
     /// @brief take Take the next available sample from the DDS data space.
@@ -78,7 +78,7 @@ class DataReader
     ///
     virtual iox::cxx::expected<DataReaderError> takeNext(const IoxChunkDatagramHeader datagramHeader,
                                                          uint8_t* const userHeaderBuffer,
-                                                         uint8_t* const userPayloadBuffer) = 0;
+                                                         uint8_t* const userPayloadBuffer) noexcept = 0;
 
     ///
     /// @brief getServiceId
@@ -99,7 +99,7 @@ class DataReader
     virtual capro::IdString_t getEventId() const noexcept = 0;
 
   protected:
-    DataReader() = default;
+    DataReader() noexcept = default;
 };
 } // namespace dds
 } // namespace iox
