@@ -37,10 +37,11 @@ To run an example you need a running `iox-roudi` and the waitset publisher
 [icedelivery C example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery_in_c).
 
 ### Gateway
+
 Let's say we would like to write a gateway and would like to forward every
 incoming message from a subscriber with the same callback. For instance we could perform
-a memcopy of the received data into a specific struct. Additionally, we would 
-like to count all processed samples therefor we provide an extra void pointer 
+a memcopy of the received data into a specific struct. Additionally, we would
+like to count all processed samples therefor we provide an extra void pointer
 argument called `contextData` which is a pointer to an `uint64_t`.
 
 This could be performed by a function that we attach to an event as a
@@ -69,7 +70,7 @@ void subscriberCallback(iox_sub_t const subscriber, void * const contextData)
 }
 ```
 
-The `shutdownTrigger` gets a simplified callback where it just states that the 
+The `shutdownTrigger` gets a simplified callback where it just states that the
 program will be terminated. For this we do not need any context data.
 ```c
 void shutdownCallback(iox_user_trigger_t userTrigger)
@@ -101,13 +102,13 @@ iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, shutdownCallback)
 In the next steps, we define `sumOfAllSamples`, create two subscribers with `iox_sub_init`,
 subscribe them to our topic
 and attach the event `SubscriberEvent_DATA_RECEIVED` to the WaitSet with
-the `subscriberCallback`, an event id `1U` and a pointer to our user defined 
+the `subscriberCallback`, an event id `1U` and a pointer to our user defined
 context data `sumOfAllSamples` which is then provided as argument for the callback.
 
 !!! attention 
-    The user has to ensure that the contextData (`sumOfAllSamples`) in 
-    `iox_ws_attach_subscriber_event_with_context_data` lives as long as the 
-    attachment, with its callback, is attached otherwise the callback context 
+    The user has to ensure that the contextData (`sumOfAllSamples`) in
+    `iox_ws_attach_subscriber_event_with_context_data` lives as long as the
+    attachment, with its callback, is attached otherwise the callback context
     data pointer is dangling.
 
 ```c
