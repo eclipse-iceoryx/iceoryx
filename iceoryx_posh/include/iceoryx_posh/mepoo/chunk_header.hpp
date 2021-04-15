@@ -64,7 +64,7 @@ struct ChunkHeader
     /// @brief User-Header id for no user-header
     static constexpr uint16_t NO_USER_HEADER{0x0000};
     /// @brief User-Header id for an unknown user-header
-    static constexpr uint16_t UNKNONW_USER_HEADER{0xFFFF};
+    static constexpr uint16_t UNKNOWN_USER_HEADER{0xFFFF};
 
     /// @brief The ChunkHeader version is used to detect incompatibilities for record&replay functionality
     /// @return the ChunkHeader version

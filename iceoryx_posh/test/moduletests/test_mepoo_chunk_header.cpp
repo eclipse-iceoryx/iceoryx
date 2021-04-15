@@ -489,7 +489,7 @@ TEST_P(ChunkHeader_AlteringUserPayloadWithUserHeader, CheckIntegrityOfChunkHeade
             createChunksOnMultipleAddresses(
                 userPayloadParams, userHeaderSize, userHeaderAlignment, [&](ChunkHeader& sut) {
                     checkUserHeaderIdAndSizeAndPayloadSizeAndAlignmentIsSet(
-                        sut, userPayloadParams, ChunkHeader::UNKNONW_USER_HEADER, userHeaderSize);
+                        sut, userPayloadParams, ChunkHeader::UNKNOWN_USER_HEADER, userHeaderSize);
                     checkUserHeaderIsAdjacentToChunkHeader(sut);
                     checkUserPayloadNotOverlappingWithUserHeader(sut, userHeaderSize);
                     checkUserPayloadSize(sut, userPayloadParams);
