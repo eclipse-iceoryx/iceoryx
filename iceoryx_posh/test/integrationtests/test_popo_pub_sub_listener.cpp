@@ -60,6 +60,10 @@ class PubSubListener_IntegrationTest : public RouDi_GTest
 };
 } // namespace
 
+/// @note Here we test that the trigger reset methods are called correctly in the d'tor of SubscriberImpl. They must not
+/// be called in the BaseSubscriber d'tor since the SubscriberImpl was attached to the Listener. When it goes out of
+/// scope, the trigger tries to access it but SubscriberImpl does not longer exist. This is catched by the
+/// UndefinedBehaviorSanitizer.
 TEST_F(PubSubListener_IntegrationTest, SubscriberGoesOutOfScopeAndDeatchingWorks)
 {
     m_listener
@@ -71,6 +75,10 @@ TEST_F(PubSubListener_IntegrationTest, SubscriberGoesOutOfScopeAndDeatchingWorks
     m_subscriber.reset();
 }
 
+/// @note Here we test that the trigger reset methods are called correctly in the d'tor of UntypedSubscriberImpl. They
+/// must not be called in the BaseSubscriber d'tor since the UntypedSubscriberImpl was attached to the Listener. When it
+/// goes out of scope, the trigger tries to access it but UntypedSubscriberImpl does not longer exist. This is catched
+/// by the UndefinedBehaviorSanitizer.
 TEST_F(PubSubListener_IntegrationTest, UntypedSubscriberGoesOutOfScopeAndDeatchingWorks)
 {
     m_listener

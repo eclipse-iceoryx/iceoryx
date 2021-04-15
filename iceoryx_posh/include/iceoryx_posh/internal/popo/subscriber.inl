@@ -44,7 +44,7 @@ SubscriberImpl<T, H, BaseSubscriber_t>::take() noexcept
 }
 
 template <typename T, typename H, typename BaseSubscriber_t>
-SubscriberImpl<T, H, BaseSubscriber_t>::~SubscriberImpl()
+inline SubscriberImpl<T, H, BaseSubscriber_t>::~SubscriberImpl() noexcept
 {
     BaseSubscriber_t::m_trigger.reset();
 }
