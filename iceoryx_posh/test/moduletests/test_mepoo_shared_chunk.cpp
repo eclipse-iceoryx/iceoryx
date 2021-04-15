@@ -180,17 +180,6 @@ TEST_F(SharedChunk_Test, boolOperatorIsNotSet)
     EXPECT_THAT(sut2, Eq(false));
 }
 
-TEST_F(SharedChunk_Test, hasNoOtherOwnersForSingleOwner)
-{
-    EXPECT_THAT(sut.hasNoOtherOwners(), Eq(true));
-}
-
-TEST_F(SharedChunk_Test, hasNoOtherOwnersForMultipleOwner)
-{
-    iox::mepoo::SharedChunk sut2(sut);
-    EXPECT_THAT(sut.hasNoOtherOwners(), Eq(false));
-}
-
 TEST_F(SharedChunk_Test, getUserPayloadWhenInvalidResultsInNullptr)
 {
     SharedChunk sut2(nullptr);

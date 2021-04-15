@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +14,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_INL
+#define IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_INL
 
 namespace iox
 {
-namespace popo
+namespace rp
 {
-ChunkTuple::ChunkTuple(const iox::rp::RelativePointer<mepoo::ChunkManagement> chunk) noexcept
-    : m_segmentId(chunk.getId())
-    , m_chunkOffset(chunk.getOffset())
+constexpr RelativePointerData::RelativePointerData(id_t id, offset_t offset) noexcept
+    : m_idAndOffset(static_cast<uint64_t>(id) | (offset << 16U))
 {
+    if (id > MAX_VALID_ID || offset > MAX_VALID_OFFSET)
+    {
+        m_idAndOffset = LOGICAL_NULLPTR;
+    }
 }
-
-} // namespace popo
+} // namespace rp
 } // namespace iox
+
+#endif // IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_INL

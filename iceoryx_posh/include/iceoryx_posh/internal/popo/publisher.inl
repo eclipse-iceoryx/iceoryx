@@ -89,17 +89,6 @@ inline void PublisherImpl<T, H, BasePublisher_t>::publish(Sample<T, H>&& sample)
 }
 
 template <typename T, typename H, typename BasePublisher_t>
-inline cxx::optional<Sample<T, H>> PublisherImpl<T, H, BasePublisher_t>::loanPreviousSample() noexcept
-{
-    auto result = port().tryGetPreviousChunk();
-    if (result.has_value())
-    {
-        return cxx::make_optional<Sample<T, H>>(convertChunkHeaderToSample(result.value()));
-    }
-    return cxx::nullopt;
-}
-
-template <typename T, typename H, typename BasePublisher_t>
 inline Sample<T, H>
 PublisherImpl<T, H, BasePublisher_t>::convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept
 {
