@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
 
-set(IOX_VERSION_STRING "0.99.7")
+set(IOX_VERSION_STRING "1.0.0")
 
 project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 
