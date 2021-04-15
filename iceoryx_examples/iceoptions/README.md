@@ -7,7 +7,7 @@ side. The options can be used for the typed and untyped C++ API flavors as well 
 
 ## Expected Output
 
-<!-- Add asciinema link here -->
+[![asciicast](https://asciinema.org/a/407362.svg)](https://asciinema.org/a/407362)
 
 ## Code walkthrough
 

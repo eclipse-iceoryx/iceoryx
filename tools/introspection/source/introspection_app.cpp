@@ -92,7 +92,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
             break;
 
         case 'v':
-            std::cout << "Latest official IceOryx release version: " << ICEORYX_LATEST_RELEASE_VERSION << "\n"
+            std::cout << "Latest official iceoryx release version: " << ICEORYX_LATEST_RELEASE_VERSION << "\n"
                       << std::endl;
             exit(EXIT_SUCCESS);
             break;

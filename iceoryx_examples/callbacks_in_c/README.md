@@ -18,7 +18,7 @@ and at the Glossary of the
 
 ## Expected Output
 
-<!-- @todo Add expected output with asciinema recording before v1.0-->
+[![asciicast](https://asciinema.org/a/407369.svg)](https://asciinema.org/a/407369)
 
 ## Code Walkthrough
 
