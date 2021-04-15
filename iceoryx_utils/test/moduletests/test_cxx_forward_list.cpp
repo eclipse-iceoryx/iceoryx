@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_utils/cxx/attributes.hpp"
 #include "iceoryx_utils/cxx/forward_list.hpp"
 #include "test.hpp"
 
@@ -910,7 +911,7 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
     }
     sut.insert_after(iter, a);
 
-    for (auto& x [[gnu::unused]] : sut)
+    for (auto& x IOX_MAYBE_UNUSED : sut)
     {
         ++loopCounter;
     }

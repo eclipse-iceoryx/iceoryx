@@ -38,7 +38,7 @@ class SubscriberImpl : public BaseSubscriber_t
     SubscriberImpl& operator=(const SubscriberImpl&) = delete;
     SubscriberImpl(SubscriberImpl&& rhs) = delete;
     SubscriberImpl& operator=(SubscriberImpl&& rhs) = delete;
-    virtual ~SubscriberImpl() = default;
+    virtual ~SubscriberImpl() noexcept;
 
     ///
     /// @brief Take the samples from the top of the receive queue.

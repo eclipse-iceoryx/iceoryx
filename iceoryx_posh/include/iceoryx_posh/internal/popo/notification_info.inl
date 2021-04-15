@@ -14,46 +14,47 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_EVENT_INFO_INL
-#define IOX_POSH_POPO_EVENT_INFO_INL
+#ifndef IOX_POSH_POPO_NOTIFICATION_INFO_INL
+#define IOX_POSH_POPO_NOTIFICATION_INFO_INL
 
 namespace iox
 {
 namespace popo
 {
 template <typename T, typename ContextDataType>
-inline EventInfo::EventInfo(T* const eventOrigin,
-                            const uint64_t eventId,
-                            const EventCallback<T, ContextDataType>& callback) noexcept
-    : m_eventOrigin(eventOrigin)
+inline NotificationInfo::NotificationInfo(T* const notificationOrigin,
+                                          const uint64_t notificationId,
+                                          const NotificationCallback<T, ContextDataType>& callback) noexcept
+    : m_notificationOrigin(notificationOrigin)
     , m_userValue(callback.m_contextData)
-    , m_eventOriginTypeHash(typeid(T).hash_code())
-    , m_eventId(eventId)
+    , m_notificationOriginTypeHash(typeid(T).hash_code())
+    , m_notificationId(notificationId)
     , m_callbackPtr(reinterpret_cast<internal::GenericCallbackPtr_t>(callback.m_callback))
     , m_callback(internal::TranslateAndCallTypelessCallback<T, ContextDataType>::call)
 {
 }
 
 template <typename T>
-inline bool EventInfo::doesOriginateFrom(T* const eventOrigin) const noexcept
+inline bool NotificationInfo::doesOriginateFrom(T* const notificationOrigin) const noexcept
 {
-    if (m_eventOrigin == nullptr)
+    if (m_notificationOrigin == nullptr)
     {
         return false;
     }
-    return m_eventOrigin == eventOrigin;
+    return m_notificationOrigin == notificationOrigin;
 }
 
 template <typename T>
-inline T* EventInfo::getOrigin() const noexcept
+inline T* NotificationInfo::getOrigin() const noexcept
 {
-    if (m_eventOriginTypeHash != typeid(T).hash_code())
+    if (m_notificationOriginTypeHash != typeid(T).hash_code())
     {
-        errorHandler(Error::kPOPO__EVENT_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
+        errorHandler(
+            Error::kPOPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
         return nullptr;
     }
 
-    return static_cast<T*>(m_eventOrigin);
+    return static_cast<T*>(m_notificationOrigin);
 }
 
 } // namespace popo

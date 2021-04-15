@@ -36,7 +36,7 @@ constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 iox::cxx::optional<CounterTopic> leftCache;
 iox::cxx::optional<CounterTopic> rightCache;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     shutdownSemaphore.post().or_else([](auto) {
         std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
@@ -103,7 +103,7 @@ int main()
     });
 
     // attach everything to the listener, from here on the callbacks are called when the corresponding event is occuring
-    listener.attachEvent(heartbeat, iox::popo::createEventCallback(heartbeatCallback)).or_else([](auto) {
+    listener.attachEvent(heartbeat, iox::popo::createNotificationCallback(heartbeatCallback)).or_else([](auto) {
         std::cerr << "unable to attach heartbeat event" << std::endl;
         std::exit(EXIT_FAILURE);
     });
@@ -116,7 +116,7 @@ int main()
     listener
         .attachEvent(subscriberLeft,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
-                     iox::popo::createEventCallback(onSampleReceivedCallback))
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberLeft" << std::endl;
             std::exit(EXIT_FAILURE);
@@ -124,7 +124,7 @@ int main()
     listener
         .attachEvent(subscriberRight,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
-                     iox::popo::createEventCallback(onSampleReceivedCallback))
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberRight" << std::endl;
             std::exit(EXIT_FAILURE);

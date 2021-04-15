@@ -82,7 +82,7 @@ TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
     EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectEventId)
+TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectNotificationId)
 {
     iox_ws_attach_user_trigger_event(&m_waitSet, m_sut, 88191U, NULL);
     iox_user_trigger_trigger(m_sut);
@@ -90,7 +90,7 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectEventId)
     auto eventVector = m_waitSet.wait();
 
     ASSERT_THAT(eventVector.size(), Eq(1U));
-    EXPECT_EQ(eventVector[0U]->getEventId(), 88191U);
+    EXPECT_EQ(eventVector[0U]->getNotificationId(), 88191U);
 }
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)

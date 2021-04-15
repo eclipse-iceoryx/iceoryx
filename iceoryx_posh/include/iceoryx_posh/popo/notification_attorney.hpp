@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_POPO_EVENT_ATTORNEY_HPP
-#define IOX_POSH_POPO_EVENT_ATTORNEY_HPP
+#ifndef IOX_POSH_POPO_NOTIFICATION_ATTORNEY_HPP
+#define IOX_POSH_POPO_NOTIFICATION_ATTORNEY_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
@@ -27,9 +27,9 @@ namespace iox
 namespace popo
 {
 /// @brief Class which allows accessing private methods to
-///         friends of EventAttorney. Used for example by the WaitSet.
+///         friends of NotificationAttorney. Used for example by the WaitSet.
 ///         Implements the Client-Attorney Pattern.
-class EventAttorney
+class NotificationAttorney
 {
     template <uint64_t>
     friend class WaitSet;
@@ -60,5 +60,5 @@ class EventAttorney
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/event_attorney.inl"
+#include "iceoryx_posh/internal/popo/notification_attorney.inl"
 #endif

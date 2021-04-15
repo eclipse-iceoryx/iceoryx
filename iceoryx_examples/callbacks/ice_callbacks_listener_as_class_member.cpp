@@ -33,7 +33,7 @@ constexpr char APP_NAME[] = "iox-cpp-callbacks-listener-as-class-member";
 iox::posix::Semaphore shutdownSemaphore =
     iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     shutdownSemaphore.post().or_else([](auto) {
         std::cerr << "unable to call post on shutdownSemaphore - semaphore corrupt?" << std::endl;
@@ -58,7 +58,7 @@ class CounterService
         m_listener
             .attachEvent(m_subscriberLeft,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,
-                         iox::popo::createEventCallback(onSampleReceivedCallback, *this))
+                         iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberLeft" << std::endl;
                 std::exit(EXIT_FAILURE);
@@ -66,7 +66,7 @@ class CounterService
         m_listener
             .attachEvent(m_subscriberRight,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,
-                         iox::popo::createEventCallback(onSampleReceivedCallback, *this))
+                         iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
             .or_else([](auto) {
                 std::cerr << "unable to attach subscriberRight" << std::endl;
                 std::exit(EXIT_FAILURE);

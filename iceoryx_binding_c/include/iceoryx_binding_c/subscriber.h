@@ -96,15 +96,15 @@ ENUM iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self);
 
 /// @brief retrieve a received chunk
 /// @param[in] self handle to the subscriber
-/// @param[in] userPayloadOfChunk pointer in which the pointer to the user-payload of the chunk is stored
+/// @param[in] userPayload pointer in which the pointer to the user-payload of the chunk is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayloadOfChunk);
+ENUM iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayload);
 
 /// @brief release a previously acquired chunk (via iox_sub_getChunk)
 /// @param[in] self handle to the subscriber
-/// @param[in] userPayloadOfChunk pointer to the user-payload of chunk which should be released
-void iox_sub_release_chunk(iox_sub_t const self, const void* const userPayloadOfChunk);
+/// @param[in] userPayload pointer to the user-payload of chunk which should be released
+void iox_sub_release_chunk(iox_sub_t const self, const void* const userPayload);
 
 /// @brief release all chunks which are stored in the chunk queue
 /// @param[in] self handle to the subscriber

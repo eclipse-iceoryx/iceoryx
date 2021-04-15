@@ -86,7 +86,7 @@ our `heartbeat` user trigger to print the heartbeat message to the console via a
 callback (`heartbeatCallback`).
 
 ```cpp
-listener.attachEvent(heartbeat, iox::popo::createEventCallback(heartbeatCallback))
+listener.attachEvent(heartbeat, iox::popo::createNotificationCallback(heartbeatCallback))
         .or_else([](auto) {
             std::cerr << "unable to attach heartbeat event" << std::endl;
             std::exit(EXIT_FAILURE);
@@ -94,7 +94,7 @@ listener.attachEvent(heartbeat, iox::popo::createEventCallback(heartbeatCallback
 
 listener.attachEvent(subscriberLeft,
                      iox::popo::SubscriberEvent::DATA_RECEIVED, 
-                     iox::popo::createEventCallback(onSampleReceivedCallback))
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberLeft" << std::endl;
         std::exit(EXIT_FAILURE);
@@ -107,7 +107,7 @@ listener.attachEvent(subscriberLeft,
 // to simplify the example we attach the same callback onSampleReceivedCallback again
 listener.attachEvent(subscriberRight,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
-                     iox::popo::createEventCallback(onSampleReceivedCallback))
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback))
     .or_else([](auto) {
         std::cerr << "unable to attach subscriberRight" << std::endl;
         std::exit(EXIT_FAILURE);
@@ -237,7 +237,7 @@ class CounterService {
 
 And their purposes are the same as in the previous example. In the constructor
 we initialize the two subscribers and attach them to our listener. But now we 
-add an additional parameter in the `iox::popo::createEventCallback`, the 
+add an additional parameter in the `iox::popo::createNotificationCallback`, the 
 dereferenced `this` pointer. It has to be dereferenced since we require a reference 
 as argument.
 
@@ -258,7 +258,7 @@ CounterService()
     m_listener
         .attachEvent(m_subscriberLeft,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
-                     iox::popo::createEventCallback(onSampleReceivedCallback, *this))
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberLeft" << std::endl;
             std::exit(EXIT_FAILURE);
@@ -266,7 +266,7 @@ CounterService()
     m_listener
         .attachEvent(m_subscriberRight,
                      iox::popo::SubscriberEvent::DATA_RECEIVED,
-                     iox::popo::createEventCallback(onSampleReceivedCallback, *this))
+                     iox::popo::createNotificationCallback(onSampleReceivedCallback, *this))
         .or_else([](auto) {
             std::cerr << "unable to attach subscriberRight" << std::endl;
             std::exit(EXIT_FAILURE);

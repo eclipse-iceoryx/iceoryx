@@ -6,7 +6,7 @@ The WaitSet is **not** thread-safe!
 
 - It is **not** allowed to attach or detach _Triggerable_
    classes with `iox_ws_attach_**` or `iox_ws_detach_**` when another thread is currently
-   waiting for events with `iox_ws_wait` or `iox_ws_timed_wait`.
+   waiting for notifications with `iox_ws_wait` or `iox_ws_timed_wait`.
 - Do **not** call any of the `iox_ws_` functions concurrently.
 
 The _TriggerHandle_ on the other hand, is thread-safe! Therefore you are allowed to
@@ -132,39 +132,37 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 
 Now that everything is set up we enter the event loop. It always starts with
 a call to `iox_ws_wait`, a blocking call which returns us the number
-of occurred events.
+of occurred notifications.
 
 ```c
 uint64_t missedElements = 0U;
-uint64_t numberOfEvents = 0U;
+uint64_t numberOfNotifications = 0U;
 
-// array where all events from iox_ws_wait will be stored
-iox_event_info_t eventArray[NUMBER_OF_EVENTS];
+iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-// event loop
 bool keepRunning = true;
 while (keepRunning)
 {
-    numberOfEvents =
-        iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
+    numberOfNotifications =
+        iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 ```
 
-The events which have occurred are stored in the `eventArray`. We iterate through
+The events which have occurred are stored in the `notificationArray`. We iterate through
 it, if the `shutdownTrigger` was triggered we terminate the program otherwise
-we call the callback with `iox_event_info_call(event)`.
+we call the callback with `iox_notification_info_call(notification)`.
 
 ```c
-for (uint64_t i = 0U; i < numberOfEvents; ++i)
+for (uint64_t i = 0U; i < numberOfNotifications; ++i)
 {
-    iox_event_info_t event = eventArray[i];
+    iox_notification_info_t notification = notificationArray[i];
 
-    if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
+    if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
     {
         keepRunning = false;
     }
     else
     {
-        iox_event_info_call(event);
+        iox_notification_info_call(notification);
     }
 
     printf("sum of all samples: %lu\n", sumOfAllSamples);
@@ -244,37 +242,37 @@ for (uint64_t i = 2U; i < 4U; ++i)
 ```
 
 We are again ready for our event loop. We start as usual by setting the array
-of events by calling `iox_ws_wait`.
+of notifications by calling `iox_ws_wait`.
 
 ```c
 bool keepRunning = true;
 while (keepRunning)
 {
-    numberOfEvents =
-        iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
+    numberOfNotifications =
+        iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 ```
 
 When we iterate through the array we handle the `shutdownTrigger` first.
 We check if an event is from the first group by calling 
-`iox_event_info_get_event_id` and compare the result with `FIRST_GROUP_ID`.
+`iox_notification_info_get_event_id` and compare the result with `FIRST_GROUP_ID`.
 If that is the case we acquire the subscriber handle with
-`iox_event_info_get_subscriber_origin`. This allows us to receive the new
+`iox_notification_info_get_subscriber_origin`. This allows us to receive the new
 sample and to print the result to the console.
 The second group is handled in the same way. But we do not print the new samples
 to screen, we just discard them.
 
 ```c
-for (uint64_t i = 0U; i < numberOfEvents; ++i)
+for (uint64_t i = 0U; i < numberOfNotifications; ++i)
 {
-    iox_event_info_t event = eventArray[i];
+    iox_notification_info_t event = notificationArray[i];
 
-    if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
+    if (iox_notification_info_does_originate_from_user_trigger(event, shutdownTrigger))
     {
         keepRunning = false;
     }
-    else if (iox_event_info_get_event_id(event) == FIRST_GROUP_ID)
+    else if (iox_notification_info_get_event_id(event) == FIRST_GROUP_ID)
     {
-        iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
+        iox_sub_t subscriber = iox_notification_info_get_subscriber_origin(event);
         const void* userPayload;
         if (iox_sub_take_chunk(subscriber, &userPayload))
         {
@@ -283,10 +281,10 @@ for (uint64_t i = 0U; i < numberOfEvents; ++i)
             iox_sub_release_chunk(subscriber, userPayload);
         }
     }
-    else if (iox_event_info_get_event_id(event) == SECOND_GROUP_ID)
+    else if (iox_notification_info_get_event_id(event) == SECOND_GROUP_ID)
     {
         printf("dismiss data\n");
-        iox_sub_t subscriber = iox_event_info_get_subscriber_origin(event);
+        iox_sub_t subscriber = iox_notification_info_get_subscriber_origin(event);
         iox_sub_release_queued_chunks(subscriber);
     }
 }
@@ -353,26 +351,26 @@ the triggered triggers.
 bool keepRunning = true;
 while (keepRunning)
 {
-    numberOfEvents =
-        iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
+    numberOfNotifications =
+        iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 ```
 
 The `shutdownTrigger` is handled as usual and
-we use `iox_event_info_does_originate_from_subscriber`
+we use `iox_notification_info_does_originate_from_subscriber`
 to identify the event that originated from a specific subscriber. If it originated
 from the first subscriber we print the received data to the console, if it
 originated from the second subscriber we discard the data.
 
 ```c
-    for (uint64_t i = 0U; i < numberOfEvents; ++i)
+    for (uint64_t i = 0U; i < numberOfNotifications; ++i)
     {
-        iox_event_info_t event = eventArray[i];
+        iox_notification_info_t event = notificationArray[i];
 
-        if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
+        if (iox_notification_info_does_originate_from_user_trigger(event, shutdownTrigger))
         {
             keepRunning = false;
         }
-        else if (iox_event_info_does_originate_from_subscriber(event, subscriber[0]))
+        else if (iox_notification_info_does_originate_from_subscriber(event, subscriber[0]))
         {
             const void* userPayload;
             if (iox_sub_take_chunk(subscriber[0], &userPayload))
@@ -382,7 +380,7 @@ originated from the second subscriber we discard the data.
                 iox_sub_release_chunk(subscriber[0], userPayload);
             }
         }
-        else if (iox_event_info_does_originate_from_subscriber(event, subscriber[1]))
+        else if (iox_notification_info_does_originate_from_subscriber(event, subscriber[1]))
         {
             iox_sub_release_queued_chunks(subscriber[1]);
             printf("subscriber 2 received something - dont care\n");
@@ -442,24 +440,24 @@ if (pthread_create(&cyclicTriggerThread, NULL, cyclicTriggerCallback, NULL))
 ```
 
 Everything is prepared and we enter the event loop. We start by gathering all
-events in an array.
+notifications in an array.
 
 ```c
 while (keepRunning)
 {
-    numberOfEvents =
-        iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
+    numberOfNotifications =
+        iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 ```
 
 The `shutdownTrigger` is handled as usual and the `cyclicTrigger` is handled by
-just calling the attached callback with `iox_event_info_call(event)`.
+just calling the attached callback with `iox_notification_info_call(notification)`.
 
 ```c
-    for (uint64_t i = 0U; i < numberOfEvents; ++i)
+    for (uint64_t i = 0U; i < numberOfNotifications; ++i)
     {
-        iox_event_info_t event = eventArray[i];
+        iox_notification_info_t notification = notificationArray[i];
 
-        if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
+        if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
         {
             // CTRL+c was pressed -> exit
             keepRunning = false;
@@ -467,7 +465,7 @@ just calling the attached callback with `iox_event_info_call(event)`.
         else
         {
             // call myCyclicRun
-            iox_event_info_call(event);
+            iox_notification_info_call(notification);
         }
     }
 ```
