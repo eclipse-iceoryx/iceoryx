@@ -94,14 +94,18 @@ iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader() noexcept
 
     if (nextSamplePayload[0] != iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
     {
-        LogError()
-            << "[CycloneDataReader] received sample with incompatible IoxChunkDatagramHeader version! Dropped sample!";
+        LogError() << "[CycloneDataReader] received sample with incompatible IoxChunkDatagramHeader version! Received '"
+                   << static_cast<uint16_t>(nextSamplePayload[0]) << "', expected '"
+                   << static_cast<uint16_t>(iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION) << "'! Dropped sample!";
         return NO_VALID_SAMPLE_AVAILABLE;
     }
 
-    if (static_cast<iox::dds::Endianess>(nextSamplePayload[1]) != getEndianess())
+    auto receivedEndianess = static_cast<iox::dds::Endianess>(nextSamplePayload[1]);
+    if (receivedEndianess != getEndianess())
     {
-        LogError() << "[CycloneDataReader] received sample with incompatible endianess! Dropped sample!";
+        LogError() << "[CycloneDataReader] received sample with incompatible endianess! Received '"
+                   << EndianessString[nextSamplePayload[1]] << "', expected '"
+                   << EndianessString[static_cast<uint64_t>(getEndianess())] << "'! Dropped sample!";
         return NO_VALID_SAMPLE_AVAILABLE;
     }
 

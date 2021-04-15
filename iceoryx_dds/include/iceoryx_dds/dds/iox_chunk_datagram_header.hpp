@@ -32,6 +32,8 @@ enum class Endianess : uint8_t
     MIXED,
 };
 
+constexpr const char* EndianessString[] = {"UNDEFINED", "LITTLE", "BIG", "MIXED"};
+
 /// @brief Detects the endianness of the system
 Endianess getEndianess();
 
