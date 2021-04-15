@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
 #include "iceoryx_utils/cxx/algorithm.hpp"
@@ -52,11 +52,12 @@ struct ChunkDistributorData : public LockingPolicy
         cxx::vector<rp::RelativePointer<ChunkQueueData_t>, ChunkDistributorDataProperties_t::MAX_QUEUES>;
     QueueContainer_t m_queues;
 
-    /// @todo using ChunkManagement instead of SharedChunk as in UsedChunkList?
-    /// When to store a SharedChunk and when the included ChunkManagement must be used?
-    /// If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
-    /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
-    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY>;
+    /// @todo If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
+    /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup.
+    /// Using ShmSafeUnmanagedChunk since RouDi must access this list to cleanup the chunks in case of an application
+    /// crash.
+    using HistoryContainer_t =
+        cxx::vector<mepoo::ShmSafeUnmanagedChunk, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY>;
     HistoryContainer_t m_history;
     const SubscriberTooSlowPolicy m_subscriberTooSlowPolicy;
 };

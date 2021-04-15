@@ -250,9 +250,10 @@ class Mepoo_IntegrationTest : public Test
     {
         auto currentUser = iox::posix::PosixUser::getUserOfCurrentProcess();
         auto memoryManager = m_roudiEnv->m_roudiApp->m_mempoolIntrospection.m_segmentManager
-                                 ->getSegmentInformationForUser(currentUser.getName())
+                                 ->getSegmentInformationWithWriteAccessForUser(currentUser.getName())
                                  .m_memoryManager;
-        m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(*memoryManager, mempoolInfo);
+        ASSERT_TRUE(memoryManager.has_value());
+        m_roudiEnv->m_roudiApp->m_mempoolIntrospection.copyMemPoolInfo(memoryManager.value().get(), mempoolInfo);
 
         // internally, the chunks are adjusted to the additional management information;
         // this needs to be subtracted to be able to compare to the configured sizes

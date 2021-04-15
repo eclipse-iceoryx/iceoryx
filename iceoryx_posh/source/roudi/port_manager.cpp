@@ -446,7 +446,20 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
-void PortManager::unblockShutdown() noexcept
+void PortManager::unblockProcessShutdown(const RuntimeName_t& runtimeName) noexcept
+{
+    for (auto port : m_portPool->getPublisherPortDataList())
+    {
+        PublisherPortRouDiType publisherPort(port);
+        if (runtimeName == publisherPort.getRuntimeName())
+        {
+            port->m_offeringRequested.store(false, std::memory_order_relaxed);
+            doDiscoveryForPublisherPort(publisherPort);
+        }
+    }
+}
+
+void PortManager::unblockRouDiShutdown() noexcept
 {
     makeAllPublisherPortsToStopOffer();
 }

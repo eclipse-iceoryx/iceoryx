@@ -46,4 +46,4 @@ that slow self-made IPC to communicate with his sensors because his parents want
 makes it hard for him to react in real-time to dangerous incidents like flying coffee cups. When strolling through
 the interwebs on a lonely evening, he finds out about iceoryx: Free-to-use, high-performance data transfer with low
 runtime overhead, real-time support! Brilliant! Maybe even Robby's biggest wish for a network binding will come true,
-so he can stream his favorite [video](https://www.youtube.com/watch?v=g5NkgZXWl0w) even faster!
+so he can stream his favorite videos even faster!

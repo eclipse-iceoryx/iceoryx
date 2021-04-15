@@ -1,4 +1,3 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +13,25 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_EXAMPLES_ICE_ACCESS_CONTROL_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_ICE_ACCESS_CONTROL_TOPIC_DATA_HPP
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
+#include <cstdint>
 
-namespace iox
+struct RadarObject
 {
-namespace popo
-{
-ChunkTuple::ChunkTuple(const iox::rp::RelativePointer<mepoo::ChunkManagement> chunk) noexcept
-    : m_segmentId(chunk.getId())
-    , m_chunkOffset(chunk.getOffset())
-{
-}
+    RadarObject() noexcept
+    {
+    }
+    RadarObject(double x, double y, double z) noexcept
+        : x(x)
+        , y(y)
+        , z(z)
+    {
+    }
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+};
 
-} // namespace popo
-} // namespace iox
+#endif // IOX_EXAMPLES_ICE_ACCESS_CONTROL_TOPIC_DATA_HPP

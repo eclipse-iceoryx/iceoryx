@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,26 +14,26 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
-#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
 
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 
 namespace iox
 {
-namespace popo
+namespace mepoo
 {
-struct ChunkTuple
+ChunkManagement::ChunkManagement(const cxx::not_null<base_t*> chunkHeader,
+                                 const cxx::not_null<MemPool*> mempool,
+                                 const cxx::not_null<MemPool*> chunkManagementPool) noexcept
+    : m_chunkHeader(chunkHeader)
+    , m_mempool(mempool)
+    , m_chunkManagementPool(chunkManagementPool)
 {
-    ChunkTuple() = default;
-    explicit ChunkTuple(const rp::RelativePointer<mepoo::ChunkManagement> chunk) noexcept;
+    static_assert(alignof(ChunkManagement) <= mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT,
+                  "The ChunkManagement must not exceed the alignment of the mempool chunks, which are aligned to "
+                  "'MemPool::CHUNK_MEMORY_ALIGNMENT'!");
+}
 
-    rp::BaseRelativePointer::id_t m_segmentId{rp::BaseRelativePointer::NULL_POINTER_ID};
-    rp::BaseRelativePointer::offset_t m_chunkOffset{rp::BaseRelativePointer::NULL_POINTER_OFFSET};
-};
 
-} // namespace popo
+} // namespace mepoo
 } // namespace iox
-
-#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP

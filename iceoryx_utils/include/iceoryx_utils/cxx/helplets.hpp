@@ -292,6 +292,23 @@ using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 #endif
 #endif
 
+/// @brief IOX_MAYBE_UNUSED adds the [[gnu::unused]] or [[maybe_unused]] attribute when it is available for the current
+/// compiler.
+/// @note
+///   activate attribute for gcc or clang
+#if defined(__GNUC__) || defined(__clang__)
+#define IOX_MAYBE_UNUSED [[gnu::unused]] // NOLINT
+#else
+// On WIN32 we are using C++17 which makes the attribute [[maybe_unused]] available
+#if defined(_WIN32)
+#define IOX_MAYBE_UNUSED [[maybe_unused]] // NOLINT
+// on an unknown platform we use for now nothing since we do not know what is supported there
+#else
+#define IOX_MAYBE_UNUSED
+#endif
+#endif
+
+
 /// @brief Returns info whether called on a 32-bit system
 /// @return True if called on 32-bit, false if not 32-bit system
 constexpr bool isCompiledOn32BitSystem()

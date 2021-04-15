@@ -14,13 +14,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
-set(IOX_VERSION_STRING "0.99.6")
-#find_package(iceoryx_utils REQUIRED)
+set(IOX_VERSION_STRING "0.99.7")
 
-#include(IceoryxVersion)
-#parse_version(${IOX_VERSION_STRING})
 project(iceoryx_package VERSION ${IOX_VERSION_STRING})
-#adjust_version()
+
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "iceoryx-${iceoryx_package_VERSION}")

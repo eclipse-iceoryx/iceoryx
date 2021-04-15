@@ -68,11 +68,22 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
         std::terminate();
     }
     m_mgmtSegmentId = maybeMgmtSegmentId.value();
-
-    auto currentUser = posix::PosixUser::getUserOfCurrentProcess();
-    auto m_segmentInfo = m_segmentManager->getSegmentInformationForUser(currentUser);
-    m_memoryManagerOfCurrentProcess = m_segmentInfo.m_memoryManager;
 }
+
+void ProcessManager::handleProcessShutdownPreparationRequest(const RuntimeName_t& name) noexcept
+{
+    searchForProcessAndThen(
+        name,
+        [&](Process& process) {
+            m_portManager.unblockProcessShutdown(name);
+            // Reply with PREPARE_APP_TERMINATION_ACK and let process shutdown
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::PREPARE_APP_TERMINATION_ACK);
+            process.sendViaIpcChannel(sendBuffer);
+        },
+        [&]() { LogWarn() << "Unknown application " << name << " requested shutdown preparation."; });
+}
+
 void ProcessManager::requestShutdownOfAllProcesses() noexcept
 {
     // send SIG_TERM to all running applications and wait for processes to answer with TERMINATION
@@ -82,7 +93,7 @@ void ProcessManager::requestShutdownOfAllProcesses() noexcept
     }
 
     // this unblocks the RouDi shutdown if a publisher port is blocked by a full subscriber queue
-    m_portManager.unblockShutdown();
+    m_portManager.unblockRouDiShutdown();
 }
 
 bool ProcessManager::isAnyRegisteredProcessStillRunning() noexcept
@@ -190,8 +201,6 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
                                      const uint64_t sessionId,
                                      const version::VersionInfo& versionInfo) noexcept
 {
-    auto segmentInfo = m_segmentManager->getSegmentInformationForUser(user);
-
     bool returnValue{false};
 
     searchForProcessAndThen(
@@ -220,26 +229,12 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             else
             {
                 // try registration again, should succeed since removal was successful
-                returnValue = addProcess(name,
-                                         pid,
-                                         segmentInfo.m_memoryManager,
-                                         isMonitored,
-                                         transmissionTimestamp,
-                                         segmentInfo.m_segmentID,
-                                         sessionId,
-                                         versionInfo);
+                returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
             }
         },
         [&]() {
             // process does not exist in list and can be added
-            returnValue = addProcess(name,
-                                     pid,
-                                     segmentInfo.m_memoryManager,
-                                     isMonitored,
-                                     transmissionTimestamp,
-                                     segmentInfo.m_segmentID,
-                                     sessionId,
-                                     versionInfo);
+            returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
         });
 
     return returnValue;
@@ -247,10 +242,9 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 
 bool ProcessManager::addProcess(const RuntimeName_t& name,
                                 const uint32_t pid,
-                                cxx::not_null<mepoo::MemoryManager* const> payloadDataSegmentMemoryManager,
+                                const posix::PosixUser& user,
                                 const bool isMonitored,
                                 const int64_t transmissionTimestamp,
-                                const uint64_t dataSegmentId,
                                 const uint64_t sessionId,
                                 const version::VersionInfo& versionInfo) noexcept
 {
@@ -269,7 +263,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
         LogError() << "Could not register process '" << name << "' - too many processes";
         return false;
     }
-    m_processList.emplace_back(name, pid, *payloadDataSegmentMemoryManager, isMonitored, dataSegmentId, sessionId);
+    m_processList.emplace_back(name, pid, user, isMonitored, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
@@ -516,8 +510,21 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
     searchForProcessAndThen(
         name,
         [&](Process& process) { // create a PublisherPort
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
+
+            if (!segmentInfo.m_memoryManager.has_value())
+            {
+                // Tell the app no writable shared memory segment was found
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageErrorTypeToString(
+                    runtime::IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT);
+                process.sendViaIpcChannel(sendBuffer);
+                return;
+            }
+
             auto maybePublisher = m_portManager.acquirePublisherPortData(
-                service, publisherOptions, name, &process.getpayloadDataSegmentMemoryManager(), portConfigInfo);
+                service, publisherOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo);
 
             if (!maybePublisher.has_error())
             {

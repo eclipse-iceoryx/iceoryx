@@ -65,11 +65,11 @@ samples present in the subscriber.
      the _EventId_, call the _EventCallback_ or acquire the _EventOrigin_.
 - **EventOrigin** the pointer to the class where the _Event_ originated from, short
      pointer to the _Triggerable_.
-- **Event** a state change of an object.
-- **Events** a _Triggerable_ will signal an event via a _TriggerHandle_ to a _Notifyable_.
-     For instance one can attach the subscriber event `DATA_RECEIVED` to _WaitSet_. This will cause the
-     subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a sample was received.
-- **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
+ - **Event** a state change of an object; a _Triggerable_ will signal an event via a _TriggerHandle_ to 
+     a _Notifyable_. For instance one can attach the subscriber event `DATA_RECEIVED` to _WaitSet_. 
+     This will cause the subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a 
+     sample was received.
+ - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
 - **State** a specified set of values to which the members of an object are set.
 - **Trigger** a class which is used by the _Notifyable_ to acquire the information which events were
@@ -122,23 +122,25 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 
 ## Use Cases
 
-This example consists of 5 use cases.
+This example consists of 6 use cases.
 
- 1. `ice_waitset_gateway.cpp`: We build a gateway to forward data
+ 1. `ice_waitset_basic`: A single subscriber is notified by the WaitSet if data arrives.
+
+ 2. `ice_waitset_gateway.cpp`: We build a gateway to forward data
     to another network. A list of subscriber events are handled in an uniform way
     by defining a callback which is executed for every subscriber who
     has received data.
 
- 2. `ice_waitset_grouping`: We would like to group multiple subscribers into 2 distinct
+ 3. `ice_waitset_grouping`: We would like to group multiple subscribers into 2 distinct
     groups and handle them whenever they have a specified state according to their group membership.
 
- 3. `ice_waitset_individual`: A list of subscribers where every subscriber is
+ 4. `ice_waitset_individual`: A list of subscribers where every subscriber is
     handled differently.
 
- 4. `ice_waitset_sync`: We use the WaitSet to trigger a cyclic call which should
+ 5. `ice_waitset_sync`: We use the WaitSet to trigger a cyclic call which should
     execute an algorithm every 100ms.
 
- 5. `ice_waitset_trigger`: We create our own class which can be attached to a
+ 6. `ice_waitset_trigger`: We create our own class which can be attached to a
     WaitSet to signal states and events.
 
 ## Examples
@@ -149,6 +151,71 @@ logic and is explained in detail in the
 [icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
 <!-- @todo Add expected output with asciinema recording before v1.0-->
+
+### Basic
+We create one subscriber and attach it to the WaitSet. Afterwards we wait for data in 
+a loop and process it on arrival. To leave the loop and exit the application 
+we have to register a signal handler that calls `waitset.markForDestruction()`
+which wakes up the blocking `waitset.wait()` whenever Ctrl+C is pressed.
+
+```cpp
+std::atomic_bool shutdown{false};
+iox::cxx::optional<iox::popo::WaitSet<>> waitset;
+
+static void sigHandler(int sig [[gnu::unused]])
+{
+    shutdown = true;
+    if (waiset) {
+        waitset->markForDestruction();
+    }
+}
+```
+
+In the beginning we create the WaitSet. It is important to construct it only after the runtime has already been initialized since it internally depends on facilities set up by the runtime.
+
+Afterwards we register our signal handler which will unblock the WaitSet. Finally we attach the subscriber to the WaitSet stating that we want to be notified when it has data (indicated by `iox::popo::SubscriberState::HAS_DATA`).
+
+It is good practice to handle potential failure while attaching, otherwise warnings will emerge since the return value `cxx::expected` is marked to require handling.
+In our case no errors should occur since the WaitSet can accomodate the two triggers we want to attach.
+
+```cpp
+waitset.emplace();
+
+auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+
+iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
+
+waitset->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+    std::cerr << "failed to attach subscriber" << std::endl;
+    std::exit(EXIT_FAILURE);
+});
+```
+
+We create a loop which we will exit as soon as someone presses CTRL+c and our 
+signal handler sets shutdown to true. If this happens `markForDestruction` turns 
+the `waitset->wait()` into an empty non-blocking method and makes sure that we do 
+not wait until infinity.
+
+```cpp
+while (!shutdown.load())
+{
+  auto eventVector = waitset->wait();
+
+  for (auto& event : eventVector)
+  {
+    if (event->doesOriginateFrom(&subscriber))
+    {
+       subscriber.take()
+         .and_then([](auto& sample) { 
+            std::cout << " got value: " << sample->counter << std::endl; })
+         .or_else([](auto& reason [[gnu::unused]]) { 
+             std::cout << "got no data" << std::endl; });
+    }
+  }
+}
+```
+Processing just one sample even if more might have arrived will cause `wait` to unblock again immediately to process the next sample (or shut down if requested). Due to the overhead of the `wait` call it may still be more efficient to process all samples in a loop until there are none left before waiting again, but it is not required. It would be required if we attach via `attachEvent` instead of `attachState`, since we might wake up due to the arrival of a second sample, only process the first and will not receive a wake up until a third sample arrives (which could be much later or never).
 
 ### Gateway
 
@@ -165,9 +232,11 @@ as long as there are samples in the subscriber since we attached an event that n
 us only once. But it is impossible to miss samples since the notification is reset
 right after `wait` or `timedWait` is returned - this means if a sample arrives after
 those calls we will be notified again.
+Additionally, we would like to count the sum of all processed samples therefor we 
+add a second argument called `sumOfAllSamples`, the user defined context data.
 
 ```cpp
-void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
+void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t* const sumOfAllSamples)
 {
     while (subscriber->hasData())
     {
@@ -176,44 +245,64 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
                       << sample.getHeader()->payloadSize << " ptr: " << std::hex << sample.getHeader()->payload()
                       << std::endl;
         });
+        ++(*sumOfAllSamples);
     }
 }
 ```
 
-An _Event_ always requires a callback which has the following signature
-`void (EventOrigin)`. In our example the _EventOrigin_ is a
+The _Event_ callback requires a signature of either `void (EventOrigin)` or 
+`void(EventOrigin, ContextDataType *)` when one would like to provide an additional 
+data pointer to the callback.
+In our example the _EventOrigin_ is a
 `iox::popo::UntypedSubscriber` pointer which we use to acquire the latest sample by calling
-`take()`. When `take()` was successful we print our message to
+`take()` and the `ContextDataType` is an `uint64_t` used to count the processed 
+samples. When `take()` was successful we print our message to
 the console inside of the `and_then` lambda.
 
-In our `main` function we create a _WaitSet_ which has storage capacity for 5 events,
-4 subscribers and one shutdown trigger, after we registered us at our central
+The `shutdownTrigger` uses a simpler callback which just informs us that we are 
+exiting the program. Therefor we do not need an additional `ContextDataType` pointer.
+```cpp
+void shutdownCallback(iox::popo::UserTrigger*)
+{
+    std::cout << "CTRL+c pressed - exiting now" << std::endl;
+}
+```
+
+In our `main` function we create a _WaitSet_ which has storage capacity for 3 events,
+2 subscribers and one shutdown trigger, after we registered us at our central
 broker RouDi. Then we attach our `shutdownTrigger` to handle `CTRL+c` events.
 
 ```cpp
 iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER>;
 
-waitset.attachEvent(shutdownTrigger).or_else([](auto) {
+waitset.attachEvent(shutdownTrigger, iox::popo::createEventCallback(shutdownCallback)).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
-After that we create a vector to hold our subscribers, we create and then
-attach them to our _WaitSet_ with the `SubscriberEvent::DATA_RECEIVED` event and the `subscriberCallback`.
+After that we define our `sumOfAllSamples` variable and create a vector to hold our subscribers. We create and then
+attach the subscribers to our _WaitSet_ with the `SubscriberEvent::DATA_RECEIVED` event and the `subscriberCallback`.
 Everytime one of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 
+!!! attention 
+    The user has to ensure that the contextData (`sumOfAllSamples`) in `attachEvent` 
+    lives as long as the attachment, with its callback, is attached otherwise 
+    the callback context data pointer is dangling.
+
 ```cpp
+uint64_t sumOfAllSamples = 0U;
+
 iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
 
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, &subscriberCallback)
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createEventCallback(subscriberCallback, sumOfAllSamples))
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 }
 ```
@@ -249,6 +338,8 @@ while (true)
             (*event)();
         }
     }
+
+    std::cout << "sum of all samples: " << std::dec << sumOfAllSamples << std::endl;
 ```
 
 ### Grouping
@@ -266,7 +357,7 @@ iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
 waitset.attachEvent(shutdownTrigger).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -290,7 +381,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, FIRST_GROUP_ID)
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 }
 
@@ -299,7 +390,7 @@ for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     waitset.attachEvent(subscriberVector[i], iox::popo::SubscriberState::HAS_DATA, SECOND_GROUP_ID)
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 }
 ```
@@ -361,7 +452,7 @@ iox::popo::WaitSet waitset<>;
 
 waitset.attachEvent(shutdownTrigger).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::terminate();
+        std::exit(EXIT_FAILURE);
     });
 ```
 
@@ -374,11 +465,11 @@ iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"
 
 waitset.attachEvent(subscriber1, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber1" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 waitset.attachEvent(subscriber2, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
     std::cerr << "failed to attach subscriber2" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -448,7 +539,7 @@ iox::popo::WaitSet<> waitset;
 // attach shutdownTrigger to handle CTRL+C
 waitset.attachEvent(shutdownTrigger).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -458,9 +549,9 @@ eventId `0` and the callback `SomeClass::cyclicRun`
 
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-waitset.attachEvent(cyclicTrigger, 0U, &SomeClass::cyclicRun).or_else([](auto) {
+waitset.attachEvent(cyclicTrigger, 0U, createEventCallback(SomeClass::cyclicRun)).or_else([](auto) {
     std::cerr << "failed to attach cyclic trigger" << std::endl;
-    std::terminate();
+    std::exit(EXIT_FAILURE);
 });
 ```
 
@@ -836,17 +927,23 @@ After that we can attach the `IS_ACTIVATED` state and `PERFORM_ACTION_CALLED` ev
 to the waitset and provide a callback for them.
 
 ```cpp
-    waitset->attachState(*triggerClass, MyTriggerClassStates::IS_ACTIVATED, ACTIVATE_ID, &callOnActivate)
+    waitset->attachState(*triggerClass, 
+                         MyTriggerClassStates::IS_ACTIVATED, 
+                         ACTIVATE_ID, 
+                         iox::popo::createEventCallback(callOnActivate))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassStates::IS_ACTIVATED state " << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
     waitset
         ->attachEvent(
-            *triggerClass, MyTriggerClassEvents::PERFORM_ACTION_CALLED, ACTION_ID, &MyTriggerClass::callOnAction)
+            *triggerClass, 
+            MyTriggerClassEvents::PERFORM_ACTION_CALLED, 
+            ACTION_ID, 
+            iox::popo::createEventCallback(MyTriggerClass::callOnAction))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassEvents::PERFORM_ACTION_CALLED event " << std::endl;
-            std::terminate();
+            std::exit(EXIT_FAILURE);
         });
 ```
 

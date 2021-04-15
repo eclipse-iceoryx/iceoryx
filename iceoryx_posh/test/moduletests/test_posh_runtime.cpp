@@ -16,9 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_utils/testing/timing_test.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
 
 #include <type_traits>
@@ -654,6 +657,51 @@ TEST_F(PoshRuntime_test, FindServiceReturnsNoInstanceForDefaultDescription)
     auto instanceContainer = m_receiverRuntime->findService(iox::capro::ServiceDescription());
 
     EXPECT_THAT(0u, instanceContainer.value().size());
+}
+
+TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
+{
+    // get publisher and subscriber
+    iox::capro::ServiceDescription serviceDescription{"don't", "stop", "me"};
+
+    iox::popo::PublisherOptions publisherOptions{
+        0U, iox::NodeName_t("node"), true, iox::popo::SubscriberTooSlowPolicy::WAIT_FOR_SUBSCRIBER};
+    iox::popo::SubscriberOptions subscriberOptions{
+        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PUBLISHER};
+
+    iox::popo::Publisher<uint8_t> publisher{serviceDescription, publisherOptions};
+    iox::popo::Subscriber<uint8_t> subscriber{serviceDescription, subscriberOptions};
+
+    ASSERT_TRUE(publisher.hasSubscribers());
+    ASSERT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+
+    // send samples to fill subscriber queue
+    ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
+
+    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool wasSampleSent{false};
+
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
+    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+
+    // block in a separate thread
+    std::thread blockingPublisher([&] {
+        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
+        wasSampleSent = true;
+    });
+
+    // wait some time to check if the publisher is blocked
+    constexpr int64_t SLEEP_IN_MS = 100;
+    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
+    EXPECT_THAT(wasSampleSent.load(), Eq(false));
+
+    m_runtime->shutdown();
+
+    blockingPublisher.join(); // ensure the wasChunkSent store happens before the read
+    EXPECT_THAT(wasSampleSent.load(), Eq(true));
 }
 
 // disabled because we cannot use the RouDiEnvironment but need a RouDi for this test
