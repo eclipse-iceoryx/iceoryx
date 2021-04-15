@@ -92,7 +92,7 @@ int main()
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
 
-    iox_runtime_init("iox-c-callback-subscriber");
+    iox_runtime_init("iox-c-callbacks-with-context-data");
 
     // the listener starts a background thread and the callbacks of the attached events
     // will be called in this background thread when they are triggered
