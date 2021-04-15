@@ -9,7 +9,7 @@ It provides publisher and subscriber applications. They come in two C++ API flav
 
 Create three terminals and start RouDi, a publisher and a subscriber. You can also mix the typed and untyped versions.
 
-[![asciicast](https://asciinema.org/a/382036.svg)](https://asciinema.org/a/382036)
+[![asciicast](https://asciinema.org/a/407359.svg)](https://asciinema.org/a/407359)
 
 ## Code walkthrough
 

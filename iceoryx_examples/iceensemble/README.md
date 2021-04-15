@@ -35,9 +35,12 @@ Alternatively, you can use the provided [tmux](https://en.wikipedia.org/wiki/Tmu
 ./iceoryx_examples/iceensemble/run_iceensemble.sh
 ```
 
+!!! info
+    As `iox-subscriber-with-options` requests the blocking publisher feature, although having the same `capro::ServiceDescription` `{"Radar", "FrontLeft", "Object"}` it is only connected to `iox-publisher-with-options`
+
 ## Expected Output
 
-<!-- add asciiema link here -->
+[![asciicast](https://asciinema.org/a/407432.svg)](https://asciinema.org/a/407432)
 
 <center>
 [Check out iceensemble on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceensemble){ .md-button }

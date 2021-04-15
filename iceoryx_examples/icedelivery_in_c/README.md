@@ -11,7 +11,7 @@ so that we explain here only the C API differences and not the underlying mechan
 
 ## Expected Output
 
-<!-- @todo Add expected output with asciinema recording before v1.0-->
+[![asciicast](https://asciinema.org/a/407361.svg)](https://asciinema.org/a/407361)
 
 ## Code walkthrough
 
