@@ -31,7 +31,9 @@ enum class DataReaderError : uint8_t
 {
     INVALID_STATE,
     NOT_CONNECTED,
-    INVALID_DATAGRAM_HEADER,
+    INVALID_DATAGRAM_HEADER_SIZE,
+    INVALID_DATAGRAM_HEADER_VERSION,
+    INVALID_DATAGRAM_ENDIANESS,
     INVALID_BUFFER_PARAMETER_FOR_USER_HEADER,
     INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD,
     INVALID_DATA,
@@ -40,7 +42,9 @@ enum class DataReaderError : uint8_t
 
 constexpr const char* DataReaderErrorString[] = {"INVALID_STATE",
                                                  "NOT_CONNECTED",
-                                                 "INVALID_DATAGRAM_HEADER",
+                                                 "INVALID_DATAGRAM_HEADER_SIZE",
+                                                 "INVALID_DATAGRAM_HEADER_VERSION",
+                                                 "INVALID_DATAGRAM_ENDIANESS",
                                                  "INVALID_BUFFER_PARAMETER_FOR_USER_HEADER",
                                                  "INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD",
                                                  "INVALID_DATA",

@@ -99,21 +99,6 @@ iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader() noexcept
     }
 
     auto datagramHeader = iox::dds::IoxChunkDatagramHeader::deserialize(serializedDatagramHeader);
-    if (datagramHeader.datagramVersion != iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
-    {
-        LogError() << "[CycloneDataReader] received sample with incompatible IoxChunkDatagramHeader version! Received '"
-                   << static_cast<uint16_t>(datagramHeader.datagramVersion) << "', expected '"
-                   << static_cast<uint16_t>(iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION) << "'! Dropped sample!";
-        return NO_VALID_SAMPLE_AVAILABLE;
-    }
-
-    if (datagramHeader.endianness != getEndianess())
-    {
-        LogError() << "[CycloneDataReader] received sample with incompatible endianess! Received '"
-                   << EndianessString[static_cast<uint64_t>(datagramHeader.endianness)] << "', expected '"
-                   << EndianessString[static_cast<uint64_t>(getEndianess())] << "'! Dropped sample!";
-        return NO_VALID_SAMPLE_AVAILABLE;
-    }
 
     return datagramHeader;
 }
@@ -166,8 +151,37 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
     }
     if (sampleSize < sizeof(iox::dds::IoxChunkDatagramHeader))
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATAGRAM_HEADER);
+        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATAGRAM_HEADER_SIZE);
     }
+
+    if (datagramHeader.datagramVersion != iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
+    {
+        LogError() << "[CycloneDataReader] received sample with incompatible IoxChunkDatagramHeader version! Received '"
+                   << static_cast<uint16_t>(datagramHeader.datagramVersion) << "', expected '"
+                   << static_cast<uint16_t>(iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION) << "'! Dropped sample!";
+        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATAGRAM_HEADER_VERSION);
+    }
+
+    if (datagramHeader.endianness != getEndianess())
+    {
+        LogError() << "[CycloneDataReader] received sample with incompatible endianess! Received '"
+                   << EndianessString[static_cast<uint64_t>(datagramHeader.endianness)] << "', expected '"
+                   << EndianessString[static_cast<uint64_t>(getEndianess())] << "'! Dropped sample!";
+        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATAGRAM_ENDIANESS);
+    }
+
+    iox::dds::IoxChunkDatagramHeader::Serialized_t serializedDatagramHeader;
+    for (uint64_t i = 0U; i < serializedDatagramHeader.capacity(); ++i)
+    {
+        serializedDatagramHeader.emplace_back(samplePayload[i]);
+    }
+
+    auto actualDatagramHeader = iox::dds::IoxChunkDatagramHeader::deserialize(serializedDatagramHeader);
+
+    iox::cxx::Ensures(datagramHeader.userHeaderId == actualDatagramHeader.userHeaderId);
+    iox::cxx::Ensures(datagramHeader.userHeaderSize == actualDatagramHeader.userHeaderSize);
+    iox::cxx::Ensures(datagramHeader.userPayloadSize == actualDatagramHeader.userPayloadSize);
+    iox::cxx::Ensures(datagramHeader.userPayloadAlignment == actualDatagramHeader.userPayloadAlignment);
 
     auto dataSize = sampleSize - sizeof(iox::dds::IoxChunkDatagramHeader);
     auto bufferSize = datagramHeader.userHeaderSize + datagramHeader.userPayloadSize;
@@ -178,9 +192,7 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::BUFFER_SIZE_MISSMATCH);
     }
 
-
     // copy data into the provided buffer
-
     if (userHeaderBuffer)
     {
         auto userHeaderBytes = &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader)];
@@ -189,7 +201,8 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
 
     if (userPayloadBuffer)
     {
-        auto userPayloadBytes = &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader) + datagramHeader.userHeaderSize];
+        auto userPayloadBytes =
+            &samplePayload.data()[sizeof(iox::dds::IoxChunkDatagramHeader) + datagramHeader.userHeaderSize];
         std::memcpy(userPayloadBuffer, userPayloadBytes, datagramHeader.userPayloadSize);
     }
 
