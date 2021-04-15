@@ -54,15 +54,12 @@ void shutdownCallback(iox_user_trigger_t userTrigger)
 // an iox_sub_t.
 void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
 {
-<<<<<<< HEAD
     if (contextData == NULL)
     {
         fprintf(stderr, "aborting subscriberCallback since contextData is a null pointer\n");
         return;
     }
 
-=======
->>>>>>> 8b8cf97c... iox-#707 added callbacks with context data to waitset gateway example
     uint64_t* sumOfAllSamples = (uint64_t*)contextData;
     const void* userPayload = NULL;
     while (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)
@@ -71,10 +68,6 @@ void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
         fflush(stdout);
 
         iox_sub_release_chunk(subscriber, userPayload);
-<<<<<<< HEAD
-        // no NULL check required since it is guaranteed always not NULL
-=======
->>>>>>> 8b8cf97c... iox-#707 added callbacks with context data to waitset gateway example
         ++(*sumOfAllSamples);
     }
 }
