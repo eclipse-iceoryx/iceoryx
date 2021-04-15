@@ -76,8 +76,9 @@ class DataReader
     /// @param userPayloadBuffer buffer for the user-payload
     /// @return Error if unsuccessful.
     ///
-    virtual iox::cxx::expected<DataReaderError>
-    takeNext(const IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBuffer, uint8_t* userPayloadBuffer) = 0;
+    virtual iox::cxx::expected<DataReaderError> takeNext(const IoxChunkDatagramHeader datagramHeader,
+                                                         uint8_t* const userHeaderBuffer,
+                                                         uint8_t* const userPayloadBuffer) = 0;
 
     ///
     /// @brief getServiceId

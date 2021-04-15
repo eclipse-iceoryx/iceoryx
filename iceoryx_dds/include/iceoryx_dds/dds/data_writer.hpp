@@ -49,8 +49,8 @@ class DataWriter
     /// @param userPayloadBytes buffer with the user-payload
     ///
     virtual void write(iox::dds::IoxChunkDatagramHeader datagramHeader,
-                       const uint8_t* userHeaderBytes,
-                       const uint8_t* userPayloadBytes) noexcept = 0;
+                       const uint8_t* const userHeaderBytes,
+                       const uint8_t* const userPayloadBytes) noexcept = 0;
 
     ///
     /// @brief getServiceId

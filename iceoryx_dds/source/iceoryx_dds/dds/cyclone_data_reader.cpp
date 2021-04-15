@@ -119,8 +119,10 @@ bool iox::dds::CycloneDataReader::hasSamples()
     return samples.length() > 0;
 }
 
-iox::cxx::expected<iox::dds::DataReaderError> iox::dds::CycloneDataReader::takeNext(
-    const iox::dds::IoxChunkDatagramHeader datagramHeader, uint8_t* userHeaderBuffer, uint8_t* userPayloadBuffer)
+iox::cxx::expected<iox::dds::DataReaderError>
+iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagramHeader,
+                                      uint8_t* const userHeaderBuffer,
+                                      uint8_t* const userPayloadBuffer)
 {
     // validation checks
     if (!m_isConnected.load())
