@@ -107,28 +107,6 @@ TEST_F(PublisherTest, LoanWithArgumentsCallsCustomCtor)
     // ===== Cleanup ===== //
 }
 
-TEST_F(PublisherTest, LoanPreviousSampleSucceeds)
-{
-    EXPECT_CALL(portMock, tryGetPreviousChunk())
-        .WillOnce(Return(ByMove(iox::cxx::optional<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
-    // ===== Test ===== //
-    auto result = sut.loanPreviousSample();
-    // ===== Verify ===== //
-    EXPECT_TRUE(result.has_value());
-    EXPECT_CALL(portMock, releaseChunk(chunkMock.chunkHeader()));
-    // ===== Cleanup ===== //
-}
-
-TEST_F(PublisherTest, LoanPreviousSampleFails)
-{
-    EXPECT_CALL(portMock, tryGetPreviousChunk()).WillOnce(Return(ByMove(iox::cxx::nullopt)));
-    // ===== Test ===== //
-    auto result = sut.loanPreviousSample();
-    // ===== Verify ===== //
-    EXPECT_FALSE(result.has_value());
-    // ===== Cleanup ===== //
-}
-
 TEST_F(PublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithAdditionalArguments)
 {
     EXPECT_CALL(portMock, tryAllocateChunk(sizeof(DummyData), _, _, _))

@@ -46,6 +46,21 @@ ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t cons
                                                              const ENUM iox_SubscriberEvent subscriberEvent,
                                                              void (*callback)(iox_sub_t));
 
+/// @brief Attaches a subscriber event to the listener. The callback has an additional contextData argument to provide
+/// access to user defined data.
+/// @param[in] self listener to which the event should be attached to
+/// @param[in] subscriber subscriber which emits the event
+/// @param[in] subscriberEvent the event which should trigger the listener
+/// @param[in] callback the callback which is called when an event triggers the listener
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
+ENUM iox_ListenerResult
+iox_listener_attach_subscriber_event_with_context_data(iox_listener_t const self,
+                                                       iox_sub_t const subscriber,
+                                                       const ENUM iox_SubscriberEvent subscriberEvent,
+                                                       void (*callback)(iox_sub_t, void*),
+                                                       void* const contextData);
+
 /// @brief Attaches a user trigger to the listener
 /// @param[in] self listener to which the event should be attached to
 /// @param[in] userTrigger user trigger which emits the event
@@ -54,6 +69,19 @@ ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t cons
 ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t const self,
                                                                iox_user_trigger_t const userTrigger,
                                                                void (*callback)(iox_user_trigger_t));
+
+/// @brief Attaches a user trigger to the listener. The callback has an additional contextData argument to provide
+/// access to user defined data.
+/// @param[in] self listener to which the event should be attached to
+/// @param[in] userTrigger user trigger which emits the event
+/// @param[in] callback the callback which is called when the user trigger triggers the listener
+/// @param[in] contextData a void pointer which is provided as second argument to the callback
+/// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
+ENUM iox_ListenerResult iox_listener_attach_user_trigger_event_with_context_data(iox_listener_t const self,
+                                                                                 iox_user_trigger_t const userTrigger,
+                                                                                 void (*callback)(iox_user_trigger_t,
+                                                                                                  void*),
+                                                                                 void* const contextData);
 
 /// @brief Detaches a subscriber event from the listener
 /// @param[in] self listener from which the event should be detached
