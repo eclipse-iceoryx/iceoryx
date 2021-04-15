@@ -61,24 +61,24 @@ int main()
     while (!shutdown.load())
     {
         // We block and wait for samples to arrive.
-        auto eventVector = waitset->wait();
+        auto notificationVector = waitset->wait();
 
-        for (auto& event : eventVector)
+        for (auto& notification : notificationVector)
         {
             // We woke up and hence there must be at least one sample. When the sigHandler has called
-            // markForDestruction the eventVector is empty otherwise we know which subscriber received samples
+            // markForDestruction the notificationVector is empty otherwise we know which subscriber received samples
             // since we only attached one.
-            // Best practice is to always acquire the eventVector and iterate over all elements and then react
+            // Best practice is to always acquire the notificationVector and iterate over all elements and then react
             // accordingly. When this is not done and more elements are attached to the WaitSet it can cause
             // problems since we either miss events or handle events for objects which never occurred.
-            if (event->doesOriginateFrom(&subscriber))
+            if (notification->doesOriginateFrom(&subscriber))
             {
                 // Consume a sample
                 subscriber.take()
                     .and_then([](auto& sample) { std::cout << " got value: " << sample->counter << std::endl; })
                     .or_else([](auto& reason
-                                [[gnu::unused]]) { /* we could check and handle the reason why there is no data */
-                                                   std::cout << "got no data" << std::endl;
+                                    IOX_MAYBE_UNUSED) { /* we could check and handle the reason why there is no data */
+                                                        std::cout << "got no data" << std::endl;
                     });
                 // We could consume all samples but do not need to.
                 // If there is more than one sample we will wake up again since the state of the subscriber is still

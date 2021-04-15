@@ -97,7 +97,7 @@ class BaseSubscriber
     /// @brief Releases any unread queued data.
     void releaseQueuedData() noexcept;
 
-    friend class EventAttorney;
+    friend class NotificationAttorney;
 
   protected:
     /// @brief Only usable by the WaitSet, not for public use. Invalidates the internal triggerHandle.

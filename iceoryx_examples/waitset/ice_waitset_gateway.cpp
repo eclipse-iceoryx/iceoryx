@@ -26,7 +26,7 @@
 
 iox::popo::UserTrigger shutdownTrigger;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     shutdownTrigger.trigger();
 }
@@ -68,7 +68,7 @@ int main()
     iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger, iox::popo::createEventCallback(shutdownCallback)).or_else([](auto) {
+    waitset.attachEvent(shutdownTrigger, iox::popo::createNotificationCallback(shutdownCallback)).or_else([](auto) {
         std::cerr << "failed to attach shutdown trigger" << std::endl;
         std::exit(EXIT_FAILURE);
     });
@@ -88,7 +88,7 @@ int main()
             .attachEvent(subscriber,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,
                          0,
-                         createEventCallback(subscriberCallback, sumOfAllSamples))
+                         createNotificationCallback(subscriberCallback, sumOfAllSamples))
             .or_else([&](auto) {
                 std::cerr << "failed to attach subscriber" << i << std::endl;
                 std::exit(EXIT_FAILURE);
@@ -98,19 +98,19 @@ int main()
     // event loop
     while (true)
     {
-        auto eventVector = waitset.wait();
+        auto notificationVector = waitset.wait();
 
-        for (auto& event : eventVector)
+        for (auto& notification : notificationVector)
         {
-            if (event->doesOriginateFrom(&shutdownTrigger))
+            if (notification->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             else
             {
-                // call the callback which was assigned to the event
-                (*event)();
+                // call the callback which was assigned to the notification
+                (*notification)();
             }
         }
 
