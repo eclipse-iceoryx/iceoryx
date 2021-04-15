@@ -69,7 +69,7 @@ TEST_F(PubSubListener_IntegrationTest, SubscriberGoesOutOfScopeAndDetachingWorks
     m_listener
         ->attachEvent(*m_subscriber,
                       iox::popo::SubscriberEvent::DATA_RECEIVED,
-                      iox::popo::createEventCallback(onSampleReceivedCallback))
+                      iox::popo::createNotificationCallback(onSampleReceivedCallback))
         .or_else([](auto) { ASSERT_TRUE(false); });
 
     m_subscriber.reset();
@@ -84,7 +84,7 @@ TEST_F(PubSubListener_IntegrationTest, UntypedSubscriberGoesOutOfScopeAndDetachi
     m_listener
         ->attachEvent(*m_untypedSubscriber,
                       iox::popo::SubscriberEvent::DATA_RECEIVED,
-                      iox::popo::createEventCallback(onSampleReceivedCallbackForUntypedSub))
+                      iox::popo::createNotificationCallback(onSampleReceivedCallbackForUntypedSub))
         .or_else([](auto) { ASSERT_TRUE(false); });
 
     m_untypedSubscriber.reset();
