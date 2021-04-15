@@ -68,15 +68,15 @@ void iox::dds::CycloneDataWriter::write(iox::dds::IoxChunkDatagramHeader datagra
 
     datagramHeader.endianness = getEndianess();
 
+    auto serializedDatagramHeader = iox::dds::IoxChunkDatagramHeader::serialize(datagramHeader);
     auto datagramSize =
-        sizeof(iox::dds::IoxChunkDatagramHeader) + datagramHeader.userHeaderSize + datagramHeader.userPayloadSize;
+        serializedDatagramHeader.size() + datagramHeader.userHeaderSize + datagramHeader.userPayloadSize;
 
     auto chunk = Mempool::Chunk();
     chunk.payload().reserve(datagramSize);
 
-    auto chunkDatagramAsArray = reinterpret_cast<const uint8_t*>(&datagramHeader);
-    std::copy(chunkDatagramAsArray,
-              chunkDatagramAsArray + sizeof(iox::dds::IoxChunkDatagramHeader),
+    std::copy(serializedDatagramHeader.data(),
+              serializedDatagramHeader.data() + serializedDatagramHeader.size(),
               std::back_inserter(chunk.payload()));
     if (userHeaderBytes)
     {

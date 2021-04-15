@@ -92,28 +92,28 @@ iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader() noexcept
         return NO_VALID_SAMPLE_AVAILABLE;
     }
 
-    if (nextSamplePayload[0] != iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
+    iox::dds::IoxChunkDatagramHeader::Serialized_t serializedDatagramHeader;
+    for (uint64_t i = 0U; i < serializedDatagramHeader.capacity(); ++i)
+    {
+        serializedDatagramHeader.emplace_back(nextSamplePayload[i]);
+    }
+
+    auto datagramHeader = iox::dds::IoxChunkDatagramHeader::deserialize(serializedDatagramHeader);
+    if (datagramHeader.datagramVersion != iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
     {
         LogError() << "[CycloneDataReader] received sample with incompatible IoxChunkDatagramHeader version! Received '"
-                   << static_cast<uint16_t>(nextSamplePayload[0]) << "', expected '"
+                   << static_cast<uint16_t>(datagramHeader.datagramVersion) << "', expected '"
                    << static_cast<uint16_t>(iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION) << "'! Dropped sample!";
         return NO_VALID_SAMPLE_AVAILABLE;
     }
 
-    auto receivedEndianess = static_cast<iox::dds::Endianess>(nextSamplePayload[1]);
-    if (receivedEndianess != getEndianess())
+    if (datagramHeader.endianness != getEndianess())
     {
         LogError() << "[CycloneDataReader] received sample with incompatible endianess! Received '"
-                   << EndianessString[nextSamplePayload[1]] << "', expected '"
+                   << EndianessString[static_cast<uint64_t>(datagramHeader.endianness)] << "', expected '"
                    << EndianessString[static_cast<uint64_t>(getEndianess())] << "'! Dropped sample!";
         return NO_VALID_SAMPLE_AVAILABLE;
     }
-
-    iox::dds::IoxChunkDatagramHeader datagramHeader;
-
-    std::memcpy(reinterpret_cast<uint8_t*>(&datagramHeader),
-                nextSamplePayload.data(),
-                sizeof(iox::dds::IoxChunkDatagramHeader));
 
     return datagramHeader;
 }
