@@ -7,7 +7,7 @@ It provides a publisher and a subscriber application.
 
 ## Expected Output
 
-<!-- Add asciinema link here -->
+[![asciicast](https://asciinema.org/a/407357.svg)](https://asciinema.org/a/407357)
 
 ## Code walkthrough
 

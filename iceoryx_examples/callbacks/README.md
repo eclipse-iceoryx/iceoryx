@@ -24,7 +24,7 @@ concurrently, even from inside a callback that was triggered by an event!
 
 ## Expected Output
 
-<!-- @todo Add expected output with asciinema recording before v1.0-->
+[![asciicast](https://asciinema.org/a/407365.svg)](https://asciinema.org/a/407365)
 
 ## Code Walkthrough
 
