@@ -23,6 +23,7 @@
 #include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
+#include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -93,6 +94,7 @@ class MockBaseSubscriber
     }
 
     Port m_port;
+    iox::popo::TriggerHandle m_trigger;
 };
 
 #endif // IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP
