@@ -61,9 +61,18 @@ struct ChunkHeader
     ///            - semantic meaning of a member changes
     static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
 
+    /// @brief User-Header id for no user-header
+    static constexpr uint16_t NO_USER_HEADER{0x0000};
+    /// @brief User-Header id for an unknown user-header
+    static constexpr uint16_t UNKNOWN_USER_HEADER{0xFFFF};
+
     /// @brief The ChunkHeader version is used to detect incompatibilities for record&replay functionality
     /// @return the ChunkHeader version
     uint8_t chunkHeaderVersion() const noexcept;
+
+    /// @brief The id of the user-header used by the chunk; if no user-header is used, this is set to NO_USER_HEADER
+    /// @return the user-header id of the chunk
+    uint16_t userHeaderId() const noexcept;
 
     /// @brief Get the pointer to the user-header
     /// @return the pointer to the user-header
@@ -139,7 +148,9 @@ struct ChunkHeader
     uint32_t m_chunkSize{0U};
     uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
     // reserved for future functionality and used to indicate the padding bytes; currently not used and set to `0`
-    uint8_t m_reserved[3]{};
+    uint8_t m_reserved{0};
+    // currently just a placeholder
+    uint16_t m_userHeaderId{NO_USER_HEADER};
     UniquePortId m_originId{popo::InvalidId};
     uint64_t m_sequenceNumber{0U};
     uint32_t m_userHeaderSize{0U};
