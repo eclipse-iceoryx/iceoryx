@@ -1,6 +1,6 @@
 # Change Log
 
-## [v1.0.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-04-30)
+## [v1.0.0](https://github.com/eclipse-iceoryx/iceoryx/tree/v1.0.0) (2021-04-15)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v0.90.0...v1.0.0)
 
