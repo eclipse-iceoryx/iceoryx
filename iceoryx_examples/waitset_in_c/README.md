@@ -24,7 +24,7 @@ The examples are structured in the same way as the C++ ones.
 
 ## Expected Output
 
-<!-- @todo Add expected output with asciinema recording before v1.0-->
+[![asciicast](https://asciinema.org/a/407431.svg)](https://asciinema.org/a/407431)
 
 ## Code Walkthrough
 

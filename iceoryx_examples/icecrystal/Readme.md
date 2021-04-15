@@ -7,30 +7,12 @@ look into the machine room of RouDi. It shows live information about the memory 
 registered processes. Additionally, it shows the publisher and subscriber ports that are created inside the shared
 memory.
 
-## Run icecrystal
-
-We reuse the binaries from 
-[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
-Create four terminals and run one command in each of them.
-
-```sh
-# If installed and available in PATH environment variable
-iox-roudi
-# If build from scratch with script in tools
-$ICEORYX_ROOT/build/iox-roudi
-
-build/iceoryx_examples/icedelivery/iox-cpp-publisher
-
-build/iceoryx_examples/icedelivery/iox-cpp-subscriber
-
-build/iox-introspection-client --all
-```
-
-<!-- @todo Add expected output of RouDi, publisher, subscriber and introspection with asciinema recording before v1.0-->
-
 ## Expected Output
 
-![introspection_screenshot](https://user-images.githubusercontent.com/22388003/75041206-672feb80-54bc-11ea-8621-2acf95bf376e.png)
+We re-use the binaries from
+[icedelivery](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
+
+[![asciicast](https://asciinema.org/a/407442.svg)](https://asciinema.org/a/407442)
 
 ## Feature walkthrough
 
@@ -51,9 +33,9 @@ The process view will show you the processes (incl. PID), which are currently re
 
     --port            Subscribe to port introspection data.
 
-The port view shows both publisher and subscriber ports that are created by RouDi in the shared memory. Their respective service 
-description (service, instance, event) is shown to identify them uniquely. The columns `Process` and `Node` display to which 
-process and node the ports belong. The service discovery protocol allows you to define the `Propagation scope` of the data. This 
+The port view shows both publisher and subscriber ports that are created by RouDi in the shared memory. Their respective service
+description (service, instance, event) is shown to identify them uniquely. The columns `Process` and `Node` display to which
+process and node the ports belong. The service discovery protocol allows you to define the `Propagation scope` of the data. This
 can enable data forwarding to other machines e.g. over network or just consume them internally.
 
     --all             Subscribe to all available introspection data.
