@@ -47,16 +47,11 @@ class CycloneDataReader : public DataReader
 
     void connect() noexcept override;
 
-    /// @todo iox-#14 remove once `take` is either removed or ported to peekNextIoxChunkDatagramHeader
-    iox::cxx::optional<uint32_t> peekNextSize();
     iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() override;
     bool hasSamples() override;
     iox::cxx::expected<DataReaderError> takeNext(const IoxChunkDatagramHeader datagramHeader,
                                                  uint8_t* userHeaderBuffer,
                                                  uint8_t* userPayloadBuffer) override;
-
-    iox::cxx::expected<uint64_t, DataReaderError>
-    take(uint8_t* const buffer, const uint64_t& bufferSize, const iox::cxx::optional<uint64_t>& maxSamples) override;
 
     capro::IdString_t getServiceId() const noexcept override;
     capro::IdString_t getInstanceId() const noexcept override;

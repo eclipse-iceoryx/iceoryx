@@ -55,27 +55,6 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::optional<uint32_t> iox::dds::CycloneDataReader::peekNextSize()
-{
-    // ensure to only read sample - do not take
-    auto readSamples = m_impl.select().max_samples(1U).state(::dds::sub::status::SampleState::any()).read();
-
-    if (readSamples.length() > 0)
-    {
-        auto nextSample = readSamples.begin();
-        auto nextSampleSize = nextSample->data().payload().size();
-
-        // Ignore samples with no payload
-        if (nextSampleSize != 0)
-        {
-            return iox::cxx::optional<uint32_t>(static_cast<uint32_t>(nextSampleSize));
-        }
-    }
-
-    // no valid samples available
-    return iox::cxx::nullopt_t();
-}
-
 iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader()
 {
     // ensure to only read sample - do not take
@@ -208,71 +187,6 @@ iox::cxx::expected<iox::dds::DataReaderError> iox::dds::CycloneDataReader::takeN
     }
 
     return iox::cxx::success<>();
-}
-
-iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::take(
-    uint8_t* const buffer, const uint64_t& bufferSize, const iox::cxx::optional<uint64_t>& maxSamples)
-{
-    if (!m_isConnected.load())
-    {
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
-    }
-    if (buffer == nullptr)
-    {
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_RECV_BUFFER);
-    }
-
-    // get size of the sample
-    auto peekResult = peekNextSize();
-    if (peekResult.has_value())
-    {
-        uint64_t sampleSize = peekResult.value();
-        if (sampleSize == 0)
-        {
-            return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATA);
-        }
-        if (bufferSize < sampleSize)
-        {
-            // Provided buffer is too small.
-            return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::RECV_BUFFER_TOO_SMALL);
-        }
-
-        // take maximum amount possible up to the cap: maxSamples
-        auto bufferCapacity = bufferSize / sampleSize;
-
-        auto numToTake = bufferCapacity;
-        if (maxSamples.has_value())
-        {
-            if (bufferCapacity > maxSamples.value())
-            {
-                numToTake = maxSamples.value();
-            }
-        }
-        auto samples = m_impl.select()
-                           .max_samples(static_cast<uint32_t>(numToTake))
-                           .state(::dds::sub::status::SampleState::any())
-                           .take();
-
-        // copy data into the provided buffer
-        uint64_t numSamplesBuffered = 0u;
-        if (samples.length() > 0)
-        {
-            // do copy
-            uint64_t cursor = 0; // Tracks the position in the buffer to write next sample.
-            for (const auto& sample : samples)
-            {
-                auto bytes = sample.data().payload().data();
-                std::copy(bytes, bytes + sampleSize, &buffer[cursor]);
-                cursor += sampleSize;
-            }
-            numSamplesBuffered = cursor / sampleSize;
-        }
-        return iox::cxx::success<uint64_t>(numSamplesBuffered);
-    }
-    else
-    {
-        return iox::cxx::success<uint64_t>(0u);
-    }
 }
 
 iox::capro::IdString_t iox::dds::CycloneDataReader::getServiceId() const noexcept

@@ -55,42 +55,25 @@ class CycloneDataReaderTest : public Test
 TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
 {
     // ===== Setup
-    uint64_t bufferSize = 1024;
-    uint8_t buffer[bufferSize];
-
-    // ===== Test
-    TestDataReader reader{"", "", ""};
-
-    auto takeResult = reader.take(buffer, bufferSize, iox::cxx::nullopt);
-    EXPECT_EQ(true, takeResult.has_error());
-    EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, takeResult.get_error());
-
     ChunkMock<DummyPayload> chunkMock;
     iox::dds::IoxChunkDatagramHeader datagramHeader;
     datagramHeader.endianness = getEndianess();
     datagramHeader.userPayloadSize = chunkMock.chunkHeader()->userPayloadSize();
     datagramHeader.userPayloadAlignment = chunkMock.chunkHeader()->userPayloadAlignment();
+
+    // ===== Test
+    TestDataReader reader{"", "", ""};
+
     auto takeNextResult = reader.takeNext(datagramHeader,
                                           static_cast<uint8_t*>(chunkMock.chunkHeader()->userHeader()),
                                           static_cast<uint8_t*>(chunkMock.chunkHeader()->userPayload()));
     ASSERT_EQ(true, takeNextResult.has_error());
-    EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, takeResult.get_error());
+    EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, takeNextResult.get_error());
 }
 
 TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
 {
     // ===== Setup
-    uint64_t bufferSize = 0;
-    uint8_t* buffer = nullptr;
-
-    // ===== Test
-    TestDataReader reader{"", "", ""};
-    reader.connect();
-
-    auto takeResult = reader.take(buffer, bufferSize, iox::cxx::nullopt);
-    EXPECT_EQ(true, takeResult.has_error());
-    EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, takeResult.get_error());
-
     ChunkMock<DummyPayload, DummyUserHeader> chunkMock;
     iox::dds::IoxChunkDatagramHeader datagramHeader;
     datagramHeader.endianness = getEndianess();
@@ -98,6 +81,10 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
     datagramHeader.userHeaderSize = chunkMock.chunkHeader()->userHeaderSize();
     datagramHeader.userPayloadSize = chunkMock.chunkHeader()->userPayloadSize();
     datagramHeader.userPayloadAlignment = chunkMock.chunkHeader()->userPayloadAlignment();
+
+    // ===== Test
+    TestDataReader reader{"", "", ""};
+    reader.connect();
 
     auto takeNextResult1 =
         reader.takeNext(datagramHeader, nullptr, static_cast<uint8_t*>(chunkMock.chunkHeader()->userPayload()));
