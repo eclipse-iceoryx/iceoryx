@@ -225,16 +225,25 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             popo::PublisherOptions options;
             uint64_t historyCapacity{};
-            iox::cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity);
+            if (!iox::cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity))
+            {
+                LogError() << message.getElementAtIndex(3).c_str() << "cannot be extracted from string\n";
+            }
             options.historyCapacity = historyCapacity;
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
 
             uint64_t offerOnCreate{};
-            iox::cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate);
+            if (!iox::cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate))
+            {
+                LogError() << message.getElementAtIndex(5).c_str() << "cannot be extracted from string\n";
+            }
             options.offerOnCreate = (0U == offerOnCreate) ? false : true;
 
             uint16_t subscriberTooSlowPolicy{};
-            iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy);
+            if (!iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy))
+            {
+                LogError() << message.getElementAtIndex(6).c_str() << "cannot be extracted from string\n";
+            }
             options.subscriberTooSlowPolicy = static_cast<popo::SubscriberTooSlowPolicy>(subscriberTooSlowPolicy);
 
             m_prcMgr->addPublisherForProcess(
@@ -257,19 +266,31 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             popo::SubscriberOptions options;
             uint64_t historyRequest;
-            iox::cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyRequest);
+            if (!iox::cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyRequest))
+            {
+                LogError() << message.getElementAtIndex(3).c_str() << "cannot be extracted from string\n";
+            }
             options.historyRequest = historyRequest;
             uint64_t queueCapacity;
-            iox::cxx::convert::fromString(message.getElementAtIndex(4).c_str(), queueCapacity);
+            if (!iox::cxx::convert::fromString(message.getElementAtIndex(4).c_str(), queueCapacity))
+            {
+                LogError() << message.getElementAtIndex(4).c_str() << "cannot be extracted from string\n";
+            }
             options.queueCapacity = queueCapacity;
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
 
             uint32_t subscribeOnCreate;
-            iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate);
+            if (!iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate))
+            {
+                LogError() << message.getElementAtIndex(6).c_str() << "cannot be extracted from string\n";
+            }
             options.subscribeOnCreate = (0U == subscribeOnCreate ? false : true);
 
             uint16_t queueFullPolicy{};
-            iox::cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy);
+            if (!iox::cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy))
+            {
+                LogError() << message.getElementAtIndex(7).c_str() << "cannot be extracted from string\n";
+            }
             options.queueFullPolicy = static_cast<popo::QueueFullPolicy>(queueFullPolicy);
 
             m_prcMgr->addSubscriberForProcess(
