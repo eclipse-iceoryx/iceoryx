@@ -32,9 +32,9 @@ static void sigHandler(int f_sig [[gnu::unused]])
 // push_front (list), push (stack), emplace_back (vector) return a bool - true if the insertion succeeded, false
 // otherwise
 // to keep the example clear, this helper function handles the return values
-void handleInsertionReturnVal(const bool hasSuccess)
+void handleInsertionReturnVal(const bool success)
 {
-    if (!hasSuccess)
+    if (!success)
     {
         std::cerr << "Failed to insert element." << std::endl;
         std::exit(EXIT_FAILURE);
@@ -94,7 +94,7 @@ int main()
                 std::cerr << "Unable to loan sample, error code: " << static_cast<uint64_t>(error) << std::endl;
             });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     return (EXIT_SUCCESS);

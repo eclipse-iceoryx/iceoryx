@@ -50,9 +50,11 @@ int main()
                 std::stringstream s;
                 s << APP_NAME << " got values:";
 
+                const char* separator = " ";
                 for (const auto& entry : *sample)
                 {
-                    s << " " << entry;
+                    s << separator << entry;
+                    separator = ", ";
                 }
 
                 s << std::endl;
@@ -68,7 +70,7 @@ int main()
                 }
             });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     return (EXIT_SUCCESS);

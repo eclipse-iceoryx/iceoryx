@@ -49,60 +49,75 @@ int main()
             .and_then([](auto& sample) {
                 std::stringstream s;
                 s << APP_NAME << " got values:";
+                const char* separator = " ";
 
                 s << std::endl << "stringForwardList:";
                 for (const auto& entry : sample->stringForwardList)
                 {
-                    s << " " << entry;
+                    s << separator << entry;
+                    separator = ", ";
                 }
 
                 s << std::endl << "integerList:";
+                separator = " ";
                 for (const auto& entry : sample->integerList)
                 {
-                    s << " " << entry;
+                    s << separator << entry;
+                    separator = ", ";
                 }
 
                 s << std::endl << "optionalList:";
+                separator = " ";
                 for (const auto& entry : sample->optionalList)
                 {
-                    (entry.has_value()) ? s << " " << entry.value() : s << " optional is empty";
+                    (entry.has_value()) ? s << separator << entry.value() : s << separator << "optional is empty";
+                    separator = ", ";
                 }
 
                 s << std::endl << "floatStack:";
+                separator = " ";
                 auto stackCopy = sample->floatStack;
                 while (stackCopy.size() > 0U)
                 {
                     auto result = stackCopy.pop();
                     if (result.has_value())
                     {
-                        s << " " << result.value();
+                        s << separator << result.value();
+                        separator = ", ";
                     }
                 }
 
                 s << std::endl << "someString: " << sample->someString;
 
-                s << std::endl << "doubleVector: ";
+                s << std::endl << "doubleVector:";
+                separator = " ";
                 for (const auto& entry : sample->doubleVector)
                 {
-                    s << " " << entry;
+                    s << separator << entry;
+                    separator = ", ";
                 }
 
                 s << std::endl << "variantVector:";
+                separator = " ";
                 for (const auto& i : sample->variantVector)
                 {
                     switch (i.index())
                     {
                     case 0:
-                        s << " " << *i.template get_at_index<0>();
+                        s << separator << *i.template get_at_index<0>();
+                        separator = ", ";
                         break;
                     case 1:
-                        s << " " << *i.template get_at_index<1>();
+                        s << separator << *i.template get_at_index<1>();
+                        separator = ", ";
                         break;
                     case INVALID_VARIANT_INDEX:
-                        s << " variant does not contain a type";
+                        s << separator << "variant does not contain a type";
+                        separator = ", ";
                         break;
                     default:
-                        s << " this is a new type";
+                        s << separator << "this is a new type";
+                        separator = ", ";
                     }
                 }
 
@@ -119,7 +134,7 @@ int main()
                 }
             });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     return (EXIT_SUCCESS);
