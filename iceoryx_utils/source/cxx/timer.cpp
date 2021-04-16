@@ -20,12 +20,6 @@ namespace iox
 {
 namespace cxx
 {
-Timer::Timer(const iox::units::Duration interval) noexcept
-    : m_interval(interval)
-{
-    start();
-}
-
 Timer::Timer(const iox::units::Duration interval, const iox::units::Duration delayThreshold) noexcept
     : m_interval(interval)
     , m_delayThreshold(delayThreshold)
@@ -54,8 +48,11 @@ void Timer::start(const iox::units::Duration interval) noexcept
 
 void Timer::stop() noexcept
 {
-    auto stopResult = m_waitSemaphore.post();
-    cxx::Expects(!stopResult.has_error());
+    if (*(m_waitSemaphore.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
+    {
+        auto stopResult = m_waitSemaphore.post();
+        cxx::Expects(!stopResult.has_error());
+    }
 }
 
 
@@ -68,13 +65,16 @@ const iox::units::Duration Timer::now() const noexcept
 
 cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> Timer::wait() noexcept
 {
-    if (*(m_waitSemaphore.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
+    if (*(m_waitSemaphore.getValue())
+        == static_cast<int>(
+            posix::SemaphoreWaitState::TIMEOUT)) // to check if the TIMER is active (if the sempahore is acquired)
     {
         if (now() > m_timeForNextActivation)
         {
-            auto timeDiff = now() - m_timeForNextActivation;
-            m_timeForNextActivation = m_timeForNextActivation + m_interval;
-            if (m_delayThreshold.toMilliseconds() > 0)
+            auto timeDiff =
+                now() - m_timeForNextActivation; // calculate the time delay to check if it breaches the threshold
+            m_timeForNextActivation = m_timeForNextActivation + m_interval; // calculate the next time for activation
+            if (m_delayThreshold > 0_ms)
             {
                 if (timeDiff > m_delayThreshold)
                 {
