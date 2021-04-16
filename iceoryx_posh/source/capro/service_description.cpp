@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include <iomanip>
 
 namespace iox
@@ -123,9 +124,9 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID,
     : m_serviceID(f_serviceID)
     , m_eventID(f_eventID)
     , m_instanceID(f_instanceID)
-    , m_serviceString(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(f_serviceID))
-    , m_instanceString(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(f_instanceID))
-    , m_eventString(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(f_eventID))
+    , m_serviceString(cxx::TruncateToCapacity, cxx::convert::toString(f_serviceID))
+    , m_instanceString(cxx::TruncateToCapacity, cxx::convert::toString(f_instanceID))
+    , m_eventString(cxx::TruncateToCapacity, cxx::convert::toString(f_eventID))
 {
 }
 

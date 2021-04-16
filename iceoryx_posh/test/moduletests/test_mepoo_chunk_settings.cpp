@@ -18,6 +18,7 @@
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "test.hpp"
 
 namespace

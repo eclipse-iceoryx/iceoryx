@@ -225,7 +225,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             popo::PublisherOptions options;
             uint64_t historyCapacity{};
-            if (!iox::cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity))
+            if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyCapacity))
             {
                 LogError() << message.getElementAtIndex(3).c_str() << "cannot be extracted from string\n";
             }
@@ -233,14 +233,14 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4));
 
             uint64_t offerOnCreate{};
-            if (!iox::cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate))
+            if (!cxx::convert::fromString(message.getElementAtIndex(5).c_str(), offerOnCreate))
             {
                 LogError() << message.getElementAtIndex(5).c_str() << "cannot be extracted from string\n";
             }
             options.offerOnCreate = (0U == offerOnCreate) ? false : true;
 
             uint16_t subscriberTooSlowPolicy{};
-            if (!iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy))
+            if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscriberTooSlowPolicy))
             {
                 LogError() << message.getElementAtIndex(6).c_str() << "cannot be extracted from string\n";
             }
@@ -266,13 +266,13 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             popo::SubscriberOptions options;
             uint64_t historyRequest;
-            if (!iox::cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyRequest))
+            if (!cxx::convert::fromString(message.getElementAtIndex(3).c_str(), historyRequest))
             {
                 LogError() << message.getElementAtIndex(3).c_str() << "cannot be extracted from string\n";
             }
             options.historyRequest = historyRequest;
             uint64_t queueCapacity;
-            if (!iox::cxx::convert::fromString(message.getElementAtIndex(4).c_str(), queueCapacity))
+            if (!cxx::convert::fromString(message.getElementAtIndex(4).c_str(), queueCapacity))
             {
                 LogError() << message.getElementAtIndex(4).c_str() << "cannot be extracted from string\n";
             }
@@ -280,14 +280,14 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             options.nodeName = NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(5));
 
             uint32_t subscribeOnCreate;
-            if (!iox::cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate))
+            if (!cxx::convert::fromString(message.getElementAtIndex(6).c_str(), subscribeOnCreate))
             {
                 LogError() << message.getElementAtIndex(6).c_str() << "cannot be extracted from string\n";
             }
             options.subscribeOnCreate = (0U == subscribeOnCreate ? false : true);
 
             uint16_t queueFullPolicy{};
-            if (!iox::cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy))
+            if (!cxx::convert::fromString(message.getElementAtIndex(7).c_str(), queueFullPolicy))
             {
                 LogError() << message.getElementAtIndex(7).c_str() << "cannot be extracted from string\n";
             }

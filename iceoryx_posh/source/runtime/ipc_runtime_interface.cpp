@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <thread>
@@ -86,10 +87,9 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
             IpcMessage sendBuffer;
             int pid = getpid();
             cxx::Expects(pid >= 0);
-            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName
-                       << iox::cxx::convert::toString(pid)
-                       << iox::cxx::convert::toString(posix::PosixUser::getUserOfCurrentProcess().getID())
-                       << iox::cxx::convert::toString(transmissionTimestamp)
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << cxx::convert::toString(pid)
+                       << cxx::convert::toString(posix::PosixUser::getUserOfCurrentProcess().getID())
+                       << cxx::convert::toString(transmissionTimestamp)
                        << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
 
             bool successfullySent = m_RoudiIpcInterface.timedSend(sendBuffer, 100_ms);

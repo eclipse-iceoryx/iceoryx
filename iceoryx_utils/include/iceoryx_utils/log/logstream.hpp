@@ -127,7 +127,7 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type = 0>
     LogStream& operator<<(const T val) noexcept
     {
-        m_logEntry.message.append(iox::cxx::convert::toString(val));
+        m_logEntry.message.append(cxx::convert::toString(val));
         m_flushed = false;
         return *this;
     }

@@ -18,6 +18,7 @@
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 
 #include "test.hpp"

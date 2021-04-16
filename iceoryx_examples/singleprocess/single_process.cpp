@@ -22,6 +22,7 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 

@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "test_roudi_service_discovery.hpp"
 
 class RoudiFindService_test : public RouDiServiceDiscoveryTest

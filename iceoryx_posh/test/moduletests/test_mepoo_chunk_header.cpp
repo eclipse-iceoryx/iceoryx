@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "test.hpp"

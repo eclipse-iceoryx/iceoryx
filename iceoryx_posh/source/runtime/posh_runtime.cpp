@@ -197,10 +197,9 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString()
-               << iox::cxx::convert::toString(options.historyCapacity) << options.nodeName
-               << iox::cxx::convert::toString(options.offerOnCreate)
-               << iox::cxx::convert::toString(static_cast<uint16_t>(options.subscriberTooSlowPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyCapacity)
+               << options.nodeName << cxx::convert::toString(options.offerOnCreate)
+               << cxx::convert::toString(static_cast<uint16_t>(options.subscriberTooSlowPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
@@ -310,11 +309,10 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
 
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString()
-               << iox::cxx::convert::toString(options.historyRequest)
-               << iox::cxx::convert::toString(options.queueCapacity) << options.nodeName
-               << iox::cxx::convert::toString(options.subscribeOnCreate)
-               << iox::cxx::convert::toString(static_cast<uint16_t>(options.queueFullPolicy))
+               << static_cast<cxx::Serialization>(service).toString() << cxx::convert::toString(options.historyRequest)
+               << cxx::convert::toString(options.queueCapacity) << options.nodeName
+               << cxx::convert::toString(options.subscribeOnCreate)
+               << cxx::convert::toString(static_cast<uint16_t>(options.queueFullPolicy))
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
