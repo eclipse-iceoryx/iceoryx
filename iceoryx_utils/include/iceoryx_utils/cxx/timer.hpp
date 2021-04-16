@@ -74,7 +74,7 @@ class Timer
     /// @param[in] delayThreshold optional parameter. The delay duration that is allowed between each activation. If the
     /// execution time breaches this threshold the timer returns the state accordingly. The delayThreshold should be a
     /// natural number for delay consideration.
-    Timer(const iox::units::Duration interval = 0_ms, const iox::units::Duration delayThreshold = 0_ms) noexcept;
+    Timer(const iox::units::Duration interval, const iox::units::Duration delayThreshold = 0_ms) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.
     ~Timer() noexcept;
