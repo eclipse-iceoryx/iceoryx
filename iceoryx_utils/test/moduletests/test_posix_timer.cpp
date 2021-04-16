@@ -481,7 +481,7 @@ TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatCallsLessCallbacksThanASAPT
 /// Unit tests which segfaults (issue #243). If the segfault is fixed this unit test has
 /// to be adjusted but for the moment it seems that it causes the segfault
 /// reliable.
-TEST_F(Timer_test, DISABLED_SelfTriggeringTimerWorksAndDoesNotCauseSegFault)
+TEST_F(Timer_test, SelfTriggeringTimerWorksAndDoesNotCauseSegFault)
 {
     Duration selfTriggerTimeout = 1_ns;
     int repetitions = 100;
