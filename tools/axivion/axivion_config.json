@@ -1282,10 +1282,13 @@
             "_active": true
         },
         "CloneDetection": {
-            "_active": true
-        },
-        "CodingStyle-NoTrailingWhitespace": {
-            "_active": true
+            "_active": true,
+            "excludes": [
+                "build/*"
+            ],
+            "pre_excludes": [
+                "build/*"
+            ]
         },
         "CycleDetection-CallgraphCycles": {
             "_active": true
@@ -1294,9 +1297,6 @@
             "_active": true
         },
         "DeadCodeDetection": {
-            "_active": true
-        },
-        "FaultDetection": {
             "_active": true
         },
         "FaultDetection-BadEnumValue": {
@@ -1609,11 +1609,13 @@
         "AxivionLinker": {
             "_active": true,
             "input_files": [
-                "build/install/prefix/bin/iox-ex-publisher",
-                "build/install/prefix/bin/iox-ex-subscriber",
-                "build/install/prefix/bin/iox-c-publisher",
-                "build/install/prefix/bin/iox-c-subscriber",
-                "build/install/prefix/bin/iox-roudi"
+                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-cpp-publisher",
+                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-cpp-subscriber",
+                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-c-publisher",
+                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-c-subscriber",
+                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-cpp-waitset-individual",
+                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-c-waitset-individual",
+                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-roudi"
             ],
             "ir": "result.ir",
             "options": "-j -I2000 -i2000"
@@ -1621,17 +1623,34 @@
         "BuildSystemIntegration": {
             "child_order": [
                 "Pin All Sources",
+                "Create Build Directory",
                 "Command",
+                "cmake dependencies",
+                "cmake build",
+                "AxivionLinker",
+                "Remove Build Directory",
                 "Unpin All Sources",
-                "AxivionLinker"
+                "AxivionCompiler"
             ]
         },
         "Command": {
-            "_active": true,
+            "_active": false,
             "build_command": "./tools/iceoryx_build_test.sh examples dds-gateway clean",
             "clean_command": null,
             "environment": {
                 "CC": "irCC",
+                "CMAKE_COLOR_MAKEFILE": "OFF",
+                "CXX": "irCXX"
+            }
+        },
+        "Create Build Directory": {
+            "_active": true,
+            "_copy_from": "Command",
+            "build_command": "mkdir -p build",
+            "clean_command": null,
+            "environment": {
+                "CC": "irCC",
+                "CMAKE_COLOR_MAKEFILE": "OFF",
                 "CXX": "irCXX"
             }
         },
@@ -1640,7 +1659,7 @@
             "sourceserver_gitdir": "$(AXIVION_DATABASES_DIR)/git/iceoryx.git"
         },
         "Pin All Sources": {
-            "_active": true,
+            "_active": false,
             "_copy_from": "Command",
             "build_command": "srcCP --patch-inplace ."
         },
@@ -1649,22 +1668,55 @@
                 "multi_binary": true
             },
             "ci_mode": {
-                "clean_after": true,
-                "clean_before": true
+                "clean_after": false,
+                "clean_before": false
             },
-            "directory": "../../",
+            "directory": "$(ICEORYX_DIR)",
             "ir": "result.ir",
             "name": "iceoryx"
         },
+        "Remove Build Directory": {
+            "_active": true,
+            "_copy_from": "Command",
+            "build_command": null,
+            "clean_command": "rm -rf build",
+            "environment": {
+                "CC": "irCC",
+                "CMAKE_COLOR_MAKEFILE": "OFF",
+                "CXX": "irCXX"
+            }
+        },
         "Shadow": {
-            "_active": false,
+            "_active": true,
             "shadow_directory": "$(AXIVION_DATABASES_DIR)/shadow/iceoryx",
             "sourceserver_repository": "$(AXIVION_DATABASES_DIR)/shadow/iceoryx/shadow.fossil"
         },
         "Unpin All Sources": {
-            "_active": true,
+            "_active": false,
             "_copy_from": "Command",
             "clean_command": "srcCP --revert ."
+        },
+        "cmake build": {
+            "_active": true,
+            "_copy_from": "Command",
+            "build_command": "cmake --build .  --target install -- -j$(NUM_PROCESSES=1)",
+            "clean_command": null,
+            "cwd": "build",
+            "environment": {
+                "COMPILE_ONLYIR": "Yes"
+            }
+        },
+        "cmake dependencies": {
+            "_active": true,
+            "_copy_from": "Command",
+            "build_command": "cmake -DCMAKE_BUILD_TYPE= -DCMAKE_INSTALL_PREFIX=$(ICEORYX_DIR)/build/install/prefix/ -DEXAMPLES=ON -DDDS_GATEWAY=ON $(ICEORYX_DIR)/iceoryx_meta",
+            "clean_command": null,
+            "cwd": "build",
+            "environment": {
+                "CC": "irCC",
+                "COMPILE_ONLY": "Yes",
+                "CXX": "irCXX"
+            }
         }
     },
     "Results": {
