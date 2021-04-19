@@ -12,8 +12,7 @@ markdown_extensions:
   - toc:
       permalink: 🔗
   - meta
-  - markdown_include.include:
-      base_path: doc
+  - markdown_include.include
   - admonition
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
