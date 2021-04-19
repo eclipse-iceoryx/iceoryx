@@ -2,4 +2,4 @@
 title: List of examples
 ---
 
-{! ./../iceoryx_examples/README.md !}
+{! ../iceoryx/iceoryx_examples/README.md !}
