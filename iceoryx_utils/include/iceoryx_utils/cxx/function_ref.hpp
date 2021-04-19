@@ -18,6 +18,7 @@
 #ifndef IOX_UTILS_CXX_FUNCTION_REF_HPP
 #define IOX_UTILS_CXX_FUNCTION_REF_HPP
 
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 #include <cstddef>

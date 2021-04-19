@@ -323,7 +323,7 @@ template <typename T, uint64_t Capacity>
 inline T& list<T, Capacity>::front() noexcept
 {
     auto iter = begin();
-    handleInvalidElement(iter.m_iterListNodeIdx);
+    IOX_DISCARD_RESULT(handleInvalidElement(iter.m_iterListNodeIdx));
     return *iter;
 }
 
@@ -331,7 +331,7 @@ template <typename T, uint64_t Capacity>
 inline const T& list<T, Capacity>::front() const noexcept
 {
     auto citer = cbegin();
-    handleInvalidElement(citer.m_iterListNodeIdx);
+    IOX_DISCARD_RESULT(handleInvalidElement(citer.m_iterListNodeIdx));
     return *citer;
 }
 
@@ -339,7 +339,7 @@ template <typename T, uint64_t Capacity>
 inline T& list<T, Capacity>::back() noexcept
 {
     auto iter = end();
-    handleInvalidElement((--iter).m_iterListNodeIdx);
+    IOX_DISCARD_RESULT(handleInvalidElement((--iter).m_iterListNodeIdx));
     return *iter;
 }
 
@@ -347,7 +347,7 @@ template <typename T, uint64_t Capacity>
 inline const T& list<T, Capacity>::back() const noexcept
 {
     auto citer = cend();
-    handleInvalidElement((--citer).m_iterListNodeIdx);
+    IOX_DISCARD_RESULT(handleInvalidElement((--citer).m_iterListNodeIdx));
     return *citer;
 }
 
@@ -637,11 +637,7 @@ inline void list<T, Capacity>::setNextIdx(const size_type idx, const size_type n
 template <typename T, uint64_t Capacity>
 inline const T* list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const noexcept
 {
-    if (handleInvalidElement(idx))
-    {
-        // error handling in call to handleInvalidElement()
-        return nullptr;
-    }
+    IOX_DISCARD_RESULT(handleInvalidElement(idx));
 
     return &(reinterpret_cast<const T*>(&m_data)[idx]);
 }
@@ -665,17 +661,8 @@ template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::handleInvalidElement(const size_type idx) const noexcept
 {
     // freeList / invalid elements will have the 'prevIdx' set to INVALID_INDEX
-    if (isValidElementIdx(idx))
-    {
-        return false;
-    }
-    else
-    {
-        errorMessage(__PRETTY_FUNCTION__, " invalid list element ");
-        std::terminate();
-
-        return true;
-    }
+    cxx::Expects(isValidElementIdx(idx) && "invalid list element");
+    return false;
 }
 
 template <typename T, uint64_t Capacity>
@@ -684,33 +671,15 @@ inline bool list<T, Capacity>::handleInvalidIterator(const const_iterator& iter)
     // freeList / invalid elements will have the prevIdx set to INVALID_INDEX
     // additional check on e.g. nextIdx or m_iterListNodeIdx (<INVALID_INDEX) are omitted as this
     // should (can) never happen though normal list operations.
-    if (getPrevIdx(iter) < INVALID_INDEX)
-    {
-        return false;
-    }
-    else
-    {
-        errorMessage(__PRETTY_FUNCTION__, " invalidated iterator ");
-        std::terminate();
-
-        return true;
-    }
+    cxx::Expects(getPrevIdx(iter) < INVALID_INDEX && "invalidated iterator");
+    return false;
 }
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept
 {
-    if (this != iter.m_list)
-    {
-        errorMessage(__PRETTY_FUNCTION__, " iterator of other list can't be used ");
-        std::terminate();
-
-        return true;
-    }
-    else
-    {
-        return handleInvalidIterator(iter);
-    }
+    cxx::Expects(this == iter.m_list && "iterator of other list can't be used");
+    return handleInvalidIterator(iter);
 }
 
 template <typename T, uint64_t Capacity>

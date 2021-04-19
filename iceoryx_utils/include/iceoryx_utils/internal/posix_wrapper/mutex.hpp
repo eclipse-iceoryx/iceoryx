@@ -56,7 +56,7 @@ class mutex
 {
   public:
     /// @brief the construction of the mutex can fail which will lead to a call
-    ///         to std::terminate which is alright for the moment since we are
+    ///         to programm termination which is alright for the moment since we are
     ///         intending to get rid of the mutex sooner or later
     mutex(const bool f_isRecursive);
 

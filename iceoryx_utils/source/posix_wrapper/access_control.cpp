@@ -79,20 +79,12 @@ AccessController::smartAclPointer_t AccessController::createACL(const int32_t f_
     auto aclInitCall = cxx::makeSmartC(
         acl_init, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<acl_t>(nullptr)}, {}, f_numEntries);
 
-    if (aclInitCall.hasErrors())
-    {
-        std::cerr << "Error: Could not allocate new ACL." << std::endl;
-        std::terminate();
-    }
+    cxx::Ensures(!aclInitCall.hasErrors() && " Could not allocate new ACL");
 
     // define how to free the memory (custom deleter for the smart pointer)
     std::function<void(acl_t)> freeACL = [&](acl_t acl) {
         auto aclFreeCall = cxx::makeSmartC(acl_free, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, acl);
-        if (aclFreeCall.hasErrors())
-        {
-            std::cerr << "Error: Could not free ACL memory." << std::endl;
-            std::terminate();
-        }
+        cxx::Ensures(!aclFreeCall.hasErrors() && "Could not free ACL memory");
     };
 
     return smartAclPointer_t(reinterpret_cast<acl_t>(aclInitCall.getReturnValue()), freeACL);

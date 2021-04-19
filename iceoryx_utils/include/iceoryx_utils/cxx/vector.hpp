@@ -17,6 +17,8 @@
 #ifndef IOX_UTILS_CXX_VECTOR_HPP
 #define IOX_UTILS_CXX_VECTOR_HPP
 
+#include "iceoryx_utils/cxx/helplets.hpp"
+
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>

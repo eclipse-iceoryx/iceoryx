@@ -17,6 +17,8 @@
 #ifndef IOX_UTILS_CXX_LIST_HPP
 #define IOX_UTILS_CXX_LIST_HPP
 
+#include "iceoryx_utils/cxx/helplets.hpp"
+
 #include <cstdint>
 #include <iostream>
 

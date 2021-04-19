@@ -25,6 +25,7 @@ namespace iox
 {
 namespace cxx
 {
+
 /// @brief The GenericRAII class is a simple helper class to apply the C++ RAII
 ///             idiom quickly. You set 2 functions, one which is called in the
 ///             constructor and another function is called in the destructor

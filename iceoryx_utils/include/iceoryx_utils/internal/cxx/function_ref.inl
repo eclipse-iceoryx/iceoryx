@@ -60,12 +60,8 @@ function_ref<ReturnType(ArgTypes...)>::operator=(function_ref<ReturnType(ArgType
 template <class ReturnType, class... ArgTypes>
 inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... args) const noexcept
 {
-    if (!m_pointerToCallable)
-    {
-        // Callable was called without user having assigned one beforehand
-        std::cerr << "Empty function_ref invoked" << std::endl;
-        std::terminate();
-    }
+    // Expect that a callable was assigned beforehand
+    cxx::Expects(m_pointerToCallable != nullptr && "Empty function_ref invoked");
     return m_functionPointer(m_pointerToCallable, std::forward<ArgTypes>(args)...);
 }
 
