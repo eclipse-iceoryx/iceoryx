@@ -49,7 +49,6 @@ namespace cxx
 // on an unknown platform we use for now nothing since we do not know what is supported there
 #define IOX_NO_DISCARD
 #endif
-#endif
 
 /// @brief IOX_FALLTHROUGH adds the [[fallthrough]] keyword when it is available for the current compiler.
 /// @note
@@ -58,14 +57,12 @@ namespace cxx
 ///   activate keywords for gcc>=7 or clang>=4
 #if (defined(__GNUC__) && __GNUC__ >= 7) || (defined(__clang__) && __clang_major__ >= 4)
 #define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
-#else
+#elif defined(_WIN32)
 // On WIN32 we are using C++17 which makes the keyword [[fallthrough]] available
-#if defined(_WIN32)
 #define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
 // on an unknown platform we use for now nothing since we do not know what is supported there
 #else
 #define IOX_FALLTHROUGH
-#endif
 #endif
 
 /// @brief IOX_MAYBE_UNUSED adds the [[gnu::unused]] or [[maybe_unused]] attribute when it is available for the current
@@ -74,14 +71,12 @@ namespace cxx
 ///   activate attribute for gcc or clang
 #if defined(__GNUC__) || defined(__clang__)
 #define IOX_MAYBE_UNUSED [[gnu::unused]] // NOLINT
-#else
+#elif defined(_WIN32)
 // On WIN32 we are using C++17 which makes the attribute [[maybe_unused]] available
-#if defined(_WIN32)
 #define IOX_MAYBE_UNUSED [[maybe_unused]] // NOLINT
 // on an unknown platform we use for now nothing since we do not know what is supported there
 #else
 #define IOX_MAYBE_UNUSED
-#endif
 #endif
 
 
