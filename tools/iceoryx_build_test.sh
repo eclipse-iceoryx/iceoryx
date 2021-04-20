@@ -49,7 +49,7 @@ EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
-EXAMPLES="callbacks callbacks_in_c icedelivery singleprocess waitset icehello iceoptions ice_access_control"
+EXAMPLES="callbacks ice_access_control icedelivery iceensemble icehello iceoptions singleprocess waitset"
 COMPONENTS="iceoryx_posh iceoryx_utils iceoryx_introspection iceoryx_binding_c iceoryx_component iceoryx_dds"
 TOOLCHAIN_FILE=""
 
@@ -300,7 +300,7 @@ fi
 if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     rm -rf $WORKSPACE/build_out_of_tree
     if [ "$BINDING_C_FLAG" == "ON" ]; then
-        EXAMPLES="${EXAMPLES} icedelivery_in_c waitset_in_c iceperf"
+        EXAMPLES="${EXAMPLES} icedelivery_in_c waitset_in_c iceperf callbacks_in_c"
     fi
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo ${EXAMPLES}

@@ -6,6 +6,7 @@
 |[icedelivery](./icedelivery/)               | Sending and receiving data using C++                                      | :star:             |
 |[icedelivery_in_c](./icedelivery_in_c/)     | Sending and receiving data using C                                        | :star:             |
 |[iceoptions](./iceoptions/)                 | Configuring pub/sub settings like history cache size or startup behaviour | :star:             |
+|[complexdata](./complexdata/)               | Sending/receiving some of the iceoryx STL container surrogates            | :star:             |
 |[callbacks](./callbacks/)                   | Implementing event triggered callbacks using C++                          | :star::star:       |
 |[callbacks_in_c](./callbacks_in_c/)         | Implementing event triggered callbacks using C                            | :star::star:       |
 |[waitset](./waitset/)                       | Waiting for events like arrival of data using C++                         | :star::star:       |
