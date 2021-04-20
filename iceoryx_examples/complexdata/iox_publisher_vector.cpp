@@ -39,7 +39,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialize publisher
-    iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontRight", "Object"});
+    iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontRight", "VectorData"});
 
     uint64_t ct = 0;
     // run until interrupted by Ctrl-C
@@ -49,12 +49,9 @@ int main()
             .and_then([&](auto& sample) {
                 for (uint64_t i = 0U; i < sample->capacity(); ++i)
                 {
-                    bool success = sample->emplace_back(static_cast<double>(ct + i));
-                    if (!success)
-                    {
-                        std::cerr << "Failed to insert element." << std::endl;
-                        break;
-                    }
+                    // we can omit the check of the return value since the loop doesn't exceed the capacity of the
+                    // vector
+                    sample->emplace_back(static_cast<double>(ct + i));
                 }
 
                 sample.publish();
