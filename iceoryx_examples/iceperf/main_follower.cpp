@@ -16,16 +16,18 @@
 
 #include "iceperf_follower.hpp"
 
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/platform/getopt.hpp"
 
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
-    constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'}, {nullptr, 0, nullptr, 0}};
+    constexpr option longOptions[] = {
+        {"help", no_argument, nullptr, 'h'}, {"moo", required_argument, nullptr, 'm'}, {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "h";
+    constexpr const char* shortOptions = "hm:";
     int32_t index{0};
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
@@ -36,8 +38,34 @@ int main(int argc, char* argv[])
             std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
             std::cout << "Options:" << std::endl;
             std::cout << "-h, --help                        Display help" << std::endl;
+            std::cout << "-m, --moo <intensity>             Prints 'Moo!' with the specified intensity" << std::endl;
+            std::cout << "                                  range = '0' to '100'" << std::endl;
+            std::cout << "                                  default = '0'" << std::endl;
 
             return EXIT_SUCCESS;
+        case 'm':
+        {
+            uint64_t intensity{0U};
+            if (!iox::cxx::convert::fromString(optarg, intensity))
+            {
+                std::cerr << "Could not parse 'intensity' paramater!" << std::endl;
+                return EXIT_FAILURE;
+            }
+            if (intensity > 100)
+            {
+                std::cerr << "Too high moo 'intensity'!" << std::endl;
+                return EXIT_FAILURE;
+            }
+
+            std::cout << "Moo";
+            for (uint64_t i = 0; i < intensity; ++i)
+            {
+                std::cout << "o";
+            }
+            std::cout << "!" << std::endl;
+
+            return EXIT_SUCCESS;
+        }
         default:
             return EXIT_FAILURE;
         }
