@@ -23,15 +23,21 @@
 # mkdocs, v1.1.2
 # Doxygen, 1.8.17
 # doxybook2, v1.3.1
-# mike, v0.5.5
+# mike, v1.0.0
 
 set -e
 
 WORKSPACE=$(git rev-parse --show-toplevel)
+BASENAME=$(basename $WORKSPACE)
 WEBREPO="git@github.com:eclipse-iceoryx/iceoryx-web.git"
 TYPE=${1:-local} #`local` starts a local webserver to inspect the results, `publish` pushes the generated doc to iceoryx_web
 VERSION=$2
 BRANCH=$3
+
+if [ "$BASENAME" != "iceoryx" ]; then
+    echo "Git folder must be named iceoryx!"
+    exit 1
+fi
 
 cd $WORKSPACE
 
@@ -42,27 +48,47 @@ cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
 cd $WORKSPACE/build
 make -j8 doxygen_iceoryx_posh doxygen_iceoryx_utils doxygen_iceoryx_binding_c doxygen_iceoryx_dds doxygen_iceoryx_introspection
 
-# Generate markdown from doxygen
 cd $WORKSPACE
 
+PACKAGES="utils posh c-binding DDS-gateway introspection"
+
+# Generate doxybook2 config files, to have correct links in doxygen docu
+mkdir -p $WORKSPACE/tools/website/generated/
+
+for PACKAGE in ${PACKAGES}  ; do
+    FILE=$WORKSPACE/tools/website/generated/doxybook2-$PACKAGE.json
+    rm -f $FILE
+    echo "{" >> $FILE
+    if [ "$TYPE" == "local" ]; then
+        echo "\"baseUrl\": \"/API-reference/$PACKAGE/\","  >> $FILE
+    else
+        echo "\"baseUrl\": \"/$VERSION/API-reference/$PACKAGE/\","  >> $FILE
+    fi
+    echo "\"indexInFolders\": false,"  >> $FILE
+    echo "\"linkSuffix\": \"/\","  >> $FILE
+    echo "\"mainPageInRoot\": false"  >> $FILE
+    echo "}"  >> $FILE
+done
+
+# Generate markdown from doxygen
 mkdir -p $WORKSPACE/doc/website/API-reference/utils
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_utils/xml/ --output $WORKSPACE/doc/website/API-reference/utils
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_utils/xml/ --output $WORKSPACE/doc/website/API-reference/utils --config $WORKSPACE/tools/website/generated/doxybook2-utils.json
 
 mkdir -p $WORKSPACE/doc/website/API-reference/posh
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_posh/xml/ --output $WORKSPACE/doc/website/API-reference/posh
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_posh/xml/ --output $WORKSPACE/doc/website/API-reference/posh --config $WORKSPACE/tools/website/generated/doxybook2-posh.json
 
 mkdir -p $WORKSPACE/doc/website/API-reference/c-binding
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_binding_c/xml/ --output $WORKSPACE/doc/website/API-reference/c-binding
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_binding_c/xml/ --output $WORKSPACE/doc/website/API-reference/c-binding --config $WORKSPACE/tools/website/generated/doxybook2-c-binding.json
 
 mkdir -p $WORKSPACE/doc/website/API-reference/DDS-gateway
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_dds/xml/ --output $WORKSPACE/doc/website/API-reference/DDS-gateway
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_dds/xml/ --output $WORKSPACE/doc/website/API-reference/DDS-gateway --config $WORKSPACE/tools/website/generated/doxybook2-DDS-gateway.json
 
 mkdir -p $WORKSPACE/doc/website/API-reference/introspection
-doxybook2 --input $WORKSPACE/build/doc/iceoryx_introspection/xml/ --output $WORKSPACE/doc/website/API-reference/introspection
+doxybook2 --input $WORKSPACE/build/doc/iceoryx_introspection/xml/ --output $WORKSPACE/doc/website/API-reference/introspection --config $WORKSPACE/tools/website/generated/doxybook2-introspection.json
 
 # Remove index files
-PACKAGES="utils posh c-binding DDS-gateway introspection"
-FILES="index_classes.md index_examples.md index_files.md index_modules.md index_namespaces.md index_pages.md"
+
+FILES="index_classes.md index_examples.md index_files.md index_modules.md index_namespaces.md index_pages.md index_groups.md"
 
 for PACKAGE in ${PACKAGES}  ; do
     for FILE in ${FILES}  ; do
