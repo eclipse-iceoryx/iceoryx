@@ -62,7 +62,7 @@ target_link_libraries(iceperf-roudi
 
 target_compile_options(iceperf-roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
-set_target_properties(iceperf-bench-leader iceperf-bench-leader iceperf-roudi PROPERTIES
+set_target_properties(iceperf-bench-leader iceperf-bench-follower iceperf-roudi PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON

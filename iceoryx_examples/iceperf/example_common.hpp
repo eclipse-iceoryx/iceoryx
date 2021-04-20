@@ -21,7 +21,7 @@ enum class Benchmark
 {
     ALL,
     LATENCY,
-    TROUGHPUT,
+    TROUGHPUT
 };
 
 enum class Technology
@@ -30,13 +30,13 @@ enum class Technology
     ICEORYX_CPP_API,
     ICEORYX_C_API,
     POSIX_MESSAGE_QUEUE,
-    UNIX_DOMAIN_SOCKET,
+    UNIX_DOMAIN_SOCKET
 };
 
 enum class RunFlag
 {
     STOP,
-    RUN,
+    RUN
 };
 
 #endif
