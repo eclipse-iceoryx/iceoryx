@@ -80,11 +80,8 @@ int main()
                 while (stackCopy.size() > 0U)
                 {
                     auto result = stackCopy.pop();
-                    if (result.has_value())
-                    {
-                        s << separator << result.value();
-                        separator = ", ";
-                    }
+                    s << separator << result.value();
+                    separator = ", ";
                 }
 
                 s << std::endl << "someString: " << sample->someString;
