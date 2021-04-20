@@ -55,13 +55,17 @@ namespace cxx
 //    [[fallthrough]] supported since gcc 7 (https://gcc.gnu.org/projects/cxx-status.html)
 ///   [[fallthrough]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
 ///   activate keywords for gcc>=7 or clang>=4
-#if (defined(__GNUC__) && __GNUC__ >= 7) || (defined(__clang__) && __clang_major__ >= 4)
-#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
-#elif defined(_WIN32)
+#if defined(_WIN32)
 // On WIN32 we are using C++17 which makes the keyword [[fallthrough]] available
 #define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
-// on an unknown platform we use for now nothing since we do not know what is supported there
+#elif defined(__APPLE__) && defined(__clang__)
+// On APPLE we are using C++17 which makes the keyword [[fallthrough]] available
+#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
+#elif (defined(__GNUC__) && __GNUC__ >= 7) && !defined(__clang__)
+// clang prints a warning therefore we exclude it here
+#define IOX_FALLTHROUGH [[fallthrough]] // NOLINT
 #else
+// on an unknown platform we use for now nothing since we do not know what is supported there
 #define IOX_FALLTHROUGH
 #endif
 
