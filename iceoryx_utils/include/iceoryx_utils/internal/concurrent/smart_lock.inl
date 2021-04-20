@@ -36,7 +36,7 @@ smart_lock<T, MutexType>::smart_lock() noexcept
 
 template <typename T, typename MutexType>
 template <typename... ArgTypes>
-smart_lock<T, MutexType>::smart_lock(Emplace_t, ArgTypes&&... args) noexcept
+smart_lock<T, MutexType>::smart_lock(ForwardArgsToCTor_t, ArgTypes&&... args) noexcept
     : base(std::forward<ArgTypes>(args)...)
 {
 }
@@ -99,19 +99,19 @@ const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operato
 }
 
 template <typename T, typename MutexType>
-typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::GetScopeGuard() noexcept
+typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() noexcept
 {
     return Proxy(base, lock);
 }
 
 template <typename T, typename MutexType>
-const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::GetScopeGuard() const noexcept
+const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() const noexcept
 {
-    return const_cast<smart_lock<T, MutexType>*>(this)->GetScopeGuard();
+    return const_cast<smart_lock<T, MutexType>*>(this)->getScopeGuard();
 }
 
 template <typename T, typename MutexType>
-inline T smart_lock<T, MutexType>::GetCopy() const noexcept
+inline T smart_lock<T, MutexType>::getCopy() const noexcept
 {
     std::lock_guard<MutexType> guard(lock);
     return base;

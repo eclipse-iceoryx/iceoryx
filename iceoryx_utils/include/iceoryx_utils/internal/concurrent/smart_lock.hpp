@@ -23,10 +23,10 @@ namespace iox
 {
 namespace concurrent
 {
-struct Emplace_t
+struct ForwardArgsToCTor_t
 {
 };
-constexpr Emplace_t Emplace{};
+constexpr ForwardArgsToCTor_t ForwardArgsToCTor{};
 
 /// @brief The smart_lock class is a wrapping class which can be used to make
 ///         an arbitrary class threadsafe by wrapping it with the help of the
@@ -47,7 +47,7 @@ constexpr Emplace_t Emplace{};
 ///         size_t vectorSize = threadSafeVector->size();
 ///
 ///         {
-///             auto guardedVector = threadSafeVector.GetScopeGuard();
+///             auto guardedVector = threadSafeVector.getScopeGuard();
 ///             auto iter = std::find(guardVector->begin(), guardVector->end(), 456);
 ///             if (iter != guardVector->end()) guardVector->erase(iter);
 ///         }
@@ -77,7 +77,7 @@ class smart_lock
 
     ///@brief c'tor forwarding all args to the underlying object
     template <typename... ArgTypes>
-    smart_lock(Emplace_t, ArgTypes&&... args) noexcept;
+    smart_lock(ForwardArgsToCTor_t, ArgTypes&&... args) noexcept;
 
     smart_lock(const smart_lock& rhs) noexcept;
     smart_lock(smart_lock&& rhs) noexcept;
@@ -122,13 +122,13 @@ class smart_lock
     ///     // since it would lead to a deadlock.
     ///     // You access the underlying object by using the vectorGuard object!
     ///     {
-    ///         auto vectorGuard = threadSafeVector.GetScopeGuard();
+    ///         auto vectorGuard = threadSafeVector.getScopeGuard();
     ///         auto iter = std::find(vectorGuard->begin(), vectorGuard->end(),
     ///                 123);
     ///         if ( iter != vectorGuard->end() )
     ///             vectorGuard->erase(iter);
     ///     }
-    Proxy GetScopeGuard() noexcept;
+    Proxy getScopeGuard() noexcept;
 
     /// @brief If you need to lock your object over multiple method calls you
     ///         acquire a scope guard which locks the object as long as this
@@ -145,16 +145,16 @@ class smart_lock
     ///     // since it would lead to a deadlock.
     ///     // You access the underlying object by using the vectorGuard object!
     ///     {
-    ///         auto vectorGuard = threadSafeVector.GetScopeGuard();
+    ///         auto vectorGuard = threadSafeVector.getScopeGuard();
     ///         auto iter = std::find(vectorGuard->begin(), vectorGuard->end(),
     ///                 123);
     ///         if ( iter != vectorGuard->end() )
     ///             vectorGuard->erase(iter);
     ///     }
-    const Proxy GetScopeGuard() const noexcept;
+    const Proxy getScopeGuard() const noexcept;
 
     /// @brief Returns a copy of the underlying object
-    T GetCopy() const noexcept;
+    T getCopy() const noexcept;
 
   private:
     T base;

@@ -152,7 +152,7 @@ TEST_F(smart_lock_test, defaultConstructionOfUnderlyingObjectWorks)
 TEST_F(smart_lock_test, constructionWithOneValueCTorOfUnderlyingObjectWorks)
 {
     constexpr int32_t CTOR_VALUE = 25;
-    m_sut.emplace(Emplace, CTOR_VALUE);
+    m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
 }
 
@@ -160,7 +160,7 @@ TEST_F(smart_lock_test, copyConstructionOfUnderlyinObjectWorks)
 {
     constexpr int32_t CTOR_VALUE = 121;
     SmartLockTester tester(CTOR_VALUE);
-    m_sut.emplace(Emplace, tester);
+    m_sut.emplace(ForwardArgsToCTor, tester);
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
     EXPECT_THAT(tester.getA(), Eq(CTOR_VALUE));
 }
@@ -169,7 +169,7 @@ TEST_F(smart_lock_test, moveConstructionOfUnderlyinObjectWorks)
 {
     constexpr int32_t CTOR_VALUE = 1211;
     SmartLockTester tester(CTOR_VALUE);
-    m_sut.emplace(Emplace, std::move(tester));
+    m_sut.emplace(ForwardArgsToCTor, std::move(tester));
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
     EXPECT_THAT(tester.getA(), Eq(0));
 }
@@ -177,7 +177,7 @@ TEST_F(smart_lock_test, moveConstructionOfUnderlyinObjectWorks)
 TEST_F(smart_lock_test, copyConstructorWorks)
 {
     constexpr int32_t CTOR_VALUE = 1221;
-    m_sut.emplace(Emplace, CTOR_VALUE);
+    m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
     SutType_t sut2(*m_sut);
 
@@ -188,7 +188,7 @@ TEST_F(smart_lock_test, copyConstructorWorks)
 TEST_F(smart_lock_test, copyAssignmentWorks)
 {
     constexpr int32_t CTOR_VALUE = 2121;
-    m_sut.emplace(Emplace, CTOR_VALUE);
+    m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
     SutType_t sut2;
     sut2 = m_sut.value();
@@ -200,7 +200,7 @@ TEST_F(smart_lock_test, copyAssignmentWorks)
 TEST_F(smart_lock_test, moveConstructorWorks)
 {
     constexpr int32_t CTOR_VALUE = 41221;
-    m_sut.emplace(Emplace, CTOR_VALUE);
+    m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
     SutType_t sut2(std::move(*m_sut));
 
@@ -211,7 +211,7 @@ TEST_F(smart_lock_test, moveConstructorWorks)
 TEST_F(smart_lock_test, moveAssignmentWorks)
 {
     constexpr int32_t CTOR_VALUE = 21281;
-    m_sut.emplace(Emplace, CTOR_VALUE);
+    m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
     SutType_t sut2;
     sut2 = std::move(m_sut.value());
@@ -223,7 +223,7 @@ TEST_F(smart_lock_test, moveAssignmentWorks)
 TEST_F(smart_lock_test, constArrowOperatorWorks)
 {
     constexpr int32_t CTOR_VALUE = 212818;
-    const SutType_t constSut(Emplace, CTOR_VALUE);
+    const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
 
     EXPECT_THAT(constSut->getA(), Eq(CTOR_VALUE));
 }
@@ -231,8 +231,8 @@ TEST_F(smart_lock_test, constArrowOperatorWorks)
 TEST_F(smart_lock_test, accessThroughConstScopeGuardWorks)
 {
     constexpr int32_t CTOR_VALUE = 6212818;
-    const SutType_t constSut(Emplace, CTOR_VALUE);
-    auto guard = constSut.GetScopeGuard();
+    const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
+    auto guard = constSut.getScopeGuard();
 
     EXPECT_THAT(guard->getA(), Eq(CTOR_VALUE));
 }
@@ -240,8 +240,8 @@ TEST_F(smart_lock_test, accessThroughConstScopeGuardWorks)
 TEST_F(smart_lock_test, accessThroughScopeGuardWorks)
 {
     constexpr int32_t CTOR_VALUE = 62818;
-    SutType_t constSut(Emplace, CTOR_VALUE);
-    auto guard = constSut.GetScopeGuard();
+    SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
+    auto guard = constSut.getScopeGuard();
 
     EXPECT_THAT(guard->getA(), Eq(CTOR_VALUE));
 }
@@ -249,9 +249,9 @@ TEST_F(smart_lock_test, accessThroughScopeGuardWorks)
 TEST_F(smart_lock_test, acquiringCopyWorks)
 {
     constexpr int32_t CTOR_VALUE = 628189;
-    m_sut.emplace(Emplace, CTOR_VALUE);
+    m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
-    EXPECT_THAT(m_sut->GetCopy().getA(), Eq(CTOR_VALUE));
+    EXPECT_THAT(m_sut->getCopy().getA(), Eq(CTOR_VALUE));
 }
 
 //////////////////////////////////////
@@ -272,7 +272,7 @@ TEST_F(smart_lock_test, acquiringCopyWorks)
 // manner, (*m_sut)->getA() == totalSumOfIncrements
 void threadSafeOperationTest(smart_lock_test* test, const std::function<void()> testAction)
 {
-    test->m_sut.emplace(Emplace, 0);
+    test->m_sut.emplace(ForwardArgsToCTor, 0);
 
     vector<std::thread, NUMBER_OF_THREADS> threads;
     for (uint64_t i = 0U; i < NUMBER_OF_THREADS; ++i)
@@ -308,7 +308,7 @@ TEST_F(smart_lock_test, threadSafeAccessThroughConstArrowOperator)
 TEST_F(smart_lock_test, threadSafeAccessThroughScopedGuard)
 {
     threadSafeOperationTest(this, [=] {
-        auto guard = (*m_sut).GetScopeGuard();
+        auto guard = (*m_sut).getScopeGuard();
         guard->incrementA();
     });
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
@@ -317,7 +317,7 @@ TEST_F(smart_lock_test, threadSafeAccessThroughScopedGuard)
 TEST_F(smart_lock_test, threadSafeAccessThroughConstScopedGuard)
 {
     threadSafeOperationTest(this, [=] {
-        auto guard = const_cast<const SutType_t&>(*m_sut).GetScopeGuard();
+        auto guard = const_cast<const SutType_t&>(*m_sut).getScopeGuard();
         guard->incrementA();
     });
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
