@@ -103,10 +103,10 @@ TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexRetur
     constexpr uint32_t CHUNK_COUNT{10U};
     mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
     mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    uint32_t invalidMempoolIndex = 2U;
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
+    constexpr uint32_t INVALID_MEMPOOL_INDEX = 2U;
+    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    iox::mepoo::MemPoolInfo poolInfo = sut->getMemPoolInfo(invalidMempoolIndex);
+    iox::mepoo::MemPoolInfo poolInfo = sut->getMemPoolInfo(INVALID_MEMPOOL_INDEX);
 
     EXPECT_EQ(poolInfo.m_chunkSize, 0U);
     EXPECT_EQ(poolInfo.m_minFreeChunks, 0U);
@@ -114,30 +114,7 @@ TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexRetur
     EXPECT_EQ(poolInfo.m_usedChunks, 0U);
 }
 
-TEST_F(MemoryManager_test,
-       GetMempoolChunkSizeMethodWhenPayloadSizeLessThanOrEqualToAdjustedSizeReturnsTheAdjustedChunkSize)
-{
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
-
-    EXPECT_EQ(sut->getMempoolChunkSizeForPayloadSize(50U), adjustedChunkSize(64U));
-}
-
-TEST_F(MemoryManager_test, GetMempoolChunkSizeMethodWhenPayloadSizeGreaterThanAdjustedSizeReturnsZero)
-{
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-    sut->configureMemoryManager(mempoolconf, allocator, allocator);
-
-    EXPECT_EQ(sut->getMempoolChunkSizeForPayloadSize(129U), 0U);
-}
-
-TEST_F(MemoryManager_test, WrongcallOfConfigureMemoryManagerResultsInTermination)
+TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerResultsInTermination)
 {
     constexpr uint32_t CHUNK_COUNT{10U};
     mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});

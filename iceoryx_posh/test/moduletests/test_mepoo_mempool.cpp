@@ -80,7 +80,7 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
                kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_THAN_SHARED_MEMORY_ALIGNMENT_AND_MULTIPLE_OF_ALIGNMENT));
 }
 
-TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThan32BytesGetsTerminated)
+TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThanChunkMemoryAlignmentGetsTerminated)
 {
     constexpr uint32_t CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT = iox::mepoo::MemPool::MEMORY_ALIGNMENT - 1U;
 
@@ -93,8 +93,8 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThan32BytesGetsTerminated)
 
 TEST_F(MemPool_test, MempoolCtorWhenNumberOfChunksIsZeroGetsTerminated)
 {
-    uint32_t invalidNumberOfChunks = 0U;
-    EXPECT_DEATH({ iox::mepoo::MemPool sut(CHUNK_SIZE, invalidNumberOfChunks, &allocator, &allocator); }, ".*");
+    constexpr uint32_t INVALID_NUMBER_OF_CHUNKS = 0U;
+    EXPECT_DEATH({ iox::mepoo::MemPool sut(CHUNK_SIZE, INVALID_NUMBER_OF_CHUNKS, allocator, allocator); }, ".*");
 }
 TEST_F(MemPool_test, GetChunkMethodWhenAllTheChunksAreUsedReturnsNullPointer)
 {

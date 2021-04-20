@@ -54,32 +54,11 @@ class SharedChunk_Test : public Test
     SharedChunk sut{chunkManagement};
 };
 
-TEST_F(SharedChunk_Test, PassingNullPointerToSharedChunkConstructorWithChunkManagmentStoresNullPointerInChunkManagement)
+TEST_F(SharedChunk_Test, SharedChunkObjectUpOnInitilizationSetsTheChunkHeaderToNullPointer)
 {
-    ChunkManagement* chunkManagement(nullptr);
-    SharedChunk sut{chunkManagement};
+    SharedChunk sut;
 
     EXPECT_THAT(sut.getChunkHeader(), Eq(nullptr));
-}
-
-TEST_F(SharedChunk_Test,
-       PassingNullPointerToSharedChunkConstructorWithRelativePointerStoresNullPointerInChunkManagement)
-{
-    iox::relative_ptr<ChunkManagement> relativeptr(nullptr);
-
-    SharedChunk sut{relativeptr};
-
-    EXPECT_THAT(sut.getChunkHeader(), Eq(nullptr));
-}
-
-TEST_F(SharedChunk_Test, VerifyCopyConstructorForSharedChunkWithChunkManagementAsNullPointer)
-{
-    ChunkManagement* chunkManagement(nullptr);
-    SharedChunk sut1{chunkManagement};
-
-    SharedChunk sut2(sut1);
-
-    EXPECT_THAT(sut2.getChunkHeader(), Eq(nullptr));
 }
 
 TEST_F(SharedChunk_Test, VerifyCopyConstructorOfSharedChunk)
@@ -88,65 +67,47 @@ TEST_F(SharedChunk_Test, VerifyCopyConstructorOfSharedChunk)
 
     SharedChunk sut2(sut1);
 
-    EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(),
-                Eq(sut1.releaseWithRelativePtr()->m_mempool->getChunkSize()));
+    EXPECT_EQ((sut2.getChunkHeader())->chunkSize(), (sut1.getChunkHeader())->chunkSize());
 }
 
 TEST_F(SharedChunk_Test, VerifyMoveConstructorOfSharedChunk)
 {
     SharedChunk sut1{chunkManagement};
+    ChunkHeader* header = sut1.getChunkHeader();
 
     SharedChunk sut2(std::move(sut1));
 
-    EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(CHUNK_SIZE));
-}
-
-TEST_F(SharedChunk_Test, VerifyMoveConstructorForSharedChunkWithChunkManagementAsNullPointer)
-{
-    ChunkManagement* chunkManagement(nullptr);
-    SharedChunk sut1{chunkManagement};
-
-    SharedChunk sut2(std::move(sut1));
-
-    EXPECT_THAT(sut2.releaseWithRelativePtr(), Eq(nullptr));
+    ASSERT_EQ(sut1.getChunkHeader(), nullptr);
+    ASSERT_EQ(sut2.getChunkHeader(), header);
+    EXPECT_EQ((sut2.getChunkHeader())->chunkSize(), (sizeof(ChunkHeader) + USER_PAYLOAD_SIZE));
 }
 
 TEST_F(SharedChunk_Test, VerifiyCopyAssigmentWithSharedChunk)
 {
     SharedChunk sut1(chunkManagement);
-    SharedChunk sut2(nullptr);
+    SharedChunk sut2;
 
     sut2 = sut1;
 
-    EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(),
-                Eq(sut1.releaseWithRelativePtr()->m_mempool->getChunkSize()));
-}
-
-TEST_F(SharedChunk_Test, VerifyCopyAssignmentForSharedChunkWithChunkManagementAsNullPointer)
-{
-    sut = nullptr;
-
-    EXPECT_THAT(sut.releaseWithRelativePtr(), Eq(nullptr));
+    EXPECT_EQ((sut2.getChunkHeader())->chunkSize(), (sut1.getChunkHeader())->chunkSize());
 }
 
 TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSharedChunk)
 {
     SharedChunk sut1(chunkManagement);
-    SharedChunk sut2(chunkManagement);
+    SharedChunk sut2;
+    ChunkHeader* header = sut1.getChunkHeader();
 
     sut2 = std::move(sut1);
 
-    EXPECT_THAT(sut2.releaseWithRelativePtr()->m_mempool->getChunkSize(), Eq(CHUNK_SIZE));
+    ASSERT_EQ(sut1.getChunkHeader(), nullptr);
+    ASSERT_EQ(sut2.getChunkHeader(), header);
+    EXPECT_EQ((sut2.getChunkHeader())->chunkSize(), (sizeof(ChunkHeader) + USER_PAYLOAD_SIZE));
 }
 
-TEST_F(SharedChunk_Test, VerifyMoveAssignmenForSharedChunkWithChunkManagementAsNullPointer)
+TEST_F(SharedChunk_Test, CompareWithSameMemoryChunkComparesToUserPayload)
 {
-    ChunkManagement* chunkManagement(nullptr);
-    SharedChunk sut1{chunkManagement};
-
-    SharedChunk sut2 = std::move(sut1);
-
-    EXPECT_THAT(sut2.releaseWithRelativePtr(), Eq(nullptr));
+    EXPECT_THAT(sut == sut.getUserPayload(), Eq(true));
 }
 
 TEST_F(SharedChunk_Test, GetChunkHeaderMethodReturnsNullPointerWhenSharedChunkObjectIsInitialisedWithNullPointer)
