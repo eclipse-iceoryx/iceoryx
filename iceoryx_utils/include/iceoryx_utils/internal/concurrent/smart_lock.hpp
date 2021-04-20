@@ -77,7 +77,7 @@ class smart_lock
 
     ///@brief c'tor forwarding all args to the underlying object
     template <typename... ArgTypes>
-    smart_lock(ArgTypes&&... args) noexcept;
+    smart_lock(Emplace_t, ArgTypes&&... args) noexcept;
 
     smart_lock(const smart_lock& rhs) noexcept;
     smart_lock(smart_lock&& rhs) noexcept;

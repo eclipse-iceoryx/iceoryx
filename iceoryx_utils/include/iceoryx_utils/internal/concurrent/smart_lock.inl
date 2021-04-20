@@ -36,29 +36,33 @@ smart_lock<T, MutexType>::smart_lock() noexcept
 
 template <typename T, typename MutexType>
 template <typename... ArgTypes>
-smart_lock<T, MutexType>::smart_lock(ArgTypes&&... args) noexcept
+smart_lock<T, MutexType>::smart_lock(Emplace_t, ArgTypes&&... args) noexcept
     : base(std::forward<ArgTypes>(args)...)
 {
 }
 
 template <typename T, typename MutexType>
 smart_lock<T, MutexType>::smart_lock(const smart_lock& rhs) noexcept
+    : base([&] {
+        std::lock_guard<MutexType> guard(rhs.lock);
+        return rhs.base;
+    }())
 {
-    std::lock_guard<MutexType> guard(rhs.lock);
-    base = rhs.base;
 }
 
 template <typename T, typename MutexType>
 smart_lock<T, MutexType>::smart_lock(smart_lock&& rhs) noexcept
+    : base([&] {
+        std::lock_guard<MutexType> guard(rhs.lock);
+        return std::move(rhs.base);
+    }())
 {
-    std::lock_guard<MutexType> guard(rhs.lock);
-    base = std::move(rhs.base);
 }
 
 template <typename T, typename MutexType>
 smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(const smart_lock& rhs) noexcept
 {
-    if (this != rhs)
+    if (this != &rhs)
     {
         std::lock(lock, rhs.lock);
         std::lock_guard<MutexType> guard(lock, std::adopt_lock);

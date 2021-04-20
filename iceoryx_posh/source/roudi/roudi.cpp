@@ -38,7 +38,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
+    , m_prcMgr(
+          concurrent::Emplace, *m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
     , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
                                   .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
                              *m_roudiMemoryInterface->segmentManager().value(),
