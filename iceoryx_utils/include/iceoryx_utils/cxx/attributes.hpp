@@ -35,14 +35,18 @@ namespace cxx
 //    [[nodiscard]], [[gnu::warn_unused]] supported since gcc 4.8 (https://gcc.gnu.org/projects/cxx-status.html)
 ///   [[nodiscard]], [[gnu::warn_unused]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
 ///   activate keywords for gcc>=5 or clang>=4
-#if (defined(__GNUC__) && __GNUC__ >= 5) || (defined(__clang__) && __clang_major__ >= 4)
+#if defined(_WIN32)
+// On WIN32 we are using C++17 which makes the keyword [[nodiscard]] available
+#define IOX_NO_DISCARD [[nodiscard]] // NOLINT
+#elif defined(__APPLE__) && defined(__clang__)
+// On APPLE we are using C++17 which makes the keyword [[nodiscard]] available
+#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]] // NOLINT
+#elif (defined(__clang__) && __clang_major__ >= 4)
+#define IOX_NO_DISCARD [[gnu::warn_unused]] // NOLINT
+#elif (defined(__GNUC__) && __GNUC__ >= 5)
 #define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]] // NOLINT
 #else
-// On WIN32 we are using C++17 which makes the keyword [[nodiscard]] available
-#if defined(_WIN32)
-#define IOX_NO_DISCARD [[nodiscard]] // NOLINT
 // on an unknown platform we use for now nothing since we do not know what is supported there
-#else
 #define IOX_NO_DISCARD
 #endif
 #endif
