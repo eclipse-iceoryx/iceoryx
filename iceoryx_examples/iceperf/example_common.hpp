@@ -21,7 +21,7 @@ enum class Benchmark
 {
     ALL,
     LATENCY,
-    TROUGHPUT
+    THROUGHPUT
 };
 
 enum class Technology

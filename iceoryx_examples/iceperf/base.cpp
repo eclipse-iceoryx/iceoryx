@@ -46,11 +46,11 @@ double IcePerfBase::latencyPerfTestLeader(uint64_t numRoundTrips) noexcept
 
     auto finish = std::chrono::high_resolution_clock::now();
 
-    constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
+    constexpr uint64_t TRANSMISSIONS_PER_ROUNDTRIP{2U};
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
     auto latencyInNanoSeconds =
         (static_cast<uint64_t>(duration.count()) / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
-    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
+    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000.0;
     return latencyInMicroSeconds;
 }
 

@@ -44,7 +44,7 @@ PerfSettings IcePerfFollower::getSettings(iox::popo::Subscriber<PerfSettings>& s
     constexpr bool WAIT_FOR_SETTINGS{true};
     while (WAIT_FOR_SETTINGS)
     {
-        static bool waitMessagePrinted = false;
+        static bool waitMessagePrinted{false};
         if (!waitMessagePrinted)
         {
             std::cout << "Waiting for PerfSettings from leader application!" << std::endl;
@@ -58,7 +58,8 @@ PerfSettings IcePerfFollower::getSettings(iox::popo::Subscriber<PerfSettings>& s
         }
         else
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            constexpr std::chrono::milliseconds POLLING_INTERVAL{100};
+            std::this_thread::sleep_for(POLLING_INTERVAL);
         }
     }
 }

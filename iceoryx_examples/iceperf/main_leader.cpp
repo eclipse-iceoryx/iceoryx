@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
             }
             else if (strcmp(optarg, "throughput") == 0)
             {
-                settings.benchmark = Benchmark::TROUGHPUT;
+                settings.benchmark = Benchmark::THROUGHPUT;
             }
             else
             {
