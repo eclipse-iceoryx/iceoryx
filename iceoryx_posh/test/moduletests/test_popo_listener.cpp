@@ -180,7 +180,7 @@ class Listener_test : public Test
 
     static void attachCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeAttached.GetCopy())
+        for (auto& e : g_toBeAttached.getCopy())
         {
             ASSERT_FALSE(e.sut
                              ->attachEvent(*e.object,
@@ -192,7 +192,7 @@ class Listener_test : public Test
 
     static void detachCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeDetached.GetCopy())
+        for (auto& e : g_toBeDetached.getCopy())
         {
             e.sut->detachEvent(*e.object, SimpleEvent::StoepselBachelorParty);
         }
@@ -200,7 +200,7 @@ class Listener_test : public Test
 
     static void notifyAndThenDetachStoepselCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeDetached.GetCopy())
+        for (auto& e : g_toBeDetached.getCopy())
         {
             e.object->triggerStoepsel();
             e.sut->detachEvent(*e.object, SimpleEvent::StoepselBachelorParty);

@@ -154,7 +154,7 @@ class PortUser_IntegrationTest : public Test
             // Add delay to allow other thread accessing the shared resource
             std::this_thread::sleep_for(std::chrono::microseconds(100));
             {
-                auto guardedVector = concurrentCaproMessageVector.GetScopeGuard();
+                auto guardedVector = concurrentCaproMessageVector.getScopeGuard();
                 if (guardedVector->size() != 0U)
                 {
                     caproMessage = guardedVector->back();
