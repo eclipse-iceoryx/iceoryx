@@ -18,6 +18,7 @@
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
 
 #include <atomic>
@@ -53,6 +54,7 @@ class SmartLockTester
     SmartLockTester(SmartLockTester&& rhs)
         : m_a(rhs.m_a)
     {
+        rhs.isMoved = true;
         rhs.m_a = 0;
         rhs.m_b = rhs.m_b + 1;
     }
@@ -74,6 +76,7 @@ class SmartLockTester
             rhs.m_b = rhs.m_b + 1;
             m_a = rhs.m_a;
             rhs.m_a = 0;
+            rhs.isMoved = true;
         }
         return *this;
     }
@@ -92,11 +95,6 @@ class SmartLockTester
         return m_b;
     }
 
-    void setA(const int32_t a)
-    {
-        m_a = a;
-    }
-
     void incrementA()
     {
         m_a = m_a + 1;
@@ -106,6 +104,8 @@ class SmartLockTester
     {
         m_a = m_a + 1;
     }
+
+    bool isMoved = false;
 
   private:
     mutable int32_t m_a = 0;
@@ -117,6 +117,7 @@ class smart_lock_test : public Test
   public:
     void SetUp() override
     {
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     }
     void TearDown() override
     {
@@ -130,6 +131,7 @@ class smart_lock_test : public Test
         }
     }
 
+    Watchdog m_watchdog{iox::units::Duration::fromSeconds(2)};
     using SutType_t = smart_lock<SmartLockTester>;
     optional<SutType_t> m_sut;
     std::atomic<uint64_t> m_numberOfThreadWaiter{0U};
@@ -143,20 +145,20 @@ constexpr uint64_t NUMBER_OF_THREADS = 4;
 // BEGIN single threaded api test
 //////////////////////////////////////
 
-TEST_F(smart_lock_test, defaultConstructionOfUnderlyingObjectWorks)
+TEST_F(smart_lock_test, DefaultConstructionOfUnderlyingObjectWorks)
 {
     m_sut.emplace();
     EXPECT_THAT((*m_sut)->getA(), Eq(0));
 }
 
-TEST_F(smart_lock_test, constructionWithOneValueCTorOfUnderlyingObjectWorks)
+TEST_F(smart_lock_test, ConstructionWithOneValueCTorOfUnderlyingObjectWorks)
 {
     constexpr int32_t CTOR_VALUE = 25;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, copyConstructionOfUnderlyinObjectWorks)
+TEST_F(smart_lock_test, CopyConstructionOfUnderlyinObjectWorks)
 {
     constexpr int32_t CTOR_VALUE = 121;
     SmartLockTester tester(CTOR_VALUE);
@@ -165,16 +167,16 @@ TEST_F(smart_lock_test, copyConstructionOfUnderlyinObjectWorks)
     EXPECT_THAT(tester.getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, moveConstructionOfUnderlyinObjectWorks)
+TEST_F(smart_lock_test, MoveConstructionOfUnderlyinObjectWorks)
 {
     constexpr int32_t CTOR_VALUE = 1211;
     SmartLockTester tester(CTOR_VALUE);
     m_sut.emplace(ForwardArgsToCTor, std::move(tester));
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
-    EXPECT_THAT(tester.getA(), Eq(0));
+    EXPECT_TRUE(tester.isMoved);
 }
 
-TEST_F(smart_lock_test, copyConstructorWorks)
+TEST_F(smart_lock_test, CopyConstructorWorks)
 {
     constexpr int32_t CTOR_VALUE = 1221;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
@@ -185,7 +187,7 @@ TEST_F(smart_lock_test, copyConstructorWorks)
     EXPECT_THAT(sut2->getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, copyAssignmentWorks)
+TEST_F(smart_lock_test, CopyAssignmentWorks)
 {
     constexpr int32_t CTOR_VALUE = 2121;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
@@ -197,18 +199,18 @@ TEST_F(smart_lock_test, copyAssignmentWorks)
     EXPECT_THAT(sut2->getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, moveConstructorWorks)
+TEST_F(smart_lock_test, MoveConstructorWorks)
 {
     constexpr int32_t CTOR_VALUE = 41221;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
     SutType_t sut2(std::move(*m_sut));
 
-    EXPECT_THAT((*m_sut)->getA(), Eq(0));
+    EXPECT_TRUE((*m_sut)->isMoved);
     EXPECT_THAT(sut2->getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, moveAssignmentWorks)
+TEST_F(smart_lock_test, MoveAssignmentWorks)
 {
     constexpr int32_t CTOR_VALUE = 21281;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
@@ -216,11 +218,11 @@ TEST_F(smart_lock_test, moveAssignmentWorks)
     SutType_t sut2;
     sut2 = std::move(m_sut.value());
 
-    EXPECT_THAT((*m_sut)->getA(), Eq(0));
+    EXPECT_TRUE((*m_sut)->isMoved);
     EXPECT_THAT(sut2->getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, constArrowOperatorWorks)
+TEST_F(smart_lock_test, ConstArrowOperatorWorks)
 {
     constexpr int32_t CTOR_VALUE = 212818;
     const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
@@ -228,7 +230,7 @@ TEST_F(smart_lock_test, constArrowOperatorWorks)
     EXPECT_THAT(constSut->getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, accessThroughConstScopeGuardWorks)
+TEST_F(smart_lock_test, AccessThroughConstScopeGuardWorks)
 {
     constexpr int32_t CTOR_VALUE = 6212818;
     const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
@@ -237,7 +239,7 @@ TEST_F(smart_lock_test, accessThroughConstScopeGuardWorks)
     EXPECT_THAT(guard->getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, accessThroughScopeGuardWorks)
+TEST_F(smart_lock_test, AccessThroughScopeGuardWorks)
 {
     constexpr int32_t CTOR_VALUE = 62818;
     SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
@@ -246,7 +248,7 @@ TEST_F(smart_lock_test, accessThroughScopeGuardWorks)
     EXPECT_THAT(guard->getA(), Eq(CTOR_VALUE));
 }
 
-TEST_F(smart_lock_test, acquiringCopyWorks)
+TEST_F(smart_lock_test, AcquiringCopyWorks)
 {
     constexpr int32_t CTOR_VALUE = 628189;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
@@ -292,20 +294,20 @@ void threadSafeOperationTest(smart_lock_test* test, const std::function<void()> 
     }
 }
 
-TEST_F(smart_lock_test, threadSafeAccessThroughArrowOperator)
+TEST_F(smart_lock_test, ThreadSafeAccessThroughArrowOperator)
 {
     threadSafeOperationTest(this, [=] { (*m_sut)->incrementA(); });
 
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
-TEST_F(smart_lock_test, threadSafeAccessThroughConstArrowOperator)
+TEST_F(smart_lock_test, ThreadSafeAccessThroughConstArrowOperator)
 {
     threadSafeOperationTest(this, [=] { (const_cast<const SutType_t&>(*m_sut))->constIncrementA(); });
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
-TEST_F(smart_lock_test, threadSafeAccessThroughScopedGuard)
+TEST_F(smart_lock_test, ThreadSafeAccessThroughScopedGuard)
 {
     threadSafeOperationTest(this, [=] {
         auto guard = (*m_sut).getScopeGuard();
@@ -314,7 +316,7 @@ TEST_F(smart_lock_test, threadSafeAccessThroughScopedGuard)
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
-TEST_F(smart_lock_test, threadSafeAccessThroughConstScopedGuard)
+TEST_F(smart_lock_test, ThreadSafeAccessThroughConstScopedGuard)
 {
     threadSafeOperationTest(this, [=] {
         auto guard = const_cast<const SutType_t&>(*m_sut).getScopeGuard();
@@ -323,19 +325,19 @@ TEST_F(smart_lock_test, threadSafeAccessThroughConstScopedGuard)
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
-TEST_F(smart_lock_test, threadSafeCopyCTor)
+TEST_F(smart_lock_test, ThreadSafeCopyCTor)
 {
     threadSafeOperationTest(this, [=] { SutType_t someCopy(*m_sut); });
     EXPECT_THAT((*m_sut)->getB(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
-TEST_F(smart_lock_test, threadSafeMoveCTor)
+TEST_F(smart_lock_test, ThreadSafeMoveCTor)
 {
     threadSafeOperationTest(this, [=] { SutType_t movedSut(std::move(*m_sut)); });
     EXPECT_THAT((*m_sut)->getB(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
-TEST_F(smart_lock_test, threadSafeCopyAssignment)
+TEST_F(smart_lock_test, ThreadSafeCopyAssignment)
 {
     threadSafeOperationTest(this, [=] {
         SutType_t someCopy;
@@ -344,11 +346,11 @@ TEST_F(smart_lock_test, threadSafeCopyAssignment)
     EXPECT_THAT((*m_sut)->getB(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
-TEST_F(smart_lock_test, threadSafeMoveAssignment)
+TEST_F(smart_lock_test, ThreadSafeMoveAssignment)
 {
     threadSafeOperationTest(this, [=] {
-        SutType_t someCopy;
-        someCopy = std::move(*m_sut);
+        SutType_t someMovedSut;
+        someMovedSut = std::move(*m_sut);
     });
     EXPECT_THAT((*m_sut)->getB(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
