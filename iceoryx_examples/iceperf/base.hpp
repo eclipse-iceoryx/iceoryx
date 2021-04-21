@@ -26,6 +26,9 @@ class IcePerfBase
 {
   public:
     static constexpr uint32_t ONE_KILOBYTE = 1024U;
+
+    virtual ~IcePerfBase() = default;
+
     virtual void initLeader() noexcept = 0;
     virtual void initFollower() noexcept = 0;
     virtual void shutdown() noexcept = 0;

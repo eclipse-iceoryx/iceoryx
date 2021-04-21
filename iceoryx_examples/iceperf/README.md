@@ -51,8 +51,8 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 
     ******   MESSAGE QUEUE    ********
     Waiting for: subscription, subscriber [ success ]
-    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB, 
-    512 kB, 1024 kB, 2048 kB, 4096 kB, 
+    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB,
+    512 kB, 1024 kB, 2048 kB, 4096 kB
     Waiting for: unsubscribe  [ finished ]
 
     #### Measurement Result ####
@@ -78,8 +78,8 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 
     ****** UNIX DOMAIN SOCKET ********
     Waiting for: subscription, subscriber [ success ]
-    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB, 
-    512 kB, 1024 kB, 2048 kB, 4096 kB, 
+    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB,
+    512 kB, 1024 kB, 2048 kB, 4096 kB
     Waiting for: unsubscribe  [ finished ]
 
     #### Measurement Result ####
@@ -105,8 +105,8 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 
     ******      ICEORYX       ********
     Waiting for: subscription, subscriber [ success ]
-    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB, 
-    512 kB, 1024 kB, 2048 kB, 4096 kB, 
+    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB,
+    512 kB, 1024 kB, 2048 kB, 4096 kB
     Waiting for: unsubscribe  [ finished ]
 
     #### Measurement Result ####
@@ -132,8 +132,8 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 
     ******   ICEORYX C API    ********
     Waiting for: subscription, subscriber [ success ]
-    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB, 
-    512 kB, 1024 kB, 2048 kB, 4096 kB, 
+    Measurement for: 1 kB, 2 kB, 4 kB, 8 kB, 16 kB, 32 kB, 64 kB, 128 kB, 256 kB,
+    512 kB, 1024 kB, 2048 kB, 4096 kB
     Waiting for: unsubscribe  [ finished ]
 
     #### Measurement Result ####
@@ -160,10 +160,10 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 ### iceperf-bench-follower Application
 
     ******   MESSAGE QUEUE    ********
-    registering with the leader, if no leader this will crash with a message queue error now
+    registering with the leader
 
     ****** UNIX DOMAIN SOCKET ********
-    registering with the leader, if no leader this will crash with a socket error now
+    registering with the leader
 
     ******      ICEORYX       ********
     Waiting for: subscription, subscriber [ success ]

@@ -79,7 +79,7 @@ int IcePerfFollower::run() noexcept
     {
 #ifndef __APPLE__
         std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-        MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+        MQ mq(PUBLISHER, SUBSCRIBER);
         doTest(mq);
 #else
         if (m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
@@ -92,7 +92,7 @@ int IcePerfFollower::run() noexcept
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::UNIX_DOMAIN_SOCKET)
     {
         std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-        UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+        UDS uds(PUBLISHER, SUBSCRIBER);
         doTest(uds);
     }
 

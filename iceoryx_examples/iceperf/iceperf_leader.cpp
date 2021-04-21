@@ -36,6 +36,10 @@ constexpr const char SUBSCRIBER[]{"Laurel"};
 IcePerfLeader::IcePerfLeader(const PerfSettings settings) noexcept
     : m_settings(settings)
 {
+#ifndef __APPLE__
+    MQ::cleanupOutdatedResources(PUBLISHER, SUBSCRIBER);
+#endif
+    UDS::cleanupOutdatedResources(PUBLISHER, SUBSCRIBER);
 }
 
 void IcePerfLeader::doTest(IcePerfBase& ipcTechnology) noexcept
@@ -44,10 +48,12 @@ void IcePerfLeader::doTest(IcePerfBase& ipcTechnology) noexcept
 
     std::vector<double> latencyInMicroSeconds;
     const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
-    std::cout << "Measurement for: ";
+    std::cout << "Measurement for:";
+    const char* separator = " ";
     for (const auto payloadSizeInKB : payloadSizesInKB)
     {
-        std::cout << payloadSizeInKB << " kB, " << std::flush;
+        std::cout << separator << payloadSizeInKB << " kB" << std::flush;
+        separator = ", ";
         auto payloadSizeInBytes = payloadSizeInKB * IcePerfBase::ONE_KILOBYTE;
 
         ipcTechnology.preLatencyPerfTestLeader(payloadSizeInBytes);
@@ -99,7 +105,7 @@ int IcePerfLeader::run() noexcept
     {
 #ifndef __APPLE__
         std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-        MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+        MQ mq(PUBLISHER, SUBSCRIBER);
         doTest(mq);
 #else
         if (m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
@@ -112,7 +118,7 @@ int IcePerfLeader::run() noexcept
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::UNIX_DOMAIN_SOCKET)
     {
         std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-        UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+        UDS uds(PUBLISHER, SUBSCRIBER);
         doTest(uds);
     }
 
