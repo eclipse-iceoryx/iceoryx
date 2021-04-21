@@ -25,11 +25,14 @@
 
 #include <iostream>
 
+//! [use constants instead of magic values]
 constexpr const char APP_NAME[]{"iceperf-bench-follower"};
 constexpr const char PUBLISHER[]{"Laurel"};
 constexpr const char SUBSCRIBER[]{"Hardy"};
+//! [use constants instead of magic values]
 
-void IcePerfFollower::doTest(IcePerfBase& ipcTechnology) noexcept
+//! [do the measurement for a single technology]
+void IcePerfFollower::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 {
     ipcTechnology.initFollower();
 
@@ -37,7 +40,9 @@ void IcePerfFollower::doTest(IcePerfBase& ipcTechnology) noexcept
 
     ipcTechnology.shutdown();
 }
+//! [do the measurement for a single technology]
 
+//! [get the settings for the performance measurement]
 PerfSettings IcePerfFollower::getSettings(iox::popo::Subscriber<PerfSettings>& subscriber) noexcept
 {
     // wait for settings from leader application
@@ -63,24 +68,29 @@ PerfSettings IcePerfFollower::getSettings(iox::popo::Subscriber<PerfSettings>& s
         }
     }
 }
+//! [get the settings for the performance measurement]
 
+//! [run all technologies]
 int IcePerfFollower::run() noexcept
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
+    //! [get settings from leader]
     iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
     iox::popo::SubscriberOptions options;
     options.historyRequest = 1U;
     iox::popo::Subscriber<PerfSettings> settingsSubscriber{serviceDescription, options};
 
     m_settings = getSettings(settingsSubscriber);
+    //! [get settings from leader]
 
+    //! [create an run technologies]
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
     {
 #ifndef __APPLE__
         std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
         MQ mq(PUBLISHER, SUBSCRIBER);
-        doTest(mq);
+        doMeasurement(mq);
 #else
         if (m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
         {
@@ -93,22 +103,24 @@ int IcePerfFollower::run() noexcept
     {
         std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
         UDS uds(PUBLISHER, SUBSCRIBER);
-        doTest(uds);
+        doMeasurement(uds);
     }
 
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_CPP_API)
     {
         std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
         Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
-        doTest(iceoryx);
+        doMeasurement(iceoryx);
     }
 
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_C_API)
     {
         std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
         IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
-        doTest(iceoryxc);
+        doMeasurement(iceoryxc);
     }
+    //! [create an run technologies]
 
     return EXIT_SUCCESS;
 }
+//! [run all technologies]

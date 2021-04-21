@@ -30,7 +30,7 @@ class IcePerfLeader
     int run() noexcept;
 
   private:
-    void doTest(IcePerfBase& ipcTechnology) noexcept;
+    void doMeasurement(IcePerfBase& ipcTechnology) noexcept;
 
   private:
     const PerfSettings m_settings;

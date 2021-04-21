@@ -29,20 +29,25 @@
 #include <iomanip>
 #include <iostream>
 
+//! [use constants instead of magic values]
 constexpr const char APP_NAME[]{"iceperf-bench-leader"};
 constexpr const char PUBLISHER[]{"Hardy"};
 constexpr const char SUBSCRIBER[]{"Laurel"};
+//! [use constants instead of magic values]
 
 IcePerfLeader::IcePerfLeader(const PerfSettings settings) noexcept
     : m_settings(settings)
 {
+    //! [cleanup outdated resources]
 #ifndef __APPLE__
     MQ::cleanupOutdatedResources(PUBLISHER, SUBSCRIBER);
 #endif
     UDS::cleanupOutdatedResources(PUBLISHER, SUBSCRIBER);
+    //! [cleanup outdated resources]
 }
 
-void IcePerfLeader::doTest(IcePerfBase& ipcTechnology) noexcept
+//! [do the measurement for a single technology]
+void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 {
     ipcTechnology.initLeader();
 
@@ -85,12 +90,14 @@ void IcePerfLeader::doTest(IcePerfBase& ipcTechnology) noexcept
     std::cout << std::endl;
     std::cout << "Finished!" << std::endl;
 }
+//! [do the measurement for a single technology]
 
+//! [run all technologies]
 int IcePerfLeader::run() noexcept
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    // send setting to follower application
+    //! [send setting to follower application]
     iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
     iox::popo::PublisherOptions options;
     options.historyCapacity = 1U;
@@ -100,13 +107,15 @@ int IcePerfLeader::run() noexcept
         std::cerr << "Could not send settings to follower!" << std::endl;
         return EXIT_FAILURE;
     }
+    //! [send setting to follower application]
 
+    //! [create an run technologies]
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
     {
 #ifndef __APPLE__
         std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
         MQ mq(PUBLISHER, SUBSCRIBER);
-        doTest(mq);
+        doMeasurement(mq);
 #else
         if (m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
         {
@@ -119,22 +128,24 @@ int IcePerfLeader::run() noexcept
     {
         std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
         UDS uds(PUBLISHER, SUBSCRIBER);
-        doTest(uds);
+        doMeasurement(uds);
     }
 
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_CPP_API)
     {
         std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
         Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
-        doTest(iceoryx);
+        doMeasurement(iceoryx);
     }
 
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_C_API)
     {
         std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
         IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
-        doTest(iceoryxc);
+        doMeasurement(iceoryxc);
     }
+    //! [create an run technologies]
 
     return EXIT_SUCCESS;
 }
+//! [run all technologies]

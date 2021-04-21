@@ -175,17 +175,17 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 
 ## Code Walkthrough
 
-Here we roughly describe the setup for performing the measurements in `iceperf_app.hpp/cpp`. Things like initialization, sending and receiving of data are technology specific and can be found in the respective files (e.g. uds.cpp for
+Here we roughly describe the setup for performing the measurements in `iceperf_bench_leader.hpp/cpp` and `iceperf_bench_follower.hpp/cpp`. Things like initialization, sending and receiving of data are technology specific and can be found in the respective files (e.g. uds.cpp for
 unix domain socket). Our focus here is on the abstraction layer on top which allows us or you to add new IPC technologies to extend and compare them.
 
-### iceperf-bench Application
+### iceperf-bench-leader Application
 
-Besides includes for the different IPC technologies, the topic_data.hpp file is included which contains the PerTopic struct that is used to transfer some information between the applications. Independent of the real payload size, this struct is used as some kind of header in each transferred sample.
+Besides includes for the different IPC technologies, the `topic_data.hpp` file is included which contains the `PerSettings` and `PerTopic` structs, which are used to transfer some information between the applications. Independent of the real payload size, the `PerTopic` struct is used as some kind of header in each transferred sample.
 
+<!-- [geoffrey] [iceoryx_examples/iceperf/topic_data.hpp] [topic data definitions] -->
 ```cpp
 struct PerfSettings
 {
-    ApplicationType appType{ApplicationType::LEADER};
     Benchmark benchmark{Benchmark::ALL};
     Technology technology{Technology::ALL};
     uint64_t numberOfSamples{10000U};
@@ -195,7 +195,7 @@ struct PerfTopic
 {
     uint32_t payloadSize{0};
     uint32_t subPackets{0};
-    RunFlag runFlag{RunFlag::Run};
+    RunFlag runFlag{RunFlag::RUN};
 };
 ```
 
@@ -204,21 +204,42 @@ The `PerfSettings` struct is used to synchronize the settings between the leader
 The `PerfTopic` struct is used to share some information during the measurement.
 With `payloadSize` as the payload size used for the current measurement. In case it is not possible to transfer the `payloadSize` with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided into several sub-packets. This is indicated with `subPackets`. The `runFlag` is used to shutdown the iceperf-bench follower at the end of the benchmark.
 
-The static `create(...)` method creates a `IcePerfApp` if the synchronization of the benchmark settings with the follower is successful. If the synchronization isn't successful, the application is not created and the benchmark is stopped.
+Let's use some constants to prevent magic values and set and names for the communication resources that are used.
+<!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [use constants instead of magic values] -->
+```c++
+constexpr const char APP_NAME[]{"iceperf-bench-leader"};
+constexpr const char PUBLISHER[]{"Hardy"};
+constexpr const char SUBSCRIBER[]{"Laurel"};
+```
 
-The `leaderDo(...)` method executes a measurement for the provided IPC technology the and number of round trips. For being able to always perform the same steps and avoiding code duplications, we use a base class with technology independent functionality and the technology has to implement the technology dependent part.
-
+The `IcePerfLeader` c'tor does a cleanup of potentially outdated resources of technologies
+which might have left some resources in the file system after an abnormal terminations.
+<!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [cleanup outdated resources] -->
 ```cpp
-void IcePerfApp::leaderDo(IcePerfBase& ipcTechnology)
+#ifndef __APPLE__
+MQ::cleanupOutdatedResources(PUBLISHER, SUBSCRIBER);
+#endif
+UDS::cleanupOutdatedResources(PUBLISHER, SUBSCRIBER);
+```
+
+The `doMeasurement()` method executes a measurement for the provided IPC technology the and number of round trips.
+For being able to always perform the same steps and avoiding code duplications,
+we use a base class with technology independent functionality and the technology has to implement the technology dependent part.
+
+<!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [do the measurement for a single technology] -->
+```cpp
+void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 {
     ipcTechnology.initLeader();
 
     std::vector<double> latencyInMicroSeconds;
     const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
-    std::cout << "Measurement for: ";
+    std::cout << "Measurement for:";
+    const char* separator = " ";
     for (const auto payloadSizeInKB : payloadSizesInKB)
     {
-        std::cout << payloadSizeInKB << " kB, " << std::flush;
+        std::cout << separator << payloadSizeInKB << " kB" << std::flush;
+        separator = ", ";
         auto payloadSizeInBytes = payloadSizeInKB * IcePerfBase::ONE_KILOBYTE;
 
         ipcTechnology.preLatencyPerfTestLeader(payloadSizeInBytes);
@@ -244,7 +265,7 @@ void IcePerfApp::leaderDo(IcePerfBase& ipcTechnology)
     for (size_t i = 0U; i < latencyInMicroSeconds.size(); ++i)
     {
         std::cout << "| " << std::setw(17) << payloadSizesInKB.at(i) << " | " << std::setw(20) << std::setprecision(2)
-                    << latencyInMicroSeconds.at(i) << " |" << std::endl;
+                  << latencyInMicroSeconds.at(i) << " |" << std::endl;
     }
 
     std::cout << std::endl;
@@ -256,73 +277,48 @@ Initialization is different for each IPC technology. Here we have to create sock
 With `ipcTechnology.initLeader()` we are setting up these resources on the leader side.
 After the definition of the different payload sizes to use, we execute a single round trip measurement for each individual payload size.
 The leader has to orchestrate the whole process and has a pre- and post-step for each ping pong round trip measurement.
-`ipcTechnology.prePingPongLeader()` sets the payload size for the upcoming measurement.
-`ipcTechnology.pingPongLeader(numRoundtrips)` then does the ping pong between leader and follower and returns
-the time it took to do the provided number of round trips.  After the measurements were done for all the different payload sizes,
-`ipcTechnology.releaseFollower()` releases the follower that is not aware of things like how many payload sizes are considered.
+`ipcTechnology.preLatencyPerfTestLeader(...)` sets the payload size for the upcoming measurement.
+`ipcTechnology.latencyPerfTestLeader(m_settings.numberOfSamples)` performs the ping pong between leader and follower and returns
+the time it took to transmit the number of samples in a ping pong round trip.  After the measurements were done for all the different payload sizes,
+`ipcTechnology.releaseFollower()` releases the follower since it is not aware of things like how many payload sizes are considered.
 After cleaning up the communication resources with `ipcTechnology.shutdown()` the results are printed.
 
-The `followerDo()` method is much simpler as the follower only reacts and does not have the control. Besides `ipcTechnology.initFollower()` and `ipcTechnology.shutdown()` all the functionality to do the ping pong for different payload sizes is done in `ipcTechnology.pingPongFollower()`
+In the `run()` method we create instances for the different IPC technologies we want to compare. Each technology is implemented in an own class and implements the pure virtual functions provided with the `IcePerfBase` class. But before this is done, we send the `PerfSettings` to the follower application.
 
+<!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [[run all technologies] [send setting to follower application]] -->
 ```cpp
-void IcePerfApp::followerDo(IcePerfBase& ipcTechnology)
+int IcePerfLeader::run() noexcept
 {
-    ipcTechnology.initFollower();
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    ipcTechnology.pingPongFollower();
-
-    ipcTechnology.shutdown();
+    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
+    iox::popo::PublisherOptions options;
+    options.historyCapacity = 1U;
+    iox::popo::Publisher<PerfSettings> settingsPublisher{serviceDescription, options};
+    if (!settingsPublisher.publishCopyOf(m_settings))
+    {
+        std::cerr << "Could not send settings to follower!" << std::endl;
+        return EXIT_FAILURE;
+    }
+    // ...
+    return EXIT_SUCCESS;
 }
 ```
 
-The `doIt(...)` method calls either the `leaderDo` or `followerDo` method, depending on the application type.
-```c++
-void IcePerfApp::doIt(IcePerfBase& ipcTechnology) noexcept
-{
-    if (m_settings.appType == ApplicationType::LEADER)
-    {
-        leaderDo(ipcTechnology);
-    }
-    else
-    {
-        followerDo(ipcTechnology);
-    }
-}
-```
+Now we can create an object for each IPC technology that we want to evaluate and call the `doMeasurement()` method.
 
-The public `run()` method calls the private `run(...)` method with the appropriate leader and follower names
-for publisher and subscriber according to the application type.
-
-```c++
-void IcePerfApp::run() noexcept
-{
-    iox::capro::IdString_t leaderName{"Hardy"};
-    iox::capro::IdString_t followerName{"Laurel"};
-
-    if (m_settings.appType == ApplicationType::LEADER)
-    {
-        run(leaderName, followerName);
-    }
-    else
-    {
-        run(followerName, leaderName);
-    }
-}
-```
-
-In the private `run(...)` method we create instances for the different IPC technologies we want to compare. Each technology is implemented in an own class and implements the pure virtual functions provided with the `IcePerfBase` class
-
-Now we can create an object for each IPC technology that we want to evaluate and call the `leaderDo()` function. The naming conventions for the different technologies differ, therefore we do some prefixing if necessary
-
+<!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_leader.cpp] [[run all technologies] [create an run technologies]] -->
 ```cpp
-void IcePerfApp::run(const iox::capro::IdString_t publisherName, const iox::capro::IdString_t subscriberName) noexcept
+int IcePerfLeader::run() noexcept
 {
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+    // ...
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
     {
 #ifndef __APPLE__
         std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-        MQ mq("/" + std::string(publisherName), "/" + std::string(subscriberName));
-        doIt(mq);
+        MQ mq(PUBLISHER, SUBSCRIBER);
+        doMeasurement(mq);
 #else
         if (m_settings.technology == Technology::POSIX_MESSAGE_QUEUE)
         {
@@ -334,22 +330,71 @@ void IcePerfApp::run(const iox::capro::IdString_t publisherName, const iox::capr
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::UNIX_DOMAIN_SOCKET)
     {
         std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-        UDS uds("/tmp/" + std::string(publisherName), "/tmp/" + std::string(subscriberName));
-        doIt(uds);
+        UDS uds(PUBLISHER, SUBSCRIBER);
+        doMeasurement(uds);
     }
 
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_CPP_API)
     {
         std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
-        Iceoryx iceoryx(publisherName, subscriberName);
-        doIt(iceoryx);
+        Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
+        doMeasurement(iceoryx);
     }
 
     if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_C_API)
     {
         std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
-        IceoryxC iceoryxc(publisherName, subscriberName);
-        doIt(iceoryxc);
+        IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
+        doMeasurement(iceoryxc);
     }
+
+    return EXIT_SUCCESS;
 }
 ```
+
+### iceperf_bench_follower Application
+
+The `iceperf-bench-follower` application is similar to `iceperf-bench-leader`. The first change is the `SUBSCRIBER` and `PUBLISHER` switched their names.
+<!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_follower.cpp] [use constants instead of magic values] -->
+```c++
+constexpr const char APP_NAME[]{"iceperf-bench-follower"};
+constexpr const char PUBLISHER[]{"Laurel"};
+constexpr const char SUBSCRIBER[]{"Hardy"};
+```
+
+While the `run()` method of the leader publishes the `PerfSettings`, the follower is subscribed to those settings
+and waits for them before the technologies are created, which is again equal to the leader.
+<!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_follower.cpp] [[run all technologies] [get settings from leader]] -->
+```cpp
+int IcePerfFollower::run() noexcept
+{
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+
+    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Comedians"};
+    iox::popo::SubscriberOptions options;
+    options.historyRequest = 1U;
+    iox::popo::Subscriber<PerfSettings> settingsSubscriber{serviceDescription, options};
+
+    m_settings = getSettings(settingsSubscriber);
+    // ...
+    return EXIT_SUCCESS;
+}
+```
+
+The `doMeasurement()` method is much simpler than the one from the leader, it reacts only and does not have the control.
+Besides `ipcTechnology.initFollower()` and `ipcTechnology.shutdown()` all the functionality to do the ping pong for different payload sizes is done in `ipcTechnology.latencyPerfTestFollower()`
+
+<!-- [geoffrey] [iceoryx_examples/iceperf/iceperf_follower.cpp] [do the measurement for a single technology] -->
+```cpp
+void IcePerfFollower::doMeasurement(IcePerfBase& ipcTechnology) noexcept
+{
+    ipcTechnology.initFollower();
+
+    ipcTechnology.latencyPerfTestFollower();
+
+    ipcTechnology.shutdown();
+}
+```
+<center>
+[Check out iceperf on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceperf){ .md-button }
+</center>

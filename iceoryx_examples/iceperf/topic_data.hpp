@@ -21,6 +21,7 @@
 
 #include <cstdint>
 
+//! [topic data definitions]
 struct PerfSettings
 {
     Benchmark benchmark{Benchmark::ALL};
@@ -34,5 +35,6 @@ struct PerfTopic
     uint32_t subPackets{0};
     RunFlag runFlag{RunFlag::RUN};
 };
+//! [topic data definitions]
 
 #endif // IOX_EXAMPLES_ICEPERF_TOPIC_DATA_HPP

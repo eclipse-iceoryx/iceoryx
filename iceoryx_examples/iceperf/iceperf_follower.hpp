@@ -32,7 +32,7 @@ class IcePerfFollower
 
   private:
     PerfSettings getSettings(iox::popo::Subscriber<PerfSettings>& subscriber) noexcept;
-    void doTest(IcePerfBase& ipcTechnology) noexcept;
+    void doMeasurement(IcePerfBase& ipcTechnology) noexcept;
 
   private:
     PerfSettings m_settings;
