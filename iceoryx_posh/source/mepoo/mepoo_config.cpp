@@ -35,8 +35,8 @@ void MePooConfig::addMemPool(MePooConfig::Entry f_entry) noexcept
     }
     else
     {
-        LogFatal() << "MAX_NUMBER_OF_MEMPOOLS_REACHED";
-        std::terminate();
+        LogFatal() << "Maxmimum number of mempools reached, no more mempools available";
+        errorHandler(Error::kMEPOO__MAXIMUM_NUMBER_OF_MEMPOOLS_REACHED, nullptr, ErrorLevel::FATAL);
     }
 }
 

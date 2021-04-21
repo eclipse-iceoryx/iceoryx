@@ -49,7 +49,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeSegmentManager.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain SegmentManager!";
-        std::terminate();
+        errorHandler(Error::kROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, nullptr, ErrorLevel::FATAL);
     }
     m_segmentManager = maybeSegmentManager.value();
 
@@ -57,7 +57,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeIntrospectionMemoryManager.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain MemoryManager for instrospection!";
-        std::terminate();
+        errorHandler(Error::kROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, nullptr, ErrorLevel::FATAL);
     }
     m_introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
@@ -65,7 +65,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeMgmtSegmentId.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain SegmentId for iceoryx management segment!";
-        std::terminate();
+        errorHandler(Error::kROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, nullptr, ErrorLevel::FATAL);
     }
     m_mgmtSegmentId = maybeMgmtSegmentId.value();
 }
