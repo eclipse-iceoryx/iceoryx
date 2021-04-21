@@ -671,14 +671,14 @@ inline bool list<T, Capacity>::handleInvalidIterator(const const_iterator& iter)
     // freeList / invalid elements will have the prevIdx set to INVALID_INDEX
     // additional check on e.g. nextIdx or m_iterListNodeIdx (<INVALID_INDEX) are omitted as this
     // should (can) never happen though normal list operations.
-    cxx::Expects(getPrevIdx(iter) < INVALID_INDEX && "invalidated iterator");
+    cxx::Expects((getPrevIdx(iter) < INVALID_INDEX) && "invalidated iterator");
     return false;
 }
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept
 {
-    cxx::Expects(this == iter.m_list && "iterator of other list can't be used");
+    cxx::Expects((this == iter.m_list) && "iterator of other list can't be used");
     return handleInvalidIterator(iter);
 }
 

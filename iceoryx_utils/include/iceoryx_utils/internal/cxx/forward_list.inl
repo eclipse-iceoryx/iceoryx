@@ -597,7 +597,7 @@ inline bool forward_list<T, Capacity>::handleInvalidIterator(const const_iterato
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept
 {
-    cxx::Expects(this == iter.m_list && "iterator of other list can't be used");
+    cxx::Expects((this == iter.m_list) && "iterator of other list can't be used");
     return handleInvalidIterator(iter);
 }
 
