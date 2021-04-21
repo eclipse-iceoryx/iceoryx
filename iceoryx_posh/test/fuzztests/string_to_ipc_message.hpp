@@ -14,18 +14,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef STRINGTOIPCMESSAGE_HPP
-#define STRINGTOIPCMESSAGE_HPP
+#ifndef IOX_POSH_FUZZTESTS_STRINGTOIPCMESSAGE_HPP
+#define IOX_POSH_FUZZTESTS_STRINGTOIPCMESSAGE_HPP
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 /// @brief The StringToIPCMessage is a class which inherits from iox::runtime::IpcInterfaceBase to make the protected
 /// method iox::runtime::IpcInterfaceBase::setMessageFromString public and accessible for the fuzz test.
-
 class StringToIPCMessage : public iox::runtime::IpcInterfaceBase
 {
   public:
-    StringToIPCMessage(const iox::RuntimeName_t& name, const int64_t maxMessages, const int64_t messageSize);
+    StringToIPCMessage(const iox::RuntimeName_t& name, const int64_t maxMessages, const int64_t messageSize) noexcept;
 
     /// @brief Set the content of answer from buffer.
     /// @param[in] buffer Raw message as char pointer
@@ -34,4 +33,4 @@ class StringToIPCMessage : public iox::runtime::IpcInterfaceBase
     using iox::runtime::IpcInterfaceBase::setMessageFromString;
 };
 
-#endif /*STRINGTOIPCMESSAGE*/
+#endif /*IOX_POSH_FUZZTESTS_STRINGTOIPCMESSAGE*/

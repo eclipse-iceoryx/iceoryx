@@ -23,11 +23,11 @@
 
 std::string const UDS_NAME = "/tmp/";
 
-Fuzzing::Fuzzing()
+Fuzzing::Fuzzing() noexcept
 {
 }
 
-void Fuzzing::fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage)
+void Fuzzing::fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage) noexcept
 {
     if (aRouDi != nullptr)
     {
@@ -40,7 +40,7 @@ void Fuzzing::fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMe
     }
 }
 
-int Fuzzing::fuzzingRouDiUDS(std::string aMessage)
+int Fuzzing::fuzzingRouDiUDS(std::string aMessage) noexcept
 {
     int sockfd = socket(AF_LOCAL, SOCK_DGRAM, 0);
     struct sockaddr aSockAddr;
@@ -63,7 +63,7 @@ int Fuzzing::fuzzingRouDiUDS(std::string aMessage)
 }
 
 
-void Fuzzing::fuzzingTOMLParser(std::string aMessage, std::string tempFile)
+void Fuzzing::fuzzingTOMLParser(std::string aMessage, std::string tempFile) noexcept
 {
     std::ofstream aTomlFile;
     aTomlFile.open(tempFile);

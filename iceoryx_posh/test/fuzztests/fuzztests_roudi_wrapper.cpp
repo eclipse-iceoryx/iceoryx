@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "fuzztests_roudi_wrapper.hpp"
 #include "cmdlineparserfuzzing.hpp"
 #include "fuzz_helper.hpp"
 #include "fuzzing.hpp"
@@ -26,7 +25,7 @@
 #include <iostream>
 #include <thread>
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) noexcept
 {
     constexpr uint8_t MAX_RETRIES = 50;
     constexpr uint64_t WAIT_RETRY_IN_MS = 100;

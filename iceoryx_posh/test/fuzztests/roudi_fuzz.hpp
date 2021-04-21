@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef ROUDIFUZZ_HPP
-#define ROUDIFUZZ_HPP
+#ifndef IOX_POSH_FUZZTESTS_ROUDIFUZZ_HPP
+#define IOX_POSH_FUZZTESTS_ROUDIFUZZ_HPP
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 
@@ -29,10 +29,10 @@ class RouDiFuzz : iox::roudi::RouDi
               iox::roudi::RouDi::RoudiStartupParameters = {iox::roudi::MonitoringMode::OFF,
                                                            false,
                                                            iox::roudi::RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
-                                                           iox::version::CompatibilityCheckLevel::OFF});
+                                                           iox::version::CompatibilityCheckLevel::OFF}) noexcept;
 
     /// @brief Send a message to the processMessage method of RouDi
     /// @param[in] Message which should be sent to the processMessage method of RouDi
-    void processMessageFuzz(std::string aMessage);
+    void processMessageFuzz(std::string aMessage) noexcept;
 };
-#endif /*ROUDIFUZZ_HPP*/
+#endif /*IOX_POSH_FUZZTESTS_ROUDIFUZZ_HPP*/

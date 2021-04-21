@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef FUZZING_HPP
-#define FUZZING_HPP
+#ifndef IOX_POSH_FUZZTESTS_FUZZING_HPP
+#define IOX_POSH_FUZZTESTS_FUZZING_HPP
 
 #include "roudi_fuzz.hpp"
 #include <memory>
@@ -25,7 +25,7 @@
 class Fuzzing
 {
   public:
-    Fuzzing();
+    Fuzzing() noexcept;
 
     /// @brief fuzzingRouDiCom is a method to test the processMessage method of RouDi. It shall be independent from
     /// the underlying protocol such as uds. It should also be slightly faster since some functions are not invoked
@@ -33,19 +33,19 @@ class Fuzzing
     /// be possible to invoke the processMessage method within RouDi without directly modifying the code in RouDi.
     /// @param[in] shared_ptr to RouDiFuzz such that processMessage can be invoked
     /// @param[in] std::string containing a message which shall be sent to the interface
-    void fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage);
+    void fuzzingRouDiCom(std::shared_ptr<RouDiFuzz> aRouDi, std::string aMessage) noexcept;
 
     /// @brief fuzzingRouDiUDS is a method to test the Unix Domain Socket interface of RouDi. It connects to
     /// RouDi's uds and sends the message given as input to RouDi
     /// @param[in] std::string containing a message which shall be sent to the interface
     /// @param[out] int as result of connect(). If the int = -1 it means that it was not possible to connect to the
     /// socket
-    int fuzzingRouDiUDS(std::string aMessage);
+    int fuzzingRouDiUDS(std::string aMessage) noexcept;
 
     /// @brief fuzzingTOMLParser is a method to send a message to the TOML parser.
     /// @param[in] std::string containing a message which shall be sent to the interface
     /// @param[in] std::string containing a valid path to an empty file which will be used to write the tomlFile into.
     /// This is necessary because the TOML parser expects a path to a file as input
-    void fuzzingTOMLParser(std::string tomlFile, std::string tempFile);
+    void fuzzingTOMLParser(std::string tomlFile, std::string tempFile) noexcept;
 };
-#endif /* FUZZING_HPP */
+#endif /* IOX_POSH_FUZZTESTS_FUZZING_HPP */

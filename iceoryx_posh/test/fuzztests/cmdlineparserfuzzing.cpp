@@ -24,7 +24,7 @@
 #include <string>
 
 iox::log::LogLevel m_logLevel{iox::log::LogLevel::kOff};
-CmdLineParserFuzzing::CmdLineParserFuzzing()
+CmdLineParserFuzzing::CmdLineParserFuzzing() noexcept
 {
     m_fuzzingAPI = FuzzingApi::NONE;
     m_inputMode = InputMode::NONE;
@@ -35,37 +35,37 @@ CmdLineParserFuzzing::CmdLineParserFuzzing()
     m_tomlFile = "";
 }
 
-bool CmdLineParserFuzzing::getHelpFlag()
+bool CmdLineParserFuzzing::getHelpFlag() noexcept
 {
     return m_helpFlag;
 }
 
-InputMode CmdLineParserFuzzing::getInputMode()
+InputMode CmdLineParserFuzzing::getInputMode() noexcept
 {
     return m_inputMode;
 }
 
-bool CmdLineParserFuzzing::getErrorFlag()
+bool CmdLineParserFuzzing::getErrorFlag() noexcept
 {
     return m_errorFlag;
 }
 
-bool CmdLineParserFuzzing::getCmdLineFlag()
+bool CmdLineParserFuzzing::getCmdLineFlag() noexcept
 {
     return m_cmdLineFlag;
 }
 
-FuzzingApi CmdLineParserFuzzing::getFuzzingAPI()
+FuzzingApi CmdLineParserFuzzing::getFuzzingAPI() noexcept
 {
     return m_fuzzingAPI;
 }
 
-bool CmdLineParserFuzzing::getTomlFileFlag()
+bool CmdLineParserFuzzing::getTomlFileFlag() noexcept
 {
     return m_tomlFileFlag;
 }
 
-std::string CmdLineParserFuzzing::getTomlFile()
+std::string CmdLineParserFuzzing::getTomlFile() noexcept
 {
     return m_tomlFile;
 }
@@ -91,37 +91,23 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
         case 'h':
         {
             std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
-            std::cout << "Options:" << std::endl;
-            std::cout << "-h, --help" << std::endl;
-            std::cout << "\tDisplay help." << std::endl;
-            std::cout << "-f, --fuzzing-api <API>" << std::endl;
-            std::cout << "\tSpecify API which will be fuzzed." << std::endl;
-            std::cout << "\t<API> {uds, com, toml}" << std::endl;
-            std::cout << "\t\tuds: Starts RouDi and sends messages via Unix Domain Sockets. Multiple messages can be "
-                         "sent. (e.g.: register message first and then offer service)."
-                      << std::endl;
-            std::cout << "\t\tcom: Invokes the processMessage method in RouDi directly. This abstracts the IPC and is "
-                         "faster but multiple messages are not supported."
-                      << std::endl;
-            std::cout << "\t\ttoml: Send inputs to test the TOML config file parser. A file is created in your current "
-                         "working directory and the path is sent to the parser."
-                      << std::endl;
-            std::cout << "-m, --input-mode <MODE>" << std::endl;
-            std::cout << "\t<MODE> {stdin, cl}" << std::endl;
-            std::cout << "\t\tstdin: Send input via stdin." << std::endl;
-            std::cout << "\t\tcl: Send input via command line. Needs parameter i to send the input." << std::endl;
-            std::cout << "-c, --command-line-file <PATH_TO_FILE>" << std::endl;
-            std::cout << "\t<PATH_TO_FILE> Read the specified file and send the input to the interface." << std::endl;
-            std::cout << "-i, --command-line-input <INPUT>" << std::endl;
-            std::cout << "\t<INPUT> Send the input via this command line, requires to use input-mode cl. It's possible "
-                         "to send several commands with several -i commands."
-                      << std::endl;
-            std::cout << "-t, --toml-file <PATH_TO_FILE>" << std::endl;
-            std::cout << "\t<PATH_TO_FILE> Needs to be used when TOML is parsed. The file is used to write messages "
-                         "which will be parsed by the TOML configuration parser."
-                      << std::endl;
-            std::cout << "-l, --log-level" << std::endl;
-            std::cout << "\t<LogLevel> {off, fatal, debug} : Set the log level. Off is default;" << std::endl;
+            std::cout << R"(
+Options:
+-h, --help                              Display this help message.
+-f, --fuzzing-api <API>                 Specify API which will be fuzzed.
+                                        <API> {uds, com, toml} 
+                                        uds: Starts RouDi and sends messages via Unix Domain Sockets. Multiple messages can be sent. (e.g.: register message first and then offer service).
+                                        com: Invokes the processMessage method in RouDi directly. This abstracts the IPC and is faster but multiple messages are not supported.
+                                        toml: Send inputs to test the TOML config file parser. A file is created in your current working directory and the path is sent to the parser.
+-m, --input-mode <MODE>                 <MODE> {stdin, cl}
+                                        stdin: Send input via stdin.
+                                        cl: Send input via command line. Needs parameter i to send the input. 
+-c, --command-line-file <PATH_TO_FILE>  <PATH_TO_FILE> Read the specified file and send the input to the interface.
+-i, --command-line-input <INPUT>        <INPUT> Send the input via this command line, requires to use input-mode cl. It's possible to send several commands with several -i commands.
+-t, --toml-file <PATH_TO_FILE>          <PATH_TO_FILE> Needs to be used when TOML is parsed. The file is used to write messages which will be parsed by the TOML configuration parser.
+-l, --log-level                         <LogLevel> {off, fatal, debug} : Set the log level. Off is default
+)";
+
             m_helpFlag = true;
             break;
         }
@@ -187,7 +173,8 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
             else
             {
                 std::cout
-                    << "Error cannot open file. Either file does not exist or I don't have the permissions to open it.";
+                    << "Error cannot open file. Either file does not exist or I don't have the permissions to open it."
+                    << std::endl;
                 m_errorFlag = true;
                 return m_allMessages;
             }
@@ -222,7 +209,7 @@ std::vector<std::string> CmdLineParserFuzzing::parseCmd(int argc, char* argv[]) 
         }
         default:
         {
-            std::cout << "Unknown command.\n" << std::endl;
+            std::cout << "Unknown command." << std::endl;
             m_errorFlag = true;
             return m_allMessages;
         }

@@ -19,12 +19,12 @@
 
 RouDiFuzz::RouDiFuzz(iox::roudi::RouDiMemoryInterface& roudiMemoryInterface,
                      iox::roudi::PortManager& portManager,
-                     iox::roudi::RouDi::RoudiStartupParameters aStartupParameter)
+                     iox::roudi::RouDi::RoudiStartupParameters aStartupParameter) noexcept
     : iox::roudi::RouDi(roudiMemoryInterface, portManager, aStartupParameter)
 {
 }
 
-void RouDiFuzz::processMessageFuzz(std::string aMessage)
+void RouDiFuzz::processMessageFuzz(std::string aMessage) noexcept
 {
     iox::runtime::IpcMessage ipcMessage;
     StringToIPCMessage::setMessageFromString(aMessage.c_str(), ipcMessage);

@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef CMDLINEPARSERFUZZING_HPP
-#define CMDLINEPARSERFUZZING_HPP
+#ifndef IOX_POSH_FUZZTESTS_CMDLINEPARSERFUZZING_HPP
+#define IOX_POSH_FUZZTESTS_CMDLINEPARSERFUZZING_HPP
 
 #include <string>
 #include <vector>
@@ -40,7 +40,7 @@ enum class InputMode
 class CmdLineParserFuzzing
 {
   public:
-    CmdLineParserFuzzing();
+    CmdLineParserFuzzing() noexcept;
 
     /// @brief Parses the command line parameters which are entered by starting the fuzz wrappers
     /// @param[in] amount of arguments given to the method
@@ -50,32 +50,32 @@ class CmdLineParserFuzzing
 
     /// @brief Getter to return m_helpFlag
     /// @param[out] Containing a flag showing if the help menu was displayed.
-    bool getHelpFlag();
+    bool getHelpFlag() noexcept;
 
     /// @brief Getter to return m inputMode
     /// @param[out] Containing enum InputMode to show if messages are sent to the API via stdin or command line (cl).
-    InputMode getInputMode();
+    InputMode getInputMode() noexcept;
 
     /// @brief Getter to return m_errorFlag
     /// @param[out] Containing a flag showing if an error happened and fuzzing cannot be started
-    bool getErrorFlag();
+    bool getErrorFlag() noexcept;
 
     /// @brief Getter to return m_cmdLineFlag
     /// @param[out] Containing a flag showing if a command line parameter was given after InputMode::CL was set
-    bool getCmdLineFlag();
+    bool getCmdLineFlag() noexcept;
 
     /// @brief Getter to return m_fuzzingAPI
     /// @param[out] Containing enum FuzzingFlag indicating which API wants to be fuzzed.
-    FuzzingApi getFuzzingAPI();
+    FuzzingApi getFuzzingAPI() noexcept;
 
     /// @brief Getter to return m_tomlFileFlag
     /// @param[out] Containing a flag showing if TOML API wants to be fuzzed.
-    bool getTomlFileFlag();
+    bool getTomlFileFlag() noexcept;
 
     /// @brief Getter to return m_tomlFile
     /// @param[out] Containing an std::string to a file which can be used to temporarily write a TOML configuration to
     /// the file.
-    std::string getTomlFile();
+    std::string getTomlFile() noexcept;
 
   private:
     bool m_errorFlag;
@@ -87,4 +87,4 @@ class CmdLineParserFuzzing
     std::string m_tomlFile;
     std::vector<std::string> m_allMessages;
 };
-#endif // CMDLINEPARSERFUZZING_HPP
+#endif // IOX_POSH_FUZZTESTS_CMDLINEPARSERFUZZING_HPP
