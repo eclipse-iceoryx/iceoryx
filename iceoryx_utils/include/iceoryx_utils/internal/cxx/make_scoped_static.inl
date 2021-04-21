@@ -14,28 +14,20 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_UTILS_CXX_MAKE_SCOPED_STATIC_HPP
-#define IOX_UTILS_CXX_MAKE_SCOPED_STATIC_HPP
-
-#include "iceoryx_utils/cxx/generic_raii.hpp"
+#ifndef IOX_UTILS_CXX_MAKE_SCOPED_STATIC_INL
+#define IOX_UTILS_CXX_MAKE_SCOPED_STATIC_INL
 
 namespace iox
 {
 namespace cxx
 {
-/// @todo better name
-/// create a GenericRAII object to cleanup a static optional object at the end of the scope
-/// @param [in] T memory container which has emplace(...) and reset
-/// @param [in] CTorArgs ctor types for the object to construct
-/// @param [in] memory is a reference to a memory container, e.g. cxx::optional
-/// @param [in] ctorArgs ctor arguments for the object to construct
-/// @return cxx::GenericRAII
 template <typename T, typename... CTorArgs>
-GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs);
+inline GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs)
+{
+    memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
+    return GenericRAII([] {}, [&memory] { memory.reset(); });
+}
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_utils/internal/cxx/make_scoped_static.inl"
-
-
-#endif // IOX_UTILS_CXX_MAKE_SCOPED_STATIC_HPP
+#endif // IOX_UTILS_CXX_MAKE_SCOPED_STATIC_INL

@@ -47,10 +47,19 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
 
     byte_t* l_returnValue = nullptr;
 
-    cxx::Expects(m_length >= alignedPosition + size && "Not enough space left in shared memory");
+    if (m_length >= alignedPosition + size)
+    {
+        l_returnValue = m_startAddress + alignedPosition;
+        m_currentPosition = alignedPosition + size;
+    }
+    else
+    {
+        std::cerr << "Trying to allocate additional " << size << " bytes in the shared memory of capacity " << m_length
+                  << " when there are already " << alignedPosition << " aligned bytes in use." << std::endl;
+        std::cerr << "Only " << m_length - alignedPosition << " bytes left." << std::endl;
 
-    l_returnValue = m_startAddress + alignedPosition;
-    m_currentPosition = alignedPosition + size;
+        cxx::Expects(false && "Not enough space left in shared memory");
+    }
 
     return static_cast<void*>(l_returnValue);
 }
