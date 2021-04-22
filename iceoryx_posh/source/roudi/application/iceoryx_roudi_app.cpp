@@ -19,8 +19,8 @@
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
-#include "iceoryx_utils/cxx/make_scoped_static.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/scoped_static.hpp"
 
 namespace iox
 {

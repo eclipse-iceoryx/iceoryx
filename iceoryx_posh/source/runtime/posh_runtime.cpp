@@ -130,7 +130,7 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Runtime
     else if (name.value()->empty())
     {
         LogError() << "Cannot initialize runtime. Application name must not be empty!";
-        errorHandler(Error::kPOSH__RUNTIME_NO_NAME_PROVIDED, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOSH__RUNTIME_NAME_EMPTY, nullptr, ErrorLevel::FATAL);
     }
     else if (name.value()->c_str()[0] == '/')
     {

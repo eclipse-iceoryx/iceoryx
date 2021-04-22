@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_UTILS_CXX_MAKE_SCOPED_STATIC_INL
-#define IOX_UTILS_CXX_MAKE_SCOPED_STATIC_INL
+#ifndef IOX_UTILS_CXX_SCOPED_STATIC_INL
+#define IOX_UTILS_CXX_SCOPED_STATIC_INL
 
 namespace iox
 {
@@ -30,4 +30,4 @@ inline GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs)
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_UTILS_CXX_MAKE_SCOPED_STATIC_INL
+#endif // IOX_UTILS_CXX_SCOPED_STATIC_INL
