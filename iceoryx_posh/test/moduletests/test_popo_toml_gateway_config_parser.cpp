@@ -332,3 +332,88 @@ TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
     ASSERT_TRUE(result.has_error());
     EXPECT_EQ(parseErrorInputFile.first, result.get_error());
 }
+
+TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFileReturnOnlyOneEntry)
+{
+    auto toml = cpptoml::make_table();
+    auto serviceArray = cpptoml::make_table_array();
+
+    auto serviceEntry = cpptoml::make_table();
+    serviceEntry->insert("service", "service");
+    serviceEntry->insert("instance", "instance");
+    serviceEntry->insert("event", "event");
+
+    auto serviceEntry1 = cpptoml::make_table();
+    serviceEntry1->insert("service", "service");
+    serviceEntry1->insert("instance", "instance");
+    serviceEntry1->insert("event", "event");
+    serviceArray->push_back(serviceEntry1);
+
+    toml->insert("services", serviceArray);
+    CreateTmpTomlFile(toml);
+
+    iox::roudi::ConfigFilePathString_t Path =
+    iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
+    auto result = TomlGatewayConfigParser::parse(Path);
+    GatewayConfig config = result.value();
+    EXPECT_FALSE(result.has_error());
+    EXPECT_FALSE(config.m_configuredServices.empty());
+    EXPECT_EQ(config.m_configuredServices.size(), 1);
+}
+
+TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedNumberOfConfiguredServicesReturnNoError)
+{
+    auto toml = cpptoml::make_table();
+    auto serviceArray = cpptoml::make_table_array();
+    auto serviceEntry = cpptoml::make_table();
+
+    for (uint32_t i = 1U; i <= iox::MAX_GATEWAY_SERVICES; ++i)
+    {
+        std::string stringentry = "validservice"+ std::to_string(i);
+        serviceEntry->insert("service", stringentry);
+        serviceEntry->insert("instance", stringentry);
+        serviceEntry->insert("event", stringentry);
+        serviceArray->push_back(serviceEntry);
+    }
+
+    toml->insert("services", serviceArray);
+    CreateTmpTomlFile(toml);
+
+    iox::roudi::ConfigFilePathString_t Path =
+    iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
+    auto result = TomlGatewayConfigParser::parse(Path);
+    GatewayConfig config = result.value();
+
+    EXPECT_EQ(config.m_configuredServices.size(), iox::MAX_GATEWAY_SERVICES);
+    EXPECT_FALSE(result.has_error());
+    EXPECT_FALSE(config.m_configuredServices.empty());
+
+}
+
+TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMoreThanMaximumAllowedNumberOfConfiguredServicesReturnOnlyMaximumAllowedNumber)
+{
+    auto toml = cpptoml::make_table();
+    auto serviceArray = cpptoml::make_table_array();
+    auto serviceEntry = cpptoml::make_table();
+
+    for (uint32_t i = 1U; i <= (iox::MAX_GATEWAY_SERVICES + 2); ++i)
+    {
+        std::string stringentry = "validservice"+ std::to_string(i);
+        serviceEntry->insert("service", stringentry);
+        serviceEntry->insert("instance", stringentry);
+        serviceEntry->insert("event", stringentry);
+        serviceArray->push_back(serviceEntry);
+    }
+
+    toml->insert("services", serviceArray);
+    CreateTmpTomlFile(toml);
+
+    iox::roudi::ConfigFilePathString_t Path =
+    iox::roudi::ConfigFilePathString_t(iox::cxx::TruncateToCapacity, TestFilePath);
+    auto result = TomlGatewayConfigParser::parse(Path);
+    GatewayConfig config = result.value();
+
+    EXPECT_EQ(config.m_configuredServices.size(), iox::MAX_GATEWAY_SERVICES);
+    EXPECT_FALSE(result.has_error());
+    EXPECT_FALSE(config.m_configuredServices.empty());
+}
