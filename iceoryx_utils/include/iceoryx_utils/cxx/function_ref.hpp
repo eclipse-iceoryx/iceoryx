@@ -49,6 +49,9 @@ struct is_function_ref<function_ref<Targs...>> : std::true_type
 ///         * No exceptions
 ///         * Stateful lambda support
 ///         * C++11/14 support
+///
+/// @note   Invoking an empty function_ref can lead to a program termination!
+///
 /// @code
 ///         // Usage as function parameter
 ///         void fuu(cxx::function_ref<void()> callback)
