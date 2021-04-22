@@ -324,7 +324,7 @@ template <typename T, uint64_t Capacity>
 inline T& forward_list<T, Capacity>::front() noexcept
 {
     auto iter = begin();
-    IOX_DISCARD_RESULT(handleInvalidElement(iter.m_iterListNodeIdx));
+    cxx::Expects(isValidElementIdx(iter.m_iterListNodeIdx) && "Invalid list element");
     return *iter;
 }
 
@@ -332,7 +332,7 @@ template <typename T, uint64_t Capacity>
 inline const T& forward_list<T, Capacity>::front() const noexcept
 {
     auto citer = cbegin();
-    IOX_DISCARD_RESULT(handleInvalidElement(citer.m_iterListNodeIdx));
+    cxx::Expects(isValidElementIdx(citer.m_iterListNodeIdx) && "Invalid list element");
     return *citer;
 }
 
@@ -428,7 +428,7 @@ template <bool IsConstIterator>
 inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>&
 forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator++() noexcept
 {
-    if (!m_list->handleInvalidIterator(*this))
+    if (!m_list->isInvalidIterator(*this))
     {
         m_iterListNodeIdx = m_list->getNextIdx(m_iterListNodeIdx);
     }
@@ -442,7 +442,7 @@ template <bool IsConstIteratorOther>
 inline bool forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator==(
     const forward_list<T, Capacity>::IteratorBase<IsConstIteratorOther>& rhs) const noexcept
 {
-    if (m_list->isInvalidIterOrDifferentLists(rhs) || m_list->handleInvalidIterator(*this))
+    if (m_list->isInvalidIterOrDifferentLists(rhs) || m_list->isInvalidIterator(*this))
     {
         return false;
     }
@@ -545,7 +545,7 @@ inline void forward_list<T, Capacity>::setNextIdx(const size_type idx, const siz
 template <typename T, uint64_t Capacity>
 inline const T* forward_list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const noexcept
 {
-    IOX_DISCARD_RESULT(handleInvalidElement(idx));
+    cxx::Expects(isValidElementIdx(idx) && "Invalid list element");
 
     return &(reinterpret_cast<const T*>(&m_data)[idx]);
 }
@@ -578,15 +578,7 @@ inline bool forward_list<T, Capacity>::isValidElementIdx(const size_type idx) co
 }
 
 template <typename T, uint64_t Capacity>
-inline bool forward_list<T, Capacity>::handleInvalidElement(const size_type idx) const noexcept
-{
-    // freeList / invalid elements will have the 'invalidElement' flag set to true
-    cxx::Expects(isValidElementIdx(idx) && "Invalid list element");
-    return false;
-}
-
-template <typename T, uint64_t Capacity>
-inline bool forward_list<T, Capacity>::handleInvalidIterator(const const_iterator& iter) const noexcept
+inline bool forward_list<T, Capacity>::isInvalidIterator(const const_iterator& iter) const noexcept
 {
     // iterator's member m_iterListNodeIdx and nextIndex are not checked here to be <= END_INDEX as this
     // should (can) never happen though normal list operations.
@@ -598,7 +590,7 @@ template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept
 {
     cxx::Expects((this == iter.m_list) && "iterator of other list can't be used");
-    return handleInvalidIterator(iter);
+    return isInvalidIterator(iter);
 }
 
 template <typename T, uint64_t Capacity>

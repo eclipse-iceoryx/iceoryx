@@ -323,8 +323,7 @@ class forward_list
     const T* getDataPtrFromIdx(const size_type idx) const noexcept;
 
     bool isValidElementIdx(const size_type idx) const noexcept;
-    bool handleInvalidElement(const size_type idx) const noexcept;
-    bool handleInvalidIterator(const const_iterator& iter) const noexcept;
+    bool isInvalidIterator(const const_iterator& iter) const noexcept;
     bool isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
     bool isInvalidElement(const size_type idx) const noexcept;
     void setInvalidElement(const size_type idx, const bool value) noexcept;

@@ -346,8 +346,7 @@ class list
     const T* getDataPtrFromIdx(const size_type idx) const noexcept;
 
     bool isValidElementIdx(const size_type idx) const noexcept;
-    bool handleInvalidElement(const size_type idx) const noexcept;
-    bool handleInvalidIterator(const const_iterator& iter) const noexcept;
+    bool isInvalidIterator(const const_iterator& iter) const noexcept;
     bool isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
     size_type& getPrevIdx(const size_type idx) noexcept;
     size_type& getNextIdx(const size_type idx) noexcept;
