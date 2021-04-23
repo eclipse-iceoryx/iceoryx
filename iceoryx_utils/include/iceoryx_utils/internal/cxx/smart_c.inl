@@ -20,6 +20,14 @@ namespace iox
 {
 namespace cxx
 {
+template <typename ReturnType>
+inline ErrorString_t SmartCResult<ReturnType>::getErrorString() noexcept
+{
+    ErrorString_t errorString;
+    errorString.unsafe_assign(std::strerror(m_errnum));
+    return errorString;
+}
+
 template <typename Function, typename ReturnType, typename... FunctionArguments>
 inline SmartC<Function, ReturnType, FunctionArguments...>
 makeSmartCImpl(const char* file,
@@ -92,51 +100,30 @@ makeSmartCImplNew(const char* file,
                   const std::initializer_list<int>& f_ignoredValues,
                   FunctionArguments... f_args) noexcept
 {
-    auto retval = SmartC<Function, ReturnType, FunctionArguments...>(file,
-                                                                     line,
-                                                                     func,
-                                                                     f_function,
-                                                                     f_mode,
-                                                                     f_returnValues,
-                                                                     f_ignoredValues,
-                                                                     std::forward<FunctionArguments>(f_args)...);
+    using SmartCType_t = SmartC<Function, ReturnType, FunctionArguments...>;
+    SmartCType_t retval;
 
-    bool doIgnoreEINTR = false;
-    if (retval.hasErrors())
-    {
-        for (auto& value : f_ignoredValues)
-        {
-            if (value == EINTR)
-            {
-                doIgnoreEINTR = true;
-                break;
-            }
-        }
-    }
+    bool doIgnoreEINTR = algorithm::doesContainValue(f_ignoredValues, EINTR);
 
-    if (!doIgnoreEINTR)
+    uint64_t remainingRetrys = SmartCType_t::EINTR_RETRIES;
+    do
     {
-        for (int remainingRetrys = 5; retval.hasErrors() && retval.getErrNum() == EINTR && remainingRetrys > 0;
-             --remainingRetrys)
-        {
-            retval = SmartC<Function, ReturnType, FunctionArguments...>(file,
-                                                                        line,
-                                                                        func,
-                                                                        f_function,
-                                                                        f_mode,
-                                                                        f_returnValues,
-                                                                        f_ignoredValues,
-                                                                        std::forward<FunctionArguments>(f_args)...);
-        }
-    }
+        retval = SmartCType_t(file,
+                              line,
+                              func,
+                              f_function,
+                              f_mode,
+                              f_returnValues,
+                              f_ignoredValues,
+                              std::forward<FunctionArguments>(f_args)...);
+        --remainingRetrys;
+    } while (remainingRetrys > 0U && retval.hasErrors() && retval.getErrNum() == EINTR && !doIgnoreEINTR);
 
-    if (retval.hasErrors() && retval.getErrNum())
+    if (retval.getErrNum() == EINTR && !doIgnoreEINTR)
     {
-        if (!(doIgnoreEINTR && retval.getErrNum() == EINTR))
-        {
-            std::cerr << file << ":" << line << " { " << func << " }  :::  [ " << retval.getErrNum() << " ]  "
-                      << retval.getErrorString() << std::endl;
-        }
+        std::cerr << file << ":" << line << " { " << func << " }  :::  [ " << retval.getErrNum() << " ]  "
+                  << "giving up calling the function after " << SmartCType_t::EINTR_RETRIES
+                  << " calls which all ended with an interrupt (EINTR)." << std::endl;
     }
 
     return retval;

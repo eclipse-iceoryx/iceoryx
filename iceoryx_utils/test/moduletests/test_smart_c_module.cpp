@@ -66,7 +66,7 @@ class smart_c_test : public Test
 
 TEST_F(smart_c_test, SimpleFunctionWithErrorCode)
 {
-    auto call = iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {0}, {}, 1, 2, 3);
+    auto call = iox::cxx::makeSmartCNew(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {0}, {}, 1, 2, 3);
     EXPECT_THAT(call.hasErrors(), Eq(false));
     EXPECT_THAT(call.getReturnValue(), Eq(6));
     EXPECT_THAT(call.getErrNum(), Eq(16));
@@ -74,7 +74,7 @@ TEST_F(smart_c_test, SimpleFunctionWithErrorCode)
 
 TEST_F(smart_c_test, SimpleFunctionWithErrorCodeOneError)
 {
-    auto call = iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {0}, {}, 1, 0, 3);
+    auto call = iox::cxx::makeSmartCNew(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {0}, {}, 1, 0, 3);
 
     EXPECT_THAT(call.hasErrors(), Eq(true));
     EXPECT_THAT(call.getReturnValue(), Eq(0));
@@ -85,7 +85,8 @@ TEST_F(smart_c_test, SimpleFunctionWithErrorCodeOneError)
 
 TEST_F(smart_c_test, SimpleFunctionWithErrorCodeMultipleErrors)
 {
-    auto call = iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {1, -1}, {}, 1, 1, 1);
+    auto call =
+        iox::cxx::makeSmartCNew(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {1, -1}, {}, 1, 1, 1);
 
     ASSERT_THAT(call.hasErrors(), Eq(true));
     EXPECT_THAT(call.getReturnValue(), Eq(1));
@@ -94,7 +95,7 @@ TEST_F(smart_c_test, SimpleFunctionWithErrorCodeMultipleErrors)
 TEST_F(smart_c_test, SimpleFunctionWithErrorCodeErrorIgnored)
 {
     auto call =
-        iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {1, -1}, {11}, 1, 1, 1);
+        iox::cxx::makeSmartCNew(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {1, -1}, {11}, 1, 1, 1);
 
     ASSERT_THAT(call.hasErrors(), Eq(false));
     EXPECT_THAT(call.getReturnValue(), Eq(1));
@@ -102,7 +103,7 @@ TEST_F(smart_c_test, SimpleFunctionWithErrorCodeErrorIgnored)
 
 TEST_F(smart_c_test, SimpleFunctionWithSuccessCode)
 {
-    auto call = iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6}, {}, 1, 2, 3);
+    auto call = iox::cxx::makeSmartCNew(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6}, {}, 1, 2, 3);
     EXPECT_THAT(call.hasErrors(), Eq(false));
     EXPECT_THAT(call.getReturnValue(), Eq(6));
     EXPECT_THAT(call.getErrNum(), Eq(16));
@@ -110,7 +111,7 @@ TEST_F(smart_c_test, SimpleFunctionWithSuccessCode)
 
 TEST_F(smart_c_test, SimpleFunctionWithSuccessCodeOnError)
 {
-    auto call = iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6}, {}, 4, 2, 3);
+    auto call = iox::cxx::makeSmartCNew(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6}, {}, 4, 2, 3);
 
     EXPECT_THAT(call.hasErrors(), Eq(true));
     EXPECT_THAT(call.getReturnValue(), Eq(24));
@@ -120,7 +121,7 @@ TEST_F(smart_c_test, SimpleFunctionWithSuccessCodeOnError)
 TEST_F(smart_c_test, SimpleFunctionWithSuccessMultipleSuccessCodes)
 {
     auto call =
-        iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6, 24}, {}, 4, 2, 3);
+        iox::cxx::makeSmartCNew(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6, 24}, {}, 4, 2, 3);
     EXPECT_THAT(call.hasErrors(), Eq(false));
     EXPECT_THAT(call.getReturnValue(), Eq(24));
     EXPECT_THAT(call.getErrNum(), Eq(34));
@@ -129,7 +130,7 @@ TEST_F(smart_c_test, SimpleFunctionWithSuccessMultipleSuccessCodes)
 TEST_F(smart_c_test, SimpleFunctionWithSuccessCodeAndIgnoredErrorCode)
 {
     auto call =
-        iox::cxx::makeSmartC(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6, 24}, {10}, 0, 2, 3);
+        iox::cxx::makeSmartCNew(SomeFunction, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {6, 24}, {10}, 0, 2, 3);
 
     EXPECT_THAT(call.hasErrors(), Eq(false));
     EXPECT_THAT(call.getReturnValue(), Eq(0));
@@ -139,7 +140,7 @@ TEST_F(smart_c_test, SimpleFunctionWithSuccessCodeAndIgnoredErrorCode)
 TEST_F(smart_c_test, SimpleFunctionWithFailedEINTRRepitition)
 {
     remainingErrnoCounter = 10;
-    auto call = iox::cxx::makeSmartC(SetErrno, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, EINTR);
+    auto call = iox::cxx::makeSmartCNew(SetErrno, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, EINTR);
 
     EXPECT_THAT(call.hasErrors(), Eq(true));
 }
@@ -147,7 +148,7 @@ TEST_F(smart_c_test, SimpleFunctionWithFailedEINTRRepitition)
 TEST_F(smart_c_test, SimpleFunctionWithSuccessfulEINTRRepitition)
 {
     remainingErrnoCounter = 3;
-    auto call = iox::cxx::makeSmartC(SetErrno, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, EINTR);
+    auto call = iox::cxx::makeSmartCNew(SetErrno, iox::cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, EINTR);
 
     EXPECT_THAT(call.hasErrors(), Eq(false));
 }

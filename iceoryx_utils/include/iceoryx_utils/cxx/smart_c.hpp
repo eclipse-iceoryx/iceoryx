@@ -16,12 +16,14 @@
 #ifndef IOX_UTILS_CXX_SMART_C_HPP
 #define IOX_UTILS_CXX_SMART_C_HPP
 
+#include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <cstring>
 #include <initializer_list>
 #include <iostream>
+
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 /// @brief Always use this macro to create smart_c objects.
 /// @param[in] f_function Function you wish to call
@@ -96,12 +98,7 @@ struct SmartCResult
 {
     ReturnType m_returnType;
     int32_t m_errnum;
-    cxx::string<ERRORSTRINGSIZE> getErrorString() noexcept
-    {
-        cxx::string<ERRORSTRINGSIZE> errorString;
-        errorString.unsafe_assign(std::strerror(m_errnum));
-        return errorString;
-    }
+    ErrorString_t getErrorString() noexcept;
 };
 /// @brief C function call abstraction class which performs the error handling
 ///         automatically.
@@ -169,7 +166,19 @@ class SmartC
                    const std::initializer_list<int>& f_ignoredValues,
                    FunctionArguments_F... f_args) noexcept;
 
+    template <typename Function_F, typename ReturnType_F, typename... FunctionArguments_F>
+    friend SmartC<Function_F, ReturnType_F, FunctionArguments_F...>
+    makeSmartCImplNew(const char* file,
+                      const int line,
+                      const char* func,
+                      const Function_F& f_function,
+                      const ReturnMode& f_mode,
+                      const std::initializer_list<ReturnType_F>& f_returnValues,
+                      const std::initializer_list<int>& f_ignoredValues,
+                      FunctionArguments_F... f_args) noexcept;
+
   private:
+    SmartC() noexcept = default;
     /// @brief You should never create a smart c object directly and should
     /// always use make_SmartC, therefore the ctor is private
     SmartC(const char* file,
@@ -182,6 +191,7 @@ class SmartC
            FunctionArguments... f_args) noexcept;
 
   private:
+    static constexpr uint64_t EINTR_RETRIES = 5U;
     int32_t m_errnum{0};
     ReturnType m_returnValue;
     bool m_hasErrors = false;
