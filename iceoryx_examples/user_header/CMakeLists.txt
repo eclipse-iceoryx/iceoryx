@@ -41,6 +41,21 @@ target_compile_options(iox-cpp-user-header-publisher
                        ${ICEORYX_SANITIZER_FLAGS}
 )
 
+## C++ untyped API publisher
+add_executable(iox-cpp-user-header-untyped-publisher
+               publisher_untyped_cxx_api.cpp
+)
+target_link_libraries(iox-cpp-user-header-untyped-publisher
+                      PRIVATE
+                      iceoryx_utils::iceoryx_utils
+                      iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-cpp-user-header-untyped-publisher
+                       PRIVATE
+                       ${ICEORYX_WARNINGS}
+                       ${ICEORYX_SANITIZER_FLAGS}
+)
+
 ## C++ typed API subscriber
 add_executable(iox-cpp-user-header-subscriber
                subscriber_cxx_api.cpp
@@ -56,9 +71,26 @@ target_compile_options(iox-cpp-user-header-subscriber
                        ${ICEORYX_SANITIZER_FLAGS}
 )
 
+## C++ untyped API subscriber
+add_executable(iox-cpp-user-header-untyped-subscriber
+               subscriber_untyped_cxx_api.cpp
+)
+target_link_libraries(iox-cpp-user-header-untyped-subscriber
+                      PRIVATE
+                      iceoryx_utils::iceoryx_utils
+                      iceoryx_posh::iceoryx_posh
+)
+target_compile_options(iox-cpp-user-header-untyped-subscriber
+                       PRIVATE
+                       ${ICEORYX_WARNINGS}
+                       ${ICEORYX_SANITIZER_FLAGS}
+)
+
 ## additional properties
 set_target_properties(iox-cpp-user-header-publisher
                       iox-cpp-user-header-subscriber
+                      iox-cpp-user-header-untyped-publisher
+                      iox-cpp-user-header-untyped-subscriber
                       PROPERTIES
                       CXX_STANDARD_REQUIRED ON
                       CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -68,5 +100,7 @@ set_target_properties(iox-cpp-user-header-publisher
 install(TARGETS
         iox-cpp-user-header-publisher
         iox-cpp-user-header-subscriber
+        iox-cpp-user-header-untyped-publisher
+        iox-cpp-user-header-untyped-subscriber
         RUNTIME DESTINATION bin
 )
