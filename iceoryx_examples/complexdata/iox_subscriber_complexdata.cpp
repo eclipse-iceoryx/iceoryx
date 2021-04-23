@@ -118,8 +118,7 @@ int main()
                     }
                 }
 
-                s << std::endl << std::endl;
-                std::cout << s.str();
+                std::cout << s.str() << std::endl << std::endl;
             })
             .or_else([](auto& result) {
                 // only has to be called if the alternative is of interest,

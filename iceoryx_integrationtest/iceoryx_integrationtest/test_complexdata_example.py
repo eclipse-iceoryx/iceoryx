@@ -75,14 +75,14 @@ def generate_test_description():
 # the launch system will shut down RouDi
 
 
-class TestIcedeliveryExample(unittest.TestCase):
+class TestComplexDataExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
     def test_publisher_subscriber_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'iox-cpp-subscriber-vector got value: 15, 16, 17, 18, 19', timeout=45, stream='stdout')
+            'iox-cpp-subscriber-vector got values: 15, 16, 17, 18, 19', timeout=45, stream='stdout')
 
     def test_publisher_subscriber_untyped_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
