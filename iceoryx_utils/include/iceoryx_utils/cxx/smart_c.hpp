@@ -98,11 +98,17 @@ enum class ReturnMode
     PRE_DEFINED_ERROR_CODE
 };
 
+/// @brief Contains the result of a c function call
 template <typename ReturnType>
 struct SmartCResult
 {
+    /// @brief the return type of the c function call
     ReturnType m_returnValue;
+
+    /// @brief the errno which was produced by the c function call
     int32_t m_errnum;
+
+    /// @brief translates the errno stored in m_errnum into a human readable string
     ErrorString_t getErrorString() noexcept;
 
     static const SmartCResult INVALID_STATE;
