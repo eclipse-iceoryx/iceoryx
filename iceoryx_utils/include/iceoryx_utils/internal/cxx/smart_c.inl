@@ -82,10 +82,64 @@ makeSmartCImpl(const char* file,
 }
 
 template <typename Function, typename ReturnType, typename... FunctionArguments>
-int SmartC<Function, ReturnType, FunctionArguments...>::resetErrnoAndInitErrnum() noexcept
+inline SmartC<Function, ReturnType, FunctionArguments...>
+makeSmartCImplNew(const char* file,
+                  const int line,
+                  const char* func,
+                  const Function& f_function,
+                  const ReturnMode& f_mode,
+                  const std::initializer_list<ReturnType>& f_returnValues,
+                  const std::initializer_list<int>& f_ignoredValues,
+                  FunctionArguments... f_args) noexcept
 {
-    errno = 0;
-    return 0;
+    auto retval = SmartC<Function, ReturnType, FunctionArguments...>(file,
+                                                                     line,
+                                                                     func,
+                                                                     f_function,
+                                                                     f_mode,
+                                                                     f_returnValues,
+                                                                     f_ignoredValues,
+                                                                     std::forward<FunctionArguments>(f_args)...);
+
+    bool doIgnoreEINTR = false;
+    if (retval.hasErrors())
+    {
+        for (auto& value : f_ignoredValues)
+        {
+            if (value == EINTR)
+            {
+                doIgnoreEINTR = true;
+                break;
+            }
+        }
+    }
+
+    if (!doIgnoreEINTR)
+    {
+        for (int remainingRetrys = 5; retval.hasErrors() && retval.getErrNum() == EINTR && remainingRetrys > 0;
+             --remainingRetrys)
+        {
+            retval = SmartC<Function, ReturnType, FunctionArguments...>(file,
+                                                                        line,
+                                                                        func,
+                                                                        f_function,
+                                                                        f_mode,
+                                                                        f_returnValues,
+                                                                        f_ignoredValues,
+                                                                        std::forward<FunctionArguments>(f_args)...);
+        }
+    }
+
+    if (retval.hasErrors() && retval.getErrNum())
+    {
+        if (!(doIgnoreEINTR && retval.getErrNum() == EINTR))
+        {
+            std::cerr << file << ":" << line << " { " << func << " }  :::  [ " << retval.getErrNum() << " ]  "
+                      << retval.getErrorString() << std::endl;
+        }
+    }
+
+    return retval;
 }
 
 template <typename Function, typename ReturnType, typename... FunctionArguments>
@@ -97,8 +151,12 @@ SmartC<Function, ReturnType, FunctionArguments...>::SmartC(const char* file,
                                                            const std::initializer_list<ReturnType>& f_returnValues,
                                                            const std::initializer_list<int>& f_ignoredValues,
                                                            FunctionArguments... f_args) noexcept
-    : m_errnum(resetErrnoAndInitErrnum())
-    , m_returnValue(f_function(f_args...))
+    : m_returnValue([&] {
+        errno = 0;
+        auto retVal = f_function(f_args...);
+        m_errnum = errno;
+        return retVal;
+    }())
     , m_errorSource{file, line, func}
 {
     switch (f_mode)
@@ -110,8 +168,6 @@ SmartC<Function, ReturnType, FunctionArguments...>::SmartC(const char* file,
         {
             if (value == m_returnValue)
             {
-                m_errnum = errno;
-                m_errorString.unsafe_assign(std::strerror(m_errnum));
                 for (const auto ignored : f_ignoredValues)
                 {
                     if (m_errnum == ignored)
@@ -124,7 +180,7 @@ SmartC<Function, ReturnType, FunctionArguments...>::SmartC(const char* file,
                 if (m_errnum != EINTR)
                 {
                     std::cerr << m_errorSource.file << ":" << m_errorSource.line << " { " << m_errorSource.func
-                              << " }  :::  [ " << m_errnum << " ]  " << m_errorString << std::endl;
+                              << " }  :::  [ " << m_errnum << " ]  " << getErrorString() << std::endl;
                 }
 
                 break;
@@ -144,8 +200,6 @@ SmartC<Function, ReturnType, FunctionArguments...>::SmartC(const char* file,
                 return;
             }
         }
-        m_errnum = errno;
-        m_errorString.unsafe_assign(std::strerror(m_errnum));
         for (const auto ignored : f_ignoredValues)
         {
             if (m_errnum == ignored)
@@ -158,7 +212,7 @@ SmartC<Function, ReturnType, FunctionArguments...>::SmartC(const char* file,
         if (m_errnum != EINTR)
         {
             std::cerr << m_errorSource.file << ":" << m_errorSource.line << " { " << m_errorSource.func << " }  :::  [ "
-                      << m_returnValue << " ]  " << m_errorString << std::endl;
+                      << m_returnValue << " ]  " << getErrorString() << std::endl;
         }
         break;
     }
@@ -185,9 +239,11 @@ inline bool SmartC<Function, ReturnType, FunctionArguments...>::hasErrors() cons
 }
 
 template <typename Function, typename ReturnType, typename... FunctionArguments>
-inline const char* SmartC<Function, ReturnType, FunctionArguments...>::getErrorString() const noexcept
+inline ErrorString_t SmartC<Function, ReturnType, FunctionArguments...>::getErrorString() const noexcept
 {
-    return m_errorString.c_str();
+    cxx::string<ERRORSTRINGSIZE> errorString;
+    errorString.unsafe_assign(std::strerror(m_errnum));
+    return errorString;
 }
 
 template <typename Function, typename ReturnType, typename... FunctionArguments>

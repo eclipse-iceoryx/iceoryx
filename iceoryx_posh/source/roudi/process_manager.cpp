@@ -171,7 +171,7 @@ bool ProcessManager::isProcessAlive(const Process& process) noexcept
 
 void ProcessManager::evaluateKillError(const Process& process,
                                        const int32_t& errnum,
-                                       const char* errorString,
+                                       const cxx::ErrorString_t& errorString,
                                        ShutdownPolicy shutdownPolicy) noexcept
 {
     if ((errnum == EINVAL) || (errnum == EPERM) || (errnum == ESRCH))

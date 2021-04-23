@@ -204,7 +204,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @param [in] shutdownPolicy enum which tells what termination command was used (e.g. SIGTERM)
     void evaluateKillError(const Process& process,
                            const int32_t& errnum,
-                           const char* errorString,
+                           const cxx::ErrorString_t& errorString,
                            ShutdownPolicy shutdownPolicy) noexcept;
 
     RouDiMemoryInterface& m_roudiMemoryInterface;

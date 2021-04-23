@@ -61,7 +61,15 @@
                    f_ignoredValues,                                                                                    \
                    __VA_ARGS__)
 
-/// @todo c function with only one valid value and an infinite number of invalid values are not useable with smart_c
+#define makeSmartCNew(f_function, f_returnMode, f_returnValues, f_ignoredValues, ...)                                  \
+    makeSmartCImplNew(__FILE__,                                                                                        \
+                      __LINE__,                                                                                        \
+                      __PRETTY_FUNCTION__,                                                                             \
+                      f_function,                                                                                      \
+                      f_returnMode,                                                                                    \
+                      f_returnValues,                                                                                  \
+                      f_ignoredValues,                                                                                 \
+                      __VA_ARGS__)
 
 namespace iox
 {
@@ -69,6 +77,7 @@ namespace cxx
 {
 /// @brief maximum size of the errorstring to be handled
 static constexpr uint32_t ERRORSTRINGSIZE = 128u;
+using ErrorString_t = cxx::string<ERRORSTRINGSIZE>;
 
 /// @brief Defined the return code behavior of a c function. Does the function
 ///         has a specific code on success and an arbitrary number of error codes
@@ -80,6 +89,19 @@ enum class ReturnMode
     PRE_DEFINED_SUCCESS_CODE,
     /// @brief The function has a specific code on error
     PRE_DEFINED_ERROR_CODE
+};
+
+template <typename ReturnType>
+struct SmartCResult
+{
+    ReturnType m_returnType;
+    int32_t m_errnum;
+    cxx::string<ERRORSTRINGSIZE> getErrorString() noexcept
+    {
+        cxx::string<ERRORSTRINGSIZE> errorString;
+        errorString.unsafe_assign(std::strerror(m_errnum));
+        return errorString;
+    }
 };
 /// @brief C function call abstraction class which performs the error handling
 ///         automatically.
@@ -130,7 +152,7 @@ class SmartC
     ///         (depending on the posix system) otherwise it returns the
     ///         errnum error string
     /// @return if the c call failed the result of strerror(errno)
-    const char* getErrorString() const noexcept;
+    ErrorString_t getErrorString() const noexcept;
 
     /// @brief Returns the errnum. 0 if no error has occurred, otherwise != 0
     /// @return returns the errno value which was set by the c call
@@ -159,12 +181,9 @@ class SmartC
            const std::initializer_list<int>& f_ignoredValues,
            FunctionArguments... f_args) noexcept;
 
-    int resetErrnoAndInitErrnum() noexcept;
-
   private:
     int32_t m_errnum{0};
     ReturnType m_returnValue;
-    string<ERRORSTRINGSIZE> m_errorString;
     bool m_hasErrors = false;
 
     struct
