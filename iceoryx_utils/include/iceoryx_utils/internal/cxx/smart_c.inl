@@ -90,7 +90,7 @@ makeSmartCImpl(const char* file,
 }
 
 template <typename Function, typename ReturnType, typename... FunctionArguments>
-inline SmartC<Function, ReturnType, FunctionArguments...>
+inline cxx::expected<SmartCResult<ReturnType>, SmartCResult<ReturnType>>
 makeSmartCImplNew(const char* file,
                   const int line,
                   const char* func,
@@ -105,7 +105,7 @@ makeSmartCImplNew(const char* file,
 
     bool doIgnoreEINTR = algorithm::doesContainValue(f_ignoredValues, EINTR);
 
-    uint64_t remainingRetrys = SmartCType_t::EINTR_RETRIES;
+    uint64_t remainingRetrys = EINTR_RETRIES;
     do
     {
         retval = SmartCType_t(file,
@@ -122,11 +122,19 @@ makeSmartCImplNew(const char* file,
     if (retval.getErrNum() == EINTR && !doIgnoreEINTR)
     {
         std::cerr << file << ":" << line << " { " << func << " }  :::  [ " << retval.getErrNum() << " ]  "
-                  << "giving up calling the function after " << SmartCType_t::EINTR_RETRIES
+                  << "giving up calling the function after " << EINTR_RETRIES
                   << " calls which all ended with an interrupt (EINTR)." << std::endl;
     }
 
-    return retval;
+    SmartCResult<ReturnType> result;
+    result.m_returnValue = retval.getReturnValue();
+    result.m_errnum = retval.getErrNum();
+    if (retval.hasErrors())
+    {
+        return cxx::error<SmartCResult<ReturnType>>(result);
+    }
+
+    return cxx::success<SmartCResult<ReturnType>>(result);
 }
 
 template <typename Function, typename ReturnType, typename... FunctionArguments>

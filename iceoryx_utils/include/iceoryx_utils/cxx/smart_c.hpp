@@ -17,6 +17,7 @@
 #define IOX_UTILS_CXX_SMART_C_HPP
 
 #include "iceoryx_utils/cxx/algorithm.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 
 #include <cstring>
@@ -81,6 +82,10 @@ namespace cxx
 static constexpr uint32_t ERRORSTRINGSIZE = 128u;
 using ErrorString_t = cxx::string<ERRORSTRINGSIZE>;
 
+/// @brief states how often smart_c tries to recall a function when it returned
+///        errno == EINTR
+static constexpr uint64_t EINTR_RETRIES = 5U;
+
 /// @brief Defined the return code behavior of a c function. Does the function
 ///         has a specific code on success and an arbitrary number of error codes
 ///         or does it have a specific code on error and an arbitrary number of
@@ -96,10 +101,16 @@ enum class ReturnMode
 template <typename ReturnType>
 struct SmartCResult
 {
-    ReturnType m_returnType;
+    ReturnType m_returnValue;
     int32_t m_errnum;
     ErrorString_t getErrorString() noexcept;
+
+    static const SmartCResult INVALID_STATE;
 };
+template <typename ReturnType>
+const SmartCResult<ReturnType> SmartCResult<ReturnType>::INVALID_STATE =
+    SmartCResult{ReturnType(), std::numeric_limits<int32_t>::max()};
+
 /// @brief C function call abstraction class which performs the error handling
 ///         automatically.
 /// @code
@@ -167,7 +178,7 @@ class SmartC
                    FunctionArguments_F... f_args) noexcept;
 
     template <typename Function_F, typename ReturnType_F, typename... FunctionArguments_F>
-    friend SmartC<Function_F, ReturnType_F, FunctionArguments_F...>
+    friend cxx::expected<SmartCResult<ReturnType_F>, SmartCResult<ReturnType_F>>
     makeSmartCImplNew(const char* file,
                       const int line,
                       const char* func,
@@ -191,7 +202,6 @@ class SmartC
            FunctionArguments... f_args) noexcept;
 
   private:
-    static constexpr uint64_t EINTR_RETRIES = 5U;
     int32_t m_errnum{0};
     ReturnType m_returnValue;
     bool m_hasErrors = false;
