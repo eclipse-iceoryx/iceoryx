@@ -32,6 +32,7 @@ if(BUILD_TESTING)
   add_ros_test(iceoryx_integrationtest/test_waitset_example.py)
   add_ros_test(iceoryx_integrationtest/test_waitset_in_c_example.py)
   add_ros_test(iceoryx_integrationtest/test_iceoptions_example.py)
+  add_ros_test(iceoryx_integrationtest/test_complexdata_example.py)
 
 endif()
 

@@ -22,7 +22,7 @@
 #include "iceoryx_utils/posix_wrapper/signal_handler.hpp"
 
 std::atomic_bool killswitch{false};
-constexpr char APP_NAME[] = "iox-cpp-subscriber-complexdata";
+constexpr char APP_NAME[] = "iox-cpp-subscriber-vector";
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
