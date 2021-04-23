@@ -104,3 +104,58 @@ install(TARGETS
         iox-cpp-user-header-untyped-subscriber
         RUNTIME DESTINATION bin
 )
+
+if(BINDING_C)
+    find_package(iceoryx_binding_c)
+
+    set_source_files_properties(
+        publisher_c_api.c
+        subscriber_c_api.c
+        PROPERTIES
+        LANGUAGE C
+    )
+
+    if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
+        list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
+    endif()
+
+    ## C API publisher
+    add_executable(iox-c-user-header-publisher
+                publisher_c_api.c
+    )
+    target_link_libraries(iox-c-user-header-publisher
+                        PRIVATE
+                        iceoryx_binding_c::iceoryx_binding_c
+    )
+    target_compile_options(iox-c-user-header-publisher
+                        PRIVATE
+                        ${ICEORYX_WARNINGS}
+                        ${ICEORYX_SANITIZER_FLAGS}
+    )
+
+    ## C API subscriber
+    add_executable(iox-c-user-header-subscriber
+                subscriber_c_api.c
+    )
+    target_link_libraries(iox-c-user-header-subscriber
+                        PRIVATE
+                        iceoryx_binding_c::iceoryx_binding_c
+    )
+    target_compile_options(iox-c-user-header-subscriber
+                        PRIVATE
+                        ${ICEORYX_WARNINGS}
+                        ${ICEORYX_SANITIZER_FLAGS}
+    )
+
+    set_target_properties(iox-c-user-header-publisher
+                        iox-c-user-header-subscriber
+                        PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+    )
+
+    install(TARGETS
+            iox-c-user-header-publisher
+            iox-c-user-header-subscriber
+            RUNTIME DESTINATION bin
+    )
+endif()

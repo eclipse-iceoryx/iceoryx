@@ -50,11 +50,11 @@ int main()
     {
         subscriber.take().and_then([](auto& sample) {
             std::cout << APP_NAME << " got value: " << sample->fibonacci << " with timestamp "
-                      << sample.getUserHeader().publisherTimestamp << std::endl;
+                      << sample.getUserHeader().publisherTimestamp << "ms" << std::endl;
         });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    return (EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

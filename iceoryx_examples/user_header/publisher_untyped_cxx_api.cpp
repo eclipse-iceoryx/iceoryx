@@ -69,12 +69,12 @@ int main()
                           << "ms" << std::endl;
             })
             .or_else([](auto& error) {
-                std::cout << APP_NAME << " could not loan sample! Error code: " << static_cast<uint64_t>(error)
+                std::cout << APP_NAME << " could not loan chunk! Error code: " << static_cast<uint64_t>(error)
                           << std::endl;
             });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

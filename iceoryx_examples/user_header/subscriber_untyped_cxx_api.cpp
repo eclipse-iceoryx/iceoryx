@@ -54,11 +54,11 @@ int main()
             auto data = static_cast<const Data*>(userPayload);
 
             std::cout << APP_NAME << " got value: " << data->fibonacci << " with timestamp "
-                      << header->publisherTimestamp << std::endl;
+                      << header->publisherTimestamp << "ms" << std::endl;
         });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    return (EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
