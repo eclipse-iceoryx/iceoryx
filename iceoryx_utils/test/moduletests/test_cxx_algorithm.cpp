@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/algorithm.hpp"
+#include "iceoryx_utils/cxx/list.hpp"
 #include "test.hpp"
 
 namespace
@@ -245,4 +246,59 @@ TEST_F(algorithm_test, MergeWithOverlappingOneElementContainer)
         EXPECT_THAT(mergedContainer[i], Eq(i + OFFSET));
     EXPECT_TRUE(mergedContainer == mergedContainerSwitched);
 }
+
+TEST_F(algorithm_test, DoesContainValueWhenTheContainerContainsTheValue)
+{
+    constexpr uint64_t CONTAINER_CAPACITY = 10U;
+
+    iox::cxx::vector<uint64_t, CONTAINER_CAPACITY> sutVector;
+    iox::cxx::list<uint64_t, CONTAINER_CAPACITY> sutList;
+    std::vector<uint64_t> sutStlVector;
+
+    for (uint64_t i = 0U; i < CONTAINER_CAPACITY; ++i)
+    {
+        sutVector.emplace_back(i);
+        sutList.emplace_back(i);
+        sutStlVector.emplace_back(i);
+    }
+
+    EXPECT_TRUE(doesContainValue(sutVector, 1U));
+    EXPECT_TRUE(doesContainValue(sutList, 2U));
+    EXPECT_TRUE(doesContainValue(sutStlVector, 3U));
+}
+
+TEST_F(algorithm_test, DoesContainValueWithEmptyContainer)
+{
+    constexpr uint64_t CONTAINER_CAPACITY = 10U;
+
+    iox::cxx::vector<uint64_t, CONTAINER_CAPACITY> sutVector;
+    iox::cxx::list<uint64_t, CONTAINER_CAPACITY> sutList;
+    std::vector<uint64_t> sutStlVector;
+
+    EXPECT_FALSE(doesContainValue(sutVector, 1U));
+    EXPECT_FALSE(doesContainValue(sutList, 2U));
+    EXPECT_FALSE(doesContainValue(sutStlVector, 3U));
+}
+
+TEST_F(algorithm_test, DoesContainValueWhenTheContainerDoesNotContainTheValue)
+{
+    constexpr uint64_t CONTAINER_CAPACITY = 10U;
+
+    iox::cxx::vector<uint64_t, CONTAINER_CAPACITY> sutVector;
+    iox::cxx::list<uint64_t, CONTAINER_CAPACITY> sutList;
+    std::vector<uint64_t> sutStlVector;
+
+    for (uint64_t i = 0U; i < CONTAINER_CAPACITY; ++i)
+    {
+        sutVector.emplace_back(i);
+        sutList.emplace_back(i);
+        sutStlVector.emplace_back(i);
+    }
+
+    EXPECT_FALSE(doesContainValue(sutVector, 100U));
+    EXPECT_FALSE(doesContainValue(sutList, 200U));
+    EXPECT_FALSE(doesContainValue(sutStlVector, 300U));
+}
+
+
 } // namespace

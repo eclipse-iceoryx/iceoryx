@@ -69,6 +69,19 @@ inline constexpr bool doesContainType() noexcept
     return doesContainType<T, CompareType>() || doesContainType<T, Next, Remainder...>();
 }
 
+template <typename Container, typename ValueType>
+inline constexpr bool doesContainValue(const Container& container, const ValueType& value) noexcept
+{
+    for (auto& element : container)
+    {
+        if (element == value)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 template <typename Container>
 inline Container uniqueMergeSortedContainers(const Container& v1, const Container& v2) noexcept
 {
