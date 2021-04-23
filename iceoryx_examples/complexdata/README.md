@@ -77,7 +77,7 @@ struct ComplexDataType
 Contrary to the STL containers, the iceoryx containers have a static size, i.e. you have to provide the capacity (= max. size).
 
 We use again a while-loop to loan memory, add data to our containers and send it to the subscriber. Since we must not throw exceptions
-all used inerstion methods return a bool that indicates whether the insertion was successful. It will fail when a container is already
+all used insertion methods return a bool that indicates whether the insertion was successful. It will fail when a container is already
 full. To handle the return value we introduce a helper function.
 
 ```cpp
@@ -156,7 +156,7 @@ for (const auto& entry : sample->optionalList)
 }
 ```
 
-To print the elements of the `floatStack`, we pop elements until it's empty.
+To print the elements of the `floatStack`, we pop elements until the stack is empty.
 
 ```cpp
 auto stackCopy = sample->floatStack;
@@ -173,7 +173,7 @@ when the stack contains some.
 
 To print the elements of the `variantVector` we iterate over the vector entries and access the alternative that is held by the
 variant via its index. We use the not STL compliant `get_at_index` method which returns a pointer to the type stored at the
-index. If the variant does not contain any type `index()` will return an `INVALID_VARIANT_INDEX`.
+index. If the variant does not contain any type, `index()` will return an `INVALID_VARIANT_INDEX`.
 
 ```cpp
 for (const auto& i : sample->variantVector)
