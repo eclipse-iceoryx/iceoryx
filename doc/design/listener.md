@@ -1,139 +1,67 @@
-## Problem Description
+# Listener
 
-We require a public API so that a developer can register callbacks for certain
-events like the arrival of a sample. These callbacks should be executed in a 
-background thread.
+## Summary
 
-## Name of the design element
+The Listener is besides the WaitSet one of the building blocks to realize a
+push approach to detect and react to certain events. The Listener
+offers the user the ability to attach objects with a corresponding event and
+callback. Whenever the object receives the specified event the corresponding
+callback is called in the Listener background thread as a reaction.
 
- - ReactAL = React And Listen
- - Eventler
- - LiAR - Listen And React
- - Wait And React -> WAR
- - Listen and Execute -> LEx
- - Robust Event Awaiting Concurrent Taken On Run -> REACTOR
- - event listening for execution -> ELFE
-
+The two key differences to the WaitSet are that the Listener is event-driven
+and not event- and state-driven as the WaitSet and that the Listener creates
+a separate background thread in which the event-callbacks are executed in contrast
+to the WaitSet where the user has to call the event-callbacks explicitly.
 
 ## Terminology
 
- - **event driven** a one time reaction which is caused directly by an event.
+- [Condition Variable](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables_2)
+  Used by an attached object to inform the Listener/WaitSet that an event has
+  occurred.
+- **event** is changing the state of an object.
+- **event driven** a one time reaction which is caused directly by an event.
       Example: a new sample has been delivered to a subscriber.
- - **state driven** a repeating reaction which is caused by a specific structural 
-      state until the state changes.
+- [Heisenbug](https://en.wikipedia.org/wiki/Heisenbug)
+- [Reactor pattern](https://en.wikipedia.org/wiki/Reactor_pattern)
+  The Listener and WaitSet are both variations of the that pattern.
+- **state** predefined values to which the members of an object are set.
+- **state driven** a repeating reaction which is continued as long as the state
+      persists.
       Example: a subscriber has stored samples which were not inspected by the user.
- - **robust API** we use this term to describe an API which is hard 
-      to misuse. Especially important in concurrent code since a misuse can lead to race 
-      conditions, Heisenbugs and in general hard to debug problems.
- - **robust API feature** a feature we only support to increase the robustness 
-      of the API and bugs caused by misuse.
- - [Reactor pattern](https://en.wikipedia.org/wiki/Reactor_pattern)
- - [Condition Variable](https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables_2)
- - [Heisenbug](https://en.wikipedia.org/wiki/Heisenbug)
- 
+
 ## Design
 
-### General
-The usage should be similar to the _WaitSet_ with a key difference - it should 
+The usage should be similar to the _WaitSet_ with a key difference - it should
 be **event driven** and not a mixture of event and state driven, depending on
 which event is attached, like in the _WaitSet_.
 
-It should have the following behavior:
+### Requirements
 
- - Whenever an event occurs the corresponding callback should be called **once**
+- Whenever an event occurs the corresponding callback should be called **once**
     as soon as possible.
- - If an event occurs multiple times before the callback was called, the callback
+- If an event occurs multiple times before the callback was called, the callback
     should be called **once**.
- - If an event occurs while the callback is being executed the callback should be 
+- If an event occurs while the callback is being executed the callback should be
     called again **once**.
-
-The following use cases and behaviors should be implemented.
-
- - The API and ReactAL should be robust. Since ReactAL is working concurrently a 
-    wrong usage could lead to race conditions, extremely hard to debug bug reports
-    (Heisenbugs) and can be frustrating to the user.
-    We list here features marked with [robust] which are only supported to 
-    increase this kind of the robustness.
-
- - concurrently: attaching a callback at any time from anywhere. This means in particular
-    - Attaching a callback from within a callback.
-    - [robust] Updating a callback from within the same callback 
-      ```cpp
-      void onSampleReceived2(iox::popo::UntypedSubscriber & subscriber) {}
-
-      void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
-        myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived2);
-      }
-
-      myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
-      ```
- - One can attach at most one callback to a specific event of a specific object. The event is 
-    - Usually defined with an enum by the developer. One example is `SubscriberEvent::HAS_SAMPLE_RECEIVED`.
-    - Attaching a callback to an event where a callback has been already attached overrides
-      the existing callback with the new one.
-    - One can attach the same event to different objects at the same time.
-      ```cpp
-      myReactAL.attachEvent(subscriber1, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive);
-
-      // overrides first callback
-      myReactAL.attachEvent(subscriber1, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive2); 
-
-      // callback is being added to the ReactAL since it belonging to a different object
-      myReactAL.attachEvent(subscriber2, SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceive); 
-      ```
- - concurrently: detach a callback at any time from anywhere. This means in particular
-    - Detaching a callback from within a callback.
-    - [robust] When the detach call returns we guarantee that the callback is never called
-      again. E.g. blocks till the callback is removed, if the callback is concurrently 
-      running it will block until the callback is finished and removed.
-      Exception: If a callback detaches itself it blocks until the callback is removed 
-                 and not until the callback is finished. After the successful removal the 
-                 callback will continue and will not be called again.
-    - The callback is no longer attached to the event after calling `detach`.
-      The method will succeed even if it was not attached in the first place.
-
- - When the ReactAL goes out of scope it detaches itself from every class 
-     to which it was attached via a callback provided by the attached class (like in the WaitSet).
-
- - When the class which is attached to the ReactAL goes out of scope it 
-    detaches itself from the ReactAL via a callback provided by the ReactAL (like in the WaitSet).
-
-### Usage Code Example
-```cpp
-ReactAL myCallbackReactAL;
-iox::popo::UntypedSubscriber mySubscriber;
-
-void onSampleReceived(iox::popo::UntypedSubscriber & subscriber) {
-  subscriber.take().and_then([&](auto & sample){
-    std::cout << "received " << std::hex << sample->payload() << std::endl;
-  });
-}
-
-void onSubscribe(iox::popo::UntypedSubscriber & subscriber) {
-  std::cout << "subscribed!\n";
-  myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED, onSampleReceived);
-  myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED, onUnsubscribe);
-  myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED);
-}
-
-void onUnsubscribe(iox::popo::UntypedSubscriber & subscriber) {
-  std::cout << "unsubscribed from publisher\n";
-  myCallbackReactAL.attachEvent(subscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
-  myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::HAS_SAMPLE_RECEIVED);
-  myCallbackReactAL.detachEvent(subscriber, iox::popo::SubscriberEvent::UNSUBSCRIBED);
-}
-
-int main() {
-  iox::popo::SubscriberOptions subscriberOptions;
-  subscriberOptions.queueCapacity = 10U;
-  iox::popo::TypedSubscriber<RadarObject> mySubscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
-
-  myCallbackReactAL.attachEvent(mySubscriber, iox::popo::SubscriberEvent::SUBSCRIBED, onSubscribe);
-  mySubscriber.subscribe();
-
-  App::mainloop();
-}
-```
+- Thread-safety: attaching an event at any time from any thread.
+- Thread-safety: detaching an event at any time from any thread.
+  - If the callback is currently running `detachEvent` blocks until the callback
+      is finished.
+  - After the `detachEvent` call the event-callback is not called anymore, even
+      when the event was signalled while `detachEvent` was running and the
+      callback was not yet executed.
+  - If the callback is detached from within the event-callback then `detachEvent`
+     is non blocking. The event is detached right after the `detachEvent` call.
+- One can attach at most one callback to a specific event of a specific object.
+  - Usually defined with an enum by the developer. One example is `SubscriberEvent::HAS_SAMPLE_RECEIVED`.
+  - Attaching a callback to an event where a callback has been already attached
+      results in an error.
+- One can attach the same event to different objects at the same time.
+- When the Listener goes out of scope it detaches itself from every attached
+    object via a callback provided by the attached object (like in the WaitSet).
+- When the class which is attached to the Listener goes out of scope it
+    detaches itself from the Listener via a callback provided by the Listener
+    (like in the WaitSet).
 
 ### Solution
 #### Class diagram
