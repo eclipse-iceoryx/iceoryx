@@ -15,13 +15,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
-
 #include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/platform/platform_correction.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <iostream>
 
+#include "iceoryx_utils/platform/platform_correction.hpp"
 namespace iox
 {
 namespace posix
@@ -34,12 +33,18 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
         return false;
     }
 
-    smartAclPointer_t workingACL = createACL((m_permissions.size() + m_useACLMask) ? 1 : 0);
+    auto maybeWorkingACL = createACL((m_permissions.size() + m_useACLMask) ? 1 : 0);
+
+    if (maybeWorkingACL.has_error())
+    {
+        std::cerr << "Error: Creating ACL failed." << std::endl;
+        return false;
+    }
 
     // add acl entries
     for (const auto& entry : m_permissions)
     {
-        if (!createACLEntry(workingACL.get(), entry))
+        if (!createACLEntry(maybeWorkingACL.value().get(), entry))
         {
             return false;
         }
@@ -48,12 +53,12 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
     // add mask to acl if specific users or groups have been added
     if (m_useACLMask)
     {
-        createACLEntry(workingACL.get(), {ACL_MASK, Permission::READWRITE, -1u});
+        createACLEntry(maybeWorkingACL.value().get(), {ACL_MASK, Permission::READWRITE, -1u});
     }
 
     // check if acl is valid
     auto aclCheckCall =
-        cxx::makeSmartC(acl_valid, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, workingACL.get());
+        cxx::makeSmartC(acl_valid, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, maybeWorkingACL.value().get());
 
     if (aclCheckCall.hasErrors())
     {
@@ -62,8 +67,12 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
     }
 
     // set acl in the file given by descriptor
-    auto aclSetFdCall = cxx::makeSmartC(
-        acl_set_fd, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, f_fileDescriptor, workingACL.get());
+    auto aclSetFdCall = cxx::makeSmartC(acl_set_fd,
+                                        cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
+                                        {0},
+                                        {},
+                                        f_fileDescriptor,
+                                        maybeWorkingACL.value().get());
     if (aclSetFdCall.hasErrors())
     {
         std::cerr << "Error: Could not set file ACL." << std::endl;
@@ -73,21 +82,26 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
     return true;
 }
 
-AccessController::smartAclPointer_t AccessController::createACL(const int32_t f_numEntries) const
+cxx::expected<AccessController::smartAclPointer_t, AccessController::AccessControllerError>
+AccessController::createACL(const int32_t f_numEntries) const
 {
     // allocate memory for a new ACL
     auto aclInitCall = cxx::makeSmartC(
         acl_init, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<acl_t>(nullptr)}, {}, f_numEntries);
 
-    cxx::Ensures(!aclInitCall.hasErrors() && " Could not allocate new ACL");
+    if (aclInitCall.hasErrors())
+    {
+        return cxx::error<AccessControllerError>(AccessControllerError::COULD_NOT_ALLOCATE_NEW_ACL);
+    }
 
     // define how to free the memory (custom deleter for the smart pointer)
     std::function<void(acl_t)> freeACL = [&](acl_t acl) {
         auto aclFreeCall = cxx::makeSmartC(acl_free, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, acl);
+        // We ensure here instead of returning as this lambda will be called by unique_ptr
         cxx::Ensures(!aclFreeCall.hasErrors() && "Could not free ACL memory");
     };
 
-    return smartAclPointer_t(reinterpret_cast<acl_t>(aclInitCall.getReturnValue()), freeACL);
+    return cxx::success<smartAclPointer_t>(reinterpret_cast<acl_t>(aclInitCall.getReturnValue()), freeACL);
 }
 
 bool AccessController::addPermissionEntry(const Category f_category,
