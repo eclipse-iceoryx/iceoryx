@@ -55,9 +55,8 @@ namespace posix
 class mutex
 {
   public:
-    /// @brief the construction of the mutex can fail which will lead to a call
-    ///         to programm termination which is alright for the moment since we are
-    ///         intending to get rid of the mutex sooner or later
+    /// @brief the construction of the mutex can fail. In this case the program will terminate. This is alright for the
+    /// moment since we are intending to get rid of the mutex sooner or later
     mutex(const bool f_isRecursive);
 
     ~mutex();
