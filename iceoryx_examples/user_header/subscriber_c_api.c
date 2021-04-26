@@ -22,10 +22,16 @@
 #include "sleep_for.h"
 
 #include <signal.h>
-#include <stdatomic.h>
 #include <stdio.h>
 
+#ifdef _WIN32
+/// @todo iox-#33 needs proper fix but it seems MSVC doesn't have stdatomic.h
+volatile bool killswitch = false;
+#else
+#include <stdatomic.h>
 atomic_bool killswitch = false;
+#endif
+
 const char* APP_NAME = "iox-c-user-header-subscriber";
 
 static void sigHandler(int signalValue)
@@ -60,7 +66,10 @@ int main()
 
             const Data* data = (const Data*)userPayload;
 
-            printf("%s got value: %lu with timestamp %ldms\n", APP_NAME, data->fibonacci, header->publisherTimestamp);
+            printf("%s got value: %lu with timestamp %ldms\n",
+                   APP_NAME,
+                   (unsigned long)data->fibonacci,
+                   (long)header->publisherTimestamp);
         }
 
         sleep_for(1000);

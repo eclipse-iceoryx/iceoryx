@@ -113,6 +113,8 @@ if(BINDING_C)
         subscriber_c_api.c
         PROPERTIES
         LANGUAGE C
+        C_STANDARD_REQUIRED ON
+        C_STANDARD 11
     )
 
     if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
