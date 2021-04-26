@@ -269,7 +269,7 @@ template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at(const uint64_t index) const noexcept
 {
     // No out of bound accesses shall be possible
-    cxx::Expects(!(index + 1u > m_size) && "Out of bounds access");
+    cxx::Expects((index < m_size) && "Out of bounds access");
     return reinterpret_cast<const T*>(m_data)[index];
 }
 

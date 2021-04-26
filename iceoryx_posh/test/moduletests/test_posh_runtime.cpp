@@ -131,8 +131,11 @@ TEST_F(PoshRuntime_test, NoAppName)
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
-TEST_F(PoshRuntime_test, LeadingSlashAppName)
+// To be able to test the singleton and avoid return the exisiting instance, we don't use the test fixture
+TEST(PoshRuntime, LeadingSlashAppName)
 {
+    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+
     const iox::RuntimeName_t invalidAppName = "/miau";
 
     auto errorHandlerCalled{false};
