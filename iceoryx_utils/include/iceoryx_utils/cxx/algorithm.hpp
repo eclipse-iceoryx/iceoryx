@@ -98,7 +98,7 @@ constexpr bool doesContainType() noexcept;
 template <typename T, typename CompareType, typename Next, typename... Remainder>
 constexpr bool doesContainType() noexcept;
 
-/// @brief Returns true if the provided containers contains the provided value
+/// @brief Returns true if the provided container contains the provided value
 /// @tparam Container the container type
 /// @tparam ValueType the value type
 /// @param[in] container the container in which the value is looked for
