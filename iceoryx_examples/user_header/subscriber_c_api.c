@@ -69,10 +69,11 @@ int main()
             printf("%s got value: %lu with timestamp %ldms\n",
                    APP_NAME,
                    (unsigned long)data->fibonacci,
-                   (long)header->publisherTimestamp);
+                   (unsigned long)header->publisherTimestamp);
         }
 
-        sleep_for(1000);
+        const uint32_t SLEEP_TIME = 100;
+        sleep_for(SLEEP_TIME);
     }
 
     return 0;

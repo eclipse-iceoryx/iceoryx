@@ -21,7 +21,7 @@
 
 struct Header
 {
-    int64_t publisherTimestamp{0};
+    uint64_t publisherTimestamp{0};
 };
 
 struct Data

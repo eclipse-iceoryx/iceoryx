@@ -55,7 +55,7 @@ int main()
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Example", "User-Header", "Timestamp", NULL);
 
-    int64_t timestamp = 0;
+    uint64_t timestamp = 0;
     uint64_t fibonacciLast = 0;
     uint64_t fibonacciCurrent = 1;
     while (!killswitch)
@@ -77,8 +77,10 @@ int main()
 
             iox_pub_publish_chunk(publisher, userPayload);
 
-            printf(
-                "%s sent data: %lu with timestamp %ldms\n", APP_NAME, (unsigned long)fibonacciCurrent, (long)timestamp);
+            printf("%s sent data: %lu with timestamp %ldms\n",
+                   APP_NAME,
+                   (unsigned long)fibonacciCurrent,
+                   (unsigned long)timestamp);
         }
         else
         {
@@ -86,8 +88,9 @@ int main()
             fflush(stdout);
         }
 
-        sleep_for(1000);
-        timestamp += 1000;
+        const uint32_t SLEEP_TIME = 1000;
+        sleep_for(SLEEP_TIME);
+        timestamp += SLEEP_TIME;
     }
 
     return 0;

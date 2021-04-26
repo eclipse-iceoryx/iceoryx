@@ -21,7 +21,7 @@
 
 typedef struct
 {
-    int64_t publisherTimestamp;
+    uint64_t publisherTimestamp;
 } Header;
 
 typedef struct

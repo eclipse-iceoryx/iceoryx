@@ -53,7 +53,8 @@ int main()
                       << sample.getUserHeader().publisherTimestamp << "ms" << std::endl;
         });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        constexpr uint64_t SLEEP_TIME{100U};
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
     }
 
     return EXIT_SUCCESS;

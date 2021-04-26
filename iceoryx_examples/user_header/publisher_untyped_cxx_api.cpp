@@ -44,7 +44,7 @@ int main()
     // create the publisher
     iox::popo::UntypedPublisher publisher({"Example", "User-Header", "Timestamp"});
 
-    auto startTime = std::chrono::steady_clock::now();
+    uint64_t timestamp = 0;
     uint64_t fibonacciLast = 0;
     uint64_t fibonacciCurrent = 1;
     while (!killswitch)
@@ -54,26 +54,25 @@ int main()
         fibonacciCurrent = fibonacciNext;
         publisher.loan(sizeof(Data), alignof(Data), sizeof(Header), alignof(Header))
             .and_then([&](auto& userPayload) {
-                auto elapsedTime = std::chrono::steady_clock::now() - startTime;
-                auto elapsedMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime).count();
-
                 auto header = static_cast<Header*>(iox::mepoo::ChunkHeader::fromUserPayload(userPayload)->userHeader());
-                header->publisherTimestamp = elapsedMilliseconds;
+                header->publisherTimestamp = timestamp;
 
                 auto data = static_cast<Data*>(userPayload);
                 data->fibonacci = fibonacciCurrent;
 
                 publisher.publish(userPayload);
 
-                std::cout << APP_NAME << " sent data: " << fibonacciCurrent << " with timestamp " << elapsedMilliseconds
-                          << "ms" << std::endl;
+                std::cout << APP_NAME << " sent data: " << fibonacciCurrent << " with timestamp " << timestamp << "ms"
+                          << std::endl;
             })
             .or_else([](auto& error) {
                 std::cout << APP_NAME << " could not loan chunk! Error code: " << static_cast<uint64_t>(error)
                           << std::endl;
             });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        constexpr uint64_t SLEEP_TIME{1000U};
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
+        timestamp += SLEEP_TIME;
     }
 
     return EXIT_SUCCESS;

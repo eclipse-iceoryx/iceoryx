@@ -45,7 +45,7 @@ int main()
     // therefore the PublisherImpl must be used directly
     iox::popo::PublisherImpl<Data, Header> publisher({"Example", "User-Header", "Timestamp"});
 
-    auto startTime = std::chrono::steady_clock::now();
+    uint64_t timestamp = 0;
     uint64_t fibonacciLast = 0;
     uint64_t fibonacciCurrent = 1;
     while (!killswitch)
@@ -56,20 +56,20 @@ int main()
 
         publisher.loan(Data{fibonacciCurrent})
             .and_then([&](auto& sample) {
-                auto elapsedTime = std::chrono::steady_clock::now() - startTime;
-                auto elapsedMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime).count();
-                sample.getUserHeader().publisherTimestamp = elapsedMilliseconds;
+                sample.getUserHeader().publisherTimestamp = timestamp;
                 sample.publish();
 
-                std::cout << APP_NAME << " sent data: " << fibonacciCurrent << " with timestamp " << elapsedMilliseconds
-                          << "ms" << std::endl;
+                std::cout << APP_NAME << " sent data: " << fibonacciCurrent << " with timestamp " << timestamp << "ms"
+                          << std::endl;
             })
             .or_else([](auto& error) {
                 std::cout << APP_NAME << " could not loan sample! Error code: " << static_cast<uint64_t>(error)
                           << std::endl;
             });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        constexpr uint64_t SLEEP_TIME{1000U};
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
+        timestamp += SLEEP_TIME;
     }
 
     return EXIT_SUCCESS;
