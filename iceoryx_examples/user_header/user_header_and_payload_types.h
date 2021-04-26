@@ -19,14 +19,18 @@
 
 #include <stdint.h>
 
+//! [user-header]
 typedef struct
 {
     uint64_t publisherTimestamp;
 } Header;
+//! [user-header]
 
+//! [user-payload]
 typedef struct
 {
     uint64_t fibonacci;
 } Data;
+//! [user-payload]
 
 #endif // IOX_EXAMPLES_USER_HEADER_AND_PAYLOAD_TYPES_HPP
