@@ -2,6 +2,10 @@
 
 ## Introduction
 
+This example shows how to leverage the user-header to send custom meta-information with each sample.
+Specifically, we want to send a timestamp alongside the sample.
+The example contains code for the typed and untyped C++ API as well as for the C language binding.
+
 ## Expected Output
 
 Publisher:
