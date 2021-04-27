@@ -13,6 +13,7 @@
 |[waitset_in_c](./waitset_in_c/)             | Waiting for events like arrival of data using C                           | :star::star:       |
 |[iceensemble](./iceensemble/)               | Using multiple publishers for one topic                                   | :star::star:       |
 |[singleprocess](./singleprocess/)           | Communicating in a single process between threads                         | :star::star:       |
+|[user_header](./user_header/)               | Using a custom user-header for additional meta-information                | :star::star:       |
 |[ice_access_control](./ice_access_control/) | Configuring access rights for shared memory segments                      | :star::star::star: |
 |[iceperf](./iceperf/)                       | Measuring the latency of different IPC mechanisms                         | :star::star::star: |
 |[icecrystal](./icecrystal/)                 | Using the introspection client for debugging                              | :star::star::star: |
