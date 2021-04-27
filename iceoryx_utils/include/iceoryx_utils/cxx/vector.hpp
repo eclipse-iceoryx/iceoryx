@@ -103,34 +103,42 @@ class vector
 
     /// @brief returns a reference to the element stored at index. the behavior
     //          is undefined if the element at index does not exist.
+    /// @note Out of bounds access can lead to a program termination!
     T& at(const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index. the
     ///         behavior is undefined if the element at index does not exist.
+    /// @note Out of bounds access can lead to a program termination!
     const T& at(const uint64_t index) const noexcept;
 
     /// @brief returns a reference to the element stored at index. the behavior
     //          is undefined if the element at index does not exist.
+    /// @note Out of bounds access can lead to a program termination!
     T& operator[](const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index. the
     ///         behavior is undefined if the element at index does not exist.
+    /// @note Out of bounds access can lead to a program termination!
     const T& operator[](const uint64_t index) const noexcept;
 
     /// @brief returns a reference to the first element; terminates if the vector is empty
     /// @return reference to the first element
+    /// @note Accessing an empty vector can lead to a program termination!
     T& front() noexcept;
 
     /// @brief returns a const reference to the first element; terminates if the vector is empty
     /// @return const reference to the first element
+    /// @note Accessing an empty vector can lead to a program termination!
     const T& front() const noexcept;
 
     /// @brief returns a reference to the last element; terminates if the vector is empty
     /// @return reference to the last element
+    /// @note Accessing an empty vector can lead to a program termination!
     T& back() noexcept;
 
     /// @brief returns a const reference to the last element; terminates if the vector is empty
     /// @return const reference to the last element
+    /// @note Accessing an empty vector can lead to a program termination!
     const T& back() const noexcept;
 
     /// @brief returns the capacity of the vector which was given via the template
