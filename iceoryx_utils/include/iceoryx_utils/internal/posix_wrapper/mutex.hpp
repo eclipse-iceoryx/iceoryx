@@ -53,7 +53,7 @@ namespace posix
 ///
 ///     }
 ///
-/// @note   Errors in c'tor or d'tor can lead to a program termination!
+/// @attention Errors in c'tor or d'tor can lead to a program termination!
 ///
 class mutex
 {

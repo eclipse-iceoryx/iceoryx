@@ -41,10 +41,12 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
         return false;
     }
 
+    auto& workingACL = maybeWorkingACL.value();
+
     // add acl entries
     for (const auto& entry : m_permissions)
     {
-        if (!createACLEntry(maybeWorkingACL.value().get(), entry))
+        if (!createACLEntry(workingACL.get(), entry))
         {
             return false;
         }
@@ -53,12 +55,12 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
     // add mask to acl if specific users or groups have been added
     if (m_useACLMask)
     {
-        createACLEntry(maybeWorkingACL.value().get(), {ACL_MASK, Permission::READWRITE, -1u});
+        createACLEntry(workingACL.get(), {ACL_MASK, Permission::READWRITE, -1u});
     }
 
     // check if acl is valid
     auto aclCheckCall =
-        cxx::makeSmartC(acl_valid, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, maybeWorkingACL.value().get());
+        cxx::makeSmartC(acl_valid, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, workingACL.get());
 
     if (aclCheckCall.hasErrors())
     {
@@ -67,12 +69,8 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
     }
 
     // set acl in the file given by descriptor
-    auto aclSetFdCall = cxx::makeSmartC(acl_set_fd,
-                                        cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                                        {0},
-                                        {},
-                                        f_fileDescriptor,
-                                        maybeWorkingACL.value().get());
+    auto aclSetFdCall = cxx::makeSmartC(
+        acl_set_fd, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, f_fileDescriptor, workingACL.get());
     if (aclSetFdCall.hasErrors())
     {
         std::cerr << "Error: Could not set file ACL." << std::endl;

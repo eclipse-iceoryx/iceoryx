@@ -32,7 +32,7 @@ namespace cxx
 ///         adjustments in the API since we do not use exceptions and we require
 ///         a data structure which can be located fully in the shared memory.
 ///
-/// @note   Out of bounds access or accessing an empty vector can lead to a program termination!
+/// @attention Out of bounds access or accessing an empty vector can lead to a program termination!
 ///
 template <typename T, uint64_t Capacity>
 class vector

@@ -268,7 +268,6 @@ inline T& vector<T, Capacity>::at(const uint64_t index) noexcept
 template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at(const uint64_t index) const noexcept
 {
-    // No out of bound accesses shall be possible
     cxx::Expects((index < m_size) && "Out of bounds access");
     return reinterpret_cast<const T*>(m_data)[index];
 }
@@ -288,7 +287,6 @@ inline const T& vector<T, Capacity>::operator[](const uint64_t index) const noex
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::front() noexcept
 {
-    // No empty vector shall be accessed
     cxx::Expects(!empty() && "Attempting to access the front of an empty vector");
     return at(0);
 }
