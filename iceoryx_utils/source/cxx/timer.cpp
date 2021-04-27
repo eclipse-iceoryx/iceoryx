@@ -27,11 +27,6 @@ Timer::Timer(const iox::units::Duration interval, const iox::units::Duration del
     start();
 }
 
-Timer::~Timer() noexcept
-{
-    m_waitSemaphore.~Semaphore();
-}
-
 void Timer::start() noexcept
 {
     stop();

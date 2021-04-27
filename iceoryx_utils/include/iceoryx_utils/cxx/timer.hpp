@@ -78,7 +78,7 @@ class Timer
     Timer(const iox::units::Duration interval, const iox::units::Duration delayThreshold = 0_ms) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.
-    ~Timer() noexcept;
+    virtual ~Timer() noexcept = default;
 
     /// @brief (re-)Starts the timer. This also calculates the time until the timer goes to sleep and next time of
     /// activation. This also acquires the binary semaphore.
