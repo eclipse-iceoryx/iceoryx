@@ -57,6 +57,7 @@ which event is attached, like in the _WaitSet_.
   - Attaching a callback to an event where a callback has been already attached
       results in an error.
 - One can attach the same event to different objects at the same time.
+- One can attach multiple different events to a single object
 - When the Listener goes out of scope it detaches itself from every attached
     object via a callback provided by the attached object (like in the WaitSet).
 - When the class which is attached to the Listener goes out of scope it
@@ -64,80 +65,95 @@ which event is attached, like in the _WaitSet_.
     (like in the WaitSet).
 
 ### Solution
+
 #### Class diagram
 
 ```
-+-----------------------+                          +----------------------------------+
-| ConditionVariableData |                          | EventVariableData                |
-|   - m_semaphore       | <----------------------- |   - m_activeNotifications : bool |
-|   - m_process         |                          +----------------------------------+
-|   - m_toBeDestroyed   |                        / 1            | 1
-+-----------------------+                       /               |
-                                               / 1              | 1
-+-----------------------------------------------+ +----------------------------------------------+
-| EventListener                                 | | EventNotifier                                |
-|   EventListener(EventVariableData & dataPtr)  | |   EventNotifier(EventVariableData & dataPtr, |
-|                                               | |                 uint64_t notificationIndex)  |
-|   vector<bool> wait()                         | |   void notify()                              |
-|   vector<bool> timedWait()                    | |                                              |
-|                                               | |   - m_notificationIndex                      |
-|   - m_pointerToEventVariableData              | |   - m_pointerToEventVariableData             |
-+-----------------------------------------------+ +----------------------------------------------+
-        | 1                                                     | m
-        |                                                       |
-        | 1                                                     | 1  [one EventNotifier per Event]
-+--------------------------------------------------+  +-----------------------------------+
-| ReactAL                                          |  | EventAssignable (e.g. Subscriber) |
-|   attachEvent(EventOrigin, EventType, Callback)  |  +-----------------------------------+
-|   detachEvent(EventOrigin, EventType)            |
-|                                                  |
-|   - m_callbacks                                  |
-+--------------------------------------------------+
+                                   +---------------------------+
+                                   | ConditionVariableData     |
+                                   |   - m_semaphore           |
+                                   |   - m_runtimeName         |
+                                   |   - m_toBeDestroyed       |
+                                   |   - m_activeNotifications |
+                                   +---------------------------+
+                                        | 1               | 1
+                                        |                 |
+                                        | n               | n
++-----------------------------------------------+ +--------------------------------------------------+
+| ConditionListener                             | | ConditionNotifier                                |
+|   ConditionListener(ConditionVariableData & ) | |   ConditionNotifier(ConditionVariableData &,     |
+|                                               | |                 uint64_t notificationIndex)      |
+|   bool                  wasNotified()         | |                                                  |
+|   void                  destroy()             | |   void notify()                                  |
+|   NotificationVector_t  wait()                | |                                                  |
+|   NotificationVector_t  timedWait()           | |   - m_condVarDataPtr    : ConditionVariableData* |
+|                                               | |   - m_notificationIndex                          |
+|   - m_condVarDataPtr : ConditionVariableData* | +--------------------------------------------------+
+|   - m_toBeDestroyed  : std::atomic_bool       |        | 1
++-----------------------------------------------+        |
+        | 1                                              | n
+        |                                           +--------------------------------+
+        | 1                                         | TriggerHandle                  |
++-------------------------------------------------+ |   bool isValid()               |
+| Listener                                        | |   bool wasTriggered()          |
+|   attachEvent(EventOrigin, EventType, Callback) | |   void trigger()               |
+|   detachEvent(EventOrigin, EventType)           | |   void reset()                 |
+|                                                 | |   void invalidate()            |
+|   - m_events : Event_t[]                        | |   void getUniqueId()           |
+|   - m_thread : std::thread                      | |                                |
+|   - m_conditionListener : ConditionListener     | |   - m_conditionVariableDataPtr |
+|                                                 | |   - m_resetCallback            |
+| +----------------------------+                  | |   - m_uniqueTriggerId          |
+| | Event_t                    |                  | +--------------------------------+
+| |   void executeCallback()   |                  |      | 1
+| |   bool reset()             |                  |      |
+| |   bool init(...)           |                  |      | n
+| |                            |                  | +----------------------------------------------------+
+| |   - m_origin               |                  | | Triggerable (e.g. Subscriber)                      |
+| |   - m_callback             |                  | |                                                    |
+| |   - m_invalidationCallback |                  | |   void invalidateTrigger(const uint64_t triggerId) |
+| |   - m_eventId              |                  | |   void enableEvent(TriggerHandle&&)                |
+| +----------------------------+                  | |   void disableEvent(const EventEnum event)         |
++-------------------------------------------------+ |                                                    |
+                                                    |   - m_triggerHandle : TriggerHandle                |
+                                                    +----------------------------------------------------+
 ```
 
 #### Class Interactions
 
-  - **Creating ReactAL:** an `EventVariableData` is created in the shared memory. 
-      The `ReactAL` uses the `EventListener` to wait for incoming events.
+  - **Creating Listener:** an `ConditionVariableData` is created in the shared memory. 
+      The `Listener` uses the `ConditionListener` to wait for incoming events.
 ```
-                                      PoshRuntime
-  ReactAL                                 |
-    |   getMiddlewareEventVariable : var  |
-    | ----------------------------------> |
-    |   EventListener(var)                |             EventListener
-    | ------------------------------------+-----------------> |
-    |   wait() : vector<uint64_t>         |                   |
-    | ------------------------------------+-----------------> |
+                                          PoshRuntime
+  Listener                                    |
+    |   getMiddlewareConditionVariable : var  |
+    | --------------------------------------> |
+    |   ConditionListener(var)                |             EventListener
+    | ----------------------------------------+-----------------> |
+    |   wait() : vector<uint64_t>             |                   |
+    | ----------------------------------------+-----------------> |
 ```
-  - **Attaching Subscriber Event (sampleReceived) to ReactAL:** The subscriber attaches the `EventNotifier`
-      appropriately and signals the `ReactAL` via the `EventNotifier` about the occurrence 
-      of the event (sampleReceived).
+  - **Attaching Triggerable Event (SubscriberEvent::DATA_RECEIVED) to Listener:**
+      The Listener creates a TriggerHandle and provides it to the Triggerable (Subscriber)
+      via `enableEvent` so that the Triggerable owns the handle. Whenever the event occurs
+      the Triggerable can use the `trigger()` method of the TriggerHandle to notify
+      the Listener.
 ```
-  User                ReactAL                                             Subscriber 
+  User                ReactAL                                             Triggerable 
    |   attachEvent()     |                                                     |
-   | ------------------> |   EventNotifier(EventVarDatPtr)    EventNotifier    |
-                         | --------------------------------------> |           |
-                         |                                         |           |
-                         |   enableEvent(EventNotifier, ...)       |           |
-                         | ----------------------------------------+---------> |
+   | ------------------> |      TriggerHandle                                  |
+                         |   create   |                                        |
+                         | ---------> |                                        |
+                         |        enableEvent(std::move(TriggerHandle))        |
+                         | -----------+--------------------------------------> |
 ```
-  - **Signal an event from subscriber:** `EventNotifier.notify()` is called which sets an, to the subscriber 
-      attached flag, to true and `EventListener` will wake up.
-```
-  Subscriber          EventNotifier                EventVariableData.m_activeNotifications
-    |   notify()           |                                            |
-    | -------------------> |   operator[](m_notificationIndex) = true   |
-    |                      | -----------------------------------------> |
-```
-  - **ReactAL reacting to events:** `EventListener.wait()` will provide a complete list of all `EventNotifier`
-      which were notifying the `EventListener` till the last `wait()` call. The ReactAL uses this list 
-      to call the corresponding callbacks.
-```cpp
-  auto activeCallbacks = m_eventListener.wait();
-  for(auto index : activeCallbacks)
-     m_callbacks[index]();
-```
+  - **Signal an event from Triggerable:** `TriggerHandle::trigger()` is called 
+      and the Listener calls the corresponding callback in the background thread
 
+  - **Triggerable goes out of scope:**
+
+  - **Listener goes out of scope:**
+  
 #### Event Variable
 
   In this section we discuss the details of the three classes `EventVariableData`, `EventListener` and 
