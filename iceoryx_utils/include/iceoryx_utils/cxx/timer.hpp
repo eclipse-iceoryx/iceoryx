@@ -30,19 +30,19 @@ namespace iox
 namespace cxx
 {
 /// @brief This enum class offers the timer state events.
-/// If the timer is active the TimerEvent has ENABLED as the state
-/// If tht timer is inactive the TimerEvent has DIABLED as the state
+/// If the timer is active the TimerEvent has ENABLED as the state.
+/// If tht timer is inactive the TimerEvent has DIABLED as the state.
 enum class TimerState : uint8_t
 {
     DISABLED,
     ENABLED
 };
 /// @brief This enum class offers the timer state events.
-/// After the wait if the timer is disabled it returns STOP
-/// After the wait if the timer is enabled and to be activated without delay it returns TICK
-/// After the wait if the timer is enabled and to be activated with delay it returns TICK_DELAY
+/// After the wait if the timer is disabled it returns STOP.
+/// After the wait if the timer is enabled and to be activated without delay it returns TICK.
+/// After the wait if the timer is enabled and to be activated with delay it returns TICK_DELAY.
 /// After the wait if the timer is enabled and to be activated with delay breaching the delay threshold it returns
-/// TICK_THRESHOLD_DELAY
+/// TICK_THRESHOLD_DELAY.
 enum class TimerEvent : uint8_t
 {
     STOP,
@@ -53,7 +53,8 @@ enum class TimerEvent : uint8_t
 
 
 /// @brief This class offers periodic timer functionality. This timer is started immediately upon construction.
-/// The periodic timer waits for the duration specified as interval before it comes to execution again
+/// The periodic timer waits for the duration specified as interval before it comes to execution again. The periodicity
+/// is ensured based on the delay calculation.
 /// @code
 ///     iox::cxx::Timer periodicTimer(1000_ms);
 ///
@@ -79,26 +80,26 @@ class Timer
     /// @brief Stops and joins the thread spawned by the constructor.
     ~Timer() noexcept;
 
-    /// @brief (re-)starts the timer. This also calculates the time until the timer goes to sleep and next time of
+    /// @brief (re-)Starts the timer. This also calculates the time until the timer goes to sleep and next time of
     /// activation. This also acquires the binary semaphore.
     void start() noexcept;
 
-    /// @brief starts the timer. This also calculates the time until the timer goes for sleep. This also acquires the
+    /// @brief Starts the timer. This also calculates the time until the timer goes for sleep. This also acquires the
     /// binary semaphore.
     /// @param[in] interval the new duration until the timer sleeps and wakes up for execution
     void start(const units::Duration interval) noexcept;
 
-    /// @brief stops the timer. This also releases the acquired binary semaphore.
+    /// @brief Stops the timer. This also releases the acquired binary semaphore.
     void stop() noexcept;
 
-    /// @brief this function returns the current time
-    /// @return the system clock real time is returned
+    /// @brief This function returns the current time.
+    /// @return The system clock real time is returned.
     const iox::units::Duration now() const noexcept;
 
-    /// @brief briefly waits for the timer interval. This is achieved by trying to do a timed wait for the interval
-    /// duration on the already acquired binary semaphore
-    /// @return TICK if the timer is active STOP if the timer is stopped already TICK_DELAY if there is delay and
-    /// TICK_THRESHOLD_DELAY if the delay is more than the given delay threshold
+    /// @brief Briefly waits for the timer interval. This is achieved by trying to do a timed wait for the interval
+    /// duration on the already acquired binary semaphore.
+    /// @return TICK if the timer is active, STOP if the timer is stopped already, TICK_DELAY if there is delay and
+    /// TICK_THRESHOLD_DELAY if the delay is more than the given delay threshold.
     cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> wait() noexcept;
 
   private:

@@ -67,13 +67,13 @@ cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> Timer::wait() noexcep
 {
     if (*(m_waitSemaphore.getValue())
         == static_cast<int>(
-            posix::SemaphoreWaitState::TIMEOUT)) // to check if the TIMER is active (if the sempahore is acquired)
+            posix::SemaphoreWaitState::TIMEOUT)) // To check if the TIMER is active (if the sempahore is acquired)
     {
         if (now() > m_timeForNextActivation)
         {
             auto timeDiff =
-                now() - m_timeForNextActivation; // calculate the time delay to check if it breaches the threshold
-            m_timeForNextActivation = m_timeForNextActivation + m_interval; // calculate the next time for activation
+                now() - m_timeForNextActivation; // Calculate the time delay to check if it breaches the threshold
+            m_timeForNextActivation = m_timeForNextActivation + m_interval; // Calculate the next time for activation
             if (m_delayThreshold > 0_ms)
             {
                 if (timeDiff > m_delayThreshold)
