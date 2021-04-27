@@ -131,6 +131,7 @@ All new code should follow the folder structure.
 3. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
 4. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
 5. Add integration test for example
+6. [Record an asciicast](./tools/website/how-to-record-asciicast.md) and embed image link
 
 ## Testing
 
