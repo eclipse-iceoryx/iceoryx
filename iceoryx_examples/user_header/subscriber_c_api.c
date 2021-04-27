@@ -78,13 +78,14 @@ int main()
                    APP_NAME,
                    (unsigned long)data->fibonacci,
                    (unsigned long)header->publisherTimestamp);
+            fflush(stdout);
 
             iox_sub_release_chunk(subscriber, userPayload);
         }
         //! [take chunk]
 
-        const uint32_t SLEEP_TIME = 100;
-        sleep_for(SLEEP_TIME);
+        const uint32_t MILLISECONDS_SLEEP = 100;
+        sleep_for(MILLISECONDS_SLEEP);
     }
     //! [poll subscriber for samples in a loop]
 

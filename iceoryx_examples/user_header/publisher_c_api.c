@@ -96,6 +96,7 @@ int main()
                    APP_NAME,
                    (unsigned long)fibonacciCurrent,
                    (unsigned long)timestamp);
+            fflush(stdout);
             //! [loan was successful]
         }
         else
@@ -106,9 +107,9 @@ int main()
             //! [loan failed]
         }
 
-        const uint32_t SLEEP_TIME = 1000;
-        sleep_for(SLEEP_TIME);
-        timestamp += SLEEP_TIME;
+        const uint32_t MILLISECONDS_SLEEP = 1000;
+        sleep_for(MILLISECONDS_SLEEP);
+        timestamp += MILLISECONDS_SLEEP;
     }
     //! [send samples in a loop]
 

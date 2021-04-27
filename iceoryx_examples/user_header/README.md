@@ -120,7 +120,7 @@ iox::popo::PublisherImpl<Data, Header> publisher({"Example", "User-Header", "Tim
 
 In the main loop, a Fibonacci sequence is created and every second a number is published.
 The Fibonacci number is passed to the `loan` method which construct the `Data` object if the loaning was successful.
-This example uses the functional approach with `and_then` and `or_else`. Please have a look at the `icedelivery` example
+This example uses the functional approach with `and_then` and `or_else`. Please have a look at the `icehello` example
 if you prefer a more traditional approach.
 <!-- [geoffrey] [iceoryx_examples/user_header/publisher_cxx_api.cpp] [[send samples in a loop] [loan sample]] -->
 ```cpp
@@ -141,9 +141,9 @@ while (!killswitch)
             // ...
         });
 
-    constexpr uint64_t SLEEP_TIME{1000U};
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
-    timestamp += SLEEP_TIME;
+    constexpr uint64_t MILLISECONDS_SLEEP{1000U};
+    std::this_thread::sleep_for(std::chrono::milliseconds(MILLISECONDS_SLEEP));
+    timestamp += MILLISECONDS_SLEEP;
 }
 ```
 
@@ -225,7 +225,7 @@ The functions to access the user-header are located in the following include
 #include "iceoryx_binding_c/chunk.h"
 ```
 
-Similar to the untyped C++ API, the the user-header parameter are specified with the loan function.
+Similar to the untyped C++ API, the user-header parameter are specified with the loan function.
 Since C does not have overloading, this is done by a different function
 <!-- [geoffrey] [iceoryx_examples/user_header/publisher_c_api.c] [[loan chunk]] -->
 ```cpp
@@ -253,6 +253,7 @@ printf("%s sent data: %lu with timestamp %ldms\n",
        APP_NAME,
        (unsigned long)fibonacciCurrent,
        (unsigned long)timestamp);
+fflush(stdout);
 ```
 
 ### Subscriber Typed C++ API
@@ -279,8 +280,8 @@ while (!killswitch)
                   << sample.getUserHeader().publisherTimestamp << "ms" << std::endl;
     });
 
-    constexpr uint64_t SLEEP_TIME{100U};
-    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
+    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+    std::this_thread::sleep_for(SLEEP_TIME);
 }
 ```
 
@@ -331,6 +332,7 @@ if (iox_sub_take_chunk(subscriber, &userPayload) == ChunkReceiveResult_SUCCESS)
            APP_NAME,
            (unsigned long)data->fibonacci,
            (unsigned long)header->publisherTimestamp);
+    fflush(stdout);
 
     iox_sub_release_chunk(subscriber, userPayload);
 }

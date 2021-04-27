@@ -87,9 +87,9 @@ int main()
             });
         //! [loan chunk]
 
-        constexpr uint64_t SLEEP_TIME{1000U};
-        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
-        timestamp += SLEEP_TIME;
+        constexpr uint64_t MILLISECONDS_SLEEP{1000U};
+        std::this_thread::sleep_for(std::chrono::milliseconds(MILLISECONDS_SLEEP));
+        timestamp += MILLISECONDS_SLEEP;
     }
     //! [send samples in a loop]
 

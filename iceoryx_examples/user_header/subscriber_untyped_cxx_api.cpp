@@ -68,8 +68,8 @@ int main()
         });
         //! [take chunk]
 
-        constexpr uint64_t SLEEP_TIME{100U};
-        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
+        constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
     //! [poll subscriber for samples in a loop]
 
