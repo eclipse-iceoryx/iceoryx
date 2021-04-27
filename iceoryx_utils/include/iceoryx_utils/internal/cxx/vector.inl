@@ -300,7 +300,6 @@ inline const T& vector<T, Capacity>::front() const noexcept
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::back() noexcept
 {
-    // No empty vector shall be accessed
     cxx::Expects(!empty() && "Attempting to access the back of an empty vector");
     return at(size() - 1u);
 }

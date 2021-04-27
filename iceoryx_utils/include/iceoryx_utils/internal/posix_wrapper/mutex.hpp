@@ -58,10 +58,10 @@ namespace posix
 class mutex
 {
   public:
-    /// @note the construction of the mutex can fail. This can lead to a program termination!
+    /// @attention the construction of the mutex can fail. This can lead to a program termination!
     mutex(const bool f_isRecursive);
 
-    /// @note the destruction of the mutex can fail. This can lead to a program termination!
+    /// @attention the destruction of the mutex can fail. This can lead to a program termination!
     ~mutex();
 
     /// @brief all copy and move assignment methods need to be deleted otherwise
