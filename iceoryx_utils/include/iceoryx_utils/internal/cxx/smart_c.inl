@@ -236,8 +236,7 @@ inline bool SmartC<Function, ReturnType, FunctionArguments...>::hasErrors() cons
 template <typename Function, typename ReturnType, typename... FunctionArguments>
 inline ErrorString_t SmartC<Function, ReturnType, FunctionArguments...>::getErrorString() const noexcept
 {
-    cxx::string<ERRORSTRINGSIZE> errorString;
-    errorString.unsafe_assign(std::strerror(m_errnum));
+    cxx::string<ERRORSTRINGSIZE> errorString(TruncateToCapacity, std::strerror(m_errnum));
     return errorString;
 }
 
