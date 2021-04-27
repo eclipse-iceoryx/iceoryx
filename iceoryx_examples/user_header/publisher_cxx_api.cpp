@@ -50,7 +50,7 @@ int main()
     //! [create publisher]
     // for the 1.0 release, the Publisher alias for the PublisherImpl does not have the second parameter for the Header,
     // therefore the PublisherImpl must be used directly
-    iox::popo::PublisherImpl<Data, Header> publisher({"Example", "User-Header", "Timestamp"});
+    iox::popo::Publisher<Data, Header> publisher({"Example", "User-Header", "Timestamp"});
     //! [create publisher]
 
     //! [send samples in a loop]

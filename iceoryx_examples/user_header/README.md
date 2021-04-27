@@ -115,7 +115,7 @@ This is the only change compared to the other examples with the typed C++ API.
 ```cpp
 // for the 1.0 release, the Publisher alias for the PublisherImpl does not have the second parameter for the Header,
 // therefore the PublisherImpl must be used directly
-iox::popo::PublisherImpl<Data, Header> publisher({"Example", "User-Header", "Timestamp"});
+iox::popo::Publisher<Data, Header> publisher({"Example", "User-Header", "Timestamp"});
 ```
 
 In the main loop, a Fibonacci sequence is created and every second a number is published.
@@ -266,7 +266,7 @@ Similar to the publisher, the subscriber has the same additional template parame
 ```cpp
 // for the 1.0 release, the Subscriber alias for the SubscriberImpl does not have the second parameter for the
 // Header, therefore the SubscriberImpl must be used directly
-iox::popo::SubscriberImpl<Data, Header> subscriber({"Example", "User-Header", "Timestamp"});
+iox::popo::Subscriber<Data, Header> subscriber({"Example", "User-Header", "Timestamp"});
 ```
 
 The main loop is quite simple. The publisher is periodically polled and the data of the received sample is printed.
