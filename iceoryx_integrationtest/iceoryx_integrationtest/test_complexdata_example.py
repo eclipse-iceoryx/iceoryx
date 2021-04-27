@@ -92,7 +92,7 @@ class TestComplexDataExample(unittest.TestCase):
 # These tests run after shutdown and examine the stdout log
 
 
-@ launch_testing.post_shutdown_test()
+@launch_testing.post_shutdown_test()
 class TestComplexdataExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)
