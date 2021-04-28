@@ -310,6 +310,7 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
             mkdir -p $ex && cd $ex
             cmake -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX \
                   -DTOML_CONFIG=$TOML_FLAG \
+                  -DBINDING_C=$BINDING_C_FLAG \
                   $WORKSPACE/iceoryx_examples/$ex
             cmake --build . --target install -- -j$NUM_JOBS
             if [ $? -ne 0 ]; then
