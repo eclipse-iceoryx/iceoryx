@@ -50,7 +50,6 @@ void Timer::stop() noexcept
     }
 }
 
-
 const iox::units::Duration Timer::now() const noexcept
 {
     struct timespec ts;
@@ -60,9 +59,8 @@ const iox::units::Duration Timer::now() const noexcept
 
 cxx::expected<iox::cxx::TimerEvent, posix::SemaphoreError> Timer::wait() noexcept
 {
-    if (*(m_waitSemaphore.getValue())
-        == static_cast<int>(
-            posix::SemaphoreWaitState::TIMEOUT)) // To check if the TIMER is active (if the sempahore is acquired)
+    // To check if the TIMER is active (if the sempahore is acquired)
+    if (*(m_waitSemaphore.getValue()) == static_cast<int>(posix::SemaphoreWaitState::TIMEOUT))
     {
         if (now() > m_timeForNextActivation)
         {

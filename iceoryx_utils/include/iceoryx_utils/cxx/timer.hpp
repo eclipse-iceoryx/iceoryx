@@ -86,7 +86,7 @@ class Timer
 
     /// @brief Starts the timer. This also calculates the time until the timer goes for sleep. This also acquires the
     /// binary semaphore.
-    /// @param[in] interval the new duration until the timer sleeps and wakes up for execution
+    /// @param[in] interval The new duration until the timer sleeps and wakes up for execution
     void start(const units::Duration interval) noexcept;
 
     /// @brief Stops the timer. This also releases the acquired binary semaphore.
