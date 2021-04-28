@@ -34,6 +34,13 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
+    executable_list = ['iox-cpp-user-header-subscriber',
+                       'iox-cpp-user-header-untyped-subscriber',
+                       'iox-c-user-header-subscriber',
+                       'iox-cpp-user-header-publisher',
+                       'iox-cpp-user-header-untyped-publisher',
+                       'iox-c-user-header-publisher']
+    process_list = []
 
     roudi_executable = os.path.join(
         colcon_prefix_path,
@@ -45,30 +52,34 @@ def generate_test_description():
         env=proc_env, output='screen',
         sigterm_timeout='20')
 
-    user_header_subscriber_executable = os.path.join(
-        colcon_prefix_path,
-        'example_user_header/bin/',
-        'iox-cpp-user-header-subscriber'
-    )
-    user_header_subscriber_process = launch.actions.ExecuteProcess(
-        cmd=[user_header_subscriber_executable],
-        env=proc_env, output='screen')
+    for exec in executable_list:
+        tmp_exec = os.path.join(
+            colcon_prefix_path,
+            'example_user_header/bin/',
+            exec)
+        tmp_process = launch.actions.ExecuteProcess(
+            cmd=[tmp_exec],
+            env=proc_env, output='screen')
+        process_list.append(tmp_process)
 
-    user_header_publisher_executable = os.path.join(
-        colcon_prefix_path,
-        'example_user_header/bin/',
-        'iox-cpp-user-header-publisher'
-    )
-    user_header_publisher_process = launch.actions.ExecuteProcess(
-        cmd=[user_header_publisher_executable],
-        env=proc_env, output='screen')
+    print("Process list:", process_list)
 
     return launch.LaunchDescription([
         roudi_process,
-        user_header_subscriber_process,
-        user_header_publisher_process,
+        process_list[0],
+        process_list[1],
+        process_list[2],
+        process_list[3],
+        process_list[4],
+        process_list[5],
         launch_testing.actions.ReadyToTest()
-    ]), {'roudi_process': roudi_process, 'user_header_subscriber_process': user_header_subscriber_process, 'user_header_publisher_process': user_header_publisher_process}
+    ]), {'roudi_process': roudi_process,
+         'user_header_cpp_subscriber_process': process_list[0],
+         'user_header_cpp_untyped_subscriber_process': process_list[1],
+         'user_header_c_subscriber_process': process_list[2],
+         'user_header_cpp_publisher_process': process_list[3],
+         'user_header_cpp_untyped_publisher_process': process_list[4],
+         'user_header_c_publisher_process': process_list[5]}
 
 # These tests will run concurrently with the dut process. After this test is done,
 # the launch system will shut down RouDi
@@ -79,16 +90,28 @@ class TestUserHeaderExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_user_header_data_exchange(self, proc_output):
+    def test_user_header_typed_cpp_publisher_to_untyped_cpp_subscriber_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
-            'iox-cpp-user-header-publisher sent data: 5 with timestamp 3000ms', timeout=45, stream='stdout')
+            'iox-cpp-user-header-publisher sent data: 5 with timestamp 3042ms', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
-            'iox-cpp-user-header-subscriber got value: 5 with timestamp 3000ms', timeout=45, stream='stdout')
+            'iox-cpp-user-header-untyped-subscriber got value: 5 with timestamp 3042ms', timeout=45, stream='stdout')
+
+    def test_user_header_untyped_cpp_publisher_to_c_subscriber_data_exchange(self, proc_output):
+        proc_output.assertWaitFor(
+            'iox-cpp-user-header-untyped-publisher sent data: 5 with timestamp 3073ms', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-c-user-header-subscriber got value: 5 with timestamp 3073ms', timeout=45, stream='stdout')
+
+    def test_user_header_typed_c_publisher_to_typed_cpp_subscriber_data_exchange(self, proc_output):
+        proc_output.assertWaitFor(
+            'iox-c-user-header-publisher sent data: 5 with timestamp 3037ms', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-user-header-subscriber got value: 5 with timestamp 3037ms', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
 
 @launch_testing.post_shutdown_test()
-class TestIcehelloExampleExitCodes(unittest.TestCase):
+class TestUserHeaderExampleExitCodes(unittest.TestCase):
     def test_exit_code(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)

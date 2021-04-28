@@ -54,7 +54,7 @@ int main()
     //! [create publisher]
 
     //! [send samples in a loop]
-    uint64_t timestamp = 0;
+    uint64_t timestamp = 42;
     uint64_t fibonacciLast = 0;
     uint64_t fibonacciCurrent = 1;
     while (!killswitch)

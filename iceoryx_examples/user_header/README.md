@@ -8,27 +8,31 @@ The example contains code for the typed and untyped C++ API as well as for the C
 
 ## Expected Output
 
+<!-- @todo Replace expected output with asciinema recording before v2.0-->
+
+This is the output of the executables using the typed C++ API.
+
 Publisher:
 ```
-iox-cpp-user-header-publisher sent data: 1 with timestamp 0ms
-iox-cpp-user-header-publisher sent data: 2 with timestamp 1000ms
-iox-cpp-user-header-publisher sent data: 3 with timestamp 2000ms
-iox-cpp-user-header-publisher sent data: 5 with timestamp 3000ms
-iox-cpp-user-header-publisher sent data: 8 with timestamp 4000ms
-iox-cpp-user-header-publisher sent data: 13 with timestamp 5000ms
-iox-cpp-user-header-publisher sent data: 21 with timestamp 6000ms
+iox-cpp-user-header-publisher sent data: 1 with timestamp 42ms
+iox-cpp-user-header-publisher sent data: 2 with timestamp 1042ms
+iox-cpp-user-header-publisher sent data: 3 with timestamp 2042ms
+iox-cpp-user-header-publisher sent data: 5 with timestamp 3042ms
+iox-cpp-user-header-publisher sent data: 8 with timestamp 4042ms
+iox-cpp-user-header-publisher sent data: 13 with timestamp 5042ms
+iox-cpp-user-header-publisher sent data: 21 with timestamp 6042ms
 ...
 ```
 
 Subscriber:
 ```
-iox-cpp-user-header-subscriber got value: 1 with timestamp 0ms
-iox-cpp-user-header-subscriber got value: 2 with timestamp 1000ms
-iox-cpp-user-header-subscriber got value: 3 with timestamp 2000ms
-iox-cpp-user-header-subscriber got value: 5 with timestamp 3000ms
-iox-cpp-user-header-subscriber got value: 8 with timestamp 4000ms
-iox-cpp-user-header-subscriber got value: 13 with timestamp 5000ms
-iox-cpp-user-header-subscriber got value: 21 with timestamp 6000ms
+iox-cpp-user-header-subscriber got value: 1 with timestamp 42ms
+iox-cpp-user-header-subscriber got value: 2 with timestamp 1042ms
+iox-cpp-user-header-subscriber got value: 3 with timestamp 2042ms
+iox-cpp-user-header-subscriber got value: 5 with timestamp 3042ms
+iox-cpp-user-header-subscriber got value: 8 with timestamp 4042ms
+iox-cpp-user-header-subscriber got value: 13 with timestamp 5042ms
+iox-cpp-user-header-subscriber got value: 21 with timestamp 6042ms
 ...
 ```
 
@@ -128,7 +132,7 @@ This example uses the functional approach with `and_then` and `or_else`. Please 
 if you prefer a more traditional approach.
 <!-- [geoffrey] [iceoryx_examples/user_header/publisher_cxx_api.cpp] [[send samples in a loop] [loan sample]] -->
 ```cpp
-uint64_t timestamp = 0;
+uint64_t timestamp = 42;
 uint64_t fibonacciLast = 0;
 uint64_t fibonacciCurrent = 1;
 while (!killswitch)
