@@ -2,8 +2,6 @@ name: Axivion
 
 on:
   push:
-    branches: [ master, iox-#409-axivion-analysis ]
-  pull_request:
     branches: [ master ]
 
 jobs:
