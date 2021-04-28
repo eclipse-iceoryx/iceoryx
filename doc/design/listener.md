@@ -121,120 +121,107 @@ which event is attached, like in the _WaitSet_.
 
 #### Class Interactions
 
-  - **Creating Listener:** an `ConditionVariableData` is created in the shared memory. 
-      The `Listener` uses the `ConditionListener` to wait for incoming events.
+- **Creating Listener:** an `ConditionVariableData` is created in the shared memory
+    The `Listener` uses the `ConditionListener` to wait for incoming events.
+
 ```
-                                          PoshRuntime
-  Listener                                    |
-    |   getMiddlewareConditionVariable : var  |
-    | --------------------------------------> |
-    |   ConditionListener(var)                |             EventListener
-    | ----------------------------------------+-----------------> |
-    |   wait() : vector<uint64_t>             |                   |
-    | ----------------------------------------+-----------------> |
+                                        PoshRuntime
+Listener                                    |
+  |   getMiddlewareConditionVariable : var  |
+  | --------------------------------------> |
+  |   ConditionListener(var)                |             EventListener
+  | ----------------------------------------+-----------------> |
+  |   wait() : vector<uint64_t>             |                   |
+  | ----------------------------------------+-----------------> |
 ```
-  - **Attaching Triggerable Event (SubscriberEvent::DATA_RECEIVED) to Listener:**
-      The Listener creates a TriggerHandle and provides it to the Triggerable (Subscriber)
-      via `enableEvent` so that the Triggerable owns the handle. Whenever the event occurs
-      the Triggerable can use the `trigger()` method of the TriggerHandle to notify
-      the Listener.
+
+- **Attaching Triggerable Event (SubscriberEvent::DATA_RECEIVED) to Listener:**
+    The Listener creates a TriggerHandle and provides it to the Triggerable (Subscriber)
+    via `enableEvent` so that the Triggerable owns the handle. Whenever the event occurs
+    the Triggerable can use the `trigger()` method of the TriggerHandle to notify
+    the Listener.
+
 ```
-  User                ReactAL                                             Triggerable 
-   |   attachEvent()     |                                                     |
-   | ------------------> |      TriggerHandle                                  |
-                         |   create   |                                        |
-                         | ---------> |                                        |
-                         |        enableEvent(std::move(TriggerHandle))        |
-                         | -----------+--------------------------------------> |
+User                ReactAL                                             Triggerable 
+ |   attachEvent()     |                                                     |
+ | ------------------> |      TriggerHandle                                  |
+ |                     |   create   |                                        |
+ |                     | ---------> |                                        |
+ |                     |        enableEvent(std::move(TriggerHandle))        |
+ |                     | -----------+--------------------------------------> |
 ```
-  - **Signal an event from Triggerable:** `TriggerHandle::trigger()` is called 
-      and the Listener calls the corresponding callback in the background thread
 
-  - **Triggerable goes out of scope:**
+- **Signal an event from Triggerable:** `TriggerHandle::trigger()` is called, the
+    Listener is returning from the `ConditionListener.wait()` call and retrieves
+    a list of all the signal notifications. The corresponding event-callbacks
+    are called.
 
-  - **Listener goes out of scope:**
-  
-#### Event Variable
+```
+Triggerable     TriggerHandle  ConditionNotifier    ConditionListener                Listener                     Event_t
+     |    trigger()   |                |                    |   wait() : notificationIds |                           |
+     | -------------> |    notify()    |                    | <------------------------- |                           |
+     |                | -------------> | .... unblocks .... |            blocks          |  exeuteCallback()         |
+     |                |                |                    |                            | ------------------------> |
+     |                |                |                    |                            |  m_events[notificationId] |
+```
 
-  In this section we discuss the details of the three classes `EventVariableData`, `EventListener` and 
-  `EventNotifier` from the class diagram above. The `EventListener` and `EventNotifier` are sharing their 
-  data `EventVariableData` and the whole construct should be named `EventVariable`.
+- **Triggerable goes out of scope:** The TriggerHandle is a member of the 
+    Triggerable, therefore the d'tor of the TriggerHandle is called which removes 
+    the trigger from the Listener via the `resetCallback`
 
-  - **Problem:** The ReactAL would like to know by whom it was triggered. The WaitSet has a 
-                  list of callbacks where it can ask the object if it triggered the WaitSet. This has 
-                  certain disadvantages.
-              - Cache misses and low performance 
-              - The object could lie due to a bug.
-              - Implementation overhead since we have to manage callbacks.
+```
+Triggerable        TriggerHandle         Listener         Event_t
+     |  ~TriggerHandle   |                   |               |
+     | ----------------> |  removeTrigger()  |               |
+     |                   | ----------------> |    reset()    |
+     |                   | via resetCallback | ------------> |
+```
 
-  - **Solution:** The condition variable tracks by whom it was triggered. To realize this every signaler
-      gets provided with an id. When the condition variable is notified a corresponding bool array entry is set to true 
-      to trace the trigger origin.
+- **Listener goes out of scope:** The d'tor of the `Event_t` invalidates the 
+    Trigger inside the Triggarable via the `invalidationCallback`
 
-  - `EventVariableData` inherits from `ConditionVariableData` and adds the member `std::atomic_bool m_triggeredBy[MAX_CALLBACKS];`
+```
+Listener       Event_t                  Triggerable
+   |  ~Event_t()  |                          |
+   | -----------> |    invalidateTrigger()   |
+   |              | -----------------------> |
+   |              | via invalidationCallback |
+```
 
-    **Reason:**
-      - The reactal will iterate through this array to find out by which event it was triggered 
-      - It is cache local, since it is one piece of contiguous memory which can be put directly 
-        into the CPU cache when it is being iterated. Therefore it is very performant.
-      - WaitSet approach are callbacks which have an overhead implementation 
-        and performance wise.
-        * implementation, since we have to manage set and reset all the callbacks 
-        * performance, when we call a callback with every iteration, we have to first load the 
-            callback into the cpu cache (generates cache misses for all the other callback 
-            elements in the vector which is being iterated). In the callback a method in an 
-            object is called (the object has to be loaded again into the cpu cache, cache miss for 
-            every member which is not used by the method).
+#### TriggerHandle
 
-    **Potential optimization:**
-      - Create an additional bool member `m_wasTriggered` which is true when at least 
-        one bool in `m_triggerdBy` is true. This would spare us from iterating over the array 
-        when it was not triggered at all.
-        - Reserve the last/first element in the bool array for `m_wasTriggered`
-          to may gain even more cache efficiency.
+- **Problem:** The Triggerable should be able to notify a Listener/WaitSet
+    without having any knowledge about those class so that circular
+    dependencies can be prevented. Furthermore, the Triggerable must be able
+    to remove its attached events when it goes out of scope.
+- **Solution:** The TriggerHandle which contains the `ConditionNotifier` to
+    notify the Listener/WaitSet.
+    The cleanup task is performed by the `m_resetCallback` so that the
+    Triggerable has no dependencies to any Notifyable.
 
-    **Adjustments:**
-      - Create the class with a template bool array size argument to be more flexible and memory efficient.
+#### Condition Variable
 
-    **Note:**
-      - Sadly, we cannot pursue this approach in the WaitSet since it is event 
-        and state based at the same time and this approach supports only event 
-        driven triggering.
+The `ConditionListener` and `ConditionNotifier` are two different interfaces to
+the same class which state is stored in the `ConditionVariableData` class. The
+intention of the separation is to provide one side (e.g. Triggerable) only
+an API to notify the Notifyable (e.g. Listener) whereas the Notifyable can only
+wait on events. So the contract is reflected in the design.
 
-  - add class `EventNotifier`
+- **Problem:** Since the Listener reacts on events and not states it requires
+    the knowledge by whom it was notified.
+- **Solution:**
+  - Every TriggerHandle has a unique id which is used as index in `ConditionNotifier`.
+  - When `ConditionNotifier::notify` is called the Listener is informed via the
+    `NotificationVector_t` return value from `ConditionListener::wait()` which
+    index notified him. Hence it is the same as the unique id of the TriggerHandle
+    the Listener knows which Triggerable notified him.
 
-    **Reason:** it behaves quite differently then the `ConditionVariable`. The `ConditionVariable` notifies the user
-    that it was signalled and the user has to find the origin manually. The `EventVariable`
-    would notify the user by which origin it was signalled.
+#### Event_t
+- thread safe - smart_lock 
+- cleanup
+- callback
 
-    ```cpp
-    class EventNotifier {
-      public:
-        // identify the trigger origin easily
-        void notify(); 
-
-        // alternative: origin is set in the ctor and we just call notify
-        ConditionVariableWithOriginTracingSignaler(const uint64_t originId);
-        void notify();
-
-      private:
-        // originId = corresponds to the id in the ConditionVariable atomic_bool array to 
-        m_originId;
-    };
-    ```
-
-  - add class `EventListener`
-    ```cpp
-    class EventListener {
-      public:
-        // returns a list of ids which have notified the conditionVariable
-        cxx::vector<uint64_t> wait(); 
-        // sets the atomic bool to false in m_triggeredBy[id]
-        void resetWaitState(const uint64_t id) noexcept; 
-    };
-    ```
-
-#### ReactAL 
+#### Listener
 ```cpp
 enum class ReactALErrors {
   CALLBACK_CAPACITY_EXCEEDED
