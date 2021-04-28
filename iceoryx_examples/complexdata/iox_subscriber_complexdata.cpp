@@ -68,14 +68,17 @@ int main()
 
                 s << std::endl << "optionalList:";
                 separator = " ";
+                //! [read optional list]
                 for (const auto& entry : sample->optionalList)
                 {
                     (entry.has_value()) ? s << separator << entry.value() : s << separator << "optional is empty";
                     separator = ", ";
                 }
+                //! [read optional list]
 
                 s << std::endl << "floatStack:";
                 separator = " ";
+                //! [read stack]
                 auto stackCopy = sample->floatStack;
                 while (stackCopy.size() > 0U)
                 {
@@ -83,6 +86,7 @@ int main()
                     s << separator << result.value();
                     separator = ", ";
                 }
+                //! [read stack]
 
                 s << std::endl << "someString: " << sample->someString;
 
@@ -96,27 +100,26 @@ int main()
 
                 s << std::endl << "variantVector:";
                 separator = " ";
+                //! [read variant vector]
                 for (const auto& i : sample->variantVector)
                 {
                     switch (i.index())
                     {
                     case 0:
                         s << separator << *i.template get_at_index<0>();
-                        separator = ", ";
                         break;
                     case 1:
                         s << separator << *i.template get_at_index<1>();
-                        separator = ", ";
                         break;
                     case INVALID_VARIANT_INDEX:
                         s << separator << "variant does not contain a type";
-                        separator = ", ";
                         break;
                     default:
                         s << separator << "this is a new type";
-                        separator = ", ";
                     }
+                    separator = ", ";
                 }
+                //! [read variant vector]
 
                 std::cout << s.str() << std::endl << std::endl;
             })

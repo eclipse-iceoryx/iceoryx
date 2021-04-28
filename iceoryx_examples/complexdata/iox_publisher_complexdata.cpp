@@ -32,6 +32,7 @@ static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 // push_front (list), push (stack), emplace_back (vector) return a bool - true if the insertion succeeded, false
 // otherwise
 // to keep the example clear, this helper function handles the return values
+//! [handle return val]
 void handleInsertionReturnVal(const bool success)
 {
     if (!success)
@@ -40,6 +41,7 @@ void handleInsertionReturnVal(const bool success)
         std::exit(EXIT_FAILURE);
     }
 }
+//! [handle return val]
 
 int main()
 {
@@ -60,6 +62,7 @@ int main()
         ++ct;
         publisher.loan()
             .and_then([&](auto& sample) {
+                //! [fill lists]
                 // forward_list<string<10>, 5>
                 handleInsertionReturnVal(sample->stringForwardList.push_front("world"));
                 handleInsertionReturnVal(sample->stringForwardList.push_front("hello"));
@@ -70,14 +73,23 @@ int main()
                 // list<optional<int32_t>, 15>
                 handleInsertionReturnVal(sample->optionalList.push_front(42));
                 handleInsertionReturnVal(sample->optionalList.push_front(nullopt));
+                //! [fill lists]
+
                 // stack<float, 5>
+                //! [fill stack]
                 for (uint64_t i = 0U; i < sample->floatStack.capacity(); ++i)
                 {
                     handleInsertionReturnVal(sample->floatStack.push(static_cast<float>(ct * i)));
                 }
+                //! [fill stack]
+
                 // string<20>
+                //! [assign string]
                 sample->someString = "hello iceoryx";
+                //! [assign string]
+
                 // vector<double, 5>
+                //! [fill vectors]
                 for (uint64_t i = 0U; i < sample->doubleVector.capacity(); ++i)
                 {
                     handleInsertionReturnVal(sample->doubleVector.emplace_back(static_cast<double>(ct + i)));
@@ -86,6 +98,7 @@ int main()
                 handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "seven"));
                 handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<1>(), 8.0));
                 handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "nine"));
+                //! [fill vectors]
 
                 sample.publish();
             })

@@ -23,6 +23,7 @@ our requirements.
 In this example we want our publisher to send a vector containing double. Since we cannot use dynamic memory, we use the 
 `iox::cxx::vector` with a capacity of 5.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_vector.cpp][create publisher]-->
 ```cpp
 iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontRight", "VectorData"});
 ```
@@ -31,9 +32,12 @@ We use a while-loop similar to the one described in the
 [icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery) to send the
 vector to the subscriber. After successfully loaning memory we append elements to the vector until it's full.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_vector.cpp][vector emplace_back]-->
 ```cpp
 for (uint64_t i = 0U; i < sample->capacity(); ++i)
 {
+    // we can omit the check of the return value since the loop doesn't exceed the capacity of the
+    // vector
     sample->emplace_back(static_cast<double>(ct + i));
 }
 ```
@@ -47,12 +51,13 @@ since the for-loop doesn't exceed the capacity of the vector.
 Our subscriber application iterates over the received vector to print its entries to the console. Note that the `separator` is only
 used for a easy to read output.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_subscriber_vector.cpp][vector output]-->
 ```cpp
 for (const auto& entry : *sample)
 {
     s << separator << entry;
+    separator = ", ";
 }
-std::cout << s.str();
 ```
 
 ### Publisher application sending a complex data structure
@@ -61,6 +66,7 @@ In this example our publisher will send a more complex data structure. It contai
 in iceoryx. A list of all reimplemented containers can be found
 [here](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_utils#cxx).
 
+<!--[geoffrey][iceoryx_examples/complexdata/topic_data.hpp][complexdata type]-->
 ```cpp
 struct ComplexDataType
 {
@@ -80,6 +86,7 @@ We use again a while-loop to loan memory, add data to our containers and send it
 all used insertion methods return a bool that indicates whether the insertion was successful. It will fail when a container is already
 full. To handle the return value we introduce a helper function.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_complexdata.cpp][handle return val]-->
 ```cpp
 void handleInsertionReturnVal(const bool success)
 {
@@ -94,6 +101,7 @@ void handleInsertionReturnVal(const bool success)
 Now let's add some data to our containers. For the lists we use the `push_front` methods which can be used similar to the 
 corresponding STL methods.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_complexdata.cpp][fill lists]-->
 ```cpp
 // forward_list<string<10>, 5>
 handleInsertionReturnVal(sample->stringForwardList.push_front("world"));
@@ -113,8 +121,8 @@ handleInsertionReturnVal(sample->optionalList.push_front(nullopt));
 
 Now we fill the stack
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_complexdata.cpp][fill stack]-->
 ```cpp
-// stack<float, 5>
 for (uint64_t i = 0U; i < sample->floatStack.capacity(); ++i)
 {
     handleInsertionReturnVal(sample->floatStack.push(static_cast<float>(ct * i)));
@@ -123,15 +131,15 @@ for (uint64_t i = 0U; i < sample->floatStack.capacity(); ++i)
 
 and assign a greeting to the string.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_complexdata.cpp][assign string]-->
 ```cpp
-// string<20>
 sample->someString = "hello iceoryx";
 ```
 
 For the vectors we use the `emplace_back` method, which can be used similar to corresponding `std::vector` method.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_complexdata.cpp][fill vectors]-->
 ```cpp
-// vector<double, 5>
 for (uint64_t i = 0U; i < sample->doubleVector.capacity(); ++i)
 {
     handleInsertionReturnVal(sample->doubleVector.emplace_back(static_cast<double>(ct + i)));
@@ -149,21 +157,25 @@ With `in_place_index` the passed object is constructed in-place at the given ind
 The subscriber application just prints the received data to the console. For the `optionalList` we have to check whether the
 `optional` contains a value. As in the first example, the `separator` is used for a clear output.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_subscriber_complexdata.cpp][read optional list]-->
 ```cpp
 for (const auto& entry : sample->optionalList)
 {
     (entry.has_value()) ? s << separator << entry.value() : s << separator << "optional is empty";
+    separator = ", ";
 }
 ```
 
 To print the elements of the `floatStack`, we pop elements until the stack is empty.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_subscriber_complexdata.cpp][read stack]-->
 ```cpp
 auto stackCopy = sample->floatStack;
 while (stackCopy.size() > 0U)
 {
     auto result = stackCopy.pop();
     s << separator << result.value();
+    separator = ", ";
 }
 ```
 
@@ -175,6 +187,7 @@ To print the elements of the `variantVector` we iterate over the vector entries 
 variant via its index. We use the not STL compliant `get_at_index` method which returns a pointer to the type stored at the
 index. If the variant does not contain any type, `index()` will return an `INVALID_VARIANT_INDEX`.
 
+<!--[geoffrey][iceoryx_examples/complexdata/iox_subscriber_complexdata.cpp][read variant vector]-->
 ```cpp
 for (const auto& i : sample->variantVector)
 {
@@ -182,20 +195,17 @@ for (const auto& i : sample->variantVector)
     {
     case 0:
         s << separator << *i.template get_at_index<0>();
-        separator = ", ";
         break;
     case 1:
         s << separator << *i.template get_at_index<1>();
-        separator = ", ";
         break;
     case INVALID_VARIANT_INDEX:
         s << separator << "variant does not contain a type";
-        separator = ", ";
         break;
     default:
         s << separator << "this is a new type";
-        separator = ", ";
     }
+    separator = ", ";
 }
 ```
 

@@ -27,6 +27,7 @@
 
 using namespace iox::cxx;
 
+//! [complexdata type]
 struct ComplexDataType
 {
     forward_list<string<10>, 5> stringForwardList;
@@ -37,6 +38,7 @@ struct ComplexDataType
     vector<double, 5> doubleVector;
     vector<variant<string<10>, double>, 10> variantVector;
 };
+//! [complexdata type]
 
 #endif // IOX_EXAMPLES_COMPLEXDATA_TOPIC_DATA_HPP
 

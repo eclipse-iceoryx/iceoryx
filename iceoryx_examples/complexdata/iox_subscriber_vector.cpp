@@ -51,11 +51,13 @@ int main()
                 s << APP_NAME << " got values:";
 
                 const char* separator = " ";
+                //! [vector output]
                 for (const auto& entry : *sample)
                 {
                     s << separator << entry;
                     separator = ", ";
                 }
+                //! [vector output]
 
                 std::cout << s.str() << std::endl;
             })
