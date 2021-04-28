@@ -90,23 +90,35 @@ class TestUserHeaderExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'RouDi is ready for clients', timeout=45, stream='stdout')
 
-    def test_user_header_typed_cpp_publisher_to_untyped_cpp_subscriber_data_exchange(self, proc_output):
+    def test_user_header_typed_cpp_publisher_to_all_subscriber(self, proc_output):
         proc_output.assertWaitFor(
             'iox-cpp-user-header-publisher sent data: 5 with timestamp 3042ms', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
+            'iox-cpp-user-header-subscriber got value: 5 with timestamp 3042ms', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
             'iox-cpp-user-header-untyped-subscriber got value: 5 with timestamp 3042ms', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-c-user-header-subscriber got value: 5 with timestamp 3042ms', timeout=45, stream='stdout')
 
-    def test_user_header_untyped_cpp_publisher_to_c_subscriber_data_exchange(self, proc_output):
+    def test_user_header_untyped_cpp_publisher_to_all_subscriber(self, proc_output):
         proc_output.assertWaitFor(
             'iox-cpp-user-header-untyped-publisher sent data: 5 with timestamp 3073ms', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
+            'iox-cpp-user-header-subscriber got value: 5 with timestamp 3073ms', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-user-header-untyped-subscriber got value: 5 with timestamp 3073ms', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
             'iox-c-user-header-subscriber got value: 5 with timestamp 3073ms', timeout=45, stream='stdout')
 
-    def test_user_header_typed_c_publisher_to_typed_cpp_subscriber_data_exchange(self, proc_output):
+    def test_user_header_c_publisher_to_all_subscriber(self, proc_output):
         proc_output.assertWaitFor(
             'iox-c-user-header-publisher sent data: 5 with timestamp 3037ms', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
             'iox-cpp-user-header-subscriber got value: 5 with timestamp 3037ms', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-user-header-untyped-subscriber got value: 5 with timestamp 3037ms', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-c-user-header-subscriber got value: 5 with timestamp 3037ms', timeout=45, stream='stdout')
 
 # These tests run after shutdown and examine the stdout log
 
