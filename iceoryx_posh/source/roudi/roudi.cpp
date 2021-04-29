@@ -38,7 +38,10 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
+    , m_prcMgr(concurrent::ForwardArgsToCTor,
+               *m_roudiMemoryInterface,
+               portManager,
+               roudiStartupParameters.m_compatibilityCheckLevel)
     , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
                                   .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
                              *m_roudiMemoryInterface->segmentManager().value(),
@@ -101,8 +104,16 @@ void RouDi::shutdown()
 
         m_prcMgr->requestShutdownOfAllProcesses();
 
+        using namespace units::duration_literals;
+        auto remainingDurationForWarnPrint = m_processKillDelay - 2_s;
         while (m_prcMgr->isAnyRegisteredProcessStillRunning() && !finalKillTimer.hasExpired())
         {
+            if (remainingDurationForWarnPrint > finalKillTimer.remainingTime())
+            {
+                LogWarn() << "Some applications seem to not shutdown gracefully! Time until hard shutdown: "
+                          << finalKillTimer.remainingTime().toSeconds() << "s!";
+                remainingDurationForWarnPrint = remainingDurationForWarnPrint - 5_s;
+            }
             // give processes some time to terminate
             std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
         }

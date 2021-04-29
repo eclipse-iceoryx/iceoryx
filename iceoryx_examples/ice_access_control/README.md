@@ -10,7 +10,7 @@ It provides a custom RouDi, a radar and a display application.
 
 ## Expected output
 
-<!-- Add asciinema link here -->
+[![asciicast](https://asciinema.org/a/407451.svg)](https://asciinema.org/a/407451)
 
 ## Code walkthrough
 

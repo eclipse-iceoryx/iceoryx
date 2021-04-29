@@ -38,13 +38,13 @@ class MockPublisherPortUser
     }
     MockPublisherPortUser(MemberType_t*){};
 
-    MockPublisherPortUser(const MockPublisherPortUser& rhs [[gnu::unused]]){};
-    MockPublisherPortUser(MockPublisherPortUser&& rhs [[gnu::unused]]){};
-    MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs [[gnu::unused]])
+    MockPublisherPortUser(const MockPublisherPortUser& rhs IOX_MAYBE_UNUSED){};
+    MockPublisherPortUser(MockPublisherPortUser&& rhs IOX_MAYBE_UNUSED){};
+    MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs IOX_MAYBE_UNUSED)
     {
         return *this;
     };
-    MockPublisherPortUser& operator=(MockPublisherPortUser&& rhs [[gnu::unused]])
+    MockPublisherPortUser& operator=(MockPublisherPortUser&& rhs IOX_MAYBE_UNUSED)
     {
         return *this;
     };

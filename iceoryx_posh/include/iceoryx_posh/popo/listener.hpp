@@ -19,8 +19,8 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
-#include "iceoryx_posh/popo/event_attorney.hpp"
-#include "iceoryx_posh/popo/event_callback.hpp"
+#include "iceoryx_posh/popo/notification_attorney.hpp"
+#include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
@@ -84,7 +84,7 @@ class Listener
     /// @param[in] eventOrigin the object which will signal the event (the origin)
     /// @param[in] eventType enum required to specify the type of event inside of eventOrigin
     /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. has to be created
-    /// with iox::popo::createEventCallback
+    /// with iox::popo::createNotificationCallback
     /// @return If an error occurs the enum packed inside an expected which describes the error.
     template <typename T,
               typename EventType,
@@ -92,7 +92,7 @@ class Listener
               typename = std::enable_if_t<std::is_enum<EventType>::value>>
     cxx::expected<ListenerError> attachEvent(T& eventOrigin,
                                              const EventType eventType,
-                                             const EventCallback<T, ContextDataType>& eventCallback) noexcept;
+                                             const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
     ///        the corresponding callback which will be called when the event occurs.
@@ -102,11 +102,11 @@ class Listener
     /// @tparam[in] T type of the class which will signal the event
     /// @param[in] eventOrigin the object which will signal the event (the origin)
     /// @param[in] eventCallback callback which will be executed concurrently when the event occurs. Has to be created
-    /// with iox::popo::createEventCallback
+    /// with iox::popo::createNotificationCallback
     /// @return If an error occurs the enum packed inside an expected which describes the error.
     template <typename T, typename ContextDataType>
     cxx::expected<ListenerError> attachEvent(T& eventOrigin,
-                                             const EventCallback<T, ContextDataType>& eventCallback) noexcept;
+                                             const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
     ///        the eventType with further specifies the event inside of eventOrigin

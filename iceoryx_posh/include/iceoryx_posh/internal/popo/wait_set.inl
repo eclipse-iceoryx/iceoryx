@@ -57,7 +57,7 @@ inline cxx::expected<uint64_t, WaitSetError>
 WaitSet<Capacity>::attachImpl(T& eventOrigin,
                               const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,
                               const uint64_t eventId,
-                              const EventCallback<T, ContextDataType>& eventCallback,
+                              const NotificationCallback<T, ContextDataType>& eventCallback,
                               const uint64_t originType,
                               const uint64_t originTypeHash) noexcept
 {
@@ -69,7 +69,8 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
         }
     }
 
-    cxx::MethodCallback<void, uint64_t> invalidationCallback = EventAttorney::getInvalidateTriggerMethod(eventOrigin);
+    cxx::MethodCallback<void, uint64_t> invalidationCallback =
+        NotificationAttorney::getInvalidateTriggerMethod(eventOrigin);
     auto index = m_indexRepository.pop();
     if (!index)
     {
@@ -110,7 +111,7 @@ inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachEvent(T& eventOrigin,
                                const EventType eventType,
                                const uint64_t eventId,
-                               const EventCallback<T, ContextDataType>& eventCallback) noexcept
+                               const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     static_assert(IS_EVENT_ENUM<EventType>, "Only enums with an underlying EventEnumIdentifier are allowed.");
 
@@ -121,7 +122,7 @@ WaitSet<Capacity>::attachEvent(T& eventOrigin,
                       static_cast<uint64_t>(eventType),
                       typeid(EventType).hash_code())
         .and_then([&](auto& uniqueId) {
-            EventAttorney::enableEvent(
+            NotificationAttorney::enableEvent(
                 eventOrigin,
                 TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
                 eventType);
@@ -131,15 +132,15 @@ WaitSet<Capacity>::attachEvent(T& eventOrigin,
 template <uint64_t Capacity>
 template <typename T, typename EventType, typename ContextDataType, typename>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
-    T& eventOrigin, const EventType eventType, const EventCallback<T, ContextDataType>& eventCallback) noexcept
+    T& eventOrigin, const EventType eventType, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
-    return attachEvent(eventOrigin, eventType, EventInfo::INVALID_ID, eventCallback);
+    return attachEvent(eventOrigin, eventType, NotificationInfo::INVALID_ID, eventCallback);
 }
 
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
-    T& eventOrigin, const uint64_t eventId, const EventCallback<T, ContextDataType>& eventCallback) noexcept
+    T& eventOrigin, const uint64_t eventId, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     return attachImpl(eventOrigin,
                       WaitSetIsConditionSatisfiedCallback(),
@@ -148,7 +149,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
                       static_cast<uint64_t>(NoEventEnumUsed::PLACEHOLDER),
                       typeid(NoEventEnumUsed).hash_code())
         .and_then([&](auto& uniqueId) {
-            EventAttorney::enableEvent(
+            NotificationAttorney::enableEvent(
                 eventOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
         });
 }
@@ -156,9 +157,9 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError>
-WaitSet<Capacity>::attachEvent(T& eventOrigin, const EventCallback<T, ContextDataType>& eventCallback) noexcept
+WaitSet<Capacity>::attachEvent(T& eventOrigin, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
-    return attachEvent(eventOrigin, EventInfo::INVALID_ID, eventCallback);
+    return attachEvent(eventOrigin, NotificationInfo::INVALID_ID, eventCallback);
 }
 
 template <uint64_t Capacity>
@@ -167,10 +168,10 @@ inline cxx::expected<WaitSetError>
 WaitSet<Capacity>::attachState(T& stateOrigin,
                                const StateType stateType,
                                const uint64_t id,
-                               const EventCallback<T, ContextDataType>& stateCallback) noexcept
+                               const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
     static_assert(IS_STATE_ENUM<StateType>, "Only enums with an underlying StateEnumIdentifier are allowed.");
-    auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin, stateType);
+    auto hasTriggeredCallback = NotificationAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin, stateType);
 
     return attachImpl(stateOrigin,
                       hasTriggeredCallback,
@@ -179,7 +180,7 @@ WaitSet<Capacity>::attachState(T& stateOrigin,
                       static_cast<uint64_t>(stateType),
                       typeid(StateType).hash_code())
         .and_then([&](auto& uniqueId) {
-            EventAttorney::enableState(
+            NotificationAttorney::enableState(
                 stateOrigin,
                 TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
                 stateType);
@@ -189,17 +190,17 @@ WaitSet<Capacity>::attachState(T& stateOrigin,
 template <uint64_t Capacity>
 template <typename T, typename StateType, typename ContextDataType, typename>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
-    T& stateOrigin, const StateType stateType, const EventCallback<T, ContextDataType>& stateCallback) noexcept
+    T& stateOrigin, const StateType stateType, const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
-    return attachState(stateOrigin, stateType, EventInfo::INVALID_ID, stateCallback);
+    return attachState(stateOrigin, stateType, NotificationInfo::INVALID_ID, stateCallback);
 }
 
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
-    T& stateOrigin, const uint64_t id, const EventCallback<T, ContextDataType>& stateCallback) noexcept
+    T& stateOrigin, const uint64_t id, const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
-    auto hasTriggeredCallback = EventAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin);
+    auto hasTriggeredCallback = NotificationAttorney::getCallbackForIsStateConditionSatisfied(stateOrigin);
     return attachImpl(stateOrigin,
                       hasTriggeredCallback,
                       id,
@@ -207,7 +208,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
                       static_cast<uint64_t>(NoStateEnumUsed::PLACEHOLDER),
                       typeid(NoStateEnumUsed).hash_code())
         .and_then([&](auto& uniqueId) {
-            EventAttorney::enableState(
+            NotificationAttorney::enableState(
                 stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
         });
 }
@@ -215,23 +216,23 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline cxx::expected<WaitSetError>
-WaitSet<Capacity>::attachState(T& stateOrigin, const EventCallback<T, ContextDataType>& stateCallback) noexcept
+WaitSet<Capacity>::attachState(T& stateOrigin, const NotificationCallback<T, ContextDataType>& stateCallback) noexcept
 {
-    return attachState(stateOrigin, EventInfo::INVALID_ID, stateCallback);
+    return attachState(stateOrigin, NotificationInfo::INVALID_ID, stateCallback);
 }
 
 template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachEvent(T& eventOrigin, const Targs&... args) noexcept
 {
-    EventAttorney::disableEvent(eventOrigin, args...);
+    NotificationAttorney::disableEvent(eventOrigin, args...);
 }
 
 template <uint64_t Capacity>
 template <typename T, typename... Targs>
 inline void WaitSet<Capacity>::detachState(T& stateOrigin, const Targs&... args) noexcept
 {
-    EventAttorney::disableState(stateOrigin, args...);
+    NotificationAttorney::disableState(stateOrigin, args...);
 }
 
 template <uint64_t Capacity>
@@ -259,21 +260,23 @@ inline void WaitSet<Capacity>::removeAllTriggers() noexcept
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
+inline typename WaitSet<Capacity>::NotificationInfoVector
+WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnTriggeredTriggers([this, timeout] { return this->m_conditionListener.timedWait(timeout); });
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::wait() noexcept
+inline typename WaitSet<Capacity>::NotificationInfoVector WaitSet<Capacity>::wait() noexcept
 {
     return waitAndReturnTriggeredTriggers([this] { return this->m_conditionListener.wait(); });
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
+inline typename WaitSet<Capacity>::NotificationInfoVector
+WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
 {
-    EventInfoVector triggers;
+    NotificationInfoVector triggers;
     if (!m_activeNotifications.empty())
     {
         for (uint64_t i = m_activeNotifications.size() - 1U;; --i)
@@ -284,7 +287,7 @@ inline typename WaitSet<Capacity>::EventInfoVector WaitSet<Capacity>::createVect
 
             if (!doRemoveNotificationId && trigger->isStateConditionSatisfied())
             {
-                cxx::Expects(triggers.push_back(&m_triggerArray[index]->getEventInfo()));
+                cxx::Expects(triggers.push_back(&m_triggerArray[index]->getNotificationInfo()));
                 doRemoveNotificationId = (trigger->getTriggerType() == TriggerType::EVENT_BASED);
             }
 
@@ -318,7 +321,7 @@ inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) no
 }
 
 template <uint64_t Capacity>
-inline typename WaitSet<Capacity>::EventInfoVector
+inline typename WaitSet<Capacity>::NotificationInfoVector
 WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
     if (m_conditionListener.wasNotified())
@@ -326,7 +329,7 @@ WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noex
         this->acquireNotifications(wait);
     }
 
-    EventInfoVector triggers = createVectorWithTriggeredTriggers();
+    NotificationInfoVector triggers = createVectorWithTriggeredTriggers();
 
     if (!triggers.empty())
     {

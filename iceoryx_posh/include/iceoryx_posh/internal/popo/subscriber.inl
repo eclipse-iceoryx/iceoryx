@@ -43,6 +43,12 @@ SubscriberImpl<T, H, BaseSubscriber_t>::take() noexcept
     return cxx::success<Sample<const T, const H>>(std::move(samplePtr));
 }
 
+template <typename T, typename H, typename BaseSubscriber_t>
+inline SubscriberImpl<T, H, BaseSubscriber_t>::~SubscriberImpl() noexcept
+{
+    BaseSubscriber_t::m_trigger.reset();
+}
+
 } // namespace popo
 } // namespace iox
 

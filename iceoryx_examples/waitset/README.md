@@ -6,7 +6,7 @@ The WaitSet is **not** thread-safe!
 
 - It is **not** allowed to attach or detach _Triggerable_
    classes with `attachEvent` or `detachEvent` when another thread is currently
-   waiting for events with `wait` or `timedWait`.
+   waiting for notifications with `wait` or `timedWait`.
 - Do **not** call any of the WaitSet methods concurrently.
 
 The _TriggerHandle_ on the other hand, is thread-safe! Therefore you are allowed to
@@ -19,7 +19,7 @@ The WaitSet is a set where you can attach objects so that they can signal a wide
 of events to one single notifiable. The typical approach is that one creates a
 WaitSet attaches multiple subscribers, user trigger or other _Triggerables_ to it and then wait till
 one or many of the attached entities signal an event. If that happens one receives
-a list of _EventInfos_ which is corresponding to all occurred events.
+a list of _NotificationInfos_ which is corresponding to all occurred events.
 
 ## Events and States
 
@@ -47,28 +47,27 @@ samples present in the subscriber.
 
 ## Expected Output
 
-<!-- @todo Add expected output with asciinema recording before v1.0-->
-<!-- @todo multiple examples described in here, expected output should be in front of every example -->
+[![asciicast](https://asciinema.org/a/407372.svg)](https://asciinema.org/a/407372)
 
 ## Glossary
 
-- **EventCallback** a callback attached to an _EventInfo_. It must have the
-    following signature `void ( EventOrigin )`. Any free function, static
-    class method and non capturing lambda is allowed. You have to ensure the lifetime of that callback.
-    This can become important when you would like to use lambdas.
-- **EventId** an id which is tagged to an event. It does not need to be unique
-     or follow any restrictions. The user can choose any arbitrary `uint64_t`. Assigning
-     the same _EventId_ to multiple _Events_ can be useful when you would like to
-     group _Events_.
-- **EventInfo** a class which corresponds with _Triggers_ and is used to inform
-     the user which _Event_ occurred. You can use the _EventInfo_ to acquire
-     the _EventId_, call the _EventCallback_ or acquire the _EventOrigin_.
-- **EventOrigin** the pointer to the class where the _Event_ originated from, short
-     pointer to the _Triggerable_.
  - **Event** a state change of an object; a _Triggerable_ will signal an event via a _TriggerHandle_ to 
      a _Notifyable_. For instance one can attach the subscriber event `DATA_RECEIVED` to _WaitSet_. 
      This will cause the subscriber to notify the WaitSet via the _TriggerHandle_ everytime when a 
      sample was received.
+- **NotificationCallback** a callback attached to an _NotificationInfo_. It must have the
+    following signature `void ( NotificationOrigin )`. Any free function, static
+    class method and non capturing lambda is allowed. You have to ensure the lifetime of that callback.
+    This can become important when you would like to use lambdas.
+- **NotificationId** an id which is tagged to an event. It does not need to be unique
+     or follow any restrictions. The user can choose any arbitrary `uint64_t`. Assigning
+     the same _NotificationId_ to multiple _Events_ can be useful when you would like to
+     group _Events_.
+- **NotificationInfo** a class which corresponds with _Triggers_ and is used to inform
+     the user which _Event_ occurred. You can use the _NotificationInfo_ to acquire
+     the _NotificationId_, call the _NotificationCallback_ or acquire the _NotificationOrigin_.
+- **NotificationOrigin** the pointer to the class where the _Event_ originated from, short
+     pointer to the _Triggerable_.
  - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_
      is used to notify the _Notifyable_ that an event occurred. The WaitSet is a _Notifyable_.
 - **State** a specified set of values to which the members of an object are set.
@@ -83,10 +82,10 @@ samples present in the subscriber.
      logical equal to another _Trigger_ if they:
     - are attached to the same _Notifyable_ (or in other words they are using the
        same `ConditionVariable`)
-    - they have the same _EventOrigin_
+    - they have the same _NotificationOrigin_
     - they have the same callback to verify that they were triggered
-       (`hasEventCallback`)
-    - they have the same _EventId_
+       (`hasNotificationCallback`)
+    - they have the same _NotificationId_
 - **WaitSet** a _Notifyable_ which manages a set of _Triggers_ which are corresponding to _Events_.
      A user may attach or detach events. The _Waitset_ is listening
      to the whole set of _Triggers_ and if one or more _Triggers_ are triggered by an event it will notify
@@ -98,9 +97,9 @@ samples present in the subscriber.
 **Events** or **States** can be attached to a **Notifyable** like the **WaitSet**.
 The **WaitSet** will listen on **Triggers** for a signal that an **Event** has occurred and it hands out
 **TriggerHandles** to **Triggerable** objects. The **TriggerHandle** is used to inform the **WaitSet**
-about the occurrence of an **Event**. When returning from `WaitSet::wait()` the user is provided with a vector of **EventInfos**
-associated with **Events** which had occurred and **States** which persists. The **EventOrigin**, **EventId** and **EventCallback**
-are stored inside of the **EventInfo** and can be acquired by the user.
+about the occurrence of an **Event**. When returning from `WaitSet::wait()` the user is provided with a vector of **NotificationInfos**
+associated with **Events** which had occurred and **States** which persists. The **NotificationOrigin**, **NotificationId** and **NotificationCallback**
+are stored inside of the **NotificationInfo** and can be acquired by the user.
 
 !!! attention
     Please be aware of the thread-safety restrictions of the _WaitSet_ and
@@ -115,10 +114,10 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 |attach user trigger to a WaitSet|`waitset.attachEvent(userTrigger, 456, &myUserTriggerCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
-|check if event originated from some object|`event->doesOriginateFrom(ptrToSomeObject)`|
-|get id of the event|`event->getEventId()`|
-|call eventCallback|`(*event)()`|
-|acquire _EventOrigin_|`event->getOrigin<OriginType>();`|
+|check if event/state originated from some object|`notification->doesOriginateFrom(ptrToSomeObject)`|
+|get id of the event/state|`notification->getNotificationId()`|
+|call eventCallback|`(*notification)()`|
+|acquire _NotificationOrigin_|`notification->getOrigin<OriginType>();`|
 
 ## Use Cases
 
@@ -150,9 +149,8 @@ send by `iox-cpp-waitset-publisher`. The publisher does not contain any _WaitSet
 logic and is explained in detail in the 
 [icedelivery example](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery).
 
-<!-- @todo Add expected output with asciinema recording before v1.0-->
-
 ### Basic
+
 We create one subscriber and attach it to the WaitSet. Afterwards we wait for data in 
 a loop and process it on arrival. To leave the loop and exit the application 
 we have to register a signal handler that calls `waitset.markForDestruction()`
@@ -162,7 +160,7 @@ which wakes up the blocking `waitset.wait()` whenever Ctrl+C is pressed.
 std::atomic_bool shutdown{false};
 iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
-static void sigHandler(int sig [[gnu::unused]])
+static void sigHandler(int sig IOX_MAYBE_UNUSED)
 {
     shutdown = true;
     if (waiset) {
@@ -192,29 +190,30 @@ waitset->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([
 });
 ```
 
-We create a loop which we will exit as soon as someone presses CTRL+c and our 
-signal handler sets shutdown to true. If this happens `markForDestruction` turns 
-the `waitset->wait()` into an empty non-blocking method and makes sure that we do 
+We create a loop which we will exit as soon as someone presses CTRL+c and our
+signal handler sets shutdown to true. If this happens `markForDestruction` turns
+the `waitset->wait()` into an empty non-blocking method and makes sure that we do
 not wait until infinity.
 
 ```cpp
 while (!shutdown.load())
 {
-  auto eventVector = waitset->wait();
+  auto notificationVector = waitset->wait();
 
-  for (auto& event : eventVector)
+  for (auto& notification : notificationVector)
   {
-    if (event->doesOriginateFrom(&subscriber))
+    if (notification->doesOriginateFrom(&subscriber))
     {
        subscriber.take()
          .and_then([](auto& sample) { 
             std::cout << " got value: " << sample->counter << std::endl; })
-         .or_else([](auto& reason [[gnu::unused]]) { 
+         .or_else([](auto& reason IOX_MAYBE_UNUSED) { 
              std::cout << "got no data" << std::endl; });
     }
   }
 }
 ```
+
 Processing just one sample even if more might have arrived will cause `wait` to unblock again immediately to process the next sample (or shut down if requested). Due to the overhead of the `wait` call it may still be more efficient to process all samples in a loop until there are none left before waiting again, but it is not required. It would be required if we attach via `attachEvent` instead of `attachState`, since we might wake up due to the arrival of a second sample, only process the first and will not receive a wake up until a third sample arrives (which could be much later or never).
 
 ### Gateway
@@ -222,8 +221,8 @@ Processing just one sample even if more might have arrived will cause `wait` to 
 We have a list of subscribers which can be subscribed to any arbitrary topic
 and everytime we received a sample we would like to send the bytestream to a socket,
 write it into a file or print it to the console. But whatever we choose to do
-we perform the same task for all the subscribers. And since we process all incoming 
-data right away we attach the `SubscriberEvent::DATA_RECEIVED` which notifies us 
+we perform the same task for all the subscribers. And since we process all incoming
+data right away we attach the `SubscriberEvent::DATA_RECEIVED` which notifies us
 only once.
 
 Let's start by implementing our callback which prints the subscriber pointer, the
@@ -232,7 +231,7 @@ as long as there are samples in the subscriber since we attached an event that n
 us only once. But it is impossible to miss samples since the notification is reset
 right after `wait` or `timedWait` is returned - this means if a sample arrives after
 those calls we will be notified again.
-Additionally, we would like to count the sum of all processed samples therefor we 
+Additionally, we would like to count the sum of all processed samples therefor we
 add a second argument called `sumOfAllSamples`, the user defined context data.
 
 ```cpp
@@ -250,16 +249,16 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t
 }
 ```
 
-The _Event_ callback requires a signature of either `void (EventOrigin)` or 
-`void(EventOrigin, ContextDataType *)` when one would like to provide an additional 
+The _Event_ callback requires a signature of either `void (NotificationOrigin)` or
+`void(NotificationOrigin, ContextDataType *)` when one would like to provide an additional
 data pointer to the callback.
-In our example the _EventOrigin_ is a
+In our example the _NotificationOrigin_ is a
 `iox::popo::UntypedSubscriber` pointer which we use to acquire the latest sample by calling
-`take()` and the `ContextDataType` is an `uint64_t` used to count the processed 
+`take()` and the `ContextDataType` is an `uint64_t` used to count the processed
 samples. When `take()` was successful we print our message to
 the console inside of the `and_then` lambda.
 
-The `shutdownTrigger` uses a simpler callback which just informs us that we are 
+The `shutdownTrigger` uses a simpler callback which just informs us that we are
 exiting the program. Therefor we do not need an additional `ContextDataType` pointer.
 ```cpp
 void shutdownCallback(iox::popo::UserTrigger*)
@@ -275,7 +274,7 @@ broker RouDi. Then we attach our `shutdownTrigger` to handle `CTRL+c` events.
 ```cpp
 iox::popo::WaitSet waitset<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER>;
 
-waitset.attachEvent(shutdownTrigger, iox::popo::createEventCallback(shutdownCallback)).or_else([](auto) {
+waitset.attachEvent(shutdownTrigger, iox::popo::createNotificationCallback(shutdownCallback)).or_else([](auto) {
     std::cerr << "failed to attach shutdown trigger" << std::endl;
     std::exit(EXIT_FAILURE);
 });
@@ -286,8 +285,8 @@ attach the subscribers to our _WaitSet_ with the `SubscriberEvent::DATA_RECEIVED
 Everytime one of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 
 !!! attention 
-    The user has to ensure that the contextData (`sumOfAllSamples`) in `attachEvent` 
-    lives as long as the attachment, with its callback, is attached otherwise 
+    The user has to ensure that the contextData (`sumOfAllSamples`) in `attachEvent`
+    lives as long as the attachment, with its callback, is attached otherwise
     the callback context data pointer is dangling.
 
 ```cpp
@@ -299,7 +298,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
 
-    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createEventCallback(subscriberCallback, sumOfAllSamples))
+    waitset.attachEvent(subscriber, iox::popo::SubscriberEvent::DATA_RECEIVED, 0, createNotificationCallback(subscriberCallback, sumOfAllSamples))
         .or_else([&](auto) {
             std::cerr << "failed to attach subscriber" << i << std::endl;
             std::exit(EXIT_FAILURE);
@@ -308,34 +307,34 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 ```
 
 `attachEvent` is returning a `cxx::expected` which informs us if attaching the event
-succeeded. In the `.or_else([&](auto){/*...*/})` part we perform the error handling 
+succeeded. In the `.or_else([&](auto){/*...*/})` part we perform the error handling
 whenever `attachEvent` failed.
 
 Now our system is prepared and ready to work. We enter the event loop which
 starts with a call to our _WaitSet_ (`waitset.wait()`). This call will block until
 one or more events triggered the _WaitSet_. After the call returned we get a
-vector filled with _EventInfos_ which are corresponding to all the events which
+vector filled with _NotificationInfos_ which are corresponding to all the events which
 triggered the _WaitSet_.
 
 We iterate through this vector, if an _Event_ originated from the `shutdownTrigger`
 we exit the program otherwise we just call the assigned callback by calling
-the trigger. This will then call `subscriberCallback` with the _EventOrigin_
+the trigger. This will then call `subscriberCallback` with the _NotificationOrigin_
 (the pointer to the untyped subscriber) as parameter.
 
 ```cpp
 while (true)
 {
-    auto eventVector = waitset.wait();
+    auto notificationVector = waitset.wait();
 
-    for (auto& event : eventVector)
+    for (auto& notification : notificationVector)
     {
-        if (event->doesOriginateFrom(&shutdownTrigger))
+        if (notification->doesOriginateFrom(&shutdownTrigger))
         {
             return (EXIT_SUCCESS);
         }
         else
         {
-            (*event)();
+            (*notification)();
         }
     }
 
@@ -346,7 +345,7 @@ while (true)
 
 In our next use case we would like to divide the subscribers into two groups
 and we do not want to attach a callback to them. Instead we perform the calls on the
-subscribers directly. Additionally, we would like to be notified as long as there 
+subscribers directly. Additionally, we would like to be notified as long as there
 are samples in the subscriber queue therefore we have to attach the `SubscriberState::HAS_DATA`.
 
 We again start by creating a _WaitSet_ with a capacity of 5 (4 subscribers and 1 shutdownTrigger),
@@ -395,18 +394,18 @@ for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 }
 ```
 
-The event loop calls `auto eventVector = waitset.wait()` in a blocking call to
-receive a vector of all the _EventInfos_ which are corresponding to the occurred events.
+The event loop calls `auto notificationVector = waitset.wait()` in a blocking call to
+receive a vector of all the _NotificationInfos_ which are corresponding to the occurred events.
 If the _Event_ originated from the `shutdownTrigger` we terminate the program.
 
 ```cpp
 while (true)
 {
-    auto eventVector = waitset.wait();
+    auto notificationVector = waitset.wait();
 
-    for (auto& event : eventVector)
+    for (auto& notification : notificationVector)
     {
-        if (event->doesOriginateFrom(&shutdownTrigger))
+        if (notification->doesOriginateFrom(&shutdownTrigger))
         {
             return (EXIT_SUCCESS);
         }
@@ -417,18 +416,19 @@ we would like to print the received data to the console and in the second group
 we just dismiss the received data.
 
 ```cpp
-    else if (event->getEventId() == FIRST_GROUP_ID)
+    else if (notification->getNotificationId() == FIRST_GROUP_ID)
     {
-        auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
+        auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
         subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
             const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
             std::cout << "received: " << std::dec << data->counter << std::endl;
+            subscriber->release(userPayload);
         });
     }
-    else if (event->getEventId() == SECOND_GROUP_ID)
+    else if (notification->getNotificationId() == SECOND_GROUP_ID)
     {
         std::cout << "dismiss data\n";
-        auto subscriber = event->getOrigin<iox::popo::UntypedSubscriber>();
+        auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
         subscriber->releaseQueuedData();
     }
 ```
@@ -440,8 +440,8 @@ we just dismiss the received data.
 ### Individual
 
 When every _Triggerable_ requires a different reaction we need to know the
-origin of an _Event_. We can call `event.doesOriginateFrom(EventOrigin)`
-which will return true if the event originated from _EventOrigin_ and
+origin of an _Event_. We can call `event.doesOriginateFrom(NotificationOrigin)`
+which will return true if the event originated from _NotificationOrigin_ and
 otherwise false.
 
 We start this example by creating a _WaitSet_ with the default capacity and
@@ -478,11 +478,11 @@ With that set up we enter the event loop and handle the program termination firs
 ```cpp
 while (true)
 {
-    auto eventVector = waitset.wait();
+    auto notificationVector = waitset.wait();
 
-    for (auto& event : eventVector)
+    for (auto& notification : notificationVector)
     {
-        if (event->doesOriginateFrom(&shutdownTrigger))
+        if (notification->doesOriginateFrom(&shutdownTrigger))
         {
             return (EXIT_SUCCESS);
         }
@@ -494,13 +494,13 @@ We accomplish this by asking the `event` if it originated from the
 corresponding subscriber. If so, we act.
 
 ```cpp
-        else if (event->doesOriginateFrom(&subscriber1))
+        else if (notification->doesOriginateFrom(&subscriber1))
         {
             subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
                 std::cout << " subscriber 1 received: " << sample->counter << std::endl;
             });
         }
-        if (event->doesOriginateFrom(&subscriber2))
+        if (notification->doesOriginateFrom(&subscriber2))
         {
             subscriber2.releaseQueuedData();
             std::cout << "subscriber 2 received something - dont care\n";
@@ -531,7 +531,7 @@ class SomeClass
 We begin as always, by creating a _WaitSet_ with the default capacity and by
 attaching the `shutdownTrigger` to 
 it. In this case we do not set an event id when calling `attachEvent` which means
-the default event id  `EventInfo::INVALID_ID` is set.
+the default event id  `NotificationInfo::INVALID_ID` is set.
 
 ```cpp
 iox::popo::WaitSet<> waitset;
@@ -549,7 +549,7 @@ eventId `0` and the callback `SomeClass::cyclicRun`
 
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-waitset.attachEvent(cyclicTrigger, 0U, createEventCallback(SomeClass::cyclicRun)).or_else([](auto) {
+waitset.attachEvent(cyclicTrigger, 0U, createNotificationCallback(SomeClass::cyclicRun)).or_else([](auto) {
     std::cerr << "failed to attach cyclic trigger" << std::endl;
     std::exit(EXIT_FAILURE);
 });
@@ -574,11 +574,11 @@ Everything is set up and we can implement the event loop. As usual we handle
 ```cpp
 while (keepRunning.load())
 {
-    auto eventVector = waitset.wait();
+    auto notificationVector = waitset.wait();
     
-    for (auto& event : eventVector)
+    for (auto& notification : notificationVector)
     {
-        if (event->doesOriginateFrom(&shutdownTrigger))
+        if (notification->doesOriginateFrom(&shutdownTrigger))
         {
             keepRunning.store(false);
         }
@@ -589,7 +589,7 @@ The `cyclicTrigger` callback is called in the else part.
 ```cpp
         else
         {
-            (*event)();
+            (*notification)();
         }
 ```
 
@@ -680,13 +680,13 @@ enum class MyTriggerClassEvents : iox::popo::EventEnumIdentifier
 
 ##### Further Requirements
 
- 1. `friend iox::popo::EventAttorney`
+ 1. `friend iox::popo::NotificationAttorney`
 
     Methods like `enableEvent`, `disableEvent` etc. should never be accessible
     via the public API and should be therefore private. To avoid that every class
     has to befriend the _WaitSet_, _Listener_ and other internal structures we
     implemented the client attorney pattern and the class has only to befriend
-    the `iox::popo::EventAttorney`.
+    the `iox::popo::NotificationAttorney`.
 
  2. Deleted move and copy operations
 
@@ -749,13 +749,13 @@ the two const methods `hasPerformedAction` and `isActivated`.
 
 Since the following methods should not be accessible by the public but must be
 accessible by any _Notifyable_ like the _WaitSet_ and to avoid that
-we have to befriend every possible _Notifyable_ we created the `EventAttorney`.
-Every _Triggerable_ has to befriend the `EventAttorney` which provides access
+we have to befriend every possible _Notifyable_ we created the `NotificationAttorney`.
+Every _Triggerable_ has to befriend the `NotificationAttorney` which provides access
 to the private methods `enableEvent`/`enableState`, `disableEvent`/`disableState`, `invalidateTrigger` and
 `getCallbackForIsStateConditionSatisfied` to all _Notifyables_.
 
 ```cpp
-    friend iox::popo::EventAttorney;
+    friend iox::popo::NotificationAttorney;
 ```
 
 The method `enableEvent` is called by the _WaitSet_ when a `MyTriggerClass` event
@@ -897,17 +897,17 @@ void eventLoop()
 {
     while (true)
     {
-        auto eventVector = waitset->wait();
-        for (auto& event : eventVector)
+        auto notificationVector = waitset->wait();
+        for (auto& notification : notificationVector)
         {
-            if (event->getEventId() == ACTIVATE_ID)
+            if (notification->getNotificationId() == ACTIVATE_ID)
             {
-                event->getOrigin<MyTriggerClass>()->reset(MyTriggerClassStates::IS_ACTIVATED);
-                (*event)();
+                notification->getOrigin<MyTriggerClass>()->reset(MyTriggerClassStates::IS_ACTIVATED);
+                (*notification)();
             }
-            else if (event->getEventId() == ACTION_ID)
+            else if (notification->getNotificationId() == ACTION_ID)
             {
-                (*event)();
+                (*notification)();
             }
         }
     }
@@ -930,7 +930,7 @@ to the waitset and provide a callback for them.
     waitset->attachState(*triggerClass, 
                          MyTriggerClassStates::IS_ACTIVATED, 
                          ACTIVATE_ID, 
-                         iox::popo::createEventCallback(callOnActivate))
+                         iox::popo::createNotificationCallback(callOnActivate))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassStates::IS_ACTIVATED state " << std::endl;
             std::exit(EXIT_FAILURE);
@@ -940,7 +940,7 @@ to the waitset and provide a callback for them.
             *triggerClass, 
             MyTriggerClassEvents::PERFORM_ACTION_CALLED, 
             ACTION_ID, 
-            iox::popo::createEventCallback(MyTriggerClass::callOnAction))
+            iox::popo::createNotificationCallback(MyTriggerClass::callOnAction))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassEvents::PERFORM_ACTION_CALLED event " << std::endl;
             std::exit(EXIT_FAILURE);

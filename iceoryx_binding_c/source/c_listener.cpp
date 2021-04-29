@@ -49,7 +49,7 @@ ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t cons
                                                              void (*callback)(iox_sub_t))
 {
     auto result =
-        self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), createEventCallback(*callback));
+        self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), createNotificationCallback(*callback));
     if (result.has_error())
     {
         return cpp2c::listenerResult(result.get_error());
@@ -64,11 +64,11 @@ iox_listener_attach_subscriber_event_with_context_data(iox_listener_t const self
                                                        void (*callback)(iox_sub_t, void*),
                                                        void* const contextData)
 {
-    EventCallback<cpp2c_Subscriber, void> eventCallback;
-    eventCallback.m_callback = callback;
-    eventCallback.m_contextData = contextData;
+    NotificationCallback<cpp2c_Subscriber, void> notificationCallback;
+    notificationCallback.m_callback = callback;
+    notificationCallback.m_contextData = contextData;
 
-    auto result = self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), eventCallback);
+    auto result = self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), notificationCallback);
     if (result.has_error())
     {
         return cpp2c::listenerResult(result.get_error());
@@ -80,7 +80,7 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t co
                                                                iox_user_trigger_t const userTrigger,
                                                                void (*callback)(iox_user_trigger_t))
 {
-    auto result = self->attachEvent(*userTrigger, createEventCallback(*callback));
+    auto result = self->attachEvent(*userTrigger, createNotificationCallback(*callback));
     if (result.has_error())
     {
         return cpp2c::listenerResult(result.get_error());
@@ -94,11 +94,11 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event_with_context_data
                                                                                                   void*),
                                                                                  void* const contextData)
 {
-    EventCallback<UserTrigger, void> eventCallback;
-    eventCallback.m_callback = callback;
-    eventCallback.m_contextData = contextData;
+    NotificationCallback<UserTrigger, void> notificationCallback;
+    notificationCallback.m_callback = callback;
+    notificationCallback.m_contextData = contextData;
 
-    auto result = self->attachEvent(*userTrigger, eventCallback);
+    auto result = self->attachEvent(*userTrigger, notificationCallback);
     if (result.has_error())
     {
         return cpp2c::listenerResult(result.get_error());

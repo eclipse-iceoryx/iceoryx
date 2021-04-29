@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_EVENT_CALLBACK_HPP
 #define IOX_POSH_POPO_EVENT_CALLBACK_HPP
 
-#include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/cxx/attributes.hpp"
 
 namespace iox
 {
@@ -54,7 +54,7 @@ struct TranslateAndCallTypelessCallback<T, NoType_t>
 ///@brief the struct describes a callback with a user defined type which can
 ///         be attached to a WaitSet or a Listener
 template <typename OriginType, typename ContextDataType>
-struct EventCallback
+struct NotificationCallback
 {
     using Ref_t = void (&)(OriginType* const, ContextDataType* const);
     using Ptr_t = void (*)(OriginType* const, ContextDataType* const);
@@ -65,7 +65,7 @@ struct EventCallback
 
 ///@brief the struct describes a callback which can be attached to a WaitSet or a Listener
 template <typename OriginType>
-struct EventCallback<OriginType, internal::NoType_t>
+struct NotificationCallback<OriginType, internal::NoType_t>
 {
     using Ref_t = void (&)(OriginType* const);
     using Ptr_t = void (*)(OriginType* const);
@@ -74,23 +74,23 @@ struct EventCallback<OriginType, internal::NoType_t>
     internal::NoType_t* m_contextData = nullptr;
 };
 
-/// @brief creates an EventCallback
+/// @brief creates an NotificationCallback
 /// @param[in] callback reference to a callback with the signature void(OriginType*)
-/// @return the callback stored inside of an EventCallback
+/// @return the callback stored inside of an NotificationCallback
 template <typename OriginType, typename ContextDataType = internal::NoType_t>
-EventCallback<OriginType, ContextDataType> createEventCallback(void (&callback)(OriginType* const));
+NotificationCallback<OriginType, ContextDataType> createNotificationCallback(void (&callback)(OriginType* const));
 
-/// @brief creates an EventCallback with a user defined value
+/// @brief creates an NotificationCallback with a user defined value
 /// @param[in] callback reference to a callback with the signature void(OriginType*, ContextDataType*)
 /// @param[in] userValue reference to a user defined value
-/// @return the callback and user value stored inside of an EventCallback
+/// @return the callback and user value stored inside of an NotificationCallback
 template <typename OriginType, typename ContextDataType>
-EventCallback<OriginType, ContextDataType>
-createEventCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue);
+NotificationCallback<OriginType, ContextDataType>
+createNotificationCallback(void (&callback)(OriginType* const, ContextDataType* const), ContextDataType& userValue);
 
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/event_callback.inl"
+#include "iceoryx_posh/internal/popo/notification_callback.inl"
 
 #endif

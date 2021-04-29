@@ -16,7 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.7)
 
-set(IOX_VERSION_STRING "0.99.7")
+set(IOX_VERSION_STRING "1.0.0")
 
 project(iceoryx_dds VERSION ${IOX_VERSION_STRING})
 
@@ -90,6 +90,7 @@ if(USE_CYCLONE_DDS)
         source/iceoryx_dds/dds/cyclone_context.cpp
         source/iceoryx_dds/dds/cyclone_data_reader.cpp
         source/iceoryx_dds/dds/cyclone_data_writer.cpp
+        source/iceoryx_dds/dds/iox_chunk_datagram_header.cpp
     )
 
     # Generate IDL at configure time

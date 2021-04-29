@@ -26,7 +26,7 @@
 
 iox::popo::UserTrigger shutdownTrigger;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     shutdownTrigger.trigger();
 }
@@ -63,23 +63,23 @@ int main()
     // event loop
     while (true)
     {
-        auto eventVector = waitset.wait();
+        auto notificationVector = waitset.wait();
 
-        for (auto& event : eventVector)
+        for (auto& notification : notificationVector)
         {
-            if (event->doesOriginateFrom(&shutdownTrigger))
+            if (notification->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             // process sample received by subscriber1
-            else if (event->doesOriginateFrom(&subscriber1))
+            else if (notification->doesOriginateFrom(&subscriber1))
             {
                 subscriber1.take().and_then(
                     [&](auto& sample) { std::cout << " subscriber 1 received: " << sample->counter << std::endl; });
             }
             // dismiss sample received by subscriber2
-            if (event->doesOriginateFrom(&subscriber2))
+            if (notification->doesOriginateFrom(&subscriber2))
             {
                 // We need to release the samples to reset the trigger hasSamples
                 // otherwise the WaitSet would notify us in `waitset.wait()` again

@@ -21,9 +21,9 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
-#include "iceoryx_posh/popo/event_attorney.hpp"
-#include "iceoryx_posh/popo/event_callback.hpp"
-#include "iceoryx_posh/popo/event_info.hpp"
+#include "iceoryx_posh/popo/notification_attorney.hpp"
+#include "iceoryx_posh/popo/notification_callback.hpp"
+#include "iceoryx_posh/popo/notification_info.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -56,14 +56,14 @@ enum class WaitSetError : uint8_t
 /// The WaitSet stores Triggers and allows the user to wait till one or more of those Triggers are triggered. It works
 /// over process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it
 /// with the destructor. Hence the lifetime of the condition variable is bound to the lifetime of the WaitSet.
-/// @param[in] Capacity the amount of events which can be attached to the waitset
+/// @param[in] Capacity the amount of events/states which can be attached to the waitset
 template <uint64_t Capacity = MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET>
 class WaitSet
 {
   public:
     static constexpr uint64_t CAPACITY = Capacity;
     using TriggerArray = cxx::optional<Trigger>[Capacity];
-    using EventInfoVector = cxx::vector<const EventInfo*, CAPACITY>;
+    using NotificationInfoVector = cxx::vector<const NotificationInfo*, CAPACITY>;
 
     WaitSet() noexcept;
     ~WaitSet() noexcept;
@@ -76,7 +76,7 @@ class WaitSet
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
     /// @brief Non-reversible call. After this call wait() and timedWait() do
-    ///        not block any longer and never return triggered events. This
+    ///        not block any longer and never return triggered events/states. This
     ///        method can be used to manually initialize destruction and to wakeup
     ///        any thread which is waiting in wait() or timedWait().
     void markForDestruction() noexcept;
@@ -86,16 +86,17 @@ class WaitSet
     /// contextData. The user has to ensure that both will live as long as the event is attached.
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventType the event specified by the class
-    /// @param[in] eventId an arbitrary user defined id for the event
+    /// @param[in] notificationId an arbitrary user defined id for the event
     /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T,
               typename EventType,
               typename ContextDataType = internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<EventType>::value>>
-    cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
-                                            const EventType eventType,
-                                            const uint64_t eventId = 0U,
-                                            const EventCallback<T, ContextDataType>& eventCallback = {}) noexcept;
+    cxx::expected<WaitSetError>
+    attachEvent(T& eventOrigin,
+                const EventType eventType,
+                const uint64_t notificationId = 0U,
+                const NotificationCallback<T, ContextDataType>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
@@ -109,18 +110,19 @@ class WaitSet
               typename = std::enable_if_t<std::is_enum<EventType>::value, void>>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
                                             const EventType eventType,
-                                            const EventCallback<T, ContextDataType>& eventCallback) noexcept;
+                                            const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
     /// contextData. The user has to ensure that both will live as long as the event is attached.
     /// @param[in] eventOrigin the class from which the event originates.
-    /// @param[in] eventId an arbitrary user defined id for the event
+    /// @param[in] notificationId an arbitrary user defined id for the event
     /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T, typename ContextDataType = internal::NoType_t>
-    cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
-                                            const uint64_t eventId = 0U,
-                                            const EventCallback<T, ContextDataType>& eventCallback = {}) noexcept;
+    cxx::expected<WaitSetError>
+    attachEvent(T& eventOrigin,
+                const uint64_t notificationId = 0U,
+                const NotificationCallback<T, ContextDataType>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
@@ -129,7 +131,7 @@ class WaitSet
     /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T, typename ContextDataType = internal::NoType_t>
     cxx::expected<WaitSetError> attachEvent(T& eventOrigin,
-                                            const EventCallback<T, ContextDataType>& eventCallback) noexcept;
+                                            const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
@@ -142,10 +144,11 @@ class WaitSet
               typename StateType,
               typename ContextDataType = internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<StateType>::value>>
-    cxx::expected<WaitSetError> attachState(T& stateOrigin,
-                                            const StateType stateType,
-                                            const uint64_t id = 0U,
-                                            const EventCallback<T, ContextDataType>& stateCallback = {}) noexcept;
+    cxx::expected<WaitSetError>
+    attachState(T& stateOrigin,
+                const StateType stateType,
+                const uint64_t id = 0U,
+                const NotificationCallback<T, ContextDataType>& stateCallback = {}) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
@@ -159,7 +162,7 @@ class WaitSet
               typename = std::enable_if_t<std::is_enum<StateType>::value, void>>
     cxx::expected<WaitSetError> attachState(T& stateOrigin,
                                             const StateType stateType,
-                                            const EventCallback<T, ContextDataType>& stateCallback) noexcept;
+                                            const NotificationCallback<T, ContextDataType>& stateCallback) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
@@ -168,9 +171,10 @@ class WaitSet
     /// @param[in] id an arbitrary user defined id for the state
     /// @param[in] stateCallback a callback which should be assigned to the state
     template <typename T, typename ContextDataType = internal::NoType_t>
-    cxx::expected<WaitSetError> attachState(T& stateOrigin,
-                                            const uint64_t id = 0U,
-                                            const EventCallback<T, ContextDataType>& stateCallback = {}) noexcept;
+    cxx::expected<WaitSetError>
+    attachState(T& stateOrigin,
+                const uint64_t id = 0U,
+                const NotificationCallback<T, ContextDataType>& stateCallback = {}) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
@@ -179,7 +183,7 @@ class WaitSet
     /// @param[in] stateCallback a callback which should be assigned to the state
     template <typename T, typename ContextDataType = internal::NoType_t>
     cxx::expected<WaitSetError> attachState(T& stateOrigin,
-                                            const EventCallback<T, ContextDataType>& stateCallback) noexcept;
+                                            const NotificationCallback<T, ContextDataType>& stateCallback) noexcept;
 
     /// @brief detaches an event from the WaitSet
     /// @param[in] eventOrigin the origin of the event that should be detached
@@ -195,12 +199,12 @@ class WaitSet
 
     /// @brief Blocking wait with time limit till one or more of the triggers are triggered
     /// @param[in] timeout How long shall we waite for a trigger
-    /// @return EventInfoVector of EventInfos that have been triggered
-    EventInfoVector timedWait(const units::Duration timeout) noexcept;
+    /// @return NotificationInfoVector of NotificationInfos that have been triggered
+    NotificationInfoVector timedWait(const units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the triggers are triggered
-    /// @return EventInfoVector of EventInfos that have been triggered
-    EventInfoVector wait() noexcept;
+    /// @return NotificationInfoVector of NotificationInfos that have been triggered
+    NotificationInfoVector wait() noexcept;
 
     /// @brief Returns the amount of stored Trigger inside of the WaitSet
     uint64_t size() const noexcept;
@@ -226,20 +230,20 @@ class WaitSet
     template <typename T, typename ContextDataType>
     cxx::expected<uint64_t, WaitSetError> attachImpl(T& eventOrigin,
                                                      const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,
-                                                     const uint64_t eventId,
-                                                     const EventCallback<T, ContextDataType>& eventCallback,
+                                                     const uint64_t notificationId,
+                                                     const NotificationCallback<T, ContextDataType>& eventCallback,
                                                      const uint64_t originType,
                                                      const uint64_t originTypeHash) noexcept;
 
-    EventInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
-    EventInfoVector createVectorWithTriggeredTriggers() noexcept;
+    NotificationInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
+    NotificationInfoVector createVectorWithTriggeredTriggers() noexcept;
 
     void removeTrigger(const uint64_t uniqueTriggerId) noexcept;
     void removeAllTriggers() noexcept;
     void acquireNotifications(const WaitFunction& wait) noexcept;
 
   private:
-    /// needs to be a list since we return pointer to the underlying EventInfo class with wait
+    /// needs to be a list since we return pointer to the underlying NotificationInfo class with wait
     TriggerArray m_triggerArray;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionListener m_conditionListener;
