@@ -288,7 +288,7 @@ This quality level is the default quality level. It is meant for examples and he
 
 ### Quality level 4
 
-This quality level is meant for all targets that need tier 1 support in ROS2.
+This quality level is meant for all targets that need tier 1 support in ROS 2.
 
 * Basic unit tests are available
 
