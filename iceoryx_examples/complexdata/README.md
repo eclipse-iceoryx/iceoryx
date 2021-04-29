@@ -8,10 +8,9 @@ contained in the shared memory and must not internally use pointers or reference
 reimplemented some [constructs](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_utils#cxx). This example shows how
 to send/receive a iox::cxx::vector and how to send/receive a complex data structure containing some of our STL container surrogates.
 
-<!--## Expected Output-->
+## Expected Output
 
-<!-- @todo Add expected output with asciinema recording before v2.0-->
-<!-- @todo multiple examples described in here, expected output should be in front of every example -->
+[![asciicast](https://asciinema.org/a/410662.svg)](https://asciinema.org/a/410662)
 
 ## Code Walkthrough
 
