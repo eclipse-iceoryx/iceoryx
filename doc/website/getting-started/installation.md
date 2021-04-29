@@ -174,10 +174,10 @@ You can use the `help` argument for getting an overview of the available options
 
 ## :material-robot: Build with colcon
 
-Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/en/released/user/installation.html#using-debian-packages) to provide a smooth integration for ROS2 developers.
-To build the iceoryx_integrationtest package one requires a minimal [ROS2 installation](https://docs.ros.org/en/foxy/Installation/Linux-Install-Debians.html).
+Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/en/released/user/installation.html#using-debian-packages) to provide a smooth integration for ROS 2 developers.
+To build the iceoryx_integrationtest package one requires a minimal [ROS 2 installation](https://docs.ros.org/en/foxy/Installation/Linux-Install-Debians.html).
 
-Install required ROS2 packages:
+Install required ROS 2 packages:
 
 ```bash
 sudo apt install ros-foxy-ros-testing ros-foxy-ros-base
@@ -195,7 +195,7 @@ colcon build
 ```
 
 !!! note
-    If you don't want to install ROS2, you can skip the iceoryx_integrationtest package by calling:
+    If you don't want to install ROS 2, you can skip the iceoryx_integrationtest package by calling:
 
     ```bash
     colcon build --packages-skip iceoryx_integrationtest

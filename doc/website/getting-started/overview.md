@@ -185,7 +185,7 @@ The following table gives an overview of the different terminologies and the cur
 
 |         | Group   | Instance         | Topic                  |
 |---------|---------|------------------|------------------------|
-| ROS2    | Type    | Namespace::Topic | -                      |
+| ROS 2   | Type    | Namespace::Topic | -                      |
 | AUTOSAR | Service | Instance         | Event                  |
 | DDS     | -       | -                | /Group/Instance/Topic  |
 
