@@ -20,7 +20,7 @@ limitations:
 - limited functionality for performance testing because the stdout is buffered (messages could be reordered)
 
 ## Setup
-For building and executing the tests you need to have ROS 2 installed. Please follow the instructions on https://index.ros.org/doc/ros2/Installation.
+For building and executing the tests you need to have ROS 2 installed. Please follow the instructions on https://docs.ros.org/en/foxy/Installation.html.
 The system tests are currently tested on ROS 2 "Foxy Fitzroy" in Ubuntu 20.04 LTS.
 
 Please remove beforehand the `COLCON_IGNORE` files from `iceoryx_integrationtest` and `iceoryx_examples`.
