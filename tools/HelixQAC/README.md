@@ -63,10 +63,9 @@ simply run the command
 
     qacli analyze -P . -f
 
-you will then be able to view the results in Helix QAC GUI
+you will then be able to view the results in Helix QAC GUI with
 
-## Known issues
+    qagui -P . &
 
-
-the following list of files do not parse properly, but these are known issues.
+![QAC-GUI](https://user-images.githubusercontent.com/49677928/116425950-fcf2a380-a842-11eb-84c3-d034acbf9d92.png)
 
