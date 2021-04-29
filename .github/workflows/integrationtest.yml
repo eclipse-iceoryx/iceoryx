@@ -53,7 +53,7 @@ jobs:
           source /opt/ros/foxy/setup.bash
           cd $GITHUB_WORKSPACE
           rm -rf iceoryx_examples/COLCON_IGNORE iceoryx_integrationtest/COLCON_IGNORE
-          colcon build --cmake-args -DBINDING_C=ON
+          colcon build
 
       - name: Test Execution
         run: |

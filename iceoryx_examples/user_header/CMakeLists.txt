@@ -105,8 +105,8 @@ install(TARGETS
         RUNTIME DESTINATION bin
 )
 
-if(BINDING_C)
-    find_package(iceoryx_binding_c)
+find_package(iceoryx_binding_c QUIET)
+if(iceoryx_binding_c_FOUND)
 
     set_source_files_properties(
         publisher_c_api.c
