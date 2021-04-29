@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_utils/cxx/algorithm.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
 
 namespace
@@ -29,11 +30,11 @@ class algorithm_test : public Test
   public:
     void SetUp()
     {
-        internal::CaptureStderr();
+        testing::internal::CaptureStderr();
     }
     virtual void TearDown()
     {
-        std::string output = internal::GetCapturedStderr();
+        std::string output = testing::internal::GetCapturedStderr();
         if (Test::HasFailure())
         {
             std::cout << output << std::endl;

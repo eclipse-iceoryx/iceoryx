@@ -45,11 +45,13 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     , m_portManager(portManager)
     , m_compatibilityCheckLevel(compatibilityCheckLevel)
 {
+    bool fatalError{false};
+
     auto maybeSegmentManager = m_roudiMemoryInterface.segmentManager();
     if (!maybeSegmentManager.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain SegmentManager!";
-        std::terminate();
+        fatalError = true;
     }
     m_segmentManager = maybeSegmentManager.value();
 
@@ -57,7 +59,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeIntrospectionMemoryManager.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain MemoryManager for instrospection!";
-        std::terminate();
+        fatalError = true;
     }
     m_introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
@@ -65,9 +67,15 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeMgmtSegmentId.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain SegmentId for iceoryx management segment!";
-        std::terminate();
+        fatalError = true;
     }
     m_mgmtSegmentId = maybeMgmtSegmentId.value();
+
+    if (fatalError)
+    {
+        /// @todo #539 Use separate error enums once RouDi is more modular
+        errorHandler(Error::kROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, nullptr, ErrorLevel::FATAL);
+    }
 }
 
 void ProcessManager::handleProcessShutdownPreparationRequest(const RuntimeName_t& name) noexcept
