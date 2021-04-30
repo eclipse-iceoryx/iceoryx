@@ -4,7 +4,11 @@
             "global_excludes": [
                 "build/*",
                 "test/*",
+                "tools/*",
                 "iceoryx_examples/*",
+                "iceoryx_dds/*",
+                "iceoryx_integrationtest/*",
+                "iceoryx_binding_c/*",
                 "cmake/*",
                 "cpptoml_vendor/*",
                 "doc/*",
@@ -1611,10 +1615,7 @@
             "input_files": [
                 "$(ICEORYX_DIR)/build/install/prefix/bin/iox-cpp-publisher",
                 "$(ICEORYX_DIR)/build/install/prefix/bin/iox-cpp-subscriber",
-                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-c-publisher",
-                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-c-subscriber",
                 "$(ICEORYX_DIR)/build/install/prefix/bin/iox-cpp-waitset-individual",
-                "$(ICEORYX_DIR)/build/install/prefix/bin/iox-c-waitset-individual",
                 "$(ICEORYX_DIR)/build/install/prefix/bin/iox-roudi"
             ],
             "ir": "result.ir",
@@ -1635,7 +1636,7 @@
         },
         "Command": {
             "_active": false,
-            "build_command": "./tools/iceoryx_build_test.sh examples dds-gateway clean",
+            "build_command": "./tools/iceoryx_build_test.sh examples clean",
             "clean_command": null,
             "environment": {
                 "CC": "irCC",
@@ -1709,7 +1710,7 @@
         "cmake dependencies": {
             "_active": true,
             "_copy_from": "Command",
-            "build_command": "cmake -DCMAKE_BUILD_TYPE= -DCMAKE_INSTALL_PREFIX=$(ICEORYX_DIR)/build/install/prefix/ -DEXAMPLES=ON -DDDS_GATEWAY=ON $(ICEORYX_DIR)/iceoryx_meta",
+            "build_command": "cmake -DCMAKE_BUILD_TYPE= -DCMAKE_INSTALL_PREFIX=$(ICEORYX_DIR)/build/install/prefix/ -DEXAMPLES=ON $(ICEORYX_DIR)/iceoryx_meta",
             "clean_command": null,
             "cwd": "build",
             "environment": {
