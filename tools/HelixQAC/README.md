@@ -42,7 +42,7 @@ note that since iceoryx is only C++, we only provide a C++ CCT.
 
 ## adding iceory files to the Helix QAC Project
 this can be done in many ways, but we will go with the most straightforward one : process monitor.
-supposing you build with ` cmake --build build`, you will run the command
+supposing you build with ` cmake --build build` (after having run ` cmake -Bbuild -Hiceoryx_meta ` ), you will run the command
 
     qacli sync -P . -t MONITOR -- "cmake --build build"
 this will run the build of iceoryx, and helix QAC will catch all files being built.
@@ -53,8 +53,7 @@ now that the project is created, and files added, the project needs to be config
 
     qacli pprops -P . -c rcma-2.3.1 --add
     qacli pprops -P . -c ascm-2.4.0 --add
-    qacli admin -P . --qaf-project-config --rcf as
-cm-2.4.0-en_US.rcf
+    qacli admin -P . --qaf-project-config --rcf ascm-2.4.0-en_US.rcf
     
 the project is now ready for autosar analysis !
 
@@ -69,3 +68,10 @@ you will then be able to view the results in Helix QAC GUI with
 
 ![QAC-GUI](https://user-images.githubusercontent.com/49677928/116425950-fcf2a380-a842-11eb-84c3-d034acbf9d92.png)
 
+
+
+## Uploading to Dashboard
+
+once you have analysis results, you might want to upload them to a Dashboard instance. Here is a basic command used to upload results to Helix QAC Dashboard. This command may change depending on your network environment (namely username, password and URL) :
+
+` qacli upload -q -P . --username USERNAME -p PASSWORD --upload-source ALL -a RELATIVE --upload-project iceoryx -U http://DASHBOARD_IP:8080`
