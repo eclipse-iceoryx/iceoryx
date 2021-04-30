@@ -34,14 +34,18 @@ done
 
 echo
 echo usage of std components by file
-grep -RIne "std::" $GREP_PATH | sed -n  "s/\([~:]*\)\:[0-9]*\:.*\(std::[a-zA-Z_]*\).*/  \1  \2/p" | sort | uniq
+grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\:[0-9]*\)\:.*\(std::[a-zA-Z_]*\).*/\ \ \1  \2/p" | sort | uniq
+
+echo 
+echo files with stl dependency
+grep -RIne "std::" $GREP_PATH | sed -n  "s/\([^:]*\)\:[0-9]*\:.*std::[a-zA-Z_]*.*/\1/p" | xargs -I{} basename {} | sort | uniq
 
 echo
 echo using namespace with std component
-grep -RIne ".*using[ ]*namespace[ ]*std" $GREP_PATH | sed -n "s/\(.*\)/  \1/p"
+grep -RIne ".*using[ ]*namespace[ ]*std" $GREP_PATH | sed -n "s/\(.*\)/\ \ \1/p"
 
 echo
 echo usage of std components
-grep -RIne "std::" $GREP_PATH | sed -n  "s/.*\(std::[a-zA-Z_]*\).*/  \1/p" | sort | uniq
+grep -RIne "std::" $GREP_PATH | sed -n  "s/.*\(std::[a-zA-Z_]*\).*/\ \ \1/p" | sort | uniq
 
 
