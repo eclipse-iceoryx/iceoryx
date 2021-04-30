@@ -19,19 +19,22 @@
 
 #=====================================================
 # usage:
-#   cd ICEORYX_ROOT_DIR
-#   ./tools/list_stl_dependencies.sh
+#   ./list_stl_dependencies.sh
 #=====================================================
 
 COMPONENTS=(iceoryx_posh iceoryx_utils)
 SOURCE_DIR=(source include)
-
+WORKSPACE=$(git rev-parse --show-toplevel)
 
 for COMPONENT in ${COMPONENTS[@]}; do
     for DIR in ${SOURCE_DIR[@]}; do
-        GREP_PATH="${GREP_PATH} ${COMPONENT}/$DIR"
+        GREP_PATH="${GREP_PATH} ${WORKSPACE}/${COMPONENT}/$DIR"
     done
 done
+
+echo
+echo usage of std components by file
+grep -RIne "std::" $GREP_PATH | sed -n  "s/\([~:]*\)\:[0-9]*\:.*\(std::[a-zA-Z_]*\).*/  \1  \2/p" | sort | uniq
 
 echo
 echo using namespace with std component
@@ -40,9 +43,5 @@ grep -RIne ".*using[ ]*namespace[ ]*std" $GREP_PATH | sed -n "s/\(.*\)/  \1/p"
 echo
 echo usage of std components
 grep -RIne "std::" $GREP_PATH | sed -n  "s/.*\(std::[a-zA-Z_]*\).*/  \1/p" | sort | uniq
-
-echo
-echo usage of std components by file
-grep -RIne "std::" $GREP_PATH | sed -n  "s/\([~:]*\)\:[0-9]*\:.*\(std::[a-zA-Z_]*\).*/  \1  \2/p" | sort | uniq
 
 
