@@ -47,7 +47,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (*function
     ///      as required by the C++ standard
     m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
         auto f = reinterpret_cast<ReturnType (*)(ArgTypes...)>(target);
-        return f(std::forward<ArgTypes>(args)...);
+        return f(args...); // can we do some perfect forwarding here? (we cannot use std::forward due to non-movable types)
     };
 }
 

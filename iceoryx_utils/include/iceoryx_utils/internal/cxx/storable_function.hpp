@@ -81,7 +81,8 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @brief invoke the stored function
     /// @note  invoking the function if there is no stored function (i.e. operator bool returns false)
     ///        is leads to terminate
-    ReturnType operator()(Args... args);
+    template <typename... ArgTypes>
+    ReturnType operator()(ArgTypes&&... args);
 
     /// @brief indicates whether a function was stored
     operator bool() noexcept;

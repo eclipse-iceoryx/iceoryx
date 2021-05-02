@@ -113,11 +113,11 @@ storable_function<S, signature<ReturnType, Args...>>::~storable_function() noexc
 
 
 template <typename S, typename ReturnType, typename... Args>
-ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args)
+template <typename... ArgTypes>
+ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(ArgTypes&&... args)
 {
     cxx::Expects(operator bool());
-    auto r = m_function(std::forward<Args>(args)...);
-    return r;
+    return m_function(std::forward<ArgTypes>(args)...);
 }
 
 template <typename S, typename ReturnType, typename... Args>
