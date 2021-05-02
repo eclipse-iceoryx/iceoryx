@@ -48,9 +48,14 @@ The `Client` and `Server` are reusing the `ChunkSender` and `ChunkReceiver` buil
 
 ![typed API](diagrams/request_response/typed_api.svg)
 
+Since the `Response` is tied to a specific `Request`, the `loan` method takes a `Request` to populate the `Response` with the correct settings.
+Alternatively, a `Request` could have a `createResponse` method which returns a `Response` with the correct settings.
+
 #### Untyped API
 
 ![untyped API](diagrams/request_response/untyped_api.svg)
+
+Similar to the the typed API, `loan` takes a pointer to a `RequestHeader` to populate the `ResponseHeader` with the correct settings.
 
 #### Client Port
 
@@ -67,6 +72,8 @@ interface RouDi needs to connect the client to the server and to cleanup the por
 Similar to the Client Port, the Server Port has `ServerPortData` which is located in the shared memory and contain only the data but no methods to access them.
 `ServerPortUser` is the class providing the methods for the user access and `ServerPortRouDi` provides the
 interface RouDi needs to connect the client to the server once the server offers its service and to cleanup the port resources.
+
+It must be ensured that only one server with a given `ServiceDescription` can run at a time.
 
 #### Request/Response Header
 

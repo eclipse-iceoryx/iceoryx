@@ -27,7 +27,7 @@ class UntypedServer {
   release(request: void*): void
   releaseQueuedRequests(): void
   hasMissedRequests(): bool
-  loan(): expected<void*, Error>
+  loan(requestHeader: RequestHeader*): expected<void*, Error>
   send(response: void*): void
   release(response: void*): void
 }

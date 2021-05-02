@@ -17,7 +17,7 @@ class ServerPortUser {
   releaseRequest(requestHeader: const RequestHeader*): void
   hasNewRequests(): void
   hasLostRequestsSinceLastCall(): bool
-  allocateResponse(userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<ResponseHeader*, AllocationError>
+  allocateResponse(requestHeader: RequestHeader*, userPayloadSize: uint32_t, userPayloadAlignment: uint32_t): expected<ResponseHeader*, AllocationError>
   sendResponse(responseHeader: ResponseHeader): void
   freeResponse(responseHeader: ResponseHeader): void
   setConditionVariable(conditionVariable: ConditionVariableData&, notificationIndex: uint64_t): void

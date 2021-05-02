@@ -24,7 +24,7 @@ class Server<Req, Res> {
   take(): expected<Request<Req>, Error>
   releaseQueuedRequests(): void
   hasMissedRequests(): bool
-  loan(): expected<Response<Res>, Error>
+  loan(request: Request<Req>&): expected<Response<Res>, Error>
   send(response: Response<Res>): void
 }
 
