@@ -91,8 +91,8 @@ The client and server options can be used to control certain aspects of the clie
 Beside setting the capacity of the queues and defining whether a client should be connected and a server offering on creation,
 the behaviour for a slow client and server can be defined.
 A client can ask a server to block if its response queue is full.
-The server will obey if the corresponding `ClientTooSlowPolicy` is set to `WAIT_FOR_CLIENT`.
-If the options don't match, the client will not be connected to the server.
+The server will obey if the corresponding `clientTooSlowPolicy` is set to `ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER`.
+If the options don't match, the client will not be connected to the server, similar to the behavior of publisher and subscriber.
 
 ### Code example
 

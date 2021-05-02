@@ -5,30 +5,25 @@ class ClientOptions {
   responseQueueCapacity: uint64_t
   nodeName: NodeName_t
   connectOnCreate: bool
-  responseQueueFullPolicy: ResponseQueueFullPolicy
-  serverTooSlowPolicy: ServerTooSlowPolicy
+  responseQueueFullPolicy: QueueFullPolicy
+  serverTooSlowPolicy: ConsumerTooSlowPolicy
 }
 
 class ServerOptions {
   requestQueueCapacity: uint64_t
   nodeName: NodeName_t
   offerOnCreate: bool
-  clientTooSlowPolicy: ClientTooSlowPolicy
+  clientTooSlowPolicy: ConsumerTooSlowPolicy
 }
 
-enum ResponseQueueFullPolicy {
-    BLOCK_SERVER,
-    DISCARD_OLDEST_DATA
+enum QueueFullPolicy {
+  BLOCK_PRODUCER,
+  DISCARD_OLDEST_DATA
 }
 
-enum ClientTooSlowPolicy {
-    WAIT_FOR_CLIENT,
-    DISCARD_OLDEST_DATA
-}
-
-enum ServerTooSlowPolicy {
-    WAIT_FOR_SERVER,
-    DISCARD_OLDEST_DATA
+enum ConsumerTooSlowPolicy {
+  WAIT_FOR_CONSUMER,
+  DISCARD_OLDEST_DATA
 }
 
 @enduml
