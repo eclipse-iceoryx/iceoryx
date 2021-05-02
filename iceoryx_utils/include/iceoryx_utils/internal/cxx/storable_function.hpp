@@ -33,12 +33,13 @@ using signature = ReturnType(Args...);
 template <typename StorageType, typename T>
 class storable_function;
 
-/// @brief A storable alternative of std::function which not necessarily uses dynamic memory.
-/// @param StorageType The type of internal storage to store the actual data.
+/// @brief A storable alternative of std::function which uses memory defined by a StorageType (this can be dynamic, static or anything else adhering to the required allocation interface).
+/// @note This is not achievable with std::function and a custom allocator, as then the memory will still not be part of the object and copying (and moving may cause subtle issues). Hence a complete implementation is required.
+/// @tparam StorageType The type of internal storage to store the actual data.
 ///                    Needs to provide allocate and deallocate functions.
 ///                    See static_storage.hpp for a static memory version.
-/// @param ReturnType  The return type of the stored callable.
-/// @param Args        The arguments of the stored callable.
+/// @tparam ReturnType  The return type of the stored callable.
+/// @tparam Args        The arguments of the stored callable.
 template <typename StorageType, typename ReturnType, typename... Args>
 class storable_function<StorageType, signature<ReturnType, Args...>>
 {
@@ -79,7 +80,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     /// @brief invoke the stored function
     /// @note  invoking the function if there is no stored function (i.e. operator bool returns false)
-    ///        is undefined
+    ///        is leads to terminate
     ReturnType operator()(Args... args);
 
     /// @brief indicates whether a function was stored

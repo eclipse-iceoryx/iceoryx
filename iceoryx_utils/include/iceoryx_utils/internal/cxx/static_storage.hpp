@@ -23,13 +23,13 @@ namespace iox
 {
 namespace cxx
 {
-/// @brief static storage class to allocate memory for objects of type not yet known.
+/// @brief Static storage class to allocate memory for objects of type not yet known.
 ///        This storage is not aware of any underlying type.
 ///        It can be used where abstract static memory for some object is required.
 ///        Currently this memory is allocated on the stack but it could be implemented
 ///        to use memory from the static memory segment.
-/// @param Capacity Number of bytes the static_storage will allocate statically.
-/// @param Align Alignment of the allocated memory.
+/// @tparam Capacity Number of bytes the static_storage will allocate statically.
+/// @tparam Align Alignment of the allocated memory.
 
 /// @note We can define optimized_storage (or dynamic_storage) with a similar interface
 ///       but other allocation policies and use them where we need to store objects
@@ -64,7 +64,7 @@ class static_storage
     T* allocate() noexcept;
 
     /// @brief provide align aligned memory with a specific size
-    void* allocate(uint64_t align, uint64_t size) noexcept;
+    void* allocate(const uint64_t align, const uint64_t size) noexcept;
 
     /// @brief mark the static memory as unused
     /// @note no dtor of the stored type is called (we do not know the type)

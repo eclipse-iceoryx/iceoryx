@@ -16,6 +16,7 @@
 #define IOX_UTILS_STORABLE_FUNCTION_INL
 
 #include "iceoryx_utils/internal/cxx/storable_function.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -114,6 +115,7 @@ storable_function<S, signature<ReturnType, Args...>>::~storable_function() noexc
 template <typename S, typename ReturnType, typename... Args>
 ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args)
 {
+    cxx::Expects(operator bool());
     auto r = m_function(std::forward<Args>(args)...);
     return r;
 }

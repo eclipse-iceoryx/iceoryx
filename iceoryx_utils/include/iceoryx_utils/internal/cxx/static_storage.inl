@@ -53,7 +53,7 @@ T* static_storage<Capacity, Align>::allocate() noexcept
 }
 
 template <uint64_t Capacity, uint64_t Align>
-void* static_storage<Capacity, Align>::allocate(uint64_t align, uint64_t size) noexcept
+void* static_storage<Capacity, Align>::allocate(const uint64_t align, const uint64_t size) noexcept
 {
     if (m_ptr)
     {

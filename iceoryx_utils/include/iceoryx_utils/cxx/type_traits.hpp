@@ -93,14 +93,12 @@ struct has_signature<Callable,
 /// @brief Check whether T is a function pointer with arbitrary signature
 ///
 template <typename T>
-struct is_function_pointer
+struct is_function_pointer : std::false_type
 {
-    static constexpr bool value = false;
 };
 template <typename ReturnType, typename... ArgTypes>
-struct is_function_pointer<ReturnType (*)(ArgTypes...)>
+struct is_function_pointer<ReturnType (*)(ArgTypes...)> : std::true_type
 {
-    static constexpr bool value = true;
 };
 
 ///
