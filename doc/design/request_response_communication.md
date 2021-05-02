@@ -80,14 +80,23 @@ It must be ensured that only one server with a given `ServiceDescription` can ru
 ![rpc header](diagrams/request_response/request_response_header.svg)
 
 Since request and response need to encode different meta-information, we also need different header for the messages.
-The common data is aggregated in `RpcBaseHeader` which contains a `RelativePointer` to the `ClientChunkQueueData_t` and a sequence ID.
-The `ClientChunkQueueData_t` pointer is used to identify the queue which receives the response.
-It must not be used to send the response since the lifetime might already have ended at the time
-the response is sent but used as identifier for `ChunkDistributor::deliverToQueue`.
+The common data is aggregated in `RpcBaseHeader` which contains a `UniquePortId` to the port owning the `ClientChunkQueueData_t` and a sequence ID.
+The `UniquePortId` is used to identify the queue which receives the response and used as identifier for `ChunkDistributor::deliverToPort`.
+This method will iterate over all stored queues and matches the `ChunkQueueData::m_uniqueIdOfOwner`.
+As optimization, the `ChunkDistributor::deliverToPort` returns the index of the queue to do a fast lookup and downgrades to a full lookup if the port IDs don't match.
+```cpp
+class ChunkDistributor {
+    ...
+    cxx::expected<uint64_t, Error> deliverToPort(UniquePortId uniquePortId, uint64_t lastKnownQueueIndex);
+    ...
+};
+```
+
 The sequence ID is used to match a response to a specific request if multiple requests are invoke asynchronously.
 Depending on the client and server options, a request might be dropped or a server could have a worker pool
 which results in sending the responses in a different order than the request were received.
 The sequence ID must be set by the user and also checked by the user on response.
+
 The `RequestHeader` has also the option to specify a message as fire and forget, which means it won't get a response to this request.
 
 #### Client/Server Options

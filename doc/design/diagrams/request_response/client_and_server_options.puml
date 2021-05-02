@@ -2,15 +2,15 @@
 skinparam backgroundColor #EEEBDC
 
 class ClientOptions {
-  responseQueueCapacity: uint64_t
+  queueCapacity: uint64_t
   nodeName: NodeName_t
   connectOnCreate: bool
-  responseQueueFullPolicy: QueueFullPolicy
+  queueFullPolicy: QueueFullPolicy
   serverTooSlowPolicy: ConsumerTooSlowPolicy
 }
 
 class ServerOptions {
-  requestQueueCapacity: uint64_t
+  queueCapacity: uint64_t
   nodeName: NodeName_t
   offerOnCreate: bool
   clientTooSlowPolicy: ConsumerTooSlowPolicy
