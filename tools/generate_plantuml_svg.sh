@@ -25,6 +25,7 @@ WORKSPACE="$(git rev-parse --show-toplevel)"
 PUML_DIR="$WORKSPACE/doc/design/diagrams"
 EXPORT_DIR=${1:-$PUML_DIR}
 PLANTUML_DIR="/tmp/plantuml-jar-mit-1.2021.5"
+NUM_THREADS=""
 
 cd $WORKSPACE
 
@@ -43,4 +44,17 @@ then
     exit
 fi
 
-java -jar $PLANTUML_DIR/plantuml.jar -nometadata -tsvg $EXPORT_DIR/*
+
+# set number of cores for building
+if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
+    NUM_THREADS=$(nproc)
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    NUM_THREADS=$(sysctl -n hw.ncpu)
+else
+    NUM_THREADS=1
+fi
+echo " [i] Generating with $NUM_THREADS threads"
+
+java -jar $PLANTUML_DIR/plantuml.jar -nometadata -nbthread $NUM_THREADS -tsvg -I "$EXPORT_DIR/**.puml"
+
+echo " [i] Finished"
