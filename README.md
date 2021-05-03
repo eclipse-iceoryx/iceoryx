@@ -39,9 +39,10 @@ You're right, middleware is a cluttered term and can somehow be all or nothing, 
 
 It's all about the API?!
 
-Don't get too frighten of the API when strolling through the codebase. Think of iceoryx's API as a "plumbing" one
-("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" API ourselves, but instead a typed API.
-The normal use case is that iceoryx is integrated as high-performance IPC transport layer in a bigger framework with additional API layers.
+Don't get too frightened of the API when strolling through the codebase. Think of the untyped C++ and the C API as a
+"plumbing" one ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" APIs ourselves, but
+instead the typed C++ API. The normal use case is that iceoryx is integrated as high-performance IPC transport layer in
+a bigger framework with additional API layers.
 An example for such a "porcelain" API would be [ROS 2](https://www.ros.org/). Others are listed in the next section.
 
 You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io).

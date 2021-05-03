@@ -84,11 +84,27 @@ class TestIcedeliveryExample(unittest.TestCase):
         proc_output.assertWaitFor(
             'iox-cpp-publisher sent five times value: 15', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
+            'iox-cpp-subscriber got value: 104', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-subscriber got value: 159', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-subscriber got value: 248', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-subscriber got value: 392', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
             'iox-cpp-subscriber got value: 15', timeout=45, stream='stdout')
 
     def test_publisher_subscriber_untyped_data_exchange(self, proc_output):
         proc_output.assertWaitFor(
             'iox-cpp-publisher-untyped sent two times value: 15', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-subscriber-untyped got value: 104', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-subscriber-untyped got value: 159', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-subscriber-untyped got value: 248', timeout=45, stream='stdout')
+        proc_output.assertWaitFor(
+            'iox-cpp-subscriber-untyped got value: 392', timeout=45, stream='stdout')
         proc_output.assertWaitFor(
             'iox-cpp-subscriber-untyped got value: 15', timeout=45, stream='stdout')
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,24 +14,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_BINDING_C_SLEEP_FOR_H
-#define IOX_BINDING_C_SLEEP_FOR_H
+#ifndef IOX_EXAMPLES_USER_HEADER_AND_PAYLOAD_TYPES_HPP
+#define IOX_EXAMPLES_USER_HEADER_AND_PAYLOAD_TYPES_HPP
 
-#ifdef _WIN32
-#include <windows.h>
+#include <cstdint>
 
-void sleep_for(uint32_t milliseconds)
+//! [user-header]
+struct Header
 {
-    Sleep((uint64_t)milliseconds);
-}
+    uint64_t publisherTimestamp{0};
+};
+//! [user-header]
 
-#else
-#include <unistd.h>
-
-void sleep_for(uint32_t milliseconds)
+//! [user-payload]
+struct Data
 {
-    usleep(milliseconds * 1000U);
-}
-#endif
+    uint64_t fibonacci{0};
+};
+//! [user-payload]
 
-#endif
+#endif // IOX_EXAMPLES_USER_HEADER_AND_PAYLOAD_TYPES_HPP

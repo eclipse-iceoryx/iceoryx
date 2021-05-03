@@ -108,8 +108,8 @@ class PublisherImpl : public BasePublisher_t, public PublisherInterface<T, H>
     PublisherSampleDeleter m_sampleDeleter{port()};
 };
 
-template <typename T>
-using Publisher = PublisherImpl<T>;
+template <typename T, typename H = mepoo::NoUserHeader>
+using Publisher = PublisherImpl<T, H>;
 
 } // namespace popo
 } // namespace iox
