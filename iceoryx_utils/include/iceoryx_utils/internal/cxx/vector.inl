@@ -268,11 +268,7 @@ inline T& vector<T, Capacity>::at(const uint64_t index) noexcept
 template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at(const uint64_t index) const noexcept
 {
-    if (index + 1u > m_size)
-    {
-        std::cerr << "out of bounds access, current size is " << m_size << " but given index is " << index << std::endl;
-        std::terminate();
-    }
+    cxx::Expects((index < m_size) && "Out of bounds access");
     return reinterpret_cast<const T*>(m_data)[index];
 }
 
@@ -291,45 +287,27 @@ inline const T& vector<T, Capacity>::operator[](const uint64_t index) const noex
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::front() noexcept
 {
-    if (empty())
-    {
-        std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
-        std::terminate();
-    }
+    cxx::Expects(!empty() && "Attempting to access the front of an empty vector");
     return at(0);
 }
 
 template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::front() const noexcept
 {
-    if (empty())
-    {
-        std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
-        std::terminate();
-    }
-    return at(0);
+    return const_cast<vector<T, Capacity>*>(this)->front();
 }
 
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::back() noexcept
 {
-    if (empty())
-    {
-        std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
-        std::terminate();
-    }
+    cxx::Expects(!empty() && "Attempting to access the back of an empty vector");
     return at(size() - 1u);
 }
 
 template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::back() const noexcept
 {
-    if (empty())
-    {
-        std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
-        std::terminate();
-    }
-    return at(size() - 1);
+    return const_cast<vector<T, Capacity>*>(this)->back();
 }
 
 template <typename T, uint64_t Capacity>

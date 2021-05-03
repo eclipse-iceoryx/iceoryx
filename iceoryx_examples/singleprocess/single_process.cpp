@@ -34,7 +34,7 @@
 
 std::atomic_bool keepRunning{true};
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
     // caught SIGINT or SIGTERM, now exit gracefully
     keepRunning = false;
@@ -119,8 +119,8 @@ int main()
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
-    iox::roudi::RouDi roudi(roudiComponents.m_rouDiMemoryManager,
-                            roudiComponents.m_portManager,
+    iox::roudi::RouDi roudi(roudiComponents.rouDiMemoryManager,
+                            roudiComponents.portManager,
                             iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false});
 
     // create a single process runtime for inter thread communication

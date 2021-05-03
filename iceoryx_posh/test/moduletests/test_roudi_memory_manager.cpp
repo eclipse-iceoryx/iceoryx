@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 
-#include "mocks/logger_mock.hpp"
+#include "iceoryx_utils/testing/mocks/logger_mock.hpp"
 #include "mocks/roudi_memory_block_mock.hpp"
 #include "mocks/roudi_memory_provider_mock.hpp"
 

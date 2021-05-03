@@ -26,23 +26,37 @@ find_package(iceoryx_utils CONFIG REQUIRED)
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 include(IceoryxPlatform)
 
-add_executable(iox-ex-c-callbacks-publisher ./ice_c_callbacks_publisher.c)
-set_source_files_properties(./ice_c_callbacks_publisher.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-ex-c-callbacks-publisher
-    iceoryx_binding_c::iceoryx_binding_c
-)
-target_compile_options(iox-ex-c-callbacks-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+if("-Wno-noexcept-type" IN_LIST ICEORYX_WARNINGS)
+    list(REMOVE_ITEM ICEORYX_WARNINGS "-Wno-noexcept-type")
+endif()
 
-add_executable(iox-ex-c-callbacks-subscriber ./ice_c_callbacks_subscriber.c)
-set_source_files_properties(./ice_c_callbacks_subscriber.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-ex-c-callbacks-subscriber
+add_executable(iox-c-callbacks-publisher ./ice_c_callbacks_publisher.c)
+set_source_files_properties(./ice_c_callbacks_publisher.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-c-callbacks-publisher
     iceoryx_binding_c::iceoryx_binding_c
 )
-target_compile_options(iox-ex-c-callbacks-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+target_compile_options(iox-c-callbacks-publisher PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+add_executable(iox-c-callbacks-subscriber ./ice_c_callbacks_subscriber.c)
+set_source_files_properties(./ice_c_callbacks_subscriber.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-c-callbacks-subscriber
+    iceoryx_binding_c::iceoryx_binding_c
+)
+target_compile_options(iox-c-callbacks-subscriber PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+add_executable(iox-c-callbacks-with-context-data ./ice_c_callbacks_with_context_data.c)
+set_source_files_properties(./ice_c_callbacks_with_context_data.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-c-callbacks-with-context-data
+    iceoryx_binding_c::iceoryx_binding_c
+)
+target_compile_options(iox-c-callbacks-with-context-data PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+
+
 
 set_target_properties(
-    iox-ex-c-callbacks-subscriber
-    iox-ex-c-callbacks-publisher
+    iox-c-callbacks-with-context-data
+    iox-c-callbacks-subscriber
+    iox-c-callbacks-publisher
   PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -50,6 +64,6 @@ set_target_properties(
 )
 
 install(
-    TARGETS iox-ex-c-callbacks-publisher iox-ex-c-callbacks-subscriber 
+    TARGETS iox-c-callbacks-publisher iox-c-callbacks-subscriber iox-c-callbacks-with-context-data
     RUNTIME DESTINATION bin
 )

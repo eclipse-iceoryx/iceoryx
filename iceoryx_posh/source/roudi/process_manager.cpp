@@ -45,11 +45,13 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     , m_portManager(portManager)
     , m_compatibilityCheckLevel(compatibilityCheckLevel)
 {
+    bool fatalError{false};
+
     auto maybeSegmentManager = m_roudiMemoryInterface.segmentManager();
     if (!maybeSegmentManager.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain SegmentManager!";
-        std::terminate();
+        fatalError = true;
     }
     m_segmentManager = maybeSegmentManager.value();
 
@@ -57,7 +59,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeIntrospectionMemoryManager.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain MemoryManager for instrospection!";
-        std::terminate();
+        fatalError = true;
     }
     m_introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
@@ -65,14 +67,31 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (!maybeMgmtSegmentId.has_value())
     {
         LogFatal() << "Invalid state! Could not obtain SegmentId for iceoryx management segment!";
-        std::terminate();
+        fatalError = true;
     }
     m_mgmtSegmentId = maybeMgmtSegmentId.value();
 
-    auto currentUser = posix::PosixUser::getUserOfCurrentProcess();
-    auto m_segmentInfo = m_segmentManager->getSegmentInformationForUser(currentUser);
-    m_memoryManagerOfCurrentProcess = m_segmentInfo.m_memoryManager;
+    if (fatalError)
+    {
+        /// @todo #539 Use separate error enums once RouDi is more modular
+        errorHandler(Error::kROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, nullptr, ErrorLevel::FATAL);
+    }
 }
+
+void ProcessManager::handleProcessShutdownPreparationRequest(const RuntimeName_t& name) noexcept
+{
+    searchForProcessAndThen(
+        name,
+        [&](Process& process) {
+            m_portManager.unblockProcessShutdown(name);
+            // Reply with PREPARE_APP_TERMINATION_ACK and let process shutdown
+            runtime::IpcMessage sendBuffer;
+            sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::PREPARE_APP_TERMINATION_ACK);
+            process.sendViaIpcChannel(sendBuffer);
+        },
+        [&]() { LogWarn() << "Unknown application " << name << " requested shutdown preparation."; });
+}
+
 void ProcessManager::requestShutdownOfAllProcesses() noexcept
 {
     // send SIG_TERM to all running applications and wait for processes to answer with TERMINATION
@@ -80,6 +99,9 @@ void ProcessManager::requestShutdownOfAllProcesses() noexcept
     {
         requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
     }
+
+    // this unblocks the RouDi shutdown if a publisher port is blocked by a full subscriber queue
+    m_portManager.unblockRouDiShutdown();
 }
 
 bool ProcessManager::isAnyRegisteredProcessStillRunning() noexcept
@@ -179,7 +201,7 @@ void ProcessManager::evaluateKillError(const Process& process,
     }
 }
 
-bool ProcessManager::registerProcess(const ProcessName_t& name,
+bool ProcessManager::registerProcess(const RuntimeName_t& name,
                                      const uint32_t pid,
                                      const posix::PosixUser user,
                                      const bool isMonitored,
@@ -187,8 +209,6 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
                                      const uint64_t sessionId,
                                      const version::VersionInfo& versionInfo) noexcept
 {
-    auto segmentInfo = m_segmentManager->getSegmentInformationForUser(user);
-
     bool returnValue{false};
 
     searchForProcessAndThen(
@@ -199,69 +219,40 @@ bool ProcessManager::registerProcess(const ProcessName_t& name,
             // if it is monitored, we reject the registration and wait for automatic cleanup
             // otherwise we remove the process ourselves and register it again
 
-            if (process.isMonitored()) // is it the same process or a duplicate?
+            if (process.isMonitored())
             {
-                // process exists and is monitored - we rely on monitoring for removal
-                LogWarn() << "Received REG from " << name
-                          << ", but another application with this name is already registered";
+                LogWarn() << "Received register request, but termination of " << name << " not detected yet";
+            }
 
-                // Notify new application that it shall shutdown and try later
-                runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(
-                    runtime::IpcMessageType::REG_FAIL_RUNTIME_NAME_ALREADY_REGISTERED);
-                process.sendViaIpcChannel(sendBuffer);
-                returnValue = false;
+            // process exists, we expect that the existing process crashed
+            LogWarn() << "Application " << name << " crashed. Re-registering application";
+
+            // remove the existing process and add the new process afterwards, we do not send ack to new process
+            constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
+            if (!searchForProcessAndRemoveIt(name, terminationFeedback))
+            {
+                LogWarn() << "Application " << name << " could not be removed";
+                return;
             }
             else
             {
-                // process exists and is not monitored, we expect that the existing process crashed
-                LogDebug() << "Registering already existing application " << name;
-
-                // remove the existing process and add the new process afterwards, we do not send ack to new process
-                constexpr TerminationFeedback terminationFeedback{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
-                if (!searchForProcessAndRemoveIt(name, terminationFeedback))
-                {
-                    LogWarn()
-                        << "Received REG from " << name
-                        << ", but another application with this name is already registered and could not be removed";
-                    return;
-                }
-                else
-                {
-                    LogDebug() << "Removed existing application " << name;
-                    // try registration again, should succeed since removal was successful
-                    returnValue = addProcess(name,
-                                             pid,
-                                             segmentInfo.m_memoryManager,
-                                             isMonitored,
-                                             transmissionTimestamp,
-                                             segmentInfo.m_segmentID,
-                                             sessionId,
-                                             versionInfo);
-                }
+                // try registration again, should succeed since removal was successful
+                returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
             }
         },
         [&]() {
             // process does not exist in list and can be added
-            returnValue = addProcess(name,
-                                     pid,
-                                     segmentInfo.m_memoryManager,
-                                     isMonitored,
-                                     transmissionTimestamp,
-                                     segmentInfo.m_segmentID,
-                                     sessionId,
-                                     versionInfo);
+            returnValue = addProcess(name, pid, user, isMonitored, transmissionTimestamp, sessionId, versionInfo);
         });
 
     return returnValue;
 }
 
-bool ProcessManager::addProcess(const ProcessName_t& name,
+bool ProcessManager::addProcess(const RuntimeName_t& name,
                                 const uint32_t pid,
-                                cxx::not_null<mepoo::MemoryManager* const> payloadMemoryManager,
+                                const posix::PosixUser& user,
                                 const bool isMonitored,
                                 const int64_t transmissionTimestamp,
-                                const uint64_t payloadSegmentId,
                                 const uint64_t sessionId,
                                 const version::VersionInfo& versionInfo) noexcept
 {
@@ -280,7 +271,7 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
         LogError() << "Could not register process '" << name << "' - too many processes";
         return false;
     }
-    m_processList.emplace_back(name, pid, *payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
+    m_processList.emplace_back(name, pid, user, isMonitored, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
@@ -295,13 +286,13 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
     // set current timestamp again (already done in Process's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock_t::now());
 
-    m_processIntrospection->addProcess(static_cast<int>(pid), ProcessName_t(cxx::TruncateToCapacity, name.c_str()));
+    m_processIntrospection->addProcess(static_cast<int>(pid), RuntimeName_t(cxx::TruncateToCapacity, name.c_str()));
 
     LogDebug() << "Registered new application " << name;
     return true;
 }
 
-bool ProcessManager::unregisterProcess(const ProcessName_t& name) noexcept
+bool ProcessManager::unregisterProcess(const RuntimeName_t& name) noexcept
 {
     constexpr TerminationFeedback feedback{TerminationFeedback::SEND_ACK_TO_PROCESS};
     if (!searchForProcessAndRemoveIt(name, feedback))
@@ -312,7 +303,7 @@ bool ProcessManager::unregisterProcess(const ProcessName_t& name) noexcept
     return true;
 }
 
-bool ProcessManager::searchForProcessAndRemoveIt(const ProcessName_t& name, const TerminationFeedback feedback) noexcept
+bool ProcessManager::searchForProcessAndRemoveIt(const RuntimeName_t& name, const TerminationFeedback feedback) noexcept
 {
     // we need to search for the process (currently linear search)
     auto it = m_processList.begin();
@@ -354,7 +345,7 @@ bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(Process
     return false;
 }
 
-void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name) noexcept
+void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexcept
 {
     searchForProcessAndThen(
         name,
@@ -365,7 +356,7 @@ void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name) noexce
         [&]() { LogWarn() << "Received Keepalive from unknown process " << name; });
 }
 
-void ProcessManager::findServiceForProcess(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept
+void ProcessManager::findServiceForProcess(const RuntimeName_t& name, const capro::ServiceDescription& service) noexcept
 {
     searchForProcessAndThen(
         name,
@@ -377,7 +368,7 @@ void ProcessManager::findServiceForProcess(const ProcessName_t& name, const capr
         [&]() { LogWarn() << "Unknown process " << name << " requested an InstanceString."; });
 }
 
-void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
+void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
                                             capro::Interfaces interface,
                                             const NodeName_t& node) noexcept
 {
@@ -400,10 +391,10 @@ void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
         [&]() { LogWarn() << "Unknown application " << name << " requested an interface."; });
 }
 
-void ProcessManager::sendServiceRegistryChangeCounterToProcess(const ProcessName_t& processName) noexcept
+void ProcessManager::sendServiceRegistryChangeCounterToProcess(const RuntimeName_t& runtimeName) noexcept
 {
     searchForProcessAndThen(
-        processName,
+        runtimeName,
         [&](Process& process) {
             // send counter to app as a serialized relative pointer
             auto offset =
@@ -413,10 +404,10 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const ProcessName
             sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
             process.sendViaIpcChannel(sendBuffer);
         },
-        [&]() { LogWarn() << "Unknown application " << processName << " requested an serviceRegistryChangeCounter."; });
+        [&]() { LogWarn() << "Unknown application " << runtimeName << " requested an serviceRegistryChangeCounter."; });
 }
 
-void ProcessManager::addApplicationForProcess(const ProcessName_t& name) noexcept
+void ProcessManager::addApplicationForProcess(const RuntimeName_t& name) noexcept
 {
     searchForProcessAndThen(
         name,
@@ -435,12 +426,12 @@ void ProcessManager::addApplicationForProcess(const ProcessName_t& name) noexcep
         [&]() { LogWarn() << "Unknown application " << name << " requested an ApplicationPort." << name; });
 }
 
-void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const NodeName_t& nodeName) noexcept
+void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const NodeName_t& nodeName) noexcept
 {
     searchForProcessAndThen(
-        processName,
+        runtimeName,
         [&](Process& process) {
-            m_portManager.acquireNodeData(processName, nodeName)
+            m_portManager.acquireNodeData(runtimeName, nodeName)
                 .and_then([&](auto nodeData) {
                     auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, nodeData);
 
@@ -449,9 +440,9 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
                                << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
                     process.sendViaIpcChannel(sendBuffer);
-                    m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
+                    m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, runtimeName.c_str()),
                                                     NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
-                    LogDebug() << "Created new node " << nodeName << " for process " << processName;
+                    LogDebug() << "Created new node " << nodeName << " for process " << runtimeName;
                 })
                 .or_else([&](PortPoolError error) {
                     runtime::IpcMessage sendBuffer;
@@ -463,13 +454,13 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
                     }
                     process.sendViaIpcChannel(sendBuffer);
 
-                    LogDebug() << "Could not create new node for process " << processName;
+                    LogDebug() << "Could not create new node for process " << runtimeName;
                 });
         },
-        [&]() { LogWarn() << "Unknown process " << processName << " requested a node."; });
+        [&]() { LogWarn() << "Unknown process " << runtimeName << " requested a node."; });
 }
 
-void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name) noexcept
+void ProcessManager::sendMessageNotSupportedToRuntime(const RuntimeName_t& name) noexcept
 {
     searchForProcessAndThen(
         name,
@@ -483,7 +474,7 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
         []() {});
 }
 
-void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
+void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
                                              const capro::ServiceDescription& service,
                                              const popo::SubscriberOptions& subscriberOptions,
                                              const PortConfigInfo& portConfigInfo) noexcept
@@ -519,7 +510,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
         [&]() { LogWarn() << "Unknown application " << name << " requested a SubscriberPort."; });
 }
 
-void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
+void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                                             const capro::ServiceDescription& service,
                                             const popo::PublisherOptions& publisherOptions,
                                             const PortConfigInfo& portConfigInfo) noexcept
@@ -527,8 +518,21 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
     searchForProcessAndThen(
         name,
         [&](Process& process) { // create a PublisherPort
+            auto segmentInfo = m_segmentManager->getSegmentInformationWithWriteAccessForUser(process.getUser());
+
+            if (!segmentInfo.m_memoryManager.has_value())
+            {
+                // Tell the app no writable shared memory segment was found
+                runtime::IpcMessage sendBuffer;
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageErrorTypeToString(
+                    runtime::IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT);
+                process.sendViaIpcChannel(sendBuffer);
+                return;
+            }
+
             auto maybePublisher = m_portManager.acquirePublisherPortData(
-                service, publisherOptions, name, &process.getPayloadMemoryManager(), portConfigInfo);
+                service, publisherOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo);
 
             if (!maybePublisher.has_error())
             {
@@ -557,12 +561,12 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
         [&]() { LogWarn() << "Unknown application " << name << " requested a PublisherPort."; });
 }
 
-void ProcessManager::addConditionVariableForProcess(const ProcessName_t& processName) noexcept
+void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtimeName) noexcept
 {
     searchForProcessAndThen(
-        processName,
+        runtimeName,
         [&](Process& process) { // Try to create a condition variable
-            m_portManager.acquireConditionVariableData(processName)
+            m_portManager.acquireConditionVariableData(runtimeName)
                 .and_then([&](auto condVar) {
                     auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, condVar);
 
@@ -572,7 +576,7 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
                                << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
                     process.sendViaIpcChannel(sendBuffer);
 
-                    LogDebug() << "Created new ConditionVariable for application " << processName;
+                    LogDebug() << "Created new ConditionVariable for application " << runtimeName;
                 })
                 .or_else([&](PortPoolError error) {
                     runtime::IpcMessage sendBuffer;
@@ -584,10 +588,10 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
                     }
                     process.sendViaIpcChannel(sendBuffer);
 
-                    LogDebug() << "Could not create new ConditionVariable for application " << processName;
+                    LogDebug() << "Could not create new ConditionVariable for application " << runtimeName;
                 });
         },
-        [&]() { LogWarn() << "Unknown application " << processName << " requested a ConditionVariable."; });
+        [&]() { LogWarn() << "Unknown application " << runtimeName << " requested a ConditionVariable."; });
 }
 
 void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept
@@ -602,7 +606,7 @@ void ProcessManager::run() noexcept
 }
 
 popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service,
-                                                                       const ProcessName_t& process_name) noexcept
+                                                                       const RuntimeName_t& process_name) noexcept
 {
     popo::PublisherOptions options;
     options.historyCapacity = 1;
@@ -619,7 +623,7 @@ popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const cap
     return maybePublisher.value();
 }
 
-bool ProcessManager::searchForProcessAndThen(const ProcessName_t& name,
+bool ProcessManager::searchForProcessAndThen(const RuntimeName_t& name,
                                              cxx::function_ref<void(Process&)> AndThenCallable,
                                              cxx::function_ref<void()> OrElseCallable) noexcept
 {

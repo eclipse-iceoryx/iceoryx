@@ -20,21 +20,23 @@ limitations:
 - limited functionality for performance testing because the stdout is buffered (messages could be reordered)
 
 ## Setup
-For building and executing the tests you need to have ROS2 installed. Please follow the instructions on https://index.ros.org/doc/ros2/Installation.
+For building and executing the tests you need to have ROS 2 installed. Please follow the instructions on https://docs.ros.org/en/foxy/Installation.html.
 The system tests are currently tested on ROS 2 "Foxy Fitzroy" in Ubuntu 20.04 LTS.
+
+Please remove beforehand the `COLCON_IGNORE` files from `iceoryx_integrationtest` and `iceoryx_examples`.
 
 For a basic setup you need to install the following packages:
 ```bash
 sudo apt install ros-foxy-ros-base ros-foxy-ros-testing ros-foxy-launch-testing ros-foxy-ament-cmake python3-colcon-common-extensions
 ```
-For the future versions you can use the corresponding ROS2 release.
+For the future versions you can use the corresponding ROS 2 release.
 
 After installing you need to source ROS 2 to make the environment available in your terminal:
 ```bash
 source /opt/ros/foxy/setup.bash
 ```
 
-**_NOTE:_** You can add the source command to your `~/.bashrc` for automatic loading the ROS2 workspace at boot time.
+**_NOTE:_** You can add the source command to your `~/.bashrc` for automatic loading the ROS 2 workspace at boot time.
 
 Required for the colcon build of iceoryx is that the repository is located within a ROS workspace like this:
 ```
@@ -42,7 +44,6 @@ iceoryx_workspace
 └── src
     └── iceoryx
         ├── cmake
-        ├── cpptoml_vendor
         ├── doc
         ├── iceoryx_binding_c
         ├── iceoryx_dds
@@ -63,7 +64,8 @@ colcon build
 Expected output should be like this: `Summary: 13 packages finished [24.1s]`
 Colcon automatically creates the folders `build`, `install` and `log`.
 
-**_NOTE:_** If you get an build error related to CycloneDDS, please delete the build folder from the iceoryx directory.
+**_NOTE:_** Please make sure that the build folder in src/iceoryx is not present to avoid conflicts with the 
+colcon build.
 
 For executing tests you can use colcon too:
 ```bash

@@ -21,16 +21,16 @@ namespace iox
 {
 namespace runtime
 {
-IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
+IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
-    : IpcInterfaceBase(name, maxMessages, messageSize)
+    : IpcInterfaceBase(runtimeName, maxMessages, messageSize)
     , m_fileLock(std::move(
-          posix::FileLock::create(name)
-              .or_else([&name](auto& error) {
+          posix::FileLock::create(runtimeName)
+              .or_else([&runtimeName](auto& error) {
                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                   {
-                      LogFatal() << "An application with the name " << name
+                      LogFatal() << "An application with the name " << runtimeName
                                  << " is still running. Using the "
                                     "same name twice is not supported.";
                       errorHandler(
@@ -38,7 +38,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
                   }
                   else
                   {
-                      LogFatal() << "Error occured while acquiring file lock named " << name;
+                      LogFatal() << "Error occured while acquiring file lock named " << runtimeName;
                       errorHandler(Error::kIPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, nullptr, iox::ErrorLevel::FATAL);
                   }
               })
@@ -46,7 +46,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
 {
     // check if the IPC channel is still there (e.g. because of no proper termination
     // of the process)
-    cleanupOutdatedIpcChannel(name);
+    cleanupOutdatedIpcChannel(runtimeName);
 
     openIpcChannel(posix::IpcChannelSide::SERVER);
 }
@@ -54,7 +54,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const ProcessName_t& name,
 void IpcInterfaceCreator::cleanupResource()
 {
     m_ipcChannel.destroy().or_else(
-        [this](auto) { LogWarn() << "unable to cleanup ipc channel resource " << m_interfaceName; });
+        [this](auto) { LogWarn() << "unable to cleanup ipc channel resource " << m_runtimeName; });
 }
 } // namespace runtime
 } // namespace iox

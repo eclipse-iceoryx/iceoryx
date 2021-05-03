@@ -18,9 +18,9 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_utils/testing/timing_test.hpp"
+#include "iceoryx_utils/testing/watch_dog.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
-#include "testutils/watch_dog.hpp"
 
 #include <atomic>
 #include <memory>
@@ -38,11 +38,11 @@ class ConditionVariable_test : public Test
   public:
     using NotificationVector_t = ConditionListener::NotificationVector_t;
     using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
-    const iox::ProcessName_t m_process{"Ferdinand"};
+    const iox::RuntimeName_t m_runtimeName{"Ferdinand"};
     const iox::units::Duration m_timeToWait = 2_s;
     const iox::units::Duration m_timingTestTime = 100_ms;
 
-    ConditionVariableData m_condVarData{m_process};
+    ConditionVariableData m_condVarData{m_runtimeName};
     ConditionListener m_waiter{m_condVarData};
     ConditionNotifier m_signaler{m_condVarData, 0U};
     vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS_PER_CONDITION_VARIABLE> m_notifiers;
@@ -132,12 +132,12 @@ TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstruction)
     }
 }
 
-TEST_F(ConditionVariable_test, CorrectProcessNameAfterConstructionWithProcessName)
+TEST_F(ConditionVariable_test, CorrectRuntimeNameAfterConstructionWithRuntimeName)
 {
-    EXPECT_THAT(m_condVarData.m_process.c_str(), StrEq(m_process));
+    EXPECT_THAT(m_condVarData.m_runtimeName.c_str(), StrEq(m_runtimeName));
 }
 
-TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithProcessName)
+TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithRuntimeName)
 {
     for (auto& notification : m_condVarData.m_activeNotifications)
     {
@@ -466,4 +466,3 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInReverseO
     waitReturnsSortedListWhenTriggeredInReverseOrder(
         *this, [this] { return m_waiter.timedWait(iox::units::Duration::fromSeconds(1)); });
 }
-

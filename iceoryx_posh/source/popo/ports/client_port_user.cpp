@@ -39,7 +39,8 @@ ClientPortUser::MemberType_t* ClientPortUser::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const uint32_t /*payloadSize*/) noexcept
+cxx::expected<RequestHeader*, AllocationError>
+ClientPortUser::allocateRequest(const uint32_t /*userPayloadSize*/) noexcept
 {
     return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);
 }
@@ -87,7 +88,7 @@ bool ClientPortUser::hasNewResponses() const noexcept
 
 bool ClientPortUser::hasLostResponsesSinceLastCall() noexcept
 {
-    return m_chunkReceiver.hasOverflown();
+    return m_chunkReceiver.hasLostChunks();
 }
 
 void ClientPortUser::setConditionVariable(ConditionVariableData& conditionVariableData,

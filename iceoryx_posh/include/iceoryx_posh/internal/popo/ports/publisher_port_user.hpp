@@ -50,18 +50,18 @@ class PublisherPortUser : public BasePort
 
     /// @brief Allocate a chunk, the ownership of the SharedChunk remains in the PublisherPortUser for being able to
     /// cleanup if the user process disappears
-    /// @param[in] payloadSize, size of the user payload without additional headers
-    /// @param[in] payloadAlignment, alignment of the user payload
-    /// @param[in] customHeaderSize, size of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_SIZE to omit a custom header
-    /// @param[in] customHeaderAlignment, alignment of the custom user header; use iox::CHUNK_NO_CUSTOM_HEADER_ALIGNMENT
-    /// to omit a custom header
-    /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
-    /// not
+    /// @param[in] userPayloadSize, size of the user-payload without additional headers
+    /// @param[in] userPayloadAlignment, alignment of the user-payload
+    /// @param[in] userHeaderSize, size of the user-header; use iox::CHUNK_NO_USER_HEADER_SIZE to omit a user-header
+    /// @param[in] userHeaderAlignment, alignment of the user-header; use iox::CHUNK_NO_USER_HEADER_ALIGNMENT
+    /// to omit a user-header
+    /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
+    /// user-payload fields, error if not
     cxx::expected<mepoo::ChunkHeader*, AllocationError>
-    tryAllocateChunk(const uint32_t payloadSize,
-                     const uint32_t payloadAlignment,
-                     const uint32_t customHeaderSize = 0U,
-                     const uint32_t customHeaderAlignment = 1U) noexcept;
+    tryAllocateChunk(const uint32_t userPayloadSize,
+                     const uint32_t userPayloadAlignment,
+                     const uint32_t userHeaderSize = 0U,
+                     const uint32_t userHeaderAlignment = 1U) noexcept;
 
     /// @brief Free an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free

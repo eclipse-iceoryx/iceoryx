@@ -26,6 +26,7 @@ namespace iox
 namespace runtime
 {
 /// @brief Class for creating and handling a IPC channel
+/// @note This class makes sures the IPC channel is created uniquely
 class IpcInterfaceCreator : public IpcInterfaceBase
 {
   public:
@@ -35,7 +36,7 @@ class IpcInterfaceCreator : public IpcInterfaceBase
     /// @param[in] name Unique identifier of the IPC channel
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
-    IpcInterfaceCreator(const ProcessName_t& name,
+    IpcInterfaceCreator(const RuntimeName_t& name,
                         const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
                         const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 

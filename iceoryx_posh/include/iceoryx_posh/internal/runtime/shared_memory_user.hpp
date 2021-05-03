@@ -49,7 +49,7 @@ class SharedMemoryUser
 
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;
-    cxx::vector<posix::SharedMemoryObject, MAX_SHM_SEGMENTS> m_payloadShmObjects;
+    cxx::vector<posix::SharedMemoryObject, MAX_SHM_SEGMENTS> m_dataShmObjects;
 };
 
 } // namespace runtime

@@ -23,6 +23,7 @@
 #include "iceoryx_posh/popo/base_subscriber.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
+#include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -51,7 +52,7 @@ class MockSubscriberPortUser
     MOCK_METHOD0(unsubscribe, void());
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
     MOCK_METHOD0(tryGetChunk, iox::cxx::expected<const iox::mepoo::ChunkHeader*, iox::popo::ChunkReceiveResult>());
-    MOCK_METHOD1(releaseChunk, void(iox::mepoo::ChunkHeader*));
+    MOCK_METHOD1(releaseChunk, void(const void* const));
     MOCK_METHOD0(releaseQueuedChunks, void());
     MOCK_CONST_METHOD0(hasNewChunks, bool());
     MOCK_METHOD0(hasLostChunksSinceLastCall, bool());
@@ -93,6 +94,7 @@ class MockBaseSubscriber
     }
 
     Port m_port;
+    iox::popo::TriggerHandle m_trigger;
 };
 
 #endif // IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP

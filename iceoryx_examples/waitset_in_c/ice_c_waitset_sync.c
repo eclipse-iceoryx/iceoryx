@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
-#include "iceoryx_binding_c/event_info.h"
+#include "iceoryx_binding_c/notification_info.h"
 #include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
@@ -30,7 +30,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_EVENTS 2
+#define NUMBER_OF_NOTIFICATIONS 2
 
 iox_user_trigger_storage_t shutdownTriggerStorage;
 iox_user_trigger_t shutdownTrigger;
@@ -50,12 +50,9 @@ static void sigHandler(int signalValue)
 
 void cyclicRun(iox_user_trigger_t trigger)
 {
+    (void)trigger;
     printf("activation callback\n");
     fflush(stdout);
-    // after every call we have to reset the trigger otherwise the waitset
-    // would immediately call us again since we still signal to the waitset that
-    // we have been triggered (waitset is state based)
-    iox_user_trigger_reset_trigger(trigger);
 }
 
 void* cyclicTriggerCallback(void* dontCare)
@@ -77,7 +74,7 @@ int main()
            "which triggers the cyclicTrigger every second.\n");
 #endif
 
-    iox_runtime_init("iox-c-ex-waitset-sync");
+    iox_runtime_init("iox-c-waitset-sync");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -107,21 +104,21 @@ int main()
 #endif
 
     uint64_t missedElements = 0U;
-    uint64_t numberOfEvents = 0U;
+    uint64_t numberOfNotifications = 0U;
 
-    // array where all trigger from iox_ws_wait will be stored
-    iox_event_info_t eventArray[NUMBER_OF_EVENTS];
+    // array where all notifications from iox_ws_wait will be stored
+    iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
     // event loop
     while (keepRunning)
     {
-        numberOfEvents = iox_ws_wait(waitSet, eventArray, NUMBER_OF_EVENTS, &missedElements);
+        numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
 
-        for (uint64_t i = 0U; i < numberOfEvents; ++i)
+        for (uint64_t i = 0U; i < numberOfNotifications; ++i)
         {
-            iox_event_info_t event = eventArray[i];
+            iox_notification_info_t notification = notificationArray[i];
 
-            if (iox_event_info_does_originate_from_user_trigger(event, shutdownTrigger))
+            if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
@@ -129,7 +126,7 @@ int main()
             else
             {
                 // call myCyclicRun
-                iox_event_info_call(event);
+                iox_notification_info_call(notification);
             }
         }
     }

@@ -20,6 +20,8 @@
 
 #include <type_traits>
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::cxx;
 
@@ -187,3 +189,4 @@ TYPED_TEST(Helplets_test_isPowerOfTwo, MaxValueForTypeIsNotPowerOfTwo)
 {
     EXPECT_FALSE(isPowerOfTwo(static_cast<typename TestFixture::CurrentType>(TestFixture::MAX)));
 }
+} // namespace

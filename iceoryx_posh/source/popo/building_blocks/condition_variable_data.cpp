@@ -26,8 +26,8 @@ ConditionVariableData::ConditionVariableData() noexcept
 {
 }
 
-ConditionVariableData::ConditionVariableData(const ProcessName_t& process) noexcept
-    : m_process(process)
+ConditionVariableData::ConditionVariableData(const RuntimeName_t& runtimeName) noexcept
+    : m_runtimeName(runtimeName)
 {
     for (auto& id : m_activeNotifications)
     {

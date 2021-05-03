@@ -86,7 +86,7 @@ bool SubscriberPortUser::hasNewChunks() const noexcept
 
 bool SubscriberPortUser::hasLostChunksSinceLastCall() noexcept
 {
-    return m_chunkReceiver.hasOverflown();
+    return m_chunkReceiver.hasLostChunks();
 }
 
 void SubscriberPortUser::setConditionVariable(ConditionVariableData& conditionVariableData,

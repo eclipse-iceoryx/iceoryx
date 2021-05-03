@@ -122,7 +122,7 @@ class RequestHeader : public RPCBaseHeader
         /// todo
         return nullptr;
     }
-    void* getPayload() noexcept
+    void* getUserPayload() noexcept
     {
         /// todo
         return nullptr;
@@ -162,7 +162,7 @@ class ResponseHeader : public RPCBaseHeader
         /// todo
         return nullptr;
     }
-    const void* getPayload() const noexcept
+    const void* getUserPayload() const noexcept
     {
         /// todo
         return nullptr;

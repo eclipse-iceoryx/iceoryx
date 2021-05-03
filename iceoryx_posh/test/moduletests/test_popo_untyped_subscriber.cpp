@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
-#include "mocks/chunk_mock.hpp"
+#include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"
@@ -137,7 +137,7 @@ TEST_F(UntypedSubscriberTest, TakeReturnsAllocatedMemoryChunk)
     auto maybeChunk = sut.take();
     // ===== Verify ===== //
     ASSERT_FALSE(maybeChunk.has_error());
-    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->payload());
+    EXPECT_EQ(maybeChunk.value(), chunkMock.chunkHeader()->userPayload());
     // ===== Cleanup ===== //
     sut.release(maybeChunk.value());
 }

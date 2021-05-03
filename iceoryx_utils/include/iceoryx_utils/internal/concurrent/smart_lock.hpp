@@ -23,6 +23,11 @@ namespace iox
 {
 namespace concurrent
 {
+struct ForwardArgsToCTor_t
+{
+};
+constexpr ForwardArgsToCTor_t ForwardArgsToCTor{};
+
 /// @brief The smart_lock class is a wrapping class which can be used to make
 ///         an arbitrary class threadsafe by wrapping it with the help of the
 ///         arrow operator.
@@ -42,7 +47,7 @@ namespace concurrent
 ///         size_t vectorSize = threadSafeVector->size();
 ///
 ///         {
-///             auto guardedVector = threadSafeVector.GetScopeGuard();
+///             auto guardedVector = threadSafeVector.getScopeGuard();
 ///             auto iter = std::find(guardVector->begin(), guardVector->end(), 456);
 ///             if (iter != guardVector->end()) guardVector->erase(iter);
 ///         }
@@ -55,27 +60,24 @@ class smart_lock
     class Proxy
     {
       public:
-        Proxy(T* base, MutexType* lock) noexcept;
+        Proxy(T& base, MutexType& lock) noexcept;
         ~Proxy() noexcept;
 
         T* operator->() noexcept;
-        T* operator->() const noexcept;
+        const T* operator->() const noexcept;
 
       private:
-        T* base;
-        MutexType* lock;
+        T& base;
+        MutexType& lock;
     };
 
   public:
     ///@brief c'tor creating empty smart_lock
     smart_lock() noexcept;
 
-    ///@brief c'tor constructing the underlying object via copy/move
-    smart_lock(const T& t) noexcept;
-
     ///@brief c'tor forwarding all args to the underlying object
     template <typename... ArgTypes>
-    smart_lock(ArgTypes&&... args) noexcept;
+    smart_lock(ForwardArgsToCTor_t, ArgTypes&&... args) noexcept;
 
     smart_lock(const smart_lock& rhs) noexcept;
     smart_lock(smart_lock&& rhs) noexcept;
@@ -103,7 +105,7 @@ class smart_lock
     ///     iox::concurrent::smart_lock<std::vector<int>> threadSafeVector;
     ///     threadSafeVector->push_back(123); // this call is secured by a mutex
     /// @endcode
-    Proxy operator->() const noexcept;
+    const Proxy operator->() const noexcept;
 
     /// @brief If you need to lock your object over multiple method calls you
     ///         acquire a scope guard which locks the object as long as this
@@ -120,13 +122,13 @@ class smart_lock
     ///     // since it would lead to a deadlock.
     ///     // You access the underlying object by using the vectorGuard object!
     ///     {
-    ///         auto vectorGuard = threadSafeVector.GetScopeGuard();
+    ///         auto vectorGuard = threadSafeVector.getScopeGuard();
     ///         auto iter = std::find(vectorGuard->begin(), vectorGuard->end(),
     ///                 123);
     ///         if ( iter != vectorGuard->end() )
     ///             vectorGuard->erase(iter);
     ///     }
-    Proxy GetScopeGuard() noexcept;
+    Proxy getScopeGuard() noexcept;
 
     /// @brief If you need to lock your object over multiple method calls you
     ///         acquire a scope guard which locks the object as long as this
@@ -143,16 +145,16 @@ class smart_lock
     ///     // since it would lead to a deadlock.
     ///     // You access the underlying object by using the vectorGuard object!
     ///     {
-    ///         auto vectorGuard = threadSafeVector.GetScopeGuard();
+    ///         auto vectorGuard = threadSafeVector.getScopeGuard();
     ///         auto iter = std::find(vectorGuard->begin(), vectorGuard->end(),
     ///                 123);
     ///         if ( iter != vectorGuard->end() )
     ///             vectorGuard->erase(iter);
     ///     }
-    Proxy GetScopeGuard() const noexcept;
+    const Proxy getScopeGuard() const noexcept;
 
     /// @brief Returns a copy of the underlying object
-    T GetCopy() const noexcept;
+    T getCopy() const noexcept;
 
   private:
     T base;

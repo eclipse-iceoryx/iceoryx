@@ -49,12 +49,12 @@ contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
 Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
-1. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
-1. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
-1. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
-1. All commits have been signed with `git commit -s`
-1. You open your pull request towards the base branch `staging`
-1. Link the pull request to the according Github issue and set the label accordingly
+2. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
+3. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
+4. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
+5. All commits have been signed with `git commit -s`
+6. You open your pull request towards the base branch `staging`
+7. Link the pull request to the according Github issue and set the label accordingly
 
 ## Coding style
 
@@ -70,7 +70,7 @@ codebase follows these rules, things are work in progress.
 
 1) **No heap is allowed**, static memory management hugely decreases the complexity of your software (e.g. cxx::vector
     without heap)
-2) **No exception are allowed**, all function and methods need to have `noexcept` in their signature
+2) **No exceptions are allowed**, all function and methods need to have `noexcept` in their signature
 3) **No undefined behavior**, zero-cost abstract is not feasible in high safety environments
 4) **Use C++14**
 5) **[Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))**, if there is a non-default
@@ -79,9 +79,11 @@ codebase follows these rules, things are work in progress.
     our code may contain additions which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()`
     does return a bool)
 7) **Always use `iox::log::Logger`**, instead of `printf()`
-8) **Always use `iox::ErrorHandler()`**, instead of the direct STL calls
+8) **Always use `iox::ErrorHandler()`**, when an error occurs that cannot or shall not be propagated via an 
+    `iox::cxx::expected`, the `iox::ErrorHandler()` shall be used; exceptions are not allowed
 
-See [error-handling.md](./doc/error-handling.md) for additional information about logging and error handling. 
+See [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/design/error-handling.md) for additional 
+information about logging and error handling.
 
 ### Naming conventions
 
@@ -122,12 +124,21 @@ The folder structure boils down to:
 
 All new code should follow the folder structure.
 
+### How to add a new example
+
+1. Add the example in the ["List of all examples"](./iceoryx_examples/README.md)
+2. Create a new file in `doc/website/getting-started/examples/foobar.md`. This file shall only set the title and include the readme from `./iceoryx_examples/foobar/README.md`
+3. Add the example folder name into the `EXAMPLES=${EXAMPLES} ...` array in `./tools/iceoryx_build_test.sh`
+4. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
+5. Add integration test for example
+
 ## Testing
 
 We use [Google test](https://github.com/google/googletest) for our unit and integration tests. We require compatibility
 with the version 1.8.1.
 
-Have a look at our [best practice guidelines](./doc/website/advanced/best-practice-for-testing.md) for writing tests in iceoryx.
+Have a look at our [best practice guidelines](./doc/website/advanced/best-practice-for-testing.md) for writing tests and
+[installation guide for contributors](./doc/website/advanced/installation-guide-for-contributors.md#build-and-run-tests) for building them.
 
 ### Unit tests (aka module tests)
 
@@ -160,12 +171,12 @@ example:
 ./tools/iceoryx_build_test.sh debug build-all -c unit
 ```
 **NOTE**
-Iceoryx needs to be build as static library for working with gcov flags. The script does it automatically.
+Iceoryx needs to be built as static library for working with gcov flags. The script does it automatically.
 
 The flag `-c unit` is for having only reports for unit-tests. In the script `tools/gcov/lcov_generate.sh` is the initial scan, filtering and report generation automatically done.
 
-All reports are stored locally in build/lcov as html report (index.html). In Github we are using for codecov for a general reporting of the code coverage. 
-Codecov gives a brief overview over the code coverage and also indicates in Pull-Requests if new added code is not covered by tests.
+All reports are stored locally in build/lcov as html report (index.html). In Github, we are using [codecov](https://about.codecov.io) for a general reporting of the code coverage.
+Codecov gives a brief overview of the code coverage and also indicates in Pull-Requests if newly added code is not covered by tests.
 If you want to download the detailed html reports from the Pull-Requests or master build you can do it by the following way:
 1. Open the "Checks" view in the PR
 2. Open the "Details" link for the check `iceoryx-coverage-doxygen-ubuntu` in `Test Coverage + Doxygen Documentation`
@@ -277,7 +288,7 @@ This quality level is the default quality level. It is meant for examples and he
 
 ### Quality level 4
 
-This quality level is meant for all targets that need tier 1 support in ROS2.
+This quality level is meant for all targets that need tier 1 support in ROS 2.
 
 * Basic unit tests are available
 

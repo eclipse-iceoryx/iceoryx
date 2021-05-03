@@ -17,6 +17,8 @@
 #ifndef IOX_UTILS_CXX_VECTOR_HPP
 #define IOX_UTILS_CXX_VECTOR_HPP
 
+#include "iceoryx_utils/cxx/helplets.hpp"
+
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
@@ -29,6 +31,9 @@ namespace cxx
 /// @brief  C++11 compatible vector implementation. We needed to do some
 ///         adjustments in the API since we do not use exceptions and we require
 ///         a data structure which can be located fully in the shared memory.
+///
+/// @attention Out of bounds access or accessing an empty vector can lead to a program termination!
+///
 template <typename T, uint64_t Capacity>
 class vector
 {
@@ -98,34 +103,42 @@ class vector
 
     /// @brief returns a reference to the element stored at index. the behavior
     //          is undefined if the element at index does not exist.
+    /// @attention Out of bounds access can lead to a program termination!
     T& at(const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index. the
     ///         behavior is undefined if the element at index does not exist.
+    /// @attention Out of bounds access can lead to a program termination!
     const T& at(const uint64_t index) const noexcept;
 
     /// @brief returns a reference to the element stored at index. the behavior
     //          is undefined if the element at index does not exist.
+    /// @attention Out of bounds access can lead to a program termination!
     T& operator[](const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index. the
     ///         behavior is undefined if the element at index does not exist.
+    /// @attention Out of bounds access can lead to a program termination!
     const T& operator[](const uint64_t index) const noexcept;
 
     /// @brief returns a reference to the first element; terminates if the vector is empty
     /// @return reference to the first element
+    /// @attention Accessing an empty vector can lead to a program termination!
     T& front() noexcept;
 
     /// @brief returns a const reference to the first element; terminates if the vector is empty
     /// @return const reference to the first element
+    /// @attention Accessing an empty vector can lead to a program termination!
     const T& front() const noexcept;
 
     /// @brief returns a reference to the last element; terminates if the vector is empty
     /// @return reference to the last element
+    /// @attention Accessing an empty vector can lead to a program termination!
     T& back() noexcept;
 
     /// @brief returns a const reference to the last element; terminates if the vector is empty
     /// @return const reference to the last element
+    /// @attention Accessing an empty vector can lead to a program termination!
     const T& back() const noexcept;
 
     /// @brief returns the capacity of the vector which was given via the template
@@ -184,7 +197,7 @@ class vector
 
   private:
     using element_t = uint8_t[sizeof(T)];
-    alignas(alignof(T)) element_t m_data[Capacity];
+    alignas(T) element_t m_data[Capacity];
     uint64_t m_size = 0u;
 };
 } // namespace cxx

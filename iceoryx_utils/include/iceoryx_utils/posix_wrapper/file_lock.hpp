@@ -45,7 +45,14 @@ enum class FileLockError
     INTERNAL_LOGIC_ERROR,
 };
 
+
+#if defined(QNX) || defined(QNX__) || defined(__QNX__)
+constexpr char PATH_PREFIX[] = "/var/lock/";
+#else
 constexpr char PATH_PREFIX[] = "/tmp/";
+#endif
+
+
 
 /// @brief Posix file lock C++ wrapping class
 ///        Following RAII, the lock is acquired on creation and released on destruction. Releasing the locks works even
