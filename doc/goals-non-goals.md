@@ -12,7 +12,7 @@
 * High-performance inter-process-communication for various operating systems
 * Service discovery functionality with dynamic connections
 * Data agnostic, there are no restrictions on payload data
-* Compatibility with AUTOSAR Adaptive and ROS2 communication patterns 
+* Compatibility with AUTOSAR Adaptive and ROS 2 communication patterns
 * Providing the building blocks for being able to build gateways to network protocols 
 * Automotive-grade SW quality
 * Modern C++

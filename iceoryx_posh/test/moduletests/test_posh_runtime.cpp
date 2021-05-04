@@ -131,12 +131,26 @@ TEST_F(PoshRuntime_test, NoAppName)
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
-TEST_F(PoshRuntime_test, LeadingSlashAppName)
+// To be able to test the singleton and avoid return the exisiting instance, we don't use the test fixture
+TEST(PoshRuntime, LeadingSlashAppName)
 {
+    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+
     const iox::RuntimeName_t invalidAppName = "/miau";
 
-    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
-                 "Cannot initialize runtime. Please remove leading slash from Application name /miau");
+    auto errorHandlerCalled{false};
+    iox::Error receivedError{iox::Error::kNO_ERROR};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
+
+    PoshRuntime::initRuntime(invalidAppName);
+
+    EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kPOSH__RUNTIME_LEADING_SLASH_PROVIDED));
 }
 
 // since getInstance is a singleton and test class creates instance of Poshruntime

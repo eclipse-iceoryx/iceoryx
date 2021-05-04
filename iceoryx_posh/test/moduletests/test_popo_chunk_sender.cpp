@@ -375,38 +375,6 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
     }
 }
 
-/// @todo iox-#14: this needs to be ported to the ChunkHeaderHooks once available
-#if 0
-TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
-{
-    m_chunkSender.tryAddQueue(&m_chunkQueueData);
-    iox::popo::ChunkQueuePopper<ChunkQueueData_t> checkQueue(&m_chunkQueueData);
-    EXPECT_TRUE(NUM_CHUNKS_IN_POOL <= checkQueue.getCurrentCapacity());
-
-    for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
-    {
-        auto maybeChunkHeader = m_chunkSender.tryAllocate(iox::UniquePortId(), sizeof(DummySample), alignof(DummySample), HEADER_SIZE, HEADER_ALIGNMENT);
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-
-        if (!maybeChunkHeader.has_error())
-        {
-            (*maybeChunkHeader)->m_info.m_externalSequenceNumber_bl = true;
-            (*maybeChunkHeader)->m_info.m_sequenceNumber = i;
-            m_chunkSender.send(*maybeChunkHeader);
-        }
-    }
-
-    for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
-    {
-        iox::popo::ChunkQueuePopper<ChunkQueueData_t> myQueue(&m_chunkQueueData);
-        EXPECT_FALSE(myQueue.empty());
-        auto popRet = myQueue.tryPop();
-        EXPECT_TRUE(popRet.has_value());
-        EXPECT_THAT(popRet->getChunkHeader()->m_info.m_sequenceNumber, Eq(i));
-    }
-}
-#endif
-
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
     ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());

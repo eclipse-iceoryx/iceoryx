@@ -18,6 +18,7 @@
 #ifndef IOX_UTILS_CXX_FUNCTION_REF_HPP
 #define IOX_UTILS_CXX_FUNCTION_REF_HPP
 
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 #include <cstddef>
@@ -48,6 +49,9 @@ struct is_function_ref<function_ref<Targs...>> : std::true_type
 ///         * No exceptions
 ///         * Stateful lambda support
 ///         * C++11/14 support
+///
+/// @attention Invoking an empty function_ref can lead to a program termination!
+///
 /// @code
 ///         // Usage as function parameter
 ///         void fuu(cxx::function_ref<void()> callback)
@@ -94,6 +98,7 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @brief Calls the provided callable
     /// @param[in] Arguments are forwarded to the underlying function pointer
     /// @return Returns the data type of the underlying function pointer
+    /// @attention Invoking an empty function_ref can lead to a program termination!
     ReturnType operator()(ArgTypes... args) const noexcept;
 
     /// @brief Checks whether a valid target is contained

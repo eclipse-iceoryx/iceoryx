@@ -55,7 +55,7 @@ languages like Rust (details can be found
 [here](../../advanced/how-optional-and-error-values-are-returned-in-iceoryx/)).
 
 As different processes are operating on shared data structures, avoiding deadlocks is becoming all the more important.
-iceoryx uses look-free data structures like the multi-producer multi-consumer (MPMC) queue that was written portably
+iceoryx uses lock-free data structures like the multi-producer multi-consumer (MPMC) queue that was written portably
 thanks to modern C++.  
 
 The tools available for automotive-compliant software development are always one or two releases behind the latest C++

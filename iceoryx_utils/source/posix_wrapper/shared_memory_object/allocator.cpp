@@ -37,13 +37,9 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
 {
     cxx::Expects(size > 0);
 
-    if (m_allocationFinalized)
-    {
-        std::cerr << "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks "
-                     "anymore!"
-                  << std::endl;
-        std::terminate();
-    }
+    cxx::Expects(
+        !m_allocationFinalized
+        && "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks anymore");
 
     uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
     uint64_t alignedPosition = cxx::align(currentAddress, static_cast<uint64_t>(alignment));
@@ -61,7 +57,8 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
         std::cerr << "Trying to allocate additional " << size << " bytes in the shared memory of capacity " << m_length
                   << " when there are already " << alignedPosition << " aligned bytes in use." << std::endl;
         std::cerr << "Only " << m_length - alignedPosition << " bytes left." << std::endl;
-        std::terminate();
+
+        cxx::Expects(false && "Not enough space left in shared memory");
     }
 
     return static_cast<void*>(l_returnValue);

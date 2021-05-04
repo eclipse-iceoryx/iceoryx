@@ -39,10 +39,11 @@ You're right, middleware is a cluttered term and can somehow be all or nothing, 
 
 It's all about the API?!
 
-Don't get too frighten of the API when strolling through the codebase. Think of iceoryx's API as a "plumbing" one
-("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" API ourselves, but instead a typed API.
-The normal use case is that iceoryx is integrated as high-performance IPC transport layer in a bigger framework with additional API layers.
-An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
+Don't get too frightened of the API when strolling through the codebase. Think of the untyped C++ and the C API as a
+"plumbing" one ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" APIs ourselves, but
+instead the typed C++ API. The normal use case is that iceoryx is integrated as high-performance IPC transport layer in
+a bigger framework with additional API layers.
+An example for such a "porcelain" API would be [ROS 2](https://www.ros.org/). Others are listed in the next section.
 
 You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io).
 
@@ -50,7 +51,7 @@ You can find the full API documentation on 🌐 [https://iceoryx.io](https://ice
 
 |Framework | Description |
 |---|---|
-| [ROS2](https://github.com/ros2/rmw_iceoryx) | Eclipse iceoryx can be used inside the [robot operating system](https://www.ros.org/) with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git) |
+| [ROS 2](https://github.com/ros2/rmw_iceoryx) | Eclipse iceoryx can be used inside the [Robot Operating System](https://www.ros.org/) with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git) |
 | [eCAL](https://github.com/continental/ecal) | Open-source framework from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |

@@ -68,6 +68,8 @@ if(EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/callbacks ${CMAKE_BINARY_DIR}/iceoryx_examples/callbacks)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/ice_access_control ${CMAKE_BINARY_DIR}/iceoryx_examples/ice_access_control)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/complexdata ${CMAKE_BINARY_DIR}/iceoryx_examples/complexdata)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/user_header ${CMAKE_BINARY_DIR}/iceoryx_examples/user_header)
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/package/package.cmake)
